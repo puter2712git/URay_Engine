@@ -56,9 +56,11 @@ namespace URay
 		{
 		case PrimitiveType::Triangle:
 			_meshName = "triangle";
+			_cachedMesh = nullptr;
 			break;
 		case PrimitiveType::Square:
 			_meshName = "square";
+			_cachedMesh = nullptr;
 			break;
 		default:
 			break;

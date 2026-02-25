@@ -24,6 +24,7 @@ namespace URay
 		void Initialize() override;
 		void Render() override;
 
+		PrimitiveType GetPrimitiveType() const { return _primitiveType; }
 		void SetPrimitiveType(PrimitiveType primitiveType);
 
 	private:

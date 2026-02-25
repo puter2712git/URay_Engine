@@ -30,6 +30,7 @@ namespace URay
 
 		Renderer* GetRenderer() const { return _renderer.get(); }
 		Timer* GetTimer() const { return _timer.get(); }
+		InputManager* GetInput() const { return _input.get(); }
 		ResourceManager* GetResourceManager() const { return _resourceManager.get(); }
 
 		Scene* GetCurrentScene() const { return _currScene; }
