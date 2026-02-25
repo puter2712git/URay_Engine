@@ -1,0 +1,44 @@
+# Visual Studio files
+.vs/
+*.sln
+*.suo
+*.user
+*.vcxproj*
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.tlog
+*.log
+*.obj
+*.pdb
+*.ilk
+*.exe
+*.dll
+*.lib
+
+# CMake files
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install/
+build/
+out/
+Makefile
+
+# Compiled Object files
+*.o
+*.lo
+*.la
+*.so
+
+# Visual Studio Code
+.vscode/
+
+# Other temporary files
+*~
+*.bak
+*.swp
+*.tmp
