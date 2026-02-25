@@ -11,10 +11,10 @@ namespace URay
 		virtual ~Component() = default;
 
 	public:
-		virtual void Initialize() = 0;
-		virtual void Update() = 0;
-		virtual void Render() = 0;
-		virtual void Finalize() = 0;
+		virtual void Initialize() {}
+		virtual void Update() {}
+		virtual void Render() {}
+		virtual void Finalize() {}
 
 		void SetOwner(Unit* owner) { _owner = owner; }
 		Unit* GetOwner() const { return _owner; }

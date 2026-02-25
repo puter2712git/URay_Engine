@@ -1,12 +1,14 @@
 #include "Engine.h"
+#include "Config.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 
 namespace URay
 {
-	Engine::Engine() = default;
+	Engine* Engine::_instance = nullptr;
 
+	Engine::Engine() = default;
 	Engine::~Engine() = default;
 
 	bool Engine::Initialize(HINSTANCE hInstance)
@@ -18,8 +20,10 @@ namespace URay
 			std::ios::sync_with_stdio();
 		}
 
+		Vector2 windowSize = Config::windowSize;
+
 		_window = std::make_unique<Window>();
-		_window->Create(L"URay Engine", 1024, 1024, hInstance);
+		_window->Create(L"URay Engine", windowSize.x, windowSize.y, hInstance);
 
 		_renderer = std::make_unique<Renderer>();
 		if (!_renderer->Initialize(_window->GetHandle()))
@@ -32,7 +36,11 @@ namespace URay
 
 		_input = std::make_unique<InputManager>();
 
+		_resourceManager = std::make_unique<ResourceManager>();
+
 		SetFPS(60.0);
+
+		Engine::_instance = this;
 
 		return true;
 	}
@@ -62,25 +70,22 @@ namespace URay
 			accumulatedTime += _timer->GetDeltaTime();
 			if (accumulatedTime >= _targetFrameTime)
 			{
-				_input->Update();
-
-				if (_currScene)
-				{
-					_currScene->Update();
-					_currScene->Render();
-				}
-
-				_renderer->SwapBuffer();
+				Update();
+				Render();
 
 				accumulatedTime -= _targetFrameTime;
 				frameCount++;
 			}
 
 			double sleepTime = _targetFrameTime - accumulatedTime;
-			if (sleepTime > 0.0)
+			if (sleepTime > 0.0001)
 			{
 				std::chrono::duration<double> sleepDuration(sleepTime);
 				std::this_thread::sleep_for(sleepDuration);
+			}
+			else if (sleepTime > 0.0)
+			{
+				std::this_thread::yield();
 			}
 		}
 	}
@@ -91,5 +96,27 @@ namespace URay
 		{
 			_renderer->Finalize();
 		}
+	}
+
+	void Engine::Update()
+	{
+		_input->Update();
+
+		if (_currScene)
+		{
+			_currScene->Update();
+		}
+	}
+
+	void Engine::Render()
+	{
+		_renderer->BeginFrame();
+
+		if (_currScene)
+		{
+			_currScene->Render();
+		}
+
+		_renderer->EndFrame();
 	}
 }

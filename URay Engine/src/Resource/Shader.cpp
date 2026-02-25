@@ -42,4 +42,11 @@ namespace URay
 			_vertexShader.Reset();
 		}
 	}
+
+	void Shader::Bind(ID3D11DeviceContext* deviceContext)
+	{
+		deviceContext->VSSetShader(_vertexShader.Get(), nullptr, 0);
+		deviceContext->PSSetShader(_pixelShader.Get(), nullptr, 0);
+		deviceContext->IASetInputLayout(_inputLayout.Get());
+	}
 }

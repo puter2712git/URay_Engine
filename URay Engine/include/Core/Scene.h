@@ -7,6 +7,8 @@
 
 namespace URay
 {
+	class Camera;
+
 	class Scene
 	{
 	public:
@@ -19,8 +21,12 @@ namespace URay
 
 		Unit* AddUnit();
 
+		void SetMainCamera(Camera* camera) { _mainCamera = camera; }
+		Camera* GetMainCamera() const { return _mainCamera; }
+
 	private:
 		std::vector<std::unique_ptr<Unit>> _units;
+		Camera* _mainCamera = nullptr;
 	};
 }
 

@@ -2,7 +2,9 @@
 #define RENDERER_H
 
 #include "Resource/Shader.h"
+#include "Common/Math/Math.h"
 #include <d3d11.h>
+#include <DirectXMath.h>
 #include <string>
 #include <memory>
 #include <unordered_map>
@@ -14,8 +16,18 @@ namespace URay
 {
 	struct SimpleVertex
 	{
-		float x, y, z;
-		float r, g, b, a;
+		Vector3 position;
+		Vector4 color;
+	};
+
+	struct PassConstants
+	{
+		DirectX::XMFLOAT4X4 viewProj = {};
+	};
+
+	struct ObjectConstants
+	{
+		DirectX::XMFLOAT4X4 world = {};
 	};
 
 	class Renderer
@@ -28,11 +40,19 @@ namespace URay
 		bool Initialize(HWND hWnd);
 		void Finalize();
 
-		void SwapBuffer();
+		void BeginFrame();
+		void EndFrame();
+
+		void UpdatePassConstants(PassConstants& passConstants);
+		void UpdateObjectConstants(ObjectConstants& objectConstants);
 
 		std::unique_ptr<Shader> CreateShader(const wchar_t* shaderPath);
 
-		void CreateVertexBuffer(const std::string& name, SimpleVertex vertices[]);
+		void CreateVertexBuffer(const std::string& name, const SimpleVertex* vertices, UINT vertexCount);
+		ID3D11Buffer* GetVertexBuffer(const std::string& name) const;
+
+		void CreateIndexBuffer(const std::string& name, const UINT* indices, UINT indexCount);
+		ID3D11Buffer* GetIndexBuffer(const std::string& name) const;
 
 		ID3D11Device* GetDevice() const { return _device.Get(); }
 		ID3D11DeviceContext* GetDeviceContext() const { return _deviceContext.Get(); }
@@ -46,6 +66,11 @@ namespace URay
 
 		void CreateRasterizerState();
 		void ReleaseRasterizerState();
+
+		void CreateConstantBuffers();
+		void ReleaseConstantBuffers();
+
+		void CreatePrimitiveBuffers();
 
 	private:
 		ComPtr<ID3D11Device> _device = nullptr;
@@ -65,7 +90,8 @@ namespace URay
 		std::unordered_map<std::string, ComPtr<ID3D11Buffer>> _vertexBuffers;
 		std::unordered_map<std::string, ComPtr<ID3D11Buffer>> _indexBuffers;
 
-		static SimpleVertex triangleVertices[];
+		ComPtr<ID3D11Buffer> _passConstantBuffer = nullptr;
+		ComPtr<ID3D11Buffer> _objectConstantBuffer = nullptr;
 	};
 }
 

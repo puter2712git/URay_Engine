@@ -18,6 +18,8 @@ namespace URay
 		void Create(const wchar_t* shaderPath, ID3D11Device* device);
 		void Release();
 
+		void Bind(ID3D11DeviceContext* deviceContext);
+
 	private:
 		ComPtr<ID3D11VertexShader> _vertexShader = nullptr;
 		ComPtr<ID3D11PixelShader> _pixelShader = nullptr;

@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "InputManager.h"
 #include "Core/Scene.h"
+#include "Core/ResourceManager.h"
 
 namespace URay
 {
@@ -29,9 +30,14 @@ namespace URay
 
 		Renderer* GetRenderer() const { return _renderer.get(); }
 		Timer* GetTimer() const { return _timer.get(); }
+		ResourceManager* GetResourceManager() const { return _resourceManager.get(); }
 
 		Scene* GetCurrentScene() const { return _currScene; }
 		void SetCurrentScene(Scene* scene) { _currScene = scene; }
+
+	private:
+		void Update();
+		void Render();
 
 	private:
 		static Engine* _instance;
@@ -40,6 +46,7 @@ namespace URay
 		std::unique_ptr<Renderer> _renderer = nullptr;
 		std::unique_ptr<Timer> _timer = nullptr;
 		std::unique_ptr<InputManager> _input = nullptr;
+		std::unique_ptr<ResourceManager> _resourceManager = nullptr;
 
 		double _targetFPS = 60.0;
 		double _targetFrameTime = 1.0 / _targetFPS;
