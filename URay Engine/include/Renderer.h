@@ -30,6 +30,19 @@ namespace URay
 		DirectX::XMFLOAT4X4 world = {};
 	};
 
+	struct Mesh
+	{
+		ComPtr<ID3D11Buffer> vertexBuffer = nullptr;
+		ComPtr<ID3D11Buffer> indexBuffer = nullptr;
+
+		UINT stride = sizeof(SimpleVertex);
+		UINT offset = 0;
+		UINT indexCount = 0;
+
+		DXGI_FORMAT indexFormat = DXGI_FORMAT_R32_UINT;
+		D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	};
+
 	class Renderer
 	{
 	public:
@@ -48,11 +61,9 @@ namespace URay
 
 		std::unique_ptr<Shader> CreateShader(const wchar_t* shaderPath);
 
-		void CreateVertexBuffer(const std::string& name, const SimpleVertex* vertices, UINT vertexCount);
-		ID3D11Buffer* GetVertexBuffer(const std::string& name) const;
-
-		void CreateIndexBuffer(const std::string& name, const UINT* indices, UINT indexCount);
-		ID3D11Buffer* GetIndexBuffer(const std::string& name) const;
+		ComPtr<ID3D11Buffer> CreateVertexBuffer(const SimpleVertex* vertices, UINT vertexCount);
+		ComPtr<ID3D11Buffer> CreateIndexBuffer(const UINT* indices, UINT indexCount);
+		Mesh* GetMesh(const std::string& name);
 
 		ID3D11Device* GetDevice() const { return _device.Get(); }
 		ID3D11DeviceContext* GetDeviceContext() const { return _deviceContext.Get(); }
@@ -70,7 +81,7 @@ namespace URay
 		void CreateConstantBuffers();
 		void ReleaseConstantBuffers();
 
-		void CreatePrimitiveBuffers();
+		void CreateDefaultMeshes();
 
 	private:
 		ComPtr<ID3D11Device> _device = nullptr;
@@ -87,8 +98,7 @@ namespace URay
 
 		FLOAT _clearColor[4] = { 0.025f, 0.025f, 0.025f, 1.0f };
 
-		std::unordered_map<std::string, ComPtr<ID3D11Buffer>> _vertexBuffers;
-		std::unordered_map<std::string, ComPtr<ID3D11Buffer>> _indexBuffers;
+		std::unordered_map<std::string, std::unique_ptr<Mesh>> _meshes;
 
 		ComPtr<ID3D11Buffer> _passConstantBuffer = nullptr;
 		ComPtr<ID3D11Buffer> _objectConstantBuffer = nullptr;

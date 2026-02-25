@@ -15,7 +15,7 @@ namespace URay
 			CreateRasterizerState();
 
 			CreateConstantBuffers();
-			CreatePrimitiveBuffers();
+			CreateDefaultMeshes();
 
 			return true;
 		}
@@ -104,7 +104,7 @@ namespace URay
 		}
 	}
 
-	void Renderer::CreateVertexBuffer(const std::string& name, const SimpleVertex* vertices, UINT vertexCount)
+	ComPtr<ID3D11Buffer> Renderer::CreateVertexBuffer(const SimpleVertex* vertices, UINT vertexCount)
 	{
 		try
 		{
@@ -118,29 +118,16 @@ namespace URay
 			ComPtr<ID3D11Buffer> vertexBuffer;
 			ThrowIfFailed(_device->CreateBuffer(&vertexBufferDesc, &vertexBufferSRD, vertexBuffer.GetAddressOf()));
 
-			_vertexBuffers.insert({ name, vertexBuffer });
+			return vertexBuffer;
 		}
 		catch (const std::exception& e)
 		{
-			std::cout << "Failed to create vertex buffer [" << name << "]: " << e.what() << std::endl;
-		}
-	}
-
-	ID3D11Buffer* Renderer::GetVertexBuffer(const std::string& name) const
-	{
-		auto it = _vertexBuffers.find(name);
-		if (it != _vertexBuffers.end())
-		{
-			return it->second.Get();
-		}
-		else
-		{
-			std::cout << "Vertex buffer not found: " << name << std::endl;
+			std::cout << "Failed to create vertex buffer: " << e.what() << std::endl;
 			return nullptr;
 		}
 	}
 
-	void Renderer::CreateIndexBuffer(const std::string& name, const UINT* indices, UINT indexCount)
+	ComPtr<ID3D11Buffer> Renderer::CreateIndexBuffer(const UINT* indices, UINT indexCount)
 	{
 		try
 		{
@@ -154,24 +141,24 @@ namespace URay
 			ComPtr<ID3D11Buffer> indexBuffer;
 			ThrowIfFailed(_device->CreateBuffer(&indexBufferDesc, &indexBufferSRD, indexBuffer.GetAddressOf()));
 
-			_indexBuffers.insert({ name, indexBuffer });
+			return indexBuffer;
 		}
 		catch (const std::exception& e)
 		{
-			std::cout << "Failed to create index buffer [" << name << "]: " << e.what() << std::endl;
+			std::cout << "Failed to create index buffer: " << e.what() << std::endl;
 		}
 	}
 
-	ID3D11Buffer* Renderer::GetIndexBuffer(const std::string& name) const
+	Mesh* Renderer::GetMesh(const std::string& name)
 	{
-		auto it = _indexBuffers.find(name);
-		if (it != _indexBuffers.end())
+		auto it = _meshes.find(name);
+		if (it != _meshes.end())
 		{
-			return it->second.Get();
+			return it->second.get();
 		}
 		else
 		{
-			std::cout << "Index buffer not found: " << name << std::endl;
+			std::cout << "Mesh not found: " << name << std::endl;
 			return nullptr;
 		}
 	}
@@ -297,31 +284,59 @@ namespace URay
 		}
 	}
 
-	void Renderer::CreatePrimitiveBuffers()
+	void Renderer::CreateDefaultMeshes()
 	{
-		SimpleVertex triangleVertices[] =
 		{
-			{ Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-			{ Vector3(0.5f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-			{ Vector3(-0.5f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) }
-		};
-		CreateVertexBuffer("triangle", triangleVertices, 3);
-		UINT triangleIndices[] = { 0, 1, 2 };
-		CreateIndexBuffer("triangle", triangleIndices, 3);
+			SimpleVertex triangleVertices[] =
+			{
+				{ Vector3(0.0f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+				{ Vector3(0.5f, -0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+				{ Vector3(-0.5f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) }
+			};
+			ComPtr<ID3D11Buffer> vertexBuffer = CreateVertexBuffer(triangleVertices, 3);
 
-		SimpleVertex squareVertices[] =
+			UINT triangleIndices[] = { 0, 1, 2 };
+			ComPtr<ID3D11Buffer> indexBuffer = CreateIndexBuffer(triangleIndices, 3);
+
+			auto mesh = std::make_unique<Mesh>();
+			mesh->vertexBuffer = vertexBuffer;
+			mesh->indexBuffer = indexBuffer;
+			mesh->stride = sizeof(SimpleVertex);
+			mesh->offset = 0;
+			mesh->indexCount = 3;
+			mesh->indexFormat = DXGI_FORMAT_R32_UINT;
+			mesh->topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+			_meshes.insert({ "triangle", std::move(mesh) });
+		}
+
 		{
-			{ Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
-			{ Vector3(0.5f, 0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
-			{ Vector3(0.5f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
-			{ Vector3(-0.5f, -0.5f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) }
-		};
-		CreateVertexBuffer("square", squareVertices, 4);
-		UINT squareIndices[] =
-		{
-			0, 1, 2,
-			0, 2, 3
-		};
-		CreateIndexBuffer("square", squareIndices, 6);
+			SimpleVertex squareVertices[] =
+			{
+				{ Vector3(-0.5f, 0.5f, 0.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f) },
+				{ Vector3(0.5f, 0.5f, 0.0f), Vector4(0.0f, 1.0f, 0.0f, 1.0f) },
+				{ Vector3(0.5f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 1.0f, 1.0f) },
+				{ Vector3(-0.5f, -0.5f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f) }
+			};
+			ComPtr<ID3D11Buffer> vertexBuffer = CreateVertexBuffer(squareVertices, 4);
+
+			UINT squareIndices[] =
+			{
+				0, 1, 2,
+				0, 2, 3
+			};
+			ComPtr<ID3D11Buffer> indexBuffer = CreateIndexBuffer(squareIndices, 6);
+
+			auto mesh = std::make_unique<Mesh>();
+			mesh->vertexBuffer = vertexBuffer;
+			mesh->indexBuffer = indexBuffer;
+			mesh->stride = sizeof(SimpleVertex);
+			mesh->offset = 0;
+			mesh->indexCount = 6;
+			mesh->indexFormat = DXGI_FORMAT_R32_UINT;
+			mesh->topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+			_meshes.insert({ "square", std::move(mesh) });
+		}
 	}
 }

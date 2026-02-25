@@ -1,17 +1,15 @@
 #include "TestComponent.h"
-#include <iostream>
+#include <Engine.h>
 
 void TestComponent::Initialize()
 {
-	std::cout << "Initialize TestComponent" << std::endl;
 }
 
 void TestComponent::Update()
 {
-	std::cout << "Update TestComponent" << std::endl;
+	
 }
 
 void TestComponent::Finalize()
 {
-	std::cout << "Finalize TestComponent" << std::endl;
 }

@@ -20,7 +20,6 @@ namespace URay
 		Transform* transform = GetOwner()->GetComponent<Transform>();
 		if (!transform)
 		{
-			std::cout << "[Camera] ERROR: No Transform component" << std::endl;
 			return;
 		}
 		
@@ -34,9 +33,7 @@ namespace URay
 		DirectX::XMFLOAT3 pos = { position.x, position.y, position.z };
 		DirectX::XMMATRIX viewMatrix = DirectX::XMMatrixLookToLH(DirectX::XMLoadFloat3(&pos), forward, up);
 		DirectX::XMStoreFloat4x4(&_viewMatrix, viewMatrix);
-		
-		std::cout << "[Camera] Position: (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
-	}
+			}
 
 	void Camera::UpdateProjMatrix()
 	{
@@ -44,13 +41,11 @@ namespace URay
 		{
 			DirectX::XMMATRIX orthoProjMatrix = DirectX::XMMatrixOrthographicLH(Config::windowSize.x, Config::windowSize.y, _nearZ, _farZ);
 			DirectX::XMStoreFloat4x4(&_projMatrix, orthoProjMatrix);
-			std::cout << "[Camera] Orthographic Projection: " << Config::windowSize.x << "x" << Config::windowSize.y << std::endl;
 		}
 		else
 		{
 			DirectX::XMMATRIX perspectiveProjMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV4, Config::windowSize.x / Config::windowSize.y, _nearZ, _farZ);
 			DirectX::XMStoreFloat4x4(&_projMatrix, perspectiveProjMatrix);
-			std::cout << "[Camera] Perspective Projection" << std::endl;
 		}
 	}
 }

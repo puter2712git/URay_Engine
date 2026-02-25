@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine,
 	URay::Transform* triangleTransform = triangleUnit->AddComponent<URay::Transform>();
 	URay::PrimitiveRenderer* triangleRenderer = triangleUnit->AddComponent<URay::PrimitiveRenderer>();
 	triangleTransform->SetScale(URay::Vector3(100.0f, 100.0f, 100.0f));
-	triangleRenderer->SetPrimitiveType(URay::PrimitiveType::Square);
+	triangleRenderer->SetPrimitiveType(URay::PrimitiveType::Triangle);
 
 	engine.SetCurrentScene(&testScene);
 	engine.Run();

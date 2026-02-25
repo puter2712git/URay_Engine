@@ -2,6 +2,7 @@
 #define PRIMITIVE_RENDERER_H
 
 #include "Core/Component.h"
+#include "Renderer.h"
 #include "Resource/Shader.h"
 #include <d3d11.h>
 #include <string>
@@ -29,12 +30,10 @@ namespace URay
 		PrimitiveType _primitiveType = PrimitiveType::Triangle;
 
 		std::string _shaderName;
-		std::string _vertexBufferName;
-		std::string _indexBufferName;
+		std::string _meshName;
 
 		Shader* _cachedShader = nullptr;
-		ID3D11Buffer* _cachedVertexBuffer = nullptr;
-		ID3D11Buffer* _cachedIndexBuffer = nullptr;
+		Mesh* _cachedMesh = nullptr;
 	};
 }
 
