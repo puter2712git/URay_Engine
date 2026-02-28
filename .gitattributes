@@ -1,0 +1,37 @@
+# Set default behavior to automatically normalize line endings
+* text=auto
+
+# C++ source files - stored as LF in repo, auto-converted on Windows
+*.cpp text
+*.h text
+*.hpp text
+*.c text
+*.cc text
+*.cxx text
+
+# CMake files
+CMakeLists.txt text
+*.cmake text
+
+# HLSL shader files (Windows only, but store as LF)
+*.hlsl text
+
+# Markdown and documentation
+*.md text
+
+# Configuration files
+.editorconfig text
+.gitignore text
+.gitattributes text
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.exe binary
+*.dll binary
+*.lib binary
+*.obj binary
+*.pdb binary

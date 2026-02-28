@@ -83,6 +83,9 @@ namespace URay
 
 		void CreateDefaultMeshes();
 
+		void CreateDefaultSamplerStates();
+		void ReleaseDefaultSamplerStates();
+
 	private:
 		ComPtr<ID3D11Device> _device = nullptr;
 		ComPtr<ID3D11DeviceContext> _deviceContext = nullptr;
@@ -102,6 +105,8 @@ namespace URay
 
 		ComPtr<ID3D11Buffer> _passConstantBuffer = nullptr;
 		ComPtr<ID3D11Buffer> _objectConstantBuffer = nullptr;
+
+		std::unordered_map<std::string, ComPtr< ID3D11SamplerState>> _samplerStates;
 	};
 }
 

@@ -9,6 +9,7 @@ namespace URay
 	{
 	public:
 		inline static Vector2 windowSize = { 800.0f, 600.0f };
+		inline static int fps = 60;
 	};
 }
 

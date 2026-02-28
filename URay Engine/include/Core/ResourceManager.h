@@ -17,7 +17,7 @@ namespace URay
 		ResourceManager& operator=(const ResourceManager&) = delete;
 
 	public:
-		void AddShader(const std::string& name, const wchar_t* shaderPath);
+		void AddShader(const std::string& name, std::unique_ptr<Shader>& shader);
 		Shader* GetShader(const std::string& name) const;
 
 	private:

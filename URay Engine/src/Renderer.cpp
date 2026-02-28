@@ -16,6 +16,7 @@ namespace URay
 
 			CreateConstantBuffers();
 			CreateDefaultMeshes();
+			CreateDefaultSamplerStates();
 
 			return true;
 		}
@@ -30,6 +31,8 @@ namespace URay
 
 	void Renderer::Finalize()
 	{
+		ReleaseDefaultSamplerStates();
+		ReleaseConstantBuffers();
 		ReleaseRasterizerState();
 		ReleaseFrameBuffer();
 		ReleaseDeviceAndSwapChain();
@@ -93,7 +96,7 @@ namespace URay
 		try
 		{
 			auto shader = std::make_unique<Shader>();
-			shader->Create(shaderPath, _device.Get());
+			shader->Create(shaderPath);
 
 			return shader;
 		}
@@ -338,5 +341,27 @@ namespace URay
 
 			_meshes.insert({ "square", std::move(mesh) });
 		}
+	}
+
+	void Renderer::CreateDefaultSamplerStates()
+	{
+		D3D11_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		samplerDesc.MinLOD = 0;
+		samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		ComPtr<ID3D11SamplerState> samplerState;
+		ThrowIfFailed(_device->CreateSamplerState(&samplerDesc, samplerState.GetAddressOf()));
+
+		_samplerStates.insert({ "default", std::move(samplerState) });
+	}
+
+	void Renderer::ReleaseDefaultSamplerStates()
+	{
+		_samplerStates.clear();
 	}
 }

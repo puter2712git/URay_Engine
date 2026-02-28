@@ -15,7 +15,7 @@ namespace URay
 		~Shader() = default;
 
 	public:
-		void Create(const wchar_t* shaderPath, ID3D11Device* device);
+		void Create(const wchar_t* shaderPath);
 		void Release();
 
 		void Bind(ID3D11DeviceContext* deviceContext);

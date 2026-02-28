@@ -1,20 +1,17 @@
 #include "Core/ResourceManager.h"
 #include "Engine.h"
 #include <iostream>
+#include <memory>
 
 namespace URay
 {
-	void ResourceManager::AddShader(const std::string& name, const wchar_t* shaderPath)
+	void ResourceManager::AddShader(const std::string& name, std::unique_ptr<Shader>& shader)
 	{
 		if (_shaders.find(name) != _shaders.end())
 		{
 			return;
 		}
 
-		Engine* engine = Engine::GetInstance();
-		Renderer* renderer = engine->GetRenderer();
-
-		auto shader = renderer->CreateShader(shaderPath);
 		_shaders[name] = std::move(shader);
 	}
 

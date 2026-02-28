@@ -1,12 +1,17 @@
 #include "Resource/Shader.h"
 #include "Common/DirectXHelper.h"
+#include "Engine.h"
 #include <d3dcompiler.h>
 #include <iostream>
 
 namespace URay
 {
-	void Shader::Create(const wchar_t* shaderPath, ID3D11Device* device)
+	void Shader::Create(const wchar_t* shaderPath)
 	{
+		Engine* engine = Engine::GetInstance();
+		Renderer* renderer = engine->GetRenderer();
+		ID3D11Device* device = renderer->GetDevice();
+
 		ComPtr<ID3DBlob> vsBlob = nullptr;
 		ComPtr<ID3DBlob> psBlob = nullptr;
 

@@ -19,9 +19,14 @@ file(GLOB_RECURSE ENGINE_SOURCES
 	"include/*.h"
 )
 
-add_library(URayEngine STATIC ${ENGINE_SOURCES})
+set(THIRD_PARTY_SOURCES
+	"third-party/stb/stb_image_impl.cpp"
+)
+
+add_library(URayEngine STATIC ${ENGINE_SOURCES} ${THIRD_PARTY_SOURCES})
 
 target_include_directories(URayEngine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(URayEngine PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/third-party")
 
 if(WIN32)
 	target_link_libraries(URayEngine PUBLIC d3d11 d3dcompiler user32)

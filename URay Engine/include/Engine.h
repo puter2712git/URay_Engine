@@ -40,6 +40,8 @@ namespace URay
 		void Update();
 		void Render();
 
+		void InitConsole();
+
 	private:
 		static Engine* _instance;
 

@@ -5,6 +5,7 @@
 #include <Component/Camera.h>
 #include <Component/PrimitiveRenderer.h>
 #include <Resource/Shader.h>
+#include <Resource/Texture.h>
 #include "TestComponent.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine, int cmdShow)
@@ -15,8 +16,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine,
 		return -1;
 	}
 
+	URay::Renderer* renderer = engine.GetRenderer();
+
+	auto testShader = renderer->CreateShader(L"D:/repos/URay/Clicker/TestShader.hlsl");
+	auto ballTexture = std::make_unique<URay::Texture>();
+	ballTexture->Create(L"D:/repos/URay/Clicker/ball.png");
+
 	URay::ResourceManager* resourceManager = engine.GetResourceManager();
-	resourceManager->AddShader("default", L"D:/repos/URay/Clicker/TestShader.hlsl");
+	resourceManager->AddShader("default", testShader);
 
 	URay::Scene testScene;
 

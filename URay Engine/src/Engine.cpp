@@ -8,39 +8,34 @@ namespace URay
 {
 	Engine* Engine::_instance = nullptr;
 
-	Engine::Engine() = default;
+	Engine::Engine()
+	{
+		_instance = this;
+
+		_window = std::make_unique<Window>();
+		_renderer = std::make_unique<Renderer>();
+
+		_timer = std::make_unique<Timer>();
+		_input = std::make_unique<InputManager>();
+		_resourceManager = std::make_unique<ResourceManager>();
+	}
+
 	Engine::~Engine() = default;
 
 	bool Engine::Initialize(HINSTANCE hInstance)
 	{
-		if (AllocConsole())
-		{
-			FILE* fp;
-			freopen_s(&fp, "CONOUT$", "w", stdout);
-			std::ios::sync_with_stdio();
-		}
+		InitConsole();
 
 		Vector2 windowSize = Config::windowSize;
-
-		_window = std::make_unique<Window>();
 		_window->Create(L"URay Engine", windowSize.x, windowSize.y, hInstance);
 
-		_renderer = std::make_unique<Renderer>();
 		if (!_renderer->Initialize(_window->GetHandle()))
 		{
 			return false;
 		}
 
-		_timer = std::make_unique<Timer>();
 		_timer->Initialize();
-
-		_input = std::make_unique<InputManager>();
-
-		_resourceManager = std::make_unique<ResourceManager>();
-
-		SetFPS(60.0);
-
-		Engine::_instance = this;
+		SetFPS(Config::fps);
 
 		return true;
 	}
@@ -118,5 +113,15 @@ namespace URay
 		}
 
 		_renderer->EndFrame();
+	}
+
+	void Engine::InitConsole()
+	{
+		if (AllocConsole())
+		{
+			FILE* fp;
+			freopen_s(&fp, "CONOUT$", "w", stdout);
+			std::ios::sync_with_stdio();
+		}
 	}
 }
