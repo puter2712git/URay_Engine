@@ -8,6 +8,23 @@
 #include <Resource/Shader.h>
 #include <Resource/Texture.h>
 #include "TestComponent.h"
+#include "BallUnit.h"
+
+void CreateResources()
+{
+	URay::Engine* engine = URay::Engine::GetInstance();
+	URay::Renderer* renderer = engine->GetRenderer();
+
+	auto defaultShader = renderer->CreateShader(L"D:/repos/URay/Clicker/TestShader.hlsl");
+	auto spriteShader = renderer->CreateShader(L"D:/repos/URay/Clicker/SpriteShader.hlsl");
+	auto ballTexture = std::make_unique<URay::Texture>();
+	ballTexture->Create(L"D:/repos/URay/Clicker/ball.png");
+
+	URay::ResourceManager* resourceManager = engine->GetResourceManager();
+	resourceManager->AddShader("default", defaultShader);
+	resourceManager->AddShader("sprite", spriteShader);
+	resourceManager->AddTexture("ball", ballTexture);
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine, int cmdShow)
 {
@@ -17,14 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine,
 		return -1;
 	}
 
-	URay::Renderer* renderer = engine.GetRenderer();
-
-	auto spriteShader = renderer->CreateShader(L"D:/repos/URay/Clicker/SpriteShader.hlsl");
-	auto ballTexture = std::make_unique<URay::Texture>();
-	ballTexture->Create(L"D:/repos/URay/Clicker/ball.png");
-
-	URay::ResourceManager* resourceManager = engine.GetResourceManager();
-	resourceManager->AddShader("sprite", spriteShader);
+	CreateResources();
 
 	URay::Scene testScene;
 
@@ -34,19 +44,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE prevInstance, LPSTR lpCmdLine,
 	cameraTransform->SetPosition(URay::Vector3(0.0f, 0.0f, -10.0f));
 	testScene.SetMainCamera(camera);
 
-	//URay::Unit* triangleUnit = testScene.AddUnit();
-	//URay::Transform* triangleTransform = triangleUnit->AddComponent<URay::Transform>();
-	//URay::PrimitiveRenderer* triangleRenderer = triangleUnit->AddComponent<URay::PrimitiveRenderer>();
-	//TestComponent* testComp = triangleUnit->AddComponent<TestComponent>();
-	//triangleTransform->SetScale(URay::Vector3(100.0f, 100.0f, 100.0f));
-	//triangleRenderer->SetPrimitiveType(URay::PrimitiveType::Triangle);
-
-	URay::Unit* ballUnit = testScene.AddUnit();
-	URay::Transform* ballTransform = ballUnit->AddComponent<URay::Transform>();
-	URay::SpriteRenderer* ballRenderer = ballUnit->AddComponent<URay::SpriteRenderer>();
-	TestComponent* testComp = ballUnit->AddComponent<TestComponent>();
-	ballTransform->SetScale(URay::Vector3(200.0f, 200.0f, 200.0f));
-	ballRenderer->SetTexture(ballTexture.get());
+	BallUnit* ballUnit = new BallUnit();
+	testScene.AddUnit(ballUnit);
 
 	engine.SetCurrentScene(&testScene);
 	engine.Run();

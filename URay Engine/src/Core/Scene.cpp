@@ -25,4 +25,13 @@ namespace URay
 		_units.push_back(std::move(newUnit));
 		return pUnit;
 	}
+
+	void Scene::AddUnit(Unit* unit)
+	{
+		if (unit)
+		{
+			std::unique_ptr<Unit> newUnit(unit);
+			_units.push_back(std::move(newUnit));
+		}
+	}
 }

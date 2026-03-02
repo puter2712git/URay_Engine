@@ -28,4 +28,27 @@ namespace URay
 			return nullptr;
 		}
 	}
+
+	void ResourceManager::AddTexture(const std::string& name, std::unique_ptr<Texture>& texture)
+	{
+		if (_textures.find(name) != _textures.end())
+		{
+			return;
+		}
+		_textures[name] = std::move(texture);
+	}
+
+	Texture* ResourceManager::GetTexture(const std::string& name) const
+	{
+		auto it = _textures.find(name);
+		if (it != _textures.end())
+		{
+			return it->second.get();
+		}
+		else
+		{
+			std::cout << "Texture not found: " << name << std::endl;
+			return nullptr;
+		}
+	}
 }

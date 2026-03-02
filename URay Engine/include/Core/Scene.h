@@ -20,6 +20,7 @@ namespace URay
 		void Render();
 
 		Unit* AddUnit();
+		void AddUnit(Unit* unit);
 
 		void SetMainCamera(Camera* camera) { _mainCamera = camera; }
 		Camera* GetMainCamera() const { return _mainCamera; }
