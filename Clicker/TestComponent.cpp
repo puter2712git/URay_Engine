@@ -1,6 +1,7 @@
 #include "TestComponent.h"
 #include <Engine.h>
 #include <iostream>
+#include <Component/Transform.h>
 
 void TestComponent::Initialize()
 {
@@ -14,18 +15,8 @@ void TestComponent::Update()
 
 	if (input->GetMouseButtonDown(0))
 	{
-		URay::PrimitiveType type = _primitiveRenderer->GetPrimitiveType();
-
-		if (type == URay::PrimitiveType::Triangle)
-		{
-			_primitiveRenderer->SetPrimitiveType(URay::PrimitiveType::Square);
-			std::cout << "Switched to Square" << std::endl;
-		}
-		else
-		{
-			_primitiveRenderer->SetPrimitiveType(URay::PrimitiveType::Triangle);
-			std::cout << "Switched to Triangle" << std::endl;
-		}
+		URay::Transform* transform = GetOwner()->GetComponent<URay::Transform>();
+		transform->SetPosition(transform->GetPosition() + URay::Vector3(1.0f, 0.0f, 0.0f));
 	}
 }
 

@@ -40,7 +40,7 @@ namespace URay
 		DirectX::XMStoreFloat4x4(&objConstants.world, transform->GetWorldMatrix());
 		renderer->UpdateObjectConstants(objConstants);
 
-		_cachedShader->Bind(deviceContext);
+		_cachedShader->Bind();
 
 		deviceContext->IASetPrimitiveTopology(_cachedMesh->topology);
 

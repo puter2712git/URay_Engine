@@ -23,6 +23,6 @@ namespace URay
 		DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(_position.x, _position.y, _position.z);
 
 		DirectX::XMMATRIX worldMatrix = scaleMatrix * rotationMatrix * translationMatrix;
-		DirectX::XMStoreFloat4x4(&_worldMatrix, worldMatrix);
+		DirectX::XMStoreFloat4x4(&_worldMatrix, DirectX::XMMatrixTranspose(worldMatrix));
 	}
 }

@@ -59,5 +59,11 @@ namespace URay
 
 	void Texture::Bind()
 	{
+		Engine* engine = Engine::GetInstance();
+		Renderer* renderer = engine->GetRenderer();
+		ID3D11DeviceContext* deviceContext = renderer->GetDeviceContext();
+
+		deviceContext->PSSetShaderResources(0, 1, _srv.GetAddressOf());
+		deviceContext->PSSetSamplers(0, 1, _samplerState.GetAddressOf());
 	}
 }

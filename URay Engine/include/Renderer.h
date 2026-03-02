@@ -18,6 +18,7 @@ namespace URay
 	{
 		Vector3 position;
 		Vector4 color;
+		Vector2 uv;
 	};
 
 	struct PassConstants
@@ -75,6 +76,9 @@ namespace URay
 		void CreateFrameBuffer();
 		void ReleaseFrameBuffer();
 
+		void CreateBlendState();
+		void ReleaseBlendState();
+
 		void CreateRasterizerState();
 		void ReleaseRasterizerState();
 
@@ -97,8 +101,10 @@ namespace URay
 		ComPtr<ID3D11Texture2D> _frameBuffer = nullptr;
 		ComPtr<ID3D11RenderTargetView> _renderTargetView = nullptr;
 
+		ComPtr<ID3D11BlendState> _blendState = nullptr;
 		ComPtr<ID3D11RasterizerState> _rasterizerState = nullptr;
 
+		FLOAT _blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		FLOAT _clearColor[4] = { 0.025f, 0.025f, 0.025f, 1.0f };
 
 		std::unordered_map<std::string, std::unique_ptr<Mesh>> _meshes;

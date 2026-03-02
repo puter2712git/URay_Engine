@@ -12,6 +12,7 @@ namespace URay
 		{
 			CreateDeviceAndSwapChain(hWnd);
 			CreateFrameBuffer();
+			CreateBlendState();
 			CreateRasterizerState();
 
 			CreateConstantBuffers();
@@ -34,6 +35,7 @@ namespace URay
 		ReleaseDefaultSamplerStates();
 		ReleaseConstantBuffers();
 		ReleaseRasterizerState();
+		ReleaseBlendState();
 		ReleaseFrameBuffer();
 		ReleaseDeviceAndSwapChain();
 	}
@@ -48,7 +50,7 @@ namespace URay
 		_deviceContext->RSSetState(_rasterizerState.Get());
 
 		_deviceContext->OMSetRenderTargets(1, _renderTargetView.GetAddressOf(), nullptr);
-		_deviceContext->OMSetBlendState(nullptr, nullptr, 0xffffffff);
+		_deviceContext->OMSetBlendState(_blendState.Get(), _blendFactor, 0xffffffff);
 
 		Engine* engine = Engine::GetInstance();
 		Scene* currScene = engine->GetCurrentScene();
@@ -236,6 +238,33 @@ namespace URay
 		}
 	}
 
+	void Renderer::CreateBlendState()
+	{
+		D3D11_BLEND_DESC blendDesc = {};
+		blendDesc.AlphaToCoverageEnable = FALSE;
+		blendDesc.IndependentBlendEnable = FALSE;
+
+		blendDesc.RenderTarget[0].BlendEnable = TRUE;
+		blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+
+		blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+		blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		ThrowIfFailed(_device->CreateBlendState(&blendDesc, _blendState.GetAddressOf()));
+	}
+
+	void Renderer::ReleaseBlendState()
+	{
+		if (_blendState)
+		{
+			_blendState.Reset();
+		}
+	}
+
 	void Renderer::CreateRasterizerState()
 	{
 		D3D11_RASTERIZER_DESC rasterizerDesc = {};
@@ -340,6 +369,34 @@ namespace URay
 			mesh->topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
 			_meshes.insert({ "square", std::move(mesh) });
+		}
+		{
+			SimpleVertex quadVertices[] =
+			{
+				{ Vector3(-0.5f, 0.5f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 0.0f), Vector2(0.0f, 0.0f) },
+				{ Vector3(0.5f, 0.5f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 0.0f), Vector2(1.0f, 0.0f) },
+				{ Vector3(0.5f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 0.0f), Vector2(1.0f, 1.0f) },
+				{ Vector3(-0.5f, -0.5f, 0.0f), Vector4(0.0f, 0.0f, 0.0f, 0.0f), Vector2(0.0f, 1.0f) }
+			};
+			ComPtr<ID3D11Buffer> vertexBuffer = CreateVertexBuffer(quadVertices, 4);
+
+			UINT quadIndices[] =
+			{
+				0, 1, 2,
+				0, 2, 3
+			};
+			ComPtr<ID3D11Buffer> indexBuffer = CreateIndexBuffer(quadIndices, 6);
+
+			auto mesh = std::make_unique<Mesh>();
+			mesh->vertexBuffer = vertexBuffer;
+			mesh->indexBuffer = indexBuffer;
+			mesh->stride = sizeof(SimpleVertex);
+			mesh->offset = 0;
+			mesh->indexCount = 6;
+			mesh->indexFormat = DXGI_FORMAT_R32_UINT;
+			mesh->topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+
+			_meshes.insert({ "quad", std::move(mesh) });
 		}
 	}
 
