@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Math/Matrix.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 
@@ -41,6 +42,13 @@ struct Vertex
 
         return attributeDescriptions;
     }
+};
+
+struct UniformBufferObject
+{
+    Matrix model;
+    Matrix view;
+    Matrix proj;
 };
 
 const std::vector<Vertex>
@@ -143,6 +151,12 @@ private:
     bool CreateIndexBuffer();
     void DestroyIndexBuffer();
 
+    bool CreateDescriptorSetLayout();
+    void DestroyDescriptorSetLayout();
+
+    bool CreateUniformBuffers();
+    void DestroyUniformBuffers();
+
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -188,6 +202,7 @@ private:
     std::vector<VkImageView> swapChainImageViews;
 
     VkRenderPass renderPass = VK_NULL_HANDLE;
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
     VkPipeline graphicsPipeline = VK_NULL_HANDLE;
 
@@ -208,6 +223,10 @@ public:
     VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
     VkBuffer indexBuffer = VK_NULL_HANDLE;
     VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+
+    std::vector<VkBuffer> uniformBuffers;
+    std::vector<VkDeviceMemory> uniformBuffersMemory;
+    std::vector<void*> uniformBuffersMapped;
 };
 
 } // namespace URay

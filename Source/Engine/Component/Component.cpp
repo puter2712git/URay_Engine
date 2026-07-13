@@ -1,13 +1,20 @@
 #include "Component.h"
 
-#include <iostream>
-
 namespace URay
 {
 
 void Component::Update(float deltaTime)
 {
-    std::cout << "Component Update!" << std::endl;
+    UpdateWorldMatrix();
+}
+
+void Component::UpdateWorldMatrix()
+{
+    Matrix T = Matrix::MakeTranslation(position);
+    Matrix R = Matrix::MakeRotation(rotation);
+    Matrix S = Matrix::MakeScale(scale);
+
+    worldMatrix = S * R * T;
 }
 
 } // namespace URay
