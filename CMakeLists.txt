@@ -43,3 +43,7 @@ add_custom_command(TARGET URay_Engine POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader
         "$<TARGET_FILE_DIR:URay_Engine>/Shader"
 )
+
+set_target_properties(URay_Engine PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:URay_Engine>"
+)
