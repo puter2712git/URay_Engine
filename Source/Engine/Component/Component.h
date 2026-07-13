@@ -10,6 +10,8 @@ class Component
 public:
     virtual void Update(float deltaTime);
 
+    Unit* GetOwner() const { return owner; }
+
 private:
     Unit* owner = nullptr;
 };

@@ -1,16 +1,13 @@
 #include "Engine.h"
 
 #include "Engine/Component/Component.h"
+#include "Engine/Scene.h"
 #include "Engine/Unit.h"
 #include "Platform/Window.h"
 #include "Render/Renderer.h"
 
 namespace URay
 {
-
-Engine::~Engine()
-{
-}
 
 bool Engine::Initialize()
 {
@@ -22,10 +19,14 @@ bool Engine::Initialize()
     if (!renderer->Initialize(window))
         return false;
 
-    unit = new Unit();
+    scene = new Scene();
+
+    Unit* unit = new Unit();
 
     Component* component = new Component();
     unit->AddComponent(component);
+
+    scene->AddUnit(unit);
 
     return true;
 }
@@ -36,8 +37,8 @@ void Engine::Run()
     {
         glfwPollEvents();
 
-        if (unit)
-            unit->Update(0.16f);
+        if (scene)
+            scene->Update(0.16f);
 
         renderer->DrawFrame();
     }
@@ -45,7 +46,7 @@ void Engine::Run()
 
 void Engine::Finalize()
 {
-    delete unit;
+    delete scene;
 
     renderer->Finalize();
     delete renderer;

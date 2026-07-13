@@ -3,7 +3,7 @@
 namespace URay
 {
 
-class Unit;
+class Scene;
 class Renderer;
 class Window;
 
@@ -11,7 +11,7 @@ class Engine
 {
 public:
     Engine() = default;
-    ~Engine();
+    ~Engine() = default;
 
 public:
     bool Initialize();
@@ -21,7 +21,7 @@ public:
 private:
     Window* window = nullptr;
     Renderer* renderer = nullptr;
-    Unit* unit = nullptr;
+    Scene* scene = nullptr;
 };
 
 } // namespace URay
