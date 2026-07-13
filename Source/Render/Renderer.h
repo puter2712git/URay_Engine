@@ -43,10 +43,17 @@ struct Vertex
     }
 };
 
-const std::vector<Vertex> vertices = {
-    { { 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-    { { 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f } },
-    { { -0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } }
+const std::vector<Vertex>
+    vertices = {
+        { { -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f } },
+        { { 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f } },
+        { { 0.5f, 0.5f }, { 0.0f, 0.0f, 1.0f } },
+        { { -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } }
+    };
+
+const std::vector<uint16_t> indices = {
+    0, 1, 2,
+    2, 3, 0
 };
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -133,6 +140,9 @@ private:
     bool CreateVertexBuffer();
     void DestroyVertexBuffer();
 
+    bool CreateIndexBuffer();
+    void DestroyIndexBuffer();
+
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -150,6 +160,11 @@ private:
     VkShaderModule CreateShaderModule(const std::vector<char>& code) const;
 
     uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+
+    void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+                      VkMemoryPropertyFlags properties,
+                      VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
+    void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
 
 private:
     Window* window = nullptr;
@@ -188,8 +203,11 @@ private:
     uint32_t imageIndex = 0;
     uint32_t currentFrame = 0;
 
+public:
     VkBuffer vertexBuffer = VK_NULL_HANDLE;
     VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+    VkBuffer indexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 };
 
 } // namespace URay

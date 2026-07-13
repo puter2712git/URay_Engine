@@ -20,14 +20,23 @@ public:
     {
         return vertexBuffer;
     };
-    VkDeviceMemory GetVertexBufferMemory() const
+    void SetVertexBuffer(VkBuffer buffer)
     {
-        return vertexBufferMemory;
+        vertexBuffer = buffer;
+    }
+
+    VkBuffer GetIndexBuffer() const
+    {
+        return indexBuffer;
+    }
+    void SetIndexBuffer(VkBuffer buffer)
+    {
+        indexBuffer = buffer;
     }
 
 private:
     VkBuffer vertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+    VkBuffer indexBuffer = VK_NULL_HANDLE;
 };
 
 } // namespace URay

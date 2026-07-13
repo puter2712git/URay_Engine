@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-#include "Engine/Component/Component.h"
+#include "Engine/Component/Render/BoxComponent.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
 #include "Platform/Window.h"
@@ -23,7 +23,9 @@ bool Engine::Initialize()
 
     Unit* unit = new Unit();
 
-    Component* component = new Component();
+    BoxComponent* component = new BoxComponent();
+    component->SetVertexBuffer(renderer->vertexBuffer);
+    component->SetIndexBuffer(renderer->indexBuffer);
     unit->AddComponent(component);
 
     scene->AddUnit(unit);

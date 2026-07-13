@@ -1,5 +1,3 @@
-#pragma once
-
 #include "BoxComponent.h"
 
 namespace URay
