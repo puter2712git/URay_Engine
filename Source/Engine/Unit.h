@@ -14,6 +14,17 @@ public:
 
     Component* AddComponent(Component* comp);
 
+    template <typename T>
+    T* GetComponent() const
+    {
+        for (Component* comp : components)
+        {
+            if (T* target = dynamic_cast<T*>(comp))
+                return target;
+        }
+        return nullptr;
+    }
+
 private:
     std::set<Component*> components;
 };

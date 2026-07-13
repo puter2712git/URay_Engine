@@ -52,6 +52,7 @@ const std::vector<Vertex> vertices = {
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 class Window;
+class Scene;
 
 class Renderer
 {
@@ -63,7 +64,12 @@ public:
     bool Initialize(Window* wnd);
     void Finalize();
 
+    void Render(Scene* scene);
+
     void DrawFrame();
+
+    void BeginFrame();
+    void EndFrame();
 
 private:
     struct QueueFamilyIndices
@@ -120,8 +126,6 @@ private:
     void DestroyCommandPool();
 
     bool CreateCommandBuffer();
-
-    void RecordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t imageIndex);
 
     bool CreateSyncObjects();
     void DestroySyncObjects();
@@ -181,6 +185,7 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
 
+    uint32_t imageIndex = 0;
     uint32_t currentFrame = 0;
 
     VkBuffer vertexBuffer = VK_NULL_HANDLE;

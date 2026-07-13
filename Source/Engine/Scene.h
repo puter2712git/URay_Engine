@@ -17,6 +17,10 @@ public:
     void Update(float deltaTime);
 
     void AddUnit(Unit* unit);
+    std::vector<Unit*> GetUnits() const
+    {
+        return units;
+    }
 
 private:
     std::vector<Unit*> units;

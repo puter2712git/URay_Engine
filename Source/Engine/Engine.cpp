@@ -40,7 +40,7 @@ void Engine::Run()
         if (scene)
             scene->Update(0.16f);
 
-        renderer->DrawFrame();
+        renderer->Render(scene);
     }
 }
 
