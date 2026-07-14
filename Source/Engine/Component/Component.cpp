@@ -5,6 +5,12 @@ namespace URay
 
 void Component::Update(float deltaTime)
 {
+    Vector3 currPos = GetPosition();
+    currPos.x += 1.0f * deltaTime;
+    SetPosition(currPos);
+
+    SetRotation(Vector3(45.0f, 30.0f, 0.0f));
+
     UpdateWorldMatrix();
 }
 

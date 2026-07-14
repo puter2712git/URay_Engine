@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Core/Timer.h"
 #include "Engine/Component/Render/BoxComponent.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
@@ -18,6 +19,8 @@ bool Engine::Initialize()
     renderer = new Renderer();
     if (!renderer->Initialize(window))
         return false;
+
+    timer = new Timer();
 
     scene = new Scene();
 
@@ -39,8 +42,10 @@ void Engine::Run()
     {
         glfwPollEvents();
 
+        timer->Tick();
+
         if (scene)
-            scene->Update(0.16f);
+            scene->Update(timer->GetDeltaTime());
 
         renderer->Render(scene);
     }

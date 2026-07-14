@@ -184,15 +184,13 @@ void Renderer::Render(Scene* scene)
         if (BoxComponent* boxComp = unit->GetComponent<BoxComponent>())
         {
             UniformBufferObject ubo = {};
-            ubo.model = boxComp->GetWorldMatrix().Transpose();
+            ubo.model = boxComp->GetWorldMatrix();
             ubo.view = Matrix::MakeView(
-                           Vector3(2.0f, 2.0f, 2.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up)
-                           .Transpose();
+                Vector3(0.0f, 0.0f, 5.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up);
             ubo.proj = Matrix::MakePerspective(
-                           Math::DegToRad(45.0f),
-                           swapChainExtent.width / static_cast<float>(swapChainExtent.height),
-                           0.1f, 10.0f)
-                           .Transpose();
+                Math::DegToRad(45.0f),
+                swapChainExtent.width / static_cast<float>(swapChainExtent.height),
+                0.1f, 10.0f);
 
             memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
 
@@ -246,7 +244,6 @@ void Renderer::BeginFrame()
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
-    uint32_t imageIndex;
     vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], 0);
@@ -671,7 +668,7 @@ bool Renderer::CreateGraphicsPipeline()
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f;
@@ -1247,7 +1244,7 @@ VkSurfaceFormatKHR Renderer::ChooseSwapSurfaceFormat(
     for (const auto& availableFormat : availableFormats)
     {
         if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
-            availableFormat.colorSpace == VK_COLOR_SPACE_EXTENDED_SRGB_NONLINEAR_EXT)
+            availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             return availableFormat;
         }
