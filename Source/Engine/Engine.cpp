@@ -2,6 +2,7 @@
 
 #include "Core/Timer.h"
 #include "Engine/Component/Render/BoxComponent.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
 #include "Platform/Window.h"
@@ -27,8 +28,8 @@ bool Engine::Initialize()
     Unit* unit = new Unit();
 
     BoxComponent* component = new BoxComponent();
-    component->SetVertexBuffer(renderer->vertexBuffer);
-    component->SetIndexBuffer(renderer->indexBuffer);
+    component->GetMesh()->SetVertexBuffer(renderer->vertexBuffer);
+    component->GetMesh()->SetIndexBuffer(renderer->indexBuffer);
     unit->AddComponent(component);
 
     scene->AddUnit(unit);

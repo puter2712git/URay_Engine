@@ -2,6 +2,7 @@
 
 #include "Core/Math/Math.h"
 #include "Engine/Component/Render/BoxComponent.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
 #include "Platform/Window.h"
@@ -194,11 +195,11 @@ void Renderer::Render(Scene* scene)
 
             memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
 
-            VkBuffer vertexBuffers[] = { boxComp->GetVertexBuffer() };
+            VkBuffer vertexBuffers[] = { boxComp->GetMesh()->GetVertexBuffer() };
             VkDeviceSize offsets[] = { 0 };
             vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffers[currentFrame], boxComp->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindIndexBuffer(commandBuffers[currentFrame], boxComp->GetMesh()->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
 
             vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                     pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);

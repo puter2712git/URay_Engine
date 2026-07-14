@@ -7,36 +7,28 @@
 namespace URay
 {
 
+class Mesh;
+
 class BoxComponent : public RenderComponent
 {
 public:
-    BoxComponent() = default;
+    BoxComponent();
     ~BoxComponent() = default;
 
 public:
     virtual void SubmitCommand() override;
 
-    VkBuffer GetVertexBuffer() const
+    Mesh* GetMesh() const
     {
-        return vertexBuffer;
-    };
-    void SetVertexBuffer(VkBuffer buffer)
-    {
-        vertexBuffer = buffer;
+        return mesh;
     }
-
-    VkBuffer GetIndexBuffer() const
+    void SetMesh(Mesh* newMesh)
     {
-        return indexBuffer;
-    }
-    void SetIndexBuffer(VkBuffer buffer)
-    {
-        indexBuffer = buffer;
+        mesh = newMesh;
     }
 
 private:
-    VkBuffer vertexBuffer = VK_NULL_HANDLE;
-    VkBuffer indexBuffer = VK_NULL_HANDLE;
+    Mesh* mesh = nullptr;
 };
 
 } // namespace URay
