@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Core/Math/Math.h"
 #include "Engine/Component/Render/BoxComponent.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
@@ -114,6 +115,12 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateIndexBuffer())
         return false;
+    if (!CreateUniformBuffers())
+        return false;
+    if (!CreateDescriptorPool())
+        return false;
+    if (!CreateDescriptorSets())
+        return false;
     if (!CreateCommandBuffer())
         return false;
     if (!CreateSyncObjects())
@@ -129,6 +136,8 @@ void Renderer::Finalize()
     CleanupSwapChain();
 
     DestroyUniformBuffers();
+
+    DestroyDescriptorPool();
 
     DestroyDescriptorSetLayout();
 
@@ -174,11 +183,27 @@ void Renderer::Render(Scene* scene)
     {
         if (BoxComponent* boxComp = unit->GetComponent<BoxComponent>())
         {
+            UniformBufferObject ubo = {};
+            ubo.model = boxComp->GetWorldMatrix().Transpose();
+            ubo.view = Matrix::MakeView(
+                           Vector3(2.0f, 2.0f, 2.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up)
+                           .Transpose();
+            ubo.proj = Matrix::MakePerspective(
+                           Math::DegToRad(45.0f),
+                           swapChainExtent.width / static_cast<float>(swapChainExtent.height),
+                           0.1f, 10.0f)
+                           .Transpose();
+
+            memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
+
             VkBuffer vertexBuffers[] = { boxComp->GetVertexBuffer() };
             VkDeviceSize offsets[] = { 0 };
             vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
             vkCmdBindIndexBuffer(commandBuffers[currentFrame], boxComp->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
+
+            vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
             vkCmdDrawIndexed(commandBuffers[currentFrame], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
         }
@@ -941,7 +966,7 @@ bool Renderer::CreateIndexBuffer()
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 indexBuffer, stagingBufferMemory);
+                 indexBuffer, indexBufferMemory);
 
     CopyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
@@ -1009,6 +1034,66 @@ void Renderer::DestroyUniformBuffers()
         vkDestroyBuffer(device, uniformBuffers[i], nullptr);
         vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
     }
+}
+
+bool Renderer::CreateDescriptorPool()
+{
+    VkDescriptorPoolSize poolSize = {};
+    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSize.descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    VkDescriptorPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = 1;
+    poolInfo.pPoolSizes = &poolSize;
+    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+        return false;
+
+    return true;
+}
+
+void Renderer::DestroyDescriptorPool()
+{
+    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+}
+
+bool Renderer::CreateDescriptorSets()
+{
+    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    allocInfo.pSetLayouts = layouts.data();
+
+    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+    if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+        return false;
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        VkDescriptorBufferInfo bufferInfo = {};
+        bufferInfo.buffer = uniformBuffers[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
+
+        VkWriteDescriptorSet descriptorWrite = {};
+        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrite.dstSet = descriptorSets[i];
+        descriptorWrite.dstBinding = 0;
+        descriptorWrite.dstArrayElement = 0;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+        descriptorWrite.pImageInfo = nullptr;
+        descriptorWrite.pTexelBufferView = nullptr;
+
+        vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
+    }
+
+    return true;
 }
 
 bool Renderer::CheckValidationLayerSupport() const

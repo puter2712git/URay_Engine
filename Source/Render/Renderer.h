@@ -157,6 +157,11 @@ private:
     bool CreateUniformBuffers();
     void DestroyUniformBuffers();
 
+    bool CreateDescriptorPool();
+    void DestroyDescriptorPool();
+
+    bool CreateDescriptorSets();
+
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -217,6 +222,9 @@ private:
 
     uint32_t imageIndex = 0;
     uint32_t currentFrame = 0;
+
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+    std::vector<VkDescriptorSet> descriptorSets;
 
 public:
     VkBuffer vertexBuffer = VK_NULL_HANDLE;

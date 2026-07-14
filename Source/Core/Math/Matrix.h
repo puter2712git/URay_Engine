@@ -32,6 +32,8 @@ struct Matrix
 
     static Matrix Identity;
 
+    Matrix Transpose() const;
+
     static Matrix MakeTranslation(const Vector3& position);
 
     static Matrix MakeRotation(const Vector3& rotation);

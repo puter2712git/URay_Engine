@@ -33,9 +33,24 @@ Matrix::Matrix(
 {
 }
 
+Matrix Matrix::Transpose() const
+{
+    Matrix ret;
+
+    for (size_t row = 0; row < 4; ++row)
+    {
+        for (size_t col = 0; col < 4; ++col)
+        {
+            ret.elements[row][col] = elements[col][row];
+        }
+    }
+
+    return ret;
+}
+
 Matrix Matrix::MakeTranslation(const Vector3& position)
 {
-    Matrix mat = Matrix();
+    Matrix mat = Matrix::Identity;
     mat.elements[3][0] = position.x;
     mat.elements[3][1] = position.y;
     mat.elements[3][2] = position.z;
@@ -90,6 +105,8 @@ Matrix Matrix::MakeRotationZ(float degree)
     mat.elements[0][1] = std::sin(rad);
     mat.elements[1][0] = -std::sin(rad);
     mat.elements[1][1] = std::cos(rad);
+
+    return mat;
 }
 
 Matrix Matrix::MakeScale(const Vector3& scale)
@@ -109,7 +126,27 @@ Matrix Matrix::MakeView(const Vector3& eye, const Vector3& target, const Vector3
 
     Vector3 cameraUp = Vector3::Cross(right, forward);
 
-    Matrix ret = Matrix::Identity;
+    Matrix ret = Matrix(
+        right.x, right.y, right.z, -Vector3::Dot(right, eye),
+        cameraUp.x, cameraUp.y, cameraUp.z, -Vector3::Dot(cameraUp, eye),
+        forward.x, forward.y, forward.z, -Vector3::Dot(forward, eye),
+        0.0f, 0.0f, 0.0f, 1.0f);
+
+    return ret;
+}
+
+Matrix Matrix::MakePerspective(float fov, float aspect, float near, float far)
+{
+    float A = far / (far - near);
+    float B = -(far * near) / (far - near);
+
+    Matrix ret = Matrix(
+        1 / (aspect * std::tan(fov * 0.5f)), 0.0f, 0.0f, 0.0f,
+        0.0f, 1 / std::tan(fov * 0.5f), 0.0f, 0.0f,
+        0.0f, 0.0f, A, B,
+        0.0f, 0.0f, 1.0f, 0.0f);
+
+    return ret;
 }
 
 } // namespace URay

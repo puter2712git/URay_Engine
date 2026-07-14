@@ -42,6 +42,11 @@ public:
         scale = newScale;
     }
 
+    Matrix GetWorldMatrix() const
+    {
+        return worldMatrix;
+    }
+
     Unit* GetOwner() const
     {
         return owner;
