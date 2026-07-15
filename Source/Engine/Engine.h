@@ -7,6 +7,7 @@ class Scene;
 class Renderer;
 class Window;
 class Timer;
+class MeshManager;
 
 class Engine
 {
@@ -25,6 +26,8 @@ private:
     Scene* scene = nullptr;
 
     Timer* timer = nullptr;
+
+    MeshManager* meshManager = nullptr;
 };
 
 } // namespace URay

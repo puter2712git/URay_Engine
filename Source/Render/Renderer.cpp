@@ -112,10 +112,6 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateCommandPool())
         return false;
-    if (!CreateVertexBuffer())
-        return false;
-    if (!CreateIndexBuffer())
-        return false;
     if (!CreateUniformBuffers())
         return false;
     if (!CreateDescriptorPool())
@@ -141,9 +137,6 @@ void Renderer::Finalize()
     DestroyDescriptorPool();
 
     DestroyDescriptorSetLayout();
-
-    DestroyIndexBuffer();
-    DestroyVertexBuffer();
 
     DestroyGraphicsPipeline();
     DestroyRenderPass();
@@ -204,38 +197,9 @@ void Renderer::Render(Scene* scene)
             vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                     pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffers[currentFrame], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffers[currentFrame], static_cast<uint32_t>(boxComp->GetMesh()->GetIndices().size()), 1, 0, 0, 0);
         }
     }
-
-    EndFrame();
-}
-
-void Renderer::DrawFrame()
-{
-    BeginFrame();
-
-    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-    VkBuffer vertexBuffers[] = { vertexBuffer };
-    VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
-
-    VkViewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = static_cast<float>(swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
-
-    VkRect2D scissor = {};
-    scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
-    vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
-
-    vkCmdDraw(commandBuffers[currentFrame], 3, 1, 0, 0);
 
     EndFrame();
 }
@@ -912,9 +876,9 @@ void Renderer::DestroySyncObjects()
     }
 }
 
-bool Renderer::CreateVertexBuffer()
+VkBuffer Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices) const
 {
-    VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -924,9 +888,11 @@ bool Renderer::CreateVertexBuffer()
 
     void* data;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
+    std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -937,18 +903,12 @@ bool Renderer::CreateVertexBuffer()
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    return true;
+    return vertexBuffer;
 }
 
-void Renderer::DestroyVertexBuffer()
+VkBuffer Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices) const
 {
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
-}
-
-bool Renderer::CreateIndexBuffer()
-{
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+    VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -958,9 +918,11 @@ bool Renderer::CreateIndexBuffer()
 
     void* data;
     vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
+    std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -971,13 +933,7 @@ bool Renderer::CreateIndexBuffer()
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    return true;
-}
-
-void Renderer::DestroyIndexBuffer()
-{
-    vkDestroyBuffer(device, indexBuffer, nullptr);
-    vkFreeMemory(device, indexBufferMemory, nullptr);
+    return indexBuffer;
 }
 
 bool Renderer::CreateDescriptorSetLayout()
