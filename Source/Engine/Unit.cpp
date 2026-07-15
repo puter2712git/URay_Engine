@@ -5,6 +5,15 @@
 namespace URay
 {
 
+Unit::~Unit()
+{
+    for (Component* comp : components)
+    {
+        delete comp;
+        comp = nullptr;
+    }
+}
+
 void Unit::Update(float deltaTime)
 {
     for (auto comp : components)

@@ -98,8 +98,11 @@ private:
     void DestroySyncObjects();
 
 public:
-    VkBuffer CreateVertexBuffer(const std::vector<Vertex>& vertices) const;
-    VkBuffer CreateIndexBuffer(const std::vector<uint16_t>& indices) const;
+    bool CreateVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const;
+    bool CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const;
+
+    void DestroyBuffer(VkBuffer buffer) const;
+    void FreeMemory(VkDeviceMemory memory) const;
 
 private:
     bool CreateDescriptorSetLayout();

@@ -34,12 +34,33 @@ public:
     {
         return vertexBuffer;
     }
+    VkBuffer& GetVertexBufferRef()
+    {
+        return vertexBuffer;
+    }
     void SetVertexBuffer(VkBuffer newBuffer)
     {
         vertexBuffer = newBuffer;
     }
 
+    VkDeviceMemory GetVertexBufferMemory() const
+    {
+        return vertexBufferMemory;
+    }
+    VkDeviceMemory& GetVertexBufferMemoryRef()
+    {
+        return vertexBufferMemory;
+    }
+    void SetVertexBufferMemory(VkDeviceMemory memory)
+    {
+        vertexBufferMemory = memory;
+    }
+
     VkBuffer GetIndexBuffer() const
+    {
+        return indexBuffer;
+    }
+    VkBuffer& GetIndexBufferRef()
     {
         return indexBuffer;
     }
@@ -48,12 +69,28 @@ public:
         indexBuffer = newBuffer;
     }
 
+    VkDeviceMemory GetIndexBufferMemory() const
+    {
+        return indexBufferMemory;
+    }
+    VkDeviceMemory& GetIndexBufferMemoryRef()
+    {
+        return indexBufferMemory;
+    }
+    void SetIndexBufferMemory(VkDeviceMemory memory)
+    {
+        indexBufferMemory = memory;
+    }
+
 private:
     std::vector<Vertex> vertices;
     std::vector<uint16_t> indices;
 
     VkBuffer vertexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+
     VkBuffer indexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
 };
 
 } // namespace URay

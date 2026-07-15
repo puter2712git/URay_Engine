@@ -14,12 +14,10 @@ MeshManager::MeshManager(Renderer& renderer)
 
 MeshManager::~MeshManager()
 {
-    for (const auto& pair : meshes)
+    while (!meshes.empty())
     {
-        if (!pair.second)
-            continue;
-
-        RemoveMesh(pair.first);
+        std::string key = meshes.begin()->first;
+        RemoveMesh(key);
     }
 }
 
@@ -33,11 +31,21 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     mesh->SetVertices(vertices);
     mesh->SetIndices(indices);
 
-    VkBuffer vertexBuffer = renderer.CreateVertexBuffer(vertices);
-    VkBuffer indexBuffer = renderer.CreateIndexBuffer(indices);
+    if (!renderer.CreateVertexBuffer(
+            vertices,
+            mesh->GetVertexBufferRef(),
+            mesh->GetVertexBufferMemoryRef()))
+    {
+        return nullptr;
+    }
 
-    mesh->SetVertexBuffer(vertexBuffer);
-    mesh->SetIndexBuffer(indexBuffer);
+    if (!renderer.CreateIndexBuffer(
+            indices,
+            mesh->GetIndexBufferRef(),
+            mesh->GetIndexBufferMemoryRef()))
+    {
+        return nullptr;
+    }
 
     meshes.insert({ key, mesh });
 
@@ -48,6 +56,16 @@ void MeshManager::RemoveMesh(const std::string& key)
 {
     if (!meshes.contains(key))
         return;
+
+    Mesh* mesh = meshes[key];
+
+    renderer.DestroyBuffer(mesh->GetVertexBuffer());
+    renderer.FreeMemory(mesh->GetVertexBufferMemory());
+
+    renderer.DestroyBuffer(mesh->GetIndexBuffer());
+    renderer.FreeMemory(mesh->GetIndexBufferMemory());
+
+    delete mesh;
 
     meshes.erase(key);
 }

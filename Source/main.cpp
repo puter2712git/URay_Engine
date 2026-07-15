@@ -12,5 +12,7 @@ int main()
 
     engine->Finalize();
 
+    delete engine;
+
     return 0;
 }

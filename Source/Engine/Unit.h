@@ -10,6 +10,10 @@ class Component;
 class Unit
 {
 public:
+    Unit() = default;
+    ~Unit();
+
+public:
     virtual void Update(float deltaTime);
 
     Component* AddComponent(Component* comp);

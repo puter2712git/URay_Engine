@@ -83,6 +83,10 @@ void Engine::Finalize()
 {
     delete scene;
 
+    delete meshManager;
+
+    delete timer;
+
     renderer->Finalize();
     delete renderer;
 

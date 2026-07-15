@@ -876,7 +876,7 @@ void Renderer::DestroySyncObjects()
     }
 }
 
-VkBuffer Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices) const
+bool Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const
 {
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
@@ -891,22 +891,20 @@ VkBuffer Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices) const
     std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 vertexBuffer, vertexBufferMemory);
+                 outBuffer, outMemory);
 
-    CopyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+    CopyBuffer(stagingBuffer, outBuffer, bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    return vertexBuffer;
+    return true;
 }
 
-VkBuffer Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices) const
+bool Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const
 {
     VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
 
@@ -921,19 +919,27 @@ VkBuffer Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices) const
     std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 indexBuffer, indexBufferMemory);
+                 outBuffer, outMemory);
 
-    CopyBuffer(stagingBuffer, indexBuffer, bufferSize);
+    CopyBuffer(stagingBuffer, outBuffer, bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    return indexBuffer;
+    return true;
+}
+
+void Renderer::DestroyBuffer(VkBuffer buffer) const
+{
+    vkDestroyBuffer(device, buffer, nullptr);
+}
+
+void Renderer::FreeMemory(VkDeviceMemory memory) const
+{
+    vkFreeMemory(device, memory, nullptr);
 }
 
 bool Renderer::CreateDescriptorSetLayout()
