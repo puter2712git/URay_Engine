@@ -33,6 +33,7 @@ public:
 
 private:
     void UpdateCameraMovement(float deltaTime);
+    void UpdateCameraRotation(float deltaTime);
 
 private:
     Window* window = nullptr;

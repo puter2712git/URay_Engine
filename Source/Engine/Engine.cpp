@@ -96,6 +96,7 @@ void Engine::Run()
         timer->Tick();
 
         UpdateCameraMovement(timer->GetDeltaTime());
+        UpdateCameraRotation(timer->GetDeltaTime());
 
         if (scene)
             scene->Update(timer->GetDeltaTime());
@@ -124,37 +125,55 @@ void Engine::UpdateCameraMovement(float deltaTime)
     if (!camera)
         return;
 
-    Vector3 cameraPos = camera->GetPosition();
+    Vector3 moveDir = Vector3::Zero;
+
     if (inputManager.GetKey(GLFW_KEY_A))
     {
-        cameraPos.x -= 3.0f * deltaTime;
-        camera->SetPosition(cameraPos);
+        moveDir.x -= 3.0f * deltaTime;
     }
     if (inputManager.GetKey(GLFW_KEY_D))
     {
-        cameraPos.x += 3.0f * deltaTime;
-        camera->SetPosition(cameraPos);
+        moveDir.x += 3.0f * deltaTime;
     }
     if (inputManager.GetKey(GLFW_KEY_W))
     {
-        cameraPos.y += 3.0f * deltaTime;
-        camera->SetPosition(cameraPos);
+        moveDir.y += 3.0f * deltaTime;
     }
     if (inputManager.GetKey(GLFW_KEY_S))
     {
-        cameraPos.y -= 3.0f * deltaTime;
-        camera->SetPosition(cameraPos);
+        moveDir.y -= 3.0f * deltaTime;
     }
+
+    Vector3 movePos = camera->GetTransform().TransformVectorNoScale(moveDir);
+    Vector3 camPos = camera->GetPosition();
+
     if (inputManager.GetKey(GLFW_KEY_Q))
     {
-        cameraPos.z -= 3.0f * deltaTime;
-        camera->SetPosition(cameraPos);
+        camPos.z -= 3.0f * deltaTime;
     }
     if (inputManager.GetKey(GLFW_KEY_E))
     {
-        cameraPos.z += 3.0f * deltaTime;
-        camera->SetPosition(cameraPos);
+        camPos.z += 3.0f * deltaTime;
     }
+
+    camera->SetPosition(camPos + movePos);
+}
+
+void Engine::UpdateCameraRotation(float deltaTime)
+{
+    if (!camera)
+        return;
+
+    if (!inputManager.GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
+        return;
+
+    Vector3 cameraRot = camera->GetRotation();
+    cameraRot.x -= inputManager.mouseDeltaY * 0.1f;
+    cameraRot.z -= inputManager.mouseDeltaX * 0.1f;
+
+    cameraRot.x = std::clamp(cameraRot.x, -89.0f, 89.0f);
+
+    camera->SetRotation(cameraRot);
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -15,6 +15,11 @@ public:
 
     void UpdateWorldMatrix();
 
+    Transform GetTransform() const
+    {
+        return transform;
+    }
+
     Vector3 GetPosition() const
     {
         return transform.position;
