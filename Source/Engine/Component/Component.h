@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Math/Matrix.h"
-#include "Core/Math/Vector3.h"
+#include "Core/Math/Transform.h"
 
 namespace URay
 {
@@ -17,29 +17,29 @@ public:
 
     Vector3 GetPosition() const
     {
-        return position;
+        return transform.position;
     }
     void SetPosition(Vector3 newPosition)
     {
-        position = newPosition;
+        transform.position = newPosition;
     }
 
     Vector3 GetRotation() const
     {
-        return rotation;
+        return transform.rotation;
     }
     void SetRotation(Vector3 newRotation)
     {
-        rotation = newRotation;
+        transform.rotation = newRotation;
     }
 
     Vector3 GetScale() const
     {
-        return scale;
+        return transform.scale;
     }
     void SetScale(Vector3 newScale)
     {
-        scale = newScale;
+        transform.scale = newScale;
     }
 
     Matrix GetWorldMatrix() const
@@ -53,9 +53,7 @@ public:
     }
 
 protected:
-    Vector3 position = Vector3::Zero;
-    Vector3 rotation = Vector3::Zero;
-    Vector3 scale = Vector3::One;
+    Transform transform = Transform::Identity;
 
     Matrix worldMatrix = Matrix::Identity;
 

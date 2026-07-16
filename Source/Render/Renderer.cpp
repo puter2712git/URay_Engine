@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "Core/Math/Math.h"
+#include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Scene.h"
@@ -173,18 +174,24 @@ void Renderer::Render(Scene* scene)
     scissor.extent = swapChainExtent;
     vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 
+    CameraComponent* camera = nullptr;
+    for (Unit* unit : scene->GetUnits())
+    {
+        if (CameraComponent* cam = unit->GetComponent<CameraComponent>())
+        {
+            camera = cam;
+            break;
+        }
+    }
+
     for (Unit* unit : scene->GetUnits())
     {
         if (MeshComponent* boxComp = unit->GetComponent<MeshComponent>())
         {
             UniformBufferObject ubo = {};
             ubo.model = boxComp->GetWorldMatrix();
-            ubo.view = Matrix::MakeView(
-                Vector3(0.0f, 0.0f, 5.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up);
-            ubo.proj = Matrix::MakePerspective(
-                Math::DegToRad(45.0f),
-                swapChainExtent.width / static_cast<float>(swapChainExtent.height),
-                0.1f, 10.0f);
+            ubo.view = camera->GetViewMatrix();
+            ubo.proj = camera->GetProjMatrix();
 
             memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
 
@@ -699,7 +706,7 @@ bool Renderer::CreateGraphicsPipeline()
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f;

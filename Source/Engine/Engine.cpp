@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "Core/Timer.h"
+#include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
@@ -53,12 +54,17 @@ bool Engine::Initialize()
 
     scene = new Scene();
 
-    Unit* unit = new Unit();
+    Unit* cameraUnit = new Unit();
+    CameraComponent* camera = new CameraComponent();
+    camera->SetPosition(Vector3(0.0f, 0.0f, -5.0f));
+    cameraUnit->AddComponent(camera);
 
+    Unit* unit = new Unit();
     MeshComponent* component = new MeshComponent();
     component->SetMesh(boxMesh);
     unit->AddComponent(component);
 
+    scene->AddUnit(cameraUnit);
     scene->AddUnit(unit);
 
     return true;

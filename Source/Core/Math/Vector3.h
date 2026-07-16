@@ -7,7 +7,6 @@ namespace URay
 
 struct Vector3
 {
-public:
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;
@@ -16,6 +15,8 @@ public:
 
     static Vector3 Zero;
     static Vector3 One;
+    static Vector3 Forward;
+    static Vector3 Right;
     static Vector3 Up;
 
     inline float GetLength() const

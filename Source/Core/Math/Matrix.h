@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/Vector3.h"
+#include "Core/Math/Vector4.h"
 
 #include <cstddef>
 
@@ -66,5 +67,7 @@ struct Matrix
         return ret;
     }
 };
+
+Vector4 operator*(const Vector4& lhs, const Matrix& rhs);
 
 } // namespace URay

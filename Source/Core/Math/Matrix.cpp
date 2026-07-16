@@ -149,4 +149,13 @@ Matrix Matrix::MakePerspective(float fov, float aspect, float near, float far)
     return ret;
 }
 
+Vector4 operator*(const Vector4& lhs, const Matrix& rhs)
+{
+    return Vector4(
+        lhs.x * rhs.m00 + lhs.y * rhs.m10 + lhs.z * rhs.m20 + lhs.w * rhs.m30,
+        lhs.x * rhs.m01 + lhs.y * rhs.m11 + lhs.z * rhs.m21 + lhs.w * rhs.m31,
+        lhs.x * rhs.m02 + lhs.y * rhs.m12 + lhs.z * rhs.m22 + lhs.w * rhs.m32,
+        lhs.x * rhs.m03 + lhs.y * rhs.m13 + lhs.z * rhs.m23 + lhs.w * rhs.m33);
+}
+
 } // namespace URay
