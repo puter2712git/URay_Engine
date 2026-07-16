@@ -5,11 +5,14 @@
 namespace URay
 {
 
-Transform Transform::Identity = {
-    Vector3::Zero,
-    Vector3::Zero,
-    Vector3::One
-};
+Transform Transform::Identity = Transform();
+
+Transform::Transform(const Vector3& inPosition,
+                     const Vector3& inRotation,
+                     const Vector3& inScale)
+    : position(inPosition), rotation(inRotation), scale(inScale)
+{
+}
 
 Vector3 Transform::TransformVectorNoScale(const Vector3& vector) const
 {

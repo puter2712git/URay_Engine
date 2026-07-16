@@ -56,7 +56,8 @@ bool Engine::Initialize()
 
     Unit* cameraUnit = new Unit();
     CameraComponent* camera = new CameraComponent();
-    camera->SetPosition(Vector3(0.0f, 0.0f, -5.0f));
+    camera->SetPosition(Vector3(0.0f, 3.0f, -5.0f));
+    camera->SetRotation(Vector3(30.0f, 0, 0));
     cameraUnit->AddComponent(camera);
 
     Unit* unit = new Unit();
