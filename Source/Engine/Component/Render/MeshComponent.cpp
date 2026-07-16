@@ -1,16 +1,16 @@
-#include "BoxComponent.h"
+#include "MeshComponent.h"
 
 #include "Engine/Mesh/Mesh.h"
 
 namespace URay
 {
 
-BoxComponent::BoxComponent()
+MeshComponent::MeshComponent()
 {
     mesh = new Mesh();
 }
 
-void BoxComponent::SubmitCommand()
+void MeshComponent::SubmitCommand()
 {
 }
 

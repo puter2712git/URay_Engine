@@ -1,7 +1,7 @@
 #include "Renderer.h"
 
 #include "Core/Math/Math.h"
-#include "Engine/Component/Render/BoxComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
@@ -175,7 +175,7 @@ void Renderer::Render(Scene* scene)
 
     for (Unit* unit : scene->GetUnits())
     {
-        if (BoxComponent* boxComp = unit->GetComponent<BoxComponent>())
+        if (MeshComponent* boxComp = unit->GetComponent<MeshComponent>())
         {
             UniformBufferObject ubo = {};
             ubo.model = boxComp->GetWorldMatrix();

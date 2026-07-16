@@ -9,11 +9,11 @@ namespace URay
 
 class Mesh;
 
-class BoxComponent : public RenderComponent
+class MeshComponent : public RenderComponent
 {
 public:
-    BoxComponent();
-    ~BoxComponent() = default;
+    MeshComponent();
+    ~MeshComponent() = default;
 
 public:
     virtual void SubmitCommand() override;

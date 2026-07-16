@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 #include "Core/Timer.h"
-#include "Engine/Component/Render/BoxComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene.h"
@@ -55,7 +55,7 @@ bool Engine::Initialize()
 
     Unit* unit = new Unit();
 
-    BoxComponent* component = new BoxComponent();
+    MeshComponent* component = new MeshComponent();
     component->SetMesh(boxMesh);
     unit->AddComponent(component);
 
