@@ -16,11 +16,23 @@
 namespace URay
 {
 
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+
+Engine* gEngine;
+
 bool Engine::Initialize()
 {
+    gEngine = this;
+
     window = new Window();
     if (!window->Initialize())
         return false;
+
+    glfwSetKeyCallback(window->GetGLFWWindow(), KeyCallback);
+    glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
+    glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
     renderer = new Renderer();
     if (!renderer->Initialize(window))
@@ -58,9 +70,8 @@ bool Engine::Initialize()
     scene = new Scene();
 
     Unit* cameraUnit = new Unit();
-    CameraComponent* camera = new CameraComponent();
-    camera->SetPosition(Vector3(0.0f, 3.0f, -5.0f));
-    camera->SetRotation(Vector3(30.0f, 0, 0));
+    camera = new CameraComponent();
+    camera->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
     cameraUnit->AddComponent(camera);
 
     Unit* unit = new Unit();
@@ -78,9 +89,13 @@ void Engine::Run()
 {
     while (!glfwWindowShouldClose(window->GetGLFWWindow()))
     {
+        inputManager.Update();
+
         glfwPollEvents();
 
         timer->Tick();
+
+        UpdateCameraMovement(timer->GetDeltaTime());
 
         if (scene)
             scene->Update(timer->GetDeltaTime());
@@ -102,6 +117,63 @@ void Engine::Finalize()
 
     window->Finalize();
     delete window;
+}
+
+void Engine::UpdateCameraMovement(float deltaTime)
+{
+    if (!camera)
+        return;
+
+    Vector3 cameraPos = camera->GetPosition();
+    if (inputManager.GetKey(GLFW_KEY_A))
+    {
+        cameraPos.x -= 3.0f * deltaTime;
+        camera->SetPosition(cameraPos);
+    }
+    if (inputManager.GetKey(GLFW_KEY_D))
+    {
+        cameraPos.x += 3.0f * deltaTime;
+        camera->SetPosition(cameraPos);
+    }
+    if (inputManager.GetKey(GLFW_KEY_W))
+    {
+        cameraPos.y += 3.0f * deltaTime;
+        camera->SetPosition(cameraPos);
+    }
+    if (inputManager.GetKey(GLFW_KEY_S))
+    {
+        cameraPos.y -= 3.0f * deltaTime;
+        camera->SetPosition(cameraPos);
+    }
+    if (inputManager.GetKey(GLFW_KEY_Q))
+    {
+        cameraPos.z -= 3.0f * deltaTime;
+        camera->SetPosition(cameraPos);
+    }
+    if (inputManager.GetKey(GLFW_KEY_E))
+    {
+        cameraPos.z += 3.0f * deltaTime;
+        camera->SetPosition(cameraPos);
+    }
+}
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (key < 0)
+        return;
+
+    gEngine->GetInputManager().currKeys[key] = action != GLFW_RELEASE;
+}
+
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+    gEngine->GetInputManager().currMouse[button] = action != GLFW_RELEASE;
+}
+
+void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    gEngine->GetInputManager().mouseX = xpos;
+    gEngine->GetInputManager().mouseY = ypos;
 }
 
 } // namespace URay
