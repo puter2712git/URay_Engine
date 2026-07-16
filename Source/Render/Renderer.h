@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Core/Math/Matrix.h"
+#include "Render/DrawCommand.h"
 #include "Render/Vertex.h"
+
+#include "Core/Math/Matrix.h"
 
 #include <vulkan/vulkan.h>
 
@@ -37,6 +39,10 @@ public:
 
     void BeginFrame();
     void EndFrame();
+
+    void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
+
+    void Draw(const DrawCommand& cmd);
 
     bool CreateVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const;
     bool CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const;
@@ -178,10 +184,12 @@ private:
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
 
-public:
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
     std::vector<void*> uniformBuffersMapped;
+
+    Matrix viewMatrix = Matrix::Identity;
+    Matrix projMatrix = Matrix::Identity;
 };
 
 } // namespace URay

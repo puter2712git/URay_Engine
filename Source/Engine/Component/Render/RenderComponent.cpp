@@ -3,8 +3,4 @@
 namespace URay
 {
 
-void RenderComponent::SubmitCommand()
-{
-}
-
 } // namespace URay

@@ -1,6 +1,5 @@
 #include "Renderer.h"
 
-#include "Core/Math/Math.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Mesh/Mesh.h"
@@ -158,22 +157,6 @@ void Renderer::Render(Scene* scene)
 {
     BeginFrame();
 
-    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-    VkViewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = static_cast<float>(swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
-
-    VkRect2D scissor = {};
-    scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
-    vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
-
     CameraComponent* camera = nullptr;
     for (Unit* unit : scene->GetUnits())
     {
@@ -239,6 +222,22 @@ void Renderer::BeginFrame()
     renderPassInfo.pClearValues = &clearColor;
 
     vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+
+    VkViewport viewport = {};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(swapChainExtent.width);
+    viewport.height = static_cast<float>(swapChainExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+
+    VkRect2D scissor = {};
+    scissor.offset = { 0, 0 };
+    scissor.extent = swapChainExtent;
+    vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 }
 
 void Renderer::EndFrame()
@@ -280,6 +279,33 @@ void Renderer::EndFrame()
     vkQueuePresentKHR(presentQueue, &presentInfo);
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix)
+{
+    viewMatrix = newViewMatrix;
+    projMatrix = newProjMatrix;
+}
+
+void Renderer::Draw(const DrawCommand& cmd)
+{
+    UniformBufferObject ubo = {};
+    ubo.model = cmd.worldMatrix;
+    ubo.view = viewMatrix;
+    ubo.proj = projMatrix;
+
+    memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
+
+    VkBuffer vertexBuffers[] = { cmd.vertexBuffer };
+    VkDeviceSize offsets[] = { 0 };
+    vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+
+    vkCmdBindIndexBuffer(commandBuffers[currentFrame], cmd.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+    vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+
+    vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, 0, 0, 0);
 }
 
 bool Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const

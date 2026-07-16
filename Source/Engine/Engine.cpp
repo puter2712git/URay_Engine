@@ -10,6 +10,7 @@
 
 #include "Platform/Window.h"
 
+#include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
 
 namespace URay
@@ -24,6 +25,8 @@ bool Engine::Initialize()
     renderer = new Renderer();
     if (!renderer->Initialize(window))
         return false;
+
+    renderPipeline = new RenderPipeline(*renderer);
 
     timer = new Timer();
 
@@ -82,7 +85,7 @@ void Engine::Run()
         if (scene)
             scene->Update(timer->GetDeltaTime());
 
-        renderer->Render(scene);
+        renderPipeline->Execute(scene);
     }
 }
 
