@@ -30,6 +30,7 @@ add_subdirectory(ThirdParty/glfw)
 target_include_directories(URay_Engine
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/Source
+        ${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty
 )
 
 target_link_libraries(URay_Engine
@@ -39,6 +40,9 @@ target_link_libraries(URay_Engine
 )
 
 add_custom_command(TARGET URay_Engine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/Asset
+        "$<TARGET_FILE_DIR:URay_Engine>/Asset"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader
         "$<TARGET_FILE_DIR:URay_Engine>/Shader"

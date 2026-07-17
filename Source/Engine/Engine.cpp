@@ -72,8 +72,8 @@ bool Engine::Initialize()
         { { -0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } }
     };
     std::vector<uint16_t> quadIndices = {
-        0, 2, 1,
-        3, 2, 0,  
+        0, 1, 2,
+        0, 2, 3,  
     };
     // clang-format on
 

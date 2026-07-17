@@ -143,7 +143,7 @@ Matrix Matrix::MakePerspective(float fov, float aspect, float near, float far)
 
     Matrix ret = Matrix(
         1 / (aspect * tanHalfFov), 0.0f, 0.0f, 0.0f,
-        0.0f, -1.0f / tanHalfFov, 0.0f, 0.0f,
+        0.0f, 1.0f / tanHalfFov, 0.0f, 0.0f,
         0.0f, 0.0f, A, 1.0f,
         0.0f, 0.0f, B, 0.0f);
 
