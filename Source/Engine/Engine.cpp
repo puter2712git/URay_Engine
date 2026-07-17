@@ -13,6 +13,8 @@
 #include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
 
+#include <algorithm>
+
 namespace URay
 {
 

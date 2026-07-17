@@ -2,6 +2,7 @@
 
 #include "Render/Vertex.h"
 
+#include <string>
 #include <unordered_map>
 #include <vector>
 
