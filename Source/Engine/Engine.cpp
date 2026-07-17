@@ -46,6 +46,7 @@ bool Engine::Initialize()
 
     meshManager = new MeshManager(*renderer);
 
+    // clang-format off
     std::vector<Vertex> boxVertices = {
         { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.2f, 0.2f } },
         { { 0.5f, -0.5f, -0.5f }, { 1.0f, 0.6f, 0.2f } },
@@ -56,7 +57,6 @@ bool Engine::Initialize()
         { { -0.5f, 0.5f, 0.5f }, { 0.6f, 0.2f, 1.0f } },
         { { 0.5f, 0.5f, 0.5f }, { 1.0f, 0.2f, 1.0f } },
     };
-    // clang-format off
     std::vector<uint16_t> boxIndices = {
         0, 2, 1, 1, 2, 3,
         4, 5, 6, 5, 7, 6,
@@ -65,9 +65,20 @@ bool Engine::Initialize()
         2, 6, 3, 3, 6, 7,
         4, 0, 5, 5, 0, 1,
     };
+    std::vector<Vertex> quadVertices = {
+        { { -0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { 0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { 0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { -0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } }
+    };
+    std::vector<uint16_t> quadIndices = {
+        0, 2, 1,
+        3, 2, 0,  
+    };
     // clang-format on
 
     Mesh* boxMesh = meshManager->CreateMesh("box", boxVertices, boxIndices);
+    Mesh* quadMesh = meshManager->CreateMesh("quad", quadVertices, quadIndices);
 
     scene = new Scene();
 
@@ -76,13 +87,21 @@ bool Engine::Initialize()
     camera->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
     cameraUnit->AddComponent(camera);
 
-    Unit* unit = new Unit();
+    Unit* boxUnit = new Unit();
     MeshComponent* component = new MeshComponent();
     component->SetMesh(boxMesh);
-    unit->AddComponent(component);
+    boxUnit->AddComponent(component);
+
+    Unit* gridUnit = new Unit();
+    MeshComponent* meshComponent = new MeshComponent();
+    meshComponent->SetMesh(quadMesh);
+    meshComponent->SetRotation(Vector3(-90.0f, 0.0f, 0.0f));
+    meshComponent->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+    gridUnit->AddComponent(meshComponent);
 
     scene->AddUnit(cameraUnit);
-    scene->AddUnit(unit);
+    scene->AddUnit(boxUnit);
+    scene->AddUnit(gridUnit);
 
     return true;
 }

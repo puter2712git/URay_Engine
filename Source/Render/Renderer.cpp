@@ -153,47 +153,6 @@ void Renderer::Finalize()
     DestroyInstance();
 }
 
-void Renderer::Render(Scene* scene)
-{
-    BeginFrame();
-
-    CameraComponent* camera = nullptr;
-    for (Unit* unit : scene->GetUnits())
-    {
-        if (CameraComponent* cam = unit->GetComponent<CameraComponent>())
-        {
-            camera = cam;
-            break;
-        }
-    }
-
-    for (Unit* unit : scene->GetUnits())
-    {
-        if (MeshComponent* boxComp = unit->GetComponent<MeshComponent>())
-        {
-            UniformBufferObject ubo = {};
-            ubo.model = boxComp->GetWorldMatrix();
-            ubo.view = camera->GetViewMatrix();
-            ubo.proj = camera->GetProjMatrix();
-
-            memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
-
-            VkBuffer vertexBuffers[] = { boxComp->GetMesh()->GetVertexBuffer() };
-            VkDeviceSize offsets[] = { 0 };
-            vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
-
-            vkCmdBindIndexBuffer(commandBuffers[currentFrame], boxComp->GetMesh()->GetIndexBuffer(), 0, VK_INDEX_TYPE_UINT16);
-
-            vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                    pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-
-            vkCmdDrawIndexed(commandBuffers[currentFrame], static_cast<uint32_t>(boxComp->GetMesh()->GetIndices().size()), 1, 0, 0, 0);
-        }
-    }
-
-    EndFrame();
-}
-
 void Renderer::BeginFrame()
 {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
@@ -238,6 +197,15 @@ void Renderer::BeginFrame()
     scissor.offset = { 0, 0 };
     scissor.extent = swapChainExtent;
     vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
+
+    FrameConstants frameConstants = {};
+    frameConstants.view = viewMatrix;
+    frameConstants.proj = projMatrix;
+
+    std::memcpy(uniformBuffersMapped[currentFrame], &frameConstants, sizeof(FrameConstants));
+
+    vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 }
 
 void Renderer::EndFrame()
@@ -289,21 +257,17 @@ void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newPr
 
 void Renderer::Draw(const DrawCommand& cmd)
 {
-    UniformBufferObject ubo = {};
-    ubo.model = cmd.worldMatrix;
-    ubo.view = viewMatrix;
-    ubo.proj = projMatrix;
+    ObjectConstants objConstants = {};
+    objConstants.model = cmd.worldMatrix;
 
-    memcpy(uniformBuffersMapped[currentFrame], &ubo, sizeof(ubo));
+    vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout,
+                       VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(objConstants), &objConstants);
 
     VkBuffer vertexBuffers[] = { cmd.vertexBuffer };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
     vkCmdBindIndexBuffer(commandBuffers[currentFrame], cmd.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-
-    vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
     vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, 0, 0, 0);
 }
@@ -776,8 +740,14 @@ bool Renderer::CreateGraphicsPipeline()
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-    pipelineLayoutInfo.pushConstantRangeCount = 0;
-    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+
+    VkPushConstantRange pushConstant = {};
+    pushConstant.offset = 0;
+    pushConstant.size = sizeof(ObjectConstants);
+    pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
+    pipelineLayoutInfo.pushConstantRangeCount = 1;
+    pipelineLayoutInfo.pPushConstantRanges = &pushConstant;
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
     {
@@ -1002,7 +972,7 @@ void Renderer::DestroyDescriptorSetLayout()
 
 bool Renderer::CreateUniformBuffers()
 {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+    VkDeviceSize bufferSize = sizeof(FrameConstants);
 
     uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
     uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
@@ -1070,7 +1040,7 @@ bool Renderer::CreateDescriptorSets()
         VkDescriptorBufferInfo bufferInfo = {};
         bufferInfo.buffer = uniformBuffers[i];
         bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+        bufferInfo.range = sizeof(FrameConstants);
 
         VkWriteDescriptorSet descriptorWrite = {};
         descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

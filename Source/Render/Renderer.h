@@ -13,11 +13,15 @@
 namespace URay
 {
 
-struct UniformBufferObject
+struct ObjectConstants
 {
-    Matrix model;
-    Matrix view;
-    Matrix proj;
+    Matrix model = Matrix::Identity;
+};
+
+struct FrameConstants
+{
+    Matrix view = Matrix::Identity;
+    Matrix proj = Matrix::Identity;
 };
 
 const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -34,8 +38,6 @@ public:
 public:
     bool Initialize(Window* wnd);
     void Finalize();
-
-    void Render(Scene* scene);
 
     void BeginFrame();
     void EndFrame();
