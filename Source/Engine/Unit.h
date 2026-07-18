@@ -29,6 +29,11 @@ public:
         return nullptr;
     }
 
+    const std::set<Component*>& GetComponents() const
+    {
+        return components;
+    }
+
 private:
     std::set<Component*> components;
 };

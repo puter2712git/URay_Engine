@@ -35,6 +35,8 @@ struct Matrix
 
     Matrix Transpose() const;
 
+    Matrix Inverse() const;
+
     static Matrix MakeTranslation(const Vector3& position);
 
     static Matrix MakeRotation(const Vector3& rotation);

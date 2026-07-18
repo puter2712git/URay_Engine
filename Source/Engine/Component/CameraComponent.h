@@ -22,6 +22,21 @@ public:
         return projMatrix;
     }
 
+    float GetFOV() const
+    {
+        return fov;
+    }
+
+    float GetNearPlane() const
+    {
+        return near;
+    }
+
+    float GetFarPlane() const
+    {
+        return far;
+    }
+
 private:
     void UpdateViewMatrix();
     void UpdateProjMatrix();

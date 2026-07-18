@@ -73,6 +73,11 @@ struct Vector3
 
         return ret;
     }
+
+    Vector3 operator*(const float& rhs) const
+    {
+        return Vector3(x * rhs, y * rhs, z * rhs);
+    }
 };
 
 } // namespace URay

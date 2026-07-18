@@ -17,7 +17,11 @@ struct Transform
 
     static Transform Identity;
 
+    Vector3 TransformPoint(const Vector3& point) const;
+    Vector3 InvTransformPoint(const Vector3& worldPoint) const;
+
     Vector3 TransformVectorNoScale(const Vector3& vector) const;
+    Vector3 InvTransformVectorNoScale(const Vector3& worldVector) const;
 };
 
 } // namespace URay

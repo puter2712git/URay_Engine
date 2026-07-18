@@ -48,6 +48,69 @@ Matrix Matrix::Transpose() const
     return ret;
 }
 
+Matrix Matrix::Inverse() const
+{
+    float src[12];
+    float dst[16];
+
+    // 중간 계산을 위한 소행렬식(Minor) 쌍 생성
+    src[0] = m[10] * m[15] - m[11] * m[14];
+    src[1] = m[9] * m[15] - m[11] * m[13];
+    src[2] = m[9] * m[14] - m[10] * m[13];
+    src[3] = m[8] * m[15] - m[11] * m[12];
+    src[4] = m[8] * m[14] - m[10] * m[12];
+    src[5] = m[8] * m[13] - m[9] * m[12];
+    src[6] = m[2] * m[7] - m[3] * m[6];
+    src[7] = m[1] * m[7] - m[3] * m[5];
+    src[8] = m[1] * m[6] - m[2] * m[5];
+    src[9] = m[0] * m[7] - m[3] * m[4];
+    src[10] = m[0] * m[6] - m[2] * m[4];
+    src[11] = m[0] * m[5] - m[1] * m[4];
+
+    // 수반 행렬(Adjugate Matrix) 요소 계산
+    dst[0] = m[5] * src[0] - m[6] * src[1] + m[7] * src[2];
+    dst[1] = -m[1] * src[0] + m[2] * src[1] - m[3] * src[2];
+    dst[2] = m[13] * src[6] - m[14] * src[7] + m[15] * src[8];
+    dst[3] = -m[9] * src[6] + m[10] * src[7] - m[11] * src[8];
+
+    dst[4] = -m[4] * src[0] + m[6] * src[3] - m[7] * src[4];
+    dst[5] = m[0] * src[0] - m[2] * src[3] + m[3] * src[4];
+    dst[6] = -m[12] * src[6] + m[14] * src[9] - m[15] * src[10];
+    dst[7] = m[8] * src[6] - m[10] * src[9] + m[11] * src[10];
+
+    dst[8] = m[4] * src[1] - m[5] * src[3] + m[7] * src[5];
+    dst[9] = -m[0] * src[1] + m[1] * src[3] - m[3] * src[5];
+    dst[10] = m[12] * src[7] - m[13] * src[9] + m[15] * src[11];
+    dst[11] = -m[8] * src[7] + m[9] * src[9] - m[11] * src[11];
+
+    dst[12] = -m[4] * src[2] + m[5] * src[4] - m[6] * src[5];
+    dst[13] = m[0] * src[2] - m[1] * src[4] + m[2] * src[5];
+    dst[14] = -m[12] * src[8] + m[13] * src[10] - m[14] * src[11];
+    dst[15] = m[8] * src[8] - m[9] * src[10] + m[10] * src[11];
+
+    // 행렬식(Determinant) 계산
+    float det = m[0] * dst[0] + m[1] * dst[4] + m[2] * dst[8] + m[3] * dst[12];
+
+    // 결과 행렬 생성
+    Matrix result;
+
+    // 행렬식이 0에 너무 가까우면 역행렬이 존재하지 않으므로 에러 처리나 기본 행렬 반환
+    if (std::abs(det) < 1e-9f)
+    {
+        // 프로젝트 규칙에 맞게 처리하세요 (예: Identity 반환 혹은 에러 던지기)
+        return Matrix();
+    }
+
+    // 행렬식의 역수를 각 요소에 곱해줌
+    float invDet = 1.0f / det;
+    for (int i = 0; i < 16; i++)
+    {
+        result.m[i] = dst[i] * invDet;
+    }
+
+    return result;
+}
+
 Matrix Matrix::MakeTranslation(const Vector3& position)
 {
     Matrix mat = Matrix::Identity;

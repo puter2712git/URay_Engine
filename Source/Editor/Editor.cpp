@@ -8,8 +8,6 @@
 
 #include <imgui/imgui.h>
 
-#include <iostream>
-
 namespace URay
 {
 

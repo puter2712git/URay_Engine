@@ -55,6 +55,8 @@ private:
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
 
+    void UpdatePick();
+
 private:
     Window* window = nullptr;
     Scene* scene = nullptr;
