@@ -44,7 +44,7 @@ bool Engine::Initialize()
 
     renderPipeline = new RenderPipeline(*renderer);
 
-    editor = new Editor(*renderer);
+    editor = new Editor(*this, *renderer);
     if (!editor->Initialize())
         return false;
 
@@ -93,11 +93,6 @@ bool Engine::Initialize()
     camera->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
     cameraUnit->AddComponent(camera);
 
-    Unit* boxUnit = new Unit();
-    MeshComponent* component = new MeshComponent();
-    component->SetMesh(boxMesh);
-    boxUnit->AddComponent(component);
-
     Unit* gridUnit = new Unit();
     MeshComponent* meshComponent = new MeshComponent();
     meshComponent->SetMesh(quadMesh);
@@ -106,7 +101,6 @@ bool Engine::Initialize()
     gridUnit->AddComponent(meshComponent);
 
     scene->AddUnit(cameraUnit);
-    scene->AddUnit(boxUnit);
     scene->AddUnit(gridUnit);
 
     return true;
@@ -148,6 +142,11 @@ void Engine::Finalize()
 
     window->Finalize();
     delete window;
+}
+
+void Engine::SpawnUnit(Unit* unit)
+{
+    scene->AddUnit(unit);
 }
 
 void Engine::UpdateCameraMovement(float deltaTime)

@@ -7,6 +7,7 @@ namespace URay
 
 class Scene;
 class CameraComponent;
+class Unit;
 
 class Window;
 class Timer;
@@ -28,9 +29,21 @@ public:
     void Run();
     void Finalize();
 
+    void SpawnUnit(Unit* unit);
+
     InputManager& GetInputManager()
     {
         return inputManager;
+    }
+
+    MeshManager* GetMeshManager() const
+    {
+        return meshManager;
+    }
+
+    Scene* GetScene() const
+    {
+        return scene;
     }
 
     Editor* GetEditor() const

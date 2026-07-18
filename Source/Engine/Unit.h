@@ -11,7 +11,7 @@ class Unit
 {
 public:
     Unit() = default;
-    ~Unit();
+    virtual ~Unit();
 
 public:
     virtual void Update(float deltaTime);

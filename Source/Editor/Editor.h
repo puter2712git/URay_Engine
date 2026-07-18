@@ -3,12 +3,13 @@
 namespace URay
 {
 
+class Engine;
 class Renderer;
 
 class Editor
 {
 public:
-    Editor(Renderer& renderer);
+    Editor(Engine& engine, Renderer& renderer);
     ~Editor() = default;
 
 public:
@@ -19,6 +20,7 @@ public:
     void Render();
 
 private:
+    Engine& engine;
     Renderer& renderer;
 };
 

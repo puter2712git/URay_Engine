@@ -1,5 +1,9 @@
 #include "Editor.h"
 
+#include "Engine/Engine.h"
+#include "Engine/Scene.h"
+#include "Engine/TestUnit.h"
+
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -9,8 +13,8 @@
 namespace URay
 {
 
-Editor::Editor(Renderer& renderer)
-    : renderer(renderer)
+Editor::Editor(Engine& engine, Renderer& renderer)
+    : engine(engine), renderer(renderer)
 {
 }
 
@@ -38,7 +42,10 @@ void Editor::Render()
     ImGui::Begin("Hello, world!");
 
     if (ImGui::Button("Click me"))
-        std::cout << "ImGui button clicked" << std::endl;
+    {
+        TestUnit* testUnit = new TestUnit();
+        engine.GetScene()->AddUnit(testUnit);
+    }
 
     ImGui::End();
 
