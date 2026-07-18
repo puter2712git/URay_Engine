@@ -72,6 +72,9 @@ private:
     };
 
 private:
+    bool InitializeImGui();
+    void FinalizeImGui();
+
     bool CreateInstance();
     void DestroyInstance();
 

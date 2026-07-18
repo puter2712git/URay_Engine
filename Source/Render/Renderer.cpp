@@ -8,6 +8,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_vulkan.h>
+
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -129,12 +133,17 @@ bool Renderer::Initialize(Window* wnd)
     if (!CreateSyncObjects())
         return false;
 
+    if (!InitializeImGui())
+        return false;
+
     return true;
 }
 
 void Renderer::Finalize()
 {
     vkDeviceWaitIdle(device);
+
+    FinalizeImGui();
 
     CleanupSwapChain();
 
@@ -223,6 +232,22 @@ void Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    ImGui::Begin("Hello, world!");
+
+    if (ImGui::Button("Click me"))
+        std::cout << "ImGui button clicked" << std::endl;
+
+    ImGui::End();
+
+    ImGui::Render();
+    ImDrawData* drawData = ImGui::GetDrawData();
+
+    ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffers[currentFrame]);
+
     vkCmdEndRenderPass(commandBuffers[currentFrame]);
 
     if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS)
@@ -349,6 +374,40 @@ void Renderer::DestroyBuffer(VkBuffer buffer) const
 void Renderer::FreeMemory(VkDeviceMemory memory) const
 {
     vkFreeMemory(device, memory, nullptr);
+}
+
+bool Renderer::InitializeImGui()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+
+    ImGui::StyleColorsDark();
+
+    ImGui_ImplGlfw_InitForVulkan(window->GetGLFWWindow(), true);
+    ImGui_ImplVulkan_InitInfo initInfo = {};
+    initInfo.ApiVersion = VK_API_VERSION_1_1;
+    initInfo.Instance = instance;
+    initInfo.PhysicalDevice = physicalDevice;
+    initInfo.Device = device;
+    initInfo.QueueFamily = FindQueueFamilies(physicalDevice).graphicsFamily.value();
+    initInfo.Queue = graphicsQueue;
+    initInfo.DescriptorPool = VK_NULL_HANDLE;
+    initInfo.DescriptorPoolSize = 8;
+    initInfo.MinImageCount = 2;
+    initInfo.ImageCount = static_cast<uint32_t>(swapChainImages.size());
+    initInfo.PipelineInfoMain.RenderPass = renderPass;
+    initInfo.PipelineInfoMain.Subpass = 0;
+    ImGui_ImplVulkan_Init(&initInfo);
+
+    return true;
+}
+
+void Renderer::FinalizeImGui()
+{
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 bool Renderer::CreateInstance()
