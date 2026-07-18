@@ -39,8 +39,14 @@ public:
     bool Initialize(Window* wnd);
     void Finalize();
 
+    bool InitializeImGui();
+    void FinalizeImGui();
+
     void BeginFrame();
     void EndFrame();
+
+    void BeginImGui();
+    void EndImGui();
 
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
 
@@ -72,9 +78,6 @@ private:
     };
 
 private:
-    bool InitializeImGui();
-    void FinalizeImGui();
-
     bool CreateInstance();
     void DestroyInstance();
 

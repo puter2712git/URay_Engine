@@ -13,6 +13,8 @@
 #include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
 
+#include "Editor/Editor.h"
+
 #include <algorithm>
 
 namespace URay
@@ -41,6 +43,10 @@ bool Engine::Initialize()
         return false;
 
     renderPipeline = new RenderPipeline(*renderer);
+
+    editor = new Editor(*renderer);
+    if (!editor->Initialize())
+        return false;
 
     timer = new Timer();
 
@@ -128,6 +134,9 @@ void Engine::Run()
 
 void Engine::Finalize()
 {
+    editor->Finalize();
+    delete editor;
+
     delete scene;
 
     delete meshManager;

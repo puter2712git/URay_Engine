@@ -4,8 +4,11 @@
 
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
+
+#include "Editor/Editor.h"
 
 namespace URay
 {
@@ -34,6 +37,8 @@ void RenderPipeline::Execute(const Scene* scene) const
     {
         ExecuteCommand(cmd);
     }
+
+    gEngine->GetEditor()->Render();
 
     renderer.EndFrame();
 }

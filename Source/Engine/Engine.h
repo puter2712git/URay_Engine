@@ -15,6 +15,8 @@ class MeshManager;
 class Renderer;
 class RenderPipeline;
 
+class Editor;
+
 class Engine
 {
 public:
@@ -31,6 +33,11 @@ public:
         return inputManager;
     }
 
+    Editor* GetEditor() const
+    {
+        return editor;
+    }
+
 private:
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
@@ -42,6 +49,8 @@ private:
 
     Renderer* renderer = nullptr;
     RenderPipeline* renderPipeline = nullptr;
+
+    Editor* editor = nullptr;
 
     Timer* timer = nullptr;
 
