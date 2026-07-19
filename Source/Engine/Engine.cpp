@@ -52,40 +52,9 @@ bool Engine::Initialize()
     timer = new Timer();
 
     meshManager = new MeshManager(*renderer);
+    meshManager->CreateDefaultMeshes();
 
-    // clang-format off
-    std::vector<Vertex> boxVertices = {
-        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.2f, 0.2f } },
-        { { 0.5f, -0.5f, -0.5f }, { 1.0f, 0.6f, 0.2f } },
-        { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 0.2f } },
-        { { 0.5f, 0.5f, -0.5f }, { 0.2f, 1.0f, 0.2f } },
-        { { -0.5f, -0.5f, 0.5f }, { 0.2f, 1.0f, 1.0f } },
-        { { 0.5f, -0.5f, 0.5f }, { 0.2f, 0.4f, 1.0f } },
-        { { -0.5f, 0.5f, 0.5f }, { 0.6f, 0.2f, 1.0f } },
-        { { 0.5f, 0.5f, 0.5f }, { 1.0f, 0.2f, 1.0f } },
-    };
-    std::vector<uint16_t> boxIndices = {
-        0, 2, 1, 1, 2, 3,
-        4, 5, 6, 5, 7, 6,
-        4, 6, 0, 0, 6, 2,
-        1, 3, 5, 5, 3, 7,
-        2, 6, 3, 3, 6, 7,
-        4, 0, 5, 5, 0, 1,
-    };
-    std::vector<Vertex> quadVertices = {
-        { { -0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { -0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } }
-    };
-    std::vector<uint16_t> quadIndices = {
-        0, 1, 2,
-        0, 2, 3,  
-    };
-    // clang-format on
-
-    Mesh* boxMesh = meshManager->CreateMesh("box", boxVertices, boxIndices);
-    Mesh* quadMesh = meshManager->CreateMesh("quad", quadVertices, quadIndices);
+    Mesh* quadMesh = meshManager->GetMesh("quad");
 
     scene = new Scene();
 
