@@ -16,6 +16,15 @@ public:
     ~Shader() = default;
 
 public:
+    uint64_t GetId() const
+    {
+        return id;
+    }
+    void SetId(uint64_t newId)
+    {
+        id = newId;
+    }
+
     const std::string& GetFilePath() const
     {
         return filePath;
@@ -27,6 +36,7 @@ public:
     }
 
 private:
+    uint64_t id = 0;
     std::string filePath;
     std::vector<char> code;
 

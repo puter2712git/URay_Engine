@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/DrawCommand.h"
+#include "Render/PipelineState.h"
 #include "Render/Vertex.h"
 
 #include "Core/Math/Matrix.h"
@@ -8,6 +9,7 @@
 #include <vulkan/vulkan.h>
 
 #include <optional>
+#include <unordered_map>
 #include <vector>
 
 namespace URay
@@ -66,6 +68,9 @@ public:
     void DestroyBuffer(VkBuffer buffer) const;
     void FreeMemory(VkDeviceMemory memory) const;
 
+    void CreatePipelineLayout();
+    VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
+
 private:
     struct QueueFamilyIndices
     {
@@ -107,9 +112,6 @@ private:
 
     bool CreateImageViews();
     void DestroyImageViews();
-
-    bool CreateGraphicsPipeline();
-    void DestroyGraphicsPipeline();
 
     bool CreateRenderPass();
     void DestroyRenderPass();
@@ -212,7 +214,8 @@ private:
     VkRenderPass renderPass = VK_NULL_HANDLE;
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-    VkPipeline graphicsPipeline = VK_NULL_HANDLE;
+
+    std::unordered_map<uint64_t, VkPipeline> pipelines;
 
     std::vector<VkFramebuffer> swapChainFramebuffers;
 

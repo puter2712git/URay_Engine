@@ -33,6 +33,8 @@ Shader* ShaderManager::GetOrCreate(const std::string& key, const std::string& fi
     Shader* newShader = new Shader(filePath, shaderCode, stage, entry);
     shaders.insert({ key, newShader });
 
+    newShader->SetId(shaderIdCounter++);
+
     return newShader;
 }
 

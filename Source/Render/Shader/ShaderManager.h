@@ -22,6 +22,7 @@ public:
                         const std::string& entry = "main");
 
 private:
+    uint64_t shaderIdCounter = 0;
     std::unordered_map<std::string, Shader*> shaders;
 };
 
