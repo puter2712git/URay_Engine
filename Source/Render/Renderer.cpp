@@ -1,6 +1,8 @@
 #include "Renderer.h"
 
 #include "Render/IndexBuffer.h"
+#include "Render/Shader/Shader.h"
+#include "Render/Shader/ShaderManager.h"
 #include "Render/VertexBuffer.h"
 
 #include "Platform/Window.h"
@@ -30,24 +32,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
 
     return VK_FALSE;
-}
-
-static std::vector<char> ReadFile(const std::string& filename)
-{
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open())
-        return std::vector<char>();
-
-    size_t fileSize = static_cast<size_t>(file.tellg());
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
-    return buffer;
 }
 
 namespace URay
@@ -111,6 +95,11 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateDescriptorSetLayout())
         return false;
+
+    shaderManager = new ShaderManager();
+    shaderManager->GetOrCreate("vert-shader", "Shader/vert.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
+    shaderManager->GetOrCreate("frag-shader", "Shader/frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT, "main");
+
     if (!CreateGraphicsPipeline())
         return false;
     if (!CreateCommandPool())
@@ -696,8 +685,8 @@ void Renderer::DestroyImageViews()
 
 bool Renderer::CreateGraphicsPipeline()
 {
-    auto vertShaderCode = ReadFile("Shader/vert.spv");
-    auto fragShaderCode = ReadFile("Shader/frag.spv");
+    auto vertShaderCode = shaderManager->GetOrCreate("vert-shader")->GetCode();
+    auto fragShaderCode = shaderManager->GetOrCreate("frag-shader")->GetCode();
 
     VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);

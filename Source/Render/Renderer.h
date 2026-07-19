@@ -32,6 +32,8 @@ class IndexBuffer;
 class Window;
 class Scene;
 
+class ShaderManager;
+
 class Renderer
 {
 public:
@@ -216,6 +218,8 @@ private:
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers;
+
+    ShaderManager* shaderManager = nullptr;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
