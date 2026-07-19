@@ -1,6 +1,9 @@
 #include "MeshComponent.h"
 
+#include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
+
+#include "Render/Material/MaterialManager.h"
 
 namespace URay
 {
@@ -8,6 +11,8 @@ namespace URay
 MeshComponent::MeshComponent()
 {
     mesh = new Mesh();
+
+    material = gEngine->GetMaterialManager()->GetOrCreate("default");
 }
 
 DrawCommand MeshComponent::SubmitCommand()
@@ -17,6 +22,7 @@ DrawCommand MeshComponent::SubmitCommand()
     cmd.vertexBuffer = mesh->GetVertexBuffer();
     cmd.indexBuffer = mesh->GetIndexBuffer();
     cmd.indexCount = static_cast<uint32_t>(mesh->GetIndices().size());
+    cmd.material = GetMaterial();
 
     return cmd;
 }

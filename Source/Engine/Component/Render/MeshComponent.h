@@ -8,6 +8,7 @@ namespace URay
 {
 
 class Mesh;
+class Material;
 
 class MeshComponent : public RenderComponent
 {
@@ -16,7 +17,8 @@ public:
     ~MeshComponent() = default;
 
 public:
-    virtual DrawCommand SubmitCommand() override;
+    virtual DrawCommand
+    SubmitCommand() override;
 
     Mesh* GetMesh() const
     {
@@ -27,8 +29,18 @@ public:
         mesh = newMesh;
     }
 
+    Material* GetMaterial() const
+    {
+        return material;
+    }
+    void SetMaterial(Material* newMaterial)
+    {
+        material = newMaterial;
+    }
+
 private:
     Mesh* mesh = nullptr;
+    Material* material = nullptr;
 };
 
 } // namespace URay

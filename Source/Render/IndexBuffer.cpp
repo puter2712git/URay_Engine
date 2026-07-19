@@ -12,8 +12,8 @@ IndexBuffer::IndexBuffer(Renderer* renderer, uint32_t size)
 
 IndexBuffer::~IndexBuffer()
 {
-    renderer->FreeMemory(memory);
     renderer->DestroyBuffer(buffer);
+    renderer->FreeMemory(memory);
 }
 
 } // namespace URay

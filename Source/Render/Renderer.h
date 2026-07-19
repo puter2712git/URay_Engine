@@ -35,6 +35,7 @@ class Window;
 class Scene;
 
 class ShaderManager;
+class MaterialManager;
 
 class Renderer
 {
@@ -60,16 +61,18 @@ public:
     void Draw(const DrawCommand& cmd);
 
     VertexBuffer* CreateVertexBuffer(const std::vector<Vertex>& vertices);
-    void DestroyVertexBuffer(VertexBuffer* vertexBuffer);
-
     IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
-    void DestroyIndexBuffer(IndexBuffer* indexBuffer);
 
     void DestroyBuffer(VkBuffer buffer) const;
     void FreeMemory(VkDeviceMemory memory) const;
 
     void CreatePipelineLayout();
     VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
+
+    MaterialManager* GetMaterialManager() const
+    {
+        return materialManager;
+    }
 
 private:
     struct QueueFamilyIndices
@@ -193,6 +196,9 @@ private:
 private:
     Window* window = nullptr;
 
+    ShaderManager* shaderManager = nullptr;
+    MaterialManager* materialManager = nullptr;
+
     VkInstance instance = VK_NULL_HANDLE;
 
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
@@ -221,8 +227,6 @@ private:
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers;
-
-    ShaderManager* shaderManager = nullptr;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;

@@ -15,11 +15,16 @@ MeshManager::MeshManager(Renderer& renderer)
 
 MeshManager::~MeshManager()
 {
-    while (!meshes.empty())
+    for (auto& [key, mesh] : meshes)
     {
-        std::string key = meshes.begin()->first;
-        RemoveMesh(key);
+        if (mesh)
+        {
+            delete mesh;
+            mesh = nullptr;
+        }
     }
+
+    meshes.clear();
 }
 
 bool MeshManager::CreateDefaultMeshes()
@@ -55,21 +60,6 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     meshes.insert({ key, mesh });
 
     return mesh;
-}
-
-void MeshManager::RemoveMesh(const std::string& key)
-{
-    if (!meshes.contains(key))
-        return;
-
-    Mesh* mesh = meshes[key];
-
-    renderer.DestroyVertexBuffer(mesh->GetVertexBuffer());
-    renderer.DestroyIndexBuffer(mesh->GetIndexBuffer());
-
-    delete mesh;
-
-    meshes.erase(key);
 }
 
 Mesh* MeshManager::GetMesh(const std::string& key) const

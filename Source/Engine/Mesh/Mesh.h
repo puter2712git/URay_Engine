@@ -14,6 +14,9 @@ namespace URay
 class Mesh
 {
 public:
+    ~Mesh();
+
+public:
     std::vector<Vertex> GetVertices() const
     {
         return vertices;

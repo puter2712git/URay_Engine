@@ -17,6 +17,16 @@ namespace URay
 
 ShaderManager::~ShaderManager()
 {
+    for (auto& [key, shader] : shaders)
+    {
+        if (shader)
+        {
+            delete shader;
+            shader = nullptr;
+        }
+    }
+
+    shaders.clear();
 }
 
 Shader* ShaderManager::GetOrCreate(const std::string& key,

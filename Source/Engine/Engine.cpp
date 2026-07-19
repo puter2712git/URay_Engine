@@ -120,6 +120,11 @@ void Engine::SpawnUnit(Unit* unit)
     scene->AddUnit(unit);
 }
 
+MaterialManager* Engine::GetMaterialManager() const
+{
+    return renderer->GetMaterialManager();
+}
+
 void Engine::UpdateCameraMovement(float deltaTime)
 {
     if (!camera)

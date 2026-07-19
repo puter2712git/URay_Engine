@@ -13,6 +13,7 @@ class Window;
 class Timer;
 class MeshManager;
 
+class MaterialManager;
 class Renderer;
 class RenderPipeline;
 
@@ -40,6 +41,8 @@ public:
     {
         return meshManager;
     }
+
+    MaterialManager* GetMaterialManager() const;
 
     Scene* GetScene() const
     {

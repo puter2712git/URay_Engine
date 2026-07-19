@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "Render/IndexBuffer.h"
+#include "Render/Material/MaterialManager.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/VertexBuffer.h"
@@ -96,7 +97,10 @@ bool Renderer::Initialize(Window* wnd)
         return false;
 
     shaderManager = new ShaderManager();
-    shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
+    Shader* shader = shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
+
+    materialManager = new MaterialManager();
+    materialManager->GetOrCreate("default", shader);
 
     CreatePipelineLayout();
 
@@ -139,6 +143,9 @@ void Renderer::Finalize()
     DestroyUniformBuffers();
 
     DestroyDescriptorPool();
+
+    delete materialManager;
+    delete shaderManager;
 
     DestroyDescriptorSetLayout();
 
@@ -364,11 +371,6 @@ VertexBuffer* Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices)
     return vertexBuffer;
 }
 
-void Renderer::DestroyVertexBuffer(VertexBuffer* vertexBuffer)
-{
-    delete vertexBuffer;
-}
-
 IndexBuffer* Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices)
 {
     VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
@@ -397,11 +399,6 @@ IndexBuffer* Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices)
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
     return indexBuffer;
-}
-
-void Renderer::DestroyIndexBuffer(IndexBuffer* indexBuffer)
-{
-    delete indexBuffer;
 }
 
 void Renderer::DestroyBuffer(VkBuffer buffer) const

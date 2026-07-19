@@ -12,8 +12,8 @@ VertexBuffer::VertexBuffer(Renderer* renderer, uint32_t size)
 
 VertexBuffer::~VertexBuffer()
 {
-    renderer->FreeMemory(memory);
     renderer->DestroyBuffer(buffer);
+    renderer->FreeMemory(memory);
 }
 
 } // namespace URay
