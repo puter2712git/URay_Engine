@@ -3,9 +3,8 @@
 namespace URay
 {
 
-Shader::Shader(const std::string& filePath, const std::vector<char>& code,
-               VkShaderStageFlagBits stage, const std::string& entry)
-    : filePath(filePath), code(code), stage(stage), entry(entry)
+Shader::Shader(const ShaderStage& vertexStage, const ShaderStage& fragmentStage)
+    : vertexStage(vertexStage), fragmentStage(fragmentStage)
 {
 }
 

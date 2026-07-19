@@ -8,11 +8,18 @@
 namespace URay
 {
 
+struct ShaderStage
+{
+    std::string filePath;
+    std::vector<char> code;
+    VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    std::string entry;
+};
+
 class Shader
 {
 public:
-    Shader(const std::string& filePath, const std::vector<char>& code,
-           VkShaderStageFlagBits stage, const std::string& entry);
+    Shader(const ShaderStage& vertexStage, const ShaderStage& fragmentStage);
     ~Shader() = default;
 
 public:
@@ -25,23 +32,20 @@ public:
         id = newId;
     }
 
-    const std::string& GetFilePath() const
+    const ShaderStage& GetVertexStage() const
     {
-        return filePath;
+        return vertexStage;
     }
-
-    const std::vector<char>& GetCode() const
+    const ShaderStage& GetFragmentStage() const
     {
-        return code;
+        return fragmentStage;
     }
 
 private:
     uint64_t id = 0;
-    std::string filePath;
-    std::vector<char> code;
 
-    VkShaderStageFlagBits stage = VK_SHADER_STAGE_VERTEX_BIT;
-    std::string entry;
+    ShaderStage vertexStage = {};
+    ShaderStage fragmentStage = {};
 };
 
 } // namespace URay

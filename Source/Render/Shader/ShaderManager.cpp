@@ -19,18 +19,35 @@ ShaderManager::~ShaderManager()
 {
 }
 
-Shader* ShaderManager::GetOrCreate(const std::string& key, const std::string& filePath,
-                                   VkShaderStageFlagBits stage, const std::string& entry)
+Shader* ShaderManager::GetOrCreate(const std::string& key,
+                                   const std::string& vertexFilePath,
+                                   const std::string& fragmentFilePath)
 {
     auto it = shaders.find(key);
     if (it != shaders.end())
         return it->second;
 
-    std::vector<char> shaderCode = ReadFile(filePath);
-    if (shaderCode.empty())
+    std::vector<char> vertexShaderCode = ReadFile(vertexFilePath);
+    if (vertexFilePath.empty())
         return nullptr;
 
-    Shader* newShader = new Shader(filePath, shaderCode, stage, entry);
+    std::vector<char> fragmentShaderCode = ReadFile(fragmentFilePath);
+    if (fragmentFilePath.empty())
+        return nullptr;
+
+    ShaderStage vertexStage = {};
+    vertexStage.filePath = vertexFilePath;
+    vertexStage.code = vertexShaderCode;
+    vertexStage.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    vertexStage.entry = "VSMain";
+
+    ShaderStage fragmentStage = {};
+    fragmentStage.filePath = fragmentFilePath;
+    fragmentStage.code = fragmentShaderCode;
+    fragmentStage.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+    fragmentStage.entry = "PSMain";
+
+    Shader* newShader = new Shader(vertexStage, fragmentStage);
     shaders.insert({ key, newShader });
 
     newShader->SetId(shaderIdCounter++);

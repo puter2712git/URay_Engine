@@ -96,8 +96,7 @@ bool Renderer::Initialize(Window* wnd)
         return false;
 
     shaderManager = new ShaderManager();
-    shaderManager->GetOrCreate("vert-shader", "Shader/vert.spv", VK_SHADER_STAGE_VERTEX_BIT, "main");
-    shaderManager->GetOrCreate("frag-shader", "Shader/frag.spv", VK_SHADER_STAGE_FRAGMENT_BIT, "main");
+    shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
 
     CreatePipelineLayout();
 
@@ -224,8 +223,7 @@ void Renderer::BeginFrame()
     vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     PipelineState psoDesc = {};
-    psoDesc.vertexShader = shaderManager->GetOrCreate("vert-shader");
-    psoDesc.fragmentShader = shaderManager->GetOrCreate("frag-shader");
+    psoDesc.shader = shaderManager->GetOrCreate("shader");
 
     VkPipeline pipeline = GetOrCreatePipelineState(psoDesc);
 
@@ -442,8 +440,8 @@ VkPipeline Renderer::GetOrCreatePipelineState(const PipelineState& desc)
     if (it != pipelines.end())
         return it->second;
 
-    auto vertShaderCode = desc.vertexShader->GetCode();
-    auto fragShaderCode = desc.fragmentShader->GetCode();
+    auto vertShaderCode = desc.shader->GetVertexStage().code;
+    auto fragShaderCode = desc.shader->GetFragmentStage().code;
 
     VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);

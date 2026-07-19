@@ -9,8 +9,7 @@ class Shader;
 
 struct PipelineState
 {
-    Shader* vertexShader = nullptr;
-    Shader* fragmentShader = nullptr;
+    Shader* shader = nullptr;
 
     uint64_t GetKey() const;
 };

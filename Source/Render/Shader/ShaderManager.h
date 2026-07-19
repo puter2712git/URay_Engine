@@ -17,9 +17,9 @@ public:
     ~ShaderManager();
 
 public:
-    Shader* GetOrCreate(const std::string& key, const std::string& filePath = "",
-                        VkShaderStageFlagBits stage = VK_SHADER_STAGE_VERTEX_BIT,
-                        const std::string& entry = "main");
+    Shader* GetOrCreate(const std::string& key,
+                        const std::string& vertexFilePath = "",
+                        const std::string& fragmentFilePath = "");
 
 private:
     uint64_t shaderIdCounter = 0;
