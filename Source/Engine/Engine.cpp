@@ -16,7 +16,6 @@
 #include "Editor/Editor.h"
 
 #include <algorithm>
-#include <iostream>
 
 namespace URay
 {
