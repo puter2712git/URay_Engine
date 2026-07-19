@@ -10,8 +10,13 @@ Scene::~Scene()
     for (Unit* unit : units)
     {
         if (unit)
+        {
             delete unit;
+            unit = nullptr;
+        }
     }
+
+    units.clear();
 }
 
 void Scene::Update(float deltaTime)

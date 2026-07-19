@@ -44,7 +44,10 @@ const bool enableValidationLayers = true;
 #endif
 
 const std::vector<const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-const std::vector<const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+const std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    "VK_KHR_portability_subset"
+};
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
                                       const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -136,6 +139,8 @@ void Renderer::Finalize()
 
     CleanupSwapChain();
 
+    DestroyDepthResources();
+
     DestroyTextureSampler();
     DestroyTextureImageView();
     DestroyTextureImage();
@@ -148,6 +153,9 @@ void Renderer::Finalize()
     delete shaderManager;
 
     DestroyDescriptorSetLayout();
+
+    DestroyPipelineStates();
+    DestroyPipelineLayout();
 
     DestroyRenderPass();
 
@@ -316,6 +324,11 @@ void Renderer::EndImGui()
     vkCmdEndRenderPass(commandBuffers[currentFrame]);
 }
 
+void Renderer::WaitIdle()
+{
+    vkDeviceWaitIdle(device);
+}
+
 void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix)
 {
     viewMatrix = newViewMatrix;
@@ -428,6 +441,11 @@ void Renderer::CreatePipelineLayout()
 
     if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
         return;
+}
+
+void Renderer::DestroyPipelineLayout()
+{
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 }
 
 VkPipeline Renderer::GetOrCreatePipelineState(const PipelineState& desc)
@@ -591,6 +609,20 @@ VkPipeline Renderer::GetOrCreatePipelineState(const PipelineState& desc)
     pipelines.insert({ key, pipeline });
 
     return pipeline;
+}
+
+void Renderer::DestroyPipelineStates()
+{
+    for (auto& [key, pipeline] : pipelines)
+    {
+        if (pipeline)
+        {
+            vkDestroyPipeline(device, pipeline, nullptr);
+            pipeline = VK_NULL_HANDLE;
+        }
+    }
+
+    pipelines.clear();
 }
 
 bool Renderer::CreateInstance()
@@ -1271,6 +1303,13 @@ bool Renderer::CreateDepthResources()
     depthImageView = CreateImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 
     return true;
+}
+
+void Renderer::DestroyDepthResources()
+{
+    vkDestroyImageView(device, depthImageView, nullptr);
+    vkDestroyImage(device, depthImage, nullptr);
+    vkFreeMemory(device, depthImageMemory, nullptr);
 }
 
 bool Renderer::CheckValidationLayerSupport() const

@@ -2,6 +2,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshManager.h"
 
 #include "Render/Material/MaterialManager.h"
 
@@ -10,7 +11,7 @@ namespace URay
 
 MeshComponent::MeshComponent()
 {
-    mesh = new Mesh();
+    mesh = gEngine->GetMeshManager()->GetMesh("box");
 
     material = gEngine->GetMaterialManager()->GetOrCreate("default");
 }

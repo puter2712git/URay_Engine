@@ -9,6 +9,7 @@ class TestUnit : public Unit
 {
 public:
     TestUnit();
+    virtual ~TestUnit() override = default;
 };
 
 } // namespace URay

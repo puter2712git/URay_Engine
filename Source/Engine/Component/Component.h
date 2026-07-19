@@ -11,6 +11,9 @@ class Unit;
 class Component
 {
 public:
+    virtual ~Component() = default;
+
+public:
     virtual void Update(float deltaTime);
 
     void UpdateWorldMatrix();

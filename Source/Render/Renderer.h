@@ -56,6 +56,8 @@ public:
     void BeginImGui();
     void EndImGui();
 
+    void WaitIdle();
+
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
 
     void Draw(const DrawCommand& cmd);
@@ -67,7 +69,10 @@ public:
     void FreeMemory(VkDeviceMemory memory) const;
 
     void CreatePipelineLayout();
+    void DestroyPipelineLayout();
+
     VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
+    void DestroyPipelineStates();
 
     MaterialManager* GetMaterialManager() const
     {
@@ -151,6 +156,7 @@ private:
     void DestroyTextureSampler();
 
     bool CreateDepthResources();
+    void DestroyDepthResources();
 
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;

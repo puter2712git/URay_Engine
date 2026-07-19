@@ -99,8 +99,13 @@ void Engine::Run()
 
 void Engine::Finalize()
 {
+    renderer->WaitIdle();
+
     editor->Finalize();
     delete editor;
+
+    delete renderPipeline;
+    renderPipeline = nullptr;
 
     delete scene;
 

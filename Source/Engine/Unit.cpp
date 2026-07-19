@@ -9,9 +9,14 @@ Unit::~Unit()
 {
     for (Component* comp : components)
     {
-        delete comp;
-        comp = nullptr;
+        if (comp)
+        {
+            delete comp;
+            comp = nullptr;
+        }
     }
+
+    components.clear();
 }
 
 void Unit::Update(float deltaTime)
