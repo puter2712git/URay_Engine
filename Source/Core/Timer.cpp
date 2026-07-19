@@ -17,6 +17,16 @@ void Timer::Tick()
 
     deltaTime = std::chrono::duration<double>(elapsed).count();
     elapsedTime += deltaTime;
+
+    sampleTime += deltaTime;
+    ++sampleFrames;
+
+    if (sampleTime >= 0.5)
+    {
+        fps = static_cast<int>(sampleFrames / sampleTime);
+        sampleTime = 0.0;
+        sampleFrames = 0;
+    }
 }
 
 } // namespace URay

@@ -25,11 +25,20 @@ public:
         return elapsedTime;
     }
 
+    int GetFPS() const
+    {
+        return fps;
+    }
+
 private:
     Clock::time_point previousTime;
 
-    double deltaTime = 0.0f;
-    double elapsedTime = 0.0f;
+    double deltaTime = 0.0;
+    double elapsedTime = 0.0;
+
+    double sampleTime = 0.0;
+    int sampleFrames = 0;
+    int fps = 0;
 };
 
 } // namespace URay

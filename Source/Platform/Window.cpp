@@ -11,6 +11,9 @@ bool Window::Initialize()
 
     glfwWindow = glfwCreateWindow(800, 600, "URay Engine", nullptr, nullptr);
 
+    glfwMakeContextCurrent(glfwWindow);
+    glfwSwapInterval(1);
+
     return true;
 }
 

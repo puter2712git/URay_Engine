@@ -4,6 +4,8 @@
 #include "Engine/Scene.h"
 #include "Engine/TestUnit.h"
 
+#include "Core/Timer.h"
+
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -44,6 +46,13 @@ void Editor::Render()
         TestUnit* testUnit = new TestUnit();
         engine.GetScene()->AddUnit(testUnit);
     }
+
+    ImGui::End();
+
+    ImGui::Begin("Status");
+
+    ImGui::Text("FPS: %d", gEngine->GetTimer()->GetFPS());
+    ImGui::Text("%.4f ms", gEngine->GetTimer()->GetDeltaTime());
 
     ImGui::End();
 

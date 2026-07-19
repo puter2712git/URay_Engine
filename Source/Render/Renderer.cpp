@@ -452,13 +452,13 @@ VkPipeline Renderer::GetOrCreatePipelineState(const PipelineState& desc)
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
     vertShaderStageInfo.module = vertShaderModule;
-    vertShaderStageInfo.pName = "main";
+    vertShaderStageInfo.pName = "VSMain";
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragShaderStageInfo.module = fragShaderModule;
-    fragShaderStageInfo.pName = "main";
+    fragShaderStageInfo.pName = "PSMain";
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
@@ -1444,10 +1444,16 @@ VkSurfaceFormatKHR Renderer::ChooseSwapSurfaceFormat(
 VkPresentModeKHR Renderer::ChooseSwapPresentMode(
     const std::vector<VkPresentModeKHR>& availablePresentModes) const
 {
-    for (const auto& availablePresentMode : availablePresentModes)
+    for (const auto& mode : availablePresentModes)
     {
-        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-            return availablePresentMode;
+        if (mode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+            return mode;
+    }
+
+    for (const auto& mode : availablePresentModes)
+    {
+        if (mode == VK_PRESENT_MODE_MAILBOX_KHR)
+            return mode;
     }
 
     return VK_PRESENT_MODE_FIFO_KHR;

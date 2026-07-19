@@ -51,6 +51,11 @@ public:
         return editor;
     }
 
+    Timer* GetTimer() const
+    {
+        return timer;
+    }
+
 private:
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
