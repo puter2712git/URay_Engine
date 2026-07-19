@@ -39,6 +39,14 @@ void Editor::Render()
 {
     renderer.BeginImGui();
 
+    ShowTestPanel();
+    ShowStatus();
+
+    renderer.EndImGui();
+}
+
+void Editor::ShowTestPanel() const
+{
     ImGui::Begin("Hello, world!");
 
     if (ImGui::Button("Click me"))
@@ -48,15 +56,16 @@ void Editor::Render()
     }
 
     ImGui::End();
+}
 
+void Editor::ShowStatus() const
+{
     ImGui::Begin("Status");
 
     ImGui::Text("FPS: %d", gEngine->GetTimer()->GetFPS());
     ImGui::Text("%.4f ms", gEngine->GetTimer()->GetDeltaTime());
 
     ImGui::End();
-
-    renderer.EndImGui();
 }
 
 } // namespace URay

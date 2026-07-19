@@ -20,6 +20,10 @@ public:
     void Render();
 
 private:
+    void ShowTestPanel() const;
+    void ShowStatus() const;
+
+private:
     Engine& engine;
     Renderer& renderer;
 };
