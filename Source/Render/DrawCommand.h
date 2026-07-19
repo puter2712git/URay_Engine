@@ -7,12 +7,15 @@
 namespace URay
 {
 
+class VertexBuffer;
+class IndexBuffer;
+
 struct DrawCommand
 {
     Matrix worldMatrix = Matrix::Identity;
 
-    VkBuffer vertexBuffer = VK_NULL_HANDLE;
-    VkBuffer indexBuffer = VK_NULL_HANDLE;
+    VertexBuffer* vertexBuffer = nullptr;
+    IndexBuffer* indexBuffer = nullptr;
 
     uint32_t indexCount = 0;
 };

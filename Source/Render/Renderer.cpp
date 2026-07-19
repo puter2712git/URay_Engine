@@ -332,11 +332,13 @@ void Renderer::Draw(const DrawCommand& cmd)
     vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout,
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(objConstants), &objConstants);
 
-    VkBuffer vertexBuffers[] = { cmd.vertexBuffer };
+    VkBuffer vertexBuffers[] = { cmd.vertexBuffer->GetBufferRef() };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
 
-    vkCmdBindIndexBuffer(commandBuffers[currentFrame], cmd.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    VkBuffer indexBuffer = cmd.indexBuffer->GetBufferRef();
+
+    vkCmdBindIndexBuffer(commandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
     vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, 0, 0, 0);
 }
