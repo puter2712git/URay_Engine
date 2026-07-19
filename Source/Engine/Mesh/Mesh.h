@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/Vertex.h"
+#include "Render/VertexBuffer.h"
 
 #include <vulkan/vulkan.h>
 
@@ -30,30 +31,13 @@ public:
         indices = newIndices;
     }
 
-    VkBuffer GetVertexBuffer() const
+    VertexBuffer* GetVertexBuffer() const
     {
         return vertexBuffer;
     }
-    VkBuffer& GetVertexBufferRef()
+    void SetVertexBuffer(VertexBuffer* inVertexBuffer)
     {
-        return vertexBuffer;
-    }
-    void SetVertexBuffer(VkBuffer newBuffer)
-    {
-        vertexBuffer = newBuffer;
-    }
-
-    VkDeviceMemory GetVertexBufferMemory() const
-    {
-        return vertexBufferMemory;
-    }
-    VkDeviceMemory& GetVertexBufferMemoryRef()
-    {
-        return vertexBufferMemory;
-    }
-    void SetVertexBufferMemory(VkDeviceMemory memory)
-    {
-        vertexBufferMemory = memory;
+        vertexBuffer = inVertexBuffer;
     }
 
     VkBuffer GetIndexBuffer() const
@@ -86,8 +70,7 @@ private:
     std::vector<Vertex> vertices;
     std::vector<uint16_t> indices;
 
-    VkBuffer vertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+    VertexBuffer* vertexBuffer = nullptr;
 
     VkBuffer indexBuffer = VK_NULL_HANDLE;
     VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;

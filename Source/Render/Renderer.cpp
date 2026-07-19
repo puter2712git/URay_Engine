@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+#include "Render/VertexBuffer.h"
+
 #include "Platform/Window.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -338,7 +340,7 @@ void Renderer::Draw(const DrawCommand& cmd)
     vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, 0, 0, 0);
 }
 
-bool Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const
+VertexBuffer* Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
 
@@ -353,20 +355,27 @@ bool Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices, VkBuffer&
     std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
+    VertexBuffer* vertexBuffer = new VertexBuffer(this, bufferSize);
+
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 outBuffer, outMemory);
+                 vertexBuffer->GetBufferRef(), vertexBuffer->GetMemoryRef());
 
-    CopyBuffer(stagingBuffer, outBuffer, bufferSize);
+    CopyBuffer(stagingBuffer, vertexBuffer->GetBufferRef(), bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    return true;
+    return vertexBuffer;
 }
 
-bool Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory) const
+void Renderer::DestroyVertexBuffer(VertexBuffer* vertexBuffer)
+{
+    delete vertexBuffer;
+}
+
+bool Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory)
 {
     VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
 

@@ -3,6 +3,7 @@
 #include "Engine/Mesh/Mesh.h"
 
 #include "Render/Renderer.h"
+#include "Render/VertexBuffer.h"
 
 namespace URay
 {
@@ -39,13 +40,11 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     mesh->SetVertices(vertices);
     mesh->SetIndices(indices);
 
-    if (!renderer.CreateVertexBuffer(
-            vertices,
-            mesh->GetVertexBufferRef(),
-            mesh->GetVertexBufferMemoryRef()))
-    {
+    VertexBuffer* vertexBuffer = renderer.CreateVertexBuffer(vertices);
+    if (!vertexBuffer)
         return nullptr;
-    }
+
+    mesh->SetVertexBuffer(vertexBuffer);
 
     if (!renderer.CreateIndexBuffer(
             indices,
@@ -67,8 +66,7 @@ void MeshManager::RemoveMesh(const std::string& key)
 
     Mesh* mesh = meshes[key];
 
-    renderer.DestroyBuffer(mesh->GetVertexBuffer());
-    renderer.FreeMemory(mesh->GetVertexBufferMemory());
+    renderer.DestroyVertexBuffer(mesh->GetVertexBuffer());
 
     renderer.DestroyBuffer(mesh->GetIndexBuffer());
     renderer.FreeMemory(mesh->GetIndexBufferMemory());
