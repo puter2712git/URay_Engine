@@ -18,7 +18,6 @@
 #include <imgui/imgui_impl_vulkan.h>
 
 #include <algorithm>
-#include <fstream>
 #include <iostream>
 #include <set>
 #include <vector>
