@@ -15,7 +15,7 @@ DrawCommand MeshComponent::SubmitCommand()
     DrawCommand cmd = {};
     cmd.worldMatrix = GetWorldMatrix();
     cmd.vertexBuffer = mesh->GetVertexBuffer()->GetBufferRef();
-    cmd.indexBuffer = mesh->GetIndexBuffer();
+    cmd.indexBuffer = mesh->GetIndexBuffer()->GetBufferRef();
     cmd.indexCount = static_cast<uint32_t>(mesh->GetIndices().size());
 
     return cmd;

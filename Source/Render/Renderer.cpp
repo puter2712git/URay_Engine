@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Render/IndexBuffer.h"
 #include "Render/VertexBuffer.h"
 
 #include "Platform/Window.h"
@@ -375,7 +376,7 @@ void Renderer::DestroyVertexBuffer(VertexBuffer* vertexBuffer)
     delete vertexBuffer;
 }
 
-bool Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory)
+IndexBuffer* Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices)
 {
     VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
 
@@ -390,17 +391,24 @@ bool Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer&
     std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
+    IndexBuffer* indexBuffer = new IndexBuffer(this, bufferSize);
+
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 outBuffer, outMemory);
+                 indexBuffer->GetBufferRef(), indexBuffer->GetMemoryRef());
 
-    CopyBuffer(stagingBuffer, outBuffer, bufferSize);
+    CopyBuffer(stagingBuffer, indexBuffer->GetBufferRef(), bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    return true;
+    return indexBuffer;
+}
+
+void Renderer::DestroyIndexBuffer(IndexBuffer* indexBuffer)
+{
+    delete indexBuffer;
 }
 
 void Renderer::DestroyBuffer(VkBuffer buffer) const

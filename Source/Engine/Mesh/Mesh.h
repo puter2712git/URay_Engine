@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Render/IndexBuffer.h"
 #include "Render/Vertex.h"
 #include "Render/VertexBuffer.h"
 
@@ -40,30 +41,13 @@ public:
         vertexBuffer = inVertexBuffer;
     }
 
-    VkBuffer GetIndexBuffer() const
+    IndexBuffer* GetIndexBuffer() const
     {
         return indexBuffer;
     }
-    VkBuffer& GetIndexBufferRef()
+    void SetIndexBuffer(IndexBuffer* inIndexBuffer)
     {
-        return indexBuffer;
-    }
-    void SetIndexBuffer(VkBuffer newBuffer)
-    {
-        indexBuffer = newBuffer;
-    }
-
-    VkDeviceMemory GetIndexBufferMemory() const
-    {
-        return indexBufferMemory;
-    }
-    VkDeviceMemory& GetIndexBufferMemoryRef()
-    {
-        return indexBufferMemory;
-    }
-    void SetIndexBufferMemory(VkDeviceMemory memory)
-    {
-        indexBufferMemory = memory;
+        indexBuffer = inIndexBuffer;
     }
 
 private:
@@ -71,9 +55,7 @@ private:
     std::vector<uint16_t> indices;
 
     VertexBuffer* vertexBuffer = nullptr;
-
-    VkBuffer indexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory indexBufferMemory = VK_NULL_HANDLE;
+    IndexBuffer* indexBuffer = nullptr;
 };
 
 } // namespace URay

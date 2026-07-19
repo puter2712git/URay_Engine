@@ -27,6 +27,7 @@ struct FrameConstants
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 class VertexBuffer;
+class IndexBuffer;
 
 class Window;
 class Scene;
@@ -57,7 +58,8 @@ public:
     VertexBuffer* CreateVertexBuffer(const std::vector<Vertex>& vertices);
     void DestroyVertexBuffer(VertexBuffer* vertexBuffer);
 
-    bool CreateIndexBuffer(const std::vector<uint16_t>& indices, VkBuffer& outBuffer, VkDeviceMemory& outMemory);
+    IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
+    void DestroyIndexBuffer(IndexBuffer* indexBuffer);
 
     void DestroyBuffer(VkBuffer buffer) const;
     void FreeMemory(VkDeviceMemory memory) const;

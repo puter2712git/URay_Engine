@@ -46,13 +46,11 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
 
     mesh->SetVertexBuffer(vertexBuffer);
 
-    if (!renderer.CreateIndexBuffer(
-            indices,
-            mesh->GetIndexBufferRef(),
-            mesh->GetIndexBufferMemoryRef()))
-    {
+    IndexBuffer* indexBuffer = renderer.CreateIndexBuffer(indices);
+    if (!indexBuffer)
         return nullptr;
-    }
+
+    mesh->SetIndexBuffer(indexBuffer);
 
     meshes.insert({ key, mesh });
 
@@ -67,9 +65,7 @@ void MeshManager::RemoveMesh(const std::string& key)
     Mesh* mesh = meshes[key];
 
     renderer.DestroyVertexBuffer(mesh->GetVertexBuffer());
-
-    renderer.DestroyBuffer(mesh->GetIndexBuffer());
-    renderer.FreeMemory(mesh->GetIndexBufferMemory());
+    renderer.DestroyIndexBuffer(mesh->GetIndexBuffer());
 
     delete mesh;
 
