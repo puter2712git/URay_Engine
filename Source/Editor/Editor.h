@@ -5,6 +5,7 @@ namespace URay
 
 class Engine;
 class Renderer;
+class Unit;
 
 class Editor
 {
@@ -19,13 +20,18 @@ public:
     void Update(float deltaTime);
     void Render();
 
+    void SelectUnit(Unit* unit);
+
 private:
     void ShowTestPanel() const;
     void ShowStatus() const;
+    void ShowInspector() const;
 
 private:
     Engine& engine;
     Renderer& renderer;
+
+    Unit* selectedUnit = nullptr;
 };
 
 } // namespace URay

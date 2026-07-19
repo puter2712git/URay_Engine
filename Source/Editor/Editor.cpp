@@ -41,8 +41,14 @@ void Editor::Render()
 
     ShowTestPanel();
     ShowStatus();
+    ShowInspector();
 
     renderer.EndImGui();
+}
+
+void Editor::SelectUnit(Unit* unit)
+{
+    selectedUnit = unit;
 }
 
 void Editor::ShowTestPanel() const
@@ -64,6 +70,33 @@ void Editor::ShowStatus() const
 
     ImGui::Text("FPS: %d", gEngine->GetTimer()->GetFPS());
     ImGui::Text("%.4f ms", gEngine->GetTimer()->GetDeltaTime());
+
+    ImGui::End();
+}
+
+void Editor::ShowInspector() const
+{
+    ImGui::Begin("Inspector");
+
+    if (!selectedUnit)
+    {
+        ImGui::End();
+        return;
+    }
+
+    Transform newTransform = selectedUnit->GetTransform();
+    if (ImGui::DragFloat3("Position", &newTransform.position.x))
+    {
+        selectedUnit->SetPosition(newTransform.position);
+    }
+    if (ImGui::DragFloat3("Rotation", &newTransform.rotation.x))
+    {
+        selectedUnit->SetRotation(newTransform.rotation);
+    }
+    if (ImGui::DragFloat3("Scale", &newTransform.scale.x))
+    {
+        selectedUnit->SetScale(newTransform.scale);
+    }
 
     ImGui::End();
 }

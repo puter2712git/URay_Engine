@@ -22,6 +22,10 @@ public:
     {
         return transform;
     }
+    void SetTransform(const Transform& inTransform)
+    {
+        transform = inTransform;
+    }
 
     Vector3 GetPosition() const
     {

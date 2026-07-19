@@ -217,8 +217,9 @@ void Engine::UpdatePick()
 
         float minDist = std::numeric_limits<float>::max();
         bool isHit = false;
+        Unit* hitUnit = nullptr;
 
-        for (const Unit* unit : scene->GetUnits())
+        for (Unit* unit : scene->GetUnits())
         {
             std::set<Component*> components = unit->GetComponents();
             for (const Component* comp : components)
@@ -284,6 +285,7 @@ void Engine::UpdatePick()
                     {
                         minDist = t;
                         isHit = true;
+                        hitUnit = unit;
                     }
                 }
             }
@@ -291,7 +293,7 @@ void Engine::UpdatePick()
 
         if (isHit)
         {
-            std::cout << "Hit!" << std::endl;
+            editor->SelectUnit(hitUnit);
         }
     }
 }

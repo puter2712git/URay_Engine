@@ -22,6 +22,14 @@ struct Transform
 
     Vector3 TransformVectorNoScale(const Vector3& vector) const;
     Vector3 InvTransformVectorNoScale(const Vector3& worldVector) const;
+
+    Transform& operator=(const Transform& rhs)
+    {
+        position = rhs.position;
+        rotation = rhs.rotation;
+        scale = rhs.scale;
+        return *this;
+    }
 };
 
 } // namespace URay
