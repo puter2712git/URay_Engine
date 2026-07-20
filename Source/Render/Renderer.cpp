@@ -2,6 +2,7 @@
 
 #include "Render/IndexBuffer.h"
 #include "Render/Material/MaterialManager.h"
+#include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/VertexBuffer.h"

@@ -3,8 +3,6 @@
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 
-#include <vector>
-
 namespace URay
 {
 
