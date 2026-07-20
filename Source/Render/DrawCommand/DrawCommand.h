@@ -9,7 +9,7 @@ namespace URay
 
 class VertexBuffer;
 class IndexBuffer;
-class Material;
+class PipelineState;
 
 struct DrawCommand
 {
@@ -19,7 +19,7 @@ struct DrawCommand
     IndexBuffer* indexBuffer = nullptr;
     uint32_t indexCount = 0;
 
-    Material* material = nullptr;
+    PipelineState* pipelineState = nullptr;
 };
 
 } // namespace URay
