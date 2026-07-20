@@ -3,10 +3,8 @@
 namespace URay
 {
 
-DrawCommand GridComponent::SubmitCommand()
+void GridComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
-    DrawCommand cmd = {};
-    return cmd;
 }
 
 } // namespace URay

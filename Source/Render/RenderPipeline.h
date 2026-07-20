@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Render/DrawCommand.h"
+#include "Render/DrawCommand/DrawCommand.h"
+#include "Render/DrawCommand/Drawcommand"
 
 #include <vector>
 
@@ -28,6 +29,8 @@ private:
 
 private:
     Renderer& renderer;
+
+    DrawCommandBuilder builder;
 };
 
 } // namespace URay

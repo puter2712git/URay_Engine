@@ -17,8 +17,7 @@ public:
     ~MeshComponent() = default;
 
 public:
-    virtual DrawCommand
-    SubmitCommand() override;
+    virtual void SubmitCommand(DrawCommandBuilder& builder) override;
 
     Mesh* GetMesh() const
     {

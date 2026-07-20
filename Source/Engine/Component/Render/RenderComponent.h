@@ -2,15 +2,15 @@
 
 #include "Engine/Component/Component.h"
 
-#include "Render/DrawCommand.h"
-
 namespace URay
 {
+
+class DrawCommandBuilder;
 
 class RenderComponent : public Component
 {
 public:
-    virtual DrawCommand SubmitCommand() = 0;
+    virtual void SubmitCommand(DrawCommandBuilder& builder) = 0;
 };
 
 } // namespace URay

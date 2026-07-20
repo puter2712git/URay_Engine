@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/PipelineState.h"
+
 #include "Core/Math/Matrix.h"
 
 #include <vulkan/vulkan.h>
@@ -19,7 +21,7 @@ struct DrawCommand
     IndexBuffer* indexBuffer = nullptr;
     uint32_t indexCount = 0;
 
-    PipelineState* pipelineState = nullptr;
+    PipelineState pipelineState;
 };
 
 } // namespace URay

@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
+
+#include <cstdint>
 
 namespace URay
 {
@@ -22,8 +25,9 @@ struct MeshCommandContext
 
 struct LineCommandContext
 {
-    Vector3 start;
-    Vector3 end;
+    Vector3 start = Vector3::Zero;
+    Vector3 end = Vector3::Zero;
+    Color color = Color::White;
 };
 
 } // namespace URay
