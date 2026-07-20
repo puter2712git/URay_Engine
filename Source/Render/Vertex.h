@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Math/Color.h"
 #include "Core/Math/Vector3.h"
 
 #include <vulkan/vulkan.h>
@@ -12,7 +13,7 @@ namespace URay
 struct Vertex
 {
     Vector3 pos;
-    Vector3 color;
+    Color color;
 
     static VkVertexInputBindingDescription GetBindingDescription()
     {
@@ -35,7 +36,7 @@ struct Vertex
 
         attributeDescriptions[1].binding = 0;
         attributeDescriptions[1].location = 1;
-        attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
         attributeDescriptions[1].offset = offsetof(Vertex, color);
 
         return attributeDescriptions;

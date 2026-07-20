@@ -14,13 +14,13 @@ struct FrameConstants
 struct VSInput
 {
     [[vk::location(0)]] float3 inPosition : POSITION;
-    [[vk::location(1)]] float3 inColor : COLOR;
+    [[vk::location(1)]] float4 inColor : COLOR;
 };
 
 struct VSOutput
 {
     float4 outPosition : SV_Position;
-    [[vk::location(0)]] float3 fragColor : TEXCOORD0;
+    [[vk::location(0)]] float4 fragColor : TEXCOORD0;
 };
 
 struct PSOutput
@@ -42,7 +42,7 @@ PSOutput PSMain(VSOutput input)
 {
     PSOutput output;
 
-    output.outColor = float4(input.fragColor, 1.0);
+    output.outColor = input.fragColor;
 
     return output;
 }
