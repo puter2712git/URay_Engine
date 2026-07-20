@@ -1,5 +1,6 @@
 #include "Editor.h"
 
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene.h"
 #include "Engine/TestUnit.h"
@@ -84,18 +85,29 @@ void Editor::ShowInspector() const
         return;
     }
 
-    Transform newTransform = selectedUnit->GetTransform();
-    if (ImGui::DragFloat3("Position", &newTransform.position.x))
+    TransformComponent* transform = selectedUnit->GetTransform();
+    if (!transform)
     {
-        selectedUnit->SetPosition(newTransform.position);
+        ImGui::End();
+        return;
     }
-    if (ImGui::DragFloat3("Rotation", &newTransform.rotation.x))
+
+    Vector3 position = transform->GetPosition();
+    if (ImGui::DragFloat3("Position", &position.x))
     {
-        selectedUnit->SetRotation(newTransform.rotation);
+        transform->SetPosition(position);
     }
-    if (ImGui::DragFloat3("Scale", &newTransform.scale.x))
+
+    Vector3 rotation = transform->GetRotation();
+    if (ImGui::DragFloat3("Rotation", &rotation.x))
     {
-        selectedUnit->SetScale(newTransform.scale);
+        transform->SetRotation(rotation);
+    }
+
+    Vector3 scale = transform->GetScale();
+    if (ImGui::DragFloat3("Scale", &scale.x))
+    {
+        transform->SetScale(scale);
     }
 
     ImGui::End();

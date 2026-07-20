@@ -1,20 +1,25 @@
-#include "Transform.h"
-
-#include "Core/Math/Matrix.h"
+#include "TransformComponent.h"
 
 namespace URay
 {
 
-Transform Transform::Identity = Transform();
-
-Transform::Transform(const Vector3& inPosition,
-                     const Vector3& inRotation,
-                     const Vector3& inScale)
-    : position(inPosition), rotation(inRotation), scale(inScale)
+void TransformComponent::Update(float deltaTime)
 {
+    Component::Update(deltaTime);
+
+    UpdateWorldMatrix();
 }
 
-Vector3 Transform::TransformPoint(const Vector3& point) const
+void TransformComponent::UpdateWorldMatrix()
+{
+    const Matrix T = Matrix::MakeTranslation(position);
+    const Matrix R = Matrix::MakeRotation(rotation);
+    const Matrix S = Matrix::MakeScale(scale);
+
+    worldMatrix = S * R * T;
+}
+
+Vector3 TransformComponent::TransformPoint(const Vector3& point) const
 {
     Matrix T = Matrix::MakeTranslation(position);
     Matrix R = Matrix::MakeRotation(rotation);
@@ -28,7 +33,7 @@ Vector3 Transform::TransformPoint(const Vector3& point) const
     return Vector3(result.x, result.y, result.z);
 }
 
-Vector3 Transform::InvTransformPoint(const Vector3& worldPoint) const
+Vector3 TransformComponent::InvTransformPoint(const Vector3& worldPoint) const
 {
     Matrix T = Matrix::MakeTranslation(position);
     Matrix R = Matrix::MakeRotation(rotation);
@@ -42,7 +47,7 @@ Vector3 Transform::InvTransformPoint(const Vector3& worldPoint) const
     return Vector3(result.x, result.y, result.z);
 }
 
-Vector3 Transform::TransformVectorNoScale(const Vector3& vector) const
+Vector3 TransformComponent::TransformVectorNoScale(const Vector3& vector) const
 {
     Matrix rotationMatrix = Matrix::MakeRotation(rotation);
     Vector4 vec4 = Vector4(vector.x, vector.y, vector.z, 0.0f);
@@ -52,7 +57,7 @@ Vector3 Transform::TransformVectorNoScale(const Vector3& vector) const
     return Vector3(result.x, result.y, result.z);
 }
 
-Vector3 Transform::InvTransformVectorNoScale(const Vector3& worldVector) const
+Vector3 TransformComponent::InvTransformVectorNoScale(const Vector3& worldVector) const
 {
     Matrix invRotMatrix = Matrix::MakeRotation(rotation).Inverse();
     Vector4 vec4 = Vector4(worldVector.x, worldVector.y, worldVector.z, 0.0f);

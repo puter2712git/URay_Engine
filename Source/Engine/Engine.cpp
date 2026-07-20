@@ -3,6 +3,7 @@
 #include "Core/Timer.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene.h"
@@ -58,15 +59,19 @@ bool Engine::Initialize()
     scene = new Scene();
 
     Unit* cameraUnit = new Unit();
+    TransformComponent* camTransform = new TransformComponent();
     camera = new CameraComponent();
-    camera->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
+    camTransform->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
+    cameraUnit->AddComponent(camTransform);
     cameraUnit->AddComponent(camera);
 
     Unit* gridUnit = new Unit();
+    TransformComponent* gridTransform = new TransformComponent();
     MeshComponent* meshComponent = new MeshComponent();
+    gridTransform->SetRotation(Vector3(-90.0f, 0.0f, 0.0f));
+    gridTransform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
     meshComponent->SetMesh(quadMesh);
-    meshComponent->SetRotation(Vector3(-90.0f, 0.0f, 0.0f));
-    meshComponent->SetScale(Vector3(10.0f, 10.0f, 10.0f));
+    gridUnit->AddComponent(gridTransform);
     gridUnit->AddComponent(meshComponent);
 
     scene->AddUnit(cameraUnit);
@@ -153,8 +158,11 @@ void Engine::UpdateCameraMovement(float deltaTime)
         moveDir.y -= 3.0f * deltaTime;
     }
 
-    Vector3 movePos = camera->GetTransform().TransformVectorNoScale(moveDir);
-    Vector3 camPos = camera->GetPosition();
+    const Unit* camUnit = camera->GetOwner();
+    TransformComponent* transform = camUnit->GetTransform();
+
+    Vector3 movePos = transform->TransformVectorNoScale(moveDir);
+    Vector3 camPos = transform->GetPosition();
 
     if (inputManager.GetKey(GLFW_KEY_Q))
     {
@@ -165,7 +173,7 @@ void Engine::UpdateCameraMovement(float deltaTime)
         camPos.z += 3.0f * deltaTime;
     }
 
-    camera->SetPosition(camPos + movePos);
+    transform->SetPosition(camPos + movePos);
 }
 
 void Engine::UpdateCameraRotation(float deltaTime)
@@ -176,13 +184,16 @@ void Engine::UpdateCameraRotation(float deltaTime)
     if (!inputManager.GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
         return;
 
-    Vector3 cameraRot = camera->GetRotation();
+    const Unit* camUnit = camera->GetOwner();
+    TransformComponent* transform = camUnit->GetTransform();
+
+    Vector3 cameraRot = transform->GetRotation();
     cameraRot.x -= inputManager.mouseDeltaY * 0.1f;
     cameraRot.z -= inputManager.mouseDeltaX * 0.1f;
 
     cameraRot.x = std::clamp(cameraRot.x, -89.0f, 89.0f);
 
-    camera->SetRotation(cameraRot);
+    transform->SetRotation(cameraRot);
 }
 
 void Engine::UpdatePick()
@@ -227,13 +238,17 @@ void Engine::UpdatePick()
                 if (!meshComponent)
                     continue;
 
+                TransformComponent* transform = unit->GetTransform();
+                if (!transform)
+                    continue;
+
                 const Mesh* mesh = meshComponent->GetMesh();
 
                 const std::vector<Vertex> vertices = mesh->GetVertices();
                 const std::vector<uint16_t> indices = mesh->GetIndices();
 
-                const Vector3 localStart = meshComponent->GetTransform().InvTransformPoint(start);
-                const Vector3 localDir = meshComponent->GetTransform().InvTransformVectorNoScale(lineDir);
+                const Vector3 localStart = transform->InvTransformPoint(start);
+                const Vector3 localDir = transform->InvTransformVectorNoScale(lineDir);
 
                 for (size_t i = 0; i + 2 < indices.size(); i += 3)
                 {

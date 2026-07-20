@@ -1,14 +1,12 @@
 #pragma once
 
-#include "Core/Math/Transform.h"
-#include "Core/Math/Vector3.h"
-
 #include <set>
 
 namespace URay
 {
 
 class Component;
+class TransformComponent;
 
 class Unit
 {
@@ -37,21 +35,15 @@ public:
         return components;
     }
 
-    Transform GetTransform() const;
-    void SetTransform(const Transform& inTransform);
-
-    Vector3 GetPosition() const;
-    void SetPosition(const Vector3& inPosition);
-
-    Vector3 GetRotation() const;
-    void SetRotation(const Vector3& inRotation);
-
-    Vector3 GetScale() const;
-    void SetScale(const Vector3& inScale);
+    TransformComponent* GetTransform() const
+    {
+        return transform;
+    }
 
 private:
     std::set<Component*> components;
-    Component* rootComponent = nullptr;
+
+    TransformComponent* transform = nullptr;
 };
 
 } // namespace URay

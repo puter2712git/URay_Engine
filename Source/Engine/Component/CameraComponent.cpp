@@ -1,5 +1,8 @@
 #include "CameraComponent.h"
 
+#include "Engine/Component/TransformComponent.h"
+#include "Engine/Unit.h"
+
 #include "Core/Math/Math.h"
 
 namespace URay
@@ -15,10 +18,13 @@ void CameraComponent::Update(float deltaTime)
 
 void CameraComponent::UpdateViewMatrix()
 {
-    Vector3 forward = transform.TransformVectorNoScale(Vector3::Forward);
-    Vector3 up = transform.TransformVectorNoScale(Vector3::Up);
+    Unit* owner = GetOwner();
+    TransformComponent* transform = owner->GetTransform();
 
-    viewMatrix = Matrix::MakeView(transform.position, transform.position + forward, up);
+    Vector3 forward = transform->TransformVectorNoScale(Vector3::Forward);
+    Vector3 up = transform->TransformVectorNoScale(Vector3::Up);
+
+    viewMatrix = Matrix::MakeView(transform->GetPosition(), transform->GetPosition() + forward, up);
 }
 
 void CameraComponent::UpdateProjMatrix()
