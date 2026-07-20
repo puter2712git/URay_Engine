@@ -20,6 +20,11 @@ public:
 
     void BuildFromMesh(const MeshCommandContext& context);
 
+    const std::vector<DrawCommand>& GetCommands() const
+    {
+        return drawCmds;
+    }
+
 private:
     Renderer& renderer;
     std::vector<DrawCommand> drawCmds;

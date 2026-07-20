@@ -14,22 +14,25 @@ namespace URay
 {
 
 RenderPipeline::RenderPipeline(Renderer& renderer)
-    : renderer(renderer)
+    : renderer(renderer), builder(DrawCommandBuilder(renderer))
 {
 }
 
-void RenderPipeline::Execute(const Scene* scene) const
+void RenderPipeline::Execute(const Scene* scene)
 {
     CameraComponent* camera = FindCamera(scene);
     if (!camera)
         return;
 
+    builder.Reset();
+
     Matrix viewMatrix = camera->GetViewMatrix();
     Matrix projMatrix = camera->GetProjMatrix();
     renderer.SetFrameViewInfo(viewMatrix, projMatrix);
 
-    std::vector<DrawCommand> cmds;
-    CollectCommand(scene, cmds);
+    CollectCommand(scene);
+
+    std::vector<DrawCommand> cmds = builder.GetCommands();
 
     renderer.BeginFrame();
 
@@ -59,14 +62,13 @@ CameraComponent* RenderPipeline::FindCamera(const Scene* scene) const
     return camera;
 }
 
-void RenderPipeline::CollectCommand(const Scene* scene, std::vector<DrawCommand>& outCmds) const
+void RenderPipeline::CollectCommand(const Scene* scene)
 {
     for (const Unit* unit : scene->GetUnits())
     {
         if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
         {
-            DrawCommand cmd = comp->SubmitCommand();
-            outCmds.push_back(cmd);
+            comp->SubmitCommand(builder);
         }
     }
 }

@@ -353,6 +353,9 @@ void Renderer::Draw(const DrawCommand& cmd)
 
     vkCmdBindIndexBuffer(commandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
+    VkPipeline pipeline = GetOrCreatePipelineState(cmd.pipelineState);
+    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+
     vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, 0, 0, 0);
 }
 
