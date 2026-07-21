@@ -133,6 +133,9 @@ bool Renderer::Initialize(Window* wnd)
     if (!CreateSyncObjects())
         return false;
 
+    if (!CreatePersistentVertexBuffer())
+        return false;
+
     return true;
 }
 
@@ -141,6 +144,8 @@ void Renderer::Finalize()
     vkDeviceWaitIdle(device);
 
     CleanupSwapChain();
+
+    DestroyPersistentVertexBuffer();
 
     DestroyDepthResources();
 
@@ -1316,6 +1321,32 @@ void Renderer::DestroyDepthResources()
     vkDestroyImageView(device, depthImageView, nullptr);
     vkDestroyImage(device, depthImage, nullptr);
     vkFreeMemory(device, depthImageMemory, nullptr);
+}
+
+bool Renderer::CreatePersistentVertexBuffer()
+{
+    VkDeviceSize bufferSize = 1024 * 1024 * 4;
+
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 persistentVertexBuffer, persistentVertexBufferMemory);
+
+    if (vkMapMemory(device, persistentVertexBufferMemory, 0, bufferSize, 0, &mappedVertexBufferData) != VK_SUCCESS)
+        return false;
+
+    return true;
+}
+
+void Renderer::DestroyPersistentVertexBuffer()
+{
+    if (mappedVertexBufferData != nullptr)
+    {
+        vkUnmapMemory(device, persistentVertexBufferMemory);
+        mappedVertexBufferData = nullptr;
+    }
+
+    vkDestroyBuffer(device, persistentVertexBuffer, nullptr);
+    vkFreeMemory(device, persistentVertexBufferMemory, nullptr);
 }
 
 bool Renderer::CheckValidationLayerSupport() const

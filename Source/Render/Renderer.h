@@ -156,6 +156,9 @@ private:
     bool CreateDepthResources();
     void DestroyDepthResources();
 
+    bool CreatePersistentVertexBuffer();
+    void DestroyPersistentVertexBuffer();
+
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -257,6 +260,11 @@ private:
     VkImage depthImage = VK_NULL_HANDLE;
     VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
     VkImageView depthImageView = VK_NULL_HANDLE;
+
+public:
+    VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
+    void* mappedVertexBufferData = nullptr;
 };
 
 } // namespace URay
