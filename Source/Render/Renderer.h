@@ -17,7 +17,9 @@ namespace URay
 
 struct ObjectConstants
 {
-    Matrix model = Matrix::Identity;
+    Matrix world = Matrix::Identity;
+    Color colorTint = Color::White;
+    uint32_t objectId = 0;
 };
 
 struct FrameConstants

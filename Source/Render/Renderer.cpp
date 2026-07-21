@@ -350,7 +350,7 @@ void Renderer::Draw(const DrawCommand& cmd)
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
     ObjectConstants objConstants = {};
-    objConstants.model = cmd.worldMatrix;
+    objConstants.world = cmd.worldMatrix;
 
     vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout,
                        VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(objConstants), &objConstants);

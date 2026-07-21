@@ -1,6 +1,8 @@
 struct ObjectConstants
 {
-    float4x4 model;
+    float4x4 world;
+    float4 colorTint;
+    uint objectId;
 };
 [[vk::push_constant]] ObjectConstants obj;
 
@@ -32,7 +34,7 @@ VSOutput VSMain(VSInput input)
 {
     VSOutput output;
 
-    output.outPosition = mul(frame.proj, mul(frame.view, mul(obj.model, float4(input.inPosition, 1.0))));
+    output.outPosition = mul(frame.proj, mul(frame.view, mul(obj.world, float4(input.inPosition, 1.0))));
     output.fragColor = input.inColor;
 
     return output;
