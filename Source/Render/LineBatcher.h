@@ -17,9 +17,6 @@ public:
     void Reset();
 
 private:
-    std::array<VertexBuffer*, MAX_FRAMES_IN_FLIGHT> vertexBuffers;
-    std::array<IndexBuffer*, MAX_FRAMES_IN_FLIGHT> indexBuffes;
-
     std::vector<Vertex> vertices;
     std::vector<uint16_t> indices;
 };

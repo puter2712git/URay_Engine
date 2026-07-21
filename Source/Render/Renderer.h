@@ -240,7 +240,6 @@ private:
     std::vector<VkFence> inFlightFences;
 
     uint32_t imageIndex = 0;
-    uint32_t currentFrame = 0;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
