@@ -3,7 +3,7 @@
 #include "Engine/Mesh/Mesh.h"
 
 #include "Render/Renderer.h"
-#include "Render/VertexBuffer.h"
+#include "Render/VertexBuffer/VertexBuffer.h"
 
 namespace URay
 {
