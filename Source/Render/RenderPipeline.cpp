@@ -31,6 +31,7 @@ void RenderPipeline::Execute(const Scene* scene)
     renderer.SetFrameViewInfo(viewMatrix, projMatrix);
 
     CollectCommand(scene);
+    builder.FlushLines();
 
     std::vector<DrawCommand> cmds = builder.GetCommands();
 
@@ -40,6 +41,8 @@ void RenderPipeline::Execute(const Scene* scene)
     {
         ExecuteCommand(cmd);
     }
+
+    renderer.RenderLines();
 
     gEngine->GetEditor()->Render();
 

@@ -2,6 +2,7 @@
 
 #include "Core/Timer.h"
 #include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Mesh/Mesh.h"
@@ -66,13 +67,8 @@ bool Engine::Initialize()
     cameraUnit->AddComponent(camera);
 
     Unit* gridUnit = new Unit();
-    TransformComponent* gridTransform = new TransformComponent();
-    MeshComponent* meshComponent = new MeshComponent();
-    gridTransform->SetRotation(Vector3(-90.0f, 0.0f, 0.0f));
-    gridTransform->SetScale(Vector3(10.0f, 10.0f, 10.0f));
-    meshComponent->SetMesh(quadMesh);
-    gridUnit->AddComponent(gridTransform);
-    gridUnit->AddComponent(meshComponent);
+    GridComponent* gridComponent = new GridComponent();
+    gridUnit->AddComponent(gridComponent);
 
     scene->AddUnit(cameraUnit);
     scene->AddUnit(gridUnit);

@@ -72,6 +72,8 @@ public:
     VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
     void DestroyPipelineStates();
 
+    VkPipeline CreateLinePipelineState();
+
     MaterialManager* GetMaterialManager() const
     {
         return materialManager;
@@ -264,6 +266,9 @@ public:
     VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;
     VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
     void* mappedVertexBufferData = nullptr;
+    uint32_t vertexCount = 0;
+
+    void RenderLines();
 };
 
 } // namespace URay
