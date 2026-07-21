@@ -11,7 +11,7 @@ namespace URay
 
 TestUnit::TestUnit()
 {
-    Mesh* mesh = gEngine->GetMeshManager()->GetMesh("box");
+    Mesh* mesh = gEngine->GetMeshManager()->GetMesh("cylinder");
 
     TransformComponent* transform = new TransformComponent();
 

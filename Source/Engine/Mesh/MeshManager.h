@@ -29,6 +29,7 @@ public:
 private:
     void CreateBox();
     void CreateQuad();
+    void CreateCylinder();
 
 private:
     Renderer& renderer;

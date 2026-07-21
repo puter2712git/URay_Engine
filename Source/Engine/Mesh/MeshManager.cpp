@@ -2,6 +2,8 @@
 
 #include "Engine/Mesh/Mesh.h"
 
+#include "Core/Math/Math.h"
+
 #include "Render/Renderer.h"
 #include "Render/VertexBuffer/VertexBuffer.h"
 
@@ -31,6 +33,7 @@ bool MeshManager::CreateDefaultMeshes()
 {
     CreateBox();
     CreateQuad();
+    CreateCylinder();
 
     return true;
 }
@@ -113,6 +116,116 @@ void MeshManager::CreateQuad()
     // clang-format on
 
     CreateMesh("quad", quadVertices, quadIndices);
+}
+
+void MeshManager::CreateCylinder()
+{
+    std::vector<Vertex> cylinderVertices;
+    std::vector<uint16_t> cylinderIndices;
+
+    const float radius = 0.5f;
+    const float height = 2.0f;
+    const uint32_t sliceCount = 20;
+
+    const float halfHeight = height * 0.5f;
+    const float dTheta = Math::TWO_PI / sliceCount;
+
+    const uint16_t sideBaseIndex = static_cast<uint16_t>(cylinderVertices.size());
+
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = i * dTheta;
+        const float cosT = std::cos(theta);
+        const float sinT = std::sin(theta);
+
+        const float x = radius * cosT;
+        const float y = radius * sinT;
+
+        Vertex topVertex = {};
+        topVertex.pos = Vector3(x, y, halfHeight);
+        topVertex.color = Color::White;
+
+        Vertex bottomVertex = {};
+        bottomVertex.pos = Vector3(x, y, -halfHeight);
+        bottomVertex.color = Color::White;
+
+        cylinderVertices.push_back(topVertex);
+        cylinderVertices.push_back(bottomVertex);
+    }
+
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        const uint16_t i0 = sideBaseIndex + i * 2;
+        const uint16_t i1 = i0 + 1;
+        const uint16_t i2 = i0 + 2;
+        const uint16_t i3 = i0 + 3;
+
+        cylinderIndices.push_back(i0);
+        cylinderIndices.push_back(i1);
+        cylinderIndices.push_back(i2);
+
+        cylinderIndices.push_back(i1);
+        cylinderIndices.push_back(i3);
+        cylinderIndices.push_back(i2);
+    }
+
+    const uint16_t topBaseIndex = static_cast<uint16_t>(cylinderVertices.size());
+
+    Vertex topCenterVertex = {};
+    topCenterVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
+    topCenterVertex.color = Color::White;
+
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = i * dTheta;
+        const float x = radius * std::cos(theta);
+        const float y = radius * std::sin(theta);
+
+        Vertex vertex = {};
+        vertex.pos = Vector3(x, y, halfHeight);
+        vertex.color = Color::White;
+
+        cylinderVertices.push_back(vertex);
+    }
+
+    const uint16_t topCenterIndex = topBaseIndex;
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        cylinderIndices.push_back(topCenterIndex);
+        cylinderIndices.push_back(topBaseIndex + 1 + i);
+        cylinderIndices.push_back(topBaseIndex + 1 + i + 1);
+    }
+
+    const uint16_t bottomBaseIndex = static_cast<uint16_t>(cylinderVertices.size());
+
+    Vertex bottomCenter = {};
+    bottomCenter.pos = Vector3(0.0f, 0.0f, -halfHeight);
+    bottomCenter.color = Color::White;
+
+    cylinderVertices.push_back(bottomCenter);
+
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = i * dTheta;
+        const float x = radius * std::cos(theta);
+        const float y = radius * std::sin(theta);
+
+        Vertex vertex = {};
+        vertex.pos = Vector3(x, y, -halfHeight);
+        vertex.color = Color::White;
+
+        cylinderVertices.push_back(vertex);
+    }
+
+    const uint16_t bottomCenterIndex = bottomBaseIndex;
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        cylinderIndices.push_back(bottomCenterIndex);
+        cylinderIndices.push_back(bottomBaseIndex + 1 + i + 1);
+        cylinderIndices.push_back(bottomBaseIndex + 1 + i);
+    }
+
+    CreateMesh("cylinder", cylinderVertices, cylinderIndices);
 }
 
 } // namespace URay
