@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/DrawCommand/DrawCommand.h"
-#include "Render/PipelineState.h"
+#include "Render/PipelineState/PipelineState.h"
 #include "Render/Vertex.h"
 
 #include "Core/Math/Matrix.h"
@@ -72,11 +72,14 @@ public:
     VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
     void DestroyPipelineStates();
 
-    VkPipeline CreateLinePipelineState();
-
     MaterialManager* GetMaterialManager() const
     {
         return materialManager;
+    }
+
+    ShaderManager* GetShaderManager() const
+    {
+        return shaderManager;
     }
 
 private:

@@ -42,8 +42,6 @@ void RenderPipeline::Execute(const Scene* scene)
         ExecuteCommand(cmd);
     }
 
-    renderer.RenderLines();
-
     gEngine->GetEditor()->Render();
 
     renderer.EndFrame();

@@ -17,6 +17,8 @@ struct MeshCommandContext
     Matrix worldMatrix = Matrix::Identity;
 
     VertexBuffer* vertexBuffer = nullptr;
+    uint32_t vertexCount = 0;
+
     IndexBuffer* indexBuffer = nullptr;
     uint32_t indexCount = 0;
 

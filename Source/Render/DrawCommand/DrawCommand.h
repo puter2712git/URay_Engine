@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/PipelineState.h"
+#include "Render/PipelineState/PipelineState.h"
 
 #include "Core/Math/Matrix.h"
 
@@ -17,8 +17,10 @@ struct DrawCommand
 {
     Matrix worldMatrix = Matrix::Identity;
 
-    VertexBuffer* vertexBuffer = nullptr;
-    IndexBuffer* indexBuffer = nullptr;
+    void* vertexBuffer = nullptr;
+    uint32_t vertexCount = 0;
+
+    void* indexBuffer = nullptr;
     uint32_t indexCount = 0;
 
     PipelineState pipelineState;
