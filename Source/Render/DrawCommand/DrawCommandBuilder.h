@@ -19,6 +19,7 @@ public:
     void Reset();
 
     void BuildFromMesh(const MeshCommandContext& context);
+    void BuildFromLine(const LineCommandContext& context);
 
     const std::vector<DrawCommand>& GetCommands() const
     {

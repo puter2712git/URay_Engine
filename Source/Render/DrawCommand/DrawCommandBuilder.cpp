@@ -32,4 +32,8 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     drawCmds.push_back(cmd);
 }
 
+void DrawCommandBuilder::BuildFromLine(const LineCommandContext& context)
+{
+}
+
 } // namespace URay
