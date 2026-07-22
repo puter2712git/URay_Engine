@@ -45,6 +45,7 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
 {
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
+    cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = context.vertexBuffer->GetBufferRef();
     cmd.vertexCount = context.vertexCount;
     cmd.indexBuffer = context.indexBuffer->GetBufferRef();

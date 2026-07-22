@@ -44,7 +44,7 @@ PSOutput PSMain(VSOutput input)
 {
     PSOutput output;
 
-    output.outColor = input.fragColor;
+    output.outColor = input.fragColor * obj.colorTint;
 
     return output;
 }

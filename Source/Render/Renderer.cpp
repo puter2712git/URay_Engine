@@ -351,9 +351,12 @@ void Renderer::Draw(const DrawCommand& cmd)
 
     ObjectConstants objConstants = {};
     objConstants.world = cmd.worldMatrix;
+    objConstants.colorTint = cmd.colorTint;
+    objConstants.objectId = cmd.objectId;
 
     vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout,
-                       VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(objConstants), &objConstants);
+                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                       0, sizeof(objConstants), &objConstants);
 
     VkBuffer vertexBuffers[] = { static_cast<VkBuffer>(cmd.vertexBuffer) };
     VkDeviceSize offsets[] = { 0 };
@@ -452,7 +455,7 @@ void Renderer::CreatePipelineLayout()
     VkPushConstantRange pushConstant = {};
     pushConstant.offset = 0;
     pushConstant.size = sizeof(ObjectConstants);
-    pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 
     pipelineLayoutInfo.pushConstantRangeCount = 1;
     pipelineLayoutInfo.pPushConstantRanges = &pushConstant;

@@ -22,6 +22,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
     MeshCommandContext context = {};
     context.worldMatrix = Matrix::Identity;
+    context.colorTint = Color::Red;
     context.vertexBuffer = meshes[0]->GetVertexBuffer();
     context.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     context.indexBuffer = meshes[0]->GetIndexBuffer();

@@ -2,6 +2,7 @@
 
 #include "Render/PipelineState/PipelineState.h"
 
+#include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
 
 #include <vulkan/vulkan.h>
@@ -16,6 +17,8 @@ class PipelineState;
 struct DrawCommand
 {
     Matrix worldMatrix = Matrix::Identity;
+    Color colorTint = Color::White;
+    uint32_t objectId = 0;
 
     void* vertexBuffer = nullptr;
     uint32_t vertexCount = 0;
