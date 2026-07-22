@@ -111,6 +111,18 @@ Matrix Matrix::Inverse() const
     return result;
 }
 
+Vector3 Matrix::TransformPoint(const Vector3& point) const
+{
+    const Vector4 result = Vector4(point.x, point.y, point.z, 1.0f) * *this;
+    return Vector3(result.x, result.y, result.z);
+}
+
+Vector3 Matrix::TransformVector(const Vector3& vector) const
+{
+    const Vector4 result = Vector4(vector.x, vector.y, vector.z, 0.0f) * *this;
+    return Vector3(result.x, result.y, result.z);
+}
+
 Matrix Matrix::MakeTranslation(const Vector3& position)
 {
     Matrix mat = Matrix::Identity;

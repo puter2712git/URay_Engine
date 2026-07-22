@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Math/Vector3.h"
+
 namespace URay
 {
 
@@ -18,6 +20,11 @@ public:
     {
         return radian * 180 / PI;
     }
+
+    static bool IntersectLineTriangle(
+        const Vector3& lineStart, const Vector3& lineDir,
+        const Vector3& p0, const Vector3& p1, const Vector3& p2,
+        float& outDistance);
 };
 
 } // namespace URay

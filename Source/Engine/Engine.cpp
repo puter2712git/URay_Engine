@@ -1,6 +1,5 @@
 #include "Engine.h"
 
-#include "Core/Timer.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
@@ -11,6 +10,9 @@
 #include "Engine/Scene.h"
 #include "Engine/Unit.h"
 
+#include "Core/Math/Math.h"
+#include "Core/Timer.h"
+
 #include "Platform/Window.h"
 
 #include "Render/RenderPipeline.h"
@@ -19,6 +21,7 @@
 #include "Editor/Editor.h"
 
 #include <algorithm>
+#include <iostream>
 
 namespace URay
 {
@@ -95,6 +98,7 @@ void Engine::Run()
 
         UpdateCameraMovement(timer->GetDeltaTime());
         UpdateCameraRotation(timer->GetDeltaTime());
+        UpdateHover();
         UpdatePick();
 
         if (scene)
@@ -199,6 +203,46 @@ void Engine::UpdateCameraRotation(float deltaTime)
     transform->SetRotation(cameraRot);
 }
 
+void Engine::UpdateHover()
+{
+    float mouseX = inputManager.mouseX;
+    float mouseY = inputManager.mouseY;
+
+    float ndcX = (2.0f * mouseX) / 800.0f - 1.0f;
+    float ndcY = 1.0f - (2.0f * mouseY) / 600.0f;
+
+    Matrix invProjMatrix = camera->GetProjMatrix().Inverse();
+    Matrix invViewMatrix = camera->GetViewMatrix().Inverse();
+
+    const Vector4 ndcNear = Vector4(ndcX, ndcY, 0.0f, 1.0f);
+    const Vector4 clipNear = ndcNear * invProjMatrix;
+    const Vector4 viewNear = Vector4(clipNear.x / clipNear.w, clipNear.y / clipNear.w,
+                                     clipNear.z / clipNear.w, 1.0f);
+    const Vector4 worldNear4 = viewNear * invViewMatrix;
+    const Vector3 start = Vector3(worldNear4.x, worldNear4.y, worldNear4.z);
+
+    const Vector4 ndcFar = Vector4(ndcX, ndcY, 1.0f, 1.0f);
+    const Vector4 clipFar = ndcFar * invProjMatrix;
+    const Vector4 viewFar = Vector4(clipFar.x / clipFar.w, clipFar.y / clipFar.w,
+                                    clipFar.z / clipFar.w, 1.0f);
+    const Vector4 worldFar4 = viewFar * invViewMatrix;
+    const Vector3 end = Vector3(worldFar4.x, worldFar4.y, worldFar4.z);
+
+    const Vector3 lineDir = (end - start).GetNormalized();
+
+    int axis;
+    bool hovered = PickGizmo(start, lineDir, axis);
+
+    if (hovered)
+    {
+        gizmo->SetHoveredAxis(axis);
+    }
+    else
+    {
+        gizmo->SetHoveredAxis(-1);
+    }
+}
+
 void Engine::UpdatePick()
 {
     if (inputManager.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
@@ -227,6 +271,14 @@ void Engine::UpdatePick()
         const Vector3 end = Vector3(worldFar4.x, worldFar4.y, worldFar4.z);
 
         const Vector3 lineDir = (end - start).GetNormalized();
+
+        int gizmoAxis;
+        bool gizmoHit = PickGizmo(start, lineDir, gizmoAxis);
+
+        if (gizmoHit)
+        {
+            return;
+        }
 
         float minDist = std::numeric_limits<float>::max();
         bool isHit = false;
@@ -259,48 +311,18 @@ void Engine::UpdatePick()
                     const Vector3 p1 = vertices[indices[i + 1]].pos;
                     const Vector3 p2 = vertices[indices[i + 2]].pos;
 
-                    const Vector3 e0 = p1 - p0;
-                    const Vector3 e1 = p2 - p0;
-                    const Vector3 norm = Vector3::Cross(e0, e1);
+                    float dist;
+                    bool hit = Math::IntersectLineTriangle(
+                        localStart, localDir,
+                        p0, p1, p2,
+                        dist);
 
-                    const float normDotDir = Vector3::Dot(norm, localDir);
-                    if (std::fabs(normDotDir) < 0.001f)
+                    if (!hit)
                         continue;
 
-                    float d = -Vector3::Dot(norm, p0);
-
-                    float t = -(Vector3::Dot(norm, localStart) + d) / normDotDir;
-
-                    if (t < 0)
-                        continue;
-
-                    Vector3 p = localStart + localDir * t;
-
-                    Vector3 ne;
-
-                    Vector3 p0p = p - p0;
-                    ne = Vector3::Cross(e0, p0p);
-
-                    if (Vector3::Dot(norm, ne) < 0)
-                        continue;
-
-                    Vector3 p2p1 = p2 - p1;
-                    Vector3 p1p = p - p1;
-                    ne = Vector3::Cross(p2p1, p1p);
-
-                    if (Vector3::Dot(norm, ne) < 0)
-                        continue;
-
-                    Vector3 p2p0 = p0 - p2;
-                    Vector3 p2p = p - p2;
-                    ne = Vector3::Cross(p2p0, p2p);
-
-                    if (Vector3::Dot(norm, ne) < 0)
-                        continue;
-
-                    if (minDist > t)
+                    if (minDist > dist)
                     {
-                        minDist = t;
+                        minDist = dist;
                         isHit = true;
                         hitUnit = unit;
                     }
@@ -316,6 +338,64 @@ void Engine::UpdatePick()
         {
             editor->SelectUnit(nullptr);
         }
+    }
+}
+
+bool Engine::PickGizmo(const Vector3& start, const Vector3& dir, int& outAxis)
+{
+    if (!gizmo || !gizmo->GetTarget())
+        return false;
+
+    bool gizmoHit = false;
+    int hitAxis = -1;
+    float minDist = std::numeric_limits<float>::max();
+
+    for (size_t axis = 0; axis < 3; ++axis)
+    {
+        Mesh* gizmoMesh = gizmo->GetCurrMesh();
+        const Matrix gizmoWorld = gizmo->GetCurrMatrix(axis);
+        const Matrix invGizmoWorld = gizmoWorld.Inverse();
+
+        const TransformComponent* targetTransform = gizmo->GetTargetTransform();
+
+        const std::vector<Vertex> vertices = gizmoMesh->GetVertices();
+        const std::vector<uint16_t> indices = gizmoMesh->GetIndices();
+
+        const Vector3 localStart = invGizmoWorld.TransformPoint(start);
+        const Vector3 localDir = invGizmoWorld.TransformVector(dir);
+
+        for (size_t i = 0; i + 2 < indices.size(); i += 3)
+        {
+            const Vector3 p0 = vertices[indices[i + 0]].pos;
+            const Vector3 p1 = vertices[indices[i + 1]].pos;
+            const Vector3 p2 = vertices[indices[i + 2]].pos;
+
+            float dist;
+            bool hit = Math::IntersectLineTriangle(
+                localStart, localDir,
+                p0, p1, p2,
+                dist);
+
+            if (!hit)
+                continue;
+
+            if (dist < minDist)
+            {
+                minDist = dist;
+                hitAxis = axis;
+                gizmoHit = true;
+            }
+        }
+    }
+
+    if (gizmoHit)
+    {
+        outAxis = hitAxis;
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 

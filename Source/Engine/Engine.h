@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Input/InputManager.h"
+#include "Core/Math/Vector3.h"
 
 namespace URay
 {
@@ -69,7 +70,10 @@ private:
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
 
+    void UpdateHover();
     void UpdatePick();
+
+    bool PickGizmo(const Vector3& start, const Vector3& dir, int& outAxis);
 
 private:
     Window* window = nullptr;
