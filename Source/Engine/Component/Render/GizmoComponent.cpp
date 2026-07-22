@@ -20,16 +20,36 @@ GizmoComponent::GizmoComponent()
 
 void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
-    MeshCommandContext context = {};
-    context.worldMatrix = Matrix::Identity;
-    context.colorTint = Color::Red;
-    context.vertexBuffer = meshes[0]->GetVertexBuffer();
-    context.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
-    context.indexBuffer = meshes[0]->GetIndexBuffer();
-    context.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
-    context.material = material;
+    MeshCommandContext xCoord = {};
+    xCoord.worldMatrix = Matrix::MakeRotationZ(-90.0f);
+    xCoord.colorTint = Color::Red;
+    xCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
+    xCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
+    xCoord.indexBuffer = meshes[0]->GetIndexBuffer();
+    xCoord.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
+    xCoord.material = material;
 
-    builder.BuildFromMesh(context);
+    MeshCommandContext yCoord = {};
+    yCoord.worldMatrix = Matrix::Identity;
+    yCoord.colorTint = Color::Green;
+    yCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
+    yCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
+    yCoord.indexBuffer = meshes[0]->GetIndexBuffer();
+    yCoord.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
+    yCoord.material = material;
+
+    MeshCommandContext zCoord = {};
+    zCoord.worldMatrix = Matrix::MakeRotationX(90.0f);
+    zCoord.colorTint = Color::Blue;
+    zCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
+    zCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
+    zCoord.indexBuffer = meshes[0]->GetIndexBuffer();
+    zCoord.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
+    zCoord.material = material;
+
+    builder.BuildFromMesh(xCoord);
+    builder.BuildFromMesh(yCoord);
+    builder.BuildFromMesh(zCoord);
 }
 
 } // namespace URay
