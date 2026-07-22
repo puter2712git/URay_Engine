@@ -31,7 +31,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     Matrix targetWorld = targetUnit->GetTransform()->GetWorldMatrix();
 
     MeshCommandContext xCoord = {};
-    xCoord.worldMatrix = targetWorld * Matrix::MakeRotationZ(-90.0f);
+    xCoord.worldMatrix = Matrix::MakeRotationZ(-90.0f) * targetWorld;
     xCoord.colorTint = Color::Red;
     xCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     xCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
@@ -49,7 +49,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     yCoord.material = material;
 
     MeshCommandContext zCoord = {};
-    zCoord.worldMatrix = targetWorld * Matrix::MakeRotationX(90.0f);
+    zCoord.worldMatrix = Matrix::MakeRotationX(90.0f) * targetWorld;
     zCoord.colorTint = Color::Blue;
     zCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     zCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());

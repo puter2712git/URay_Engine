@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <imgui/imgui.h>
 
 namespace URay
 {
@@ -25,10 +26,18 @@ public:
 
     bool GetMouse(int mouse) const
     {
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.WantCaptureMouse)
+            return false;
+
         return currMouse[mouse];
     }
     bool GetMouseDown(int mouse) const
     {
+        ImGuiIO& io = ImGui::GetIO();
+        if (io.WantCaptureMouse)
+            return false;
+
         return currMouse[mouse] && !prevMouse[mouse];
     }
     bool GetMouseUp(int mouse) const
