@@ -2,6 +2,7 @@
 
 #include "Core/Timer.h"
 #include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -70,8 +71,13 @@ bool Engine::Initialize()
     GridComponent* gridComponent = new GridComponent();
     gridUnit->AddComponent(gridComponent);
 
+    Unit* gizmoUnit = new Unit();
+    GizmoComponent* gizmoComponent = new GizmoComponent();
+    gizmoUnit->AddComponent(gizmoComponent);
+
     scene->AddUnit(cameraUnit);
     scene->AddUnit(gridUnit);
+    scene->AddUnit(gizmoUnit);
 
     return true;
 }

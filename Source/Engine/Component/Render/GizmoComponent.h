@@ -9,6 +9,7 @@ namespace URay
 {
 
 class Mesh;
+class Material;
 
 enum class Axis : uint8_t
 {
@@ -40,6 +41,7 @@ private:
     GizmoMode currMode = GizmoMode::Translation;
 
     std::array<Mesh*, static_cast<size_t>(GizmoMode::Count)> meshes;
+    Material* material = nullptr;
 };
 
 } // namespace URay
