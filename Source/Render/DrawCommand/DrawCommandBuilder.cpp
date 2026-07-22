@@ -23,7 +23,6 @@ void DrawCommandBuilder::FlushLines()
 {
     VkDeviceSize lineDataSize = sizeof(Vertex) * lineVertices.size();
     std::memcpy(renderer.mappedVertexBufferData, lineVertices.data(), lineDataSize);
-    renderer.vertexCount = static_cast<uint32_t>(lineVertices.size());
 
     DrawCommand cmd = {};
     cmd.worldMatrix = Matrix::Identity;
@@ -46,6 +45,7 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
+    cmd.objectId = context.objectId;
     cmd.vertexBuffer = context.vertexBuffer->GetBufferRef();
     cmd.vertexCount = context.vertexCount;
     cmd.indexBuffer = context.indexBuffer->GetBufferRef();

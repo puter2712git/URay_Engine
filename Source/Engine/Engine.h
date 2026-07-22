@@ -65,6 +65,15 @@ public:
         return gizmo;
     }
 
+    uint32_t GetObjectId() const
+    {
+        return objectId;
+    }
+    void SetObjectId(uint32_t objId)
+    {
+        objectId = objId;
+    }
+
 private:
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
@@ -87,6 +96,8 @@ private:
     InputManager inputManager;
 
     MeshManager* meshManager = nullptr;
+
+    uint32_t objectId = 0;
 };
 
 extern Engine* gEngine;

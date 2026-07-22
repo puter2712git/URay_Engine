@@ -20,6 +20,7 @@ struct VSOutput
 struct PSOutput
 {
     [[vk::location(0)]] float4 outColor : SV_Target;
+    [[vk::location(1)]] uint outObjectId : SV_Target1;
 };
 
 VSOutput VSMain(VSInput input)
@@ -37,6 +38,7 @@ PSOutput PSMain(VSOutput input)
     PSOutput output;
 
     output.outColor = input.fragColor;
+    output.outObjectId = 0;
 
     return output;
 }

@@ -73,7 +73,6 @@ bool Engine::Initialize()
 
     Unit* gizmoUnit = new Unit();
     gizmo = new GizmoComponent();
-    gizmo->SetEnabled(false);
     gizmoUnit->AddComponent(gizmo);
 
     scene->AddUnit(cameraUnit);

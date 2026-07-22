@@ -7,6 +7,10 @@
 #include "Render/Shader/ShaderManager.h"
 #include "Render/VertexBuffer/VertexBuffer.h"
 
+#include "Core/Input/InputManager.h"
+
+#include "Engine/Engine.h"
+
 #include "Platform/Window.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -121,6 +125,8 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateDepthResources())
         return false;
+    if (!CreateObjectIdResources())
+        return false;
     if (!CreateFramebuffers())
         return false;
     if (!CreateUniformBuffers())
@@ -148,6 +154,7 @@ void Renderer::Finalize()
 
     DestroyPersistentVertexBuffer();
 
+    DestroyObjectIdResources();
     DestroyDepthResources();
 
     DestroyTextureSampler();
@@ -219,6 +226,11 @@ void Renderer::BeginFrame()
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
+    void* mapped = nullptr;
+    vkMapMemory(device, objectIdMemories[currentFrame], 0, sizeof(uint32_t), 0, &mapped);
+    gEngine->SetObjectId(*static_cast<const uint32_t*>(mapped));
+    vkUnmapMemory(device, objectIdMemories[currentFrame]);
+
     vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], 0);
@@ -237,9 +249,10 @@ void Renderer::BeginFrame()
     renderPassInfo.renderArea.offset = { 0, 0 };
     renderPassInfo.renderArea.extent = swapChainExtent;
 
-    std::array<VkClearValue, 2> clearValues = {};
+    std::array<VkClearValue, 3> clearValues = {};
     clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    clearValues[1].color.uint32[0] = 0;
+    clearValues[2].depthStencil = { 1.0f, 0 };
 
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
@@ -279,6 +292,33 @@ void Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
+    VkBufferImageCopy region = {};
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    InputManager& inputManager = gEngine->GetInputManager();
+
+    int windowWidth, windowHeight;
+    glfwGetWindowSize(window->GetGLFWWindow(), &windowWidth, &windowHeight);
+
+    int framebufferWidth, framebufferHeight;
+    glfwGetFramebufferSize(window->GetGLFWWindow(), &framebufferWidth, &framebufferHeight);
+
+    const int32_t pixelX = static_cast<int32_t>(inputManager.mouseX * framebufferWidth / windowWidth);
+    const int32_t pixelY = static_cast<int32_t>(inputManager.mouseY * framebufferHeight / windowHeight);
+
+    region.imageOffset = { pixelX, pixelY, 0 };
+    region.imageExtent = { 1, 1, 1 };
+
+    vkCmdCopyImageToBuffer(commandBuffers[currentFrame], objectIdImages[imageIndex],
+                           VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, objectIdBuffers[currentFrame], 1, &region);
+
     if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS)
         return;
 
@@ -597,12 +637,17 @@ VkPipeline Renderer::GetOrCreatePipelineState(const PipelineState& desc)
     colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
+    std::array<VkPipelineColorBlendAttachmentState, 2> blendAttachments = {
+        colorBlendAttachment,
+        colorBlendAttachment
+    };
+
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
+    colorBlending.attachmentCount = static_cast<uint32_t>(blendAttachments.size());
+    colorBlending.pAttachments = blendAttachments.data();
     colorBlending.blendConstants[0] = 0.0f;
     colorBlending.blendConstants[1] = 0.0f;
     colorBlending.blendConstants[2] = 0.0f;
@@ -943,6 +988,20 @@ bool Renderer::CreateRenderPass()
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentDescription objectIdAttachment = {};
+    objectIdAttachment.format = VK_FORMAT_R32_UINT;
+    objectIdAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    objectIdAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    objectIdAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    objectIdAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    objectIdAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    objectIdAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    objectIdAttachment.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+
+    VkAttachmentReference objectIdAttachmentRef = {};
+    objectIdAttachmentRef.attachment = 1;
+    objectIdAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
     VkAttachmentDescription depthAttachment = {};
     depthAttachment.format = FindDepthFormat();
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -954,16 +1013,18 @@ bool Renderer::CreateRenderPass()
     depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkAttachmentReference depthAttachmentRef = {};
-    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.attachment = 2;
     depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    std::array<VkAttachmentReference, 2> colorRefs = { colorAttachmentRef, objectIdAttachmentRef };
 
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
+    subpass.colorAttachmentCount = static_cast<uint32_t>(colorRefs.size());
+    subpass.pColorAttachments = colorRefs.data();
     subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-    std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
+    std::array<VkAttachmentDescription, 3> attachments = { colorAttachment, objectIdAttachment, depthAttachment };
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -979,8 +1040,18 @@ bool Renderer::CreateRenderPass()
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
+    VkSubpassDependency outgoingDependency = {};
+    outgoingDependency.srcSubpass = 0;
+    outgoingDependency.dstSubpass = VK_SUBPASS_EXTERNAL;
+    outgoingDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    outgoingDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    outgoingDependency.dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    outgoingDependency.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+    std::array<VkSubpassDependency, 2> dependencies = { dependency, outgoingDependency };
+
+    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.pDependencies = dependencies.data();
 
     if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
         return false;
@@ -999,7 +1070,7 @@ bool Renderer::CreateFramebuffers()
 
     for (size_t i = 0; i < swapChainImageViews.size(); ++i)
     {
-        std::array<VkImageView, 2> attachments = { swapChainImageViews[i], depthImageView };
+        std::array<VkImageView, 3> attachments = { swapChainImageViews[i], objectIdImageViews[i], depthImageView };
 
         VkFramebufferCreateInfo framebufferInfo = {};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -1341,6 +1412,52 @@ void Renderer::DestroyDepthResources()
     vkDestroyImageView(device, depthImageView, nullptr);
     vkDestroyImage(device, depthImage, nullptr);
     vkFreeMemory(device, depthImageMemory, nullptr);
+}
+
+bool Renderer::CreateObjectIdResources()
+{
+    const size_t count = swapChainImages.size();
+
+    objectIdImages.resize(count);
+    objectIdImageMemories.resize(count);
+    objectIdImageViews.resize(count);
+    objectIdBuffers.resize(count);
+    objectIdMemories.resize(count);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        CreateImage(swapChainExtent.width, swapChainExtent.height,
+                    VK_FORMAT_R32_UINT, VK_IMAGE_TILING_OPTIMAL,
+                    VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                    objectIdImages[i], objectIdImageMemories[i]);
+
+        objectIdImageViews[i] = CreateImageView(objectIdImages[i],
+                                                VK_FORMAT_R32_UINT,
+                                                VK_IMAGE_ASPECT_COLOR_BIT);
+
+        CreateBuffer(sizeof(uint32_t), VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                     objectIdBuffers[i], objectIdMemories[i]);
+    }
+
+    return true;
+}
+
+void Renderer::DestroyObjectIdResources()
+{
+    const size_t count = 3;
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        vkDestroyBuffer(device, objectIdBuffers[i], nullptr);
+        vkFreeMemory(device, objectIdMemories[i], nullptr);
+
+        vkDestroyImageView(device, objectIdImageViews[i], nullptr);
+
+        vkDestroyImage(device, objectIdImages[i], nullptr);
+        vkFreeMemory(device, objectIdImageMemories[i], nullptr);
+    }
 }
 
 bool Renderer::CreatePersistentVertexBuffer()
@@ -1858,18 +1975,6 @@ void Renderer::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
     vkQueueWaitIdle(graphicsQueue);
 
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-}
-
-void Renderer::RenderLines()
-{
-    VkBuffer vertexBuffers[] = { persistentVertexBuffer };
-    VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
-
-    VkPipeline pipeline = pipelines[999];
-    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-    vkCmdDraw(commandBuffers[currentFrame], vertexCount, 1, 0, 0);
 }
 
 } // namespace URay
