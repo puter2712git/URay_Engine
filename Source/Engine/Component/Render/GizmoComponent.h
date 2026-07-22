@@ -10,6 +10,7 @@ namespace URay
 
 class Mesh;
 class Material;
+class Unit;
 
 enum class Axis : uint8_t
 {
@@ -37,8 +38,14 @@ public:
 public:
     void SubmitCommand(DrawCommandBuilder& builder) override;
 
+    void SetTarget(Unit* unit)
+    {
+        targetUnit = unit;
+    }
+
 private:
     GizmoMode currMode = GizmoMode::Translation;
+    Unit* targetUnit = nullptr;
 
     std::array<Mesh*, static_cast<size_t>(GizmoMode::Count)> meshes;
     Material* material = nullptr;

@@ -1,8 +1,10 @@
 #include "GizmoComponent.h"
 
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
+#include "Engine/Unit.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
@@ -20,8 +22,16 @@ GizmoComponent::GizmoComponent()
 
 void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
+    if (IsEnabled())
+        return;
+
+    if (!targetUnit || !targetUnit->GetTransform())
+        return;
+
+    Matrix targetWorld = targetUnit->GetTransform()->GetWorldMatrix();
+
     MeshCommandContext xCoord = {};
-    xCoord.worldMatrix = Matrix::MakeRotationZ(-90.0f);
+    xCoord.worldMatrix = targetWorld * Matrix::MakeRotationZ(-90.0f);
     xCoord.colorTint = Color::Red;
     xCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     xCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
@@ -30,7 +40,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     xCoord.material = material;
 
     MeshCommandContext yCoord = {};
-    yCoord.worldMatrix = Matrix::Identity;
+    yCoord.worldMatrix = targetWorld;
     yCoord.colorTint = Color::Green;
     yCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     yCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
@@ -39,7 +49,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     yCoord.material = material;
 
     MeshCommandContext zCoord = {};
-    zCoord.worldMatrix = Matrix::MakeRotationX(90.0f);
+    zCoord.worldMatrix = targetWorld * Matrix::MakeRotationX(90.0f);
     zCoord.colorTint = Color::Blue;
     zCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     zCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());

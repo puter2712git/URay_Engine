@@ -22,8 +22,19 @@ public:
         owner = unit;
     }
 
+    bool IsEnabled() const
+    {
+        return enabled;
+    }
+    void SetEnabled(bool isEnabled)
+    {
+        enabled = isEnabled;
+    }
+
 protected:
     Unit* owner = nullptr;
+
+    bool enabled = true;
 };
 
 } // namespace URay

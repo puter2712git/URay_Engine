@@ -72,8 +72,9 @@ bool Engine::Initialize()
     gridUnit->AddComponent(gridComponent);
 
     Unit* gizmoUnit = new Unit();
-    GizmoComponent* gizmoComponent = new GizmoComponent();
-    gizmoUnit->AddComponent(gizmoComponent);
+    gizmo = new GizmoComponent();
+    gizmo->SetEnabled(false);
+    gizmoUnit->AddComponent(gizmo);
 
     scene->AddUnit(cameraUnit);
     scene->AddUnit(gridUnit);
@@ -310,6 +311,10 @@ void Engine::UpdatePick()
         if (isHit)
         {
             editor->SelectUnit(hitUnit);
+        }
+        else
+        {
+            editor->SelectUnit(nullptr);
         }
     }
 }

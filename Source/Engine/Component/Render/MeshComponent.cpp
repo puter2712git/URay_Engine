@@ -22,6 +22,9 @@ MeshComponent::MeshComponent()
 
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
+    if (!IsEnabled())
+        return;
+
     TransformComponent* transform = GetOwner()->GetTransform();
 
     MeshCommandContext context = {};

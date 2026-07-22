@@ -7,6 +7,7 @@ namespace URay
 
 class Scene;
 class CameraComponent;
+class GizmoComponent;
 class Unit;
 
 class Window;
@@ -59,6 +60,11 @@ public:
         return timer;
     }
 
+    GizmoComponent* GetGizmo() const
+    {
+        return gizmo;
+    }
+
 private:
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
@@ -69,6 +75,7 @@ private:
     Window* window = nullptr;
     Scene* scene = nullptr;
     CameraComponent* camera = nullptr;
+    GizmoComponent* gizmo = nullptr;
 
     Renderer* renderer = nullptr;
     RenderPipeline* renderPipeline = nullptr;

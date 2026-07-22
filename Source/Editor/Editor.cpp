@@ -1,5 +1,6 @@
 #include "Editor.h"
 
+#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene.h"
@@ -50,6 +51,8 @@ void Editor::Render()
 void Editor::SelectUnit(Unit* unit)
 {
     selectedUnit = unit;
+
+    engine.GetGizmo()->SetTarget(unit);
 }
 
 void Editor::ShowTestPanel() const
