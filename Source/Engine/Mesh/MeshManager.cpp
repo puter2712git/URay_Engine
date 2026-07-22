@@ -228,4 +228,10 @@ void MeshManager::CreateCylinder()
     CreateMesh("cylinder", cylinderVertices, cylinderIndices);
 }
 
+void MeshManager::CreateCone()
+{
+    std::vector<Vertex> coneVertices;
+    std::vector<uint16_t> coneIndices;
+}
+
 } // namespace URay

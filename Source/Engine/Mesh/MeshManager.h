@@ -30,6 +30,7 @@ private:
     void CreateBox();
     void CreateQuad();
     void CreateCylinder();
+    void CreateCone();
 
 private:
     Renderer& renderer;
