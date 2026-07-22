@@ -56,6 +56,24 @@ public:
         hoveredAxis = axis;
     }
 
+    int GetSelectedAxis() const
+    {
+        return selectedAxis;
+    }
+    void SetSelectedAxis(int axis)
+    {
+        selectedAxis = axis;
+    }
+
+    bool IsDragging() const
+    {
+        return isDragging;
+    }
+    void SetDragging(bool dragging)
+    {
+        isDragging = dragging;
+    }
+
     Mesh* GetCurrMesh()
     {
         return meshes[static_cast<size_t>(currMode)];
@@ -71,6 +89,9 @@ public:
 private:
     GizmoMode currMode = GizmoMode::Translation;
     int hoveredAxis = -1;
+
+    int selectedAxis = -1;
+    bool isDragging = false;
 
     Unit* targetUnit = nullptr;
 

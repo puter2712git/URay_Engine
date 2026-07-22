@@ -41,7 +41,16 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext xCoord = {};
     xCoord.worldMatrix = matrices[0];
-    xCoord.colorTint = hoveredAxis == static_cast<int>(Axis::X) ? Color::Yellow : Color::Red;
+
+    if (IsDragging())
+    {
+        xCoord.colorTint = selectedAxis == static_cast<int>(Axis::X) ? Color::Yellow : Color::Red;
+    }
+    else
+    {
+        xCoord.colorTint = hoveredAxis == static_cast<int>(Axis::X) ? Color::Yellow : Color::Red;
+    }
+
     xCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     xCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     xCoord.indexBuffer = meshes[0]->GetIndexBuffer();
@@ -50,7 +59,16 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext yCoord = {};
     yCoord.worldMatrix = matrices[1];
-    yCoord.colorTint = hoveredAxis == static_cast<int>(Axis::Y) ? Color::Yellow : Color::Green;
+
+    if (IsDragging())
+    {
+        yCoord.colorTint = selectedAxis == static_cast<int>(Axis::Y) ? Color::Yellow : Color::Green;
+    }
+    else
+    {
+        yCoord.colorTint = hoveredAxis == static_cast<int>(Axis::Y) ? Color::Yellow : Color::Green;
+    }
+
     yCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     yCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     yCoord.indexBuffer = meshes[0]->GetIndexBuffer();
@@ -59,7 +77,16 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext zCoord = {};
     zCoord.worldMatrix = matrices[2];
-    zCoord.colorTint = hoveredAxis == static_cast<int>(Axis::Z) ? Color::Yellow : Color::Blue;
+
+    if (IsDragging())
+    {
+        zCoord.colorTint = selectedAxis == static_cast<int>(Axis::Z) ? Color::Yellow : Color::Blue;
+    }
+    else
+    {
+        zCoord.colorTint = hoveredAxis == static_cast<int>(Axis::Z) ? Color::Yellow : Color::Blue;
+    }
+
     zCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     zCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     zCoord.indexBuffer = meshes[0]->GetIndexBuffer();

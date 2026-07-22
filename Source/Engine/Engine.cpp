@@ -21,7 +21,6 @@
 #include "Editor/Editor.h"
 
 #include <algorithm>
-#include <iostream>
 
 namespace URay
 {
@@ -95,6 +94,14 @@ void Engine::Run()
         glfwPollEvents();
 
         timer->Tick();
+
+        if (inputManager.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
+        {
+            if (gizmo && gizmo->IsDragging())
+            {
+                gizmo->SetDragging(false);
+            }
+        }
 
         UpdateCameraMovement(timer->GetDeltaTime());
         UpdateCameraRotation(timer->GetDeltaTime());
@@ -277,6 +284,8 @@ void Engine::UpdatePick()
 
         if (gizmoHit)
         {
+            gizmo->SetDragging(true);
+            gizmo->SetSelectedAxis(gizmoAxis);
             return;
         }
 
