@@ -16,7 +16,6 @@ struct MeshCommandContext
 {
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
-    uint32_t objectId = 0;
 
     VertexBuffer* vertexBuffer = nullptr;
     uint32_t vertexCount = 0;

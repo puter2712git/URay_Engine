@@ -22,20 +22,17 @@ GizmoComponent::GizmoComponent()
 
 void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
-    if (!IsEnabled())
+    if (IsEnabled())
         return;
 
     if (!targetUnit || !targetUnit->GetTransform())
         return;
 
-    uint32_t objectId = gEngine->GetObjectId();
-
     Matrix targetWorld = targetUnit->GetTransform()->GetWorldMatrix();
 
     MeshCommandContext xCoord = {};
     xCoord.worldMatrix = Matrix::MakeRotationZ(-90.0f) * targetWorld;
-    xCoord.colorTint = objectId == static_cast<uint32_t>(Axis::X) ? Color::Yellow : Color::Red;
-    xCoord.objectId = static_cast<uint32_t>(Axis::X);
+    xCoord.colorTint = Color::Red;
     xCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     xCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     xCoord.indexBuffer = meshes[0]->GetIndexBuffer();
@@ -44,8 +41,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext yCoord = {};
     yCoord.worldMatrix = targetWorld;
-    yCoord.colorTint = objectId == static_cast<uint32_t>(Axis::Y) ? Color::Yellow : Color::Green;
-    yCoord.objectId = static_cast<uint32_t>(Axis::Y);
+    yCoord.colorTint = Color::Green;
     yCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     yCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     yCoord.indexBuffer = meshes[0]->GetIndexBuffer();
@@ -54,8 +50,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext zCoord = {};
     zCoord.worldMatrix = Matrix::MakeRotationX(90.0f) * targetWorld;
-    zCoord.colorTint = objectId == static_cast<uint32_t>(Axis::Z) ? Color::Yellow : Color::Blue;
-    zCoord.objectId = static_cast<uint32_t>(Axis::Z);
+    zCoord.colorTint = Color::Blue;
     zCoord.vertexBuffer = meshes[0]->GetVertexBuffer();
     zCoord.vertexCount = static_cast<uint32_t>(meshes[0]->GetVertices().size());
     zCoord.indexBuffer = meshes[0]->GetIndexBuffer();

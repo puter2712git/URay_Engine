@@ -14,9 +14,11 @@ class Unit;
 
 enum class Axis : uint8_t
 {
-    X = 1,
+    X,
     Y,
-    Z
+    Z,
+
+    Count
 };
 
 enum class GizmoMode : uint8_t
@@ -24,6 +26,8 @@ enum class GizmoMode : uint8_t
     Translation,
     Rotation,
     Scale,
+
+    Count
 };
 
 class GizmoComponent : public RenderComponent
@@ -43,7 +47,7 @@ private:
     GizmoMode currMode = GizmoMode::Translation;
     Unit* targetUnit = nullptr;
 
-    std::array<Mesh*, 3> meshes;
+    std::array<Mesh*, static_cast<size_t>(GizmoMode::Count)> meshes;
     Material* material = nullptr;
 };
 

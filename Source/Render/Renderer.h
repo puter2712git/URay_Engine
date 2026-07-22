@@ -163,9 +163,6 @@ private:
     bool CreateDepthResources();
     void DestroyDepthResources();
 
-    bool CreateObjectIdResources();
-    void DestroyObjectIdResources();
-
     bool CreatePersistentVertexBuffer();
     void DestroyPersistentVertexBuffer();
 
@@ -238,10 +235,6 @@ private:
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
-    std::vector<VkImage> objectIdImages;
-    std::vector<VkDeviceMemory> objectIdImageMemories;
-    std::vector<VkImageView> objectIdImageViews;
-
     std::unordered_map<uint64_t, VkPipeline> pipelines;
 
     std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -278,9 +271,9 @@ public:
     VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;
     VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
     void* mappedVertexBufferData = nullptr;
+    uint32_t vertexCount = 0;
 
-    std::vector<VkBuffer> objectIdBuffers;
-    std::vector<VkDeviceMemory> objectIdMemories;
+    void RenderLines();
 };
 
 } // namespace URay
