@@ -17,7 +17,7 @@ public:
     ~Mesh();
 
 public:
-    std::vector<Vertex> GetVertices() const
+    const std::vector<Vertex>& GetVertices() const
     {
         return vertices;
     }
@@ -26,7 +26,7 @@ public:
         vertices = newVertices;
     }
 
-    std::vector<uint16_t> GetIndices() const
+    const std::vector<uint16_t>& GetIndices() const
     {
         return indices;
     }

@@ -31,6 +31,7 @@ private:
     void CreateQuad();
     void CreateCylinder();
     void CreateCone();
+    void CreateArrow();
 
 private:
     Renderer& renderer;

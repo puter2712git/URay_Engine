@@ -6,7 +6,6 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/Material/Material.h"
 #include "Render/Material/MaterialManager.h"
 
 namespace URay
@@ -14,7 +13,7 @@ namespace URay
 
 GizmoComponent::GizmoComponent()
 {
-    meshes[static_cast<size_t>(GizmoMode::Translation)] = gEngine->GetMeshManager()->GetMesh("cylinder");
+    meshes[static_cast<size_t>(GizmoMode::Translation)] = gEngine->GetMeshManager()->GetMesh("arrow");
 
     material = gEngine->GetMaterialManager()->GetOrCreate("default");
 }

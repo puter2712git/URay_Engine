@@ -34,6 +34,8 @@ bool MeshManager::CreateDefaultMeshes()
     CreateBox();
     CreateQuad();
     CreateCylinder();
+    CreateCone();
+    CreateArrow();
 
     return true;
 }
@@ -174,6 +176,7 @@ void MeshManager::CreateCylinder()
     Vertex topCenterVertex = {};
     topCenterVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
     topCenterVertex.color = Color::White;
+    cylinderVertices.push_back(topCenterVertex);
 
     for (uint32_t i = 0; i <= sliceCount; ++i)
     {
@@ -232,6 +235,118 @@ void MeshManager::CreateCone()
 {
     std::vector<Vertex> coneVertices;
     std::vector<uint16_t> coneIndices;
+
+    const float radius = 0.5f;
+    const float height = 2.0f;
+    const uint32_t sliceCount = 20;
+
+    const float halfHeight = height * 0.5f;
+    const float dTheta = Math::TWO_PI / sliceCount;
+
+    const uint16_t sideBaseIndex = static_cast<uint16_t>(coneVertices.size());
+
+    Vertex apexVertex = {};
+    apexVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
+    apexVertex.color = Color::White;
+    coneVertices.push_back(apexVertex);
+
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = i * dTheta;
+        const float x = radius * std::cos(theta);
+        const float y = radius * std::sin(theta);
+
+        Vertex bottomVertex = {};
+        bottomVertex.pos = Vector3(x, y, -halfHeight);
+        bottomVertex.color = Color::White;
+        coneVertices.push_back(bottomVertex);
+    }
+
+    const uint16_t apexIndex = sideBaseIndex;
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        coneIndices.push_back(apexIndex);
+        coneIndices.push_back(sideBaseIndex + 1 + i);
+        coneIndices.push_back(sideBaseIndex + 1 + i + 1);
+    }
+
+    const uint16_t bottomBaseIndex = static_cast<uint16_t>(coneVertices.size());
+
+    Vertex bottomCenter = {};
+    bottomCenter.pos = Vector3(0.0f, 0.0f, -halfHeight);
+    bottomCenter.color = Color::White;
+    coneVertices.push_back(bottomCenter);
+
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = i * dTheta;
+        const float x = radius * std::cos(theta);
+        const float y = radius * std::sin(theta);
+
+        Vertex vertex = {};
+        vertex.pos = Vector3(x, y, -halfHeight);
+        vertex.color = Color::White;
+        coneVertices.push_back(vertex);
+    }
+
+    // 2-3. 바닥 인덱스 생성 (밑에서 바라볼 때 감기는 방향 고려)
+    const uint16_t bottomCenterIndex = bottomBaseIndex;
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        coneIndices.push_back(bottomCenterIndex);
+        coneIndices.push_back(bottomBaseIndex + 1 + i + 1);
+        coneIndices.push_back(bottomBaseIndex + 1 + i);
+    }
+
+    CreateMesh("cone", coneVertices, coneIndices);
 }
 
+void MeshManager::CreateArrow()
+{
+    std::vector<Vertex> arrowVertices;
+    std::vector<uint16_t> arrowIndices;
+
+    uint16_t offset = 0;
+
+    {
+        Mesh* cylinderMesh = GetMesh("cylinder");
+        Matrix translationMatrix = Matrix::MakeTranslation(Vector3(0.0f, 1.0f, 0.0f));
+        Matrix rotationMarix = Matrix::MakeRotationX(-90.0f);
+        Matrix scaleMatrix = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f));
+        for (size_t i = 0; i < cylinderMesh->GetVertices().size(); ++i)
+        {
+            Vertex vertex = cylinderMesh->GetVertices()[i];
+            Vector4 pos4 = Vector4(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0f);
+            pos4 = pos4 * scaleMatrix * rotationMarix * translationMatrix;
+            vertex.pos = Vector3(pos4.x, pos4.y, pos4.z);
+
+            arrowVertices.push_back(vertex);
+        }
+        arrowIndices.insert(arrowIndices.end(), cylinderMesh->GetIndices().begin(), cylinderMesh->GetIndices().end());
+
+        offset += cylinderMesh->GetVertices().size();
+    }
+    {
+        Mesh* coneMesh = GetMesh("cone");
+        Matrix rotationMatrix = Matrix::MakeRotationX(-90.0f);
+        Matrix scaleMatrix = Matrix::MakeScale(Vector3(0.2f, 0.2f, 0.2f));
+        Matrix translationMatrix = Matrix::MakeTranslation(Vector3(0.0f, 2.0f, 0.0f));
+        for (size_t i = 0; i < coneMesh->GetVertices().size(); ++i)
+        {
+            Vertex vertex = coneMesh->GetVertices()[i];
+            Vector4 pos4 = Vector4(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0f);
+            pos4 = pos4 * scaleMatrix * rotationMatrix * translationMatrix;
+            vertex.pos = Vector3(pos4.x, pos4.y, pos4.z);
+
+            arrowVertices.push_back(vertex);
+        }
+
+        for (uint16_t index : coneMesh->GetIndices())
+        {
+            arrowIndices.push_back(index + offset);
+        }
+    }
+
+    CreateMesh("arrow", arrowVertices, arrowIndices);
+}
 } // namespace URay
