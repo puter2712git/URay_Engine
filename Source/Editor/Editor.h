@@ -26,6 +26,9 @@ private:
     void ShowTestPanel() const;
     void ShowStatus() const;
     void ShowInspector() const;
+    void ShowSceneTree() const;
+
+    void DrawUnit(Unit* unit) const;
 
 private:
     Engine& engine;

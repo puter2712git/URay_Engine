@@ -40,9 +40,17 @@ public:
         return transform;
     }
 
-private:
-    std::set<Component*> components;
+    const std::string& GetName() const { return name; }
+    void SetName(const std::string& newName) { name = newName; }
 
+    const std::vector<Unit*>& GetChildren() const { return children; }
+
+private:
+    std::string name;
+
+    std::vector<Unit*> children;
+
+    std::set<Component*> components;
     TransformComponent* transform = nullptr;
 };
 

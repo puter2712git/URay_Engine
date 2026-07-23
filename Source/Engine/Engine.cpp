@@ -63,6 +63,7 @@ bool Engine::Initialize()
     scene = new Scene();
 
     Unit* cameraUnit = new Unit();
+    cameraUnit->SetName("Editor Camera");
     TransformComponent* camTransform = new TransformComponent();
     camera = new CameraComponent();
     camTransform->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
@@ -70,10 +71,12 @@ bool Engine::Initialize()
     cameraUnit->AddComponent(camera);
 
     Unit* gridUnit = new Unit();
+    gridUnit->SetName("Grid");
     GridComponent* gridComponent = new GridComponent();
     gridUnit->AddComponent(gridComponent);
 
     Unit* gizmoUnit = new Unit();
+    gizmoUnit->SetName("Gizmo");
     gizmo = new GizmoComponent();
     gizmo->SetEnabled(false);
     gizmoUnit->AddComponent(gizmo);

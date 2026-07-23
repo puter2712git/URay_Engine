@@ -44,6 +44,7 @@ void Editor::Render()
     ShowTestPanel();
     ShowStatus();
     ShowInspector();
+    ShowSceneTree();
 
     renderer.EndImGui();
 }
@@ -62,6 +63,7 @@ void Editor::ShowTestPanel() const
     if (ImGui::Button("Click me"))
     {
         TestUnit* testUnit = new TestUnit();
+        testUnit->SetName("Test Unit");
         engine.GetScene()->AddUnit(testUnit);
     }
 
@@ -114,6 +116,49 @@ void Editor::ShowInspector() const
     }
 
     ImGui::End();
+}
+
+void Editor::ShowSceneTree() const
+{
+    ImGui::Begin("Scene Tree");
+
+    Scene* scene = gEngine->GetScene();
+    if (!scene)
+    {
+        ImGui::End();
+        return;
+    }
+
+    for (Unit* unit : scene->GetUnits())
+    {
+        DrawUnit(unit);
+    }
+
+    ImGui::End();
+}
+
+void Editor::DrawUnit(Unit* unit) const
+{
+    if (!unit)
+        return;
+
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+
+    if (unit->GetChildren().empty())
+    {
+        flags |= ImGuiTreeNodeFlags_Leaf;
+    }
+
+    bool opened = ImGui::TreeNodeEx(unit, flags, "%s", unit->GetName().c_str());
+    if (opened)
+    {
+        for (Unit* child : unit->GetChildren())
+        {
+            DrawUnit(child);
+        }
+
+        ImGui::TreePop();
+    }
 }
 
 } // namespace URay
