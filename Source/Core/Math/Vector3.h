@@ -5,6 +5,8 @@
 namespace URay
 {
 
+struct Vector4;
+
 struct Vector3
 {
     float x = 0.0f;
@@ -12,6 +14,7 @@ struct Vector3
     float z = 0.0f;
 
     Vector3(float inX = 0.0f, float inY = 0.0f, float inZ = 0.0f);
+    Vector3(const Vector4& vec4);
 
     static Vector3 Zero;
     static Vector3 One;

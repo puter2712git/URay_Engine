@@ -12,30 +12,17 @@ class CameraComponent : public Component
 public:
     void Update(float deltaTime) override;
 
-    Matrix GetViewMatrix() const
-    {
-        return viewMatrix;
-    }
+    Vector3 ScreenToWorld(const Vector3& screenPos) const;
 
-    Matrix GetProjMatrix() const
-    {
-        return projMatrix;
-    }
+    Matrix GetViewMatrix() const { return viewMatrix; }
 
-    float GetFOV() const
-    {
-        return fov;
-    }
+    Matrix GetProjMatrix() const { return projMatrix; }
 
-    float GetNearPlane() const
-    {
-        return near;
-    }
+    float GetFOV() const { return fov; }
 
-    float GetFarPlane() const
-    {
-        return far;
-    }
+    float GetNearPlane() const { return near; }
+
+    float GetFarPlane() const { return far; }
 
 private:
     void UpdateViewMatrix();

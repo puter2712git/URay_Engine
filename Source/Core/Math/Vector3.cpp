@@ -1,5 +1,7 @@
 #include "Vector3.h"
 
+#include "Core/Math/Vector4.h"
+
 namespace URay
 {
 
@@ -12,6 +14,11 @@ Vector3 Vector3::Up = Vector3(0.0f, 0.0f, 1.0f);
 
 Vector3::Vector3(float inX, float inY, float inZ)
     : x(inX), y(inY), z(inZ)
+{
+}
+
+Vector3::Vector3(const Vector4& vec4)
+    : x(vec4.x), y(vec4.y), z(vec4.z)
 {
 }
 

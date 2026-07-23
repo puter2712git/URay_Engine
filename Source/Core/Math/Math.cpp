@@ -52,4 +52,22 @@ bool Math::IntersectLineTriangle(
     return true;
 }
 
+bool Math::IntersectLinePlane(
+    const Vector3& start, const Vector3& dir,
+    const Vector3& planePoint, const Vector3& planeNormal,
+    Vector3& hitPoint)
+{
+    float denominator = Vector3::Dot(dir, planeNormal);
+
+    if (std::abs(denominator) < EPSILON)
+        return false;
+
+    float t = Vector3::Dot(planePoint - start, planeNormal) / denominator;
+    if (t < 0.0f)
+        return false;
+
+    hitPoint = start + dir * t;
+    return true;
+}
+
 } // namespace URay

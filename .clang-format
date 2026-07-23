@@ -14,7 +14,7 @@ ColumnLimit: 0
 
 BreakBeforeBraces: Allman
 
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 

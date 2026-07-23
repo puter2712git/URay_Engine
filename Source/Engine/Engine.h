@@ -34,37 +34,21 @@ public:
 
     void SpawnUnit(Unit* unit);
 
-    InputManager& GetInputManager()
-    {
-        return inputManager;
-    }
+    InputManager& GetInputManager() { return inputManager; }
 
-    MeshManager* GetMeshManager() const
-    {
-        return meshManager;
-    }
+    MeshManager* GetMeshManager() const { return meshManager; }
 
     MaterialManager* GetMaterialManager() const;
 
-    Scene* GetScene() const
-    {
-        return scene;
-    }
+    Scene* GetScene() const { return scene; }
 
-    Editor* GetEditor() const
-    {
-        return editor;
-    }
+    Editor* GetEditor() const { return editor; }
 
-    Timer* GetTimer() const
-    {
-        return timer;
-    }
+    Timer* GetTimer() const { return timer; }
 
-    GizmoComponent* GetGizmo() const
-    {
-        return gizmo;
-    }
+    GizmoComponent* GetGizmo() const { return gizmo; }
+
+    CameraComponent* GetCamera() const { return camera; }
 
 private:
     void UpdateCameraMovement(float deltaTime);

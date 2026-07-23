@@ -16,6 +16,24 @@ void CameraComponent::Update(float deltaTime)
     UpdateProjMatrix();
 }
 
+Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const
+{
+    float ndcX = (2.0f * screenPos.x) / 800.0f - 1.0f;
+    float ndcY = 1.0f - (2.0f * screenPos.y) / 600.0f;
+
+    Matrix invProjMatrix = GetProjMatrix().Inverse();
+    Matrix invViewMatrix = GetViewMatrix().Inverse();
+
+    const Vector4 ndc = Vector4(ndcX, ndcY, screenPos.z, 1.0f);
+    const Vector4 clip = ndc * invProjMatrix;
+    const Vector4 view = Vector4(clip.x / clip.w, clip.y / clip.w,
+                                 clip.z / clip.w, 1.0f);
+    const Vector4 world = view * invViewMatrix;
+    const Vector3 worldPos = Vector3(world.x, world.y, world.z);
+
+    return worldPos;
+}
+
 void CameraComponent::UpdateViewMatrix()
 {
     Unit* owner = GetOwner();

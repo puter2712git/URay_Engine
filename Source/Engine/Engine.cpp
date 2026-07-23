@@ -99,7 +99,7 @@ void Engine::Run()
         {
             if (gizmo && gizmo->IsDragging())
             {
-                gizmo->SetDragging(false);
+                gizmo->EndDragging();
             }
         }
 
@@ -212,28 +212,11 @@ void Engine::UpdateCameraRotation(float deltaTime)
 
 void Engine::UpdateHover()
 {
-    float mouseX = inputManager.mouseX;
-    float mouseY = inputManager.mouseY;
+    Vector3 screenPos = Vector3(inputManager.mouseX, inputManager.mouseY, 0.0f);
+    const Vector3 start = camera->ScreenToWorld(screenPos);
 
-    float ndcX = (2.0f * mouseX) / 800.0f - 1.0f;
-    float ndcY = 1.0f - (2.0f * mouseY) / 600.0f;
-
-    Matrix invProjMatrix = camera->GetProjMatrix().Inverse();
-    Matrix invViewMatrix = camera->GetViewMatrix().Inverse();
-
-    const Vector4 ndcNear = Vector4(ndcX, ndcY, 0.0f, 1.0f);
-    const Vector4 clipNear = ndcNear * invProjMatrix;
-    const Vector4 viewNear = Vector4(clipNear.x / clipNear.w, clipNear.y / clipNear.w,
-                                     clipNear.z / clipNear.w, 1.0f);
-    const Vector4 worldNear4 = viewNear * invViewMatrix;
-    const Vector3 start = Vector3(worldNear4.x, worldNear4.y, worldNear4.z);
-
-    const Vector4 ndcFar = Vector4(ndcX, ndcY, 1.0f, 1.0f);
-    const Vector4 clipFar = ndcFar * invProjMatrix;
-    const Vector4 viewFar = Vector4(clipFar.x / clipFar.w, clipFar.y / clipFar.w,
-                                    clipFar.z / clipFar.w, 1.0f);
-    const Vector4 worldFar4 = viewFar * invViewMatrix;
-    const Vector3 end = Vector3(worldFar4.x, worldFar4.y, worldFar4.z);
+    screenPos.z = 1.0f;
+    const Vector3 end = camera->ScreenToWorld(screenPos);
 
     const Vector3 lineDir = (end - start).GetNormalized();
 
@@ -254,28 +237,11 @@ void Engine::UpdatePick()
 {
     if (inputManager.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
     {
-        float mouseX = inputManager.mouseX;
-        float mouseY = inputManager.mouseY;
+        Vector3 screenPos = Vector3(inputManager.mouseX, inputManager.mouseY, 0.0f);
+        const Vector3 start = camera->ScreenToWorld(screenPos);
 
-        float ndcX = (2.0f * mouseX) / 800.0f - 1.0f;
-        float ndcY = 1.0f - (2.0f * mouseY) / 600.0f;
-
-        Matrix invProjMatrix = camera->GetProjMatrix().Inverse();
-        Matrix invViewMatrix = camera->GetViewMatrix().Inverse();
-
-        const Vector4 ndcNear = Vector4(ndcX, ndcY, 0.0f, 1.0f);
-        const Vector4 clipNear = ndcNear * invProjMatrix;
-        const Vector4 viewNear = Vector4(clipNear.x / clipNear.w, clipNear.y / clipNear.w,
-                                         clipNear.z / clipNear.w, 1.0f);
-        const Vector4 worldNear4 = viewNear * invViewMatrix;
-        const Vector3 start = Vector3(worldNear4.x, worldNear4.y, worldNear4.z);
-
-        const Vector4 ndcFar = Vector4(ndcX, ndcY, 1.0f, 1.0f);
-        const Vector4 clipFar = ndcFar * invProjMatrix;
-        const Vector4 viewFar = Vector4(clipFar.x / clipFar.w, clipFar.y / clipFar.w,
-                                        clipFar.z / clipFar.w, 1.0f);
-        const Vector4 worldFar4 = viewFar * invViewMatrix;
-        const Vector3 end = Vector3(worldFar4.x, worldFar4.y, worldFar4.z);
+        screenPos.z = 1.0f;
+        const Vector3 end = camera->ScreenToWorld(screenPos);
 
         const Vector3 lineDir = (end - start).GetNormalized();
 
@@ -284,8 +250,7 @@ void Engine::UpdatePick()
 
         if (gizmoHit)
         {
-            gizmo->SetDragging(true);
-            gizmo->SetSelectedAxis(gizmoAxis);
+            gizmo->StartDragging(Vector2(inputManager.mouseX, inputManager.mouseY), gizmoAxis);
             return;
         }
 
@@ -312,7 +277,7 @@ void Engine::UpdatePick()
                 const std::vector<uint16_t> indices = mesh->GetIndices();
 
                 const Vector3 localStart = transform->InvTransformPoint(start);
-                const Vector3 localDir = transform->InvTransformVectorNoScale(lineDir);
+                const Vector3 localDir = transform->InvTransformVector(lineDir);
 
                 for (size_t i = 0; i + 2 < indices.size(); i += 3)
                 {
