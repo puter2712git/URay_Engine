@@ -24,6 +24,7 @@ public:
 
     void BuildFromMesh(const MeshCommandContext& context);
     void BuildFromLine(const LineCommandContext& context);
+    void BuildFromGizmo(const GizmoCommandContext& context);
 
     const std::vector<DrawCommand>& GetCommands() const
     {

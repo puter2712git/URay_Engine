@@ -63,7 +63,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     if (!targetUnit)
         return;
 
-    MeshCommandContext xCoord = {};
+    GizmoCommandContext xCoord = {};
     xCoord.worldMatrix = matrices[0];
 
     if (IsDragging())
@@ -81,7 +81,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     xCoord.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
     xCoord.material = material;
 
-    MeshCommandContext yCoord = {};
+    GizmoCommandContext yCoord = {};
     yCoord.worldMatrix = matrices[1];
 
     if (IsDragging())
@@ -99,7 +99,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     yCoord.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
     yCoord.material = material;
 
-    MeshCommandContext zCoord = {};
+    GizmoCommandContext zCoord = {};
     zCoord.worldMatrix = matrices[2];
 
     if (IsDragging())
@@ -117,9 +117,9 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     zCoord.indexCount = static_cast<uint32_t>(meshes[0]->GetIndices().size());
     zCoord.material = material;
 
-    builder.BuildFromMesh(xCoord);
-    builder.BuildFromMesh(yCoord);
-    builder.BuildFromMesh(zCoord);
+    builder.BuildFromGizmo(xCoord);
+    builder.BuildFromGizmo(yCoord);
+    builder.BuildFromGizmo(zCoord);
 }
 
 void GizmoComponent::StartDragging(const Vector2& clickPos, int selectedAxis)

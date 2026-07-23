@@ -33,4 +33,18 @@ struct LineCommandContext
     Color color = Color::White;
 };
 
+struct GizmoCommandContext
+{
+    Matrix worldMatrix = Matrix::Identity;
+    Color colorTint = Color::White;
+
+    VertexBuffer* vertexBuffer = nullptr;
+    uint32_t vertexCount = 0;
+
+    IndexBuffer* indexBuffer = nullptr;
+    uint32_t indexCount = 0;
+
+    Material* material = nullptr;
+};
+
 } // namespace URay

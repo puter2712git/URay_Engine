@@ -3,6 +3,7 @@
 #include "Render/Renderer.h"
 
 #include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene.h"
@@ -65,12 +66,26 @@ CameraComponent* RenderPipeline::FindCamera(const Scene* scene) const
 
 void RenderPipeline::CollectCommand(const Scene* scene)
 {
+    GizmoComponent* gizmo = nullptr;
+
     for (const Unit* unit : scene->GetUnits())
     {
         if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
         {
-            comp->SubmitCommand(builder);
+            if (GizmoComponent* gizmoComp = dynamic_cast<GizmoComponent*>(comp))
+            {
+                gizmo = gizmoComp;
+            }
+            else
+            {
+                comp->SubmitCommand(builder);
+            }
         }
+    }
+
+    if (gizmo)
+    {
+        gizmo->SubmitCommand(builder);
     }
 }
 

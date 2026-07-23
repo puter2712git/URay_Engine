@@ -55,6 +55,14 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     state.shader = context.material->GetShader();
     state.topology = PrimitiveTopology::TriangleList;
 
+    DepthStencilState depthStencil = {};
+    depthStencil.depthTestEnable = true;
+    depthStencil.depthWriteEnable = true;
+    depthStencil.depthCompareOp = CompareOp::Less;
+    depthStencil.stencilTestEnable = false;
+
+    state.depthStencil = depthStencil;
+
     cmd.pipelineState = state;
 
     drawCmds.push_back(cmd);
@@ -72,6 +80,31 @@ void DrawCommandBuilder::BuildFromLine(const LineCommandContext& context)
 
     lineVertices.push_back(v0);
     lineVertices.push_back(v1);
+}
+
+void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
+{
+    DrawCommand cmd = {};
+    cmd.worldMatrix = context.worldMatrix;
+    cmd.colorTint = context.colorTint;
+    cmd.vertexBuffer = context.vertexBuffer->GetBufferRef();
+    cmd.vertexCount = context.vertexCount;
+    cmd.indexBuffer = context.indexBuffer->GetBufferRef();
+    cmd.indexCount = context.indexCount;
+
+    PipelineState state = {};
+    state.shader = context.material->GetShader();
+    state.topology = PrimitiveTopology::TriangleList;
+
+    DepthStencilState depthStencil = {};
+    depthStencil.depthTestEnable = false;
+    depthStencil.depthWriteEnable = false;
+
+    state.depthStencil = depthStencil;
+
+    cmd.pipelineState = state;
+
+    drawCmds.push_back(cmd);
 }
 
 } // namespace URay
