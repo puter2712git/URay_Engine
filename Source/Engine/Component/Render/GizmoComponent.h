@@ -57,16 +57,25 @@ public:
     bool IsDragging() const { return isDragging; }
     void SetDragging(bool dragging) { isDragging = dragging; }
 
+    GizmoMode GetCurrMode() const { return currMode; }
+    int GetCurrModeIndex() const { return static_cast<int>(currMode); }
+    void SetMode(GizmoMode mode) { currMode = mode; }
+
     Mesh* GetCurrMesh() { return meshes[static_cast<size_t>(currMode)]; }
 
-    const Matrix& GetCurrMatrix(size_t axis) const { return matrices[axis]; }
+    const Matrix& GetCurrMatrix(size_t axis) const { return matrices[GetCurrModeIndex()][axis]; }
 
     const TransformComponent* GetTargetTransform() const;
 
 private:
     void UpdateGizmo();
 
+    void UpdateGizmoTranslation();
+    void UpdateGizmoRotation();
+    void UpdateGizmoScale();
+
     Vector3 GetCurrAxisDir();
+    bool GetDragPlaneHitPoint(const Vector3& lineDir, Vector3& outHitPoint) const;
 
 private:
     GizmoMode currMode = GizmoMode::Translation;
@@ -77,13 +86,16 @@ private:
     bool isDragging = false;
 
     Vector3 targetInitPos = Vector3::Zero;
+    Vector3 targetInitRotation = Vector3::Zero;
+    Vector3 targetInitScale = Vector3::One;
     Vector3 dragStartWorldPos = Vector3::Zero;
     Vector3 dragStartLineDir = Vector3::Zero;
+    Vector3 dragAxisDir = Vector3::Zero;
 
     Unit* targetUnit = nullptr;
 
     std::array<Mesh*, static_cast<size_t>(GizmoMode::Count)> meshes;
-    std::array<Matrix, static_cast<size_t>(Axis::Count)> matrices;
+    std::array<std::array<Matrix, static_cast<size_t>(Axis::Count)>, static_cast<size_t>(GizmoMode::Count)> matrices;
 
     Material* material = nullptr;
 };

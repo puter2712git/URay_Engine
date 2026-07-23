@@ -2,6 +2,7 @@
 
 #include "DepthStencilState.h"
 #include "PrimitiveTopology.h"
+#include "RasterizerState.h"
 
 #include <cstdint>
 
@@ -17,6 +18,7 @@ struct PipelineState
     PrimitiveTopology topology = PrimitiveTopology::TriangleList;
 
     DepthStencilState depthStencil = {};
+    RasterizerState rasterizer = {};
 
     uint64_t GetKey() const;
 };

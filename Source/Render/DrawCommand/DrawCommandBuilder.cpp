@@ -92,15 +92,18 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     cmd.indexBuffer = context.indexBuffer->GetBufferRef();
     cmd.indexCount = context.indexCount;
 
-    PipelineState state = {};
-    state.shader = context.material->GetShader();
-    state.topology = PrimitiveTopology::TriangleList;
-
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = false;
     depthStencil.depthWriteEnable = false;
 
+    RasterizerState rasterizer = {};
+    rasterizer.cullMode = CullMode::None;
+
+    PipelineState state = {};
+    state.shader = context.material->GetShader();
+    state.topology = PrimitiveTopology::TriangleList;
     state.depthStencil = depthStencil;
+    state.rasterizer = rasterizer;
 
     cmd.pipelineState = state;
 

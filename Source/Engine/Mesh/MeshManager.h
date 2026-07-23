@@ -32,6 +32,8 @@ private:
     void CreateCylinder();
     void CreateCone();
     void CreateArrow();
+    void CreateRotationGizmo();
+    void CreateScaleGizmo();
 
 private:
     Renderer& renderer;

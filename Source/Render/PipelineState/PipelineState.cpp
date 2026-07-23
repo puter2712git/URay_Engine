@@ -16,6 +16,7 @@ uint64_t PipelineState::GetKey() const
     key |= static_cast<uint64_t>(depthStencil.depthWriteEnable) << 9;
     key |= static_cast<uint64_t>(depthStencil.depthCompareOp) << 10;
     key |= static_cast<uint64_t>(depthStencil.stencilTestEnable) << 12;
+    key |= static_cast<uint64_t>(rasterizer.cullMode) << 13;
 
     return key;
 }

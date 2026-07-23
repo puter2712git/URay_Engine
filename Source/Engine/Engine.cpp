@@ -103,6 +103,20 @@ void Engine::Run()
             }
         }
 
+        if (inputManager.GetKeyDown(GLFW_KEY_SPACE))
+        {
+            if (gizmo)
+            {
+                GizmoMode mode = gizmo->GetCurrMode();
+                int modeIndex = static_cast<int>(mode);
+                modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
+
+                GizmoMode newMode = static_cast<GizmoMode>(modeIndex);
+
+                gizmo->SetMode(newMode);
+            }
+        }
+
         UpdateCameraMovement(timer->GetDeltaTime());
         UpdateCameraRotation(timer->GetDeltaTime());
         UpdateHover();

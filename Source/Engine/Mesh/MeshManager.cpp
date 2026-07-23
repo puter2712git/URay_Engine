@@ -36,6 +36,8 @@ bool MeshManager::CreateDefaultMeshes()
     CreateCylinder();
     CreateCone();
     CreateArrow();
+    CreateRotationGizmo();
+    CreateScaleGizmo();
 
     return true;
 }
@@ -80,14 +82,14 @@ void MeshManager::CreateBox()
 {
     // clang-format off
     std::vector<Vertex> boxVertices = {
-        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.2f, 0.2f } },
-        { { 0.5f, -0.5f, -0.5f }, { 1.0f, 0.6f, 0.2f } },
-        { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 0.2f } },
-        { { 0.5f, 0.5f, -0.5f }, { 0.2f, 1.0f, 0.2f } },
-        { { -0.5f, -0.5f, 0.5f }, { 0.2f, 1.0f, 1.0f } },
-        { { 0.5f, -0.5f, 0.5f }, { 0.2f, 0.4f, 1.0f } },
-        { { -0.5f, 0.5f, 0.5f }, { 0.6f, 0.2f, 1.0f } },
-        { { 0.5f, 0.5f, 0.5f }, { 1.0f, 0.2f, 1.0f } },
+        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { 0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { 0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { -0.5f, -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { 0.5f, -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { -0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
+        { { 0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
     };
     std::vector<uint16_t> boxIndices = {
         0, 2, 1, 1, 2, 3,
@@ -349,4 +351,95 @@ void MeshManager::CreateArrow()
 
     CreateMesh("arrow", arrowVertices, arrowIndices);
 }
+
+void MeshManager::CreateRotationGizmo()
+{
+    std::vector<Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    constexpr float outerRadius = 1.5f;
+    constexpr float innerRadius = 1.35f;
+    constexpr uint32_t sliceCount = 96;
+
+    vertices.reserve((sliceCount + 1) * 2);
+    indices.reserve(sliceCount * 6);
+
+    const float dTheta = Math::TWO_PI / static_cast<float>(sliceCount);
+
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = static_cast<float>(i) * dTheta;
+        const float cosTheta = std::cos(theta);
+        const float sinTheta = std::sin(theta);
+
+        Vertex outerVertex = {};
+        outerVertex.pos = Vector3(
+            outerRadius * cosTheta,
+            outerRadius * sinTheta,
+            0.0f);
+        outerVertex.color = Color::White;
+
+        Vertex innerVertex = {};
+        innerVertex.pos = Vector3(
+            innerRadius * cosTheta,
+            innerRadius * sinTheta,
+            0.0f);
+        innerVertex.color = Color::White;
+
+        vertices.push_back(outerVertex);
+        vertices.push_back(innerVertex);
+    }
+
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        const uint16_t currentOuter = static_cast<uint16_t>(i * 2);
+        const uint16_t currentInner = static_cast<uint16_t>(i * 2 + 1);
+        const uint16_t nextOuter = static_cast<uint16_t>((i + 1) * 2);
+        const uint16_t nextInner = static_cast<uint16_t>((i + 1) * 2 + 1);
+
+        indices.push_back(currentOuter);
+        indices.push_back(currentInner);
+        indices.push_back(nextOuter);
+
+        indices.push_back(nextOuter);
+        indices.push_back(currentInner);
+        indices.push_back(nextInner);
+    }
+
+    CreateMesh("rotation_gizmo", vertices, indices);
+}
+
+void MeshManager::CreateScaleGizmo()
+{
+    std::vector<Vertex> vertices;
+    std::vector<uint16_t> indices;
+
+    auto appendMesh = [&vertices, &indices](const Mesh* source, const Matrix& transform)
+    {
+        const uint16_t offset = static_cast<uint16_t>(vertices.size());
+
+        for (const Vertex& sourceVertex : source->GetVertices())
+        {
+            Vertex vertex = sourceVertex;
+            vertex.pos = Vector3(Vector4(vertex.pos, 1.0f) * transform);
+            vertices.push_back(vertex);
+        }
+
+        for (uint16_t index : source->GetIndices())
+            indices.push_back(index + offset);
+    };
+
+    // This mesh points along +Y, the local axis shared by the translation gizmo.
+    const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f))
+        * Matrix::MakeRotationX(-90.0f)
+        * Matrix::MakeTranslation(Vector3(0.0f, 0.9f, 0.0f));
+    appendMesh(GetMesh("cylinder"), shaftTransform);
+
+    const Matrix handleTransform = Matrix::MakeScale(Vector3(0.28f, 0.28f, 0.28f))
+        * Matrix::MakeTranslation(Vector3(0.0f, 1.9f, 0.0f));
+    appendMesh(GetMesh("box"), handleTransform);
+
+    CreateMesh("scale_gizmo", vertices, indices);
+}
+
 } // namespace URay
