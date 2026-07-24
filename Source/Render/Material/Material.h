@@ -4,6 +4,7 @@ namespace URay
 {
 
 class Shader;
+class TextureAsset;
 
 class Material
 {
@@ -19,6 +20,8 @@ public:
 
 private:
     Shader* shader = nullptr;
+
+    TextureAsset* texture = nullptr;
 };
 
 } // namespace URay

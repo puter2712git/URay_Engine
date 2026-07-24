@@ -8,6 +8,7 @@
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene.h"
+#include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
 #include "Core/Math/Math.h"
@@ -57,6 +58,9 @@ bool Engine::Initialize()
 
     meshManager = new MeshManager(*renderer);
     meshManager->CreateDefaultMeshes();
+
+    textureManager = new TextureManager();
+    textureManager->LoadTextureAsset("test", "Asset/texture.jpg");
 
     Mesh* quadMesh = meshManager->GetMesh("quad");
 

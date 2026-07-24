@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <unordered_map>
 
 namespace URay
@@ -10,7 +11,11 @@ class TextureAsset;
 class TextureManager
 {
 public:
+    ~TextureManager();
+
+public:
     TextureAsset* LoadTextureAsset(const std::string& key, const std::string& filePath);
+    TextureAsset* GetTexture(const std::string& key) const;
 
 private:
     std::unordered_map<std::string, TextureAsset*> textures;

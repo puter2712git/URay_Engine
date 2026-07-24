@@ -13,7 +13,9 @@ class Unit;
 
 class Window;
 class Timer;
+
 class MeshManager;
+class TextureManager;
 
 class MaterialManager;
 class Renderer;
@@ -37,6 +39,8 @@ public:
     InputManager& GetInputManager() { return inputManager; }
 
     MeshManager* GetMeshManager() const { return meshManager; }
+
+    TextureManager* GetTextureManager() const { return textureManager; }
 
     MaterialManager* GetMaterialManager() const;
 
@@ -75,6 +79,7 @@ private:
     InputManager inputManager;
 
     MeshManager* meshManager = nullptr;
+    TextureManager* textureManager = nullptr;
 };
 
 extern Engine* gEngine;
