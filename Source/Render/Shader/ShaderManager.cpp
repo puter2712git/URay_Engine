@@ -2,15 +2,7 @@
 
 #include "Shader.h"
 
-#include <fstream>
-#include <vector>
-
-namespace
-{
-
-std::vector<char> ReadFile(const std::string& fileName);
-
-}
+#include "Core/File/FileIO.h"
 
 namespace URay
 {
@@ -37,11 +29,11 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     if (it != shaders.end())
         return it->second;
 
-    std::vector<char> vertexShaderCode = ReadFile(vertexFilePath);
+    std::vector<uint8_t> vertexShaderCode = FileIO::ReadBinary(vertexFilePath);
     if (vertexFilePath.empty())
         return nullptr;
 
-    std::vector<char> fragmentShaderCode = ReadFile(fragmentFilePath);
+    std::vector<uint8_t> fragmentShaderCode = FileIO::ReadBinary(fragmentFilePath);
     if (fragmentFilePath.empty())
         return nullptr;
 
@@ -66,26 +58,3 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
 }
 
 } // namespace URay
-
-namespace
-{
-
-std::vector<char> ReadFile(const std::string& fileName)
-{
-    std::ifstream file(fileName, std::ios::ate | std::ios::binary);
-
-    if (!file.is_open())
-        return std::vector<char>();
-
-    size_t fileSize = static_cast<size_t>(file.tellg());
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-
-    return buffer;
-}
-
-} // namespace

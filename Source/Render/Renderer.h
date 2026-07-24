@@ -180,7 +180,7 @@ private:
         const std::vector<VkPresentModeKHR>& availablePresentModes) const;
     VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) const;
 
-    VkShaderModule CreateShaderModule(const std::vector<char>& code) const;
+    VkShaderModule CreateShaderModule(const std::vector<uint8_t>& code) const;
 
     VkFormat FindDepthFormat() const;
     bool HasStencilComponent(VkFormat format) const;

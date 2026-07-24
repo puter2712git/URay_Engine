@@ -11,7 +11,7 @@ namespace URay
 struct ShaderStage
 {
     std::string filePath;
-    std::vector<char> code;
+    std::vector<uint8_t> code;
     VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     std::string entry;
 };

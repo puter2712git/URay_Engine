@@ -1596,7 +1596,7 @@ VkExtent2D Renderer::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabiliti
     }
 }
 
-VkShaderModule Renderer::CreateShaderModule(const std::vector<char>& code) const
+VkShaderModule Renderer::CreateShaderModule(const std::vector<uint8_t>& code) const
 {
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
