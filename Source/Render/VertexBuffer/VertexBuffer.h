@@ -10,7 +10,7 @@ class Renderer;
 class VertexBuffer
 {
 public:
-    VertexBuffer(Renderer* renderer, uint32_t size);
+    VertexBuffer(VkDevice device, uint32_t size);
     ~VertexBuffer();
 
 public:
@@ -25,7 +25,7 @@ public:
     }
 
 private:
-    Renderer* renderer = nullptr;
+    VkDevice device = VK_NULL_HANDLE;
 
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;

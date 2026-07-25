@@ -2,7 +2,6 @@
 
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/PipelineState/PipelineState.h"
-#include "Render/Vertex.h"
 
 #include "Core/Math/Matrix.h"
 
@@ -27,6 +26,8 @@ struct FrameConstants
     Matrix view = Matrix::Identity;
     Matrix proj = Matrix::Identity;
 };
+
+class RenderDevice;
 
 class VertexBuffer;
 class IndexBuffer;
@@ -62,27 +63,17 @@ public:
 
     void Draw(const DrawCommand& cmd);
 
-    VertexBuffer* CreateVertexBuffer(const std::vector<Vertex>& vertices);
-    IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
-
-    void DestroyBuffer(VkBuffer buffer) const;
-    void FreeMemory(VkDeviceMemory memory) const;
-
     void CreatePipelineLayout();
     void DestroyPipelineLayout();
 
     VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
     void DestroyPipelineStates();
 
-    MaterialManager* GetMaterialManager() const
-    {
-        return materialManager;
-    }
+    MaterialManager* GetMaterialManager() const { return materialManager; }
 
-    ShaderManager* GetShaderManager() const
-    {
-        return shaderManager;
-    }
+    ShaderManager* GetShaderManager() const { return shaderManager; }
+
+    RenderDevice* GetDevice() const { return renderDevice; }
 
 private:
     struct QueueFamilyIndices
@@ -209,6 +200,8 @@ private:
 
 private:
     Window* window = nullptr;
+
+    RenderDevice* renderDevice = nullptr;
 
     ShaderManager* shaderManager = nullptr;
     MaterialManager* materialManager = nullptr;

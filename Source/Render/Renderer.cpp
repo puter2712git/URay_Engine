@@ -2,6 +2,7 @@
 
 #include "Render/IndexBuffer.h"
 #include "Render/Material/MaterialManager.h"
+#include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
@@ -132,6 +133,8 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateSyncObjects())
         return false;
+
+    renderDevice = new RenderDevice(physicalDevice, device, graphicsQueue, commandPool);
 
     if (!CreatePersistentVertexBuffer())
         return false;
@@ -372,76 +375,6 @@ void Renderer::Draw(const DrawCommand& cmd)
     {
         vkCmdDraw(commandBuffers[currentFrame], cmd.vertexCount, 1, 0, 0);
     }
-}
-
-VertexBuffer* Renderer::CreateVertexBuffer(const std::vector<Vertex>& vertices)
-{
-    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    VertexBuffer* vertexBuffer = new VertexBuffer(this, bufferSize);
-
-    CreateBuffer(bufferSize,
-                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 vertexBuffer->GetBufferRef(), vertexBuffer->GetMemoryRef());
-
-    CopyBuffer(stagingBuffer, vertexBuffer->GetBufferRef(), bufferSize);
-
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    return vertexBuffer;
-}
-
-IndexBuffer* Renderer::CreateIndexBuffer(const std::vector<uint16_t>& indices)
-{
-    VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    IndexBuffer* indexBuffer = new IndexBuffer(this, bufferSize);
-
-    CreateBuffer(bufferSize,
-                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 indexBuffer->GetBufferRef(), indexBuffer->GetMemoryRef());
-
-    CopyBuffer(stagingBuffer, indexBuffer->GetBufferRef(), bufferSize);
-
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    return indexBuffer;
-}
-
-void Renderer::DestroyBuffer(VkBuffer buffer) const
-{
-    vkDestroyBuffer(device, buffer, nullptr);
-}
-
-void Renderer::FreeMemory(VkDeviceMemory memory) const
-{
-    vkFreeMemory(device, memory, nullptr);
 }
 
 void Renderer::CreatePipelineLayout()

@@ -56,7 +56,7 @@ bool Engine::Initialize()
 
     timer = new Timer();
 
-    meshManager = new MeshManager(*renderer);
+    meshManager = new MeshManager(renderer->GetDevice());
     meshManager->CreateDefaultMeshes();
 
     textureManager = new TextureManager();

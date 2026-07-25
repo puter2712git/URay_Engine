@@ -5,15 +5,21 @@
 namespace URay
 {
 
-VertexBuffer::VertexBuffer(Renderer* renderer, uint32_t size)
-    : renderer(renderer)
+VertexBuffer::VertexBuffer(VkDevice device, uint32_t size)
+    : device(device)
 {
 }
 
 VertexBuffer::~VertexBuffer()
 {
-    renderer->DestroyBuffer(buffer);
-    renderer->FreeMemory(memory);
+    if (buffer)
+    {
+        vkDestroyBuffer(device, buffer, nullptr);
+    }
+    if (memory)
+    {
+        vkFreeMemory(device, memory, nullptr);
+    }
 }
 
 } // namespace URay

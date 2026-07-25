@@ -3,15 +3,16 @@
 #include "Engine/Mesh/Mesh.h"
 
 #include "Core/Math/Math.h"
+#include "Core/Math/Matrix.h"
 
-#include "Render/Renderer.h"
+#include "Render/RenderDevice.h"
 #include "Render/VertexBuffer/VertexBuffer.h"
 
 namespace URay
 {
 
-MeshManager::MeshManager(Renderer& renderer)
-    : renderer(renderer)
+MeshManager::MeshManager(RenderDevice* device)
+    : device(device)
 {
 }
 
@@ -52,13 +53,13 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     mesh->SetVertices(vertices);
     mesh->SetIndices(indices);
 
-    VertexBuffer* vertexBuffer = renderer.CreateVertexBuffer(vertices);
+    VertexBuffer* vertexBuffer = device->CreateVertexBuffer(vertices);
     if (!vertexBuffer)
         return nullptr;
 
     mesh->SetVertexBuffer(vertexBuffer);
 
-    IndexBuffer* indexBuffer = renderer.CreateIndexBuffer(indices);
+    IndexBuffer* indexBuffer = device->CreateIndexBuffer(indices);
     if (!indexBuffer)
         return nullptr;
 
@@ -430,13 +431,10 @@ void MeshManager::CreateScaleGizmo()
     };
 
     // This mesh points along +Y, the local axis shared by the translation gizmo.
-    const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f))
-        * Matrix::MakeRotationX(-90.0f)
-        * Matrix::MakeTranslation(Vector3(0.0f, 0.9f, 0.0f));
+    const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 0.9f, 0.0f));
     appendMesh(GetMesh("cylinder"), shaftTransform);
 
-    const Matrix handleTransform = Matrix::MakeScale(Vector3(0.28f, 0.28f, 0.28f))
-        * Matrix::MakeTranslation(Vector3(0.0f, 1.9f, 0.0f));
+    const Matrix handleTransform = Matrix::MakeScale(Vector3(0.28f, 0.28f, 0.28f)) * Matrix::MakeTranslation(Vector3(0.0f, 1.9f, 0.0f));
     appendMesh(GetMesh("box"), handleTransform);
 
     CreateMesh("scale_gizmo", vertices, indices);

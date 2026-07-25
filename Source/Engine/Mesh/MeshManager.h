@@ -9,13 +9,13 @@
 namespace URay
 {
 
-class Renderer;
+class RenderDevice;
 class Mesh;
 
 class MeshManager
 {
 public:
-    MeshManager(Renderer& renderer);
+    MeshManager(RenderDevice* device);
     ~MeshManager();
 
 public:
@@ -36,7 +36,7 @@ private:
     void CreateScaleGizmo();
 
 private:
-    Renderer& renderer;
+    RenderDevice* device = nullptr;
 
     std::unordered_map<std::string, Mesh*> meshes;
 };
