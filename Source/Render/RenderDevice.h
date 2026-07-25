@@ -13,6 +13,7 @@ namespace URay
 class Renderer;
 class VertexBuffer;
 class IndexBuffer;
+class ConstantBuffer;
 
 struct PipelineState;
 
@@ -30,6 +31,8 @@ public:
 
     VkPipeline GetOrCreatePSO(const PipelineState& pipelineState);
     void DestroyPSOs();
+
+    std::vector<ConstantBuffer*> GetFrameConstantBuffers() const { return frameConstantBuffers; }
 
 private:
     VkCommandBuffer BeginSingleTimeCommands() const;
@@ -55,6 +58,8 @@ private:
     VkCommandPool commandPool = VK_NULL_HANDLE;
 
     std::unordered_map<uint64_t, VkPipeline> pipelines;
+
+    std::vector<ConstantBuffer*> frameConstantBuffers;
 };
 
 } // namespace URay

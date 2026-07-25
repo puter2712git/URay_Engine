@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Render/DrawCommand/DrawCommand.h"
-#include "Render/PipelineState/PipelineState.h"
 
 #include "Core/Math/Matrix.h"
 
@@ -136,9 +135,6 @@ private:
 
     bool CreateDescriptorSetLayout();
     void DestroyDescriptorSetLayout();
-
-    bool CreateUniformBuffers();
-    void DestroyUniformBuffers();
 
     bool CreateDescriptorPool();
     void DestroyDescriptorPool();

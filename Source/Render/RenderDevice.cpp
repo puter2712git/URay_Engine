@@ -1,7 +1,9 @@
 #include "RenderDevice.h"
 
+#include "ConstantBuffer.h"
 #include "IndexBuffer.h"
 #include "PipelineState/PipelineState.h"
+#include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
 #include "VertexBuffer.h"
@@ -16,10 +18,31 @@ RenderDevice::RenderDevice(Renderer* renderer,
       physicalDevice(physicalDevice), device(device),
       graphicsQueue(graphicsQueue), commandPool(commandPool)
 {
+    VkDeviceSize frameBufferSize = sizeof(FrameConstants);
+    frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        VkBuffer handle;
+        VkDeviceMemory memory;
+
+        CreateBuffer(frameBufferSize,
+                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                     handle, memory);
+
+        frameConstantBuffers[i] = new ConstantBuffer(device, handle, memory, frameBufferSize);
+    }
 }
 
 RenderDevice::~RenderDevice()
 {
+    for (ConstantBuffer* buffer : frameConstantBuffers)
+    {
+        delete buffer;
+        buffer = nullptr;
+    }
+
     DestroyPSOs();
 }
 

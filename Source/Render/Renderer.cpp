@@ -1,5 +1,6 @@
 #include "Renderer.h"
 
+#include "Render/ConstantBuffer.h"
 #include "Render/IndexBuffer.h"
 #include "Render/Material/MaterialManager.h"
 #include "Render/RenderDevice.h"
@@ -98,8 +99,6 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateRenderPass())
         return false;
-    if (!CreateDescriptorSetLayout())
-        return false;
 
     shaderManager = new ShaderManager();
     Shader* shader = shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
@@ -108,10 +107,11 @@ bool Renderer::Initialize(Window* wnd)
     materialManager = new MaterialManager();
     materialManager->GetOrCreate("default", shader);
 
-    CreatePipelineLayout();
-
     if (!CreateCommandPool())
         return false;
+
+    renderDevice = new RenderDevice(this, physicalDevice, device, graphicsQueue, commandPool);
+
     if (!CreateTextureImage())
         return false;
     if (!CreateTextureImageView())
@@ -122,8 +122,11 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateFramebuffers())
         return false;
-    if (!CreateUniformBuffers())
+
+    if (!CreateDescriptorSetLayout())
         return false;
+    CreatePipelineLayout();
+
     if (!CreateDescriptorPool())
         return false;
     if (!CreateDescriptorSets())
@@ -132,8 +135,6 @@ bool Renderer::Initialize(Window* wnd)
         return false;
     if (!CreateSyncObjects())
         return false;
-
-    renderDevice = new RenderDevice(this, physicalDevice, device, graphicsQueue, commandPool);
 
     if (!CreatePersistentVertexBuffer())
         return false;
@@ -156,8 +157,6 @@ void Renderer::Finalize()
     DestroyTextureSampler();
     DestroyTextureImageView();
     DestroyTextureImage();
-
-    DestroyUniformBuffers();
 
     DestroyDescriptorPool();
 
@@ -266,7 +265,8 @@ void Renderer::BeginFrame()
     frameConstants.view = viewMatrix;
     frameConstants.proj = projMatrix;
 
-    std::memcpy(uniformBuffersMapped[currentFrame], &frameConstants, sizeof(FrameConstants));
+    ConstantBuffer* frameConstantBuffer = renderDevice->GetFrameConstantBuffers()[currentFrame];
+    frameConstantBuffer->UpdateData(&frameConstants, sizeof(FrameConstants));
 
     vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
@@ -867,35 +867,6 @@ void Renderer::DestroyDescriptorSetLayout()
     vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 }
 
-bool Renderer::CreateUniformBuffers()
-{
-    VkDeviceSize bufferSize = sizeof(FrameConstants);
-
-    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-    uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        CreateBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     uniformBuffers[i], uniformBuffersMemory[i]);
-
-        vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
-    }
-
-    return true;
-}
-
-void Renderer::DestroyUniformBuffers()
-{
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
-    }
-}
-
 bool Renderer::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 2> poolSizes = {};
@@ -937,7 +908,7 @@ bool Renderer::CreateDescriptorSets()
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.buffer = uniformBuffers[i];
+        bufferInfo.buffer = renderDevice->GetFrameConstantBuffers()[i]->GetHandle();
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FrameConstants);
 
