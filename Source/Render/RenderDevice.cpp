@@ -86,8 +86,8 @@ IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint16_t>& indice
 VkPipeline RenderDevice::GetOrCreatePSO(const PipelineState& desc)
 {
     uint64_t key = desc.GetKey();
-    auto it = psos.find(key);
-    if (it != psos.end())
+    auto it = pipelines.find(key);
+    if (it != pipelines.end())
         return it->second;
 
     auto vertShaderCode = desc.shader->GetVertexStage().code;
@@ -270,14 +270,14 @@ VkPipeline RenderDevice::GetOrCreatePSO(const PipelineState& desc)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-    psos.insert({ key, pipeline });
+    pipelines.insert({ key, pipeline });
 
     return pipeline;
 }
 
 void RenderDevice::DestroyPSOs()
 {
-    for (auto& [key, pipeline] : psos)
+    for (auto& [key, pipeline] : pipelines)
     {
         if (pipeline)
         {
@@ -286,7 +286,7 @@ void RenderDevice::DestroyPSOs()
         }
     }
 
-    psos.clear();
+    pipelines.clear();
 }
 
 VkCommandBuffer RenderDevice::BeginSingleTimeCommands() const
