@@ -1,12 +1,9 @@
 #include "RenderSystem.h"
 
-#include "Render/RenderInfo.h"
-
 #include "Platform/Window.h"
 
 #include <GLFW/glfw3.h>
 
-#include <array>
 #include <iostream>
 #include <set>
 #include <vector>
@@ -89,19 +86,12 @@ bool RenderSystem::Initialize()
 
     if (!CreateCommandPool())
         return false;
-    if (!CreateCommandBuffer())
-        return false;
-
-    if (!CreateDescriptorSetLayout())
-        return false;
 
     return true;
 }
 
 void RenderSystem::Finalize()
 {
-    DestroyDescriptorSetLayout();
-
     DestroyCommandPool();
 
     DestroyFramebuffers();
@@ -501,64 +491,6 @@ void RenderSystem::DestroyCommandPool()
     {
         vkDestroyCommandPool(logicalDevice, commandPool, nullptr);
     }
-}
-
-bool RenderSystem::CreateCommandBuffer()
-{
-    commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-
-    if (vkAllocateCommandBuffers(logicalDevice, &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-        return false;
-
-    return true;
-}
-
-bool RenderSystem::CreateDescriptorSetLayout()
-{
-    VkDescriptorSetLayoutBinding frameBinding = {};
-    frameBinding.binding = 0;
-    frameBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    frameBinding.descriptorCount = 1;
-    frameBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    frameBinding.pImmutableSamplers = nullptr;
-
-    std::array<VkDescriptorSetLayoutBinding, 1> bindings = { frameBinding };
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
-
-    if (vkCreateDescriptorSetLayout(logicalDevice, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
-        return false;
-
-    return true;
-}
-
-void RenderSystem::DestroyDescriptorSetLayout()
-{
-    if (descriptorSetLayout)
-    {
-        vkDestroyDescriptorSetLayout(logicalDevice, descriptorSetLayout, nullptr);
-    }
-}
-
-bool RenderSystem::CreateDescriptorPool()
-{
-}
-
-void RenderSystem::DestroyDescriptorPool()
-{
-}
-
-bool RenderSystem::CreateDescriptorSets()
-{
 }
 
 // Helpers
