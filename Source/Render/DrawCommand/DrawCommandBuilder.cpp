@@ -4,7 +4,7 @@
 #include "Render/Material/Material.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
-#include "Render/VertexBuffer/VertexBuffer.h"
+#include "Render/VertexBuffer.h"
 
 namespace URay
 {

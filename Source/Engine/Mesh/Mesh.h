@@ -2,7 +2,7 @@
 
 #include "Render/IndexBuffer.h"
 #include "Render/Vertex.h"
-#include "Render/VertexBuffer/VertexBuffer.h"
+#include "Render/VertexBuffer.h"
 
 #include <vulkan/vulkan.h>
 

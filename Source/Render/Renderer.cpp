@@ -6,7 +6,6 @@
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
-#include "Render/VertexBuffer/VertexBuffer.h"
 
 #include "Platform/Window.h"
 

@@ -6,7 +6,7 @@
 #include "Core/Math/Matrix.h"
 
 #include "Render/RenderDevice.h"
-#include "Render/VertexBuffer/VertexBuffer.h"
+#include "Render/VertexBuffer.h"
 
 namespace URay
 {
