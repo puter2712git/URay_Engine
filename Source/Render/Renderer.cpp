@@ -1142,7 +1142,10 @@ bool Renderer::CreateDescriptorSetLayout()
 
 void Renderer::DestroyDescriptorSetLayout()
 {
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    if (descriptorSetLayout)
+    {
+        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    }
 }
 
 bool Renderer::CreateUniformBuffers()

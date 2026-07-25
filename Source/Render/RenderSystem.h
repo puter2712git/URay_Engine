@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <optional>
 #include <vector>
 
 namespace URay
@@ -60,6 +61,16 @@ private:
     bool CreateCommandPool();
     void DestroyCommandPool();
 
+    bool CreateCommandBuffer();
+
+    bool CreateDescriptorSetLayout();
+    void DestroyDescriptorSetLayout();
+
+    bool CreateDescriptorPool();
+    void DestroyDescriptorPool();
+
+    bool CreateDescriptorSets();
+
     // Helpers
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
@@ -101,6 +112,12 @@ private:
     VkRenderPass renderPass = VK_NULL_HANDLE;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
+    std::vector<VkCommandBuffer> commandBuffers;
+
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+    std::vector<VkDescriptorSet> descriptorSets;
 };
 
 } // namespace URay
