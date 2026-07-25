@@ -66,14 +66,17 @@ public:
     void CreatePipelineLayout();
     void DestroyPipelineLayout();
 
-    VkPipeline GetOrCreatePipelineState(const PipelineState& pipelineState);
-    void DestroyPipelineStates();
-
     MaterialManager* GetMaterialManager() const { return materialManager; }
 
     ShaderManager* GetShaderManager() const { return shaderManager; }
 
     RenderDevice* GetDevice() const { return renderDevice; }
+
+    VkExtent2D GetSwapChainExtent() const { return swapChainExtent; }
+
+    VkPipelineLayout GetPipelineLayout() const { return pipelineLayout; }
+
+    VkRenderPass GetRenderPass() const { return renderPass; }
 
 private:
     struct QueueFamilyIndices
