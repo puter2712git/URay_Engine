@@ -223,13 +223,12 @@ private:
     std::vector<VkImage> swapChainImages;
     std::vector<VkImageView> swapChainImageViews;
 
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    uint32_t imageIndex = 0;
+
     VkRenderPass renderPass = VK_NULL_HANDLE;
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-
-    std::unordered_map<uint64_t, VkPipeline> pipelines;
-
-    std::vector<VkFramebuffer> swapChainFramebuffers;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -238,14 +237,8 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
 
-    uint32_t imageIndex = 0;
-
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
     std::vector<VkDescriptorSet> descriptorSets;
-
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
-    std::vector<void*> uniformBuffersMapped;
 
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;
@@ -264,8 +257,6 @@ public:
     VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
     void* mappedVertexBufferData = nullptr;
     uint32_t vertexCount = 0;
-
-    void RenderLines();
 };
 
 } // namespace URay

@@ -83,22 +83,44 @@ void MeshManager::CreateBox()
 {
     // clang-format off
     std::vector<Vertex> boxVertices = {
-        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { -0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.5f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { -0.5f, -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, -0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { -0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.5f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
+        // -Z
+        { { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }, Color::White },
+        { {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }, Color::White },
+        { { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f }, Color::White },
+        { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
+        // +Z
+        { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f }, Color::White },
+        { {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f }, Color::White },
+        { { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f }, Color::White },
+        { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        // -X
+        { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f }, Color::White },
+        { { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f }, Color::White },
+        { { -0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f }, Color::White },
+        { { -0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
+        // +X
+        { {  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }, Color::White },
+        { {  0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f }, Color::White },
+        { {  0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f }, Color::White },
+        { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        // +Y
+        { { -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f }, Color::White },
+        { { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f }, Color::White },
+        { {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f }, Color::White },
+        { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        // -Y
+        { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f }, Color::White },
+        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }, Color::White },
+        { {  0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f }, Color::White },
+        { {  0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
     };
     std::vector<uint16_t> boxIndices = {
-        0, 2, 1, 1, 2, 3,
-        4, 5, 6, 5, 7, 6,
-        4, 6, 0, 0, 6, 2,
-        1, 3, 5, 5, 3, 7,
-        2, 6, 3, 3, 6, 7,
-        4, 0, 5, 5, 0, 1,
+         0,  2,  1,  1,  2,  3,
+         4,  5,  6,  5,  7,  6,
+         8, 10,  9,  9, 10, 11,
+        12, 14, 13, 13, 14, 15,
+        16, 18, 17, 17, 18, 19,
+        20, 22, 21, 21, 22, 23,
     };
     // clang-format on
 
@@ -109,10 +131,10 @@ void MeshManager::CreateQuad()
 {
     // clang-format off
     std::vector<Vertex> quadVertices = {
-        { { -0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.0f, -0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { 0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } },
-        { { -0.5f, 0.0f, 0.5f }, { 1.0f, 1.0f, 1.0f } }
+        { { -0.5f, 0.0f, -0.5f }, { 0.0f, 0.0f }, Color::White },
+        { {  0.5f, 0.0f, -0.5f }, { 1.0f, 0.0f }, Color::White },
+        { {  0.5f, 0.0f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        { { -0.5f, 0.0f,  0.5f }, { 0.0f, 1.0f }, Color::White },
     };
     std::vector<uint16_t> quadIndices = {
         0, 1, 2,
@@ -148,10 +170,12 @@ void MeshManager::CreateCylinder()
 
         Vertex topVertex = {};
         topVertex.pos = Vector3(x, y, halfHeight);
+        topVertex.uv = { static_cast<float>(i) / sliceCount, 1.0f };
         topVertex.color = Color::White;
 
         Vertex bottomVertex = {};
         bottomVertex.pos = Vector3(x, y, -halfHeight);
+        bottomVertex.uv = { static_cast<float>(i) / sliceCount, 0.0f };
         bottomVertex.color = Color::White;
 
         cylinderVertices.push_back(topVertex);
@@ -178,6 +202,7 @@ void MeshManager::CreateCylinder()
 
     Vertex topCenterVertex = {};
     topCenterVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
+    topCenterVertex.uv = { 0.5f, 0.5f };
     topCenterVertex.color = Color::White;
     cylinderVertices.push_back(topCenterVertex);
 
@@ -189,6 +214,7 @@ void MeshManager::CreateCylinder()
 
         Vertex vertex = {};
         vertex.pos = Vector3(x, y, halfHeight);
+        vertex.uv = { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f };
         vertex.color = Color::White;
 
         cylinderVertices.push_back(vertex);
@@ -206,6 +232,7 @@ void MeshManager::CreateCylinder()
 
     Vertex bottomCenter = {};
     bottomCenter.pos = Vector3(0.0f, 0.0f, -halfHeight);
+    bottomCenter.uv = { 0.5f, 0.5f };
     bottomCenter.color = Color::White;
 
     cylinderVertices.push_back(bottomCenter);
@@ -218,6 +245,7 @@ void MeshManager::CreateCylinder()
 
         Vertex vertex = {};
         vertex.pos = Vector3(x, y, -halfHeight);
+        vertex.uv = { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f };
         vertex.color = Color::White;
 
         cylinderVertices.push_back(vertex);
@@ -250,6 +278,7 @@ void MeshManager::CreateCone()
 
     Vertex apexVertex = {};
     apexVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
+    apexVertex.uv = { 0.5f, 1.0f };
     apexVertex.color = Color::White;
     coneVertices.push_back(apexVertex);
 
@@ -261,6 +290,7 @@ void MeshManager::CreateCone()
 
         Vertex bottomVertex = {};
         bottomVertex.pos = Vector3(x, y, -halfHeight);
+        bottomVertex.uv = { static_cast<float>(i) / sliceCount, 0.0f };
         bottomVertex.color = Color::White;
         coneVertices.push_back(bottomVertex);
     }
@@ -277,6 +307,7 @@ void MeshManager::CreateCone()
 
     Vertex bottomCenter = {};
     bottomCenter.pos = Vector3(0.0f, 0.0f, -halfHeight);
+    bottomCenter.uv = { 0.5f, 0.5f };
     bottomCenter.color = Color::White;
     coneVertices.push_back(bottomCenter);
 
@@ -288,6 +319,7 @@ void MeshManager::CreateCone()
 
         Vertex vertex = {};
         vertex.pos = Vector3(x, y, -halfHeight);
+        vertex.uv = { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f };
         vertex.color = Color::White;
         coneVertices.push_back(vertex);
     }
@@ -378,6 +410,7 @@ void MeshManager::CreateRotationGizmo()
             outerRadius * cosTheta,
             outerRadius * sinTheta,
             0.0f);
+        outerVertex.uv = { static_cast<float>(i) / sliceCount, 1.0f };
         outerVertex.color = Color::White;
 
         Vertex innerVertex = {};
@@ -385,6 +418,7 @@ void MeshManager::CreateRotationGizmo()
             innerRadius * cosTheta,
             innerRadius * sinTheta,
             0.0f);
+        innerVertex.uv = { static_cast<float>(i) / sliceCount, 0.0f };
         innerVertex.color = Color::White;
 
         vertices.push_back(outerVertex);

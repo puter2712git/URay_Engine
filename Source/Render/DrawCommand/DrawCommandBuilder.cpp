@@ -33,6 +33,9 @@ void DrawCommandBuilder::FlushLines()
     PipelineState state = {};
     state.shader = renderer.GetShaderManager()->GetOrCreate("line");
     state.topology = PrimitiveTopology::LineList;
+    state.depthStencil.depthTestEnable = true;
+    state.depthStencil.depthWriteEnable = false;
+    state.rasterizer.cullMode = CullMode::None;
 
     cmd.pipelineState = state;
 

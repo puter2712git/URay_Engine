@@ -8,7 +8,7 @@ struct FrameConstants
 struct VSInput
 {
     [[vk::location(0)]] float3 inPosition : POSITION;
-    [[vk::location(1)]] float4 inColor : COLOR;
+    [[vk::location(2)]] float4 inColor : COLOR;
 };
 
 struct VSOutput
