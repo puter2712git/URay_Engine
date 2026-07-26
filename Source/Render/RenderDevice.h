@@ -41,12 +41,6 @@ public:
     VkPipeline GetOrCreatePSO(const PipelineState& pipelineState);
     void DestroyPSOs();
 
-    const std::vector<ConstantBuffer*>& GetFrameConstantBuffers() const { return frameConstantBuffers; }
-
-private:
-    VkCommandBuffer BeginSingleTimeCommands() const;
-    void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
-
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties,
                       VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
@@ -60,8 +54,16 @@ private:
                                VkImageLayout oldLayout, VkImageLayout newLayout) const;
     void CopyBufferToImage(VkBuffer buffer, VkImage image,
                            uint32_t width, uint32_t height) const;
-
     VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
+
+    const std::vector<ConstantBuffer*>& GetFrameConstantBuffers() const { return frameConstantBuffers; }
+
+private:
+    VkCommandBuffer BeginSingleTimeCommands() const;
+    void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+
+    void CreatePersistentVertexBuffer();
+    void DestroyPersistentVertexBuffer();
 
     VkShaderModule CreateShaderModule(const std::vector<uint8_t>& code) const;
 
@@ -83,6 +85,12 @@ private:
     std::unordered_map<uint64_t, VkPipeline> pipelines;
 
     std::vector<ConstantBuffer*> frameConstantBuffers;
+
+public:
+    VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;
+    VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
+    void* mappedPersistentVertexBufferData = nullptr;
+    uint32_t vertexCount = 0;
 };
 
 } // namespace URay

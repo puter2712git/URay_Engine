@@ -147,9 +147,6 @@ private:
     bool CreateDepthResources();
     void DestroyDepthResources();
 
-    bool CreatePersistentVertexBuffer();
-    void DestroyPersistentVertexBuffer();
-
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -173,23 +170,6 @@ private:
 
     VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
                                  VkFormatFeatureFlags features) const;
-
-    void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-                      VkMemoryPropertyFlags properties,
-                      VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
-    void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
-
-    bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
-                     VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                     VkImage& image, VkDeviceMemory& imageMemory) const;
-    void TransitionImageLayout(VkImage image, VkFormat format,
-                               VkImageLayout oldLayout, VkImageLayout newLayout) const;
-    void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const;
-
-    VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
-
-    VkCommandBuffer BeginSingleTimeCommands() const;
-    void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
 private:
     Window* window = nullptr;
@@ -242,12 +222,6 @@ private:
     VkImage depthImage = VK_NULL_HANDLE;
     VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
     VkImageView depthImageView = VK_NULL_HANDLE;
-
-public:
-    VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
-    void* mappedVertexBufferData = nullptr;
-    uint32_t vertexCount = 0;
 };
 
 } // namespace URay

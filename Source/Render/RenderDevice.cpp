@@ -6,14 +6,13 @@
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
-#include "VertexBuffer.h"
-#include "TextureView.h"
 #include "Texture.h"
+#include "TextureView.h"
+#include "VertexBuffer.h"
 
 #include "Core/File/FileIO.h"
 
 #include <stb/stb_image.h>
-
 
 namespace URay
 {
@@ -40,10 +39,14 @@ RenderDevice::RenderDevice(Renderer* renderer,
 
         frameConstantBuffers[i] = new ConstantBuffer(device, handle, memory, frameBufferSize);
     }
+
+    CreatePersistentVertexBuffer();
 }
 
 RenderDevice::~RenderDevice()
 {
+    DestroyPersistentVertexBuffer();
+
     for (ConstantBuffer* buffer : frameConstantBuffers)
     {
         delete buffer;
@@ -199,7 +202,7 @@ TextureView* RenderDevice::GetOrCreateTextureView(Texture* texture)
         return it->second;
 
     VkImageView imageView = CreateImageView(texture->GetHandle(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
-    
+
     TextureView* textureView = new TextureView(device, imageView, texture);
     textureViews.insert({ texture, textureView });
 
@@ -426,41 +429,6 @@ void RenderDevice::DestroyPSOs()
     pipelines.clear();
 }
 
-VkCommandBuffer RenderDevice::BeginSingleTimeCommands() const
-{
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-    return commandBuffer;
-}
-
-void RenderDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
-{
-    vkEndCommandBuffer(commandBuffer);
-
-    VkSubmitInfo submitInfo = {};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
-
-    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue);
-
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
-}
-
 void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                                 VkMemoryPropertyFlags properties,
                                 VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
@@ -649,6 +617,58 @@ VkImageView RenderDevice::CreateImageView(VkImage image, VkFormat format, VkImag
     return imageView;
 }
 
+VkCommandBuffer RenderDevice::BeginSingleTimeCommands() const
+{
+    VkCommandBufferAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+
+void RenderDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
+{
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo = {};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+void RenderDevice::CreatePersistentVertexBuffer()
+{
+    VkDeviceSize bufferSize = 1024 * 1024 * 4;
+
+    CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 persistentVertexBuffer, persistentVertexBufferMemory);
+
+    vkMapMemory(device, persistentVertexBufferMemory, 0, bufferSize, 0, &mappedPersistentVertexBufferData);
+}
+
+void RenderDevice::DestroyPersistentVertexBuffer()
+{
+    vkDestroyBuffer(device, persistentVertexBuffer, nullptr);
+    vkFreeMemory(device, persistentVertexBufferMemory, nullptr);
+}
+
 VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8_t>& code) const
 {
     VkShaderModuleCreateInfo createInfo = {};
@@ -675,7 +695,7 @@ uint32_t RenderDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
             return i;
     }
 
-        return UINT32_MAX;
+    return UINT32_MAX;
 }
 
 } // namespace URay

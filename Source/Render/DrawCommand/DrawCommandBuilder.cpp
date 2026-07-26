@@ -5,6 +5,7 @@
 #include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/VertexBuffer.h"
+#include "Render/RenderDevice.h"
 
 namespace URay
 {
@@ -21,13 +22,15 @@ void DrawCommandBuilder::Reset()
 
 void DrawCommandBuilder::FlushLines()
 {
+    RenderDevice* device = renderer.GetDevice();
+
     VkDeviceSize lineDataSize = sizeof(Vertex) * lineVertices.size();
-    std::memcpy(renderer.mappedVertexBufferData, lineVertices.data(), lineDataSize);
-    renderer.vertexCount = static_cast<uint32_t>(lineVertices.size());
+    std::memcpy(device->mappedPersistentVertexBufferData, lineVertices.data(), lineDataSize);
+    device->vertexCount = static_cast<uint32_t>(lineVertices.size());
 
     DrawCommand cmd = {};
     cmd.worldMatrix = Matrix::Identity;
-    cmd.vertexBuffer = renderer.persistentVertexBuffer;
+    cmd.vertexBuffer = device->persistentVertexBuffer;
     cmd.vertexCount = static_cast<uint32_t>(lineVertices.size());
 
     PipelineState state = {};
