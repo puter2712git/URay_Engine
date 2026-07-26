@@ -3,8 +3,8 @@
 namespace URay
 {
 
-Property::Property(PropertyType type, const std::string& name, void* data)
-    : type(type), name(name), dataPtr(data)
+Property::Property(PropertyType type, const std::string& name, size_t offset, size_t size)
+    : type(type), name(name), offset(offset), size(size)
 {
 }
 

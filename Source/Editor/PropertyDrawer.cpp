@@ -12,37 +12,37 @@
 namespace URay
 {
 
-void PropertyDrawer::Draw(Property& prop)
+void PropertyDrawer::Draw(Property& prop, void* addr)
 {
     switch (prop.type)
     {
     case PropertyType::Bool:
-        DrawBool(prop);
+        DrawBool(prop, addr);
         break;
     case PropertyType::Vector3:
-        DrawVector3(prop);
+        DrawVector3(prop, addr);
         break;
     case PropertyType::Mesh:
-        DrawMesh(prop);
+        DrawMesh(prop, addr);
         break;
     }
 }
 
-void PropertyDrawer::DrawBool(Property& prop)
+void PropertyDrawer::DrawBool(Property& prop, void* addr)
 {
-    bool* data = reinterpret_cast<bool*>(prop.dataPtr);
+    bool* data = reinterpret_cast<bool*>(static_cast<uint8_t*>(addr) + prop.offset);
     ImGui::Checkbox(prop.name.c_str(), data);
 }
 
-void PropertyDrawer::DrawVector3(Property& prop)
+void PropertyDrawer::DrawVector3(Property& prop, void* addr)
 {
-    Vector3* data = reinterpret_cast<Vector3*>(prop.dataPtr);
+    Vector3* data = reinterpret_cast<Vector3*>(static_cast<uint8_t*>(addr) + prop.offset);
     ImGui::DragFloat3(prop.name.c_str(), &data->x, 0.1f);
 }
 
-void PropertyDrawer::DrawMesh(Property& prop)
+void PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
-    Mesh** currMesh = reinterpret_cast<Mesh**>(prop.dataPtr);
+    Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8_t*>(addr) + prop.offset);
 
     MeshManager* meshManager = gEngine->GetMeshManager();
     const auto& meshes = meshManager->GetMeshes();

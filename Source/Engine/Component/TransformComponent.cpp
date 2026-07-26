@@ -14,9 +14,9 @@ void TransformComponent::GetProperties(std::vector<Property>& properties)
 {
     Component::GetProperties(properties);
 
-    properties.emplace_back(PropertyType::Vector3, "Position", &position);
-    properties.emplace_back(PropertyType::Vector3, "Rotation", &rotation);
-    properties.emplace_back(PropertyType::Vector3, "Scale", &scale);
+    properties.emplace_back(PropertyType::Vector3, "Position", offsetof(TransformComponent, position), sizeof(Vector3));
+    properties.emplace_back(PropertyType::Vector3, "Rotation", offsetof(TransformComponent, rotation), sizeof(Vector3));
+    properties.emplace_back(PropertyType::Vector3, "Scale", offsetof(TransformComponent, scale), sizeof(Vector3));
 }
 
 void TransformComponent::UpdateWorldMatrix()

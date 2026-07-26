@@ -41,7 +41,7 @@ void MeshComponent::GetProperties(std::vector<Property>& properties)
 {
     Component::GetProperties(properties);
 
-    properties.emplace_back(PropertyType::Mesh, "Mesh", &mesh);
+    properties.emplace_back(PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(Mesh*));
 }
 
 } // namespace URay

@@ -8,12 +8,12 @@ struct Property;
 class PropertyDrawer
 {
 public:
-    static void Draw(Property& prop);
+    static void Draw(Property& prop, void* addr);
 
 private:
-    static void DrawBool(Property& prop);
-    static void DrawVector3(Property& prop);
-    static void DrawMesh(Property& prop);
+    static void DrawBool(Property& prop, void* addr);
+    static void DrawVector3(Property& prop, void* addr);
+    static void DrawMesh(Property& prop, void* addr);
 };
 
 } // namespace URay

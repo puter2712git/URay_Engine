@@ -113,7 +113,7 @@ void Editor::ShowInspector() const
         {
             ImGui::PushID(prop.name.c_str());
 
-            PropertyDrawer::Draw(prop);
+            PropertyDrawer::Draw(prop, comp);
 
             ImGui::PopID();
         }

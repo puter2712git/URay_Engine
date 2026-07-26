@@ -12,9 +12,10 @@ struct Property
     PropertyType type = PropertyType::Bool;
 
     std::string name;
-    void* dataPtr = nullptr;
+    size_t offset;
+    size_t size;
 
-    Property(PropertyType type, const std::string& name, void* data);
+    Property(PropertyType type, const std::string& name, size_t offset, size_t size);
 };
 
 } // namespace URay
