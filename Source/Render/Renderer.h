@@ -141,12 +141,6 @@ private:
 
     bool CreateDescriptorSets();
 
-    bool CreateTextureImage();
-    void DestroyTextureImage();
-
-    bool CreateTextureImageView();
-    void DestroyTextureImageView();
-
     bool CreateTextureSampler();
     void DestroyTextureSampler();
 
@@ -243,9 +237,6 @@ private:
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;
 
-    VkImage textureImage = VK_NULL_HANDLE;
-    VkDeviceMemory textureImageMemory = VK_NULL_HANDLE;
-    VkImageView textureImageView = VK_NULL_HANDLE;
     VkSampler textureSampler = VK_NULL_HANDLE;
 
     VkImage depthImage = VK_NULL_HANDLE;

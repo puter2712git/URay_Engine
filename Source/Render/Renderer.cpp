@@ -7,6 +7,7 @@
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
+#include "Render/TextureView.h"
 
 #include "Platform/Window.h"
 
@@ -112,10 +113,9 @@ bool Renderer::Initialize(Window* wnd)
 
     renderDevice = new RenderDevice(this, physicalDevice, device, graphicsQueue, commandPool);
 
-    if (!CreateTextureImage())
-        return false;
-    if (!CreateTextureImageView())
-        return false;
+    Texture* texture = renderDevice->GetOrCreateTexture("Asset/texture.jpg");
+    renderDevice->GetOrCreateTextureView(texture);
+
     if (!CreateTextureSampler())
         return false;
     if (!CreateDepthResources())
@@ -155,8 +155,6 @@ void Renderer::Finalize()
     DestroyDepthResources();
 
     DestroyTextureSampler();
-    DestroyTextureImageView();
-    DestroyTextureImage();
 
     DestroyDescriptorPool();
 
@@ -921,9 +919,11 @@ bool Renderer::CreateDescriptorSets()
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FrameConstants);
 
+        Texture* texture = renderDevice->GetOrCreateTexture("Asset/texture.jpg");
+
         VkDescriptorImageInfo imageInfo = {};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureImageView;
+        imageInfo.imageView = renderDevice->GetOrCreateTextureView(texture)->GetHandle();
 
         VkDescriptorImageInfo samplerInfo = {};
         samplerInfo.sampler = textureSampler;
@@ -957,63 +957,6 @@ bool Renderer::CreateDescriptorSets()
     }
 
     return true;
-}
-
-bool Renderer::CreateTextureImage()
-{
-    int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load("Asset/texture.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-    if (!pixels)
-        return false;
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
-    std::memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    stbi_image_free(pixels);
-
-    CreateImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                textureImage, textureImageMemory);
-
-    TransitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
-                          VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    CopyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-    TransitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    return true;
-}
-
-void Renderer::DestroyTextureImage()
-{
-    vkDestroyImage(device, textureImage, nullptr);
-    vkFreeMemory(device, textureImageMemory, nullptr);
-}
-
-bool Renderer::CreateTextureImageView()
-{
-    textureImageView = CreateImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
-    return true;
-}
-
-void Renderer::DestroyTextureImageView()
-{
-    vkDestroyImageView(device, textureImageView, nullptr);
 }
 
 bool Renderer::CreateTextureSampler()
