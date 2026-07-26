@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Property/Property.h"
+#include "Engine/Object/Property/Property.h"
 
 #include <string>
 #include <vector>
@@ -14,7 +14,8 @@ public:
     Class(const std::string& name);
 
 public:
-void AddProperty()
+    void AddProperty(Property prop) { properties.push_back(prop); }
+    const std::vector<Property>& GetProperties() const { return properties; }
 
 private:
     std::string name;

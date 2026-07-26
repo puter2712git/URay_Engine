@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Engine/Property/Property.h"
+#include "Engine/Object/Object.h"
+#include "Engine/Object/Property/Property.h"
 
 #include <string>
 #include <vector>
@@ -10,7 +11,7 @@ namespace URay
 
 class Unit;
 
-class Component
+class Component : public Object
 {
 public:
     virtual ~Component() = default;

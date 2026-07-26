@@ -3,7 +3,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
-#include "Engine/Property/Property.h"
+#include "Engine/Object/Property/Property.h"
 
 #include "Core/Math/Vector3.h"
 
