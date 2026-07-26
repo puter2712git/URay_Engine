@@ -140,8 +140,12 @@ void Engine::Finalize()
 {
     renderer->WaitIdle();
 
-    editor->Finalize();
-    delete editor;
+    if (editor)
+    {
+        editor->Finalize();
+        delete editor;
+        editor = nullptr;
+    }
 
     delete renderPipeline;
     renderPipeline = nullptr;
