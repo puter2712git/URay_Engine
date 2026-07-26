@@ -1,5 +1,7 @@
 #include "Editor.h"
 
+#include "Editor/PropertyDrawer.h"
+
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -90,29 +92,26 @@ void Editor::ShowInspector() const
         return;
     }
 
-    TransformComponent* transform = selectedUnit->GetTransform();
-    if (!transform)
+    auto components = selectedUnit->GetComponents();
+    for (Component* comp : components)
     {
-        ImGui::End();
-        return;
-    }
+        std::vector<Property> props;
+        comp->GetProperties(props);
 
-    Vector3 position = transform->GetPosition();
-    if (ImGui::DragFloat3("Position", &position.x))
-    {
-        transform->SetPosition(position);
-    }
+        ImGui::PushID(comp);
 
-    Vector3 rotation = transform->GetRotation();
-    if (ImGui::DragFloat3("Rotation", &rotation.x))
-    {
-        transform->SetRotation(rotation);
-    }
+        ImGui::Text("%s", comp->GetName().c_str());
 
-    Vector3 scale = transform->GetScale();
-    if (ImGui::DragFloat3("Scale", &scale.x))
-    {
-        transform->SetScale(scale);
+        for (Property& prop : props)
+        {
+            ImGui::PushID(prop.name.c_str());
+
+            PropertyDrawer::Draw(prop);
+
+            ImGui::PopID();
+        }
+
+        ImGui::PopID();
     }
 
     ImGui::End();

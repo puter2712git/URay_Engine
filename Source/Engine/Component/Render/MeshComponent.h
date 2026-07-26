@@ -19,6 +19,10 @@ public:
 public:
     virtual void SubmitCommand(DrawCommandBuilder& builder) override;
 
+    virtual void GetProperties(std::vector<Property>& properties) override;
+
+    virtual const std::string& GetName() const override { return name; }
+
     Mesh* GetMesh() const
     {
         return mesh;
@@ -36,6 +40,9 @@ public:
     {
         material = newMaterial;
     }
+
+protected:
+    std::string name = "Mesh";
 
 private:
     Mesh* mesh = nullptr;

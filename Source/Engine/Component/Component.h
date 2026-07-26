@@ -1,5 +1,10 @@
 #pragma once
 
+#include "Engine/Property/Property.h"
+
+#include <string>
+#include <vector>
+
 namespace URay
 {
 
@@ -12,6 +17,10 @@ public:
 
 public:
     virtual void Update(float deltaTime);
+
+    virtual void GetProperties(std::vector<Property>& properties);
+
+    virtual const std::string& GetName() const { return name; }
 
     Unit* GetOwner() const
     {
@@ -32,6 +41,8 @@ public:
     }
 
 protected:
+    std::string name = "Component";
+
     Unit* owner = nullptr;
 
     bool enabled = true;

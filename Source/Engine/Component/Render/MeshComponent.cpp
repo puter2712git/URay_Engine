@@ -37,4 +37,11 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
     builder.BuildFromMesh(context);
 }
 
+void MeshComponent::GetProperties(std::vector<Property>& properties)
+{
+    Component::GetProperties(properties);
+
+    properties.emplace_back(PropertyType::Mesh, "Mesh", &mesh);
+}
+
 } // namespace URay

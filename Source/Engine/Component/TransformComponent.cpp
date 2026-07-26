@@ -10,6 +10,15 @@ void TransformComponent::Update(float deltaTime)
     UpdateWorldMatrix();
 }
 
+void TransformComponent::GetProperties(std::vector<Property>& properties)
+{
+    Component::GetProperties(properties);
+
+    properties.emplace_back(PropertyType::Vector3, "Position", &position);
+    properties.emplace_back(PropertyType::Vector3, "Rotation", &rotation);
+    properties.emplace_back(PropertyType::Vector3, "Scale", &scale);
+}
+
 void TransformComponent::UpdateWorldMatrix()
 {
     const Matrix T = Matrix::MakeTranslation(position);

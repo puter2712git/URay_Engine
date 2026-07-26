@@ -12,6 +12,8 @@ class CameraComponent : public Component
 public:
     void Update(float deltaTime) override;
 
+    virtual const std::string& GetName() const override { return name; }
+
     Vector3 ScreenToWorld(const Vector3& screenPos) const;
 
     Matrix GetViewMatrix() const { return viewMatrix; }
@@ -23,6 +25,9 @@ public:
     float GetNearPlane() const { return near; }
 
     float GetFarPlane() const { return far; }
+
+protected:
+    std::string name = "Camera";
 
 private:
     void UpdateViewMatrix();
