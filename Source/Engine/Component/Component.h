@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/Component/ComponentFactory.h"
 #include "Engine/Object/Object.h"
 #include "Engine/Object/Property/Property.h"
 
@@ -8,6 +9,17 @@
 
 namespace URay
 {
+
+#define URAY_REGISTER_COMPONENT(Type)              \
+    namespace                                      \
+    {                                              \
+    const bool registered##Type = []()             \
+    {                                              \
+        ComponentFactory::RegisterComponent<Type>( \
+            Type::StaticClass()->GetName());       \
+        return true;                               \
+    }();                                           \
+    }
 
 class Unit;
 

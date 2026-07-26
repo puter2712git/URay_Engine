@@ -14,6 +14,7 @@ namespace URay
 {
 
 URAY_REGISTER_CLASS(SpriteComponent)
+URAY_REGISTER_COMPONENT(SpriteComponent)
 
 SpriteComponent::SpriteComponent()
 {

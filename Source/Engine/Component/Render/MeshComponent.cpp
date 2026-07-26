@@ -15,6 +15,7 @@ namespace URay
 {
 
 URAY_REGISTER_CLASS(MeshComponent)
+URAY_REGISTER_COMPONENT(MeshComponent)
 
 MeshComponent::MeshComponent()
 {

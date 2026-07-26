@@ -6,6 +6,7 @@ namespace URay
 {
 
 URAY_REGISTER_CLASS(TransformComponent)
+URAY_REGISTER_COMPONENT(TransformComponent)
 
 void TransformComponent::RegisterClass()
 {

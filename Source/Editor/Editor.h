@@ -26,7 +26,6 @@ public:
     void SelectUnit(Unit* unit);
 
 private:
-    void ShowTestPanel() const;
     void ShowStatus() const;
     void ShowInspector() const;
 

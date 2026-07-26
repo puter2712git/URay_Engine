@@ -3,11 +3,11 @@
 #include "Editor/PropertyDrawer.h"
 #include "Editor/SceneTree.h"
 
+#include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Object/Class/Class.h"
 #include "Engine/Scene.h"
-#include "Engine/TestUnit.h"
+#include "Engine/Unit.h"
 
 #include "Core/Timer.h"
 
@@ -48,7 +48,6 @@ void Editor::Render()
 {
     renderer.BeginImGui();
 
-    ShowTestPanel();
     ShowStatus();
     ShowInspector();
 
@@ -63,20 +62,6 @@ void Editor::SelectUnit(Unit* unit)
     selectedUnit = unit;
 
     engine.GetGizmo()->SetTarget(unit);
-}
-
-void Editor::ShowTestPanel() const
-{
-    ImGui::Begin("Hello, world!");
-
-    if (ImGui::Button("Click me"))
-    {
-        TestUnit* testUnit = new TestUnit();
-        testUnit->SetName("Test Unit");
-        engine.GetScene()->AddUnit(testUnit);
-    }
-
-    ImGui::End();
 }
 
 void Editor::ShowStatus() const
@@ -119,6 +104,22 @@ void Editor::ShowInspector() const
         }
 
         ImGui::PopID();
+    }
+
+    if (ImGui::BeginPopupContextWindow())
+    {
+        auto& components = ComponentFactory::GetRegisteredComponents();
+        for (auto [name, constructor] : components)
+        {
+            std::string menuName = "Add " + name;
+            if (ImGui::MenuItem(menuName.c_str()))
+            {
+                Component* newComp = constructor();
+                selectedUnit->AddComponent(newComp);
+            }
+        }
+
+        ImGui::EndPopup();
     }
 
     ImGui::End();
