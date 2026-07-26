@@ -32,6 +32,8 @@ void GizmoComponent::Update(float deltaTime)
     if (!targetUnit || !targetUnit->GetTransform())
         return;
 
+    UpdateGizmo();
+
     TransformComponent* transform = targetUnit->GetTransform();
     Vector3 targetPos = transform->GetPosition();
 
@@ -61,8 +63,6 @@ void GizmoComponent::Update(float deltaTime)
     matrices[1][2] = targetWorld;
 
     matrices[2] = matrices[0];
-
-    UpdateGizmo();
 }
 
 void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
@@ -255,10 +255,17 @@ void GizmoComponent::UpdateGizmoRotation()
     Vector3 rotation = targetInitRotation;
     switch (selectedAxis)
     {
-    case static_cast<int>(Axis::X): rotation.x += angleDegrees; break;
-    case static_cast<int>(Axis::Y): rotation.y += angleDegrees; break;
-    case static_cast<int>(Axis::Z): rotation.z += angleDegrees; break;
-    default: return;
+    case static_cast<int>(Axis::X):
+        rotation.x += angleDegrees;
+        break;
+    case static_cast<int>(Axis::Y):
+        rotation.y += angleDegrees;
+        break;
+    case static_cast<int>(Axis::Z):
+        rotation.z += angleDegrees;
+        break;
+    default:
+        return;
     }
 
     targetUnit->GetTransform()->SetRotation(rotation);
@@ -271,8 +278,9 @@ void GizmoComponent::UpdateGizmoScale()
     TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
 
     Vector3 planeNormal = Vector3::Cross(
-        dragAxisDir,
-        Vector3::Cross(cameraTransform->GetForward(), dragAxisDir).GetNormalized()).GetNormalized();
+                              dragAxisDir,
+                              Vector3::Cross(cameraTransform->GetForward(), dragAxisDir).GetNormalized())
+                              .GetNormalized();
 
     Vector3 startHitPoint;
     if (!Math::IntersectLinePlane(dragStartWorldPos, dragStartLineDir, targetInitPos, planeNormal, startHitPoint))
@@ -289,10 +297,17 @@ void GizmoComponent::UpdateGizmoScale()
     Vector3 scale = targetInitScale;
     switch (selectedAxis)
     {
-    case static_cast<int>(Axis::X): scale.x = std::max(minimumScale, targetInitScale.x + amount); break;
-    case static_cast<int>(Axis::Y): scale.y = std::max(minimumScale, targetInitScale.y + amount); break;
-    case static_cast<int>(Axis::Z): scale.z = std::max(minimumScale, targetInitScale.z + amount); break;
-    default: return;
+    case static_cast<int>(Axis::X):
+        scale.x = std::max(minimumScale, targetInitScale.x + amount);
+        break;
+    case static_cast<int>(Axis::Y):
+        scale.y = std::max(minimumScale, targetInitScale.y + amount);
+        break;
+    case static_cast<int>(Axis::Z):
+        scale.z = std::max(minimumScale, targetInitScale.z + amount);
+        break;
+    default:
+        return;
     }
 
     targetUnit->GetTransform()->SetScale(scale);
