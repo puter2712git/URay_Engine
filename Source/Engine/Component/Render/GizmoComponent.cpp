@@ -13,6 +13,8 @@
 #include "Render/DrawCommand/DrawCommandContext.h"
 #include "Render/Material/MaterialManager.h"
 
+#include <algorithm>
+
 namespace URay
 {
 

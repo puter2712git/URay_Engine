@@ -21,6 +21,7 @@ file(GLOB_RECURSE PROJECT_HEADERS
 )
 
 add_executable(URay_Engine
+    ${PROJECT_HEADERS}
     ${PROJECT_SOURCES}
 )
 
