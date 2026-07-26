@@ -667,7 +667,7 @@ void Renderer::RecreateSwapChain()
 
     CleanupSwapChain();
     DestroyDepthResources();
-    
+
     CreateSwapChain();
     CreateDepthResources();
     CreateSwapChainImageViews();

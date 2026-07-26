@@ -6,6 +6,8 @@
 namespace URay
 {
 
+URAY_REGISTER_CLASS(Unit)
+
 Unit::~Unit()
 {
     for (Component* comp : components)
@@ -23,6 +25,8 @@ Unit::~Unit()
 void Unit::RegisterClass()
 {
     Super::RegisterClass();
+
+    StaticClass()->AddProperty({ PropertyType::String, "Name", offsetof(Unit, name), sizeof(std::string) });
 }
 
 void Unit::Update(float deltaTime)

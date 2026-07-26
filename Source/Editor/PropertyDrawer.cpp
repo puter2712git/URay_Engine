@@ -22,6 +22,9 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
     case PropertyType::Vector3:
         DrawVector3(prop, addr);
         break;
+    case PropertyType::String:
+        DrawString(prop, addr);
+        break;
     case PropertyType::Mesh:
         DrawMesh(prop, addr);
         break;
@@ -38,6 +41,19 @@ void PropertyDrawer::DrawVector3(Property& prop, void* addr)
 {
     Vector3* data = reinterpret_cast<Vector3*>(static_cast<uint8_t*>(addr) + prop.offset);
     ImGui::DragFloat3(prop.name.c_str(), &data->x, 0.1f);
+}
+
+void PropertyDrawer::DrawString(Property& prop, void* addr)
+{
+    std::string* data = reinterpret_cast<std::string*>(static_cast<uint8_t*>(addr) + prop.offset);
+
+    char buffer[256];
+    std::strncpy(buffer, data->c_str(), sizeof(buffer));
+
+    if (ImGui::InputText(prop.name.c_str(), buffer, sizeof(buffer)))
+    {
+        *data = buffer;
+    }
 }
 
 void PropertyDrawer::DrawMesh(Property& prop, void* addr)

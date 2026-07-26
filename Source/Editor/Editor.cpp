@@ -84,17 +84,32 @@ void Editor::ShowInspector() const
         return;
     }
 
+    Class* cls = nullptr;
+    std::vector<Property> properties;
+
+    cls = selectedUnit->GetClass();
+    properties = cls->GetProperties();
+
+    for (Property& prop : properties)
+    {
+        ImGui::PushID(prop.name.c_str());
+
+        PropertyDrawer::Draw(prop, selectedUnit);
+
+        ImGui::PopID();
+    }
+
     auto components = selectedUnit->GetComponents();
     for (Component* comp : components)
     {
-        Class* cls = comp->GetClass();
-        std::vector<Property> props = cls->GetProperties();
+        cls = comp->GetClass();
+        properties = cls->GetProperties();
 
         ImGui::PushID(comp);
 
         ImGui::Text("%s", cls->GetName().c_str());
 
-        for (Property& prop : props)
+        for (Property& prop : properties)
         {
             ImGui::PushID(prop.name.c_str());
 

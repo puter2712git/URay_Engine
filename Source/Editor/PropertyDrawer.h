@@ -13,6 +13,7 @@ public:
 private:
     static void DrawBool(Property& prop, void* addr);
     static void DrawVector3(Property& prop, void* addr);
+    static void DrawString(Property& prop, void* addr);
     static void DrawMesh(Property& prop, void* addr);
 };
 
