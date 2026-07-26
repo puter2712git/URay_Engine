@@ -36,6 +36,7 @@ public:
 
     void SpawnUnit(Unit* unit);
 
+    void GetWindowSize(int& width, int& height) const;
     void GetFramebufferSize(int& width, int& height) const;
 
     InputManager& GetInputManager() { return inputManager; }

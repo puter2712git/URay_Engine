@@ -21,7 +21,7 @@ Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const
 {
     int width = 0;
     int height = 0;
-    gEngine->GetFramebufferSize(width, height);
+    gEngine->GetWindowSize(width, height);
 
     float ndcX = (2.0f * screenPos.x) / width - 1.0f;
     float ndcY = 1.0f - (2.0f * screenPos.y) / height;

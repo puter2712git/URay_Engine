@@ -21,6 +21,8 @@
 
 #include "Editor/Editor.h"
 
+#include <GLFW/glfw3.h>
+
 #include <algorithm>
 
 namespace URay
@@ -166,6 +168,11 @@ void Engine::Finalize()
 void Engine::SpawnUnit(Unit* unit)
 {
     scene->AddUnit(unit);
+}
+
+void Engine::GetWindowSize(int& width, int& height) const
+{
+    glfwGetWindowSize(window->GetGLFWWindow(), &width, &height);
 }
 
 void Engine::GetFramebufferSize(int& width, int& height) const
