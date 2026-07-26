@@ -36,6 +36,8 @@ public:
 
     void SpawnUnit(Unit* unit);
 
+    void GetFramebufferSize(int& width, int& height) const;
+
     InputManager& GetInputManager() { return inputManager; }
 
     MeshManager* GetMeshManager() const { return meshManager; }

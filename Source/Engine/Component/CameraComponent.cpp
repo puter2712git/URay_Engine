@@ -1,6 +1,7 @@
 #include "CameraComponent.h"
 
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Unit.h"
 
 #include "Core/Math/Math.h"
@@ -18,8 +19,12 @@ void CameraComponent::Update(float deltaTime)
 
 Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const
 {
-    float ndcX = (2.0f * screenPos.x) / 800.0f - 1.0f;
-    float ndcY = 1.0f - (2.0f * screenPos.y) / 600.0f;
+    int width = 0;
+    int height = 0;
+    gEngine->GetFramebufferSize(width, height);
+
+    float ndcX = (2.0f * screenPos.x) / width - 1.0f;
+    float ndcY = 1.0f - (2.0f * screenPos.y) / height;
 
     Matrix invProjMatrix = GetProjMatrix().Inverse();
     Matrix invViewMatrix = GetViewMatrix().Inverse();
@@ -47,8 +52,14 @@ void CameraComponent::UpdateViewMatrix()
 
 void CameraComponent::UpdateProjMatrix()
 {
+    int width = 0;
+    int height = 0;
+    gEngine->GetFramebufferSize(width, height);
+
+    float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
     float fovRad = Math::DegToRad(fov);
-    projMatrix = Matrix::MakePerspective(fovRad, 1.0f, near, far);
+
+    projMatrix = Matrix::MakePerspective(fovRad, aspectRatio, near, far);
 }
 
 } // namespace URay

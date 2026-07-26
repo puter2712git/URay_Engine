@@ -164,6 +164,13 @@ void Engine::SpawnUnit(Unit* unit)
     scene->AddUnit(unit);
 }
 
+void Engine::GetFramebufferSize(int& width, int& height) const
+{
+    VkExtent2D extent = renderer->GetSwapChainExtent();
+    width = static_cast<int>(extent.width);
+    height = static_cast<int>(extent.height);
+}
+
 MaterialManager* Engine::GetMaterialManager() const
 {
     return renderer->GetMaterialManager();
