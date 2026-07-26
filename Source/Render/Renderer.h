@@ -50,7 +50,7 @@ public:
     bool InitializeImGui();
     void FinalizeImGui();
 
-    void BeginFrame();
+    bool BeginFrame();
     void EndFrame();
 
     void BeginImGui();
@@ -110,17 +110,17 @@ private:
     bool CreateSurface();
     void DestroySurface();
 
+    bool CreateRenderPass();
+    void DestroyRenderPass();
+
     bool CreateSwapChain();
     void DestroySwapChain();
 
     void CleanupSwapChain();
     void RecreateSwapChain();
 
-    bool CreateImageViews();
-    void DestroyImageViews();
-
-    bool CreateRenderPass();
-    void DestroyRenderPass();
+    bool CreateSwapChainImageViews();
+    void DestroySwapChainImageViews();
 
     bool CreateFramebuffers();
     void DestroyFramebuffers();
@@ -171,6 +171,9 @@ private:
     VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
                                  VkFormatFeatureFlags features) const;
 
+public:
+    bool framebufferResized = false;
+
 private:
     Window* window = nullptr;
 
@@ -196,7 +199,6 @@ private:
     VkExtent2D swapChainExtent;
     std::vector<VkImage> swapChainImages;
     std::vector<VkImageView> swapChainImageViews;
-
     std::vector<VkFramebuffer> swapChainFramebuffers;
     uint32_t imageIndex = 0;
 

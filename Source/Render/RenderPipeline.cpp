@@ -36,7 +36,8 @@ void RenderPipeline::Execute(const Scene* scene)
 
     std::vector<DrawCommand> cmds = builder.GetCommands();
 
-    renderer.BeginFrame();
+    if (!renderer.BeginFrame())
+        return;
 
     for (const DrawCommand& cmd : cmds)
     {
