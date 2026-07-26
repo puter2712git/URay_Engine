@@ -4,8 +4,8 @@
 #include "Editor/SceneTree.h"
 
 #include "Engine/Component/Render/GizmoComponent.h"
-#include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Object/Class/Class.h"
 #include "Engine/Scene.h"
 #include "Engine/TestUnit.h"
 
@@ -51,7 +51,7 @@ void Editor::Render()
     ShowTestPanel();
     ShowStatus();
     ShowInspector();
-    
+
     if (sceneTree)
         sceneTree->Draw();
 
@@ -102,12 +102,12 @@ void Editor::ShowInspector() const
     auto components = selectedUnit->GetComponents();
     for (Component* comp : components)
     {
-        std::vector<Property> props;
-        comp->GetProperties(props);
+        Class* cls = comp->GetClass();
+        std::vector<Property> props = cls->GetProperties();
 
         ImGui::PushID(comp);
 
-        ImGui::Text("%s", comp->GetName().c_str());
+        ImGui::Text("%s", cls->GetName().c_str());
 
         for (Property& prop : props)
         {

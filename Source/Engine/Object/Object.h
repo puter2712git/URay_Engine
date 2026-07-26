@@ -1,11 +1,22 @@
 #pragma once
 
-#define URAY_CLASS(self, parent) \
-public:                          \
-    typedef parent Super;        \
-                                 \
-    static void RegisterClass(); \
-    static Class* StaticClass();
+#include "Engine/Object/Class/Class.h"
+#include "Engine/Object/Class/ClassRegistry.h"
+
+#define URAY_CLASS(self, parent)              \
+public:                                       \
+    typedef parent Super;                     \
+                                              \
+    static void RegisterClass();              \
+    inline static Class* StaticClass()        \
+    {                                         \
+        static Class* cls = new Class(#self); \
+        return cls;                           \
+    }                                         \
+    virtual Class* GetClass() const override  \
+    {                                         \
+        return self::StaticClass();           \
+    }
 
 #define URAY_REGISTER_CLASS(self)            \
     static struct URayRegister##self         \
@@ -25,7 +36,17 @@ class Object
 {
 public:
     static void RegisterClass();
-    static Class* StaticClass();
+
+    inline static Class* StaticClass()
+    {
+        static Class* cls = new Class("Object");
+        return cls;
+    }
+
+    virtual Class* GetClass() const
+    {
+        return Object::StaticClass();
+    }
 };
 
 } // namespace URay

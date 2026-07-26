@@ -7,6 +7,8 @@ namespace URay
 
 class GridComponent : public RenderComponent
 {
+    URAY_CLASS(GridComponent, RenderComponent)
+
 public:
     void SubmitCommand(DrawCommandBuilder& builder) override;
 };

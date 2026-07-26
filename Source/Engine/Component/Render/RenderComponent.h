@@ -9,6 +9,8 @@ class DrawCommandBuilder;
 
 class RenderComponent : public Component
 {
+    URAY_CLASS(RenderComponent, Component)
+
 public:
     virtual void SubmitCommand(DrawCommandBuilder& builder) = 0;
 };

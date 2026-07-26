@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Object/Object.h"
+
 #include <set>
 #include <string>
 #include <vector>
@@ -10,8 +12,10 @@ namespace URay
 class Component;
 class TransformComponent;
 
-class Unit
+class Unit : public Object
 {
+    URAY_CLASS(Unit, Object)
+
 public:
     Unit() = default;
     virtual ~Unit();

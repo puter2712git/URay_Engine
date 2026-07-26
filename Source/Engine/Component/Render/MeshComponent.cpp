@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
+#include "Engine/Object/Class/Class.h"
 #include "Engine/Unit.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
@@ -13,11 +14,20 @@
 namespace URay
 {
 
+URAY_REGISTER_CLASS(MeshComponent)
+
 MeshComponent::MeshComponent()
 {
     mesh = gEngine->GetMeshManager()->GetMesh("box");
 
     material = gEngine->GetMaterialManager()->GetOrCreate("default");
+}
+
+void MeshComponent::RegisterClass()
+{
+    Super::RegisterClass();
+
+    StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(Mesh*) });
 }
 
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)

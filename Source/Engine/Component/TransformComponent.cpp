@@ -1,7 +1,20 @@
 #include "TransformComponent.h"
 
+#include "Engine/Object/Class/Class.h"
+
 namespace URay
 {
+
+URAY_REGISTER_CLASS(TransformComponent)
+
+void TransformComponent::RegisterClass()
+{
+    Super::RegisterClass();
+
+    StaticClass()->AddProperty({ PropertyType::Vector3, "Position", offsetof(TransformComponent, position), sizeof(Vector3) });
+    StaticClass()->AddProperty({ PropertyType::Vector3, "Rotation", offsetof(TransformComponent, rotation), sizeof(Vector3) });
+    StaticClass()->AddProperty({ PropertyType::Vector3, "Scale", offsetof(TransformComponent, scale), sizeof(Vector3) });
+}
 
 void TransformComponent::Update(float deltaTime)
 {

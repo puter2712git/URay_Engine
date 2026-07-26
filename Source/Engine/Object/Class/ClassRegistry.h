@@ -8,7 +8,11 @@ class Class;
 class ClassRegistry
 {
 public:
-    static void Register(Class* cls);
+    template <typename T>
+    static void Register()
+    {
+        T::RegisterClass();
+    }
 };
 
 } // namespace URay

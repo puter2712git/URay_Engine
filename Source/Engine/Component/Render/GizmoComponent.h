@@ -36,6 +36,8 @@ enum class GizmoMode : uint8_t
 
 class GizmoComponent : public RenderComponent
 {
+    URAY_CLASS(GizmoComponent, RenderComponent)
+
 public:
     GizmoComponent();
 

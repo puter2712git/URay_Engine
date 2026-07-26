@@ -17,6 +17,8 @@ public:
     void AddProperty(Property prop) { properties.push_back(prop); }
     const std::vector<Property>& GetProperties() const { return properties; }
 
+    const std::string& GetName() const { return name; }
+
 private:
     std::string name;
     std::vector<Property> properties;

@@ -10,6 +10,8 @@ namespace URay
 
 class TransformComponent : public Component
 {
+    URAY_CLASS(TransformComponent, Component)
+
 public:
     void Update(float deltaTime) override;
 

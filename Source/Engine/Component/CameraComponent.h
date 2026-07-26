@@ -9,6 +9,8 @@ namespace URay
 
 class CameraComponent : public Component
 {
+    URAY_CLASS(CameraComponent, Component)
+
 public:
     void Update(float deltaTime) override;
 

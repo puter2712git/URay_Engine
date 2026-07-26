@@ -18,6 +18,8 @@
 namespace URay
 {
 
+URAY_REGISTER_CLASS(GizmoComponent)
+
 GizmoComponent::GizmoComponent()
 {
     meshes[static_cast<size_t>(GizmoMode::Translation)] = gEngine->GetMeshManager()->GetMesh("arrow");
@@ -25,6 +27,11 @@ GizmoComponent::GizmoComponent()
     meshes[static_cast<size_t>(GizmoMode::Scale)] = gEngine->GetMeshManager()->GetMesh("scale_gizmo");
 
     material = gEngine->GetMaterialManager()->GetOrCreate("default");
+}
+
+void GizmoComponent::RegisterClass()
+{
+    Super::RegisterClass();
 }
 
 void GizmoComponent::Update(float deltaTime)

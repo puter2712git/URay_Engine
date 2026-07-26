@@ -20,6 +20,11 @@ Unit::~Unit()
     components.clear();
 }
 
+void Unit::RegisterClass()
+{
+    Super::RegisterClass();
+}
+
 void Unit::Update(float deltaTime)
 {
     for (auto comp : components)

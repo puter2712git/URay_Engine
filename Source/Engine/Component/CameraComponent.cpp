@@ -9,6 +9,13 @@
 namespace URay
 {
 
+URAY_REGISTER_CLASS(CameraComponent)
+
+void CameraComponent::RegisterClass()
+{
+    Super::RegisterClass();
+}
+
 void CameraComponent::Update(float deltaTime)
 {
     Component::Update(deltaTime);

@@ -13,6 +13,8 @@
 namespace URay
 {
 
+URAY_REGISTER_CLASS(SpriteComponent)
+
 SpriteComponent::SpriteComponent()
 {
     if (!IsEnabled())
@@ -23,6 +25,11 @@ SpriteComponent::SpriteComponent()
 
     MeshManager* meshManager = gEngine->GetMeshManager();
     quadMesh = meshManager->GetMesh("quad");
+}
+
+void SpriteComponent::RegisterClass()
+{
+    Super::RegisterClass();
 }
 
 void SpriteComponent::SubmitCommand(DrawCommandBuilder& builder)

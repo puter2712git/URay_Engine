@@ -12,6 +12,8 @@ class Material;
 
 class MeshComponent : public RenderComponent
 {
+    URAY_CLASS(MeshComponent, RenderComponent)
+
 public:
     MeshComponent();
     ~MeshComponent() = default;

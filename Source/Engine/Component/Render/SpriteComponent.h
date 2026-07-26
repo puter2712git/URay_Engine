@@ -11,6 +11,8 @@ class Material;
 
 class SpriteComponent : public RenderComponent
 {
+    URAY_CLASS(SpriteComponent, RenderComponent)
+
 public:
     SpriteComponent();
     virtual ~SpriteComponent() override = default;
