@@ -1,5 +1,6 @@
 #include "GPUResourceManager.h"
 
+#include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/PipelineState/PipelineState.h"
 #include "Render/RenderDevice.h"
 #include "Render/Texture/Texture.h"
@@ -106,6 +107,35 @@ void GPUResourceManager::DestroyTextureSamplers()
     }
 
     textureSamplers.clear();
+}
+
+DescriptorSetLayout* GPUResourceManager::GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
+{
+    auto it = descriptorSetLayouts.find(desc);
+    if (it != descriptorSetLayouts.end())
+        return it->second;
+
+    DescriptorSetLayout* layout = renderDevice->CreateDescriptorSetLayout(desc);
+    if (!layout)
+        return nullptr;
+
+    descriptorSetLayouts.insert({ desc, layout });
+
+    return layout;
+}
+
+void GPUResourceManager::DestroyDescriptorSetLayouts()
+{
+    for (auto& [desc, layout] : descriptorSetLayouts)
+    {
+        if (layout)
+        {
+            delete layout;
+            layout = nullptr;
+        }
+    }
+
+    descriptorSetLayouts.clear();
 }
 
 VkPipeline GPUResourceManager::GetOrCreatePSO(const PipelineState& psoDesc)

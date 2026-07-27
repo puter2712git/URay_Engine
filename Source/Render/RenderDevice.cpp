@@ -1,12 +1,16 @@
 #include "RenderDevice.h"
 
 #include "ConstantBuffer.h"
+#include "Descriptor/DescriptorSetLayout.h"
+#include "Descriptor/DescriptorSetLayoutBuilder.h"
+#include "Descriptor/DescriptorSetLayoutDesc.h"
 #include "IndexBuffer.h"
 #include "PipelineState/PipelineState.h"
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
 #include "Texture/Texture.h"
+#include "Texture/TextureSampler.h"
 #include "Texture/TextureView.h"
 #include "VertexBuffer.h"
 
@@ -210,6 +214,18 @@ VkSampler RenderDevice::CreateTextureSampler(const TextureSamplerDesc& samplerDe
         return VK_NULL_HANDLE;
 
     return sampler;
+}
+
+DescriptorSetLayout* RenderDevice::CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
+{
+    DescriptorSetLayoutBuilder builder;
+
+    for (const ResourceBinding& binding : desc.bindings)
+    {
+        builder.AddBinding(binding);
+    }
+
+    return builder.Build(device);
 }
 
 VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)

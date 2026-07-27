@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Render/Texture/TextureSampler.h"
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -18,7 +17,10 @@ class IndexBuffer;
 class ConstantBuffer;
 class Texture;
 class TextureView;
+class DescriptorSetLayout;
 
+struct TextureSamplerDesc;
+struct DescriptorSetLayoutDesc;
 struct PipelineState;
 
 class RenderDevice
@@ -36,6 +38,8 @@ public:
     Texture* CreateTexture(const std::string& filePath);
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
+
+    DescriptorSetLayout* CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
 
     VkPipeline CreatePSO(const PipelineState& pipelineState);
 

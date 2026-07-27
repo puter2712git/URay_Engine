@@ -133,9 +133,6 @@ private:
     bool CreateSyncObjects();
     void DestroySyncObjects();
 
-    bool CreateDescriptorSetLayout();
-    void DestroyDescriptorSetLayout();
-
     bool CreateDescriptorPool();
     void DestroyDescriptorPool();
 
@@ -202,7 +199,6 @@ private:
     uint32_t imageIndex = 0;
 
     VkRenderPass renderPass = VK_NULL_HANDLE;
-    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;

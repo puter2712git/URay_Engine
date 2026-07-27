@@ -1,9 +1,10 @@
 #include "Renderer.h"
 
+#include "Engine/Material/MaterialManager.h"
 #include "Render/ConstantBuffer.h"
+#include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/IndexBuffer.h"
-#include "Engine/Material/MaterialManager.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
@@ -133,8 +134,6 @@ bool Renderer::Initialize(Window* wnd)
     if (!CreateFramebuffers())
         return false;
 
-    if (!CreateDescriptorSetLayout())
-        return false;
     CreatePipelineLayout();
 
     if (!CreateDescriptorPool())
@@ -165,8 +164,6 @@ void Renderer::Finalize()
     delete resourceManager;
 
     delete renderDevice;
-
-    DestroyDescriptorSetLayout();
 
     DestroyPipelineLayout();
 
@@ -398,10 +395,30 @@ void Renderer::Draw(const DrawCommand& cmd)
 
 void Renderer::CreatePipelineLayout()
 {
+    DescriptorSetLayoutDesc layoutDesc = {};
+    layoutDesc.bindings.push_back(
+        { .bindingIndex = 0,
+          .resourceType = ResourceType::ConstantBuffer,
+          .arrayCount = 1,
+          .stageFlags = ShaderStageFlags::Vertex });
+    layoutDesc.bindings.push_back(
+        { .bindingIndex = 1,
+          .resourceType = ResourceType::SampledImage,
+          .arrayCount = 1,
+          .stageFlags = ShaderStageFlags::Fragment });
+    layoutDesc.bindings.push_back(
+        { .bindingIndex = 2,
+          .resourceType = ResourceType::Sampler,
+          .arrayCount = 1,
+          .stageFlags = ShaderStageFlags::Fragment });
+
+    DescriptorSetLayout* layout = resourceManager->GetOrCreateDescriptorSetLayout(layoutDesc);
+    VkDescriptorSetLayout vkLayout = layout->GetHandle();
+
     VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
+    pipelineLayoutInfo.pSetLayouts = &vkLayout;
 
     VkPushConstantRange pushConstant = {};
     pushConstant.offset = 0;
@@ -861,47 +878,6 @@ void Renderer::DestroySyncObjects()
     }
 }
 
-bool Renderer::CreateDescriptorSetLayout()
-{
-    VkDescriptorSetLayoutBinding uboLayoutBinding = {};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
-
-    VkDescriptorSetLayoutBinding imageLayoutBinding = {};
-    imageLayoutBinding.binding = 1;
-    imageLayoutBinding.descriptorCount = 1;
-    imageLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    imageLayoutBinding.pImmutableSamplers = nullptr;
-    imageLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    VkDescriptorSetLayoutBinding samplerLayoutBinding = {};
-    samplerLayoutBinding.binding = 2;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    std::array<VkDescriptorSetLayoutBinding, 3> bindings = { uboLayoutBinding, imageLayoutBinding, samplerLayoutBinding };
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo = {};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
-
-    if (vkCreateDescriptorSetLayout(device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
-        return false;
-
-    return true;
-}
-
-void Renderer::DestroyDescriptorSetLayout()
-{
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
-}
-
 bool Renderer::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 3> poolSizes = {};
@@ -931,7 +907,26 @@ void Renderer::DestroyDescriptorPool()
 
 bool Renderer::CreateDescriptorSets()
 {
-    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
+    DescriptorSetLayoutDesc layoutDesc = {};
+    layoutDesc.bindings.push_back(
+        { .bindingIndex = 0,
+          .resourceType = ResourceType::ConstantBuffer,
+          .arrayCount = 1,
+          .stageFlags = ShaderStageFlags::Vertex });
+    layoutDesc.bindings.push_back(
+        { .bindingIndex = 1,
+          .resourceType = ResourceType::SampledImage,
+          .arrayCount = 1,
+          .stageFlags = ShaderStageFlags::Fragment });
+    layoutDesc.bindings.push_back(
+        { .bindingIndex = 2,
+          .resourceType = ResourceType::Sampler,
+          .arrayCount = 1,
+          .stageFlags = ShaderStageFlags::Fragment });
+
+    DescriptorSetLayout* layout = resourceManager->GetOrCreateDescriptorSetLayout(layoutDesc);
+
+    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, layout->GetHandle());
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
