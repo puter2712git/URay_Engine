@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "Render/ConstantBuffer.h"
+#include "Render/GPUResourceManager.h"
 #include "Render/IndexBuffer.h"
 #include "Render/Material/MaterialManager.h"
 #include "Render/RenderDevice.h"
@@ -115,6 +116,8 @@ bool Renderer::Initialize(Window* wnd)
     if (!CreateRenderPass())
         return false;
 
+    resourceManager = new GPUResourceManager(renderDevice);
+
     shaderManager = new ShaderManager();
     Shader* shader = shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
     Shader* lineShader = shaderManager->GetOrCreate("line", "Shader/line-vert.spv", "Shader/line-frag.spv");
@@ -122,8 +125,8 @@ bool Renderer::Initialize(Window* wnd)
     materialManager = new MaterialManager();
     materialManager->GetOrCreate("default", shader);
 
-    Texture* texture = renderDevice->GetOrCreateTexture("Asset/texture.jpg");
-    renderDevice->GetOrCreateTextureView(texture);
+    Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
+    resourceManager->GetOrCreateTextureView(texture);
 
     if (!CreateTextureSampler())
         return false;
@@ -152,8 +155,6 @@ void Renderer::Finalize()
 {
     vkDeviceWaitIdle(device);
 
-    delete renderDevice;
-
     CleanupSwapChain();
 
     DestroyDepthResources();
@@ -164,6 +165,10 @@ void Renderer::Finalize()
 
     delete materialManager;
     delete shaderManager;
+
+    delete resourceManager;
+
+    delete renderDevice;
 
     DestroyDescriptorSetLayout();
 
@@ -366,7 +371,7 @@ void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newPr
 
 void Renderer::Draw(const DrawCommand& cmd)
 {
-    VkPipeline pipeline = renderDevice->GetOrCreatePSO(cmd.pipelineState);
+    VkPipeline pipeline = resourceManager->GetOrCreatePSO(cmd.pipelineState);
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
     ObjectConstants objConstants = {};
@@ -948,11 +953,11 @@ bool Renderer::CreateDescriptorSets()
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(FrameConstants);
 
-        Texture* texture = renderDevice->GetOrCreateTexture("Asset/texture.jpg");
+        Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
 
         VkDescriptorImageInfo imageInfo = {};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = renderDevice->GetOrCreateTextureView(texture)->GetHandle();
+        imageInfo.imageView = resourceManager->GetOrCreateTextureView(texture)->GetHandle();
 
         VkDescriptorImageInfo samplerInfo = {};
         samplerInfo.sampler = textureSampler;

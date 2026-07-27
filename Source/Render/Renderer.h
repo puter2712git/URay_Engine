@@ -7,7 +7,6 @@
 #include <vulkan/vulkan.h>
 
 #include <optional>
-#include <unordered_map>
 #include <vector>
 
 namespace URay
@@ -34,6 +33,7 @@ class IndexBuffer;
 class Window;
 class Scene;
 
+class GPUResourceManager;
 class ShaderManager;
 class MaterialManager;
 
@@ -178,6 +178,8 @@ private:
     Window* window = nullptr;
 
     RenderDevice* renderDevice = nullptr;
+
+    GPUResourceManager* resourceManager = nullptr;
 
     ShaderManager* shaderManager = nullptr;
     MaterialManager* materialManager = nullptr;

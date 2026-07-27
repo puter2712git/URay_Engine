@@ -52,10 +52,6 @@ RenderDevice::~RenderDevice()
         delete buffer;
         buffer = nullptr;
     }
-
-    DestroyTextureViews();
-    DestroyTextures();
-    DestroyPSOs();
 }
 
 VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<Vertex>& vertices)
@@ -118,12 +114,8 @@ IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint16_t>& indice
     return indexBuffer;
 }
 
-Texture* RenderDevice::GetOrCreateTexture(const std::string& filePath)
+Texture* RenderDevice::CreateTexture(const std::string& filePath)
 {
-    auto it = textures.find(filePath);
-    if (it != textures.end())
-        return it->second;
-
     if (!FileIO::Exists(filePath))
         return nullptr;
 
@@ -176,60 +168,19 @@ Texture* RenderDevice::GetOrCreateTexture(const std::string& filePath)
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
     Texture* texture = new Texture(device, image, imageMemory);
-    textures.insert({ filePath, texture });
-
     return texture;
 }
 
-void RenderDevice::DestroyTextures()
+TextureView* RenderDevice::CreateTextureView(Texture* texture)
 {
-    for (auto& [key, texture] : textures)
-    {
-        if (texture)
-        {
-            delete texture;
-            texture = nullptr;
-        }
-    }
-
-    textures.clear();
-}
-
-TextureView* RenderDevice::GetOrCreateTextureView(Texture* texture)
-{
-    auto it = textureViews.find(texture);
-    if (it != textureViews.end())
-        return it->second;
-
     VkImageView imageView = CreateImageView(texture->GetHandle(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
 
     TextureView* textureView = new TextureView(device, imageView, texture);
-    textureViews.insert({ texture, textureView });
-
     return textureView;
 }
 
-void RenderDevice::DestroyTextureViews()
+VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
 {
-    for (auto [texture, view] : textureViews)
-    {
-        if (view)
-        {
-            delete view;
-            view = nullptr;
-        }
-    }
-
-    textureViews.clear();
-}
-
-VkPipeline RenderDevice::GetOrCreatePSO(const PipelineState& desc)
-{
-    uint64_t key = desc.GetKey();
-    auto it = pipelines.find(key);
-    if (it != pipelines.end())
-        return it->second;
-
     auto vertShaderCode = desc.shader->GetVertexStage().code;
     auto fragShaderCode = desc.shader->GetFragmentStage().code;
 
@@ -410,23 +361,7 @@ VkPipeline RenderDevice::GetOrCreatePSO(const PipelineState& desc)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-    pipelines.insert({ key, pipeline });
-
     return pipeline;
-}
-
-void RenderDevice::DestroyPSOs()
-{
-    for (auto& [key, pipeline] : pipelines)
-    {
-        if (pipeline)
-        {
-            vkDestroyPipeline(device, pipeline, nullptr);
-            pipeline = VK_NULL_HANDLE;
-        }
-    }
-
-    pipelines.clear();
 }
 
 void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,

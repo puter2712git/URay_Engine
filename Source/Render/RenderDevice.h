@@ -32,14 +32,11 @@ public:
     VertexBuffer* CreateVertexBuffer(const std::vector<Vertex>& vertices);
     IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
 
-    Texture* GetOrCreateTexture(const std::string& filePath);
-    void DestroyTextures();
+    Texture* CreateTexture(const std::string& filePath);
 
-    TextureView* GetOrCreateTextureView(Texture* texture);
-    void DestroyTextureViews();
+    TextureView* CreateTextureView(Texture* texture);
 
-    VkPipeline GetOrCreatePSO(const PipelineState& pipelineState);
-    void DestroyPSOs();
+    VkPipeline CreatePSO(const PipelineState& pipelineState);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties,
@@ -55,6 +52,8 @@ public:
     void CopyBufferToImage(VkBuffer buffer, VkImage image,
                            uint32_t width, uint32_t height) const;
     VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
+
+    VkDevice GetVKDevice() const { return device; }
 
     const std::vector<ConstantBuffer*>& GetFrameConstantBuffers() const { return frameConstantBuffers; }
 
@@ -78,9 +77,6 @@ private:
     VkQueue graphicsQueue = VK_NULL_HANDLE;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
-
-    std::unordered_map<std::string, Texture*> textures;
-    std::unordered_map<Texture*, TextureView*> textureViews;
 
     std::unordered_map<uint64_t, VkPipeline> pipelines;
 
