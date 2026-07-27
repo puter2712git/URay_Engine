@@ -8,7 +8,7 @@
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
-#include "Render/TextureView.h"
+#include "Render/Texture/TextureView.h"
 
 #include "Platform/Window.h"
 

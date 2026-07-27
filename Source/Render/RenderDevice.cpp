@@ -6,8 +6,8 @@
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
-#include "Texture.h"
-#include "TextureView.h"
+#include "Texture/Texture.h"
+#include "Texture/TextureView.h"
 #include "VertexBuffer.h"
 
 #include "Core/File/FileIO.h"

@@ -2,8 +2,8 @@
 
 #include "Render/PipelineState/PipelineState.h"
 #include "Render/RenderDevice.h"
-#include "Render/Texture.h"
-#include "Render/TextureView.h"
+#include "Render/Texture/Texture.h"
+#include "Render/Texture/TextureView.h"
 
 #include <vulkan/vulkan.h>
 

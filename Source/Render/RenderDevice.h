@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/TextureSampler.h"
+#include "Render/Texture/TextureSampler.h"
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
