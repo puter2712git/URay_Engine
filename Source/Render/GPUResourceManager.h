@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/TextureSampler.h"
+
 #include <vulkan/vulkan.h>
 
 #include <string>
@@ -28,6 +30,9 @@ public:
     TextureView* GetOrCreateTextureView(Texture* texture);
     void DestroyTextureViews();
 
+    VkSampler GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc);
+    void DestroyTextureSamplers();
+
     VkPipeline GetOrCreatePSO(const PipelineState& psoDesc);
     void DestroyPSOs();
 
@@ -36,6 +41,7 @@ private:
 
     std::unordered_map<std::string, Texture*> textures;
     std::unordered_map<Texture*, TextureView*> textureViews;
+    std::unordered_map<TextureSamplerDesc, VkSampler, TextureSamplerDescHash> textureSamplers;
 
     std::unordered_map<uint64_t, VkPipeline> pipelines;
 };

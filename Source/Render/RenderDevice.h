@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Render/TextureSampler.h"
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -33,8 +34,8 @@ public:
     IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
 
     Texture* CreateTexture(const std::string& filePath);
-
     TextureView* CreateTextureView(Texture* texture);
+    VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 
     VkPipeline CreatePSO(const PipelineState& pipelineState);
 

@@ -18,6 +18,7 @@ GPUResourceManager::GPUResourceManager(RenderDevice* renderDevice)
 GPUResourceManager::~GPUResourceManager()
 {
     DestroyPSOs();
+    DestroyTextureSamplers();
     DestroyTextureViews();
     DestroyTextures();
 }
@@ -78,6 +79,35 @@ void GPUResourceManager::DestroyTextureViews()
     textureViews.clear();
 }
 
+VkSampler GPUResourceManager::GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc)
+{
+    auto it = textureSamplers.find(samplerDesc);
+    if (it != textureSamplers.end())
+        return it->second;
+
+    VkSampler sampler = renderDevice->CreateTextureSampler(samplerDesc);
+    if (sampler == VK_NULL_HANDLE)
+        return VK_NULL_HANDLE;
+
+    textureSamplers.insert({ samplerDesc, sampler });
+
+    return sampler;
+}
+
+void GPUResourceManager::DestroyTextureSamplers()
+{
+    for (auto& [desc, sampler] : textureSamplers)
+    {
+        if (sampler)
+        {
+            vkDestroySampler(renderDevice->GetVKDevice(), sampler, nullptr);
+            sampler = VK_NULL_HANDLE;
+        }
+    }
+
+    textureSamplers.clear();
+}
+
 VkPipeline GPUResourceManager::GetOrCreatePSO(const PipelineState& psoDesc)
 {
     auto it = pipelines.find(psoDesc.GetKey());
@@ -99,7 +129,7 @@ void GPUResourceManager::DestroyPSOs()
         if (pso)
         {
             vkDestroyPipeline(renderDevice->GetVKDevice(), pso, nullptr);
-            pso = nullptr;
+            pso = VK_NULL_HANDLE;
         }
     }
 

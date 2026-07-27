@@ -179,6 +179,39 @@ TextureView* RenderDevice::CreateTextureView(Texture* texture)
     return textureView;
 }
 
+VkSampler RenderDevice::CreateTextureSampler(const TextureSamplerDesc& samplerDesc)
+{
+    VkSamplerCreateInfo samplerInfo = {};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = samplerDesc.magFilter;
+    samplerInfo.minFilter = samplerDesc.minFilter;
+    samplerInfo.addressModeU = samplerDesc.addressModeU;
+    samplerInfo.addressModeV = samplerDesc.addressModeV;
+    samplerInfo.addressModeW = samplerDesc.addressModeW;
+    samplerInfo.anisotropyEnable = VK_TRUE;
+
+    VkPhysicalDeviceProperties properties = {};
+    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+
+    samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    samplerInfo.mipLodBias = 0.0f;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+
+    VkSampler sampler = VK_NULL_HANDLE;
+
+    if (vkCreateSampler(device, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
+        return VK_NULL_HANDLE;
+
+    return sampler;
+}
+
 VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
 {
     auto vertShaderCode = desc.shader->GetVertexStage().code;

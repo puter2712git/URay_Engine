@@ -141,9 +141,6 @@ private:
 
     bool CreateDescriptorSets();
 
-    bool CreateTextureSampler();
-    void DestroyTextureSampler();
-
     bool CreateDepthResources();
     void DestroyDepthResources();
 
@@ -220,8 +217,6 @@ private:
 
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;
-
-    VkSampler textureSampler = VK_NULL_HANDLE;
 
     VkImage depthImage = VK_NULL_HANDLE;
     VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
