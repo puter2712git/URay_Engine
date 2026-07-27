@@ -1,4 +1,2 @@
 [*.{cpp,h}]
 code_cleanup_on_save = true
-
-code_cleanup_profile_name = profile1

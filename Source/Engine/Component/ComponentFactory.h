@@ -3,6 +3,7 @@
 #include "Engine/Component/Component.h"
 
 #include <functional>
+#include <string>
 
 namespace URay
 {
