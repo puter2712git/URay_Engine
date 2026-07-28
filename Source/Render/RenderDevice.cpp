@@ -9,6 +9,7 @@
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
+#include "Shader/ShaderReflector.h"
 #include "Texture/Texture.h"
 #include "Texture/TextureSampler.h"
 #include "Texture/TextureView.h"
@@ -17,6 +18,8 @@
 #include "Core/File/FileIO.h"
 
 #include <stb/stb_image.h>
+
+#include <iostream>
 
 namespace URay
 {
@@ -232,6 +235,14 @@ VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
 {
     auto vertShaderCode = desc.shader->GetVertexStage().code;
     auto fragShaderCode = desc.shader->GetFragmentStage().code;
+
+    ShaderReflectionContext vertReflectionContext = {};
+    ShaderReflectionContext fragReflectionContext = {};
+
+    if (!ShaderReflector::ReflectSPIRV(vertShaderCode, vertReflectionContext))
+        return VK_NULL_HANDLE;
+    if (!ShaderReflector::ReflectSPIRV(fragShaderCode, fragReflectionContext))
+        return VK_NULL_HANDLE;
 
     VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);

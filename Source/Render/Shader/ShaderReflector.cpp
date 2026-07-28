@@ -1,13 +1,13 @@
 #include "ShaderReflector.h"
 
-#include <spirv/spirv_reflect.h>
-
 #include <iostream>
 
 namespace URay
 {
 
-bool ShaderReflector::ReflectSPIRV(const std::vector<uint8_t>& code)
+bool ShaderReflector::ReflectSPIRV(
+    const std::vector<uint8_t>& code,
+    ShaderReflectionContext& outContext)
 {
     SpvReflectShaderModule module;
     SpvReflectResult result = spvReflectCreateShaderModule(
@@ -21,10 +21,10 @@ bool ShaderReflector::ReflectSPIRV(const std::vector<uint8_t>& code)
     uint32_t setCount = 0;
     spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
 
-    std::vector<SpvReflectDescriptorSet*> sets(setCount);
-    spvReflectEnumerateDescriptorSets(&module, &setCount, sets.data());
+    outContext.sets.resize(setCount);
+    spvReflectEnumerateDescriptorSets(&module, &setCount, outContext.sets.data());
 
-    for (const auto* set : sets)
+    for (const auto* set : outContext.sets)
     {
         std::cout << "Set " << set->set << " (Binding Count: " << set->binding_count << ")\n";
         for (uint32_t i = 0; i < set->binding_count; ++i)
@@ -39,10 +39,10 @@ bool ShaderReflector::ReflectSPIRV(const std::vector<uint8_t>& code)
     uint32_t pushCount = 0;
     spvReflectEnumeratePushConstantBlocks(&module, &pushCount, nullptr);
 
-    std::vector<SpvReflectBlockVariable*> pushBlocks(pushCount);
-    spvReflectEnumeratePushConstantBlocks(&module, &pushCount, pushBlocks.data());
+    outContext.pushBlocks.resize(pushCount);
+    spvReflectEnumeratePushConstantBlocks(&module, &pushCount, outContext.pushBlocks.data());
 
-    for (const auto* block : pushBlocks)
+    for (const auto* block : outContext.pushBlocks)
     {
         std::cout << "Push Constants: " << block->name
                   << " (Offset: " << block->offset
@@ -54,10 +54,10 @@ bool ShaderReflector::ReflectSPIRV(const std::vector<uint8_t>& code)
         uint32_t inputCount = 0;
         spvReflectEnumerateInputVariables(&module, &inputCount, nullptr);
 
-        std::vector<SpvReflectInterfaceVariable*> inputs(inputCount);
-        spvReflectEnumerateInputVariables(&module, &inputCount, inputs.data());
+        outContext.inputs.resize(inputCount);
+        spvReflectEnumerateInputVariables(&module, &inputCount, outContext.inputs.data());
 
-        for (const auto* input : inputs)
+        for (const auto* input : outContext.inputs)
         {
             if (input->decoration_flags & SPV_REFLECT_DECORATION_BUILT_IN)
                 continue;

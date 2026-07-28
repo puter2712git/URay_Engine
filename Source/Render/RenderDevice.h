@@ -2,6 +2,7 @@
 
 #include "Render/Vertex.h"
 
+#include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>
 
 #include <string>
@@ -70,6 +71,8 @@ private:
     void DestroyPersistentVertexBuffer();
 
     VkShaderModule CreateShaderModule(const std::vector<uint8_t>& code) const;
+
+    DescriptorSetLayoutDesc CreateDescriptorSetLayoutDesc() const;
 
     uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 

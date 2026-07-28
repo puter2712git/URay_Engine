@@ -1,7 +1,6 @@
 #include "ShaderManager.h"
 
 #include "Shader.h"
-#include "ShaderReflector.h"
 
 #include "Core/File/FileIO.h"
 
@@ -49,9 +48,6 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     fragmentStage.code = fragmentShaderCode;
     fragmentStage.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragmentStage.entry = "PSMain";
-
-    ShaderReflector::ReflectSPIRV(vertexShaderCode);
-    ShaderReflector::ReflectSPIRV(fragmentShaderCode);
 
     Shader* newShader = new Shader(vertexStage, fragmentStage);
     shaders.insert({ key, newShader });
