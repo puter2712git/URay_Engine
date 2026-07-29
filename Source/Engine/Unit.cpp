@@ -35,6 +35,20 @@ void Unit::Update(float deltaTime)
         comp->Update(deltaTime);
 }
 
+YAML::Node Unit::Serialize()
+{
+    YAML::Node node;
+
+    for (auto comp : components)
+        node[comp->GetClass()->GetName()] = comp->Serialize();
+
+    return node;
+}
+
+void Unit::Deserialize(const YAML::Node& node)
+{
+}
+
 Component* Unit::AddComponent(Component* comp)
 {
     if (!comp)

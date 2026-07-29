@@ -23,6 +23,9 @@ public:
 public:
     virtual void Update(float deltaTime);
 
+    virtual YAML::Node Serialize() override;
+    virtual void Deserialize(const YAML::Node& node) override;
+
     Component* AddComponent(Component* comp);
 
     template <typename T>

@@ -47,6 +47,17 @@ target_link_libraries(URay_Engine
         Vulkan::Vulkan
 )
 
+include(FetchContent)
+
+FetchContent_Declare(
+  yaml-cpp
+  GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
+  GIT_TAG master # Can be a tag (yaml-cpp-x.x.x), a commit hash, or a branch name (master)
+)
+FetchContent_MakeAvailable(yaml-cpp)
+
+target_link_libraries(URay_Engine PUBLIC yaml-cpp::yaml-cpp) # The library or executable that require yaml-cpp library
+
 add_custom_command(TARGET URay_Engine POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/Asset

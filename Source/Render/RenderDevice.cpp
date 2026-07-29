@@ -19,8 +19,6 @@
 
 #include <stb/stb_image.h>
 
-#include <iostream>
-
 namespace URay
 {
 

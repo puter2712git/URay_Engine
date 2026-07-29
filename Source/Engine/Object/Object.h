@@ -3,6 +3,8 @@
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Object/Class/ClassRegistry.h"
 
+#include <yaml-cpp/yaml.h>
+
 #define URAY_CLASS(self, parent)              \
 public:                                       \
     typedef parent Super;                     \
@@ -47,6 +49,9 @@ public:
     {
         return Object::StaticClass();
     }
+
+    virtual YAML::Node Serialize();
+    virtual void Deserialize(const YAML::Node& node);
 };
 
 } // namespace URay

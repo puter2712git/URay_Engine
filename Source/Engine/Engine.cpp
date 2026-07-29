@@ -24,6 +24,7 @@
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
+#include <iostream>
 
 namespace URay
 {
@@ -136,6 +137,9 @@ void Engine::Run()
 
         renderPipeline->Execute(scene);
     }
+
+    YAML::Node node = scene->Serialize();
+    std::cout << node << std::endl;
 }
 
 void Engine::Finalize()

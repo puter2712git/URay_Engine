@@ -28,6 +28,20 @@ void Scene::Update(float deltaTime)
     }
 }
 
+YAML::Node Scene::Serialize()
+{
+    YAML::Node node;
+
+    for (Unit* unit : units)
+        node[unit->GetName()] = unit->Serialize();
+
+    return node;
+}
+
+void Scene::Deserialize(const YAML::Node& node)
+{
+}
+
 void Scene::AddUnit(Unit* unit)
 {
     if (unit)
