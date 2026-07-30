@@ -42,4 +42,19 @@ std::vector<uint8_t> FileIO::ReadBinary(const fs::path& path)
     return buffer;
 }
 
+bool FileIO::WriteText(const fs::path& path, const std::string& text)
+{
+    if (path.has_parent_path())
+    {
+        fs::create_directories(path.parent_path());
+    }
+
+    std::ofstream file(path, std::ios::out | std::ios::app);
+    if (!file || !file.is_open())
+        return false;
+
+    file << text;
+    return file.good();
+}
+
 } // namespace URay

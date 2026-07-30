@@ -1,5 +1,6 @@
 #include "Editor.h"
 
+#include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
 #include "Editor/SceneTree.h"
 
@@ -28,6 +29,7 @@ bool Editor::Initialize()
     if (!renderer.InitializeImGui())
         return false;
 
+    mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree();
 
     return true;
@@ -47,6 +49,8 @@ void Editor::Update(float deltaTime)
 void Editor::Render()
 {
     renderer.BeginImGui();
+
+    mainMenuBar->Draw();
 
     ShowStatus();
     ShowInspector();

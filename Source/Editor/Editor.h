@@ -7,6 +7,7 @@ class Engine;
 class Renderer;
 class Unit;
 
+class MainMenuBar;
 class SceneTree;
 
 class Editor
@@ -35,6 +36,7 @@ private:
 
     Unit* selectedUnit = nullptr;
 
+    MainMenuBar* mainMenuBar = nullptr;
     SceneTree* sceneTree = nullptr;
 };
 
