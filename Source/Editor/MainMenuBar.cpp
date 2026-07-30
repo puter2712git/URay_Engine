@@ -3,7 +3,7 @@
 #include "Core/File/FileIO.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Scene.h"
+#include "Engine/Scene/Scene.h"
 
 namespace URay
 {
@@ -16,11 +16,11 @@ void MainMenuBar::Draw() const
         {
             if (ImGui::MenuItem("Save Scene"))
             {
-                Scene* currScene = gEngine->GetScene();
+                Scene* currScene = gEngine->GetSceneByType(SceneType::Game);
                 if (currScene)
                 {
                     YAML::Node node = currScene->Serialize();
-                    FileIO::WriteText("./test.urscene", YAML::Dump(node));
+                    FileIO::WriteText("./TestScene.urscene", YAML::Dump(node));
                 }
             }
             if (ImGui::MenuItem("Load Scene"))

@@ -6,7 +6,7 @@
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Scene.h"
+#include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
 #include "Editor/Editor.h"
@@ -19,9 +19,9 @@ RenderPipeline::RenderPipeline(Renderer& renderer)
 {
 }
 
-void RenderPipeline::Execute(const Scene* scene)
+void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
 {
-    CameraComponent* camera = FindCamera(scene);
+    CameraComponent* camera = FindCamera(scenes);
     if (!camera)
         return;
 
@@ -31,7 +31,7 @@ void RenderPipeline::Execute(const Scene* scene)
     Matrix projMatrix = camera->GetProjMatrix();
     renderer.SetFrameViewInfo(viewMatrix, projMatrix);
 
-    CollectCommand(scene);
+    CollectCommand(scenes);
     builder.FlushLines();
 
     std::vector<DrawCommand> cmds = builder.GetCommands();
@@ -49,37 +49,46 @@ void RenderPipeline::Execute(const Scene* scene)
     renderer.EndFrame();
 }
 
-CameraComponent* RenderPipeline::FindCamera(const Scene* scene) const
+CameraComponent* RenderPipeline::FindCamera(const std::vector<Scene*> scenes) const
 {
     CameraComponent* camera = nullptr;
 
-    for (const Unit* unit : scene->GetUnits())
+    for (const Scene* scene : scenes)
     {
-        if (CameraComponent* cam = unit->GetComponent<CameraComponent>())
+        for (const Unit* unit : scene->GetUnits())
         {
-            camera = cam;
-            break;
+            if (CameraComponent* cam = unit->GetComponent<CameraComponent>())
+            {
+                camera = cam;
+                break;
+            }
         }
+
+        if (!camera)
+            break;
     }
 
     return camera;
 }
 
-void RenderPipeline::CollectCommand(const Scene* scene)
+void RenderPipeline::CollectCommand(const std::vector<Scene*> scenes)
 {
     GizmoComponent* gizmo = nullptr;
 
-    for (const Unit* unit : scene->GetUnits())
+    for (const Scene* scene : scenes)
     {
-        if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
+        for (const Unit* unit : scene->GetUnits())
         {
-            if (GizmoComponent* gizmoComp = dynamic_cast<GizmoComponent*>(comp))
+            if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
             {
-                gizmo = gizmoComp;
-            }
-            else
-            {
-                comp->SubmitCommand(builder);
+                if (GizmoComponent* gizmoComp = dynamic_cast<GizmoComponent*>(comp))
+                {
+                    gizmo = gizmoComp;
+                }
+                else
+                {
+                    comp->SubmitCommand(builder);
+                }
             }
         }
     }

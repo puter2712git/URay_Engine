@@ -1,5 +1,7 @@
 #pragma once
 
+#include "SceneType.h"
+
 #include "Engine/Object/Object.h"
 
 #include <vector>
@@ -12,7 +14,7 @@ class Unit;
 class Scene : public Object
 {
 public:
-    Scene() = default;
+    Scene(SceneType type);
     ~Scene();
 
 public:
@@ -21,6 +23,8 @@ public:
     virtual YAML::Node Serialize() override;
     virtual void Deserialize(const YAML::Node& node) override;
 
+    SceneType GetType() const { return type; }
+
     void AddUnit(Unit* unit);
     std::vector<Unit*> GetUnits() const
     {
@@ -28,6 +32,8 @@ public:
     }
 
 private:
+    SceneType type = SceneType::Game;
+
     std::vector<Unit*> units;
 };
 

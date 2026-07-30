@@ -7,7 +7,7 @@
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
-#include "Engine/Scene.h"
+#include "Engine/Scene/Scene.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
@@ -67,7 +67,7 @@ bool Engine::Initialize()
 
     Mesh* quadMesh = meshManager->GetMesh("quad");
 
-    scene = new Scene();
+    Scene* editorScene = new Scene(SceneType::Editor);
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");
@@ -88,9 +88,14 @@ bool Engine::Initialize()
     gizmo->SetEnabled(false);
     gizmoUnit->AddComponent(gizmo);
 
-    scene->AddUnit(cameraUnit);
-    scene->AddUnit(gridUnit);
-    scene->AddUnit(gizmoUnit);
+    editorScene->AddUnit(cameraUnit);
+    editorScene->AddUnit(gridUnit);
+    editorScene->AddUnit(gizmoUnit);
+
+    scenes.push_back(editorScene);
+
+    Scene* gameScene = new Scene(SceneType::Game);
+    scenes.push_back(gameScene);
 
     return true;
 }
@@ -132,14 +137,13 @@ void Engine::Run()
         UpdateHover();
         UpdatePick();
 
-        if (scene)
+        for (Scene* scene : scenes)
+        {
             scene->Update(timer->GetDeltaTime());
+        }
 
-        renderPipeline->Execute(scene);
+        renderPipeline->Execute(scenes);
     }
-
-    YAML::Node node = scene->Serialize();
-    std::cout << node << std::endl;
 }
 
 void Engine::Finalize()
@@ -156,7 +160,10 @@ void Engine::Finalize()
     delete renderPipeline;
     renderPipeline = nullptr;
 
-    delete scene;
+    for (Scene* scene : scenes)
+    {
+        delete scene;
+    }
 
     delete meshManager;
 
@@ -171,7 +178,11 @@ void Engine::Finalize()
 
 void Engine::SpawnUnit(Unit* unit)
 {
-    scene->AddUnit(unit);
+    Scene* gameScene = GetSceneByType(SceneType::Game);
+    if (gameScene)
+    {
+        gameScene->AddUnit(unit);
+    }
 }
 
 void Engine::GetWindowSize(int& width, int& height) const
@@ -189,6 +200,19 @@ void Engine::GetFramebufferSize(int& width, int& height) const
 MaterialManager* Engine::GetMaterialManager() const
 {
     return renderer->GetMaterialManager();
+}
+
+Scene* Engine::GetSceneByType(SceneType type) const
+{
+    for (Scene* scene : scenes)
+    {
+        if (scene->GetType() == type)
+        {
+            return scene;
+        }
+    }
+
+    return nullptr;
 }
 
 void Engine::UpdateCameraMovement(float deltaTime)
@@ -301,59 +325,62 @@ void Engine::UpdatePick()
         bool isHit = false;
         Unit* hitUnit = nullptr;
 
-        for (Unit* unit : scene->GetUnits())
+        for (Scene* scene : scenes)
         {
-            std::set<Component*> components = unit->GetComponents();
-            for (const Component* comp : components)
+            for (Unit* unit : scene->GetUnits())
             {
-                const MeshComponent* meshComponent = dynamic_cast<const MeshComponent*>(comp);
-                if (!meshComponent)
-                    continue;
-
-                TransformComponent* transform = unit->GetTransform();
-                if (!transform)
-                    continue;
-
-                const Mesh* mesh = meshComponent->GetMesh();
-
-                const std::vector<Vertex> vertices = mesh->GetVertices();
-                const std::vector<uint16_t> indices = mesh->GetIndices();
-
-                const Vector3 localStart = transform->InvTransformPoint(start);
-                const Vector3 localDir = transform->InvTransformVector(lineDir);
-
-                for (size_t i = 0; i + 2 < indices.size(); i += 3)
+                std::set<Component*> components = unit->GetComponents();
+                for (const Component* comp : components)
                 {
-                    const Vector3 p0 = vertices[indices[i + 0]].pos;
-                    const Vector3 p1 = vertices[indices[i + 1]].pos;
-                    const Vector3 p2 = vertices[indices[i + 2]].pos;
-
-                    float dist;
-                    bool hit = Math::IntersectLineTriangle(
-                        localStart, localDir,
-                        p0, p1, p2,
-                        dist);
-
-                    if (!hit)
+                    const MeshComponent* meshComponent = dynamic_cast<const MeshComponent*>(comp);
+                    if (!meshComponent)
                         continue;
 
-                    if (minDist > dist)
+                    TransformComponent* transform = unit->GetTransform();
+                    if (!transform)
+                        continue;
+
+                    const Mesh* mesh = meshComponent->GetMesh();
+
+                    const std::vector<Vertex> vertices = mesh->GetVertices();
+                    const std::vector<uint16_t> indices = mesh->GetIndices();
+
+                    const Vector3 localStart = transform->InvTransformPoint(start);
+                    const Vector3 localDir = transform->InvTransformVector(lineDir);
+
+                    for (size_t i = 0; i + 2 < indices.size(); i += 3)
                     {
-                        minDist = dist;
-                        isHit = true;
-                        hitUnit = unit;
+                        const Vector3 p0 = vertices[indices[i + 0]].pos;
+                        const Vector3 p1 = vertices[indices[i + 1]].pos;
+                        const Vector3 p2 = vertices[indices[i + 2]].pos;
+
+                        float dist;
+                        bool hit = Math::IntersectLineTriangle(
+                            localStart, localDir,
+                            p0, p1, p2,
+                            dist);
+
+                        if (!hit)
+                            continue;
+
+                        if (minDist > dist)
+                        {
+                            minDist = dist;
+                            isHit = true;
+                            hitUnit = unit;
+                        }
                     }
                 }
             }
-        }
 
-        if (isHit)
-        {
-            editor->SelectUnit(hitUnit);
-        }
-        else
-        {
-            editor->SelectUnit(nullptr);
+            if (isHit)
+            {
+                editor->SelectUnit(hitUnit);
+            }
+            else
+            {
+                editor->SelectUnit(nullptr);
+            }
         }
     }
 }

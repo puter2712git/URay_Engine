@@ -3,7 +3,7 @@
 #include "Editor.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Scene.h"
+#include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
 #include <imgui/imgui.h>
@@ -15,7 +15,7 @@ void SceneTree::Draw() const
 {
     ImGui::Begin("Scene Tree");
 
-    Scene* scene = gEngine->GetScene();
+    Scene* scene = gEngine->GetSceneByType(SceneType::Game);
     if (!scene)
     {
         ImGui::End();

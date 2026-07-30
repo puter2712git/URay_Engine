@@ -7,7 +7,7 @@
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Scene.h"
+#include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
 #include "Core/Timer.h"

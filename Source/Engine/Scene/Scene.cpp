@@ -5,6 +5,11 @@
 namespace URay
 {
 
+Scene::Scene(SceneType type)
+    : type(type)
+{
+}
+
 Scene::~Scene()
 {
     for (Unit* unit : units)

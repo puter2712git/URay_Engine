@@ -1,7 +1,11 @@
 #pragma once
 
+#include "Scene/SceneType.h"
+
 #include "Core/Input/InputManager.h"
 #include "Core/Math/Vector3.h"
+
+#include <vector>
 
 namespace URay
 {
@@ -47,7 +51,7 @@ public:
 
     MaterialManager* GetMaterialManager() const;
 
-    Scene* GetScene() const { return scene; }
+    Scene* GetSceneByType(SceneType type) const;
 
     Editor* GetEditor() const { return editor; }
 
@@ -68,7 +72,8 @@ private:
 
 private:
     Window* window = nullptr;
-    Scene* scene = nullptr;
+
+    std::vector<Scene*> scenes;
     CameraComponent* camera = nullptr;
     GizmoComponent* gizmo = nullptr;
 

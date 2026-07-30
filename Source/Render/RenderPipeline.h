@@ -18,11 +18,11 @@ public:
     ~RenderPipeline() = default;
 
 public:
-    void Execute(const Scene* scene);
+    void Execute(const std::vector<Scene*>& scenes);
 
 private:
-    CameraComponent* FindCamera(const Scene* scene) const;
-    void CollectCommand(const Scene* scene);
+    CameraComponent* FindCamera(const std::vector<Scene*> scenes) const;
+    void CollectCommand(const std::vector<Scene*> scenes);
     void ExecuteCommand(const DrawCommand& cmd) const;
 
 private:
