@@ -6,13 +6,6 @@
 namespace URay
 {
 
-namespace
-{
-
-VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags);
-
-} // namespace
-
 DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::AddBinding(
     const ResourceBinding& binding)
 {
@@ -55,23 +48,5 @@ DescriptorSetLayout* DescriptorSetLayoutBuilder::Build(VkDevice device)
     DescriptorSetLayout* descriptorSetLayout = new DescriptorSetLayout(device, handle);
     return descriptorSetLayout;
 }
-
-namespace
-{
-
-VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags)
-{
-    VkShaderStageFlags result = 0;
-
-    if ((flags & ShaderStageFlags::Vertex) != ShaderStageFlags{})
-        result |= VK_SHADER_STAGE_VERTEX_BIT;
-
-    if ((flags & ShaderStageFlags::Fragment) != ShaderStageFlags{})
-        result |= VK_SHADER_STAGE_FRAGMENT_BIT;
-
-    return result;
-}
-
-} // namespace
 
 } // namespace URay

@@ -19,9 +19,11 @@ class ConstantBuffer;
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
+class PipelineLayout;
 
 struct TextureSamplerDesc;
 struct DescriptorSetLayoutDesc;
+struct PipelineLayoutDesc;
 struct PipelineState;
 
 class RenderDevice
@@ -41,6 +43,8 @@ public:
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 
     DescriptorSetLayout* CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
+
+    PipelineLayout* CreatePipelineLayout(const PipelineLayoutDesc& desc);
 
     VkPipeline CreatePSO(const PipelineState& pipelineState);
 

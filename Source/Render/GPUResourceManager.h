@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/Descriptor/DescriptorSetLayoutDesc.h"
+#include "Render/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/Texture/TextureSampler.h"
 
 #include <vulkan/vulkan.h>
@@ -16,6 +17,7 @@ class RenderDevice;
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
+class PipelineLayout;
 
 struct PipelineState;
 
@@ -38,6 +40,9 @@ public:
     DescriptorSetLayout* GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
     void DestroyDescriptorSetLayouts();
 
+    PipelineLayout* GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc);
+    void DestroyPipelineLayouts();
+
     VkPipeline GetOrCreatePSO(const PipelineState& psoDesc);
     void DestroyPSOs();
 
@@ -49,6 +54,8 @@ private:
     std::unordered_map<TextureSamplerDesc, VkSampler, TextureSamplerDescHash> textureSamplers;
 
     std::unordered_map<DescriptorSetLayoutDesc, DescriptorSetLayout*, DescriptorSetLayoutDescHash> descriptorSetLayouts;
+
+    std::unordered_map<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
 
     std::unordered_map<uint64_t, VkPipeline> pipelines;
 };

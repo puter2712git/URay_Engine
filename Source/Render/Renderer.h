@@ -29,6 +29,7 @@ class RenderDevice;
 
 class VertexBuffer;
 class IndexBuffer;
+class PipelineLayout;
 
 class Window;
 class Scene;
@@ -63,7 +64,6 @@ public:
     void Draw(const DrawCommand& cmd);
 
     void CreatePipelineLayout();
-    void DestroyPipelineLayout();
 
     MaterialManager* GetMaterialManager() const { return materialManager; }
 
@@ -73,9 +73,9 @@ public:
 
     VkExtent2D GetSwapChainExtent() const { return swapChainExtent; }
 
-    VkPipelineLayout GetPipelineLayout() const { return pipelineLayout; }
-
     VkRenderPass GetRenderPass() const { return renderPass; }
+
+    PipelineLayout* GetPipelineLayout() const { return pipelineLayout; }
 
 private:
     struct QueueFamilyIndices
@@ -199,7 +199,8 @@ private:
     uint32_t imageIndex = 0;
 
     VkRenderPass renderPass = VK_NULL_HANDLE;
-    VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
+
+    PipelineLayout* pipelineLayout = nullptr;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers;

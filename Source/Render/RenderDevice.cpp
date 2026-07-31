@@ -5,6 +5,8 @@
 #include "Descriptor/DescriptorSetLayoutBuilder.h"
 #include "Descriptor/DescriptorSetLayoutDesc.h"
 #include "IndexBuffer.h"
+#include "PipelineLayout/PipelineLayout.h"
+#include "PipelineLayout/PipelineLayoutDesc.h"
 #include "PipelineState/PipelineState.h"
 #include "RenderInfo.h"
 #include "Renderer.h"
@@ -229,6 +231,37 @@ DescriptorSetLayout* RenderDevice::CreateDescriptorSetLayout(const DescriptorSet
     return builder.Build(device);
 }
 
+PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& desc)
+{
+    std::vector<VkDescriptorSetLayout> setLayouts(desc.setLayouts.size());
+    for (size_t i = 0; i < desc.setLayouts.size(); ++i)
+    {
+        setLayouts[i] = desc.setLayouts[i]->GetHandle();
+    }
+
+    std::vector<VkPushConstantRange> pushConstantRanges(desc.pushConstantRanges.size());
+    for (size_t i = 0; i < desc.pushConstantRanges.size(); ++i)
+    {
+        pushConstantRanges[i].offset = desc.pushConstantRanges[i].offset;
+        pushConstantRanges[i].size = desc.pushConstantRanges[i].size;
+        pushConstantRanges[i].stageFlags = ToVkShaderStageFlags(desc.pushConstantRanges[i].stages);
+    }
+
+    VkPipelineLayoutCreateInfo layoutInfo = {};
+    layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutInfo.setLayoutCount = static_cast<uint32_t>(setLayouts.size());
+    layoutInfo.pSetLayouts = setLayouts.data();
+    layoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
+    layoutInfo.pPushConstantRanges = pushConstantRanges.data();
+
+    VkPipelineLayout handle = VK_NULL_HANDLE;
+    if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &handle) != VK_SUCCESS)
+        return nullptr;
+
+    PipelineLayout* pipelineLayout = new PipelineLayout(device, handle);
+    return pipelineLayout;
+}
+
 VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
 {
     auto vertShaderCode = desc.shader->GetVertexStage().code;
@@ -402,7 +435,7 @@ VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
-    pipelineInfo.layout = renderer->GetPipelineLayout();
+    pipelineInfo.layout = renderer->GetPipelineLayout()->GetHandle();
     pipelineInfo.renderPass = renderer->GetRenderPass();
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;

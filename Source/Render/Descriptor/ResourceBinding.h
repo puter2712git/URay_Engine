@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/Shader/ShaderStageFlags.h"
+
 #include <cstdint>
 
 namespace URay
@@ -11,25 +13,6 @@ enum class ResourceType
     SampledImage,
     Sampler
 };
-
-enum class ShaderStageFlags : uint32_t
-{
-    Vertex = 1 << 0,
-    Fragment = 1 << 1,
-    All = (1 << 0) | (1 << 1)
-};
-
-constexpr ShaderStageFlags operator|(ShaderStageFlags lhs, ShaderStageFlags rhs)
-{
-    return static_cast<ShaderStageFlags>(
-        static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
-}
-
-constexpr ShaderStageFlags operator&(ShaderStageFlags lhs, ShaderStageFlags rhs)
-{
-    return static_cast<ShaderStageFlags>(
-        static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
-}
 
 struct ResourceBinding
 {

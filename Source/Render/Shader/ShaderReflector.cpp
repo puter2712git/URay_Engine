@@ -5,6 +5,24 @@
 namespace URay
 {
 
+namespace
+{
+
+ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
+{
+    switch (stage)
+    {
+    case SPV_REFLECT_SHADER_STAGE_VERTEX_BIT:
+        return ShaderStageFlags::Vertex;
+    case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:
+        return ShaderStageFlags::Fragment;
+    default:
+        return ShaderStageFlags{};
+    }
+}
+
+} // namespace
+
 bool ShaderReflector::ReflectSPIRV(
     const std::vector<uint8_t>& code,
     ShaderReflectionContext& outContext)
@@ -21,28 +39,50 @@ bool ShaderReflector::ReflectSPIRV(
     uint32_t setCount = 0;
     spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
 
-    outContext.sets.resize(setCount);
-    spvReflectEnumerateDescriptorSets(&module, &setCount, outContext.sets.data());
+    std::vector<SpvReflectDescriptorSet*> sets(setCount);
+    spvReflectEnumerateDescriptorSets(&module, &setCount, sets.data());
 
-    for (const auto* set : outContext.sets)
+    for (const auto* set : sets)
     {
-        std::cout << "Set " << set->set << " (Binding Count: " << set->binding_count << ")\n";
+        outContext.bindings.resize(set->binding_count);
+
         for (uint32_t i = 0; i < set->binding_count; ++i)
         {
             const auto* binding = set->bindings[i];
-            std::cout << " - Binding " << binding->binding
-                      << ": " << binding->name
-                      << " (Type: " << binding->descriptor_type << ")\n";
+
+            outContext.bindings[i].set = binding->set;
+            outContext.bindings[i].binding = binding->binding;
+
+            switch (binding->descriptor_type)
+            {
+            case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                outContext.bindings[i].type = ResourceType::ConstantBuffer;
+                break;
+
+            case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
+                outContext.bindings[i].type = ResourceType::Sampler;
+                break;
+
+            case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                outContext.bindings[i].type = ResourceType::SampledImage;
+                break;
+
+            default:
+                break;
+            }
+
+            outContext.bindings[i].descriptorCount = 1;
+            outContext.bindings[i].stages = ToShaderStageFlags(module.shader_stage);
         }
     }
 
     uint32_t pushCount = 0;
     spvReflectEnumeratePushConstantBlocks(&module, &pushCount, nullptr);
 
-    outContext.pushBlocks.resize(pushCount);
-    spvReflectEnumeratePushConstantBlocks(&module, &pushCount, outContext.pushBlocks.data());
+    std::vector<SpvReflectBlockVariable*> pushBlocks(pushCount);
+    spvReflectEnumeratePushConstantBlocks(&module, &pushCount, pushBlocks.data());
 
-    for (const auto* block : outContext.pushBlocks)
+    for (const auto* block : pushBlocks)
     {
         std::cout << "Push Constants: " << block->name
                   << " (Offset: " << block->offset
@@ -54,10 +94,10 @@ bool ShaderReflector::ReflectSPIRV(
         uint32_t inputCount = 0;
         spvReflectEnumerateInputVariables(&module, &inputCount, nullptr);
 
-        outContext.inputs.resize(inputCount);
-        spvReflectEnumerateInputVariables(&module, &inputCount, outContext.inputs.data());
+        std::vector<SpvReflectInterfaceVariable*> inputs(inputCount);
+        spvReflectEnumerateInputVariables(&module, &inputCount, inputs.data());
 
-        for (const auto* input : outContext.inputs)
+        for (const auto* input : inputs)
         {
             if (input->decoration_flags & SPV_REFLECT_DECORATION_BUILT_IN)
                 continue;

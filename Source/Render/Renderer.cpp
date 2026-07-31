@@ -5,6 +5,7 @@
 #include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/IndexBuffer.h"
+#include "Render/PipelineLayout/PipelineLayout.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
@@ -165,8 +166,6 @@ void Renderer::Finalize()
 
     delete renderDevice;
 
-    DestroyPipelineLayout();
-
     DestroyRenderPass();
 
     DestroySyncObjects();
@@ -280,7 +279,7 @@ bool Renderer::BeginFrame()
     frameConstantBuffer->UpdateData(&frameConstants, sizeof(FrameConstants));
 
     vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+                            pipelineLayout->GetHandle(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
     return true;
 }
@@ -372,7 +371,7 @@ void Renderer::Draw(const DrawCommand& cmd)
     objConstants.colorTint = cmd.colorTint;
     objConstants.objectId = cmd.objectId;
 
-    vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout,
+    vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout->GetHandle(),
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                        0, sizeof(objConstants), &objConstants);
 
@@ -415,26 +414,16 @@ void Renderer::CreatePipelineLayout()
     DescriptorSetLayout* layout = resourceManager->GetOrCreateDescriptorSetLayout(layoutDesc);
     VkDescriptorSetLayout vkLayout = layout->GetHandle();
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
-    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 1;
-    pipelineLayoutInfo.pSetLayouts = &vkLayout;
+    PushConstantRange pushConstantRange = {};
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = sizeof(ObjectConstants);
+    pushConstantRange.stages = ShaderStageFlags::All;
 
-    VkPushConstantRange pushConstant = {};
-    pushConstant.offset = 0;
-    pushConstant.size = sizeof(ObjectConstants);
-    pushConstant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    PipelineLayoutDesc pipelineLayoutDesc = {};
+    pipelineLayoutDesc.setLayouts = { layout };
+    pipelineLayoutDesc.pushConstantRanges = { pushConstantRange };
 
-    pipelineLayoutInfo.pushConstantRangeCount = 1;
-    pipelineLayoutInfo.pPushConstantRanges = &pushConstant;
-
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
-        return;
-}
-
-void Renderer::DestroyPipelineLayout()
-{
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
 }
 
 bool Renderer::CreateInstance()
