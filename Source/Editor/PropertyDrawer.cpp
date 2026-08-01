@@ -28,6 +28,8 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
     case PropertyType::Mesh:
         DrawMesh(prop, addr);
         break;
+    default:
+        break;
     }
 }
 

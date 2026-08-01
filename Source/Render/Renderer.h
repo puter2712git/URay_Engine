@@ -65,8 +65,6 @@ public:
 
     void CreatePipelineLayout();
 
-    MaterialManager* GetMaterialManager() const { return materialManager; }
-
     ShaderManager* GetShaderManager() const { return shaderManager; }
 
     RenderDevice* GetDevice() const { return renderDevice; }
@@ -176,7 +174,6 @@ private:
     GPUResourceManager* resourceManager = nullptr;
 
     ShaderManager* shaderManager = nullptr;
-    MaterialManager* materialManager = nullptr;
 
     VkInstance instance = VK_NULL_HANDLE;
 

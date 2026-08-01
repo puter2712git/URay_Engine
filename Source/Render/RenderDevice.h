@@ -90,8 +90,6 @@ private:
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
 
-    std::unordered_map<uint64_t, VkPipeline> pipelines;
-
     std::vector<ConstantBuffer*> frameConstantBuffers;
 
 public:

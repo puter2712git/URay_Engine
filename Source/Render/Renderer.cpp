@@ -124,9 +124,6 @@ bool Renderer::Initialize(Window* wnd)
     Shader* shader = shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
     Shader* lineShader = shaderManager->GetOrCreate("line", "Shader/line-vert.spv", "Shader/line-frag.spv");
 
-    materialManager = new MaterialManager();
-    materialManager->GetOrCreate("default", shader);
-
     Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
     resourceManager->GetOrCreateTextureView(texture);
 
@@ -159,7 +156,6 @@ void Renderer::Finalize()
 
     DestroyDescriptorPool();
 
-    delete materialManager;
     delete shaderManager;
 
     delete resourceManager;

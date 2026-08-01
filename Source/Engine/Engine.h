@@ -21,6 +21,7 @@ class Timer;
 class MeshManager;
 class TextureManager;
 
+class ShaderManager;
 class MaterialManager;
 class Renderer;
 class RenderPipeline;
@@ -86,6 +87,8 @@ private:
 
     InputManager inputManager;
 
+    ShaderManager* shaderManager = nullptr;
+    MaterialManager* materialManager = nullptr;
     MeshManager* meshManager = nullptr;
     TextureManager* textureManager = nullptr;
 };

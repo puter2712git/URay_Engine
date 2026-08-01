@@ -5,6 +5,7 @@
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene/Scene.h"
@@ -18,6 +19,7 @@
 
 #include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
+#include "Render/Shader/ShaderManager.h"
 
 #include "Editor/Editor.h"
 
@@ -57,6 +59,11 @@ bool Engine::Initialize()
         return false;
 
     timer = new Timer();
+
+    shaderManager = renderer->GetShaderManager();
+
+    materialManager = new MaterialManager();
+    materialManager->GetOrCreate("default", shaderManager->GetOrCreate("shader"));
 
     meshManager = new MeshManager(renderer->GetDevice());
     meshManager->CreateDefaultMeshes();
@@ -198,7 +205,7 @@ void Engine::GetFramebufferSize(int& width, int& height) const
 
 MaterialManager* Engine::GetMaterialManager() const
 {
-    return renderer->GetMaterialManager();
+    return materialManager;
 }
 
 Scene* Engine::GetSceneByType(SceneType type) const
