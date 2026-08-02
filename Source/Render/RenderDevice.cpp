@@ -301,13 +301,8 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     auto vertShaderCode = desc.shader->GetVertexStage().code;
     auto fragShaderCode = desc.shader->GetFragmentStage().code;
 
-    ShaderReflectionContext vertReflectionContext = {};
-    if (!ShaderReflector::ReflectSPIRV(vertShaderCode, vertReflectionContext))
-        return VK_NULL_HANDLE;
-
-    ShaderReflectionContext fragReflectionContext = {};
-    if (!ShaderReflector::ReflectSPIRV(fragShaderCode, fragReflectionContext))
-        return VK_NULL_HANDLE;
+    const ShaderReflection& vertReflectionContext = desc.shader->GetVertexReflection();
+    const ShaderReflection& fragReflectionContext = desc.shader->GetFragmentReflection();
 
     std::map<std::pair<uint32_t, uint32_t>, ResourceBinding> mergedBindings;
 

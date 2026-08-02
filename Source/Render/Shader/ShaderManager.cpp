@@ -1,6 +1,7 @@
 #include "ShaderManager.h"
 
 #include "Shader.h"
+#include "ShaderReflector.h"
 
 #include "Core/File/FileIO.h"
 
@@ -37,6 +38,14 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     if (fragmentFilePath.empty())
         return nullptr;
 
+    ShaderReflection vertexReflection = {};
+    if (!ShaderReflector::ReflectSPIRV(vertexShaderCode, vertexReflection))
+        return nullptr;
+
+    ShaderReflection fragmentReflection = {};
+    if (!ShaderReflector::ReflectSPIRV(fragmentShaderCode, fragmentReflection))
+        return nullptr;
+
     ShaderStage vertexStage = {};
     vertexStage.filePath = vertexFilePath;
     vertexStage.code = vertexShaderCode;
@@ -49,7 +58,12 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     fragmentStage.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragmentStage.entry = "PSMain";
 
-    Shader* newShader = new Shader(shaderIdCounter++, vertexStage, fragmentStage);
+    Shader* newShader = new Shader(
+        shaderIdCounter++,
+        vertexStage,
+        fragmentStage,
+        vertexReflection,
+        fragmentReflection);
     shaders.insert({ key, newShader });
 
     return newShader;

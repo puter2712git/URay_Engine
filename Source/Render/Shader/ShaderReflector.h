@@ -10,27 +10,14 @@
 namespace URay
 {
 
-struct ReflectedBinding
-{
-    uint32_t set = 0;
-    uint32_t binding = 0;
-    ResourceType type = ResourceType::ConstantBuffer;
-    uint32_t descriptorCount = 0;
-    ShaderStageFlags stages = ShaderStageFlags::Vertex;
-};
-
-struct ShaderReflectionContext
-{
-    DescriptorSetLayoutDesc setLayoutDesc = {};
-    PushConstantRange pushConstantRange = {};
-};
+struct ShaderReflection;
 
 class ShaderReflector
 {
 public:
     static bool ReflectSPIRV(
         const std::vector<uint8_t>& code,
-        ShaderReflectionContext& outContext);
+        ShaderReflection& outReflection);
 
 private:
     static bool CreateDescriptorSetLayoutDesc(

@@ -1,5 +1,7 @@
 #include "ShaderReflector.h"
 
+#include "Shader.h"
+
 namespace URay
 {
 
@@ -23,7 +25,7 @@ ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
 
 bool ShaderReflector::ReflectSPIRV(
     const std::vector<uint8_t>& code,
-    ShaderReflectionContext& outContext)
+    ShaderReflection& outReflection)
 {
     SpvReflectShaderModule module;
     SpvReflectResult result = spvReflectCreateShaderModule(
@@ -34,10 +36,10 @@ bool ShaderReflector::ReflectSPIRV(
     if (result != SPV_REFLECT_RESULT_SUCCESS)
         return false;
 
-    if (!CreateDescriptorSetLayoutDesc(module, outContext.setLayoutDesc))
+    if (!CreateDescriptorSetLayoutDesc(module, outReflection.setLayoutDesc))
         return false;
 
-    CreatePushConstantRange(module, outContext.pushConstantRange);
+    CreatePushConstantRange(module, outReflection.pushConstantRange);
 
     spvReflectDestroyShaderModule(&module);
 

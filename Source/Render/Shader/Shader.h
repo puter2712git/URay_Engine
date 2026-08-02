@@ -28,7 +28,11 @@ struct ShaderReflection
 class Shader
 {
 public:
-    Shader(uint32_t id, const ShaderStage& vertexStage, const ShaderStage& fragmentStage);
+    Shader(uint32_t id,
+           const ShaderStage& vertexStage,
+           const ShaderStage& fragmentStage,
+           const ShaderReflection& vertexReflection,
+           const ShaderReflection& fragmentReflection);
     ~Shader() = default;
 
 public:
@@ -37,11 +41,17 @@ public:
     const ShaderStage& GetVertexStage() const { return vertexStage; }
     const ShaderStage& GetFragmentStage() const { return fragmentStage; }
 
+    const ShaderReflection& GetVertexReflection() const { return vertexReflection; }
+    const ShaderReflection& GetFragmentReflection() const { return fragmentReflection; }
+
 private:
     uint64_t id = 0;
 
     ShaderStage vertexStage = {};
     ShaderStage fragmentStage = {};
+
+    ShaderReflection vertexReflection = {};
+    ShaderReflection fragmentReflection = {};
 };
 
 } // namespace URay
