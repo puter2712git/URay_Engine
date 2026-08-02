@@ -20,7 +20,6 @@ URAY_REGISTER_COMPONENT(MeshComponent)
 MeshComponent::MeshComponent()
 {
     mesh = gEngine->GetMeshManager()->GetMesh("box");
-
     material = gEngine->GetMaterialManager()->GetOrCreate("default");
 }
 

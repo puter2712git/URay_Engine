@@ -2,6 +2,7 @@
 
 #include "Render/PushConstantRange.h"
 
+#include <map>
 #include <vector>
 
 namespace URay
@@ -11,7 +12,7 @@ class DescriptorSetLayout;
 
 struct PipelineLayoutDesc
 {
-    std::vector<DescriptorSetLayout*> setLayouts;
+    std::map<uint32_t, DescriptorSetLayout*> setLayouts;
     std::vector<PushConstantRange> pushConstantRanges;
 
     bool operator==(const PipelineLayoutDesc&) const = default;
@@ -30,9 +31,10 @@ struct PipelineLayoutDescHash
         };
 
         combine(desc.setLayouts.size());
-        for (const DescriptorSetLayout* setLayout : desc.setLayouts)
+        for (const auto& [set, layout] : desc.setLayouts)
         {
-            combine(setLayout);
+            combine(set);
+            combine(layout);
         }
 
         combine(desc.pushConstantRanges.size());

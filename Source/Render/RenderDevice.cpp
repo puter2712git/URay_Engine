@@ -9,6 +9,7 @@
 #include "PipelineLayout/PipelineLayout.h"
 #include "PipelineLayout/PipelineLayoutDesc.h"
 #include "PipelineState/PipelineState.h"
+#include "PipelineState/PipelineStateObject.h"
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
@@ -21,6 +22,10 @@
 #include "Core/File/FileIO.h"
 
 #include <stb/stb_image.h>
+
+#include <cassert>
+#include <iostream>
+#include <map>
 
 namespace URay
 {
@@ -238,10 +243,16 @@ DescriptorSetLayout* RenderDevice::CreateDescriptorSetLayout(const DescriptorSet
 
 PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& desc)
 {
-    std::vector<VkDescriptorSetLayout> setLayouts(desc.setLayouts.size());
-    for (size_t i = 0; i < desc.setLayouts.size(); ++i)
+    uint32_t maxSetNum = 0;
+    for (auto& [set, layout] : desc.setLayouts)
     {
-        setLayouts[i] = desc.setLayouts[i]->GetHandle();
+        maxSetNum = std::max(maxSetNum, set);
+    }
+
+    std::vector<VkDescriptorSetLayout> setLayouts(maxSetNum + 1, VK_NULL_HANDLE);
+    for (auto& [set, layout] : desc.setLayouts)
+    {
+        setLayouts[set] = layout->GetHandle();
     }
 
     std::vector<VkPushConstantRange> pushConstantRanges(desc.pushConstantRanges.size());
@@ -267,20 +278,60 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
     return pipelineLayout;
 }
 
-VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
+PipelineStateObject* RenderDevice::CreatePSO(const PipelineState& desc)
 {
     auto vertShaderCode = desc.shader->GetVertexStage().code;
     auto fragShaderCode = desc.shader->GetFragmentStage().code;
 
     ShaderReflectionContext vertReflectionContext = {};
-    ShaderReflectionContext fragReflectionContext = {};
-
     if (!ShaderReflector::ReflectSPIRV(vertShaderCode, vertReflectionContext))
         return VK_NULL_HANDLE;
+
+    ShaderReflectionContext fragReflectionContext = {};
     if (!ShaderReflector::ReflectSPIRV(fragShaderCode, fragReflectionContext))
         return VK_NULL_HANDLE;
 
+    std::map<std::pair<uint32_t, uint32_t>, ResourceBinding> mergedBindings;
+
+    auto Merge = [&](const DescriptorSetLayoutDesc& desc)
+    {
+        for (const auto& binding : desc.bindings)
+        {
+            std::pair<uint32_t, uint32_t> key = { binding.set,
+                                                  binding.bindingIndex };
+
+            auto [it, inserted] = mergedBindings.insert({ key, binding });
+
+            if (!inserted)
+            {
+                assert(it->second.resourceType == binding.resourceType);
+                assert(it->second.arrayCount == binding.arrayCount);
+
+                it->second.stageFlags = it->second.stageFlags | binding.stageFlags;
+            }
+        }
+    };
+
+    Merge(vertReflectionContext.setLayoutDesc);
+    Merge(fragReflectionContext.setLayoutDesc);
+
+    std::map<uint32_t, DescriptorSetLayoutDesc> setLayoutDescPerSet;
+    for (auto& [key, ResourceBinding] : mergedBindings)
+    {
+        setLayoutDescPerSet[key.first].bindings.push_back(ResourceBinding);
+    }
+
+    PipelineLayoutDesc pipelineLayoutDesc = {};
+
     GPUResourceManager* resourceManager = renderer->GetResourceManager();
+    for (auto& [set, descriptorSetLayoutDesc] : setLayoutDescPerSet)
+    {
+        pipelineLayoutDesc.setLayouts[set] =
+            resourceManager->GetOrCreateDescriptorSetLayout(descriptorSetLayoutDesc);
+    }
+    pipelineLayoutDesc.pushConstantRanges.push_back(vertReflectionContext.pushConstantRange);
+
+    PipelineLayout* pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
 
     VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -442,7 +493,7 @@ VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
-    pipelineInfo.layout = renderer->GetPipelineLayout()->GetHandle();
+    pipelineInfo.layout = pipelineLayout->GetHandle();
     pipelineInfo.renderPass = renderer->GetRenderPass();
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
@@ -459,7 +510,9 @@ VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-    return pipeline;
+    PipelineStateObject* pso = new PipelineStateObject(device, pipeline, pipelineLayout);
+
+    return pso;
 }
 
 void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,

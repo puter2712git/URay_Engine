@@ -70,6 +70,7 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     state.depthStencil = depthStencil;
 
     cmd.pipelineState = state;
+    cmd.material = context.material;
 
     drawCmds.push_back(cmd);
 }
@@ -112,6 +113,7 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     state.rasterizer = rasterizer;
 
     cmd.pipelineState = state;
+    cmd.material = context.material;
 
     drawCmds.push_back(cmd);
 }

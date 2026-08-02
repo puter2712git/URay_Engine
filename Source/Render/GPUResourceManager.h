@@ -20,6 +20,7 @@ class DescriptorSetLayout;
 class PipelineLayout;
 
 struct PipelineState;
+class PipelineStateObject;
 
 class GPUResourceManager
 {
@@ -43,7 +44,7 @@ public:
     PipelineLayout* GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc);
     void DestroyPipelineLayouts();
 
-    VkPipeline GetOrCreatePSO(const PipelineState& psoDesc);
+    PipelineStateObject* GetOrCreatePSO(const PipelineState& psoDesc);
     void DestroyPSOs();
 
 private:
@@ -57,7 +58,7 @@ private:
 
     std::unordered_map<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
 
-    std::unordered_map<uint64_t, VkPipeline> pipelines;
+    std::unordered_map<uint64_t, PipelineStateObject*> pipelines;
 };
 
 } // namespace URay

@@ -75,8 +75,6 @@ public:
 
     VkRenderPass GetRenderPass() const { return renderPass; }
 
-    PipelineLayout* GetPipelineLayout() const { return pipelineLayout; }
-
 private:
     struct QueueFamilyIndices
     {
@@ -198,8 +196,6 @@ private:
     uint32_t imageIndex = 0;
 
     VkRenderPass renderPass = VK_NULL_HANDLE;
-
-    PipelineLayout* pipelineLayout = nullptr;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers;

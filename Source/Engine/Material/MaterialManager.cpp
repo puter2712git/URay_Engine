@@ -25,9 +25,7 @@ Material* MaterialManager::GetOrCreate(const std::string& key, Shader* shader)
     if (it != materials.end())
         return it->second;
 
-    Material* material = new Material();
-    material->SetShader(shader);
-
+    Material* material = new Material(shader);
     materials.insert({ key, material });
 
     return material;

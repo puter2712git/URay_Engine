@@ -37,11 +37,7 @@ bool ShaderReflector::ReflectSPIRV(
     if (!CreateDescriptorSetLayoutDesc(module, outContext.setLayoutDesc))
         return false;
 
-    if (module.shader_stage != SPV_REFLECT_SHADER_STAGE_VERTEX_BIT &&
-        !CreatePushConstantRange(module, outContext.pushConstantRange))
-    {
-        return false;
-    }
+    CreatePushConstantRange(module, outContext.pushConstantRange);
 
     spvReflectDestroyShaderModule(&module);
 

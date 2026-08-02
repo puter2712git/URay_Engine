@@ -3,14 +3,18 @@
 #include "Engine/Material/MaterialManager.h"
 #include "Render/ConstantBuffer.h"
 #include "Render/Descriptor/DescriptorSetLayout.h"
+#include "Render/Descriptor/DescriptorSet.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/IndexBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
+#include "Render/PipelineState/PipelineStateObject.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Texture/TextureView.h"
+
+#include "Engine/Material/Material.h"
 
 #include "Platform/Window.h"
 
@@ -274,8 +278,8 @@ bool Renderer::BeginFrame()
     ConstantBuffer* frameConstantBuffer = renderDevice->GetFrameConstantBuffers()[currentFrame];
     frameConstantBuffer->UpdateData(&frameConstants, sizeof(FrameConstants));
 
-    vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pipelineLayout->GetHandle(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
+    //vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+    //                        pipelineLayout->GetHandle(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
     return true;
 }
@@ -359,15 +363,23 @@ void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newPr
 
 void Renderer::Draw(const DrawCommand& cmd)
 {
-    VkPipeline pipeline = resourceManager->GetOrCreatePSO(cmd.pipelineState);
-    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    PipelineStateObject* pso = resourceManager->GetOrCreatePSO(cmd.pipelineState);
+    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pso->GetHandle());
+
+    DescriptorSet* descriptorSet = cmd.material ? cmd.material->GetDescriptorSet(currentFrame) : nullptr;
+    if (descriptorSet)
+    {
+        VkDescriptorSet vkDescriptorSet = descriptorSet->GetHandle();
+        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                pso->GetLayout()->GetHandle(), 0, 1, &vkDescriptorSet, 0, nullptr);
+    }
 
     ObjectConstants objConstants = {};
     objConstants.world = cmd.worldMatrix;
     objConstants.colorTint = cmd.colorTint;
     objConstants.objectId = cmd.objectId;
 
-    vkCmdPushConstants(commandBuffers[currentFrame], pipelineLayout->GetHandle(),
+    vkCmdPushConstants(commandBuffers[currentFrame], pso->GetLayout()->GetHandle(),
                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                        0, sizeof(objConstants), &objConstants);
 
@@ -416,10 +428,10 @@ void Renderer::CreatePipelineLayout()
     pushConstantRange.stages = ShaderStageFlags::All;
 
     PipelineLayoutDesc pipelineLayoutDesc = {};
-    pipelineLayoutDesc.setLayouts = { layout };
+    pipelineLayoutDesc.setLayouts.insert({ 0, layout });
     pipelineLayoutDesc.pushConstantRanges = { pushConstantRange };
 
-    pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
+    //pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
 }
 
 bool Renderer::CreateInstance()
