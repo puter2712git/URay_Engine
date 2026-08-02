@@ -4,6 +4,7 @@
 #include "Descriptor/DescriptorSetLayout.h"
 #include "Descriptor/DescriptorSetLayoutBuilder.h"
 #include "Descriptor/DescriptorSetLayoutDesc.h"
+#include "GPUResourceManager.h"
 #include "IndexBuffer.h"
 #include "PipelineLayout/PipelineLayout.h"
 #include "PipelineLayout/PipelineLayoutDesc.h"
@@ -47,12 +48,16 @@ RenderDevice::RenderDevice(Renderer* renderer,
         frameConstantBuffers[i] = new ConstantBuffer(device, handle, memory, frameBufferSize);
     }
 
+    CreateDescriptorPool();
+
     CreatePersistentVertexBuffer();
 }
 
 RenderDevice::~RenderDevice()
 {
     DestroyPersistentVertexBuffer();
+
+    DestroyDescriptorPool();
 
     for (ConstantBuffer* buffer : frameConstantBuffers)
     {
@@ -274,6 +279,8 @@ VkPipeline RenderDevice::CreatePSO(const PipelineState& desc)
         return VK_NULL_HANDLE;
     if (!ShaderReflector::ReflectSPIRV(fragShaderCode, fragReflectionContext))
         return VK_NULL_HANDLE;
+
+    GPUResourceManager* resourceManager = renderer->GetResourceManager();
 
     VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
     VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -676,6 +683,33 @@ void RenderDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
     vkQueueWaitIdle(graphicsQueue);
 
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+void RenderDevice::CreateDescriptorPool()
+{
+    std::array<VkDescriptorPoolSize, 3> poolSizes = {};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+    poolSizes[2].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    VkDescriptorPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+
+    vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
+}
+
+void RenderDevice::DestroyDescriptorPool()
+{
+    if (descriptorPool)
+    {
+        vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+    }
 }
 
 void RenderDevice::CreatePersistentVertexBuffer()

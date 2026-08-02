@@ -65,6 +65,8 @@ public:
 
     void CreatePipelineLayout();
 
+    GPUResourceManager* GetResourceManager() const { return resourceManager; }
+
     ShaderManager* GetShaderManager() const { return shaderManager; }
 
     RenderDevice* GetDevice() const { return renderDevice; }

@@ -16,6 +16,7 @@ enum class ResourceType
 
 struct ResourceBinding
 {
+    uint32_t set = 0;
     uint32_t bindingIndex = 0;
     ResourceType resourceType = ResourceType::ConstantBuffer;
     uint32_t arrayCount = 1;

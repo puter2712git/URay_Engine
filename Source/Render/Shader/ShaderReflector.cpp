@@ -1,7 +1,5 @@
 #include "ShaderReflector.h"
 
-#include <iostream>
-
 namespace URay
 {
 
@@ -36,45 +34,76 @@ bool ShaderReflector::ReflectSPIRV(
     if (result != SPV_REFLECT_RESULT_SUCCESS)
         return false;
 
+    if (!CreateDescriptorSetLayoutDesc(module, outContext.setLayoutDesc))
+        return false;
+
+    if (module.shader_stage != SPV_REFLECT_SHADER_STAGE_VERTEX_BIT &&
+        !CreatePushConstantRange(module, outContext.pushConstantRange))
+    {
+        return false;
+    }
+
+    spvReflectDestroyShaderModule(&module);
+
+    return true;
+}
+
+bool ShaderReflector::CreateDescriptorSetLayoutDesc(
+    const SpvReflectShaderModule& module,
+    DescriptorSetLayoutDesc& outDesc)
+{
+    outDesc = {};
+
     uint32_t setCount = 0;
     spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
 
     std::vector<SpvReflectDescriptorSet*> sets(setCount);
     spvReflectEnumerateDescriptorSets(&module, &setCount, sets.data());
 
+    std::vector<ResourceBinding>& bindings = outDesc.bindings;
+
     for (const auto* set : sets)
     {
-        outContext.bindings.resize(set->binding_count);
+        bindings.resize(set->binding_count);
 
         for (uint32_t i = 0; i < set->binding_count; ++i)
         {
             const auto* binding = set->bindings[i];
 
-            outContext.bindings[i].set = binding->set;
-            outContext.bindings[i].binding = binding->binding;
+            bindings[i].set = binding->set;
+            bindings[i].bindingIndex = binding->binding;
 
             switch (binding->descriptor_type)
             {
             case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                outContext.bindings[i].type = ResourceType::ConstantBuffer;
+                bindings[i].resourceType = ResourceType::ConstantBuffer;
                 break;
 
             case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
-                outContext.bindings[i].type = ResourceType::Sampler;
+                bindings[i].resourceType = ResourceType::Sampler;
                 break;
 
             case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                outContext.bindings[i].type = ResourceType::SampledImage;
+                bindings[i].resourceType = ResourceType::SampledImage;
                 break;
 
             default:
                 break;
             }
 
-            outContext.bindings[i].descriptorCount = 1;
-            outContext.bindings[i].stages = ToShaderStageFlags(module.shader_stage);
+            bindings[i].arrayCount = 1;
+            bindings[i].stageFlags = ToShaderStageFlags(module.shader_stage);
         }
     }
+
+    return true;
+}
+
+bool ShaderReflector::CreatePushConstantRange(
+    const SpvReflectShaderModule& module,
+    PushConstantRange& outRange)
+{
+    outRange = {};
 
     uint32_t pushCount = 0;
     spvReflectEnumeratePushConstantBlocks(&module, &pushCount, nullptr);
@@ -82,33 +111,15 @@ bool ShaderReflector::ReflectSPIRV(
     std::vector<SpvReflectBlockVariable*> pushBlocks(pushCount);
     spvReflectEnumeratePushConstantBlocks(&module, &pushCount, pushBlocks.data());
 
+    if (pushBlocks.empty())
+        return false;
+
     for (const auto* block : pushBlocks)
     {
-        std::cout << "Push Constants: " << block->name
-                  << " (Offset: " << block->offset
-                  << ", Size: " << block->size << " bytes)\n";
+        outRange.offset = block->offset;
+        outRange.size = block->size;
+        outRange.stages = ToShaderStageFlags(module.shader_stage);
     }
-
-    if (module.shader_stage == SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)
-    {
-        uint32_t inputCount = 0;
-        spvReflectEnumerateInputVariables(&module, &inputCount, nullptr);
-
-        std::vector<SpvReflectInterfaceVariable*> inputs(inputCount);
-        spvReflectEnumerateInputVariables(&module, &inputCount, inputs.data());
-
-        for (const auto* input : inputs)
-        {
-            if (input->decoration_flags & SPV_REFLECT_DECORATION_BUILT_IN)
-                continue;
-
-            std::cout << "Vertex Input Location " << input->location
-                      << ": " << input->name
-                      << " (Format: " << input->format << ")\n";
-        }
-    }
-
-    spvReflectDestroyShaderModule(&module);
 
     return true;
 }

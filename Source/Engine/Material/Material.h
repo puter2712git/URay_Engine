@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Render/Descriptor/DescriptorSetLayoutDesc.h"
-
 namespace URay
 {
 
@@ -9,6 +7,7 @@ class Shader;
 class TextureAsset;
 
 class DescriptorSetLayout;
+class DescriptorSet;
 
 class Material
 {
@@ -22,13 +21,11 @@ public:
         shader = inShader;
     }
 
-private:
+protected:
     Shader* shader = nullptr;
-
-    DescriptorSetLayoutDesc layoutDesc = {};
-    DescriptorSetLayout* layout = nullptr;
-
     TextureAsset* texture = nullptr;
+
+    DescriptorSet* descriptorSet = nullptr;
 };
 
 } // namespace URay

@@ -71,6 +71,9 @@ private:
     VkCommandBuffer BeginSingleTimeCommands() const;
     void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
+    void CreateDescriptorPool();
+    void DestroyDescriptorPool();
+
     void CreatePersistentVertexBuffer();
     void DestroyPersistentVertexBuffer();
 
@@ -91,6 +94,8 @@ private:
     VkCommandPool commandPool = VK_NULL_HANDLE;
 
     std::vector<ConstantBuffer*> frameConstantBuffers;
+
+    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 
 public:
     VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;

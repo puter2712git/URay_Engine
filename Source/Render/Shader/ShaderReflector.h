@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Render/Descriptor/ResourceBinding.h"
+#include "Render/Descriptor/DescriptorSetLayoutDesc.h"
+#include "Render/PushConstantRange.h"
 
 #include <spirv/spirv_reflect.h>
 
@@ -20,7 +21,8 @@ struct ReflectedBinding
 
 struct ShaderReflectionContext
 {
-    std::vector<ReflectedBinding> bindings;
+    DescriptorSetLayoutDesc setLayoutDesc = {};
+    PushConstantRange pushConstantRange = {};
 };
 
 class ShaderReflector
@@ -29,6 +31,15 @@ public:
     static bool ReflectSPIRV(
         const std::vector<uint8_t>& code,
         ShaderReflectionContext& outContext);
+
+private:
+    static bool CreateDescriptorSetLayoutDesc(
+        const SpvReflectShaderModule& module,
+        DescriptorSetLayoutDesc& outDesc);
+
+    static bool CreatePushConstantRange(
+        const SpvReflectShaderModule& module,
+        PushConstantRange& outRange);
 };
 
 } // namespace URay
