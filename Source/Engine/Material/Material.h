@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Render/RenderInfo.h"
-
 #include <vector>
 
 namespace URay
@@ -34,6 +32,7 @@ protected:
     Shader* shader = nullptr;
     TextureAsset* texture = nullptr;
 
+    DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<DescriptorSet*> descriptorSets;
 };
 
