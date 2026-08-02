@@ -49,10 +49,8 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     fragmentStage.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragmentStage.entry = "PSMain";
 
-    Shader* newShader = new Shader(vertexStage, fragmentStage);
+    Shader* newShader = new Shader(shaderIdCounter++, vertexStage, fragmentStage);
     shaders.insert({ key, newShader });
-
-    newShader->SetId(shaderIdCounter++);
 
     return newShader;
 }

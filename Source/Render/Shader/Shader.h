@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Render/Descriptor/DescriptorSetLayoutDesc.h"
+#include "Render/PushConstantRange.h"
+
 #include <vulkan/vulkan.h>
 
 #include <string>
@@ -16,30 +19,23 @@ struct ShaderStage
     std::string entry;
 };
 
+struct ShaderReflection
+{
+    DescriptorSetLayoutDesc setLayoutDesc = {};
+    PushConstantRange pushConstantRange = {};
+};
+
 class Shader
 {
 public:
-    Shader(const ShaderStage& vertexStage, const ShaderStage& fragmentStage);
+    Shader(uint32_t id, const ShaderStage& vertexStage, const ShaderStage& fragmentStage);
     ~Shader() = default;
 
 public:
-    uint64_t GetId() const
-    {
-        return id;
-    }
-    void SetId(uint64_t newId)
-    {
-        id = newId;
-    }
+    uint64_t GetId() const { return id; }
 
-    const ShaderStage& GetVertexStage() const
-    {
-        return vertexStage;
-    }
-    const ShaderStage& GetFragmentStage() const
-    {
-        return fragmentStage;
-    }
+    const ShaderStage& GetVertexStage() const { return vertexStage; }
+    const ShaderStage& GetFragmentStage() const { return fragmentStage; }
 
 private:
     uint64_t id = 0;

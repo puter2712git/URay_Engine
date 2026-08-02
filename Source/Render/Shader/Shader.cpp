@@ -3,8 +3,8 @@
 namespace URay
 {
 
-Shader::Shader(const ShaderStage& vertexStage, const ShaderStage& fragmentStage)
-    : vertexStage(vertexStage), fragmentStage(fragmentStage)
+Shader::Shader(uint32_t id, const ShaderStage& vertexStage, const ShaderStage& fragmentStage)
+    : id(id), vertexStage(vertexStage), fragmentStage(fragmentStage)
 {
 }
 

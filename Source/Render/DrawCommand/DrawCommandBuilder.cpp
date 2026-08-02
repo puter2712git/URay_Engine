@@ -33,7 +33,7 @@ void DrawCommandBuilder::FlushLines()
     cmd.vertexBuffer = device->persistentVertexBuffer;
     cmd.vertexCount = static_cast<uint32_t>(lineVertices.size());
 
-    PipelineState state = {};
+    PipelineStateDesc state = {};
     state.shader = renderer.GetShaderManager()->GetOrCreate("line");
     state.topology = PrimitiveTopology::LineList;
     state.depthStencil.depthTestEnable = true;
@@ -57,7 +57,7 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     cmd.indexBuffer = context.indexBuffer->GetBufferRef();
     cmd.indexCount = context.indexCount;
 
-    PipelineState state = {};
+    PipelineStateDesc state = {};
     state.shader = context.material->GetShader();
     state.topology = PrimitiveTopology::TriangleList;
 
@@ -106,7 +106,7 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
 
-    PipelineState state = {};
+    PipelineStateDesc state = {};
     state.shader = context.material->GetShader();
     state.topology = PrimitiveTopology::TriangleList;
     state.depthStencil = depthStencil;

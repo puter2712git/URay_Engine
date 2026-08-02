@@ -1,26 +1,29 @@
 #pragma once
 
-#include "DepthStencilState.h"
-#include "PrimitiveTopology.h"
-#include "RasterizerState.h"
-
-#include <cstdint>
+#include <vulkan/vulkan.h>
 
 namespace URay
 {
 
-class Shader;
+class PipelineLayout;
 
-struct PipelineState
+class PipelineState
 {
-    Shader* shader = nullptr;
+public:
+    PipelineState(VkDevice device, VkPipeline handle, PipelineLayout* layout);
+    ~PipelineState();
 
-    PrimitiveTopology topology = PrimitiveTopology::TriangleList;
+public:
+    VkPipeline GetHandle() const { return handle; }
 
-    DepthStencilState depthStencil = {};
-    RasterizerState rasterizer = {};
+    PipelineLayout* GetLayout() const { return layout; }
 
-    uint64_t GetKey() const;
+private:
+    VkDevice device = VK_NULL_HANDLE;
+
+    VkPipeline handle = VK_NULL_HANDLE;
+
+    PipelineLayout* layout = nullptr;
 };
 
 } // namespace URay

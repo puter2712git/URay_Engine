@@ -8,8 +8,8 @@
 #include "IndexBuffer.h"
 #include "PipelineLayout/PipelineLayout.h"
 #include "PipelineLayout/PipelineLayoutDesc.h"
+#include "PipelineState/PipelineStateDesc.h"
 #include "PipelineState/PipelineState.h"
-#include "PipelineState/PipelineStateObject.h"
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
@@ -278,7 +278,7 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
     return pipelineLayout;
 }
 
-PipelineStateObject* RenderDevice::CreatePSO(const PipelineState& desc)
+PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
 {
     auto vertShaderCode = desc.shader->GetVertexStage().code;
     auto fragShaderCode = desc.shader->GetFragmentStage().code;
@@ -510,7 +510,7 @@ PipelineStateObject* RenderDevice::CreatePSO(const PipelineState& desc)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-    PipelineStateObject* pso = new PipelineStateObject(device, pipeline, pipelineLayout);
+    PipelineState* pso = new PipelineState(device, pipeline, pipelineLayout);
 
     return pso;
 }

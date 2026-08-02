@@ -2,6 +2,7 @@
 
 #include "Render/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/PipelineLayout/PipelineLayoutDesc.h"
+#include "Render/PipelineState/PipelineStateDesc.h"
 #include "Render/Texture/TextureSampler.h"
 
 #include <vulkan/vulkan.h>
@@ -19,8 +20,7 @@ class TextureView;
 class DescriptorSetLayout;
 class PipelineLayout;
 
-struct PipelineState;
-class PipelineStateObject;
+class PipelineState;
 
 class GPUResourceManager
 {
@@ -44,7 +44,7 @@ public:
     PipelineLayout* GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc);
     void DestroyPipelineLayouts();
 
-    PipelineStateObject* GetOrCreatePSO(const PipelineState& psoDesc);
+    PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc);
     void DestroyPSOs();
 
 private:
@@ -58,7 +58,7 @@ private:
 
     std::unordered_map<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
 
-    std::unordered_map<uint64_t, PipelineStateObject*> pipelines;
+    std::unordered_map<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
 };
 
 } // namespace URay

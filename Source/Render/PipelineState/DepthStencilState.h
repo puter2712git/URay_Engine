@@ -12,6 +12,8 @@ struct DepthStencilState
     CompareOp depthCompareOp = CompareOp::Less;
 
     bool stencilTestEnable = false;
+
+    bool operator==(const DepthStencilState&) const = default;
 };
 
 } // namespace URay

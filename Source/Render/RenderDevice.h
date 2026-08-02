@@ -20,12 +20,12 @@ class Texture;
 class TextureView;
 class DescriptorSetLayout;
 class PipelineLayout;
-class PipelineStateObject;
+class PipelineState;
 
 struct TextureSamplerDesc;
 struct DescriptorSetLayoutDesc;
 struct PipelineLayoutDesc;
-struct PipelineState;
+struct PipelineStateDesc;
 
 class RenderDevice
 {
@@ -47,7 +47,7 @@ public:
 
     PipelineLayout* CreatePipelineLayout(const PipelineLayoutDesc& desc);
 
-    PipelineStateObject* CreatePSO(const PipelineState& pipelineState);
+    PipelineState* CreatePSO(const PipelineStateDesc& pipelineState);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties,

@@ -7,7 +7,7 @@
 #include "Render/GPUResourceManager.h"
 #include "Render/IndexBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
-#include "Render/PipelineState/PipelineStateObject.h"
+#include "Render/PipelineState/PipelineState.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
@@ -363,7 +363,7 @@ void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newPr
 
 void Renderer::Draw(const DrawCommand& cmd)
 {
-    PipelineStateObject* pso = resourceManager->GetOrCreatePSO(cmd.pipelineState);
+    PipelineState* pso = resourceManager->GetOrCreatePSO(cmd.pipelineState);
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pso->GetHandle());
 
     DescriptorSet* descriptorSet = cmd.material ? cmd.material->GetDescriptorSet(currentFrame) : nullptr;

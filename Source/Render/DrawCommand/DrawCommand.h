@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/PipelineState/PipelineState.h"
+#include "Render/PipelineState/PipelineStateDesc.h"
 
 #include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
@@ -12,7 +12,7 @@ namespace URay
 
 class VertexBuffer;
 class IndexBuffer;
-class PipelineState;
+struct PipelineStateDesc;
 class Material;
 
 struct DrawCommand
@@ -27,7 +27,7 @@ struct DrawCommand
     void* indexBuffer = nullptr;
     uint32_t indexCount = 0;
 
-    PipelineState pipelineState;
+    PipelineStateDesc pipelineState;
 
     Material* material = nullptr;
 };

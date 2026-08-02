@@ -1,24 +1,19 @@
 #include "PipelineState.h"
 
-#include "Render/Shader/Shader.h"
-
 namespace URay
 {
 
-uint64_t PipelineState::GetKey() const
+PipelineState::PipelineState(VkDevice device, VkPipeline handle, PipelineLayout* layout)
+    : device(device), handle(handle), layout(layout)
 {
-    const uint64_t shaderId = shader ? shader->GetId() : 0;
+}
 
-    uint64_t key = 0;
-    key |= (shaderId << 32);
-    key |= static_cast<uint64_t>(topology);
-    key |= static_cast<uint64_t>(depthStencil.depthTestEnable) << 8;
-    key |= static_cast<uint64_t>(depthStencil.depthWriteEnable) << 9;
-    key |= static_cast<uint64_t>(depthStencil.depthCompareOp) << 10;
-    key |= static_cast<uint64_t>(depthStencil.stencilTestEnable) << 12;
-    key |= static_cast<uint64_t>(rasterizer.cullMode) << 13;
-
-    return key;
+PipelineState::~PipelineState()
+{
+    if (handle)
+    {
+        vkDestroyPipeline(device, handle, nullptr);
+    }
 }
 
 } // namespace URay

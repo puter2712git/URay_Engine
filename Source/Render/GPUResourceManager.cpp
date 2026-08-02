@@ -2,11 +2,11 @@
 
 #include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
-#include "Render/PipelineState/PipelineState.h"
+#include "Render/PipelineState/PipelineStateDesc.h"
 #include "Render/RenderDevice.h"
 #include "Render/Texture/Texture.h"
 #include "Render/Texture/TextureView.h"
-#include "Render/PipelineState/PipelineStateObject.h"
+#include "Render/PipelineState/PipelineState.h"
 
 #include <vulkan/vulkan.h>
 
@@ -168,17 +168,17 @@ void GPUResourceManager::DestroyPipelineLayouts()
     }
 }
 
-PipelineStateObject* GPUResourceManager::GetOrCreatePSO(const PipelineState& psoDesc)
+PipelineState* GPUResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc)
 {
-    auto it = pipelines.find(psoDesc.GetKey());
+    auto it = pipelines.find(psoDesc);
     if (it != pipelines.end())
         return it->second;
 
-    PipelineStateObject* pso = renderDevice->CreatePSO(psoDesc);
+    PipelineState* pso = renderDevice->CreatePSO(psoDesc);
     if (pso == VK_NULL_HANDLE)
         return VK_NULL_HANDLE;
 
-    pipelines.insert({ psoDesc.GetKey(), pso });
+    pipelines.insert({ psoDesc, pso });
     return pso;
 }
 

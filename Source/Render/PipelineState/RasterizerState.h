@@ -13,6 +13,8 @@ enum class CullMode
 struct RasterizerState
 {
     CullMode cullMode = CullMode::Back;
+
+    bool operator==(const RasterizerState&) const = default;
 };
 
 } // namespace URay
