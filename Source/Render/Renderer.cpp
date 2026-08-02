@@ -2,8 +2,8 @@
 
 #include "Engine/Material/MaterialManager.h"
 #include "Render/ConstantBuffer.h"
-#include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/Descriptor/DescriptorSet.h"
+#include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/IndexBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
@@ -147,6 +147,11 @@ bool Renderer::Initialize(Window* wnd)
     if (!CreateSyncObjects())
         return false;
 
+    if (!CreateFrameDescriptorSetLayout())
+        return false;
+    if (!CreateFrameDescriptorSet())
+        return false;
+
     return true;
 }
 
@@ -155,6 +160,9 @@ void Renderer::Finalize()
     vkDeviceWaitIdle(device);
 
     CleanupSwapChain();
+
+    DestroyFrameDescriptorSet();
+    DestroyFrameDescriptorSetLayout();
 
     DestroyDepthResources();
 
@@ -233,6 +241,7 @@ bool Renderer::BeginFrame()
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
     vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = 0;
@@ -277,9 +286,6 @@ bool Renderer::BeginFrame()
 
     ConstantBuffer* frameConstantBuffer = renderDevice->GetFrameConstantBuffers()[currentFrame];
     frameConstantBuffer->UpdateData(&frameConstants, sizeof(FrameConstants));
-
-    //vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
-    //                        pipelineLayout->GetHandle(), 0, 1, &descriptorSets[currentFrame], 0, nullptr);
 
     return true;
 }
@@ -366,6 +372,10 @@ void Renderer::Draw(const DrawCommand& cmd)
     PipelineState* pso = resourceManager->GetOrCreatePSO(cmd.pipelineState);
     vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pso->GetHandle());
 
+    VkDescriptorSet vkFrameDescriptorSet = frameDescriptorSets[currentFrame]->GetHandle();
+    vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                            pso->GetLayout()->GetHandle(), 0, 1, &vkFrameDescriptorSet, 0, nullptr);
+
     DescriptorSet* descriptorSet = cmd.material ? cmd.material->GetDescriptorSet(currentFrame) : nullptr;
     if (descriptorSet)
     {
@@ -431,7 +441,7 @@ void Renderer::CreatePipelineLayout()
     pipelineLayoutDesc.setLayouts.insert({ 0, layout });
     pipelineLayoutDesc.pushConstantRanges = { pushConstantRange };
 
-    //pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
+    // pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
 }
 
 bool Renderer::CreateInstance()
@@ -998,6 +1008,66 @@ void Renderer::DestroyDepthResources()
     vkDestroyImageView(device, depthImageView, nullptr);
     vkDestroyImage(device, depthImage, nullptr);
     vkFreeMemory(device, depthImageMemory, nullptr);
+}
+
+bool Renderer::CreateFrameDescriptorSetLayout()
+{
+    ResourceBinding binding = {};
+    binding.set = 0;
+    binding.bindingIndex = 0;
+    binding.arrayCount = 1;
+    binding.resourceType = ResourceType::ConstantBuffer;
+    binding.stageFlags = ShaderStageFlags::All;
+
+    DescriptorSetLayoutDesc desc = {};
+    desc.bindings.push_back(binding);
+
+    frameDescriptorSetLayout = renderDevice->CreateDescriptorSetLayout(desc);
+
+    if (!frameDescriptorSetLayout)
+        return false;
+
+    return true;
+}
+
+void Renderer::DestroyFrameDescriptorSetLayout()
+{
+    if (frameDescriptorSetLayout)
+    {
+        delete frameDescriptorSetLayout;
+        frameDescriptorSetLayout = nullptr;
+    }
+}
+
+bool Renderer::CreateFrameDescriptorSet()
+{
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        DescriptorSet* descriptorSet = renderDevice->CreateDescriptorSet(frameDescriptorSetLayout);
+
+        if (!descriptorSet)
+            return false;
+
+        frameDescriptorSets.push_back(descriptorSet);
+
+        descriptorSet->WriteUniformBuffer(0, renderDevice->GetFrameConstantBuffers()[i]);
+    }
+
+    return true;
+}
+
+void Renderer::DestroyFrameDescriptorSet()
+{
+    for (auto& descriptorSet : frameDescriptorSets)
+    {
+        if (descriptorSet)
+        {
+            delete descriptorSet;
+            descriptorSet = nullptr;
+        }
+    }
+
+    frameDescriptorSets.clear();
 }
 
 bool Renderer::CheckValidationLayerSupport() const

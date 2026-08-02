@@ -1,6 +1,7 @@
 #include "RenderDevice.h"
 
 #include "ConstantBuffer.h"
+#include "Descriptor/DescriptorSet.h"
 #include "Descriptor/DescriptorSetLayout.h"
 #include "Descriptor/DescriptorSetLayoutBuilder.h"
 #include "Descriptor/DescriptorSetLayoutDesc.h"
@@ -8,8 +9,8 @@
 #include "IndexBuffer.h"
 #include "PipelineLayout/PipelineLayout.h"
 #include "PipelineLayout/PipelineLayoutDesc.h"
-#include "PipelineState/PipelineStateDesc.h"
 #include "PipelineState/PipelineState.h"
+#include "PipelineState/PipelineStateDesc.h"
 #include "RenderInfo.h"
 #include "Renderer.h"
 #include "Shader/Shader.h"
@@ -24,7 +25,6 @@
 #include <stb/stb_image.h>
 
 #include <cassert>
-#include <iostream>
 #include <map>
 
 namespace URay
@@ -239,6 +239,24 @@ DescriptorSetLayout* RenderDevice::CreateDescriptorSetLayout(const DescriptorSet
     }
 
     return builder.Build(device);
+}
+
+DescriptorSet* RenderDevice::CreateDescriptorSet(DescriptorSetLayout* layout)
+{
+    VkDescriptorSetAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = 1;
+
+    VkDescriptorSetLayout vkLayout = layout->GetHandle();
+    allocInfo.pSetLayouts = &vkLayout;
+
+    VkDescriptorSet vkDescriptorSet = VK_NULL_HANDLE;
+    if (vkAllocateDescriptorSets(device, &allocInfo, &vkDescriptorSet) != VK_SUCCESS)
+        return nullptr;
+
+    DescriptorSet* descriptorSet = new DescriptorSet(device, vkDescriptorSet, layout);
+    return descriptorSet;
 }
 
 PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& desc)

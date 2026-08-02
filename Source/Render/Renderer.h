@@ -30,6 +30,8 @@ class RenderDevice;
 class VertexBuffer;
 class IndexBuffer;
 class PipelineLayout;
+class DescriptorSetLayout;
+class DescriptorSet;
 
 class Window;
 class Scene;
@@ -139,6 +141,12 @@ private:
     bool CreateDepthResources();
     void DestroyDepthResources();
 
+    bool CreateFrameDescriptorSetLayout();
+    void DestroyFrameDescriptorSetLayout();
+
+    bool CreateFrameDescriptorSet();
+    void DestroyFrameDescriptorSet();
+
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -213,6 +221,9 @@ private:
     VkImage depthImage = VK_NULL_HANDLE;
     VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
     VkImageView depthImageView = VK_NULL_HANDLE;
+
+    DescriptorSetLayout* frameDescriptorSetLayout = nullptr;
+    std::vector<DescriptorSet*> frameDescriptorSets;
 };
 
 } // namespace URay

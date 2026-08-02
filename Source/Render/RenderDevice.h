@@ -6,7 +6,6 @@
 #include <vulkan/vulkan.h>
 
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace URay
@@ -19,6 +18,7 @@ class ConstantBuffer;
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
+class DescriptorSet;
 class PipelineLayout;
 class PipelineState;
 
@@ -44,6 +44,7 @@ public:
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 
     DescriptorSetLayout* CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
+    DescriptorSet* CreateDescriptorSet(DescriptorSetLayout* layout);
 
     PipelineLayout* CreatePipelineLayout(const PipelineLayoutDesc& desc);
 

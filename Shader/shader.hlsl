@@ -11,9 +11,10 @@ struct FrameConstants
     float4x4 view;
     float4x4 proj;
 };
-[[vk::binding(0)]] ConstantBuffer<FrameConstants> frame;
-[[vk::binding(1)]] Texture2D<float4> textureImage;
-[[vk::binding(2)]] SamplerState textureSampler;
+[[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
+
+[[vk::binding(0, 1)]] Texture2D<float4> textureImage;
+[[vk::binding(1, 1)]] SamplerState textureSampler;
 
 struct VSInput
 {

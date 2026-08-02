@@ -3,7 +3,8 @@ struct FrameConstants
     float4x4 view;
     float4x4 proj;
 };
-[[vk::binding(0)]] ConstantBuffer<FrameConstants> frame;
+
+[[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
 
 struct VSInput
 {
