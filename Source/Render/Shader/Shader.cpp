@@ -14,4 +14,8 @@ Shader::Shader(uint32_t id,
 {
 }
 
+DescriptorSetLayoutDesc Shader::GetDescriptorSetLayoutDesc(uint32_t set) const
+{
+}
+
 } // namespace URay

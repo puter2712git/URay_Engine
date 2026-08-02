@@ -36,6 +36,8 @@ public:
     ~Shader() = default;
 
 public:
+    DescriptorSetLayoutDesc GetDescriptorSetLayoutDesc(uint32_t set) const;
+
     uint64_t GetId() const { return id; }
 
     const ShaderStage& GetVertexStage() const { return vertexStage; }
