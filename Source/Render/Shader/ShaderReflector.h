@@ -5,6 +5,7 @@
 
 #include <spirv/spirv_reflect.h>
 
+#include <map>
 #include <vector>
 
 namespace URay
@@ -22,7 +23,7 @@ public:
 private:
     static bool CreateDescriptorSetLayoutDesc(
         const SpvReflectShaderModule& module,
-        DescriptorSetLayoutDesc& outDesc);
+        std::map<uint32_t, DescriptorSetLayoutDesc>& outDescs);
 
     static bool CreatePushConstantRange(
         const SpvReflectShaderModule& module,

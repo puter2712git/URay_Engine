@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -21,7 +22,7 @@ struct ShaderStage
 
 struct ShaderReflection
 {
-    DescriptorSetLayoutDesc setLayoutDesc = {};
+    std::map<uint32_t, DescriptorSetLayoutDesc> setLayoutDescs = {};
     PushConstantRange pushConstantRange = {};
 };
 
@@ -36,7 +37,8 @@ public:
     ~Shader() = default;
 
 public:
-    DescriptorSetLayoutDesc GetDescriptorSetLayoutDesc(uint32_t set) const;
+    const std::map<uint32_t, DescriptorSetLayoutDesc>& GetDescriptorSetLayoutDescs() const { return setLayoutDescs; }
+    const DescriptorSetLayoutDesc* GetDescriptorSetLayoutDesc(uint32_t set) const;
 
     uint64_t GetId() const { return id; }
 
@@ -54,6 +56,8 @@ private:
 
     ShaderReflection vertexReflection = {};
     ShaderReflection fragmentReflection = {};
+
+    std::map<uint32_t, DescriptorSetLayoutDesc> setLayoutDescs;
 };
 
 } // namespace URay

@@ -298,56 +298,20 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
 
 PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
 {
-    auto vertShaderCode = desc.shader->GetVertexStage().code;
-    auto fragShaderCode = desc.shader->GetFragmentStage().code;
-
-    const ShaderReflection& vertReflectionContext = desc.shader->GetVertexReflection();
-    const ShaderReflection& fragReflectionContext = desc.shader->GetFragmentReflection();
-
-    std::map<std::pair<uint32_t, uint32_t>, ResourceBinding> mergedBindings;
-
-    auto Merge = [&](const DescriptorSetLayoutDesc& desc)
-    {
-        for (const auto& binding : desc.bindings)
-        {
-            std::pair<uint32_t, uint32_t> key = { binding.set,
-                                                  binding.bindingIndex };
-
-            auto [it, inserted] = mergedBindings.insert({ key, binding });
-
-            if (!inserted)
-            {
-                assert(it->second.resourceType == binding.resourceType);
-                assert(it->second.arrayCount == binding.arrayCount);
-
-                it->second.stageFlags = it->second.stageFlags | binding.stageFlags;
-            }
-        }
-    };
-
-    Merge(vertReflectionContext.setLayoutDesc);
-    Merge(fragReflectionContext.setLayoutDesc);
-
-    std::map<uint32_t, DescriptorSetLayoutDesc> setLayoutDescPerSet;
-    for (auto& [key, ResourceBinding] : mergedBindings)
-    {
-        setLayoutDescPerSet[key.first].bindings.push_back(ResourceBinding);
-    }
-
     PipelineLayoutDesc pipelineLayoutDesc = {};
 
     GPUResourceManager* resourceManager = renderer->GetResourceManager();
-    for (auto& [set, descriptorSetLayoutDesc] : setLayoutDescPerSet)
+    for (auto& [set, descriptorSetLayoutDesc] : desc.shader->GetDescriptorSetLayoutDescs())
     {
         pipelineLayoutDesc.setLayouts[set] =
             resourceManager->GetOrCreateDescriptorSetLayout(descriptorSetLayoutDesc);
     }
-    pipelineLayoutDesc.pushConstantRanges.push_back(vertReflectionContext.pushConstantRange);
+    pipelineLayoutDesc.pushConstantRanges.push_back(desc.shader->GetVertexReflection().pushConstantRange);
 
     PipelineLayout* pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
 
-    VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-    VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+    VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexStage().code);
+    VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentStage().code);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

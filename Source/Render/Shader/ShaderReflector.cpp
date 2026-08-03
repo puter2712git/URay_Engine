@@ -36,7 +36,7 @@ bool ShaderReflector::ReflectSPIRV(
     if (result != SPV_REFLECT_RESULT_SUCCESS)
         return false;
 
-    if (!CreateDescriptorSetLayoutDesc(module, outReflection.setLayoutDesc))
+    if (!CreateDescriptorSetLayoutDesc(module, outReflection.setLayoutDescs))
         return false;
 
     CreatePushConstantRange(module, outReflection.pushConstantRange);
@@ -48,9 +48,9 @@ bool ShaderReflector::ReflectSPIRV(
 
 bool ShaderReflector::CreateDescriptorSetLayoutDesc(
     const SpvReflectShaderModule& module,
-    DescriptorSetLayoutDesc& outDesc)
+    std::map<uint32_t, DescriptorSetLayoutDesc>& outDescs)
 {
-    outDesc = {};
+    outDescs = {};
 
     uint32_t setCount = 0;
     spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
@@ -58,10 +58,9 @@ bool ShaderReflector::CreateDescriptorSetLayoutDesc(
     std::vector<SpvReflectDescriptorSet*> sets(setCount);
     spvReflectEnumerateDescriptorSets(&module, &setCount, sets.data());
 
-    std::vector<ResourceBinding>& bindings = outDesc.bindings;
-
     for (const auto* set : sets)
     {
+        std::vector<ResourceBinding>& bindings = outDescs[set->set].bindings;
         bindings.resize(set->binding_count);
 
         for (uint32_t i = 0; i < set->binding_count; ++i)
@@ -89,7 +88,7 @@ bool ShaderReflector::CreateDescriptorSetLayoutDesc(
                 break;
             }
 
-            bindings[i].arrayCount = 1;
+            bindings[i].arrayCount = binding->count;
             bindings[i].stageFlags = ToShaderStageFlags(module.shader_stage);
         }
     }
