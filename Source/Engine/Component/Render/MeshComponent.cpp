@@ -38,7 +38,7 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
     TransformComponent* transform = GetOwner()->GetTransform();
 
     MeshCommandContext context = {};
-    context.worldMatrix = transform->GetWorldMatrix();
+    context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     context.vertexBuffer = mesh->GetVertexBuffer();
     context.indexBuffer = mesh->GetIndexBuffer();
     context.indexCount = static_cast<uint32_t>(mesh->GetIndices().size());
