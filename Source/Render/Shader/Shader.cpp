@@ -39,8 +39,29 @@ Shader::Shader(uint32_t id,
         }
     };
 
+    auto MergePushConstantRange = [&](const PushConstantRange& range)
+    {
+        if (range.size == 0)
+            return;
+
+        for (PushConstantRange& existing : pushConstantRanges)
+        {
+            if (existing.offset == range.offset &&
+                existing.size == range.size)
+            {
+                existing.stages = existing.stages | range.stages;
+                return;
+            }
+        }
+
+        pushConstantRanges.push_back(range);
+    };
+
     Merge(vertexReflection.setLayoutDescs);
     Merge(fragmentReflection.setLayoutDescs);
+
+    MergePushConstantRange(vertexReflection.pushConstantRange);
+    MergePushConstantRange(fragmentReflection.pushConstantRange);
 
     for (auto& [key, ResourceBinding] : mergedBindings)
     {

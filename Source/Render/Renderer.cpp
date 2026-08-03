@@ -380,8 +380,16 @@ void Renderer::Draw(const DrawCommand& cmd)
     if (descriptorSet)
     {
         VkDescriptorSet vkDescriptorSet = descriptorSet->GetHandle();
-        vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                pso->GetLayout()->GetHandle(), 0, 1, &vkDescriptorSet, 0, nullptr);
+        if (vkDescriptorSet != VK_NULL_HANDLE)
+        {
+            Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
+            TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
+            descriptorSet->WriteSampledImage(0, textureView);
+            descriptorSet->WriteSampler(1, resourceManager->GetOrCreateTextureSampler({}));
+
+            vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                    pso->GetLayout()->GetHandle(), 1, 1, &vkDescriptorSet, 0, nullptr);
+        }
     }
 
     ObjectConstants objConstants = {};
@@ -389,9 +397,12 @@ void Renderer::Draw(const DrawCommand& cmd)
     objConstants.colorTint = cmd.colorTint;
     objConstants.objectId = cmd.objectId;
 
-    vkCmdPushConstants(commandBuffers[currentFrame], pso->GetLayout()->GetHandle(),
-                       VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                       0, sizeof(objConstants), &objConstants);
+    if (pso->GetLayout()->SupportsPushConstants())
+    {
+        vkCmdPushConstants(commandBuffers[currentFrame], pso->GetLayout()->GetHandle(),
+                           VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                           0, sizeof(objConstants), &objConstants);
+    }
 
     VkBuffer vertexBuffers[] = { static_cast<VkBuffer>(cmd.vertexBuffer) };
     VkDeviceSize offsets[] = { 0 };
@@ -952,10 +963,11 @@ bool Renderer::CreateDescriptorSets()
         bufferInfo.range = sizeof(FrameConstants);
 
         Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
+        TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
 
         VkDescriptorImageInfo imageInfo = {};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = resourceManager->GetOrCreateTextureView(texture)->GetHandle();
+        imageInfo.imageView = textureView->GetHandle();
 
         VkDescriptorImageInfo samplerInfo = {};
         samplerInfo.sampler = resourceManager->GetOrCreateTextureSampler({});
@@ -1017,7 +1029,7 @@ bool Renderer::CreateFrameDescriptorSetLayout()
     binding.bindingIndex = 0;
     binding.arrayCount = 1;
     binding.resourceType = ResourceType::ConstantBuffer;
-    binding.stageFlags = ShaderStageFlags::All;
+    binding.stageFlags = ShaderStageFlags::Vertex;
 
     DescriptorSetLayoutDesc desc = {};
     desc.bindings.push_back(binding);

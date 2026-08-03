@@ -62,7 +62,7 @@ bool Engine::Initialize()
 
     shaderManager = renderer->GetShaderManager();
 
-    materialManager = new MaterialManager();
+    materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager());
     materialManager->GetOrCreate("default", shaderManager->GetOrCreate("shader"));
 
     meshManager = new MeshManager(renderer->GetDevice());
@@ -170,6 +170,8 @@ void Engine::Finalize()
     {
         delete scene;
     }
+
+    delete materialManager;
 
     delete meshManager;
 

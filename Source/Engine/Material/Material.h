@@ -11,12 +11,18 @@ class TextureAsset;
 class DescriptorSetLayout;
 class DescriptorSet;
 
+class RenderDevice;
+class GPUResourceManager;
+
 class Material
 {
 public:
     Material(Shader* shader);
+    ~Material();
 
 public:
+    bool Initialize(RenderDevice* renderDevice, GPUResourceManager* resourceManager);
+
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* inShader) { shader = inShader; }
 

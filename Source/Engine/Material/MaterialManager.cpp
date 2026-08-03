@@ -2,8 +2,16 @@
 
 #include "Material.h"
 
+#include "Render/GPUResourceManager.h"
+#include "Render/RenderDevice.h"
+
 namespace URay
 {
+
+MaterialManager::MaterialManager(RenderDevice* renderDevice, GPUResourceManager* resourceManager)
+    : renderDevice(renderDevice), resourceManager(resourceManager)
+{
+}
 
 MaterialManager::~MaterialManager()
 {
@@ -26,6 +34,12 @@ Material* MaterialManager::GetOrCreate(const std::string& key, Shader* shader)
         return it->second;
 
     Material* material = new Material(shader);
+    if (!material->Initialize(renderDevice, resourceManager))
+    {
+        delete material;
+        return nullptr;
+    }
+
     materials.insert({ key, material });
 
     return material;

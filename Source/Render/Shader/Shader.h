@@ -40,6 +40,8 @@ public:
     const std::map<uint32_t, DescriptorSetLayoutDesc>& GetDescriptorSetLayoutDescs() const { return setLayoutDescs; }
     const DescriptorSetLayoutDesc* GetDescriptorSetLayoutDesc(uint32_t set) const;
 
+    const std::vector<PushConstantRange>& GetPushConstantRanges() const { return pushConstantRanges; }
+
     uint64_t GetId() const { return id; }
 
     const ShaderStage& GetVertexStage() const { return vertexStage; }
@@ -58,6 +60,7 @@ private:
     ShaderReflection fragmentReflection = {};
 
     std::map<uint32_t, DescriptorSetLayoutDesc> setLayoutDescs;
+    std::vector<PushConstantRange> pushConstantRanges;
 };
 
 } // namespace URay

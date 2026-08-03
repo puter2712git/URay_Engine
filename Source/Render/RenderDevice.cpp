@@ -293,6 +293,8 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
         return nullptr;
 
     PipelineLayout* pipelineLayout = new PipelineLayout(device, handle);
+    pipelineLayout->SetSupportPushConstants(pushConstantRanges.size() > 0);
+
     return pipelineLayout;
 }
 
@@ -306,7 +308,8 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
         pipelineLayoutDesc.setLayouts[set] =
             resourceManager->GetOrCreateDescriptorSetLayout(descriptorSetLayoutDesc);
     }
-    pipelineLayoutDesc.pushConstantRanges.push_back(desc.shader->GetVertexReflection().pushConstantRange);
+
+    pipelineLayoutDesc.pushConstantRanges = desc.shader->GetPushConstantRanges();
 
     PipelineLayout* pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
 
@@ -729,7 +732,7 @@ void RenderDevice::CreateDescriptorPool()
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 1000;
 
     vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
 }
