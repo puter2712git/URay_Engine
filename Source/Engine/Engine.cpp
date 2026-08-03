@@ -63,7 +63,7 @@ bool Engine::Initialize()
     shaderManager = renderer->GetShaderManager();
 
     materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager());
-    materialManager->GetOrCreate("default", shaderManager->GetOrCreate("shader"));
+    materialManager->GetOrCreate("default", shaderManager->GetOrCreate("base"));
 
     meshManager = new MeshManager(renderer->GetDevice());
     meshManager->CreateDefaultMeshes();

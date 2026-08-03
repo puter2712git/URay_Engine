@@ -35,7 +35,10 @@ bool Material::Initialize(RenderDevice* renderDevice, GPUResourceManager* resour
 
     const DescriptorSetLayoutDesc* setLayoutDesc = shader->GetDescriptorSetLayoutDesc(1);
     if (!setLayoutDesc)
-        return false;
+    {
+        // No needing material descriptor. This case, just return true.
+        return true;
+    }
 
     descriptorSetLayout = resourceManager->GetOrCreateDescriptorSetLayout(*setLayoutDesc);
     if (!descriptorSetLayout)
