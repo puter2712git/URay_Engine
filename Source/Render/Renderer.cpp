@@ -383,11 +383,6 @@ void Renderer::Draw(const DrawCommand& cmd)
         VkDescriptorSet vkDescriptorSet = descriptorSet->GetHandle();
         if (vkDescriptorSet != VK_NULL_HANDLE)
         {
-            Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
-            TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
-            descriptorSet->WriteSampledImage(0, textureView);
-            descriptorSet->WriteSampler(1, resourceManager->GetOrCreateTextureSampler({}));
-
             vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                     pso->GetLayout()->GetHandle(), 1, 1, &vkDescriptorSet, 0, nullptr);
         }

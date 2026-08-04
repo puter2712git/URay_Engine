@@ -4,6 +4,8 @@
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Object/Property/Property.h"
+#include "Engine/Texture/TextureAsset.h"
+#include "Engine/Texture/TextureManager.h"
 
 #include "Core/Math/Vector3.h"
 
@@ -14,38 +16,48 @@ namespace URay
 
 void PropertyDrawer::Draw(Property& prop, void* addr)
 {
+    bool isChanged = false;
+
     switch (prop.type)
     {
     case PropertyType::Bool:
-        DrawBool(prop, addr);
+        isChanged = DrawBool(prop, addr);
         break;
     case PropertyType::Vector3:
-        DrawVector3(prop, addr);
+        isChanged = DrawVector3(prop, addr);
         break;
     case PropertyType::String:
-        DrawString(prop, addr);
+        isChanged = DrawString(prop, addr);
         break;
     case PropertyType::Mesh:
-        DrawMesh(prop, addr);
+        isChanged = DrawMesh(prop, addr);
+        break;
+    case PropertyType::Texture:
+        isChanged = DrawTexture(prop, addr);
         break;
     default:
         break;
     }
+
+    if (isChanged && prop.OnChangedCallback)
+    {
+        prop.OnChangedCallback(static_cast<Object*>(addr), prop);
+    }
 }
 
-void PropertyDrawer::DrawBool(Property& prop, void* addr)
+bool PropertyDrawer::DrawBool(Property& prop, void* addr)
 {
     bool* data = reinterpret_cast<bool*>(static_cast<uint8_t*>(addr) + prop.offset);
-    ImGui::Checkbox(prop.name.c_str(), data);
+    return ImGui::Checkbox(prop.name.c_str(), data);
 }
 
-void PropertyDrawer::DrawVector3(Property& prop, void* addr)
+bool PropertyDrawer::DrawVector3(Property& prop, void* addr)
 {
     Vector3* data = reinterpret_cast<Vector3*>(static_cast<uint8_t*>(addr) + prop.offset);
-    ImGui::DragFloat3(prop.name.c_str(), &data->x, 0.1f);
+    return ImGui::DragFloat3(prop.name.c_str(), &data->x, 0.1f);
 }
 
-void PropertyDrawer::DrawString(Property& prop, void* addr)
+bool PropertyDrawer::DrawString(Property& prop, void* addr)
 {
     std::string* data = reinterpret_cast<std::string*>(static_cast<uint8_t*>(addr) + prop.offset);
 
@@ -55,10 +67,13 @@ void PropertyDrawer::DrawString(Property& prop, void* addr)
     if (ImGui::InputText(prop.name.c_str(), buffer, sizeof(buffer)))
     {
         *data = buffer;
+        return true;
     }
+
+    return false;
 }
 
-void PropertyDrawer::DrawMesh(Property& prop, void* addr)
+bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
     Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8_t*>(addr) + prop.offset);
 
@@ -84,6 +99,8 @@ void PropertyDrawer::DrawMesh(Property& prop, void* addr)
         ++i;
     }
 
+    bool isChanged = false;
+
     if (ImGui::BeginCombo("Mesh", meshNames[selectedIndex].c_str()))
     {
         for (int index = 0; index < meshCount; ++index)
@@ -92,6 +109,11 @@ void PropertyDrawer::DrawMesh(Property& prop, void* addr)
 
             if (ImGui::Selectable(meshNames[index].c_str(), isSelected))
             {
+                if (selectedIndex != index)
+                {
+                    isChanged = true;
+                }
+
                 selectedIndex = index;
                 *currMesh = meshArr[index];
             }
@@ -104,6 +126,65 @@ void PropertyDrawer::DrawMesh(Property& prop, void* addr)
 
         ImGui::EndCombo();
     }
+
+    return isChanged;
+}
+
+bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
+{
+    TextureAsset** currTexture = reinterpret_cast<TextureAsset**>(static_cast<uint8_t*>(addr) + prop.offset);
+
+    TextureManager* textureManager = gEngine->GetTextureManager();
+    const auto& textures = textureManager->GetTextures();
+
+    size_t textureCount = textures.size();
+    std::vector<std::string> textureNames(textureCount);
+    std::vector<TextureAsset*> textureAssets(textureCount);
+
+    size_t selectedIndex = -1;
+    int i = 0;
+    for (auto& [textureName, texture] : textures)
+    {
+        textureNames[i] = textureName;
+        textureAssets[i] = texture;
+
+        if (texture == *currTexture)
+        {
+            selectedIndex = i;
+        }
+
+        ++i;
+    }
+
+    bool isChanged = false;
+
+    if (ImGui::BeginCombo("Texture", textureNames[selectedIndex].c_str()))
+    {
+        for (size_t index = 0; index < textureCount; ++index)
+        {
+            const bool isSelected = selectedIndex == index;
+
+            if (ImGui::Selectable(textureNames[index].c_str(), isSelected))
+            {
+                if (selectedIndex != index)
+                {
+                    isChanged = true;
+                }
+
+                selectedIndex = index;
+                *currTexture = textureAssets[index];
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
+    return isChanged;
 }
 
 } // namespace URay

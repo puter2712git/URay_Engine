@@ -1,10 +1,16 @@
 #include "Material.h"
 
+#include "Engine/Engine.h"
+#include "Engine/Texture/TextureAsset.h"
+
 #include "Render/Descriptor/DescriptorSet.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
+#include "Render/Texture/Texture.h"
+#include "Render/Texture/TextureSampler.h"
+#include "Render/Texture/TextureView.h"
 
 namespace URay
 {
@@ -54,6 +60,21 @@ bool Material::Initialize(RenderDevice* renderDevice, GPUResourceManager* resour
     }
 
     return true;
+}
+
+void Material::SetTextureAsset(TextureAsset* textureAsset)
+{
+    texture = textureAsset;
+
+    GPUResourceManager* resourceManager = gEngine->GetGPUResourceManager();
+    Texture* texture = resourceManager->GetOrCreateTexture(textureAsset->GetFilePath());
+    TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
+
+    for (DescriptorSet* descriptorSet : descriptorSets)
+    {
+        descriptorSet->WriteSampledImage(0, textureView);
+        descriptorSet->WriteSampler(1, resourceManager->GetOrCreateTextureSampler({}));
+    }
 }
 
 } // namespace URay

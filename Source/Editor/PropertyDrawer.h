@@ -11,10 +11,11 @@ public:
     static void Draw(Property& prop, void* addr);
 
 private:
-    static void DrawBool(Property& prop, void* addr);
-    static void DrawVector3(Property& prop, void* addr);
-    static void DrawString(Property& prop, void* addr);
-    static void DrawMesh(Property& prop, void* addr);
+    static bool DrawBool(Property& prop, void* addr);
+    static bool DrawVector3(Property& prop, void* addr);
+    static bool DrawString(Property& prop, void* addr);
+    static bool DrawMesh(Property& prop, void* addr);
+    static bool DrawTexture(Property& prop, void* addr);
 };
 
 } // namespace URay

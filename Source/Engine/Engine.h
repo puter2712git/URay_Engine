@@ -18,12 +18,13 @@ class Unit;
 class Window;
 class Timer;
 
+class MaterialManager;
 class MeshManager;
 class TextureManager;
 class FontManager;
 
 class ShaderManager;
-class MaterialManager;
+class GPUResourceManager;
 class Renderer;
 class RenderPipeline;
 
@@ -51,7 +52,9 @@ public:
 
     TextureManager* GetTextureManager() const { return textureManager; }
 
-    MaterialManager* GetMaterialManager() const;
+    MaterialManager* GetMaterialManager() const { return materialManager; }
+
+    GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;
 

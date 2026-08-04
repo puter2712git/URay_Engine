@@ -16,6 +16,7 @@ public:
 public:
     TextureAsset* LoadTextureAsset(const std::string& key, const std::string& filePath);
     TextureAsset* GetTexture(const std::string& key) const;
+    const std::unordered_map<std::string, TextureAsset*>& GetTextures() const { return textures; }
 
 private:
     std::unordered_map<std::string, TextureAsset*> textures;

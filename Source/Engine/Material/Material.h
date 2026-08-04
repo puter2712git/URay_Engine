@@ -26,6 +26,9 @@ public:
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* inShader) { shader = inShader; }
 
+    TextureAsset* GetTextureAsset() const { return texture; }
+    void SetTextureAsset(TextureAsset* textureAsset);
+
     DescriptorSet* GetDescriptorSet(uint32_t frameIndex) const
     {
         if (descriptorSets.size() <= frameIndex)

@@ -65,12 +65,14 @@ bool Engine::Initialize()
 
     materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager());
     materialManager->GetOrCreate("default", shaderManager->GetOrCreate("base"));
+    materialManager->GetOrCreate("sprite", shaderManager->GetOrCreate("shader"));
 
     meshManager = new MeshManager(renderer->GetDevice());
     meshManager->CreateDefaultMeshes();
 
     textureManager = new TextureManager();
     textureManager->LoadTextureAsset("test", "Asset/texture.jpg");
+    textureManager->LoadTextureAsset("font", "Asset/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
     if (!fontManager->Initialize())
@@ -212,9 +214,9 @@ void Engine::GetFramebufferSize(int& width, int& height) const
     height = static_cast<int>(extent.height);
 }
 
-MaterialManager* Engine::GetMaterialManager() const
+GPUResourceManager* Engine::GetGPUResourceManager() const
 {
-    return materialManager;
+    return renderer->GetResourceManager();
 }
 
 Scene* Engine::GetSceneByType(SceneType type) const

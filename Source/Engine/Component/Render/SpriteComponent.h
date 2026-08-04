@@ -20,6 +20,8 @@ public:
 public:
     void SubmitCommand(DrawCommandBuilder& builder) override;
 
+    Material* GetMaterial() const { return material; }
+
 private:
     TextureAsset* texture = nullptr;
 

@@ -2,20 +2,25 @@
 
 #include "PropertyTypes.h"
 
+#include <functional>
 #include <string>
 
 namespace URay
 {
+
+class Object;
 
 struct Property
 {
     PropertyType type = PropertyType::Bool;
 
     std::string name;
-    size_t offset;
-    size_t size;
+    size_t offset = 0;
+    size_t size = 0;
+    std::function<void(Object* owner, const Property& property)> OnChangedCallback = nullptr;
 
-    Property(PropertyType type, const std::string& name, size_t offset, size_t size);
+    Property(PropertyType type, const std::string& name, size_t offset, size_t size,
+             std::function<void(Object* owner, const Property& property)> OnChanged = nullptr);
 
     template <typename T>
     T GetValue(void* address) const
