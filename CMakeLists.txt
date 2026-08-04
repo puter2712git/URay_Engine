@@ -34,6 +34,7 @@ target_compile_definitions(URay_Engine
 find_package(Vulkan REQUIRED)
 
 add_subdirectory(ThirdParty/glfw)
+add_subdirectory(ThirdParty/freetype-2.14.3)
 
 target_include_directories(URay_Engine
         PRIVATE
@@ -45,6 +46,7 @@ target_link_libraries(URay_Engine
         PRIVATE
         glfw
         Vulkan::Vulkan
+        freetype
 )
 
 include(FetchContent)

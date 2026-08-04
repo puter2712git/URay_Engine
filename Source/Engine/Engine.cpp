@@ -5,6 +5,7 @@
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Font/FontManager.h"
 #include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
@@ -70,6 +71,12 @@ bool Engine::Initialize()
 
     textureManager = new TextureManager();
     textureManager->LoadTextureAsset("test", "Asset/texture.jpg");
+
+    fontManager = new FontManager();
+    if (!fontManager->Initialize())
+        return false;
+
+    fontManager->LoadFontAsset("arial", "Asset/arial.ttf");
 
     Mesh* quadMesh = meshManager->GetMesh("quad");
 

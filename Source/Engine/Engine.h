@@ -20,6 +20,7 @@ class Timer;
 
 class MeshManager;
 class TextureManager;
+class FontManager;
 
 class ShaderManager;
 class MaterialManager;
@@ -91,6 +92,7 @@ private:
     MaterialManager* materialManager = nullptr;
     MeshManager* meshManager = nullptr;
     TextureManager* textureManager = nullptr;
+    FontManager* fontManager = nullptr;
 };
 
 extern Engine* gEngine;
