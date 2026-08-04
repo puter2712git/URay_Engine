@@ -9,7 +9,6 @@
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Texture/Texture.h"
-#include "Render/Texture/TextureSampler.h"
 #include "Render/Texture/TextureView.h"
 
 namespace URay

@@ -135,6 +135,8 @@ Texture* RenderDevice::CreateTexture(const std::string& filePath)
     if (!FileIO::Exists(filePath))
         return nullptr;
 
+    stbi_set_flip_vertically_on_load(true);
+
     int width, height, channels;
     stbi_uc* pixels = stbi_load(filePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
