@@ -76,10 +76,7 @@ bool Engine::Initialize()
     textureManager->LoadTextureAsset("font", "Asset/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
-    if (!fontManager->Initialize())
-        return false;
-
-    fontManager->LoadFontAsset("arial", "Asset/arial.ttf");
+    fontManager->LoadFontAsset("default", "Asset/DejaVu Sans Mono.png");
 
     Mesh* quadMesh = meshManager->GetMesh("quad");
 

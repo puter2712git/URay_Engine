@@ -377,10 +377,9 @@ void Renderer::Draw(const DrawCommand& cmd)
     vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pso->GetLayout()->GetHandle(), 0, 1, &vkFrameDescriptorSet, 0, nullptr);
 
-    DescriptorSet* descriptorSet = cmd.material ? cmd.material->GetDescriptorSet(currentFrame) : nullptr;
-    if (descriptorSet)
+    if (cmd.descriptorSet)
     {
-        VkDescriptorSet vkDescriptorSet = descriptorSet->GetHandle();
+        VkDescriptorSet vkDescriptorSet = cmd.descriptorSet->GetHandle();
         if (vkDescriptorSet != VK_NULL_HANDLE)
         {
             vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,

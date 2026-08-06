@@ -22,9 +22,6 @@ URAY_REGISTER_COMPONENT(SpriteComponent)
 
 SpriteComponent::SpriteComponent()
 {
-    if (!IsEnabled())
-        return;
-
     TextureManager* textureManager = gEngine->GetTextureManager();
     texture = textureManager->GetTexture("test");
 

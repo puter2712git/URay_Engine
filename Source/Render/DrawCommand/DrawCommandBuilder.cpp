@@ -1,11 +1,14 @@
 #include "DrawCommandBuilder.h"
 
 #include "Render/IndexBuffer.h"
-#include "Engine/Material/Material.h"
+#include "Render/RenderDevice.h"
+#include "Render/RenderInfo.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
+#include "Render/TextBatcher.h"
 #include "Render/VertexBuffer.h"
-#include "Render/RenderDevice.h"
+
+#include "Engine/Material/Material.h"
 
 namespace URay
 {
@@ -13,6 +16,7 @@ namespace URay
 DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer)
     : renderer(renderer)
 {
+    textBatcher = new TextBatcher(&renderer);
 }
 
 void DrawCommandBuilder::Reset()
@@ -70,7 +74,7 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     state.depthStencil = depthStencil;
 
     cmd.pipelineState = state;
-    cmd.material = context.material;
+    cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
 
     drawCmds.push_back(cmd);
 }
@@ -87,6 +91,10 @@ void DrawCommandBuilder::BuildFromLine(const LineCommandContext& context)
 
     lineVertices.push_back(v0);
     lineVertices.push_back(v1);
+}
+
+void DrawCommandBuilder::BuildFromText(const TextCommandContext& context)
+{
 }
 
 void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
@@ -113,7 +121,7 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     state.rasterizer = rasterizer;
 
     cmd.pipelineState = state;
-    cmd.material = context.material;
+    cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
 
     drawCmds.push_back(cmd);
 }

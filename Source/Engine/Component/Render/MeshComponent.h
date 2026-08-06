@@ -22,29 +22,15 @@ public:
 public:
     virtual void SubmitCommand(DrawCommandBuilder& builder) override;
 
-    virtual void GetProperties(std::vector<Property>& properties) override;
-
     bool Pick(const Vector3& origin, const Vector3& direction, float& outDist) const override;
 
     virtual const std::string& GetName() const override { return name; }
 
-    Mesh* GetMesh() const
-    {
-        return mesh;
-    }
-    void SetMesh(Mesh* newMesh)
-    {
-        mesh = newMesh;
-    }
+    Mesh* GetMesh() const { return mesh; }
+    void SetMesh(Mesh* newMesh) { mesh = newMesh; }
 
-    Material* GetMaterial() const
-    {
-        return material;
-    }
-    void SetMaterial(Material* newMaterial)
-    {
-        material = newMaterial;
-    }
+    Material* GetMaterial() const { return material; }
+    void SetMaterial(Material* newMaterial) { material = newMaterial; }
 
 protected:
     std::string name = "Mesh";

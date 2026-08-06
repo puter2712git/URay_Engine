@@ -21,7 +21,7 @@ public:
 public:
     void SubmitCommand(DrawCommandBuilder& builder) override;
 
-    bool Pick(const Vector3& origin, const Vector3& direction, float& outDist) const;
+    bool Pick(const Vector3& origin, const Vector3& direction, float& outDist) const override;
 
     Material* GetMaterial() const { return material; }
 

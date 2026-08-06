@@ -49,13 +49,6 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
     builder.BuildFromMesh(context);
 }
 
-void MeshComponent::GetProperties(std::vector<Property>& properties)
-{
-    Component::GetProperties(properties);
-
-    properties.emplace_back(PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(Mesh*));
-}
-
 bool MeshComponent::Pick(const Vector3& origin, const Vector3& direction, float& outDist) const
 {
     Unit* owner = GetOwner();

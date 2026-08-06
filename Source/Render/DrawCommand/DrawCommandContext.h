@@ -4,6 +4,7 @@
 #include "Core/Math/Matrix.h"
 
 #include <cstdint>
+#include <string>
 
 namespace URay
 {
@@ -11,6 +12,8 @@ namespace URay
 class VertexBuffer;
 class IndexBuffer;
 class Material;
+
+class FontAsset;
 
 struct MeshCommandContext
 {
@@ -31,6 +34,13 @@ struct LineCommandContext
     Vector3 start = Vector3::Zero;
     Vector3 end = Vector3::Zero;
     Color color = Color::White;
+};
+
+struct TextCommandContext
+{
+    Matrix worldMatrix = Matrix::Identity;
+    std::string text;
+    FontAsset* font = nullptr;
 };
 
 struct GizmoCommandContext
