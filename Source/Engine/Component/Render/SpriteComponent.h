@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Pickable.h"
 
 namespace URay
 {
@@ -9,7 +10,7 @@ class TextureAsset;
 class Mesh;
 class Material;
 
-class SpriteComponent : public RenderComponent
+class SpriteComponent : public RenderComponent, public IPickable
 {
     URAY_CLASS(SpriteComponent, RenderComponent)
 
@@ -19,6 +20,8 @@ public:
 
 public:
     void SubmitCommand(DrawCommandBuilder& builder) override;
+
+    bool Pick(const Vector3& origin, const Vector3& direction, float& outDist) const;
 
     Material* GetMaterial() const { return material; }
 

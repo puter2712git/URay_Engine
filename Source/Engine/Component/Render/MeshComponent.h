@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Pickable.h"
 
 #include <vulkan/vulkan.h>
 
@@ -10,7 +11,7 @@ namespace URay
 class Mesh;
 class Material;
 
-class MeshComponent : public RenderComponent
+class MeshComponent : public RenderComponent, public IPickable
 {
     URAY_CLASS(MeshComponent, RenderComponent)
 
@@ -22,6 +23,8 @@ public:
     virtual void SubmitCommand(DrawCommandBuilder& builder) override;
 
     virtual void GetProperties(std::vector<Property>& properties) override;
+
+    bool Pick(const Vector3& origin, const Vector3& direction, float& outDist) const override;
 
     virtual const std::string& GetName() const override { return name; }
 

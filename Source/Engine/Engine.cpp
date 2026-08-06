@@ -9,6 +9,7 @@
 #include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
+#include "Engine/Pickable.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
@@ -347,45 +348,27 @@ void Engine::UpdatePick()
             for (Unit* unit : scene->GetUnits())
             {
                 std::set<Component*> components = unit->GetComponents();
-                for (const Component* comp : components)
+                for (Component* comp : components)
                 {
-                    const MeshComponent* meshComponent = dynamic_cast<const MeshComponent*>(comp);
-                    if (!meshComponent)
+                    IPickable* pickableObject = dynamic_cast<IPickable*>(comp);
+                    if (!pickableObject)
                         continue;
 
                     TransformComponent* transform = unit->GetTransform();
                     if (!transform)
                         continue;
 
-                    const Mesh* mesh = meshComponent->GetMesh();
+                    float dist;
+                    bool hit = pickableObject->Pick(start, lineDir, dist);
 
-                    const std::vector<Vertex> vertices = mesh->GetVertices();
-                    const std::vector<uint16_t> indices = mesh->GetIndices();
+                    if (!hit)
+                        continue;
 
-                    const Vector3 localStart = transform->InvTransformPoint(start);
-                    const Vector3 localDir = transform->InvTransformVector(lineDir);
-
-                    for (size_t i = 0; i + 2 < indices.size(); i += 3)
+                    if (dist < minDist)
                     {
-                        const Vector3 p0 = vertices[indices[i + 0]].pos;
-                        const Vector3 p1 = vertices[indices[i + 1]].pos;
-                        const Vector3 p2 = vertices[indices[i + 2]].pos;
-
-                        float dist;
-                        bool hit = Math::IntersectLineTriangle(
-                            localStart, localDir,
-                            p0, p1, p2,
-                            dist);
-
-                        if (!hit)
-                            continue;
-
-                        if (minDist > dist)
-                        {
-                            minDist = dist;
-                            isHit = true;
-                            hitUnit = unit;
-                        }
+                        minDist = dist;
+                        isHit = true;
+                        hitUnit = unit;
                     }
                 }
             }

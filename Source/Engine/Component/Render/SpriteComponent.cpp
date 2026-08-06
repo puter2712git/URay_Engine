@@ -9,6 +9,8 @@
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
+#include "Core/Math/Math.h"
+
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
 
@@ -58,6 +60,59 @@ void SpriteComponent::SubmitCommand(DrawCommandBuilder& builder)
     context.material = material;
 
     builder.BuildFromMesh(context);
+}
+
+bool SpriteComponent::Pick(const Vector3& origin, const Vector3& direction, float& outDist) const
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return false;
+
+    TransformComponent* transform = owner->GetTransform();
+    if (!transform)
+        return false;
+
+    const Mesh* mesh = quadMesh;
+    if (!mesh)
+        return false;
+
+    const std::vector<Vertex> vertices = mesh->GetVertices();
+    const std::vector<uint16_t> indices = mesh->GetIndices();
+
+    bool isHit = false;
+    float minDist = std::numeric_limits<float>::max();
+
+    const Vector3 localOrigin = transform->InvTransformPoint(origin);
+    const Vector3 localDir = transform->InvTransformVector(direction);
+
+    for (size_t i = 0; i + 2 < indices.size(); i += 3)
+    {
+        const Vector3 p0 = vertices[indices[i]].pos;
+        const Vector3 p1 = vertices[indices[i + 1]].pos;
+        const Vector3 p2 = vertices[indices[i + 2]].pos;
+
+        float dist;
+        bool hit = Math::IntersectLineTriangle(
+            localOrigin, localDir,
+            p0, p1, p2,
+            dist);
+
+        if (!hit)
+            continue;
+
+        if (dist < minDist)
+        {
+            minDist = dist;
+            isHit = true;
+        }
+    }
+
+    if (isHit)
+    {
+        outDist = minDist;
+    }
+
+    return isHit;
 }
 
 } // namespace URay
