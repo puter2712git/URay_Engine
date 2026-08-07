@@ -23,6 +23,9 @@ public:
     float GetCellWidth() const { return width / column; }
     float GetCellHeight() const { return height / row; }
 
+    float GetCellWidthUV() const { return GetCellWidth() / width; }
+    float GetCellHeightUV() const { return GetCellHeight() / height; }
+
 private:
     std::string filePath;
 

@@ -22,6 +22,7 @@ public:
     void Reset();
 
     void FlushLines();
+    void FlushTexts();
 
     void BuildFromMesh(const MeshCommandContext& context);
     void BuildFromLine(const LineCommandContext& context);

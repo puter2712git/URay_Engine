@@ -54,6 +54,8 @@ public:
 
     MaterialManager* GetMaterialManager() const { return materialManager; }
 
+    FontManager* GetFontManager() const { return fontManager; }
+
     GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;

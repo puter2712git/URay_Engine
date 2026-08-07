@@ -1,6 +1,8 @@
 #include "TextComponent.h"
 
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
+#include "Engine/Font/FontManager.h"
 #include "Engine/Unit.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
@@ -14,6 +16,7 @@ URAY_REGISTER_COMPONENT(TextComponent)
 
 TextComponent::TextComponent()
 {
+    font = gEngine->GetFontManager()->GetFontAsset("default");
 }
 
 void TextComponent::RegisterClass()

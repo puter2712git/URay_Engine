@@ -69,7 +69,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
         cmd.vertexCount = static_cast<uint32_t>(verts.size());
 
         PipelineStateDesc psoDesc = {};
-        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("default");
+        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("shader");
         psoDesc.topology = PrimitiveTopology::TriangleList;
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;
@@ -103,12 +103,34 @@ void TextBatcher::Collect(const TextCommandContext& context)
 
     std::vector<Vertex>& verts = vertices[context.font];
 
+    const float cellWidth = context.font->GetCellWidth() * 0.01f;
+    const float cellHeight = context.font->GetCellHeight() * 0.01f;
+    const float advance = context.font->GetCellWidth() * 0.01f;
+
     for (size_t i = 0; i < context.text.length(); ++i)
     {
-        const Vector3 p0 = Vector3::Zero;
-        const Vector3 p1 = Vector3(context.font->GetCellWidth(), 0, 0);
-        const Vector3 p2 = Vector3(context.font->GetCellWidth(), 0, context.font->GetCellHeight());
-        const Vector3 p3 = Vector3(0, 0, context.font->GetCellHeight());
+        const Vector3 p0 = context.worldMatrix.TransformPoint(Vector3(cellWidth * i, 0.0f, 0.0f));
+        const Vector3 p1 = context.worldMatrix.TransformPoint(Vector3(cellWidth * (i + 1), 0, 0));
+        const Vector3 p2 = context.worldMatrix.TransformPoint(Vector3(cellWidth * (i + 1), 0, cellHeight));
+        const Vector3 p3 = context.worldMatrix.TransformPoint(Vector3(cellWidth * i, 0, cellHeight));
+
+        const Vector2 startUV = context.font->GetUVFromChar(context.text[i]);
+
+        const float vTop = 1.0f - startUV.y;
+        const float vBottom = 1.0f - (startUV.y + context.font->GetCellHeightUV());
+
+        const Vector2 uv0 = Vector2(startUV.x, vBottom);
+        const Vector2 uv1 = Vector2(startUV.x + context.font->GetCellWidthUV(), vBottom);
+        const Vector2 uv2 = Vector2(startUV.x + context.font->GetCellWidthUV(), vTop);
+        const Vector2 uv3 = Vector2(startUV.x, vTop);
+
+        verts.push_back({ p0, uv0, Color::White });
+        verts.push_back({ p1, uv1, Color::White });
+        verts.push_back({ p2, uv2, Color::White });
+
+        verts.push_back({ p0, uv0, Color::White });
+        verts.push_back({ p2, uv2, Color::White });
+        verts.push_back({ p3, uv3, Color::White });
     }
 }
 

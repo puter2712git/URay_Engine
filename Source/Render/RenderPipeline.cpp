@@ -33,6 +33,7 @@ void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
 
     CollectCommand(scenes);
     builder.FlushLines();
+    builder.FlushTexts();
 
     std::vector<DrawCommand> cmds = builder.GetCommands();
 

@@ -21,6 +21,7 @@ DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer)
 
 void DrawCommandBuilder::Reset()
 {
+    textBatcher->Reset();
     drawCmds.clear();
 }
 
@@ -49,6 +50,14 @@ void DrawCommandBuilder::FlushLines()
     drawCmds.push_back(cmd);
 
     lineVertices.clear();
+}
+
+void DrawCommandBuilder::FlushTexts()
+{
+    if (!textBatcher)
+        return;
+
+    textBatcher->Flush(*this);
 }
 
 void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
@@ -95,6 +104,7 @@ void DrawCommandBuilder::BuildFromLine(const LineCommandContext& context)
 
 void DrawCommandBuilder::BuildFromText(const TextCommandContext& context)
 {
+    textBatcher->Collect(context);
 }
 
 void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)

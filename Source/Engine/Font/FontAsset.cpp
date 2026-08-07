@@ -26,6 +26,12 @@ Vector2 FontAsset::GetUVFromChar(const char letter) const
 
     int r = index / column;
     int c = index % column;
+
+    float startU = GetCellWidth() * c;
+    float startV = GetCellHeight() * r;
+
+    Vector2 uv = Vector2(startU / width, startV / height);
+    return uv;
 }
 
 } // namespace URay
