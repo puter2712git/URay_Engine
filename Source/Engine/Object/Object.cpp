@@ -1,5 +1,11 @@
 #include "Object.h"
 
+#include "Engine/Engine.h"
+#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshManager.h"
+#include "Engine/Texture/TextureAsset.h"
+#include "Engine/Texture/TextureManager.h"
+
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector4.h"
@@ -65,7 +71,10 @@ YAML::Node Object::Serialize()
             node[prop.name] = prop.GetValue<std::string>(this);
             break;
         case PropertyType::Mesh:
-            // Mesh instances currently have no persistent resource key to serialize.
+            node[prop.name] = prop.GetValue<Mesh*>(this)->GetName();
+            break;
+        case PropertyType::Texture:
+            node[prop.name] = prop.GetValue<TextureAsset*>(this)->GetName();
             break;
         }
     }
@@ -75,6 +84,67 @@ YAML::Node Object::Serialize()
 
 void Object::Deserialize(const YAML::Node& node)
 {
+    const auto& properties = GetClass()->GetProperties();
+
+    for (const Property& prop : properties)
+    {
+        const YAML::Node valueNode = node[prop.name];
+        if (!valueNode)
+            continue;
+
+        void* valueAddress = reinterpret_cast<uint8_t*>(this) + prop.offset;
+
+        switch (prop.type)
+        {
+        case PropertyType::Bool:
+            *static_cast<bool*>(valueAddress) = valueNode.as<bool>();
+            break;
+        case PropertyType::Int:
+            *static_cast<int*>(valueAddress) = valueNode.as<int>();
+            break;
+        case PropertyType::Float:
+            *static_cast<float*>(valueAddress) = valueNode.as<float>();
+            break;
+        case PropertyType::Vector2:
+        {
+            Vector2& value = *static_cast<Vector2*>(valueAddress);
+            value.x = valueNode[0].as<float>();
+            value.y = valueNode[1].as<float>();
+            break;
+        }
+        case PropertyType::Vector3:
+        {
+            Vector3& value = *static_cast<Vector3*>(valueAddress);
+            value.x = valueNode[0].as<float>();
+            value.y = valueNode[1].as<float>();
+            value.z = valueNode[2].as<float>();
+            break;
+        }
+        case PropertyType::Vector4:
+        {
+            Vector4& value = *static_cast<Vector4*>(valueAddress);
+            value.x = valueNode[0].as<float>();
+            value.y = valueNode[1].as<float>();
+            value.z = valueNode[2].as<float>();
+            value.w = valueNode[3].as<float>();
+            break;
+        }
+        case PropertyType::String:
+            *static_cast<std::string*>(valueAddress) = valueNode.as<std::string>();
+            break;
+        case PropertyType::Mesh:
+            *static_cast<Mesh**>(valueAddress) =
+                gEngine->GetMeshManager()->GetMesh(valueNode.as<std::string>());
+            break;
+        case PropertyType::Texture:
+            *static_cast<TextureAsset**>(valueAddress) =
+                gEngine->GetTextureManager()->GetTexture(valueNode.as<std::string>());
+            break;
+        }
+
+        if (prop.OnChangedCallback)
+            prop.OnChangedCallback(this, prop);
+    }
 }
 
 } // namespace URay

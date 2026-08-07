@@ -1,5 +1,6 @@
 #include "Scene.h"
 
+#include "Engine/Component/ComponentFactory.h"
 #include "Engine/Unit.h"
 
 namespace URay
@@ -45,6 +46,20 @@ YAML::Node Scene::Serialize()
 
 void Scene::Deserialize(const YAML::Node& node)
 {
+    for (const auto& unitNode : node)
+    {
+        Unit* newUnit = new Unit();
+        newUnit->SetName(unitNode.first.as<std::string>());
+
+        for (const auto& compNode : unitNode.second)
+        {
+            Component* comp = ComponentFactory::Create(compNode.first.as<std::string>());
+            comp->Deserialize(compNode.second);
+            newUnit->AddComponent(comp);
+        }
+
+        AddUnit(newUnit);
+    }
 }
 
 void Scene::AddUnit(Unit* unit)

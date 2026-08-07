@@ -25,6 +25,13 @@ void MainMenuBar::Draw() const
             }
             if (ImGui::MenuItem("Load Scene"))
             {
+                const std::string sceneText = FileIO::ReadText("./TestScene.urscene");
+                YAML::Node sceneNode = YAML::Load(sceneText);
+
+                Scene* loadedScene = new Scene(SceneType::Game);
+                loadedScene->Deserialize(sceneNode);
+
+                gEngine->SetGameScene(loadedScene);
             }
             ImGui::EndMenu();
         }

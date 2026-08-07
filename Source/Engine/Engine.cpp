@@ -200,6 +200,28 @@ void Engine::SpawnUnit(Unit* unit)
     }
 }
 
+void Engine::SetGameScene(Scene* gameScene)
+{
+    if (!gameScene)
+        return;
+
+    Scene* currGameScene = GetSceneByType(SceneType::Game);
+    if (currGameScene)
+    {
+        scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
+                                    [&](Scene* scene)
+                                    {
+                                        return currGameScene == scene;
+                                    }),
+                     scenes.end());
+
+        delete currGameScene;
+        currGameScene = nullptr;
+    }
+
+    scenes.push_back(gameScene);
+}
+
 void Engine::GetWindowSize(int& width, int& height) const
 {
     glfwGetWindowSize(window->GetGLFWWindow(), &width, &height);

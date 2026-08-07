@@ -38,6 +38,8 @@ TextureAsset* TextureManager::LoadTextureAsset(const std::string& key, const std
     TextureAsset* asset = new TextureAsset(filePath, width, height, channels);
     textures.insert({ key, asset });
 
+    asset->SetName(key);
+
     return asset;
 }
 

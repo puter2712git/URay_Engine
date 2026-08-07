@@ -49,7 +49,7 @@ bool FileIO::WriteText(const fs::path& path, const std::string& text)
         fs::create_directories(path.parent_path());
     }
 
-    std::ofstream file(path, std::ios::out | std::ios::app);
+    std::ofstream file(path, std::ios::out);
     if (!file || !file.is_open())
         return false;
 

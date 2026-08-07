@@ -66,6 +66,7 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     mesh->SetIndexBuffer(indexBuffer);
 
     meshes.insert({ key, mesh });
+    mesh->SetName(key);
 
     return mesh;
 }

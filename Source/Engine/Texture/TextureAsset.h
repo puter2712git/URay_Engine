@@ -12,13 +12,17 @@ public:
                  int width, int height, int channels);
 
 public:
-    std::string GetFilePath() const { return filePath; }
+    void SetName(const std::string& inName) { name = inName; }
+    const std::string& GetName() const { return name; }
+
+    const std::string& GetFilePath() const { return filePath; }
 
     int GetWidth() const { return width; }
     int GetHeight() const { return height; }
     int GetChannels() const { return channels; }
 
 private:
+    std::string name;
     std::string filePath;
 
     int width = 0;

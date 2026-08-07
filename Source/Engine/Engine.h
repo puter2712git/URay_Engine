@@ -43,6 +43,8 @@ public:
 
     void SpawnUnit(Unit* unit);
 
+    void SetGameScene(Scene* gameScene);
+
     void GetWindowSize(int& width, int& height) const;
     void GetFramebufferSize(int& width, int& height) const;
 
