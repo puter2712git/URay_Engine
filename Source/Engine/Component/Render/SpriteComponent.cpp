@@ -1,12 +1,12 @@
 #include "SpriteComponent.h"
 
-#include "Engine/Component/TransformComponent.h"
-#include "Engine/Engine.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/MeshAsset.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Unit.h"
 
 #include "Core/Math/Math.h"
@@ -51,9 +51,7 @@ void SpriteComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext context = {};
     context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    context.vertexBuffer = quadMesh->GetVertexBuffer();
-    context.indexBuffer = quadMesh->GetIndexBuffer();
-    context.indexCount = static_cast<uint32_t>(quadMesh->GetIndices().size());
+    context.meshAsset = quadMesh;
     context.material = material;
 
     builder.BuildFromMesh(context);

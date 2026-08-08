@@ -15,6 +15,9 @@ namespace URay
 
 class RenderDevice;
 
+class MeshAsset;
+class Mesh;
+
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
@@ -29,6 +32,9 @@ public:
     ~GPUResourceManager();
 
 public:
+    Mesh* GetOrCreateMesh(MeshAsset* asset);
+    void DestroyMeshes();
+
     Texture* GetOrCreateTexture(const std::string& filePath);
     void DestroyTextures();
 
@@ -49,6 +55,8 @@ public:
 
 private:
     RenderDevice* renderDevice = nullptr;
+
+    std::unordered_map<MeshAsset*, Mesh*> meshes;
 
     std::unordered_map<std::string, Texture*> textures;
     std::unordered_map<Texture*, TextureView*> textureViews;

@@ -7,6 +7,7 @@
 #include "Descriptor/DescriptorSetLayoutDesc.h"
 #include "GPUResourceManager.h"
 #include "IndexBuffer.h"
+#include "Mesh.h"
 #include "PipelineLayout/PipelineLayout.h"
 #include "PipelineLayout/PipelineLayoutDesc.h"
 #include "PipelineState/PipelineState.h"
@@ -128,6 +129,12 @@ IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint16_t>& indice
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
     return indexBuffer;
+}
+
+Mesh* RenderDevice::CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
+{
+    Mesh* mesh = new Mesh(device, inVertexBuffer, inIndexBuffer);
+    return mesh;
 }
 
 Texture* RenderDevice::CreateTexture(const std::string& filePath)

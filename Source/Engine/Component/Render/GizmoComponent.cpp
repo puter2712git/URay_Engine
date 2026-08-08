@@ -1,17 +1,17 @@
 #include "GizmoComponent.h"
 
+#include "Engine/Asset/Mesh/MeshAsset.h"
+#include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Asset/Mesh/MeshAsset.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Unit.h"
 
 #include "Core/Math/Math.h"
 
+#include "Engine/Asset/Material/MaterialManager.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Engine/Asset/Material/MaterialManager.h"
 
 #include <algorithm>
 
@@ -95,10 +95,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
         xCoord.colorTint = hoveredAxis == static_cast<int>(Axis::X) ? Color::Yellow : Color::Red;
     }
 
-    xCoord.vertexBuffer = currMesh->GetVertexBuffer();
-    xCoord.vertexCount = static_cast<uint32_t>(currMesh->GetVertices().size());
-    xCoord.indexBuffer = currMesh->GetIndexBuffer();
-    xCoord.indexCount = static_cast<uint32_t>(currMesh->GetIndices().size());
+    xCoord.meshAsset = currMesh;
     xCoord.material = material;
 
     GizmoCommandContext yCoord = {};
@@ -113,10 +110,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
         yCoord.colorTint = hoveredAxis == static_cast<int>(Axis::Y) ? Color::Yellow : Color::Green;
     }
 
-    yCoord.vertexBuffer = currMesh->GetVertexBuffer();
-    yCoord.vertexCount = static_cast<uint32_t>(currMesh->GetVertices().size());
-    yCoord.indexBuffer = currMesh->GetIndexBuffer();
-    yCoord.indexCount = static_cast<uint32_t>(currMesh->GetIndices().size());
+    yCoord.meshAsset = currMesh;
     yCoord.material = material;
 
     GizmoCommandContext zCoord = {};
@@ -131,10 +125,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
         zCoord.colorTint = hoveredAxis == static_cast<int>(Axis::Z) ? Color::Yellow : Color::Blue;
     }
 
-    zCoord.vertexBuffer = currMesh->GetVertexBuffer();
-    zCoord.vertexCount = static_cast<uint32_t>(currMesh->GetVertices().size());
-    zCoord.indexBuffer = currMesh->GetIndexBuffer();
-    zCoord.indexCount = static_cast<uint32_t>(currMesh->GetIndices().size());
+    zCoord.meshAsset = currMesh;
     zCoord.material = material;
 
     builder.BuildFromGizmo(xCoord);

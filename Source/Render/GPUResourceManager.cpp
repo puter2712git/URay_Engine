@@ -1,12 +1,17 @@
 #include "GPUResourceManager.h"
 
 #include "Render/Descriptor/DescriptorSetLayout.h"
+#include "Render/IndexBuffer.h"
+#include "Render/Mesh.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
+#include "Render/PipelineState/PipelineState.h"
 #include "Render/PipelineState/PipelineStateDesc.h"
 #include "Render/RenderDevice.h"
 #include "Render/Texture/Texture.h"
 #include "Render/Texture/TextureView.h"
-#include "Render/PipelineState/PipelineState.h"
+#include "Render/VertexBuffer.h"
+
+#include "Engine/Asset/Mesh/MeshAsset.h"
 
 #include <vulkan/vulkan.h>
 
@@ -26,6 +31,35 @@ GPUResourceManager::~GPUResourceManager()
     DestroyTextureSamplers();
     DestroyTextureViews();
     DestroyTextures();
+}
+
+Mesh* GPUResourceManager::GetOrCreateMesh(MeshAsset* asset)
+{
+    auto it = meshes.find(asset);
+    if (it != meshes.end())
+        return it->second;
+
+    VertexBuffer* vertexBuffer = renderDevice->CreateVertexBuffer(asset->GetVertices());
+    if (!vertexBuffer)
+        return nullptr;
+
+    IndexBuffer* indexBuffer = renderDevice->CreateIndexBuffer(asset->GetIndices());
+    if (!indexBuffer)
+    {
+        delete vertexBuffer;
+        return nullptr;
+    }
+
+    Mesh* newMesh = renderDevice->CreateMesh(vertexBuffer, indexBuffer);
+    if (!newMesh)
+    {
+        delete vertexBuffer;
+        delete indexBuffer;
+        return nullptr;
+    }
+
+    meshes.insert({ asset, newMesh });
+    return newMesh;
 }
 
 Texture* GPUResourceManager::GetOrCreateTexture(const std::string& filePath)

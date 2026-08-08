@@ -1,10 +1,10 @@
 #include "MeshComponent.h"
 
-#include "Engine/Component/TransformComponent.h"
-#include "Engine/Engine.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/MeshAsset.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Unit.h"
 
@@ -41,9 +41,7 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     MeshCommandContext context = {};
     context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    context.vertexBuffer = mesh->GetVertexBuffer();
-    context.indexBuffer = mesh->GetIndexBuffer();
-    context.indexCount = static_cast<uint32_t>(mesh->GetIndices().size());
+    context.meshAsset = GetMesh();
     context.material = GetMaterial();
 
     builder.BuildFromMesh(context);

@@ -9,8 +9,7 @@
 namespace URay
 {
 
-class VertexBuffer;
-class IndexBuffer;
+class MeshAsset;
 class Material;
 
 class FontAsset;
@@ -20,11 +19,7 @@ struct MeshCommandContext
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
 
-    VertexBuffer* vertexBuffer = nullptr;
-    uint32_t vertexCount = 0;
-
-    IndexBuffer* indexBuffer = nullptr;
-    uint32_t indexCount = 0;
+    MeshAsset* meshAsset = nullptr;
 
     Material* material = nullptr;
 };
@@ -48,11 +43,7 @@ struct GizmoCommandContext
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
 
-    VertexBuffer* vertexBuffer = nullptr;
-    uint32_t vertexCount = 0;
-
-    IndexBuffer* indexBuffer = nullptr;
-    uint32_t indexCount = 0;
+    MeshAsset* meshAsset = nullptr;
 
     Material* material = nullptr;
 };

@@ -1,17 +1,17 @@
 #include "Engine.h"
 
+#include "Engine/Asset/Font/FontManager.h"
+#include "Engine/Asset/Material/MaterialManager.h"
+#include "Engine/Asset/Mesh/MeshAsset.h"
+#include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Asset/Texture/TextureManager.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
-#include "Engine/Asset/Font/FontManager.h"
-#include "Engine/Asset/Material/MaterialManager.h"
-#include "Engine/Asset/Mesh/MeshAsset.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Pickable.h"
 #include "Engine/Scene/Scene.h"
-#include "Engine/Asset/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
 #include "Core/Math/Math.h"
@@ -68,7 +68,7 @@ bool Engine::Initialize()
     materialManager->GetOrCreate("default", shaderManager->GetOrCreate("base"));
     materialManager->GetOrCreate("sprite", shaderManager->GetOrCreate("shader"));
 
-    meshManager = new MeshManager(renderer->GetDevice());
+    meshManager = new MeshManager();
     meshManager->CreateDefaultMeshes();
 
     textureManager = new TextureManager();

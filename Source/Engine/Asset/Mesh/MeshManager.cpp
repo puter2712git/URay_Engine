@@ -5,14 +5,10 @@
 #include "Core/Math/Math.h"
 #include "Core/Math/Matrix.h"
 
-#include "Render/RenderDevice.h"
-#include "Render/VertexBuffer.h"
-
 namespace URay
 {
 
-MeshManager::MeshManager(RenderDevice* device)
-    : device(device)
+MeshManager::MeshManager()
 {
 }
 
@@ -44,7 +40,7 @@ bool MeshManager::CreateDefaultMeshes()
 }
 
 MeshAsset* MeshManager::CreateMesh(const std::string& key,
-                              const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
+                                   const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
 {
     if (meshes.contains(key))
         return nullptr;
@@ -52,18 +48,6 @@ MeshAsset* MeshManager::CreateMesh(const std::string& key,
     MeshAsset* mesh = new MeshAsset();
     mesh->SetVertices(vertices);
     mesh->SetIndices(indices);
-
-    VertexBuffer* vertexBuffer = device->CreateVertexBuffer(vertices);
-    if (!vertexBuffer)
-        return nullptr;
-
-    mesh->SetVertexBuffer(vertexBuffer);
-
-    IndexBuffer* indexBuffer = device->CreateIndexBuffer(indices);
-    if (!indexBuffer)
-        return nullptr;
-
-    mesh->SetIndexBuffer(indexBuffer);
 
     meshes.insert({ key, mesh });
     mesh->SetName(key);

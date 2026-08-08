@@ -14,6 +14,7 @@ namespace URay
 class Renderer;
 class VertexBuffer;
 class IndexBuffer;
+class Mesh;
 class ConstantBuffer;
 class Texture;
 class TextureView;
@@ -38,6 +39,7 @@ public:
 public:
     VertexBuffer* CreateVertexBuffer(const std::vector<Vertex>& vertices);
     IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
+    Mesh* CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
     Texture* CreateTexture(const std::string& filePath);
     TextureView* CreateTextureView(Texture* texture);
