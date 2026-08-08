@@ -100,7 +100,7 @@ void MeshManager::CreateBox()
         { {  0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
     };
     std::vector<uint16_t> boxIndices = {
-         0,  1,  2,  1,  3,  2,
+         0,  2,  1,  1,  2,  3,
          4,  5,  6,  5,  7,  6,
          8,  9, 10,  9, 11, 10,
         12, 13, 14, 13, 15, 14,
