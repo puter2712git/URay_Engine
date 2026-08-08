@@ -4,7 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Material/Material.h"
 #include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshAsset.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
@@ -69,7 +69,7 @@ bool SpriteComponent::Pick(const Vector3& origin, const Vector3& direction, floa
     if (!transform)
         return false;
 
-    const Mesh* mesh = quadMesh;
+    const MeshAsset* mesh = quadMesh;
     if (!mesh)
         return false;
 

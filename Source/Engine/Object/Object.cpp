@@ -1,7 +1,7 @@
 #include "Object.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshAsset.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Texture/TextureAsset.h"
 #include "Engine/Texture/TextureManager.h"
@@ -71,7 +71,7 @@ YAML::Node Object::Serialize()
             node[prop.name] = prop.GetValue<std::string>(this);
             break;
         case PropertyType::Mesh:
-            node[prop.name] = prop.GetValue<Mesh*>(this)->GetName();
+            node[prop.name] = prop.GetValue<MeshAsset*>(this)->GetName();
             break;
         case PropertyType::Texture:
             node[prop.name] = prop.GetValue<TextureAsset*>(this)->GetName();
@@ -133,7 +133,7 @@ void Object::Deserialize(const YAML::Node& node)
             *static_cast<std::string*>(valueAddress) = valueNode.as<std::string>();
             break;
         case PropertyType::Mesh:
-            *static_cast<Mesh**>(valueAddress) =
+            *static_cast<MeshAsset**>(valueAddress) =
                 gEngine->GetMeshManager()->GetMesh(valueNode.as<std::string>());
             break;
         case PropertyType::Texture:

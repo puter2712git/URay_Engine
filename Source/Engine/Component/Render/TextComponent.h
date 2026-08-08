@@ -8,7 +8,7 @@
 namespace URay
 {
 
-class Mesh;
+class MeshAsset;
 class Material;
 
 class FontAsset;

@@ -7,7 +7,7 @@
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshAsset.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Pickable.h"
 #include "Engine/Scene/Scene.h"
@@ -78,7 +78,7 @@ bool Engine::Initialize()
     fontManager = new FontManager();
     fontManager->LoadFontAsset("default", "Asset/DejaVu Sans Mono.png");
 
-    Mesh* quadMesh = meshManager->GetMesh("quad");
+    MeshAsset* quadMesh = meshManager->GetMesh("quad");
 
     Scene* editorScene = new Scene(SceneType::Editor);
 
@@ -415,7 +415,7 @@ bool Engine::PickGizmo(const Vector3& start, const Vector3& dir, int& outAxis)
 
     for (size_t axis = 0; axis < 3; ++axis)
     {
-        Mesh* gizmoMesh = gizmo->GetCurrMesh();
+        MeshAsset* gizmoMesh = gizmo->GetCurrMesh();
         const Matrix gizmoWorld = gizmo->GetCurrMatrix(axis);
         const Matrix invGizmoWorld = gizmoWorld.Inverse();
 

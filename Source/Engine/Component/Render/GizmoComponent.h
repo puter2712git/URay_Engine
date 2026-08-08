@@ -12,7 +12,7 @@
 namespace URay
 {
 
-class Mesh;
+class MeshAsset;
 class Material;
 class Unit;
 
@@ -63,7 +63,7 @@ public:
     int GetCurrModeIndex() const { return static_cast<int>(currMode); }
     void SetMode(GizmoMode mode) { currMode = mode; }
 
-    Mesh* GetCurrMesh() { return meshes[static_cast<size_t>(currMode)]; }
+    MeshAsset* GetCurrMesh() { return meshes[static_cast<size_t>(currMode)]; }
 
     const Matrix& GetCurrMatrix(size_t axis) const { return matrices[GetCurrModeIndex()][axis]; }
 
@@ -96,7 +96,7 @@ private:
 
     Unit* targetUnit = nullptr;
 
-    std::array<Mesh*, static_cast<size_t>(GizmoMode::Count)> meshes;
+    std::array<MeshAsset*, static_cast<size_t>(GizmoMode::Count)> meshes;
     std::array<std::array<Matrix, static_cast<size_t>(Axis::Count)>, static_cast<size_t>(GizmoMode::Count)> matrices;
 
     Material* material = nullptr;

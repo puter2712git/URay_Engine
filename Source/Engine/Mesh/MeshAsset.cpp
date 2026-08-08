@@ -1,9 +1,9 @@
-#include "Mesh.h"
+#include "MeshAsset.h"
 
 namespace URay
 {
 
-Mesh::~Mesh()
+MeshAsset::~MeshAsset()
 {
     delete indexBuffer;
     delete vertexBuffer;

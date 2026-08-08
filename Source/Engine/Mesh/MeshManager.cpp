@@ -1,6 +1,6 @@
 #include "MeshManager.h"
 
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshAsset.h"
 
 #include "Core/Math/Math.h"
 #include "Core/Math/Matrix.h"
@@ -43,13 +43,13 @@ bool MeshManager::CreateDefaultMeshes()
     return true;
 }
 
-Mesh* MeshManager::CreateMesh(const std::string& key,
+MeshAsset* MeshManager::CreateMesh(const std::string& key,
                               const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
 {
     if (meshes.contains(key))
         return nullptr;
 
-    Mesh* mesh = new Mesh();
+    MeshAsset* mesh = new MeshAsset();
     mesh->SetVertices(vertices);
     mesh->SetIndices(indices);
 
@@ -71,7 +71,7 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     return mesh;
 }
 
-Mesh* MeshManager::GetMesh(const std::string& key) const
+MeshAsset* MeshManager::GetMesh(const std::string& key) const
 {
     auto it = meshes.find(key);
     if (it == meshes.end())
@@ -345,7 +345,7 @@ void MeshManager::CreateArrow()
     uint16_t offset = 0;
 
     {
-        Mesh* cylinderMesh = GetMesh("cylinder");
+        MeshAsset* cylinderMesh = GetMesh("cylinder");
         Matrix translationMatrix = Matrix::MakeTranslation(Vector3(0.0f, 1.0f, 0.0f));
         Matrix rotationMarix = Matrix::MakeRotationX(-90.0f);
         Matrix scaleMatrix = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f));
@@ -363,7 +363,7 @@ void MeshManager::CreateArrow()
         offset += cylinderMesh->GetVertices().size();
     }
     {
-        Mesh* coneMesh = GetMesh("cone");
+        MeshAsset* coneMesh = GetMesh("cone");
         Matrix rotationMatrix = Matrix::MakeRotationX(-90.0f);
         Matrix scaleMatrix = Matrix::MakeScale(Vector3(0.2f, 0.2f, 0.2f));
         Matrix translationMatrix = Matrix::MakeTranslation(Vector3(0.0f, 2.0f, 0.0f));
@@ -450,7 +450,7 @@ void MeshManager::CreateScaleGizmo()
     std::vector<Vertex> vertices;
     std::vector<uint16_t> indices;
 
-    auto appendMesh = [&vertices, &indices](const Mesh* source, const Matrix& transform)
+    auto appendMesh = [&vertices, &indices](const MeshAsset* source, const Matrix& transform)
     {
         const uint16_t offset = static_cast<uint16_t>(vertices.size());
 

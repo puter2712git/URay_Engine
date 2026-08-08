@@ -3,7 +3,7 @@
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshAsset.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Unit.h"
@@ -29,7 +29,7 @@ void MeshComponent::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(Mesh*) });
+    StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(MeshAsset*) });
 }
 
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
@@ -59,7 +59,7 @@ bool MeshComponent::Pick(const Vector3& origin, const Vector3& direction, float&
     if (!transform)
         return false;
 
-    const Mesh* mesh = GetMesh();
+    const MeshAsset* mesh = GetMesh();
     if (!mesh)
         return false;
 

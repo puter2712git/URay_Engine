@@ -7,7 +7,7 @@ namespace URay
 {
 
 class TextureAsset;
-class Mesh;
+class MeshAsset;
 class Material;
 
 class SpriteComponent : public RenderComponent, public IPickable
@@ -28,7 +28,7 @@ public:
 private:
     TextureAsset* texture = nullptr;
 
-    Mesh* quadMesh = nullptr;
+    MeshAsset* quadMesh = nullptr;
     Material* material = nullptr;
 };
 

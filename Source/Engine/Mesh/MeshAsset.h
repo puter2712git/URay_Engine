@@ -12,10 +12,10 @@
 namespace URay
 {
 
-class Mesh
+class MeshAsset
 {
 public:
-    ~Mesh();
+    ~MeshAsset();
 
 public:
     const std::string& GetName() const { return name; }

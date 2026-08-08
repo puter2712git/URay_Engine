@@ -3,7 +3,7 @@
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Mesh/MeshAsset.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Unit.h"
 
@@ -80,7 +80,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     if (!targetUnit)
         return;
 
-    Mesh* currMesh = GetCurrMesh();
+    MeshAsset* currMesh = GetCurrMesh();
     std::array<Matrix, static_cast<size_t>(Axis::Count)>& gizmoMatrices = matrices[GetCurrModeIndex()];
 
     GizmoCommandContext xCoord = {};

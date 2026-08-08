@@ -8,7 +8,7 @@
 namespace URay
 {
 
-class Mesh;
+class MeshAsset;
 class Material;
 
 class MeshComponent : public RenderComponent, public IPickable
@@ -26,8 +26,8 @@ public:
 
     virtual const std::string& GetName() const override { return name; }
 
-    Mesh* GetMesh() const { return mesh; }
-    void SetMesh(Mesh* newMesh) { mesh = newMesh; }
+    MeshAsset* GetMesh() const { return mesh; }
+    void SetMesh(MeshAsset* newMesh) { mesh = newMesh; }
 
     Material* GetMaterial() const { return material; }
     void SetMaterial(Material* newMaterial) { material = newMaterial; }
@@ -36,7 +36,7 @@ protected:
     std::string name = "Mesh";
 
 private:
-    Mesh* mesh = nullptr;
+    MeshAsset* mesh = nullptr;
     Material* material = nullptr;
 };
 
