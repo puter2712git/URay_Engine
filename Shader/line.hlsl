@@ -1,31 +1,9 @@
-struct FrameConstants
-{
-    float4x4 view;
-    float4x4 proj;
-};
+#include "Common.hlsli"
+#include "VertexTypes.hlsli"
 
-[[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
-
-struct VSInput
+VertexPCOut VSMain(VertexPCIn input)
 {
-    [[vk::location(0)]] float3 inPosition : POSITION;
-    [[vk::location(2)]] float4 inColor : COLOR;
-};
-
-struct VSOutput
-{
-    float4 outPosition : SV_Position;
-    [[vk::location(0)]] float4 fragColor : TEXCOORD0;
-};
-
-struct PSOutput
-{
-    [[vk::location(0)]] float4 outColor : SV_Target;
-};
-
-VSOutput VSMain(VSInput input)
-{
-    VSOutput output;
+    VertexPCOut output;
 
     output.outPosition = mul(frame.proj, mul(frame.view, float4(input.inPosition, 1.0)));
     output.fragColor = input.inColor;
@@ -33,9 +11,9 @@ VSOutput VSMain(VSInput input)
     return output;
 }
 
-PSOutput PSMain(VSOutput input)
+FragOut PSMain(VertexPCOut input)
 {
-    PSOutput output;
+    FragOut output;
 
     output.outColor = input.fragColor;
 

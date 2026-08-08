@@ -1,38 +1,9 @@
-struct ObjectConstants
-{
-    float4x4 world;
-    float4 colorTint;
-    uint objectId;
-};
-[[vk::push_constant]] ObjectConstants obj;
+#include "Common.hlsli"
+#include "VertexTypes.hlsli"
 
-struct FrameConstants
+VertexPCOut VSMain(VertexPCIn input)
 {
-    float4x4 view;
-    float4x4 proj;
-};
-[[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
-
-struct VSInput
-{
-    [[vk::location(0)]] float3 inPosition : POSITION;
-    [[vk::location(2)]] float4 inColor : COLOR;
-};
-
-struct VSOutput
-{
-    float4 outPosition : SV_Position;
-    [[vk::location(1)]] float4 fragColor : TEXCOORD1;
-};
-
-struct PSOutput
-{
-    [[vk::location(0)]] float4 outColor : SV_Target;
-};
-
-VSOutput VSMain(VSInput input)
-{
-    VSOutput output;
+    VertexPCOut output;
 
     output.outPosition = mul(frame.proj, mul(frame.view, mul(obj.world, float4(input.inPosition, 1.0))));
     output.fragColor = input.inColor;
@@ -40,9 +11,9 @@ VSOutput VSMain(VSInput input)
     return output;
 }
 
-PSOutput PSMain(VSOutput input)
+FragOut PSMain(VertexPCOut input)
 {
-    PSOutput output;
+    FragOut output;
 
     output.outColor = input.fragColor * obj.colorTint;
 
