@@ -17,6 +17,7 @@ class DrawCommandBuilder
 {
 public:
     DrawCommandBuilder(Renderer& renderer);
+    ~DrawCommandBuilder();
 
 public:
     void Reset();

@@ -22,6 +22,15 @@ DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer)
     textBatcher = new TextBatcher(&renderer);
 }
 
+DrawCommandBuilder::~DrawCommandBuilder()
+{
+    if (textBatcher)
+    {
+        delete textBatcher;
+        textBatcher = nullptr;
+    }
+}
+
 void DrawCommandBuilder::Reset()
 {
     textBatcher->Reset();

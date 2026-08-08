@@ -31,6 +31,7 @@ GPUResourceManager::~GPUResourceManager()
     DestroyTextureSamplers();
     DestroyTextureViews();
     DestroyTextures();
+    DestroyMeshes();
 }
 
 Mesh* GPUResourceManager::GetOrCreateMesh(MeshAsset* asset)
@@ -60,6 +61,20 @@ Mesh* GPUResourceManager::GetOrCreateMesh(MeshAsset* asset)
 
     meshes.insert({ asset, newMesh });
     return newMesh;
+}
+
+void GPUResourceManager::DestroyMeshes()
+{
+    for (auto& [asset, mesh] : meshes)
+    {
+        if (mesh)
+        {
+            delete mesh;
+            mesh = nullptr;
+        }
+    }
+
+    meshes.clear();
 }
 
 Texture* GPUResourceManager::GetOrCreateTexture(const std::string& filePath)
