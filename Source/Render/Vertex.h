@@ -50,4 +50,11 @@ struct Vertex
     }
 };
 
+struct VertexPNT
+{
+    Vector3 position = Vector3::Zero;
+    Vector3 normal = Vector3::Up;
+    Vector2 uv = Vector2::Zero;
+};
+
 } // namespace URay
