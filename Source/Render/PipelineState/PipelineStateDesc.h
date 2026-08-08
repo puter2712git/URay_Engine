@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BlendState.h"
 #include "DepthStencilState.h"
 #include "PrimitiveTopology.h"
 #include "RasterizerState.h"
@@ -19,6 +20,7 @@ struct PipelineStateDesc
 
     DepthStencilState depthStencil = {};
     RasterizerState rasterizer = {};
+    BlendState blend = {};
 
     bool operator==(const PipelineStateDesc&) const = default;
 };
@@ -42,6 +44,7 @@ struct PipelineStateDescHash
         combine(desc.depthStencil.depthCompareOp);
         combine(desc.depthStencil.stencilTestEnable);
         combine(desc.rasterizer.cullMode);
+        combine(desc.blend.blendEnable);
 
         return hash;
     }

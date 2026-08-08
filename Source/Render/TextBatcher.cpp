@@ -74,6 +74,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;
         psoDesc.rasterizer.cullMode = CullMode::None;
+        psoDesc.blend.blendEnable = true;
 
         cmd.pipelineState = psoDesc;
 

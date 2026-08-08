@@ -88,6 +88,8 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
 
     state.depthStencil = depthStencil;
 
+    state.blend.blendEnable = true;
+
     cmd.pipelineState = state;
     cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
 
