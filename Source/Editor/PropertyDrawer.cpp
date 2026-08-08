@@ -1,11 +1,11 @@
 #include "PropertyDrawer.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Mesh/MeshAsset.h"
-#include "Engine/Mesh/MeshManager.h"
+#include "Engine/Asset/Mesh/MeshAsset.h"
+#include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Object/Property/Property.h"
-#include "Engine/Texture/TextureAsset.h"
-#include "Engine/Texture/TextureManager.h"
+#include "Engine/Asset/Texture/TextureAsset.h"
+#include "Engine/Asset/Texture/TextureManager.h"
 
 #include "Core/Math/Vector3.h"
 
