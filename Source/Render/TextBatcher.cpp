@@ -69,7 +69,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
         cmd.vertexCount = static_cast<uint32_t>(verts.size());
 
         PipelineStateDesc psoDesc = {};
-        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("shader");
+        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("font");
         psoDesc.topology = PrimitiveTopology::TriangleList;
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;
