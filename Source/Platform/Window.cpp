@@ -9,7 +9,10 @@ bool Window::Initialize()
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    glfwWindow = glfwCreateWindow(800, 600, "URay Engine", nullptr, nullptr);
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    glfwWindow = glfwCreateWindow(mode->width, mode->height, "URay Engine", nullptr, nullptr);
 
     glfwMakeContextCurrent(glfwWindow);
     glfwSwapInterval(1);
