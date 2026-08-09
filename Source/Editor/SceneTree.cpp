@@ -11,19 +11,23 @@
 namespace URay
 {
 
+SceneTree::SceneTree(Editor& editor, Engine& engine)
+    : editor(editor), engine(engine)
+{
+}
+
 void SceneTree::Draw() const
 {
     ImGui::Begin("Scene Tree");
 
-    Scene* scene = gEngine->GetSceneByType(SceneType::Game);
+    Scene* scene = engine.GetSceneByType(SceneType::Game);
     if (!scene)
     {
         ImGui::End();
         return;
     }
 
-    Editor* editor = gEngine->GetEditor();
-    Unit* currSelectedUnit = editor->GetSelectedUnit();
+    Unit* currSelectedUnit = editor.GetSelectedUnit();
 
     for (Unit* unit : scene->GetUnits())
     {
@@ -65,8 +69,7 @@ void SceneTree::DrawUnit(Unit* unit, Unit* currSelectedUnit) const
 
     if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
     {
-        Editor* editor = gEngine->GetEditor();
-        editor->SelectUnit(unit);
+        editor.SelectUnit(unit);
     }
 
     if (opened)

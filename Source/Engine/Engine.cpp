@@ -57,10 +57,6 @@ bool Engine::Initialize()
 
     renderPipeline = new RenderPipeline(*renderer);
 
-    editor = new Editor(*this, *renderer);
-    if (!editor->Initialize())
-        return false;
-
     timer = new Timer();
 
     shaderManager = renderer->GetShaderManager();
@@ -116,62 +112,9 @@ bool Engine::Initialize()
     return true;
 }
 
-void Engine::Run()
-{
-    while (!glfwWindowShouldClose(window->GetGLFWWindow()))
-    {
-        inputManager.Update();
-
-        glfwPollEvents();
-
-        timer->Tick();
-
-        if (inputManager.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
-        {
-            if (gizmo && gizmo->IsDragging())
-            {
-                gizmo->EndDragging();
-            }
-        }
-
-        if (inputManager.GetKeyDown(GLFW_KEY_SPACE))
-        {
-            if (gizmo)
-            {
-                GizmoMode mode = gizmo->GetCurrMode();
-                int modeIndex = static_cast<int>(mode);
-                modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
-
-                GizmoMode newMode = static_cast<GizmoMode>(modeIndex);
-
-                gizmo->SetMode(newMode);
-            }
-        }
-
-        UpdateCameraMovement(timer->GetDeltaTime());
-        UpdateCameraRotation(timer->GetDeltaTime());
-        UpdateHover();
-        UpdatePick();
-
-        for (Scene* scene : scenes)
-        {
-            scene->Update(timer->GetDeltaTime());
-        }
-
-        renderPipeline->Execute(scenes);
-    }
-}
-
 void Engine::Finalize()
 {
     renderer->WaitIdle();
-
-    if (editor)
-    {
-        editor->Finalize();
-        delete editor;
-        editor = nullptr;
-    }
 
     delete renderPipeline;
     renderPipeline = nullptr;
@@ -192,6 +135,57 @@ void Engine::Finalize()
 
     window->Finalize();
     delete window;
+}
+
+void Engine::Update()
+{
+    inputManager.Update();
+
+    glfwPollEvents();
+
+    timer->Tick();
+
+    if (inputManager.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
+    {
+        if (gizmo && gizmo->IsDragging())
+        {
+            gizmo->EndDragging();
+        }
+    }
+
+    if (inputManager.GetKeyDown(GLFW_KEY_SPACE))
+    {
+        if (gizmo)
+        {
+            GizmoMode mode = gizmo->GetCurrMode();
+            int modeIndex = static_cast<int>(mode);
+            modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
+
+            GizmoMode newMode = static_cast<GizmoMode>(modeIndex);
+
+            gizmo->SetMode(newMode);
+        }
+    }
+
+    UpdateCameraMovement(timer->GetDeltaTime());
+    UpdateCameraRotation(timer->GetDeltaTime());
+    UpdateHover();
+    UpdatePick();
+
+    for (Scene* scene : scenes)
+    {
+        scene->Update(timer->GetDeltaTime());
+    }
+}
+
+void Engine::PrepareRender()
+{
+    renderPipeline->Execute(scenes);
+}
+
+void Engine::Render()
+{
+    renderPipeline->EndFrame();
 }
 
 void Engine::SpawnUnit(Unit* unit)
@@ -393,15 +387,6 @@ void Engine::UpdatePick()
                         hitUnit = unit;
                     }
                 }
-            }
-
-            if (isHit)
-            {
-                editor->SelectUnit(hitUnit);
-            }
-            else
-            {
-                editor->SelectUnit(nullptr);
             }
         }
     }

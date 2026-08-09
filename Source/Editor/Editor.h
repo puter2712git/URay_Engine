@@ -13,15 +13,15 @@ class SceneTree;
 class Editor
 {
 public:
-    Editor(Engine& engine, Renderer& renderer);
+    Editor(Engine& engine);
     ~Editor() = default;
 
 public:
     bool Initialize();
     void Finalize();
 
-    void Update(float deltaTime);
-    void Render();
+    void Update();
+    void PrepareRender();
 
     Unit* GetSelectedUnit() const { return selectedUnit; }
     void SelectUnit(Unit* unit);
@@ -32,7 +32,6 @@ private:
 
 private:
     Engine& engine;
-    Renderer& renderer;
 
     Unit* selectedUnit = nullptr;
 

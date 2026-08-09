@@ -38,8 +38,11 @@ public:
 
 public:
     bool Initialize();
-    void Run();
     void Finalize();
+
+    void Update();
+    void PrepareRender();
+    void Render();
 
     void SpawnUnit(Unit* unit);
 
@@ -58,11 +61,11 @@ public:
 
     FontManager* GetFontManager() const { return fontManager; }
 
+    Renderer* GetRenderer() const { return renderer; }
+
     GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;
-
-    Editor* GetEditor() const { return editor; }
 
     Timer* GetTimer() const { return timer; }
 
@@ -88,8 +91,6 @@ private:
 
     Renderer* renderer = nullptr;
     RenderPipeline* renderPipeline = nullptr;
-
-    Editor* editor = nullptr;
 
     Timer* timer = nullptr;
 

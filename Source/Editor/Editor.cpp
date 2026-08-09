@@ -19,18 +19,20 @@
 namespace URay
 {
 
-Editor::Editor(Engine& engine, Renderer& renderer)
-    : engine(engine), renderer(renderer)
+Editor::Editor(Engine& engine)
+    : engine(engine)
 {
 }
 
 bool Editor::Initialize()
 {
-    if (!renderer.InitializeImGui())
+    Renderer* renderer = engine.GetRenderer();
+
+    if (!renderer->InitializeImGui())
         return false;
 
     mainMenuBar = new MainMenuBar();
-    sceneTree = new SceneTree();
+    sceneTree = new SceneTree(*this, engine);
 
     return true;
 }
@@ -39,16 +41,22 @@ void Editor::Finalize()
 {
     delete sceneTree;
 
-    renderer.FinalizeImGui();
+    Renderer* renderer = engine.GetRenderer();
+    if (renderer)
+    {
+        renderer->FinalizeImGui();
+    }
 }
 
-void Editor::Update(float deltaTime)
+void Editor::Update()
 {
 }
 
-void Editor::Render()
+void Editor::PrepareRender()
 {
-    renderer.BeginImGui();
+    Renderer* renderer = engine.GetRenderer();
+
+    renderer->BeginImGui();
 
     mainMenuBar->Draw();
 
@@ -56,9 +64,11 @@ void Editor::Render()
     ShowInspector();
 
     if (sceneTree)
+    {
         sceneTree->Draw();
+    }
 
-    renderer.EndImGui();
+    renderer->EndImGui();
 }
 
 void Editor::SelectUnit(Unit* unit)

@@ -44,9 +44,10 @@ void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
     {
         ExecuteCommand(cmd);
     }
+}
 
-    gEngine->GetEditor()->Render();
-
+void RenderPipeline::EndFrame()
+{
     renderer.EndFrame();
 }
 

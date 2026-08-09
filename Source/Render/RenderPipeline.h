@@ -19,6 +19,7 @@ public:
 
 public:
     void Execute(const std::vector<Scene*>& scenes);
+    void EndFrame();
 
 private:
     CameraComponent* FindCamera(const std::vector<Scene*> scenes) const;
