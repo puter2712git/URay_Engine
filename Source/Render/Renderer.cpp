@@ -125,10 +125,10 @@ bool Renderer::Initialize(Window* wnd)
     resourceManager = new GPUResourceManager(renderDevice);
 
     shaderManager = new ShaderManager();
-    Shader* shader = shaderManager->GetOrCreate("shader", "Shader/vert.spv", "Shader/frag.spv");
-    Shader* lineShader = shaderManager->GetOrCreate("line", "Shader/line-vert.spv", "Shader/line-frag.spv");
-    Shader* baseShader = shaderManager->GetOrCreate("base", "Shader/base-vert.spv", "Shader/base-frag.spv");
-    Shader* fontShader = shaderManager->GetOrCreate("font", "Shader/font-vert.spv", "Shader/font-frag.spv");
+    Shader* shader = shaderManager->GetOrCreate("shader", "Shader/shader.vert.spv", "Shader/shader.frag.spv");
+    Shader* lineShader = shaderManager->GetOrCreate("line", "Shader/line.vert.spv", "Shader/line.frag.spv");
+    Shader* baseShader = shaderManager->GetOrCreate("base", "Shader/base.vert.spv", "Shader/base.frag.spv");
+    Shader* fontShader = shaderManager->GetOrCreate("font", "Shader/font.vert.spv", "Shader/font.frag.spv");
 
     Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
     resourceManager->GetOrCreateTextureView(texture);

@@ -43,10 +43,6 @@ class MaterialManager;
 class Renderer
 {
 public:
-    Renderer() = default;
-    ~Renderer() = default;
-
-public:
     bool Initialize(Window* wnd);
     void Finalize();
 
@@ -196,8 +192,8 @@ private:
     VkQueue presentQueue = VK_NULL_HANDLE;
 
     VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
+    VkFormat swapChainImageFormat = VK_FORMAT_UNDEFINED;
+    VkExtent2D swapChainExtent = {};
     std::vector<VkImage> swapChainImages;
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;

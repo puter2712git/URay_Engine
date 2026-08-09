@@ -2,10 +2,6 @@ add_custom_command(TARGET URay_Engine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${URAY_SOURCE_DIR}/Asset"
         "$<TARGET_FILE_DIR:URay_Engine>/Asset"
-
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${URAY_SOURCE_DIR}/Shader"
-        "$<TARGET_FILE_DIR:URay_Engine>/Shader"
 )
 
 set_target_properties(URay_Engine PROPERTIES
