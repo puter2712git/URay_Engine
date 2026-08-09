@@ -28,7 +28,7 @@ TextBatcher::TextBatcher(Renderer* renderer)
 
     vkMapMemory(device->GetVKDevice(), vertexBufferMemory, 0, bufferSize, 0, &mappedVertexBufferData);
 
-    Shader* shader = renderer->GetShaderManager()->GetOrCreate("shader");
+    Shader* shader = renderer->GetShaderManager()->GetOrCreate("Font");
 
     const DescriptorSetLayoutDesc* layoutDesc = shader->GetDescriptorSetLayoutDesc(1);
 
@@ -69,7 +69,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
         cmd.vertexCount = static_cast<uint32_t>(verts.size());
 
         PipelineStateDesc psoDesc = {};
-        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("font");
+        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("Font");
         psoDesc.topology = PrimitiveTopology::TriangleList;
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;

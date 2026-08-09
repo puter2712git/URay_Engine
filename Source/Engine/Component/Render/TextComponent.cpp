@@ -16,7 +16,7 @@ URAY_REGISTER_COMPONENT(TextComponent)
 
 TextComponent::TextComponent()
 {
-    font = gEngine->GetFontManager()->GetFontAsset("default");
+    font = gEngine->GetFontManager()->GetFontAsset("Default");
 }
 
 void TextComponent::RegisterClass()

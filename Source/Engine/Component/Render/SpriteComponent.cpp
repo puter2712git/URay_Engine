@@ -23,12 +23,12 @@ URAY_REGISTER_COMPONENT(SpriteComponent)
 SpriteComponent::SpriteComponent()
 {
     TextureManager* textureManager = gEngine->GetTextureManager();
-    texture = textureManager->GetTexture("test");
+    texture = textureManager->GetTexture("Test");
 
     MeshManager* meshManager = gEngine->GetMeshManager();
-    quadMesh = meshManager->GetMesh("quad");
+    quadMesh = meshManager->GetMesh("Quad");
 
-    material = gEngine->GetMaterialManager()->GetOrCreate("sprite");
+    material = gEngine->GetMaterialManager()->GetOrCreate("Sprite");
     material->SetTextureAsset(texture);
 }
 

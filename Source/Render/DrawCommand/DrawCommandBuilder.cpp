@@ -51,7 +51,7 @@ void DrawCommandBuilder::FlushLines()
     cmd.vertexCount = static_cast<uint32_t>(lineVertices.size());
 
     PipelineStateDesc state = {};
-    state.shader = renderer.GetShaderManager()->GetOrCreate("line");
+    state.shader = renderer.GetShaderManager()->GetOrCreate("Line");
     state.topology = PrimitiveTopology::LineList;
     state.depthStencil.depthTestEnable = true;
     state.depthStencil.depthWriteEnable = false;

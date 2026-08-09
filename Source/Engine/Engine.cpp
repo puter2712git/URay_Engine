@@ -66,8 +66,8 @@ bool Engine::Initialize()
     shaderManager = renderer->GetShaderManager();
 
     materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager());
-    materialManager->GetOrCreate("default", shaderManager->GetOrCreate("base"));
-    materialManager->GetOrCreate("sprite", shaderManager->GetOrCreate("shader"));
+    materialManager->GetOrCreate("Mesh", shaderManager->GetOrCreate("Mesh"));
+    materialManager->GetOrCreate("Sprite", shaderManager->GetOrCreate("Sprite"));
 
     meshManager = new MeshManager();
     meshManager->CreateDefaultMeshes();
@@ -75,13 +75,13 @@ bool Engine::Initialize()
     ObjImporter::Import("Asset/Mesh/untitled.obj");
 
     textureManager = new TextureManager();
-    textureManager->LoadTextureAsset("test", "Asset/texture.jpg");
-    textureManager->LoadTextureAsset("font", "Asset/DejaVu Sans Mono.png");
+    textureManager->LoadTextureAsset("Test", "Asset/texture.jpg");
+    textureManager->LoadTextureAsset("FontTexture", "Asset/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
-    fontManager->LoadFontAsset("default", "Asset/DejaVu Sans Mono.png");
+    fontManager->LoadFontAsset("Default", "Asset/DejaVu Sans Mono.png");
 
-    MeshAsset* quadMesh = meshManager->GetMesh("quad");
+    MeshAsset* quadMesh = meshManager->GetMesh("Quad");
 
     Scene* editorScene = new Scene(SceneType::Editor);
 

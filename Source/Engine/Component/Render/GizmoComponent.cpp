@@ -22,11 +22,11 @@ URAY_REGISTER_CLASS(GizmoComponent)
 
 GizmoComponent::GizmoComponent()
 {
-    meshes[static_cast<size_t>(GizmoMode::Translation)] = gEngine->GetMeshManager()->GetMesh("arrow");
-    meshes[static_cast<size_t>(GizmoMode::Rotation)] = gEngine->GetMeshManager()->GetMesh("rotation_gizmo");
-    meshes[static_cast<size_t>(GizmoMode::Scale)] = gEngine->GetMeshManager()->GetMesh("scale_gizmo");
+    meshes[static_cast<size_t>(GizmoMode::Translation)] = gEngine->GetMeshManager()->GetMesh("Arrow");
+    meshes[static_cast<size_t>(GizmoMode::Rotation)] = gEngine->GetMeshManager()->GetMesh("RotationGizmo");
+    meshes[static_cast<size_t>(GizmoMode::Scale)] = gEngine->GetMeshManager()->GetMesh("ScaleGizmo");
 
-    material = gEngine->GetMaterialManager()->GetOrCreate("default");
+    material = gEngine->GetMaterialManager()->GetOrCreate("Mesh");
 }
 
 void GizmoComponent::RegisterClass()

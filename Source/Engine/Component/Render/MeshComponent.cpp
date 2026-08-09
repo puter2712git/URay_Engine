@@ -21,8 +21,8 @@ URAY_REGISTER_COMPONENT(MeshComponent)
 
 MeshComponent::MeshComponent()
 {
-    mesh = gEngine->GetMeshManager()->GetMesh("box");
-    material = gEngine->GetMaterialManager()->GetOrCreate("default");
+    mesh = gEngine->GetMeshManager()->GetMesh("Box");
+    material = gEngine->GetMaterialManager()->GetOrCreate("Mesh");
 }
 
 void MeshComponent::RegisterClass()

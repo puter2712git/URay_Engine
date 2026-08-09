@@ -127,7 +127,7 @@ void MeshManager::CreateBox()
     };
     // clang-format on
 
-    CreateMesh("box", boxVertices, boxIndices);
+    CreateMesh("Box", boxVertices, boxIndices);
 }
 
 void MeshManager::CreateQuad()
@@ -145,7 +145,7 @@ void MeshManager::CreateQuad()
     };
     // clang-format on
 
-    CreateMesh("quad", quadVertices, quadIndices);
+    CreateMesh("Quad", quadVertices, quadIndices);
 }
 
 void MeshManager::CreateCylinder()
@@ -213,7 +213,7 @@ void MeshManager::CreateCylinder()
         cylinderIndices.insert(cylinderIndices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
 
-    CreateMesh("cylinder", cylinderVertices, cylinderIndices);
+    CreateMesh("Cylinder", cylinderVertices, cylinderIndices);
 }
 
 void MeshManager::CreateCone()
@@ -259,7 +259,7 @@ void MeshManager::CreateCone()
         coneIndices.insert(coneIndices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
 
-    CreateMesh("cone", coneVertices, coneIndices);
+    CreateMesh("Cone", coneVertices, coneIndices);
 }
 
 void MeshManager::CreateArrow()
@@ -282,12 +282,12 @@ void MeshManager::CreateArrow()
     };
 
     const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 1.0f, 0.0f));
-    appendMesh(GetMesh("cylinder"), shaftTransform);
+    appendMesh(GetMesh("Cylinder"), shaftTransform);
 
     const Matrix headTransform = Matrix::MakeScale(Vector3(0.2f, 0.2f, 0.2f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 2.0f, 0.0f));
-    appendMesh(GetMesh("cone"), headTransform);
+    appendMesh(GetMesh("Cone"), headTransform);
 
-    CreateMesh("arrow", arrowVertices, arrowIndices);
+    CreateMesh("Arrow", arrowVertices, arrowIndices);
 }
 
 void MeshManager::CreateRotationGizmo()
@@ -325,7 +325,7 @@ void MeshManager::CreateRotationGizmo()
         indices.insert(indices.end(), { currentOuter, currentInner, nextOuter, nextOuter, currentInner, nextInner });
     }
 
-    CreateMesh("rotation_gizmo", vertices, indices);
+    CreateMesh("RotationGizmo", vertices, indices);
 }
 
 void MeshManager::CreateScaleGizmo()
@@ -348,12 +348,12 @@ void MeshManager::CreateScaleGizmo()
     };
 
     const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 0.9f, 0.0f));
-    appendMesh(GetMesh("cylinder"), shaftTransform);
+    appendMesh(GetMesh("Cylinder"), shaftTransform);
 
     const Matrix handleTransform = Matrix::MakeScale(Vector3(0.28f, 0.28f, 0.28f)) * Matrix::MakeTranslation(Vector3(0.0f, 1.9f, 0.0f));
-    appendMesh(GetMesh("box"), handleTransform);
+    appendMesh(GetMesh("Box"), handleTransform);
 
-    CreateMesh("scale_gizmo", vertices, indices);
+    CreateMesh("ScaleGizmo", vertices, indices);
 }
 
 } // namespace URay
