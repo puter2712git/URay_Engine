@@ -22,7 +22,7 @@ URAY_REGISTER_COMPONENT(MeshComponent)
 MeshComponent::MeshComponent()
 {
     mesh = gEngine->GetMeshManager()->GetMesh("Box");
-    material = gEngine->GetMaterialManager()->GetOrCreate("Mesh");
+    materials.push_back(gEngine->GetMaterialManager()->GetOrCreate("Mesh"));
 }
 
 void MeshComponent::RegisterClass()
@@ -30,7 +30,6 @@ void MeshComponent::RegisterClass()
     Super::RegisterClass();
 
     StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(MeshAsset*) });
-    StaticClass()->AddProperty({ PropertyType::Material, "Material", offsetof(MeshComponent, material), sizeof(Material*) });
 }
 
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
@@ -40,12 +39,15 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     TransformComponent* transform = GetOwner()->GetTransform();
 
-    MeshCommandContext context = {};
-    context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    context.meshAsset = GetMesh();
-    context.material = GetMaterial();
+    for (size_t i = 0; i < materials.size(); ++i)
+    {
+        MeshCommandContext context = {};
+        context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+        context.meshAsset = GetMesh();
+        context.material = GetMaterial(i);
 
-    builder.BuildFromMesh(context);
+        builder.BuildFromMesh(context);
+    }
 }
 
 bool MeshComponent::Pick(const Vector3& origin, const Vector3& direction, float& outDist) const

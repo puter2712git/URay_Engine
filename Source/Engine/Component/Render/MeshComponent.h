@@ -29,15 +29,24 @@ public:
     MeshAsset* GetMesh() const { return mesh; }
     void SetMesh(MeshAsset* newMesh) { mesh = newMesh; }
 
-    Material* GetMaterial() const { return material; }
-    void SetMaterial(Material* newMaterial) { material = newMaterial; }
+    Material* GetMaterial(size_t index = 0) { return materials.size() > index ? materials[index] : nullptr; }
+    const std::vector<Material*>& GetMaterials() const { return materials; }
+
+    void SetMaterial(Material* newMaterial, size_t index = 0)
+    {
+        if (materials.size() <= index)
+        {
+            materials[index] = newMaterial;
+        }
+    }
+    void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
 protected:
     std::string name = "Mesh";
 
 private:
     MeshAsset* mesh = nullptr;
-    Material* material = nullptr;
+    std::vector<Material*> materials;
 };
 
 } // namespace URay
