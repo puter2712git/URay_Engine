@@ -16,6 +16,7 @@ private:
     static bool DrawString(Property& prop, void* addr);
     static bool DrawMesh(Property& prop, void* addr);
     static bool DrawTexture(Property& prop, void* addr);
+    static bool DrawMaterial(Property& prop, void* addr);
 };
 
 } // namespace URay

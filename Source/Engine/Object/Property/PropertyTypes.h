@@ -13,7 +13,8 @@ enum class PropertyType
     Vector4,
     String,
     Mesh,
-    Texture
+    Texture,
+    Material
 };
 
 }

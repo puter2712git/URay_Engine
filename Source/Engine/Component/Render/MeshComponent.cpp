@@ -30,6 +30,7 @@ void MeshComponent::RegisterClass()
     Super::RegisterClass();
 
     StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(MeshAsset*) });
+    StaticClass()->AddProperty({ PropertyType::Material, "Material", offsetof(MeshComponent, material), sizeof(Material*) });
 }
 
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)

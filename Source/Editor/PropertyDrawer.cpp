@@ -1,11 +1,13 @@
 #include "PropertyDrawer.h"
 
-#include "Engine/Engine.h"
+#include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/MeshAsset.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
-#include "Engine/Object/Property/Property.h"
 #include "Engine/Asset/Texture/TextureAsset.h"
 #include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Engine.h"
+#include "Engine/Object/Property/Property.h"
 
 #include "Core/Math/Vector3.h"
 
@@ -34,6 +36,9 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
         break;
     case PropertyType::Texture:
         isChanged = DrawTexture(prop, addr);
+        break;
+    case PropertyType::Material:
+        isChanged = DrawMaterial(prop, addr);
         break;
     default:
         break;
@@ -173,6 +178,63 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 
                 selectedIndex = index;
                 *currTexture = textureAssets[index];
+            }
+
+            if (isSelected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
+    return isChanged;
+}
+
+bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
+{
+    Material** currMaterial = reinterpret_cast<Material**>(static_cast<uint8_t*>(addr) + prop.offset);
+
+    MaterialManager* materialManager = gEngine->GetMaterialManager();
+    const auto& materials = materialManager->GetMaterials();
+
+    size_t materialCount = materials.size();
+    std::vector<std::string> materialNames(materialCount);
+    std::vector<Material*> materialAssets(materialCount);
+
+    size_t selectedIndex = -1;
+    int i = 0;
+    for (auto& [materialName, material] : materials)
+    {
+        materialNames[i] = materialName;
+        materialAssets[i] = material;
+
+        if (material == *currMaterial)
+        {
+            selectedIndex = i;
+        }
+
+        ++i;
+    }
+
+    bool isChanged = false;
+
+    if (ImGui::BeginCombo("Material", materialNames[selectedIndex].c_str()))
+    {
+        for (size_t index = 0; index < materialCount; ++index)
+        {
+            const bool isSelected = selectedIndex == index;
+
+            if (ImGui::Selectable(materialNames[index].c_str(), isSelected))
+            {
+                if (selectedIndex != index)
+                {
+                    isChanged = true;
+                }
+
+                selectedIndex = index;
+                *currMaterial = materialAssets[index];
             }
 
             if (isSelected)
