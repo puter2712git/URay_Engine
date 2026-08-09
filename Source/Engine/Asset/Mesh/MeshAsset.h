@@ -10,6 +10,13 @@
 namespace URay
 {
 
+struct MeshSection
+{
+    uint32_t indexOffset = 0;
+    uint32_t indexCount = 0;
+    size_t materialIndex = 0;
+};
+
 class MeshAsset
 {
 public:
@@ -27,6 +34,8 @@ private:
 
     std::vector<VertexPNT> vertices;
     std::vector<uint32_t> indices;
+
+    std::vector<MeshSection> sections;
 };
 
 } // namespace URay
