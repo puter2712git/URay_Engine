@@ -71,9 +71,9 @@ RenderDevice::~RenderDevice()
     }
 }
 
-VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<Vertex>& vertices)
+VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<VertexPNT>& vertices)
 {
-    VkDeviceSize bufferSize = sizeof(Vertex) * vertices.size();
+    VkDeviceSize bufferSize = sizeof(VertexPNT) * vertices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -101,9 +101,9 @@ VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<Vertex>& vertic
     return vertexBuffer;
 }
 
-IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint16_t>& indices)
+IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint32_t>& indices)
 {
-    VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
+    VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -348,8 +348,12 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
-    auto bindingDescription = Vertex::GetBindingDescription();
-    auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+    const auto bindingDescription = desc.vertexLayout == VertexLayout::PNT
+        ? VertexPNT::GetBindingDescription()
+        : Vertex::GetBindingDescription();
+    const auto attributeDescriptions = desc.vertexLayout == VertexLayout::PNT
+        ? VertexPNT::GetAttributeDescriptions()
+        : Vertex::GetAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

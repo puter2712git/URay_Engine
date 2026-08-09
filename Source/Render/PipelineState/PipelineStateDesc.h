@@ -4,6 +4,7 @@
 #include "DepthStencilState.h"
 #include "PrimitiveTopology.h"
 #include "RasterizerState.h"
+#include "Render/Vertex.h"
 
 #include <functional>
 
@@ -17,6 +18,7 @@ struct PipelineStateDesc
     Shader* shader = nullptr;
 
     PrimitiveTopology topology = PrimitiveTopology::TriangleList;
+    VertexLayout vertexLayout = VertexLayout::PTC;
 
     DepthStencilState depthStencil = {};
     RasterizerState rasterizer = {};
@@ -39,6 +41,7 @@ struct PipelineStateDescHash
 
         combine(desc.shader);
         combine(desc.topology);
+        combine(desc.vertexLayout);
         combine(desc.depthStencil.depthTestEnable);
         combine(desc.depthStencil.depthWriteEnable);
         combine(desc.depthStencil.depthCompareOp);

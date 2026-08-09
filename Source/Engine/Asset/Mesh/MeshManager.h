@@ -22,7 +22,7 @@ public:
     bool CreateDefaultMeshes();
 
     MeshAsset* CreateMesh(const std::string& key,
-                          const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices);
+                          const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices);
 
     MeshAsset* GetMesh(const std::string& key) const;
     const std::unordered_map<std::string, MeshAsset*>& GetMeshes() const { return meshes; }

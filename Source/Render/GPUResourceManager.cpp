@@ -40,11 +40,13 @@ Mesh* GPUResourceManager::GetOrCreateMesh(MeshAsset* asset)
     if (it != meshes.end())
         return it->second;
 
-    VertexBuffer* vertexBuffer = renderDevice->CreateVertexBuffer(asset->GetVertices());
+    const std::vector<VertexPNT>& vertices = asset->GetVertices();
+    VertexBuffer* vertexBuffer = renderDevice->CreateVertexBuffer(vertices);
     if (!vertexBuffer)
         return nullptr;
 
-    IndexBuffer* indexBuffer = renderDevice->CreateIndexBuffer(asset->GetIndices());
+    const std::vector<uint32_t>& indices = asset->GetIndices();
+    IndexBuffer* indexBuffer = renderDevice->CreateIndexBuffer(indices);
     if (!indexBuffer)
     {
         delete vertexBuffer;

@@ -8,6 +8,24 @@
 namespace URay
 {
 
+namespace
+{
+
+VertexPNT MakeVertex(const Vector3& position, const Vector3& normal, const Vector2& uv)
+{
+    return { position, normal, uv };
+}
+
+VertexPNT TransformVertex(const VertexPNT& source, const Matrix& transform, const Matrix& normalTransform)
+{
+    VertexPNT vertex = source;
+    vertex.position = transform.TransformPoint(source.position);
+    vertex.normal = normalTransform.TransformVector(source.normal).GetNormalized();
+    return vertex;
+}
+
+} // namespace
+
 MeshManager::MeshManager()
 {
 }
@@ -40,7 +58,7 @@ bool MeshManager::CreateDefaultMeshes()
 }
 
 MeshAsset* MeshManager::CreateMesh(const std::string& key,
-                                   const std::vector<Vertex>& vertices, const std::vector<uint16_t>& indices)
+                                   const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices)
 {
     if (meshes.contains(key))
         return nullptr;
@@ -67,39 +85,39 @@ MeshAsset* MeshManager::GetMesh(const std::string& key) const
 void MeshManager::CreateBox()
 {
     // clang-format off
-    std::vector<Vertex> boxVertices = {
+    std::vector<VertexPNT> boxVertices = {
         // -Z
-        { { -0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }, Color::White },
-        { {  0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }, Color::White },
-        { { -0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f }, Color::White },
-        { {  0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
+        MakeVertex({ -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f }, { 0.0f, 0.0f }),
+        MakeVertex({  0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f }, { 1.0f, 0.0f }),
+        MakeVertex({ -0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f }, { 0.0f, 1.0f }),
+        MakeVertex({  0.5f,  0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f }, { 1.0f, 1.0f }),
         // +Z
-        { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f }, Color::White },
-        { {  0.5f, -0.5f,  0.5f }, { 1.0f, 0.0f }, Color::White },
-        { { -0.5f,  0.5f,  0.5f }, { 0.0f, 1.0f }, Color::White },
-        { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        MakeVertex({ -0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f }, { 0.0f, 0.0f }),
+        MakeVertex({  0.5f, -0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f }, { 1.0f, 0.0f }),
+        MakeVertex({ -0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f }, { 0.0f, 1.0f }),
+        MakeVertex({  0.5f,  0.5f,  0.5f }, {  0.0f,  0.0f,  1.0f }, { 1.0f, 1.0f }),
         // -X
-        { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f }, Color::White },
-        { { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f }, Color::White },
-        { { -0.5f, -0.5f, -0.5f }, { 0.0f, 1.0f }, Color::White },
-        { { -0.5f,  0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
+        MakeVertex({ -0.5f, -0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f }, { 0.0f, 0.0f }),
+        MakeVertex({ -0.5f,  0.5f,  0.5f }, { -1.0f,  0.0f,  0.0f }, { 1.0f, 0.0f }),
+        MakeVertex({ -0.5f, -0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f }, { 0.0f, 1.0f }),
+        MakeVertex({ -0.5f,  0.5f, -0.5f }, { -1.0f,  0.0f,  0.0f }, { 1.0f, 1.0f }),
         // +X
-        { {  0.5f, -0.5f, -0.5f }, { 0.0f, 0.0f }, Color::White },
-        { {  0.5f,  0.5f, -0.5f }, { 1.0f, 0.0f }, Color::White },
-        { {  0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f }, Color::White },
-        { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        MakeVertex({  0.5f, -0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f }, { 0.0f, 0.0f }),
+        MakeVertex({  0.5f,  0.5f, -0.5f }, {  1.0f,  0.0f,  0.0f }, { 1.0f, 0.0f }),
+        MakeVertex({  0.5f, -0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f }, { 0.0f, 1.0f }),
+        MakeVertex({  0.5f,  0.5f,  0.5f }, {  1.0f,  0.0f,  0.0f }, { 1.0f, 1.0f }),
         // +Y
-        { { -0.5f,  0.5f, -0.5f }, { 0.0f, 0.0f }, Color::White },
-        { { -0.5f,  0.5f,  0.5f }, { 1.0f, 0.0f }, Color::White },
-        { {  0.5f,  0.5f, -0.5f }, { 0.0f, 1.0f }, Color::White },
-        { {  0.5f,  0.5f,  0.5f }, { 1.0f, 1.0f }, Color::White },
+        MakeVertex({ -0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f }, { 0.0f, 0.0f }),
+        MakeVertex({ -0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f }, { 1.0f, 0.0f }),
+        MakeVertex({  0.5f,  0.5f, -0.5f }, {  0.0f,  1.0f,  0.0f }, { 0.0f, 1.0f }),
+        MakeVertex({  0.5f,  0.5f,  0.5f }, {  0.0f,  1.0f,  0.0f }, { 1.0f, 1.0f }),
         // -Y
-        { { -0.5f, -0.5f,  0.5f }, { 0.0f, 0.0f }, Color::White },
-        { { -0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f }, Color::White },
-        { {  0.5f, -0.5f,  0.5f }, { 0.0f, 1.0f }, Color::White },
-        { {  0.5f, -0.5f, -0.5f }, { 1.0f, 1.0f }, Color::White },
+        MakeVertex({ -0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f }, { 0.0f, 0.0f }),
+        MakeVertex({ -0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f }, { 1.0f, 0.0f }),
+        MakeVertex({  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f }, { 0.0f, 1.0f }),
+        MakeVertex({  0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f }, { 1.0f, 1.0f }),
     };
-    std::vector<uint16_t> boxIndices = {
+    std::vector<uint32_t> boxIndices = {
          0,  2,  1,  1,  2,  3,
          4,  5,  6,  5,  7,  6,
          8,  9, 10,  9, 11, 10,
@@ -115,15 +133,15 @@ void MeshManager::CreateBox()
 void MeshManager::CreateQuad()
 {
     // clang-format off
-    std::vector<Vertex> quadVertices = {
-        { { -0.5f, 0.0f, -0.5f }, { 0.0f, 0.0f }, Color::White },
-        { {  0.5f, 0.0f, -0.5f }, { 1.0f, 0.0f }, Color::White },
-        { {  0.5f, 0.0f,  0.5f }, { 1.0f, 1.0f }, Color::White },
-        { { -0.5f, 0.0f,  0.5f }, { 0.0f, 1.0f }, Color::White },
+    std::vector<VertexPNT> quadVertices = {
+        MakeVertex({ -0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }),
+        MakeVertex({  0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }),
+        MakeVertex({  0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }),
+        MakeVertex({ -0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }),
     };
-    std::vector<uint16_t> quadIndices = {
+    std::vector<uint32_t> quadIndices = {
         0, 1, 2,
-        0, 2, 3,  
+        0, 2, 3,
     };
     // clang-format on
 
@@ -132,116 +150,67 @@ void MeshManager::CreateQuad()
 
 void MeshManager::CreateCylinder()
 {
-    std::vector<Vertex> cylinderVertices;
-    std::vector<uint16_t> cylinderIndices;
+    std::vector<VertexPNT> cylinderVertices;
+    std::vector<uint32_t> cylinderIndices;
 
     const float radius = 0.5f;
     const float height = 2.0f;
     const uint32_t sliceCount = 20;
-
     const float halfHeight = height * 0.5f;
     const float dTheta = Math::TWO_PI / sliceCount;
 
-    const uint16_t sideBaseIndex = static_cast<uint16_t>(cylinderVertices.size());
-
+    const uint32_t sideBaseIndex = static_cast<uint32_t>(cylinderVertices.size());
     for (uint32_t i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float cosT = std::cos(theta);
         const float sinT = std::sin(theta);
+        const Vector3 normal(cosT, sinT, 0.0f);
 
-        const float x = radius * cosT;
-        const float y = radius * sinT;
-
-        Vertex topVertex = {};
-        topVertex.pos = Vector3(x, y, halfHeight);
-        topVertex.uv = { static_cast<float>(i) / sliceCount, 1.0f };
-        topVertex.color = Color::White;
-
-        Vertex bottomVertex = {};
-        bottomVertex.pos = Vector3(x, y, -halfHeight);
-        bottomVertex.uv = { static_cast<float>(i) / sliceCount, 0.0f };
-        bottomVertex.color = Color::White;
-
-        cylinderVertices.push_back(topVertex);
-        cylinderVertices.push_back(bottomVertex);
+        cylinderVertices.push_back(MakeVertex({ radius * cosT, radius * sinT, halfHeight }, normal,
+                                              { static_cast<float>(i) / sliceCount, 1.0f }));
+        cylinderVertices.push_back(MakeVertex({ radius * cosT, radius * sinT, -halfHeight }, normal,
+                                              { static_cast<float>(i) / sliceCount, 0.0f }));
     }
 
     for (uint32_t i = 0; i < sliceCount; ++i)
     {
-        const uint16_t i0 = sideBaseIndex + i * 2;
-        const uint16_t i1 = i0 + 1;
-        const uint16_t i2 = i0 + 2;
-        const uint16_t i3 = i0 + 3;
+        const uint32_t i0 = sideBaseIndex + i * 2;
+        const uint32_t i1 = i0 + 1;
+        const uint32_t i2 = i0 + 2;
+        const uint32_t i3 = i0 + 3;
 
-        cylinderIndices.push_back(i0);
-        cylinderIndices.push_back(i1);
-        cylinderIndices.push_back(i2);
-
-        cylinderIndices.push_back(i1);
-        cylinderIndices.push_back(i3);
-        cylinderIndices.push_back(i2);
+        cylinderIndices.insert(cylinderIndices.end(), { i0, i1, i2, i1, i3, i2 });
     }
 
-    const uint16_t topBaseIndex = static_cast<uint16_t>(cylinderVertices.size());
-
-    Vertex topCenterVertex = {};
-    topCenterVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
-    topCenterVertex.uv = { 0.5f, 0.5f };
-    topCenterVertex.color = Color::White;
-    cylinderVertices.push_back(topCenterVertex);
-
+    const uint32_t topBaseIndex = static_cast<uint32_t>(cylinderVertices.size());
+    cylinderVertices.push_back(MakeVertex({ 0.0f, 0.0f, halfHeight }, { 0.0f, 0.0f, 1.0f }, { 0.5f, 0.5f }));
     for (uint32_t i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float x = radius * std::cos(theta);
         const float y = radius * std::sin(theta);
-
-        Vertex vertex = {};
-        vertex.pos = Vector3(x, y, halfHeight);
-        vertex.uv = { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f };
-        vertex.color = Color::White;
-
-        cylinderVertices.push_back(vertex);
+        cylinderVertices.push_back(MakeVertex({ x, y, halfHeight }, { 0.0f, 0.0f, 1.0f },
+                                              { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
-
-    const uint16_t topCenterIndex = topBaseIndex;
     for (uint32_t i = 0; i < sliceCount; ++i)
     {
-        cylinderIndices.push_back(topCenterIndex);
-        cylinderIndices.push_back(topBaseIndex + 1 + i);
-        cylinderIndices.push_back(topBaseIndex + 1 + i + 1);
+        cylinderIndices.insert(cylinderIndices.end(), { topBaseIndex, topBaseIndex + 1 + i, topBaseIndex + 2 + i });
     }
 
-    const uint16_t bottomBaseIndex = static_cast<uint16_t>(cylinderVertices.size());
-
-    Vertex bottomCenter = {};
-    bottomCenter.pos = Vector3(0.0f, 0.0f, -halfHeight);
-    bottomCenter.uv = { 0.5f, 0.5f };
-    bottomCenter.color = Color::White;
-
-    cylinderVertices.push_back(bottomCenter);
-
+    const uint32_t bottomBaseIndex = static_cast<uint32_t>(cylinderVertices.size());
+    cylinderVertices.push_back(MakeVertex({ 0.0f, 0.0f, -halfHeight }, { 0.0f, 0.0f, -1.0f }, { 0.5f, 0.5f }));
     for (uint32_t i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float x = radius * std::cos(theta);
         const float y = radius * std::sin(theta);
-
-        Vertex vertex = {};
-        vertex.pos = Vector3(x, y, -halfHeight);
-        vertex.uv = { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f };
-        vertex.color = Color::White;
-
-        cylinderVertices.push_back(vertex);
+        cylinderVertices.push_back(MakeVertex({ x, y, -halfHeight }, { 0.0f, 0.0f, -1.0f },
+                                              { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
-
-    const uint16_t bottomCenterIndex = bottomBaseIndex;
     for (uint32_t i = 0; i < sliceCount; ++i)
     {
-        cylinderIndices.push_back(bottomCenterIndex);
-        cylinderIndices.push_back(bottomBaseIndex + 1 + i + 1);
-        cylinderIndices.push_back(bottomBaseIndex + 1 + i);
+        cylinderIndices.insert(cylinderIndices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
 
     CreateMesh("cylinder", cylinderVertices, cylinderIndices);
@@ -249,73 +218,45 @@ void MeshManager::CreateCylinder()
 
 void MeshManager::CreateCone()
 {
-    std::vector<Vertex> coneVertices;
-    std::vector<uint16_t> coneIndices;
+    std::vector<VertexPNT> coneVertices;
+    std::vector<uint32_t> coneIndices;
 
     const float radius = 0.5f;
     const float height = 2.0f;
     const uint32_t sliceCount = 20;
-
     const float halfHeight = height * 0.5f;
     const float dTheta = Math::TWO_PI / sliceCount;
+    const float normalLength = std::sqrt(height * height + radius * radius);
 
-    const uint16_t sideBaseIndex = static_cast<uint16_t>(coneVertices.size());
+    const uint32_t sideBaseIndex = static_cast<uint32_t>(coneVertices.size());
+    coneVertices.push_back(MakeVertex({ 0.0f, 0.0f, halfHeight }, { 0.0f, 0.0f, 1.0f }, { 0.5f, 1.0f }));
+    for (uint32_t i = 0; i <= sliceCount; ++i)
+    {
+        const float theta = i * dTheta;
+        const float cosT = std::cos(theta);
+        const float sinT = std::sin(theta);
+        const Vector3 sideNormal(height * cosT / normalLength, height * sinT / normalLength, radius / normalLength);
+        coneVertices.push_back(MakeVertex({ radius * cosT, radius * sinT, -halfHeight }, sideNormal,
+                                          { static_cast<float>(i) / sliceCount, 0.0f }));
+    }
+    for (uint32_t i = 0; i < sliceCount; ++i)
+    {
+        coneIndices.insert(coneIndices.end(), { sideBaseIndex, sideBaseIndex + 1 + i, sideBaseIndex + 2 + i });
+    }
 
-    Vertex apexVertex = {};
-    apexVertex.pos = Vector3(0.0f, 0.0f, halfHeight);
-    apexVertex.uv = { 0.5f, 1.0f };
-    apexVertex.color = Color::White;
-    coneVertices.push_back(apexVertex);
-
+    const uint32_t bottomBaseIndex = static_cast<uint32_t>(coneVertices.size());
+    coneVertices.push_back(MakeVertex({ 0.0f, 0.0f, -halfHeight }, { 0.0f, 0.0f, -1.0f }, { 0.5f, 0.5f }));
     for (uint32_t i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float x = radius * std::cos(theta);
         const float y = radius * std::sin(theta);
-
-        Vertex bottomVertex = {};
-        bottomVertex.pos = Vector3(x, y, -halfHeight);
-        bottomVertex.uv = { static_cast<float>(i) / sliceCount, 0.0f };
-        bottomVertex.color = Color::White;
-        coneVertices.push_back(bottomVertex);
+        coneVertices.push_back(MakeVertex({ x, y, -halfHeight }, { 0.0f, 0.0f, -1.0f },
+                                          { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
-
-    const uint16_t apexIndex = sideBaseIndex;
     for (uint32_t i = 0; i < sliceCount; ++i)
     {
-        coneIndices.push_back(apexIndex);
-        coneIndices.push_back(sideBaseIndex + 1 + i);
-        coneIndices.push_back(sideBaseIndex + 1 + i + 1);
-    }
-
-    const uint16_t bottomBaseIndex = static_cast<uint16_t>(coneVertices.size());
-
-    Vertex bottomCenter = {};
-    bottomCenter.pos = Vector3(0.0f, 0.0f, -halfHeight);
-    bottomCenter.uv = { 0.5f, 0.5f };
-    bottomCenter.color = Color::White;
-    coneVertices.push_back(bottomCenter);
-
-    for (uint32_t i = 0; i <= sliceCount; ++i)
-    {
-        const float theta = i * dTheta;
-        const float x = radius * std::cos(theta);
-        const float y = radius * std::sin(theta);
-
-        Vertex vertex = {};
-        vertex.pos = Vector3(x, y, -halfHeight);
-        vertex.uv = { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f };
-        vertex.color = Color::White;
-        coneVertices.push_back(vertex);
-    }
-
-    // 2-3. 바닥 인덱스 생성 (밑에서 바라볼 때 감기는 방향 고려)
-    const uint16_t bottomCenterIndex = bottomBaseIndex;
-    for (uint32_t i = 0; i < sliceCount; ++i)
-    {
-        coneIndices.push_back(bottomCenterIndex);
-        coneIndices.push_back(bottomBaseIndex + 1 + i + 1);
-        coneIndices.push_back(bottomBaseIndex + 1 + i);
+        coneIndices.insert(coneIndices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
 
     CreateMesh("cone", coneVertices, coneIndices);
@@ -323,107 +264,65 @@ void MeshManager::CreateCone()
 
 void MeshManager::CreateArrow()
 {
-    std::vector<Vertex> arrowVertices;
-    std::vector<uint16_t> arrowIndices;
+    std::vector<VertexPNT> arrowVertices;
+    std::vector<uint32_t> arrowIndices;
 
-    uint16_t offset = 0;
-
+    auto appendMesh = [&arrowVertices, &arrowIndices](const MeshAsset* source, const Matrix& transform)
     {
-        MeshAsset* cylinderMesh = GetMesh("cylinder");
-        Matrix translationMatrix = Matrix::MakeTranslation(Vector3(0.0f, 1.0f, 0.0f));
-        Matrix rotationMarix = Matrix::MakeRotationX(-90.0f);
-        Matrix scaleMatrix = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f));
-        for (size_t i = 0; i < cylinderMesh->GetVertices().size(); ++i)
+        const uint32_t offset = static_cast<uint32_t>(arrowVertices.size());
+        const Matrix normalTransform = transform.Inverse();
+        for (const VertexPNT& sourceVertex : source->GetVertices())
         {
-            Vertex vertex = cylinderMesh->GetVertices()[i];
-            Vector4 pos4 = Vector4(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0f);
-            pos4 = pos4 * scaleMatrix * rotationMarix * translationMatrix;
-            vertex.pos = Vector3(pos4.x, pos4.y, pos4.z);
-
-            arrowVertices.push_back(vertex);
+            arrowVertices.push_back(TransformVertex(sourceVertex, transform, normalTransform));
         }
-        arrowIndices.insert(arrowIndices.end(), cylinderMesh->GetIndices().begin(), cylinderMesh->GetIndices().end());
-
-        offset += cylinderMesh->GetVertices().size();
-    }
-    {
-        MeshAsset* coneMesh = GetMesh("cone");
-        Matrix rotationMatrix = Matrix::MakeRotationX(-90.0f);
-        Matrix scaleMatrix = Matrix::MakeScale(Vector3(0.2f, 0.2f, 0.2f));
-        Matrix translationMatrix = Matrix::MakeTranslation(Vector3(0.0f, 2.0f, 0.0f));
-        for (size_t i = 0; i < coneMesh->GetVertices().size(); ++i)
-        {
-            Vertex vertex = coneMesh->GetVertices()[i];
-            Vector4 pos4 = Vector4(vertex.pos.x, vertex.pos.y, vertex.pos.z, 1.0f);
-            pos4 = pos4 * scaleMatrix * rotationMatrix * translationMatrix;
-            vertex.pos = Vector3(pos4.x, pos4.y, pos4.z);
-
-            arrowVertices.push_back(vertex);
-        }
-
-        for (uint16_t index : coneMesh->GetIndices())
+        for (uint32_t index : source->GetIndices())
         {
             arrowIndices.push_back(index + offset);
         }
-    }
+    };
+
+    const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 1.0f, 0.0f));
+    appendMesh(GetMesh("cylinder"), shaftTransform);
+
+    const Matrix headTransform = Matrix::MakeScale(Vector3(0.2f, 0.2f, 0.2f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 2.0f, 0.0f));
+    appendMesh(GetMesh("cone"), headTransform);
 
     CreateMesh("arrow", arrowVertices, arrowIndices);
 }
 
 void MeshManager::CreateRotationGizmo()
 {
-    std::vector<Vertex> vertices;
-    std::vector<uint16_t> indices;
+    std::vector<VertexPNT> vertices;
+    std::vector<uint32_t> indices;
 
     constexpr float outerRadius = 1.5f;
     constexpr float innerRadius = 1.35f;
     constexpr uint32_t sliceCount = 96;
+    const float dTheta = Math::TWO_PI / static_cast<float>(sliceCount);
 
     vertices.reserve((sliceCount + 1) * 2);
     indices.reserve(sliceCount * 6);
-
-    const float dTheta = Math::TWO_PI / static_cast<float>(sliceCount);
 
     for (uint32_t i = 0; i <= sliceCount; ++i)
     {
         const float theta = static_cast<float>(i) * dTheta;
         const float cosTheta = std::cos(theta);
         const float sinTheta = std::sin(theta);
+        const Vector3 normal(0.0f, 0.0f, -1.0f);
 
-        Vertex outerVertex = {};
-        outerVertex.pos = Vector3(
-            outerRadius * cosTheta,
-            outerRadius * sinTheta,
-            0.0f);
-        outerVertex.uv = { static_cast<float>(i) / sliceCount, 1.0f };
-        outerVertex.color = Color::White;
-
-        Vertex innerVertex = {};
-        innerVertex.pos = Vector3(
-            innerRadius * cosTheta,
-            innerRadius * sinTheta,
-            0.0f);
-        innerVertex.uv = { static_cast<float>(i) / sliceCount, 0.0f };
-        innerVertex.color = Color::White;
-
-        vertices.push_back(outerVertex);
-        vertices.push_back(innerVertex);
+        vertices.push_back(MakeVertex({ outerRadius * cosTheta, outerRadius * sinTheta, 0.0f }, normal,
+                                      { static_cast<float>(i) / sliceCount, 1.0f }));
+        vertices.push_back(MakeVertex({ innerRadius * cosTheta, innerRadius * sinTheta, 0.0f }, normal,
+                                      { static_cast<float>(i) / sliceCount, 0.0f }));
     }
 
     for (uint32_t i = 0; i < sliceCount; ++i)
     {
-        const uint16_t currentOuter = static_cast<uint16_t>(i * 2);
-        const uint16_t currentInner = static_cast<uint16_t>(i * 2 + 1);
-        const uint16_t nextOuter = static_cast<uint16_t>((i + 1) * 2);
-        const uint16_t nextInner = static_cast<uint16_t>((i + 1) * 2 + 1);
-
-        indices.push_back(currentOuter);
-        indices.push_back(currentInner);
-        indices.push_back(nextOuter);
-
-        indices.push_back(nextOuter);
-        indices.push_back(currentInner);
-        indices.push_back(nextInner);
+        const uint32_t currentOuter = i * 2;
+        const uint32_t currentInner = currentOuter + 1;
+        const uint32_t nextOuter = currentOuter + 2;
+        const uint32_t nextInner = currentOuter + 3;
+        indices.insert(indices.end(), { currentOuter, currentInner, nextOuter, nextOuter, currentInner, nextInner });
     }
 
     CreateMesh("rotation_gizmo", vertices, indices);
@@ -431,25 +330,23 @@ void MeshManager::CreateRotationGizmo()
 
 void MeshManager::CreateScaleGizmo()
 {
-    std::vector<Vertex> vertices;
-    std::vector<uint16_t> indices;
+    std::vector<VertexPNT> vertices;
+    std::vector<uint32_t> indices;
 
     auto appendMesh = [&vertices, &indices](const MeshAsset* source, const Matrix& transform)
     {
-        const uint16_t offset = static_cast<uint16_t>(vertices.size());
-
-        for (const Vertex& sourceVertex : source->GetVertices())
+        const uint32_t offset = static_cast<uint32_t>(vertices.size());
+        const Matrix normalTransform = transform.Inverse();
+        for (const VertexPNT& sourceVertex : source->GetVertices())
         {
-            Vertex vertex = sourceVertex;
-            vertex.pos = Vector3(Vector4(vertex.pos, 1.0f) * transform);
-            vertices.push_back(vertex);
+            vertices.push_back(TransformVertex(sourceVertex, transform, normalTransform));
         }
-
-        for (uint16_t index : source->GetIndices())
+        for (uint32_t index : source->GetIndices())
+        {
             indices.push_back(index + offset);
+        }
     };
 
-    // This mesh points along +Y, the local axis shared by the translation gizmo.
     const Matrix shaftTransform = Matrix::MakeScale(Vector3(0.1f, 0.1f, 1.0f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 0.9f, 0.0f));
     appendMesh(GetMesh("cylinder"), shaftTransform);
 

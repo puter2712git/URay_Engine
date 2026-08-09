@@ -32,4 +32,17 @@ struct VertexPTCOut
     [[vk::location(1)]] float4 fragColor : TEXCOORD1;
 };
 
+struct VertexPNTIn
+{
+    [[vk::location(0)]] float3 inPosition : POSITION;
+    [[vk::location(1)]] float3 inNormal : NORMAL;
+    [[vk::location(2)]] float2 inUV : TEXCOORD0;
+};
+
+struct VertexPNTOut
+{
+    float4 outPosition : SV_Position;
+    [[vk::location(0)]] float2 outUV : TEXCOORD0;
+};
+
 #endif

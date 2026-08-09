@@ -37,8 +37,8 @@ public:
     ~RenderDevice();
 
 public:
-    VertexBuffer* CreateVertexBuffer(const std::vector<Vertex>& vertices);
-    IndexBuffer* CreateIndexBuffer(const std::vector<uint16_t>& indices);
+    VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
+    IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
     Mesh* CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
     Texture* CreateTexture(const std::string& filePath);

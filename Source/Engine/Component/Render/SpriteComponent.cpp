@@ -71,8 +71,8 @@ bool SpriteComponent::Pick(const Vector3& origin, const Vector3& direction, floa
     if (!mesh)
         return false;
 
-    const std::vector<Vertex> vertices = mesh->GetVertices();
-    const std::vector<uint16_t> indices = mesh->GetIndices();
+    const std::vector<VertexPNT>& vertices = mesh->GetVertices();
+    const std::vector<uint32_t>& indices = mesh->GetIndices();
 
     bool isHit = false;
     float minDist = std::numeric_limits<float>::max();
@@ -82,9 +82,9 @@ bool SpriteComponent::Pick(const Vector3& origin, const Vector3& direction, floa
 
     for (size_t i = 0; i + 2 < indices.size(); i += 3)
     {
-        const Vector3 p0 = vertices[indices[i]].pos;
-        const Vector3 p1 = vertices[indices[i + 1]].pos;
-        const Vector3 p2 = vertices[indices[i + 2]].pos;
+        const Vector3 p0 = vertices[indices[i]].position;
+        const Vector3 p1 = vertices[indices[i + 1]].position;
+        const Vector3 p2 = vertices[indices[i + 2]].position;
 
         float dist;
         bool hit = Math::IntersectLineTriangle(

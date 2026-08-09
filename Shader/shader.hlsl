@@ -4,22 +4,21 @@
 [[vk::binding(0, 1)]] Texture2D<float4> textureImage;
 [[vk::binding(1, 1)]] SamplerState textureSampler;
 
-VertexPTCOut VSMain(VertexPTCIn input)
+VertexPNTOut VSMain(VertexPNTIn input)
 {
-    VertexPTCOut output;
+    VertexPNTOut output;
 
     output.outPosition = mul(frame.proj, mul(frame.view, mul(obj.world, float4(input.inPosition, 1.0))));
     output.outUV = input.inUV;
-    output.fragColor = input.inColor;
 
     return output;
 }
 
-FragOut PSMain(VertexPTCOut input)
+FragOut PSMain(VertexPNTOut input)
 {
     FragOut output;
 
-    output.outColor = textureImage.Sample(textureSampler, input.outUV) * input.fragColor * obj.colorTint;
+    output.outColor = textureImage.Sample(textureSampler, input.outUV) * obj.colorTint;
 
     return output;
 }

@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "Engine/Asset/Font/FontManager.h"
+#include "Engine/Asset/Importer/ObjImporter.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/MeshAsset.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
@@ -70,6 +71,8 @@ bool Engine::Initialize()
 
     meshManager = new MeshManager();
     meshManager->CreateDefaultMeshes();
+
+    ObjImporter::Import("Asset/Mesh/untitled.obj");
 
     textureManager = new TextureManager();
     textureManager->LoadTextureAsset("test", "Asset/texture.jpg");
@@ -421,17 +424,17 @@ bool Engine::PickGizmo(const Vector3& start, const Vector3& dir, int& outAxis)
 
         const TransformComponent* targetTransform = gizmo->GetTargetTransform();
 
-        const std::vector<Vertex> vertices = gizmoMesh->GetVertices();
-        const std::vector<uint16_t> indices = gizmoMesh->GetIndices();
+        const std::vector<VertexPNT>& vertices = gizmoMesh->GetVertices();
+        const std::vector<uint32_t>& indices = gizmoMesh->GetIndices();
 
         const Vector3 localStart = invGizmoWorld.TransformPoint(start);
         const Vector3 localDir = invGizmoWorld.TransformVector(dir);
 
         for (size_t i = 0; i + 2 < indices.size(); i += 3)
         {
-            const Vector3 p0 = vertices[indices[i + 0]].pos;
-            const Vector3 p1 = vertices[indices[i + 1]].pos;
-            const Vector3 p2 = vertices[indices[i + 2]].pos;
+            const Vector3 p0 = vertices[indices[i + 0]].position;
+            const Vector3 p1 = vertices[indices[i + 1]].position;
+            const Vector3 p2 = vertices[indices[i + 2]].position;
 
             float dist;
             bool hit = Math::IntersectLineTriangle(

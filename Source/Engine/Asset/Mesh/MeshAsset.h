@@ -16,17 +16,17 @@ public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& inName) { name = inName; }
 
-    const std::vector<Vertex>& GetVertices() const { return vertices; }
-    void SetVertices(const std::vector<Vertex>& newVertices) { vertices = newVertices; }
+    const std::vector<VertexPNT>& GetVertices() const { return vertices; }
+    void SetVertices(const std::vector<VertexPNT>& newVertices) { vertices = newVertices; }
 
-    const std::vector<uint16_t>& GetIndices() const { return indices; }
-    void SetIndices(const std::vector<uint16_t>& newIndices) { indices = newIndices; }
+    const std::vector<uint32_t>& GetIndices() const { return indices; }
+    void SetIndices(const std::vector<uint32_t>& newIndices) { indices = newIndices; }
 
 private:
     std::string name;
 
-    std::vector<Vertex> vertices;
-    std::vector<uint16_t> indices;
+    std::vector<VertexPNT> vertices;
+    std::vector<uint32_t> indices;
 };
 
 } // namespace URay

@@ -88,6 +88,7 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     PipelineStateDesc state = {};
     state.shader = context.material->GetShader();
     state.topology = PrimitiveTopology::TriangleList;
+    state.vertexLayout = VertexLayout::PNT;
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
@@ -147,6 +148,7 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     PipelineStateDesc state = {};
     state.shader = context.material->GetShader();
     state.topology = PrimitiveTopology::TriangleList;
+    state.vertexLayout = VertexLayout::PNT;
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
 

@@ -1,12 +1,12 @@
 #include "Common.hlsli"
 #include "VertexTypes.hlsli"
 
-VertexPCOut VSMain(VertexPCIn input)
+VertexPCOut VSMain(VertexPNTIn input)
 {
     VertexPCOut output;
 
     output.outPosition = mul(frame.proj, mul(frame.view, mul(obj.world, float4(input.inPosition, 1.0))));
-    output.fragColor = input.inColor;
+    output.fragColor = float4(1.0, 1.0, 1.0, 1.0);
 
     return output;
 }

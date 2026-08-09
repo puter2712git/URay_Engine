@@ -12,6 +12,11 @@
 namespace URay
 {
 
+std::vector<Vector3> ObjImporter::positions;
+std::vector<Vector2> ObjImporter::uvs;
+std::vector<Vector3> ObjImporter::normals;
+std::vector<ObjImporter::Face> ObjImporter::faces;
+
 MeshAsset* ObjImporter::Import(const std::string& filePath)
 {
     if (!FileIO::Exists(filePath))
@@ -99,6 +104,7 @@ MeshAsset* ObjImporter::Import(const std::string& filePath)
 
     MeshManager* meshManager = gEngine->GetMeshManager();
     MeshAsset* newMeshAsset = meshManager->CreateMesh(filePath, vertices, indices);
+    return newMeshAsset;
 }
 
 void ObjImporter::Reset()
@@ -106,6 +112,7 @@ void ObjImporter::Reset()
     positions.clear();
     uvs.clear();
     normals.clear();
+    faces.clear();
 }
 
 ObjImporter::Face ObjImporter::ParseFace(const std::string& line)
