@@ -7,7 +7,6 @@ cmake_install.cmake
 compile_commands.json
 
 *.o
-*.obj
 *.a
 *.lib
 *.so
