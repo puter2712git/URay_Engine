@@ -51,6 +51,8 @@ public:
     void GetWindowSize(int& width, int& height) const;
     void GetFramebufferSize(int& width, int& height) const;
 
+    Window* GetWindow() const { return window; }
+
     InputManager& GetInputManager() { return inputManager; }
 
     MeshManager* GetMeshManager() const { return meshManager; }

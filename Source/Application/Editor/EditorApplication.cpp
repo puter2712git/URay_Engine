@@ -3,6 +3,8 @@
 #include "Editor/Editor.h"
 #include "Engine/Engine.h"
 
+#include "Platform/Window.h"
+
 namespace URay
 {
 
@@ -24,7 +26,7 @@ bool EditorApplication::Initialize()
 
 void EditorApplication::Run()
 {
-    while (!shouldQuit)
+    while (!glfwWindowShouldClose(engine->GetWindow()->GetGLFWWindow()))
     {
         engine->Update();
         editor->Update();
