@@ -1,8 +1,8 @@
 #include "TextComponent.h"
 
+#include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Unit.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
@@ -41,11 +41,6 @@ void TextComponent::SubmitCommand(DrawCommandBuilder& builder)
     context.font = font;
 
     builder.BuildFromText(context);
-}
-
-bool TextComponent::Pick(const Vector3& origin, const Vector3& direction, float& outDist) const
-{
-    return false;
 }
 
 } // namespace URay

@@ -61,7 +61,7 @@ Component* Unit::AddComponent(Component* comp)
 
     comp->SetOwner(this);
 
-    components.insert(comp);
+    components.push_back(comp);
     return comp;
 }
 

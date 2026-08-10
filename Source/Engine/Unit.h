@@ -2,7 +2,6 @@
 
 #include "Engine/Object/Object.h"
 
-#include <set>
 #include <string>
 #include <vector>
 
@@ -39,15 +38,9 @@ public:
         return nullptr;
     }
 
-    const std::set<Component*>& GetComponents() const
-    {
-        return components;
-    }
+    const std::vector<Component*>& GetComponents() const { return components; }
 
-    TransformComponent* GetTransform() const
-    {
-        return transform;
-    }
+    TransformComponent* GetTransform() const { return transform; }
 
     const std::string& GetName() const { return name; }
     void SetName(const std::string& newName) { name = newName; }
@@ -59,7 +52,7 @@ private:
 
     std::vector<Unit*> children;
 
-    std::set<Component*> components;
+    std::vector<Component*> components;
     TransformComponent* transform = nullptr;
 };
 

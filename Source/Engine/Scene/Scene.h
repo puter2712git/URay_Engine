@@ -26,7 +26,7 @@ public:
     SceneType GetType() const { return type; }
 
     void AddUnit(Unit* unit);
-    std::vector<Unit*> GetUnits() const
+    const std::vector<Unit*>& GetUnits() const
     {
         return units;
     }

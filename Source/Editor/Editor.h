@@ -7,6 +7,7 @@ class Engine;
 class Renderer;
 class Unit;
 
+class EditorPicker;
 class MainMenuBar;
 class SceneTree;
 
@@ -30,9 +31,13 @@ private:
     void ShowStatus() const;
     void ShowInspector() const;
 
+    void UpdateHover();
+    void UpdatePick();
+
 private:
     Engine& engine;
 
+    EditorPicker* picker = nullptr;
     Unit* selectedUnit = nullptr;
 
     MainMenuBar* mainMenuBar = nullptr;

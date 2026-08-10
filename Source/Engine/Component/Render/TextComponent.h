@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Engine/Pickable.h"
 #include "RenderComponent.h"
 
 #include <string>
@@ -13,7 +12,7 @@ class Material;
 
 class FontAsset;
 
-class TextComponent : public RenderComponent, public IPickable
+class TextComponent : public RenderComponent
 {
     URAY_CLASS(TextComponent, RenderComponent)
 
@@ -23,8 +22,6 @@ public:
 
 public:
     virtual void SubmitCommand(DrawCommandBuilder& builder) override;
-
-    bool Pick(const Vector3& origin, const Vector3& direction, float& outDist) const override;
 
 private:
     FontAsset* font = nullptr;

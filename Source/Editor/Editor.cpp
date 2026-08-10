@@ -1,5 +1,6 @@
 #include "Editor.h"
 
+#include "Editor/EditorPicker.h"
 #include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
 #include "Editor/SceneTree.h"
@@ -31,6 +32,7 @@ bool Editor::Initialize()
     if (!renderer->InitializeImGui())
         return false;
 
+    picker = new EditorPicker(engine);
     mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree(*this, engine);
 
@@ -50,6 +52,34 @@ void Editor::Finalize()
 
 void Editor::Update()
 {
+    InputManager input = engine.GetInputManager();
+
+    GizmoComponent* gizmo = engine.GetGizmo();
+
+    if (input.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
+    {
+        if (gizmo && gizmo->IsDragging())
+        {
+            gizmo->EndDragging();
+        }
+    }
+
+    if (input.GetKeyDown(GLFW_KEY_SPACE))
+    {
+        if (gizmo)
+        {
+            GizmoMode mode = gizmo->GetCurrMode();
+            int modeIndex = static_cast<int>(mode);
+            modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
+
+            GizmoMode newMode = static_cast<GizmoMode>(modeIndex);
+
+            gizmo->SetMode(newMode);
+        }
+    }
+
+    UpdateHover();
+    UpdatePick();
 }
 
 void Editor::PrepareRender()
@@ -152,6 +182,50 @@ void Editor::ShowInspector() const
     }
 
     ImGui::End();
+}
+
+void Editor::UpdateHover()
+{
+    InputManager input = engine.GetInputManager();
+
+    GizmoComponent* gizmo = engine.GetGizmo();
+
+    PickResult pickResult = picker->Pick(engine.GetCamera(), input.mouseX, input.mouseY);
+    if (!pickResult.hit)
+    {
+        gizmo->SetHoveredAxis(-1);
+        return;
+    }
+
+    if (pickResult.gizmoAxis != -1)
+    {
+        gizmo->SetHoveredAxis(pickResult.gizmoAxis);
+    }
+}
+
+void Editor::UpdatePick()
+{
+    InputManager input = engine.GetInputManager();
+    if (!input.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
+        return;
+
+    GizmoComponent* gizmo = engine.GetGizmo();
+
+    PickResult pickResult = picker->Pick(engine.GetCamera(), input.mouseX, input.mouseY);
+    if (!pickResult.hit)
+    {
+        SelectUnit(nullptr);
+        return;
+    }
+
+    if (pickResult.gizmoAxis != -1)
+    {
+        const Vector2 clickPos = Vector2(input.mouseX, input.mouseY);
+        gizmo->StartDragging(clickPos, pickResult.gizmoAxis);
+        return;
+    }
+
+    SelectUnit(pickResult.pickedUnit);
 }
 
 } // namespace URay
