@@ -7,6 +7,8 @@
 namespace URay
 {
 
+class EditorConsoleLogSink;
+
 class EditorConsole
 {
 public:
@@ -62,6 +64,8 @@ private:
     }
 
 private:
+    EditorConsoleLogSink* logSink = nullptr;
+
     char inputBuffer[256];
     ImVector<char*> items;
     ImVector<const char*> commands;

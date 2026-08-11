@@ -1,11 +1,20 @@
 #include "EditorConsole.h"
+#include "EditorConsoleLogSink.h"
+
+#include "Core/Log/Log.h"
 
 #include <cstdio>
 
 namespace URay
 {
 
-EditorConsole::EditorConsole() = default;
+EditorConsole::EditorConsole()
+{
+    logSink = new EditorConsoleLogSink(*this);
+
+    Logger::RegisterSink(logSink);
+}
+
 EditorConsole::~EditorConsole() = default;
 
 void EditorConsole::ClearLog()

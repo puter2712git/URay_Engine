@@ -1,6 +1,6 @@
 #include "Editor.h"
 
-#include "Editor/EditorConsole.h"
+#include "Editor/Console/EditorConsole.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
@@ -12,6 +12,7 @@
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
+#include "Core/Log/Log.h"
 #include "Core/Timer.h"
 
 #include "Render/Renderer.h"
@@ -37,6 +38,8 @@ bool Editor::Initialize()
     mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree(*this, engine);
     console = new EditorConsole();
+
+    Logger::Log("Hello, URay Engine!");
 
     return true;
 }
