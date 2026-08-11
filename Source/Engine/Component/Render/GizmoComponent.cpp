@@ -1,7 +1,7 @@
 #include "GizmoComponent.h"
 
-#include "Engine/Asset/Mesh/MeshAsset.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/MeshManager.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -9,7 +9,7 @@
 
 #include "Core/Math/Math.h"
 
-#include "Engine/Asset/Material/MaterialManager.h"
+#include "Engine/Material/MaterialManager.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
 

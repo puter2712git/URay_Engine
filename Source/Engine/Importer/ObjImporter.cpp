@@ -1,7 +1,7 @@
 #include "ObjImporter.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Mesh/MeshManager.h"
 
 #include "Core/File/FileIO.h"
 

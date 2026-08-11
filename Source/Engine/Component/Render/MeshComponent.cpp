@@ -1,8 +1,8 @@
 #include "MeshComponent.h"
 
-#include "Engine/Asset/Material/MaterialManager.h"
-#include "Engine/Asset/Mesh/MeshAsset.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Material/MaterialManager.h"
+#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/MeshManager.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Object/Class/Class.h"

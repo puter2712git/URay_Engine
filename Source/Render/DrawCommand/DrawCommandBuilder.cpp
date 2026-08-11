@@ -10,8 +10,8 @@
 #include "Render/TextBatcher.h"
 #include "Render/VertexBuffer.h"
 
-#include "Engine/Asset/Material/Material.h"
-#include "Engine/Asset/Mesh/MeshAsset.h"
+#include "Engine/Material/Material.h"
+#include "Engine/Mesh/MeshAsset.h"
 
 namespace URay
 {

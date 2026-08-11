@@ -1,11 +1,11 @@
 #include "PropertyDrawer.h"
 
-#include "Engine/Asset/Material/Material.h"
-#include "Engine/Asset/Material/MaterialManager.h"
-#include "Engine/Asset/Mesh/MeshAsset.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
-#include "Engine/Asset/Texture/TextureAsset.h"
-#include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Material/Material.h"
+#include "Engine/Material/MaterialManager.h"
+#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/MeshManager.h"
+#include "Engine/Texture/TextureAsset.h"
+#include "Engine/Texture/TextureManager.h"
 #include "Engine/Engine.h"
 #include "Engine/Object/Property/Property.h"
 

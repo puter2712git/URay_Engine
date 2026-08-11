@@ -5,7 +5,7 @@
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
 
-#include "Engine/Asset/Mesh/MeshAsset.h"
+#include "Engine/Mesh/MeshAsset.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
