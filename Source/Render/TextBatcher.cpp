@@ -79,7 +79,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
         cmd.pipelineState = psoDesc;
 
         GPUResourceManager* resourceManager = renderer->GetResourceManager();
-        Texture* texture = resourceManager->GetOrCreateTexture(font->GetFilePath());
+        Texture* texture = resourceManager->GetOrCreateTexture(font->GetBitmapTexture());
         TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
 
         descriptorSet->WriteSampledImage(0, textureView);

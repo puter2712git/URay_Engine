@@ -130,9 +130,6 @@ bool Renderer::Initialize(Window* wnd)
     Shader* baseShader = shaderManager->GetOrCreate("Mesh", "Shader/Mesh.vert.spv", "Shader/Mesh.frag.spv");
     Shader* fontShader = shaderManager->GetOrCreate("Font", "Shader/Font.vert.spv", "Shader/Font.frag.spv");
 
-    Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
-    resourceManager->GetOrCreateTextureView(texture);
-
     if (!CreateDepthResources())
         return false;
     if (!CreateFramebuffers())
@@ -140,10 +137,6 @@ bool Renderer::Initialize(Window* wnd)
 
     CreatePipelineLayout();
 
-    if (!CreateDescriptorPool())
-        return false;
-    if (!CreateDescriptorSets())
-        return false;
     if (!CreateCommandBuffer())
         return false;
     if (!CreateSyncObjects())
@@ -167,8 +160,6 @@ void Renderer::Finalize()
     DestroyFrameDescriptorSetLayout();
 
     DestroyDepthResources();
-
-    DestroyDescriptorPool();
 
     delete shaderManager;
 
@@ -890,113 +881,6 @@ void Renderer::DestroySyncObjects()
         vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
         vkDestroyFence(device, inFlightFences[i], nullptr);
     }
-}
-
-bool Renderer::CreateDescriptorPool()
-{
-    std::array<VkDescriptorPoolSize, 3> poolSizes = {};
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-    poolSizes[2].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-    VkDescriptorPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-
-    if (vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
-        return false;
-
-    return true;
-}
-
-void Renderer::DestroyDescriptorPool()
-{
-    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
-}
-
-bool Renderer::CreateDescriptorSets()
-{
-    DescriptorSetLayoutDesc layoutDesc = {};
-    layoutDesc.bindings.push_back(
-        { .bindingIndex = 0,
-          .resourceType = ResourceType::ConstantBuffer,
-          .arrayCount = 1,
-          .stageFlags = ShaderStageFlags::Vertex });
-    layoutDesc.bindings.push_back(
-        { .bindingIndex = 1,
-          .resourceType = ResourceType::SampledImage,
-          .arrayCount = 1,
-          .stageFlags = ShaderStageFlags::Fragment });
-    layoutDesc.bindings.push_back(
-        { .bindingIndex = 2,
-          .resourceType = ResourceType::Sampler,
-          .arrayCount = 1,
-          .stageFlags = ShaderStageFlags::Fragment });
-
-    DescriptorSetLayout* layout = resourceManager->GetOrCreateDescriptorSetLayout(layoutDesc);
-
-    std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, layout->GetHandle());
-    VkDescriptorSetAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
-    allocInfo.pSetLayouts = layouts.data();
-
-    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-    if (vkAllocateDescriptorSets(device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
-        return false;
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        VkDescriptorBufferInfo bufferInfo = {};
-        bufferInfo.buffer = renderDevice->GetFrameConstantBuffers()[i]->GetHandle();
-        bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(FrameConstants);
-
-        Texture* texture = resourceManager->GetOrCreateTexture("Asset/texture.jpg");
-        TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
-
-        VkDescriptorImageInfo imageInfo = {};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = textureView->GetHandle();
-
-        VkDescriptorImageInfo samplerInfo = {};
-        samplerInfo.sampler = resourceManager->GetOrCreateTextureSampler({});
-
-        std::array<VkWriteDescriptorSet, 3> descriptorWrites = {};
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSets[i];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSets[i];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &imageInfo;
-
-        descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[2].dstSet = descriptorSets[i];
-        descriptorWrites[2].dstBinding = 2;
-        descriptorWrites[2].dstArrayElement = 0;
-        descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
-        descriptorWrites[2].descriptorCount = 1;
-        descriptorWrites[2].pImageInfo = &samplerInfo;
-
-        vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-    }
-
-    return true;
 }
 
 bool Renderer::CreateDepthResources()

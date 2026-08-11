@@ -129,11 +129,6 @@ private:
     bool CreateSyncObjects();
     void DestroySyncObjects();
 
-    bool CreateDescriptorPool();
-    void DestroyDescriptorPool();
-
-    bool CreateDescriptorSets();
-
     bool CreateDepthResources();
     void DestroyDepthResources();
 
@@ -207,9 +202,6 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
-
-    VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-    std::vector<VkDescriptorSet> descriptorSets;
 
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;

@@ -2,8 +2,6 @@
 
 #include "FontAsset.h"
 
-#include "Core/File/FileIO.h"
-
 namespace URay
 {
 
@@ -21,12 +19,9 @@ FontManager::~FontManager()
     fonts.clear();
 }
 
-FontAsset* FontManager::LoadFontAsset(const std::string& key, const std::string& filePath)
+FontAsset* FontManager::LoadFontAsset(const std::string& key, TextureAsset* bitmapTexture)
 {
-    if (!FileIO::Exists(filePath))
-        return nullptr;
-
-    FontAsset* fontAsset = new FontAsset(filePath);
+    FontAsset* fontAsset = new FontAsset(bitmapTexture);
     fonts.insert({ key, fontAsset });
     return fontAsset;
 }

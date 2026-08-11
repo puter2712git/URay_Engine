@@ -66,7 +66,7 @@ void Material::SetTextureAsset(TextureAsset* textureAsset)
     texture = textureAsset;
 
     GPUResourceManager* resourceManager = gEngine->GetGPUResourceManager();
-    Texture* texture = resourceManager->GetOrCreateTexture(textureAsset->GetFilePath());
+    Texture* texture = resourceManager->GetOrCreateTexture(textureAsset);
     TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
 
     for (DescriptorSet* descriptorSet : descriptorSets)

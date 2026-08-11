@@ -3,30 +3,35 @@
 #include "Engine/Engine.h"
 #include "Engine/Mesh/MeshManager.h"
 
-#include "Core/File/FileIO.h"
+#include "Core/File/VirtualFilesystem.h"
+#include "Core/Log/Log.h"
 
-#include <fstream>
+#include <iostream>
 #include <sstream>
 #include <unordered_map>
 
 namespace URay
 {
 
-std::vector<Vector3> ObjImporter::positions;
-std::vector<Vector2> ObjImporter::uvs;
-std::vector<Vector3> ObjImporter::normals;
-std::vector<ObjImporter::Face> ObjImporter::faces;
-
-MeshAsset* ObjImporter::Import(const std::string& filePath)
+ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
+    : filesystem(filesystem)
 {
-    if (!FileIO::Exists(filePath))
+}
+
+MeshAsset* ObjImporter::Import(const VirtualPath& filePath)
+{
+    if (!filesystem.Exists(filePath))
+    {
         return nullptr;
+    }
 
     Reset();
 
-    std::fstream file(filePath);
+    std::string fileText = filesystem.ReadText(filePath);
+    std::istringstream fileStream(fileText);
+
     std::string line;
-    while (std::getline(file, line))
+    while (std::getline(fileStream, line))
     {
         if (line.empty() || line[0] == '#')
             continue;
@@ -64,7 +69,8 @@ MeshAsset* ObjImporter::Import(const std::string& filePath)
     std::vector<uint32_t> indices;
     std::unordered_map<ObjIndex, uint32_t, ObjIndexHash> vertexMap;
 
-    auto AddVertex = [&](const ObjIndex& objIndex) -> uint32_t {
+    auto AddVertex = [&](const ObjIndex& objIndex) -> uint32_t
+    {
         auto it = vertexMap.find(objIndex);
         if (it != vertexMap.end())
             return it->second;
@@ -103,7 +109,8 @@ MeshAsset* ObjImporter::Import(const std::string& filePath)
     }
 
     MeshManager* meshManager = gEngine->GetMeshManager();
-    MeshAsset* newMeshAsset = meshManager->CreateMesh(filePath, vertices, indices);
+
+    MeshAsset* newMeshAsset = meshManager->CreateMesh(filePath.ToString(), vertices, indices);
     return newMeshAsset;
 }
 
@@ -118,7 +125,7 @@ void ObjImporter::Reset()
 ObjImporter::Face ObjImporter::ParseFace(const std::string& line)
 {
     Face face;
-    
+
     std::stringstream ss(line);
     std::string prefix, token;
 

@@ -2,13 +2,20 @@
 
 #include "TextureAsset.h"
 
-#include "Core/File/FileIO.h"
+#include "Core/File/VirtualFilesystem.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <iostream>
+
 namespace URay
 {
+
+TextureManager::TextureManager(VirtualFilesystem& filesystem)
+    : filesystem(filesystem)
+{
+}
 
 TextureManager::~TextureManager()
 {
@@ -24,18 +31,23 @@ TextureManager::~TextureManager()
     textures.clear();
 }
 
-TextureAsset* TextureManager::LoadTextureAsset(const std::string& key, const std::string& filePath)
+TextureAsset* TextureManager::LoadTextureAsset(const std::string& key, const VirtualPath& virtualPath)
 {
-    if (!FileIO::Exists(filePath))
+    if (!filesystem.Exists(virtualPath))
         return nullptr;
+
+    std::string physicalPathStr = filesystem.ResolveToPhysicalPath(virtualPath).string();
 
     int width, height, channels;
-    stbi_uc* data = stbi_load(filePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    stbi_uc* data = stbi_load(physicalPathStr.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
     if (!data)
+    {
+        std::cout << physicalPathStr << "\n";
         return nullptr;
+    }
 
-    TextureAsset* asset = new TextureAsset(filePath, width, height, channels);
+    TextureAsset* asset = new TextureAsset(physicalPathStr, width, height, channels);
     textures.insert({ key, asset });
 
     asset->SetName(key);

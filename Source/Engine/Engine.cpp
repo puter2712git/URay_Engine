@@ -1,19 +1,20 @@
 #include "Engine.h"
 
-#include "Engine/Font/FontManager.h"
-#include "Engine/Importer/ObjImporter.h"
-#include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/MeshAsset.h"
-#include "Engine/Mesh/MeshManager.h"
-#include "Engine/Texture/TextureManager.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Font/FontManager.h"
+#include "Engine/Importer/ObjImporter.h"
+#include "Engine/Material/MaterialManager.h"
+#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
+#include "Core/File/VirtualFilesystem.h"
 #include "Core/Timer.h"
 
 #include "Platform/Window.h"
@@ -37,7 +38,7 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 
 Engine* gEngine;
 
-bool Engine::Initialize()
+bool Engine::Initialize(const std::string& projectPath)
 {
     gEngine = this;
 
@@ -57,6 +58,10 @@ bool Engine::Initialize()
 
     timer = new Timer();
 
+    filesystem = new VirtualFilesystem();
+    filesystem->Mount("project", projectPath);
+    filesystem->Mount("asset", fs::path(projectPath) / "Asset/Source");
+
     shaderManager = renderer->GetShaderManager();
 
     materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager());
@@ -66,14 +71,15 @@ bool Engine::Initialize()
     meshManager = new MeshManager();
     meshManager->CreateDefaultMeshes();
 
-    ObjImporter::Import("Asset/Mesh/untitled.obj");
+    objImporter = new ObjImporter(*filesystem);
+    objImporter->Import("asset://Mesh/untitled.obj");
 
-    textureManager = new TextureManager();
-    textureManager->LoadTextureAsset("Test", "Asset/texture.jpg");
-    textureManager->LoadTextureAsset("FontTexture", "Asset/DejaVu Sans Mono.png");
+    textureManager = new TextureManager(*filesystem);
+    textureManager->LoadTextureAsset("Test", "asset://Texture/texture.jpg");
+    TextureAsset* fontTexture = textureManager->LoadTextureAsset("FontTexture", "asset://Texture/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
-    fontManager->LoadFontAsset("Default", "Asset/DejaVu Sans Mono.png");
+    fontManager->LoadFontAsset("Default", fontTexture);
 
     MeshAsset* quadMesh = meshManager->GetMesh("Quad");
 

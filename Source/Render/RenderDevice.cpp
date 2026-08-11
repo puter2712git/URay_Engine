@@ -20,7 +20,7 @@
 #include "Texture/TextureView.h"
 #include "VertexBuffer.h"
 
-#include "Core/File/FileIO.h"
+#include "Engine/Texture/TextureAsset.h"
 
 #include <stb/stb_image.h>
 
@@ -137,15 +137,12 @@ Mesh* RenderDevice::CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inInde
     return mesh;
 }
 
-Texture* RenderDevice::CreateTexture(const std::string& filePath)
+Texture* RenderDevice::CreateTexture(const TextureAsset* textureAsset)
 {
-    if (!FileIO::Exists(filePath))
-        return nullptr;
-
     stbi_set_flip_vertically_on_load(true);
 
     int width, height, channels;
-    stbi_uc* pixels = stbi_load(filePath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(textureAsset->GetFilePath().c_str(), &width, &height, &channels, STBI_rgb_alpha);
 
     if (!pixels)
         return nullptr;
@@ -349,11 +346,11 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     dynamicState.pDynamicStates = dynamicStates.data();
 
     const auto bindingDescription = desc.vertexLayout == VertexLayout::PNT
-        ? VertexPNT::GetBindingDescription()
-        : Vertex::GetBindingDescription();
+                                        ? VertexPNT::GetBindingDescription()
+                                        : Vertex::GetBindingDescription();
     const auto attributeDescriptions = desc.vertexLayout == VertexLayout::PNT
-        ? VertexPNT::GetAttributeDescriptions()
-        : Vertex::GetAttributeDescriptions();
+                                           ? VertexPNT::GetAttributeDescriptions()
+                                           : Vertex::GetAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

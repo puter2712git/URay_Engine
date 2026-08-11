@@ -16,11 +16,13 @@ class Unit;
 
 class Window;
 class Timer;
+class VirtualFilesystem;
 
 class MaterialManager;
 class MeshManager;
 class TextureManager;
 class FontManager;
+class ObjImporter;
 
 class ShaderManager;
 class GPUResourceManager;
@@ -36,7 +38,7 @@ public:
     ~Engine() = default;
 
 public:
-    bool Initialize();
+    bool Initialize(const std::string& projectPath);
     void Finalize();
 
     void Update();
@@ -70,6 +72,8 @@ public:
 
     Timer* GetTimer() const { return timer; }
 
+    VirtualFilesystem* GetFilesystem() const { return filesystem; }
+
     GizmoComponent* GetGizmo() const { return gizmo; }
 
     CameraComponent* GetCamera() const { return camera; }
@@ -90,6 +94,8 @@ private:
 
     Timer* timer = nullptr;
 
+    VirtualFilesystem* filesystem = nullptr;
+
     InputManager inputManager;
 
     ShaderManager* shaderManager = nullptr;
@@ -97,6 +103,8 @@ private:
     MeshManager* meshManager = nullptr;
     TextureManager* textureManager = nullptr;
     FontManager* fontManager = nullptr;
+
+    ObjImporter* objImporter = nullptr;
 };
 
 extern Engine* gEngine;

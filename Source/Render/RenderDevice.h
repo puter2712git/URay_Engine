@@ -11,6 +11,8 @@
 namespace URay
 {
 
+class TextureAsset;
+
 class Renderer;
 class VertexBuffer;
 class IndexBuffer;
@@ -41,7 +43,7 @@ public:
     IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
     Mesh* CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
-    Texture* CreateTexture(const std::string& filePath);
+    Texture* CreateTexture(const TextureAsset* textureAsset);
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 

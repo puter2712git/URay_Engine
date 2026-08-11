@@ -18,6 +18,7 @@ class RenderDevice;
 class MeshAsset;
 class Mesh;
 
+class TextureAsset;
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
@@ -35,7 +36,7 @@ public:
     Mesh* GetOrCreateMesh(MeshAsset* asset);
     void DestroyMeshes();
 
-    Texture* GetOrCreateTexture(const std::string& filePath);
+    Texture* GetOrCreateTexture(TextureAsset* textureAsset);
     void DestroyTextures();
 
     TextureView* GetOrCreateTextureView(Texture* texture);
@@ -58,7 +59,7 @@ private:
 
     std::unordered_map<MeshAsset*, Mesh*> meshes;
 
-    std::unordered_map<std::string, Texture*> textures;
+    std::unordered_map<TextureAsset*, Texture*> textures;
     std::unordered_map<Texture*, TextureView*> textureViews;
     std::unordered_map<TextureSamplerDesc, VkSampler, TextureSamplerDescHash> textureSamplers;
 

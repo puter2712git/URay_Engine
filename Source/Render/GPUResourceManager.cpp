@@ -79,17 +79,17 @@ void GPUResourceManager::DestroyMeshes()
     meshes.clear();
 }
 
-Texture* GPUResourceManager::GetOrCreateTexture(const std::string& filePath)
+Texture* GPUResourceManager::GetOrCreateTexture(TextureAsset* textureAsset)
 {
-    auto it = textures.find(filePath);
+    auto it = textures.find(textureAsset);
     if (it != textures.end())
         return it->second;
 
-    Texture* texture = renderDevice->CreateTexture(filePath);
+    Texture* texture = renderDevice->CreateTexture(textureAsset);
     if (!texture)
         return nullptr;
 
-    textures.insert({ filePath, texture });
+    textures.insert({ textureAsset, texture });
     return texture;
 }
 

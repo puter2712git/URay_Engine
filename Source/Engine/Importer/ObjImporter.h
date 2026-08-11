@@ -3,8 +3,6 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 
-#include "Render/Vertex.h"
-
 #include <string>
 #include <vector>
 
@@ -13,8 +11,14 @@ namespace URay
 
 class MeshAsset;
 
+class VirtualFilesystem;
+class VirtualPath;
+
 class ObjImporter
 {
+public:
+    ObjImporter(VirtualFilesystem& filesystem);
+
 private:
     struct ObjIndex
     {
@@ -42,20 +46,22 @@ private:
     };
 
 public:
-    static MeshAsset* Import(const std::string& filePath);
+    MeshAsset* Import(const VirtualPath& filePath);
 
 private:
-    static void Reset();
+    void Reset();
 
-    static Face ParseFace(const std::string& line);
+    Face ParseFace(const std::string& line);
 
-    static ObjIndex ParseObjIndex(const std::string& token);
+    ObjIndex ParseObjIndex(const std::string& token);
 
 private:
-    static std::vector<Vector3> positions;
-    static std::vector<Vector2> uvs;
-    static std::vector<Vector3> normals;
-    static std::vector<Face> faces;
+    VirtualFilesystem& filesystem;
+
+    std::vector<Vector3> positions;
+    std::vector<Vector2> uvs;
+    std::vector<Vector3> normals;
+    std::vector<Face> faces;
 };
 
 } // namespace URay

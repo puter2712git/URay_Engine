@@ -10,6 +10,7 @@ namespace URay
 {
 
 class FontAsset;
+class TextureAsset;
 
 class FontManager
 {
@@ -17,7 +18,7 @@ public:
     ~FontManager();
 
 public:
-    FontAsset* LoadFontAsset(const std::string& key, const std::string& filePath);
+    FontAsset* LoadFontAsset(const std::string& key, TextureAsset* bitmapTexture);
     FontAsset* GetFontAsset(const std::string& key) const;
 
 private:

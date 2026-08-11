@@ -3,8 +3,8 @@
 namespace URay
 {
 
-FontAsset::FontAsset(const std::string& filePath)
-    : filePath(filePath)
+FontAsset::FontAsset(TextureAsset* textureAsset)
+    : bitmapTexture(textureAsset)
 {
 }
 
