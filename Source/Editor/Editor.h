@@ -10,6 +10,7 @@ class Unit;
 class EditorPicker;
 class MainMenuBar;
 class SceneTree;
+class EditorConsole;
 
 class Editor
 {
@@ -42,6 +43,7 @@ private:
 
     MainMenuBar* mainMenuBar = nullptr;
     SceneTree* sceneTree = nullptr;
+    EditorConsole* console = nullptr;
 };
 
 } // namespace URay

@@ -1,5 +1,6 @@
 #include "Editor.h"
 
+#include "Editor/EditorConsole.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
@@ -35,12 +36,14 @@ bool Editor::Initialize()
     picker = new EditorPicker(engine);
     mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree(*this, engine);
+    console = new EditorConsole();
 
     return true;
 }
 
 void Editor::Finalize()
 {
+    delete console;
     delete sceneTree;
 
     Renderer* renderer = engine.GetRenderer();
@@ -96,6 +99,12 @@ void Editor::PrepareRender()
     if (sceneTree)
     {
         sceneTree->Draw();
+    }
+
+    if (console)
+    {
+        bool open = true;
+        console->Draw("Console", &open);
     }
 
     renderer->EndImGui();
