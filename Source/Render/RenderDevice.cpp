@@ -20,7 +20,7 @@
 #include "Texture/TextureView.h"
 #include "VertexBuffer.h"
 
-#include "Engine/Texture/TextureAsset.h"
+#include "Engine/Texture/Texture.h"
 
 #include <stb/stb_image.h>
 
@@ -28,7 +28,7 @@
 #include <map>
 #include <stdexcept>
 
-namespace URay
+namespace URay::RHI
 {
 
 RenderDevice::RenderDevice(Renderer* renderer,
@@ -138,7 +138,7 @@ Mesh* RenderDevice::CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inInde
     return mesh;
 }
 
-Texture* RenderDevice::CreateTexture(const TextureAsset* textureAsset)
+Texture* RenderDevice::CreateTexture(const ::URay::Texture* textureAsset)
 {
     stbi_set_flip_vertically_on_load(true);
 
@@ -801,4 +801,4 @@ uint32_t RenderDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
     return UINT32_MAX;
 }
 
-} // namespace URay
+} // namespace URay::RHI

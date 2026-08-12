@@ -14,6 +14,8 @@
 namespace URay
 {
 
+using namespace RHI;
+
 URAY_REGISTER_CLASS(SpriteComponent)
 URAY_REGISTER_COMPONENT(SpriteComponent)
 
@@ -26,7 +28,7 @@ SpriteComponent::SpriteComponent()
     quadMesh = meshManager->GetMesh("Quad");
 
     material = gEngine->GetMaterialManager()->GetOrCreate("Sprite");
-    material->SetTextureAsset(texture);
+    material->SetTexture(texture);
 }
 
 void SpriteComponent::RegisterClass()
@@ -34,11 +36,11 @@ void SpriteComponent::RegisterClass()
     Super::RegisterClass();
 
     StaticClass()->AddProperty({ PropertyType::Texture, "Texture",
-                                 offsetof(SpriteComponent, texture), sizeof(TextureAsset*),
+                                 offsetof(SpriteComponent, texture), sizeof(Texture*),
                                  [](Object* owner, const Property& property)
                                  {
                                      SpriteComponent* spriteComp = static_cast<SpriteComponent*>(owner);
-                                     spriteComp->material->SetTextureAsset(spriteComp->texture);
+                                     spriteComp->material->SetTexture(spriteComp->texture);
                                  } });
 }
 

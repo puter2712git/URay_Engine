@@ -10,9 +10,9 @@
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 
-#include "Engine/Font/FontAsset.h"
+#include "Engine/Font/Font.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 TextBatcher::TextBatcher(Renderer* renderer)
@@ -135,4 +135,4 @@ void TextBatcher::Collect(const TextCommandContext& context)
     }
 }
 
-} // namespace URay
+} // namespace URay::RHI

@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-namespace URay
+namespace URay::RHI
 {
 
 class DescriptorSetLayout;
@@ -49,4 +49,4 @@ struct PipelineLayoutDescHash
     }
 };
 
-} // namespace URay
+} // namespace URay::RHI

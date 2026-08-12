@@ -2,7 +2,7 @@
 
 #include "Shader/ShaderStageFlags.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 struct PushConstantRange
@@ -14,4 +14,4 @@ struct PushConstantRange
     bool operator==(const PushConstantRange&) const = default;
 };
 
-} // namespace URay
+} // namespace URay::RHI

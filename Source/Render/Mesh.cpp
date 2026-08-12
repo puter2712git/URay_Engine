@@ -3,7 +3,7 @@
 #include "Render/IndexBuffer.h"
 #include "Render/VertexBuffer.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 Mesh::Mesh(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
@@ -26,4 +26,4 @@ Mesh::~Mesh()
     }
 }
 
-} // namespace URay
+} // namespace URay::RHI

@@ -9,8 +9,8 @@
 namespace URay
 {
 
-class FontAsset;
-class TextureAsset;
+class Font;
+class Texture;
 
 class FontManager
 {
@@ -18,11 +18,11 @@ public:
     ~FontManager();
 
 public:
-    FontAsset* LoadFontAsset(const std::string& key, TextureAsset* bitmapTexture);
-    FontAsset* GetFontAsset(const std::string& key) const;
+    Font* LoadFont(const std::string& key, Texture* bitmapTexture);
+    Font* GetFont(const std::string& key) const;
 
 private:
-    std::unordered_map<std::string, FontAsset*> fonts;
+    std::unordered_map<std::string, Font*> fonts;
 };
 
 } // namespace URay

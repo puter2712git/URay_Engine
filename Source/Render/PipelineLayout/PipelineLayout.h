@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay
+namespace URay::RHI
 {
 
 class PipelineLayout
@@ -24,4 +24,4 @@ private:
     bool isSupportingPushConstants = false;
 };
 
-} // namespace URay
+} // namespace URay::RHI

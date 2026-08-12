@@ -17,14 +17,14 @@ struct MeshSection
     size_t materialIndex = 0;
 };
 
-class MeshAsset
+class Mesh
 {
 public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& inName) { name = inName; }
 
-    const std::vector<VertexPNT>& GetVertices() const { return vertices; }
-    void SetVertices(const std::vector<VertexPNT>& newVertices) { vertices = newVertices; }
+    const std::vector<RHI::VertexPNT>& GetVertices() const { return vertices; }
+    void SetVertices(const std::vector<RHI::VertexPNT>& newVertices) { vertices = newVertices; }
 
     const std::vector<uint32_t>& GetIndices() const { return indices; }
     void SetIndices(const std::vector<uint32_t>& newIndices) { indices = newIndices; }
@@ -32,7 +32,7 @@ public:
 private:
     std::string name;
 
-    std::vector<VertexPNT> vertices;
+    std::vector<RHI::VertexPNT> vertices;
     std::vector<uint32_t> indices;
 
     std::vector<MeshSection> sections;

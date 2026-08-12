@@ -10,15 +10,15 @@
 #include <string>
 #include <unordered_map>
 
-namespace URay
+namespace URay { class Mesh; class Texture; }
+
+namespace URay::RHI
 {
 
 class RenderDevice;
 
-class MeshAsset;
 class Mesh;
 
-class TextureAsset;
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
@@ -33,10 +33,10 @@ public:
     ~GPUResourceManager();
 
 public:
-    Mesh* GetOrCreateMesh(MeshAsset* asset);
+    Mesh* GetOrCreateMesh(::URay::Mesh* asset);
     void DestroyMeshes();
 
-    Texture* GetOrCreateTexture(TextureAsset* textureAsset);
+    Texture* GetOrCreateTexture(::URay::Texture* textureAsset);
     void DestroyTextures();
 
     TextureView* GetOrCreateTextureView(Texture* texture);
@@ -57,9 +57,9 @@ public:
 private:
     RenderDevice* renderDevice = nullptr;
 
-    std::unordered_map<MeshAsset*, Mesh*> meshes;
+    std::unordered_map<::URay::Mesh*, Mesh*> meshes;
 
-    std::unordered_map<TextureAsset*, Texture*> textures;
+    std::unordered_map<::URay::Texture*, Texture*> textures;
     std::unordered_map<Texture*, TextureView*> textureViews;
     std::unordered_map<TextureSamplerDesc, VkSampler, TextureSamplerDescHash> textureSamplers;
 
@@ -70,4 +70,4 @@ private:
     std::unordered_map<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
 };
 
-} // namespace URay
+} // namespace URay::RHI

@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay
+namespace URay::RHI
 {
 
 class ConstantBuffer
@@ -27,4 +27,4 @@ private:
     void* mappedData = nullptr;
 };
 
-} // namespace URay
+} // namespace URay::RHI

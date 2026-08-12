@@ -1,9 +1,9 @@
-#include "TextureAsset.h"
+#include "Texture.h"
 
 namespace URay
 {
 
-TextureAsset::TextureAsset(
+Texture::Texture(
     const std::string& filePath,
     int width, int height, int channels)
     : filePath(filePath),

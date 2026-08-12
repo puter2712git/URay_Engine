@@ -2,7 +2,7 @@
 
 #include "Shader.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 namespace
@@ -121,4 +121,4 @@ bool ShaderReflector::CreatePushConstantRange(
     return true;
 }
 
-} // namespace URay
+} // namespace URay::RHI

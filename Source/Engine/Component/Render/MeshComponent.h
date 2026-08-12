@@ -7,7 +7,7 @@
 namespace URay
 {
 
-class MeshAsset;
+class Mesh;
 class Material;
 
 class MeshComponent : public RenderComponent
@@ -19,12 +19,12 @@ public:
     ~MeshComponent() = default;
 
 public:
-    virtual void SubmitCommand(DrawCommandBuilder& builder) override;
+    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
 
     virtual const std::string& GetName() const override { return name; }
 
-    MeshAsset* GetMesh() const { return mesh; }
-    void SetMesh(MeshAsset* newMesh) { mesh = newMesh; }
+    Mesh* GetMesh() const { return mesh; }
+    void SetMesh(Mesh* newMesh) { mesh = newMesh; }
 
     Material* GetMaterial(size_t index = 0) { return materials.size() > index ? materials[index] : nullptr; }
     const std::vector<Material*>& GetMaterials() const { return materials; }
@@ -42,7 +42,7 @@ protected:
     std::string name = "Mesh";
 
 private:
-    MeshAsset* mesh = nullptr;
+    Mesh* mesh = nullptr;
     std::vector<Material*> materials;
 };
 

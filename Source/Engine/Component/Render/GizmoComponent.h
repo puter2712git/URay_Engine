@@ -12,7 +12,7 @@
 namespace URay
 {
 
-class MeshAsset;
+class Mesh;
 class Material;
 class Unit;
 
@@ -43,7 +43,7 @@ public:
 
 public:
     void Update(float deltaTime) override;
-    void SubmitCommand(DrawCommandBuilder& builder) override;
+    void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
 
     void StartDragging(const Vector2& clickPos, int selectedAxis);
     void EndDragging();
@@ -63,7 +63,7 @@ public:
     int GetCurrModeIndex() const { return static_cast<int>(currMode); }
     void SetMode(GizmoMode mode) { currMode = mode; }
 
-    MeshAsset* GetCurrMesh() { return meshes[static_cast<size_t>(currMode)]; }
+    Mesh* GetCurrMesh() { return meshes[static_cast<size_t>(currMode)]; }
 
     const Matrix& GetCurrMatrix(size_t axis) const { return matrices[GetCurrModeIndex()][axis]; }
 
@@ -96,7 +96,7 @@ private:
 
     Unit* targetUnit = nullptr;
 
-    std::array<MeshAsset*, static_cast<size_t>(GizmoMode::Count)> meshes;
+    std::array<Mesh*, static_cast<size_t>(GizmoMode::Count)> meshes;
     std::array<std::array<Matrix, static_cast<size_t>(Axis::Count)>, static_cast<size_t>(GizmoMode::Count)> matrices;
 
     Material* material = nullptr;

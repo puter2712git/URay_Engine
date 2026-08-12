@@ -1,6 +1,6 @@
 #include "DescriptorSetLayout.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 DescriptorSetLayout::DescriptorSetLayout(VkDevice device, VkDescriptorSetLayout handle)
@@ -16,4 +16,4 @@ DescriptorSetLayout::~DescriptorSetLayout()
     }
 }
 
-} // namespace URay
+} // namespace URay::RHI

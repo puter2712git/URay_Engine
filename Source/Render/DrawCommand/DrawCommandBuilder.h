@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace URay
+namespace URay::RHI
 {
 
 class Renderer;
@@ -42,4 +42,4 @@ private:
     TextBatcher* textBatcher = nullptr;
 };
 
-} // namespace URay
+} // namespace URay::RHI

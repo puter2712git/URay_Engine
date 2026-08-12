@@ -2,9 +2,9 @@
 
 #include "Engine/Material/Material.h"
 #include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
-#include "Engine/Texture/TextureAsset.h"
+#include "Engine/Texture/Texture.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Engine.h"
 #include "Engine/Object/Property/Property.h"
@@ -80,14 +80,14 @@ bool PropertyDrawer::DrawString(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
-    MeshAsset** currMesh = reinterpret_cast<MeshAsset**>(static_cast<uint8_t*>(addr) + prop.offset);
+    Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8_t*>(addr) + prop.offset);
 
     MeshManager* meshManager = gEngine->GetMeshManager();
     const auto& meshes = meshManager->GetMeshes();
 
     size_t meshCount = meshes.size();
     std::vector<std::string> meshNames(meshCount);
-    std::vector<MeshAsset*> meshArr(meshCount);
+    std::vector<Mesh*> meshArr(meshCount);
 
     size_t selectedIndex = -1;
     int i = 0;
@@ -137,14 +137,14 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 {
-    TextureAsset** currTexture = reinterpret_cast<TextureAsset**>(static_cast<uint8_t*>(addr) + prop.offset);
+    Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8_t*>(addr) + prop.offset);
 
     TextureManager* textureManager = gEngine->GetTextureManager();
     const auto& textures = textureManager->GetTextures();
 
     size_t textureCount = textures.size();
     std::vector<std::string> textureNames(textureCount);
-    std::vector<TextureAsset*> textureAssets(textureCount);
+    std::vector<Texture*> textureAssets(textureCount);
 
     size_t selectedIndex = -1;
     int i = 0;

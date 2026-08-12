@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay
+namespace URay::RHI
 {
 
 class Texture
@@ -21,4 +21,4 @@ private:
     VkDeviceMemory memory = VK_NULL_HANDLE;
 };
 
-} // namespace URay
+} // namespace URay::RHI

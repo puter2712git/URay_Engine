@@ -23,6 +23,7 @@
 namespace URay
 {
 
+
 Editor::Editor(Engine& engine)
     : engine(engine)
 {
@@ -30,7 +31,7 @@ Editor::Editor(Engine& engine)
 
 bool Editor::Initialize()
 {
-    Renderer* renderer = engine.GetRenderer();
+    RHI::Renderer* renderer = engine.GetRenderer();
 
     if (!renderer->InitializeImGui())
         return false;
@@ -51,7 +52,7 @@ void Editor::Finalize()
     delete console;
     delete sceneTree;
 
-    Renderer* renderer = engine.GetRenderer();
+    RHI::Renderer* renderer = engine.GetRenderer();
     if (renderer)
     {
         renderer->FinalizeImGui();
@@ -92,7 +93,7 @@ void Editor::Update()
 
 void Editor::PrepareRender()
 {
-    Renderer* renderer = engine.GetRenderer();
+    RHI::Renderer* renderer = engine.GetRenderer();
 
     renderer->BeginImGui();
 

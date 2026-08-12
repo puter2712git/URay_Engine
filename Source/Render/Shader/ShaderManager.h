@@ -5,7 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay
+namespace URay::RHI
 {
 
 class Shader;
@@ -26,4 +26,4 @@ private:
     std::unordered_map<std::string, Shader*> shaders;
 };
 
-} // namespace URay
+} // namespace URay::RHI

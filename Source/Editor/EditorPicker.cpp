@@ -5,7 +5,7 @@
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
 
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
@@ -90,9 +90,9 @@ bool EditorPicker::PickGizmo(const Ray& ray, int& outAxis) const
 
     for (size_t axis = 0; axis < 3; ++axis)
     {
-        const MeshAsset* meshAsset = gizmo->GetCurrMesh();
+        const Mesh* meshAsset = gizmo->GetCurrMesh();
 
-        const std::vector<VertexPNT>& vertices = meshAsset->GetVertices();
+        const std::vector<RHI::VertexPNT>& vertices = meshAsset->GetVertices();
         const std::vector<uint32_t>& indices = meshAsset->GetIndices();
 
         const Matrix gizmoWorld = gizmo->GetCurrMatrix(axis);
@@ -135,11 +135,11 @@ bool EditorPicker::PickMesh(const Ray& ray, const MeshComponent* meshComp, float
     if (!transform)
         return false;
 
-    const MeshAsset* meshAsset = meshComp->GetMesh();
+    const Mesh* meshAsset = meshComp->GetMesh();
     if (!meshAsset)
         return false;
 
-    const std::vector<VertexPNT>& vertices = meshAsset->GetVertices();
+    const std::vector<RHI::VertexPNT>& vertices = meshAsset->GetVertices();
     const std::vector<uint32_t>& indices = meshAsset->GetIndices();
 
     bool isHit = false;

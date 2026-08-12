@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace URay
+namespace URay::RHI
 {
 
 enum class ShaderStageFlags : uint32_t
@@ -39,4 +39,4 @@ constexpr VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags)
     return result;
 };
 
-} // namespace URay
+} // namespace URay::RHI

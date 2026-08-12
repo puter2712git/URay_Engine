@@ -8,14 +8,14 @@
 #include <unordered_map>
 #include <vector>
 
-namespace URay
+namespace URay { class Font; }
+
+namespace URay::RHI
 {
 
 class Renderer;
 class DrawCommandBuilder;
 class DescriptorSet;
-
-class FontAsset;
 
 class TextBatcher
 {
@@ -32,7 +32,7 @@ public:
 private:
     Renderer* renderer = nullptr;
 
-    std::unordered_map<FontAsset*, std::vector<Vertex>> vertices;
+    std::unordered_map<::URay::Font*, std::vector<Vertex>> vertices;
 
     DescriptorSet* descriptorSet = nullptr;
 
@@ -41,4 +41,4 @@ private:
     void* mappedVertexBufferData = nullptr;
 };
 
-} // namespace URay
+} // namespace URay::RHI

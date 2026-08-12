@@ -1,6 +1,6 @@
 #include "TextureManager.h"
 
-#include "TextureAsset.h"
+#include "Texture.h"
 
 #include "Core/File/VirtualFilesystem.h"
 
@@ -31,7 +31,7 @@ TextureManager::~TextureManager()
     textures.clear();
 }
 
-TextureAsset* TextureManager::LoadTextureAsset(const std::string& key, const VirtualPath& virtualPath)
+Texture* TextureManager::LoadTexture(const std::string& key, const VirtualPath& virtualPath)
 {
     if (!filesystem.Exists(virtualPath))
         return nullptr;
@@ -47,7 +47,7 @@ TextureAsset* TextureManager::LoadTextureAsset(const std::string& key, const Vir
         return nullptr;
     }
 
-    TextureAsset* asset = new TextureAsset(physicalPathStr, width, height, channels);
+    Texture* asset = new Texture(physicalPathStr, width, height, channels);
     textures.insert({ key, asset });
 
     asset->SetName(key);
@@ -55,7 +55,7 @@ TextureAsset* TextureManager::LoadTextureAsset(const std::string& key, const Vir
     return asset;
 }
 
-TextureAsset* TextureManager::GetTexture(const std::string& key) const
+Texture* TextureManager::GetTexture(const std::string& key) const
 {
     auto it = textures.find(key);
     if (it == textures.end())

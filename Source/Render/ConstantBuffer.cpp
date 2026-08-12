@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-namespace URay
+namespace URay::RHI
 {
 
 ConstantBuffer::ConstantBuffer(VkDevice device,
@@ -26,4 +26,4 @@ void ConstantBuffer::UpdateData(void* data, size_t size)
     std::memcpy(mappedData, data, size);
 }
 
-} // namespace URay
+} // namespace URay::RHI

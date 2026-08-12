@@ -9,7 +9,9 @@
 #include <optional>
 #include <vector>
 
-namespace URay
+namespace URay { class Window; }
+
+namespace URay::RHI
 {
 
 struct ObjectConstants
@@ -33,17 +35,13 @@ class PipelineLayout;
 class DescriptorSetLayout;
 class DescriptorSet;
 
-class Window;
-class Scene;
-
 class GPUResourceManager;
 class ShaderManager;
-class MaterialManager;
 
 class Renderer
 {
 public:
-    bool Initialize(Window* wnd);
+    bool Initialize(::URay::Window* wnd);
     void Finalize();
 
     bool InitializeImGui();
@@ -214,4 +212,4 @@ private:
     std::vector<DescriptorSet*> frameDescriptorSets;
 };
 
-} // namespace URay
+} // namespace URay::RHI

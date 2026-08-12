@@ -8,7 +8,7 @@
 
 #include <array>
 
-namespace URay
+namespace URay::RHI
 {
 
 struct Vertex
@@ -95,4 +95,4 @@ struct VertexPNT
     }
 };
 
-} // namespace URay
+} // namespace URay::RHI

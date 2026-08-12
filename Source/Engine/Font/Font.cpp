@@ -1,14 +1,14 @@
-#include "FontAsset.h"
+#include "Font.h"
 
 namespace URay
 {
 
-FontAsset::FontAsset(TextureAsset* textureAsset)
+Font::Font(Texture* textureAsset)
     : bitmapTexture(textureAsset)
 {
 }
 
-Vector2 FontAsset::GetUVFromChar(const char letter) const
+Vector2 Font::GetUVFromChar(const char letter) const
 {
     int index = -1;
 

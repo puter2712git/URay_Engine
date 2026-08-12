@@ -1,7 +1,7 @@
 #include "MeshComponent.h"
 
 #include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -13,6 +13,8 @@
 
 namespace URay
 {
+
+using namespace RHI;
 
 URAY_REGISTER_CLASS(MeshComponent)
 URAY_REGISTER_COMPONENT(MeshComponent)
@@ -27,7 +29,7 @@ void MeshComponent::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(MeshAsset*) });
+    StaticClass()->AddProperty({ PropertyType::Mesh, "Mesh", offsetof(MeshComponent, mesh), sizeof(Mesh*) });
 }
 
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)

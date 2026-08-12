@@ -1,4 +1,4 @@
-#include "MeshAsset.h"
+#include "Mesh.h"
 
 namespace URay
 {

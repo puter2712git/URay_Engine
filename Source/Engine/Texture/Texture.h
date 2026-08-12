@@ -5,10 +5,10 @@
 namespace URay
 {
 
-class TextureAsset
+class Texture
 {
 public:
-    TextureAsset(const std::string& filePath,
+    Texture(const std::string& filePath,
                  int width, int height, int channels);
 
 public:

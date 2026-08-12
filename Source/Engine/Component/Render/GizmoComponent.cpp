@@ -1,6 +1,6 @@
 #include "GizmoComponent.h"
 
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -17,6 +17,8 @@
 
 namespace URay
 {
+
+using namespace RHI;
 
 URAY_REGISTER_CLASS(GizmoComponent)
 
@@ -80,7 +82,7 @@ void GizmoComponent::SubmitCommand(DrawCommandBuilder& builder)
     if (!targetUnit)
         return;
 
-    MeshAsset* currMesh = GetCurrMesh();
+    Mesh* currMesh = GetCurrMesh();
     std::array<Matrix, static_cast<size_t>(Axis::Count)>& gizmoMatrices = matrices[GetCurrModeIndex()];
 
     GizmoCommandContext xCoord = {};

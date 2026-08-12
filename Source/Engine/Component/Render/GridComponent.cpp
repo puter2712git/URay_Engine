@@ -6,6 +6,8 @@
 namespace URay
 {
 
+using namespace RHI;
+
 URAY_REGISTER_CLASS(GridComponent)
 
 void GridComponent::RegisterClass()

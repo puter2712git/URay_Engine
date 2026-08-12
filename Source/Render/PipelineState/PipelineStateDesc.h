@@ -8,7 +8,7 @@
 
 #include <functional>
 
-namespace URay
+namespace URay::RHI
 {
 
 class Shader;
@@ -53,4 +53,4 @@ struct PipelineStateDescHash
     }
 };
 
-} // namespace URay
+} // namespace URay::RHI

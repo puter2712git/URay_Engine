@@ -4,7 +4,7 @@ namespace URay
 {
 
 class Engine;
-class Renderer;
+namespace RHI { class Renderer; }
 class Unit;
 
 class EditorPicker;

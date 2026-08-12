@@ -7,10 +7,10 @@
 namespace URay
 {
 
-class MeshAsset;
+class Mesh;
 class Material;
 
-class FontAsset;
+class Font;
 
 class TextComponent : public RenderComponent
 {
@@ -21,10 +21,10 @@ public:
     ~TextComponent() = default;
 
 public:
-    virtual void SubmitCommand(DrawCommandBuilder& builder) override;
+    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
 
 private:
-    FontAsset* font = nullptr;
+    Font* font = nullptr;
 
     std::string text;
 };

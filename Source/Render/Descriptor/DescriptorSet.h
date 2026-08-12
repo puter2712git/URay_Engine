@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay
+namespace URay::RHI
 {
 
 class DescriptorSetLayout;
@@ -45,4 +45,4 @@ private:
     DescriptorSetLayout* layout = nullptr;
 };
 
-} // namespace URay
+} // namespace URay::RHI

@@ -10,7 +10,7 @@ class GridComponent : public RenderComponent
     URAY_CLASS(GridComponent, RenderComponent)
 
 public:
-    void SubmitCommand(DrawCommandBuilder& builder) override;
+    void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
 };
 
 } // namespace URay

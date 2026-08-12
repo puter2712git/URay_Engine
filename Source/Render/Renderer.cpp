@@ -43,7 +43,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     return VK_FALSE;
 }
 
-namespace URay
+namespace URay::RHI
 {
 
 #ifdef NDEBUG
@@ -93,7 +93,7 @@ static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
     renderer->framebufferResized = true;
 }
 
-bool Renderer::Initialize(Window* wnd)
+bool Renderer::Initialize(::URay::Window* wnd)
 {
     window = wnd;
     glfwSetWindowUserPointer(window->GetGLFWWindow(), this);
@@ -1229,4 +1229,4 @@ VkFormat Renderer::FindSupportedFormat(const std::vector<VkFormat>& candidates, 
     throw std::runtime_error("Failed to find supported format!");
 }
 
-} // namespace URay
+} // namespace URay::RHI

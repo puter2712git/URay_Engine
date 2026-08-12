@@ -1,12 +1,14 @@
 #include "MeshManager.h"
 
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 
 #include "Core/Math/Math.h"
 #include "Core/Math/Matrix.h"
 
 namespace URay
 {
+
+using RHI::VertexPNT;
 
 namespace
 {
@@ -57,13 +59,13 @@ bool MeshManager::CreateDefaultMeshes()
     return true;
 }
 
-MeshAsset* MeshManager::CreateMesh(const std::string& key,
+Mesh* MeshManager::CreateMesh(const std::string& key,
                                    const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices)
 {
     if (meshes.contains(key))
         return nullptr;
 
-    MeshAsset* mesh = new MeshAsset();
+    Mesh* mesh = new Mesh();
     mesh->SetVertices(vertices);
     mesh->SetIndices(indices);
 
@@ -73,7 +75,7 @@ MeshAsset* MeshManager::CreateMesh(const std::string& key,
     return mesh;
 }
 
-MeshAsset* MeshManager::GetMesh(const std::string& key) const
+Mesh* MeshManager::GetMesh(const std::string& key) const
 {
     auto it = meshes.find(key);
     if (it == meshes.end())
@@ -267,7 +269,7 @@ void MeshManager::CreateArrow()
     std::vector<VertexPNT> arrowVertices;
     std::vector<uint32_t> arrowIndices;
 
-    auto appendMesh = [&arrowVertices, &arrowIndices](const MeshAsset* source, const Matrix& transform)
+    auto appendMesh = [&arrowVertices, &arrowIndices](const Mesh* source, const Matrix& transform)
     {
         const uint32_t offset = static_cast<uint32_t>(arrowVertices.size());
         const Matrix normalTransform = transform.Inverse();
@@ -333,7 +335,7 @@ void MeshManager::CreateScaleGizmo()
     std::vector<VertexPNT> vertices;
     std::vector<uint32_t> indices;
 
-    auto appendMesh = [&vertices, &indices](const MeshAsset* source, const Matrix& transform)
+    auto appendMesh = [&vertices, &indices](const Mesh* source, const Matrix& transform)
     {
         const uint32_t offset = static_cast<uint32_t>(vertices.size());
         const Matrix normalTransform = transform.Inverse();

@@ -5,7 +5,7 @@
 
 #include "Core/File/FileIO.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 ShaderManager::~ShaderManager()
@@ -69,4 +69,4 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     return newShader;
 }
 
-} // namespace URay
+} // namespace URay::RHI

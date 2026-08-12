@@ -11,7 +11,7 @@
 
 #include "Editor/Editor.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 RenderPipeline::RenderPipeline(Renderer& renderer)
@@ -19,7 +19,7 @@ RenderPipeline::RenderPipeline(Renderer& renderer)
 {
 }
 
-void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
+void RenderPipeline::Execute(const std::vector<::URay::Scene*>& scenes)
 {
     CameraComponent* camera = FindCamera(scenes);
     if (!camera)
@@ -51,7 +51,7 @@ void RenderPipeline::EndFrame()
     renderer.EndFrame();
 }
 
-CameraComponent* RenderPipeline::FindCamera(const std::vector<Scene*> scenes) const
+::URay::CameraComponent* RenderPipeline::FindCamera(const std::vector<::URay::Scene*> scenes) const
 {
     CameraComponent* camera = nullptr;
 
@@ -73,7 +73,7 @@ CameraComponent* RenderPipeline::FindCamera(const std::vector<Scene*> scenes) co
     return camera;
 }
 
-void RenderPipeline::CollectCommand(const std::vector<Scene*> scenes)
+void RenderPipeline::CollectCommand(const std::vector<::URay::Scene*> scenes)
 {
     GizmoComponent* gizmo = nullptr;
 
@@ -106,4 +106,4 @@ void RenderPipeline::ExecuteCommand(const DrawCommand& cmd) const
     renderer.Draw(cmd);
 }
 
-} // namespace URay
+} // namespace URay::RHI

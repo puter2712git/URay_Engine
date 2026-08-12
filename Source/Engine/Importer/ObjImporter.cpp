@@ -13,12 +13,14 @@
 namespace URay
 {
 
+using RHI::VertexPNT;
+
 ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
     : filesystem(filesystem)
 {
 }
 
-MeshAsset* ObjImporter::Import(const VirtualPath& filePath)
+Mesh* ObjImporter::Import(const VirtualPath& filePath)
 {
     if (!filesystem.Exists(filePath))
     {
@@ -110,7 +112,7 @@ MeshAsset* ObjImporter::Import(const VirtualPath& filePath)
 
     MeshManager* meshManager = gEngine->GetMeshManager();
 
-    MeshAsset* newMeshAsset = meshManager->CreateMesh(filePath.ToString(), vertices, indices);
+    Mesh* newMeshAsset = meshManager->CreateMesh(filePath.ToString(), vertices, indices);
     return newMeshAsset;
 }
 

@@ -25,10 +25,12 @@ class TextureManager;
 class FontManager;
 class ObjImporter;
 
+namespace RHI {
 class ShaderManager;
 class GPUResourceManager;
 class Renderer;
 class RenderPipeline;
+}
 
 class Editor;
 
@@ -65,9 +67,9 @@ public:
 
     FontManager* GetFontManager() const { return fontManager; }
 
-    Renderer* GetRenderer() const { return renderer; }
+    RHI::Renderer* GetRenderer() const { return renderer; }
 
-    GPUResourceManager* GetGPUResourceManager() const;
+    RHI::GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;
 
@@ -90,8 +92,8 @@ private:
     CameraComponent* camera = nullptr;
     GizmoComponent* gizmo = nullptr;
 
-    Renderer* renderer = nullptr;
-    RenderPipeline* renderPipeline = nullptr;
+    RHI::Renderer* renderer = nullptr;
+    RHI::RenderPipeline* renderPipeline = nullptr;
 
     Timer* timer = nullptr;
 
@@ -99,7 +101,7 @@ private:
 
     InputManager inputManager;
 
-    ShaderManager* shaderManager = nullptr;
+    RHI::ShaderManager* shaderManager = nullptr;
     MaterialManager* materialManager = nullptr;
     MeshManager* meshManager = nullptr;
     TextureManager* textureManager = nullptr;

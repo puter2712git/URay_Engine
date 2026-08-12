@@ -3,7 +3,7 @@
 #include <cassert>
 #include <map>
 
-namespace URay
+namespace URay::RHI
 {
 
 Shader::Shader(uint32_t id,
@@ -80,4 +80,4 @@ const DescriptorSetLayoutDesc* Shader::GetDescriptorSetLayoutDesc(uint32_t set) 
     return nullptr;
 }
 
-} // namespace URay
+} // namespace URay::RHI

@@ -11,12 +11,14 @@
 namespace URay
 {
 
+using namespace RHI;
+
 URAY_REGISTER_CLASS(TextComponent)
 URAY_REGISTER_COMPONENT(TextComponent)
 
 TextComponent::TextComponent()
 {
-    font = gEngine->GetFontManager()->GetFontAsset("Default");
+    font = gEngine->GetFontManager()->GetFont("Default");
 }
 
 void TextComponent::RegisterClass()

@@ -1,6 +1,6 @@
 #include "PipelineLayout.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 PipelineLayout::PipelineLayout(VkDevice device, VkPipelineLayout handle)
@@ -16,4 +16,4 @@ PipelineLayout::~PipelineLayout()
     }
 }
 
-} // namespace URay
+} // namespace URay::RHI

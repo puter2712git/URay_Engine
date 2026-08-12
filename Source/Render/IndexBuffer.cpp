@@ -2,7 +2,7 @@
 
 #include "Render/Renderer.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 IndexBuffer::IndexBuffer(VkDevice device, uint32_t size)
@@ -22,4 +22,4 @@ IndexBuffer::~IndexBuffer()
     }
 }
 
-} // namespace URay
+} // namespace URay::RHI

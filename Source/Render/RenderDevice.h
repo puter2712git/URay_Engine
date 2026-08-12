@@ -8,10 +8,10 @@
 #include <string>
 #include <vector>
 
-namespace URay
-{
+namespace URay { class Texture; }
 
-class TextureAsset;
+namespace URay::RHI
+{
 
 class Renderer;
 class VertexBuffer;
@@ -43,7 +43,7 @@ public:
     IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
     Mesh* CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
-    Texture* CreateTexture(const TextureAsset* textureAsset);
+    Texture* CreateTexture(const ::URay::Texture* textureAsset);
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 
@@ -110,4 +110,4 @@ public:
     uint32_t vertexCount = 0;
 };
 
-} // namespace URay
+} // namespace URay::RHI

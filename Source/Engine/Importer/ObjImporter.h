@@ -9,7 +9,7 @@
 namespace URay
 {
 
-class MeshAsset;
+class Mesh;
 
 class VirtualFilesystem;
 class VirtualPath;
@@ -46,7 +46,7 @@ private:
     };
 
 public:
-    MeshAsset* Import(const VirtualPath& filePath);
+    Mesh* Import(const VirtualPath& filePath);
 
 private:
     void Reset();

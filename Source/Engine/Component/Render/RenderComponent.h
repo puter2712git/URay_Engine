@@ -5,14 +5,14 @@
 namespace URay
 {
 
-class DrawCommandBuilder;
+namespace RHI { class DrawCommandBuilder; }
 
 class RenderComponent : public Component
 {
     URAY_CLASS(RenderComponent, Component)
 
 public:
-    virtual void SubmitCommand(DrawCommandBuilder& builder) = 0;
+    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) = 0;
 };
 
 } // namespace URay

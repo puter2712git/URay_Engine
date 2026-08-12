@@ -5,8 +5,8 @@
 namespace URay
 {
 
-class TextureAsset;
-class MeshAsset;
+class Texture;
+class Mesh;
 class Material;
 
 class SpriteComponent : public RenderComponent
@@ -18,14 +18,14 @@ public:
     virtual ~SpriteComponent() override = default;
 
 public:
-    void SubmitCommand(DrawCommandBuilder& builder) override;
+    void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
 
     Material* GetMaterial() const { return material; }
 
 private:
-    TextureAsset* texture = nullptr;
+    Texture* texture = nullptr;
 
-    MeshAsset* quadMesh = nullptr;
+    Mesh* quadMesh = nullptr;
     Material* material = nullptr;
 };
 

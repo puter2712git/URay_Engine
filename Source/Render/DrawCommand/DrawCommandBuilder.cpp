@@ -11,9 +11,9 @@
 #include "Render/VertexBuffer.h"
 
 #include "Engine/Material/Material.h"
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer)
@@ -158,4 +158,4 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     drawCmds.push_back(cmd);
 }
 
-} // namespace URay
+} // namespace URay::RHI

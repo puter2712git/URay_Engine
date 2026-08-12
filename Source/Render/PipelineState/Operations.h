@@ -1,6 +1,6 @@
 #pragma once
 
-namespace URay
+namespace URay::RHI
 {
 
 enum class CompareOp

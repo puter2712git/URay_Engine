@@ -7,17 +7,17 @@
 namespace URay
 {
 
-class TextureAsset;
+class Texture;
 
-class FontAsset
+class Font
 {
 public:
-    FontAsset(TextureAsset* textureAsset);
+    Font(Texture* textureAsset);
 
 public:
     Vector2 GetUVFromChar(const char letter) const;
 
-    TextureAsset* GetBitmapTexture() const { return bitmapTexture; }
+    Texture* GetBitmapTexture() const { return bitmapTexture; }
 
     float GetWidth() const { return width; }
     float GetHeight() const { return height; }
@@ -29,7 +29,7 @@ public:
     float GetCellHeightUV() const { return GetCellHeight() / height; }
 
 private:
-    TextureAsset* bitmapTexture = nullptr;
+    Texture* bitmapTexture = nullptr;
 
     std::string charset =
         "abcdefghijklmnopqrstuvwxyz"

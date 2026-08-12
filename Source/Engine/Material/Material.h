@@ -5,31 +5,32 @@
 namespace URay
 {
 
-class Shader;
-class TextureAsset;
+class Texture;
 
+namespace RHI {
+class Shader;
 class DescriptorSetLayout;
 class DescriptorSet;
-
 class RenderDevice;
 class GPUResourceManager;
+}
 
 class Material
 {
 public:
-    Material(Shader* shader);
+    Material(RHI::Shader* shader);
     ~Material();
 
 public:
-    bool Initialize(RenderDevice* renderDevice, GPUResourceManager* resourceManager);
+    bool Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager);
 
-    Shader* GetShader() const { return shader; }
-    void SetShader(Shader* inShader) { shader = inShader; }
+    RHI::Shader* GetShader() const { return shader; }
+    void SetShader(RHI::Shader* inShader) { shader = inShader; }
 
-    TextureAsset* GetTextureAsset() const { return texture; }
-    void SetTextureAsset(TextureAsset* textureAsset);
+    Texture* GetTexture() const { return texture; }
+    void SetTexture(Texture* texture);
 
-    DescriptorSet* GetDescriptorSet(uint32_t frameIndex) const
+    RHI::DescriptorSet* GetDescriptorSet(uint32_t frameIndex) const
     {
         if (descriptorSets.size() <= frameIndex)
             return nullptr;
@@ -38,11 +39,11 @@ public:
     }
 
 protected:
-    Shader* shader = nullptr;
-    TextureAsset* texture = nullptr;
+    RHI::Shader* shader = nullptr;
+    Texture* texture = nullptr;
 
-    DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::vector<DescriptorSet*> descriptorSets;
+    RHI::DescriptorSetLayout* descriptorSetLayout = nullptr;
+    std::vector<RHI::DescriptorSet*> descriptorSets;
 };
 
 } // namespace URay

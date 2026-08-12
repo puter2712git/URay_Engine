@@ -8,7 +8,7 @@
 namespace URay
 {
 
-MaterialManager::MaterialManager(RenderDevice* renderDevice, GPUResourceManager* resourceManager)
+MaterialManager::MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager)
     : renderDevice(renderDevice), resourceManager(resourceManager)
 {
 }
@@ -27,7 +27,7 @@ MaterialManager::~MaterialManager()
     materials.clear();
 }
 
-Material* MaterialManager::GetOrCreate(const std::string& key, Shader* shader)
+Material* MaterialManager::GetOrCreate(const std::string& key, RHI::Shader* shader)
 {
     auto it = materials.find(key);
     if (it != materials.end())

@@ -3,7 +3,7 @@
 #include "DescriptorSetLayout.h"
 #include "ResourceBinding.h"
 
-namespace URay
+namespace URay::RHI
 {
 
 DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::AddBinding(
@@ -49,4 +49,4 @@ DescriptorSetLayout* DescriptorSetLayoutBuilder::Build(VkDevice device)
     return descriptorSetLayout;
 }
 
-} // namespace URay
+} // namespace URay::RHI

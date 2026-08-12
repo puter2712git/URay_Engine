@@ -6,22 +6,19 @@
 #include <cstdint>
 #include <string>
 
-namespace URay
+namespace URay { class Font; class Material; class Mesh; }
+
+namespace URay::RHI
 {
-
-class MeshAsset;
-class Material;
-
-class FontAsset;
 
 struct MeshCommandContext
 {
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
 
-    MeshAsset* meshAsset = nullptr;
+    ::URay::Mesh* meshAsset = nullptr;
 
-    Material* material = nullptr;
+    ::URay::Material* material = nullptr;
 };
 
 struct LineCommandContext
@@ -35,7 +32,7 @@ struct TextCommandContext
 {
     Matrix worldMatrix = Matrix::Identity;
     std::string text;
-    FontAsset* font = nullptr;
+    ::URay::Font* font = nullptr;
 };
 
 struct GizmoCommandContext
@@ -43,9 +40,9 @@ struct GizmoCommandContext
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
 
-    MeshAsset* meshAsset = nullptr;
+    ::URay::Mesh* meshAsset = nullptr;
 
-    Material* material = nullptr;
+    ::URay::Material* material = nullptr;
 };
 
-} // namespace URay
+} // namespace URay::RHI

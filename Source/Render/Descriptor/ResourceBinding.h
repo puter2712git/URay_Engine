@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace URay
+namespace URay::RHI
 {
 
 enum class ResourceType
@@ -25,4 +25,4 @@ struct ResourceBinding
     bool operator==(const ResourceBinding&) const = default;
 };
 
-} // namespace URay
+} // namespace URay::RHI

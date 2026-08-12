@@ -8,7 +8,7 @@
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
 #include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Texture/TextureManager.h"
@@ -50,11 +50,11 @@ bool Engine::Initialize(const std::string& projectPath)
     glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
-    renderer = new Renderer();
+    renderer = new RHI::Renderer();
     if (!renderer->Initialize(window))
         return false;
 
-    renderPipeline = new RenderPipeline(*renderer);
+    renderPipeline = new RHI::RenderPipeline(*renderer);
 
     timer = new Timer();
 
@@ -75,13 +75,13 @@ bool Engine::Initialize(const std::string& projectPath)
     objImporter->Import("asset://Mesh/untitled.obj");
 
     textureManager = new TextureManager(*filesystem);
-    textureManager->LoadTextureAsset("Test", "asset://Texture/texture.jpg");
-    TextureAsset* fontTexture = textureManager->LoadTextureAsset("FontTexture", "asset://Texture/DejaVu Sans Mono.png");
+    textureManager->LoadTexture("Test", "asset://Texture/texture.jpg");
+    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "asset://Texture/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
-    fontManager->LoadFontAsset("Default", fontTexture);
+    fontManager->LoadFont("Default", fontTexture);
 
-    MeshAsset* quadMesh = meshManager->GetMesh("Quad");
+    Mesh* quadMesh = meshManager->GetMesh("Quad");
 
     Scene* editorScene = new Scene(SceneType::Editor);
 
@@ -211,7 +211,7 @@ void Engine::GetFramebufferSize(int& width, int& height) const
     height = static_cast<int>(extent.height);
 }
 
-GPUResourceManager* Engine::GetGPUResourceManager() const
+RHI::GPUResourceManager* Engine::GetGPUResourceManager() const
 {
     return renderer->GetResourceManager();
 }

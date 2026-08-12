@@ -11,11 +11,11 @@
 #include "Render/Texture/TextureView.h"
 #include "Render/VertexBuffer.h"
 
-#include "Engine/Mesh/MeshAsset.h"
+#include "Engine/Mesh/Mesh.h"
 
 #include <vulkan/vulkan.h>
 
-namespace URay
+namespace URay::RHI
 {
 
 GPUResourceManager::GPUResourceManager(RenderDevice* renderDevice)
@@ -34,7 +34,7 @@ GPUResourceManager::~GPUResourceManager()
     DestroyMeshes();
 }
 
-Mesh* GPUResourceManager::GetOrCreateMesh(MeshAsset* asset)
+Mesh* GPUResourceManager::GetOrCreateMesh(::URay::Mesh* asset)
 {
     auto it = meshes.find(asset);
     if (it != meshes.end())
@@ -79,7 +79,7 @@ void GPUResourceManager::DestroyMeshes()
     meshes.clear();
 }
 
-Texture* GPUResourceManager::GetOrCreateTexture(TextureAsset* textureAsset)
+Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* textureAsset)
 {
     auto it = textures.find(textureAsset);
     if (it != textures.end())
@@ -247,4 +247,4 @@ void GPUResourceManager::DestroyPSOs()
     pipelines.clear();
 }
 
-} // namespace URay
+} // namespace URay::RHI

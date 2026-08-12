@@ -10,7 +10,7 @@ namespace URay
 {
 
 class RenderDevice;
-class MeshAsset;
+class Mesh;
 
 class MeshManager
 {
@@ -21,11 +21,11 @@ public:
 public:
     bool CreateDefaultMeshes();
 
-    MeshAsset* CreateMesh(const std::string& key,
-                          const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices);
+    Mesh* CreateMesh(const std::string& key,
+                          const std::vector<RHI::VertexPNT>& vertices, const std::vector<uint32_t>& indices);
 
-    MeshAsset* GetMesh(const std::string& key) const;
-    const std::unordered_map<std::string, MeshAsset*>& GetMeshes() const { return meshes; }
+    Mesh* GetMesh(const std::string& key) const;
+    const std::unordered_map<std::string, Mesh*>& GetMeshes() const { return meshes; }
 
 private:
     void CreateBox();
@@ -37,7 +37,7 @@ private:
     void CreateScaleGizmo();
 
 private:
-    std::unordered_map<std::string, MeshAsset*> meshes;
+    std::unordered_map<std::string, Mesh*> meshes;
 };
 
 } // namespace URay

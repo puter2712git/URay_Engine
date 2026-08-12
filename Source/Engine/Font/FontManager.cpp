@@ -1,6 +1,6 @@
 #include "FontManager.h"
 
-#include "FontAsset.h"
+#include "Font.h"
 
 namespace URay
 {
@@ -19,14 +19,14 @@ FontManager::~FontManager()
     fonts.clear();
 }
 
-FontAsset* FontManager::LoadFontAsset(const std::string& key, TextureAsset* bitmapTexture)
+Font* FontManager::LoadFont(const std::string& key, Texture* bitmapTexture)
 {
-    FontAsset* fontAsset = new FontAsset(bitmapTexture);
+    Font* fontAsset = new Font(bitmapTexture);
     fonts.insert({ key, fontAsset });
     return fontAsset;
 }
 
-FontAsset* FontManager::GetFontAsset(const std::string& key) const
+Font* FontManager::GetFont(const std::string& key) const
 {
     auto it = fonts.find(key);
     if (it != fonts.end())

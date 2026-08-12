@@ -8,7 +8,7 @@ namespace URay
 
 class VirtualFilesystem;
 class VirtualPath;
-class TextureAsset;
+class Texture;
 
 class TextureManager
 {
@@ -17,14 +17,14 @@ public:
     ~TextureManager();
 
 public:
-    TextureAsset* LoadTextureAsset(const std::string& key, const VirtualPath& virtualPath);
-    TextureAsset* GetTexture(const std::string& key) const;
-    const std::unordered_map<std::string, TextureAsset*>& GetTextures() const { return textures; }
+    Texture* LoadTexture(const std::string& key, const VirtualPath& virtualPath);
+    Texture* GetTexture(const std::string& key) const;
+    const std::unordered_map<std::string, Texture*>& GetTextures() const { return textures; }
 
 private:
     VirtualFilesystem& filesystem;
 
-    std::unordered_map<std::string, TextureAsset*> textures;
+    std::unordered_map<std::string, Texture*> textures;
 };
 
 } // namespace URay
