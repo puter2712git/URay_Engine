@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Engine/Asset/AssetPipeline.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
@@ -61,6 +62,9 @@ bool Engine::Initialize(const std::string& projectPath)
     filesystem = new VirtualFilesystem();
     filesystem->Mount("project", projectPath);
     filesystem->Mount("asset", fs::path(projectPath) / "Asset/Source");
+
+    assetPipeline = new AssetPipeline(*filesystem);
+    assetPipeline->Import("asset://Texture/texture.jpg");
 
     shaderManager = renderer->GetShaderManager();
 

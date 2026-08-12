@@ -1,15 +1,19 @@
 #pragma once
 
+#include "Engine/Object/Object.h"
+
 #include <string>
 
 namespace URay
 {
 
-class Texture
+class Texture : public Object
 {
+    URAY_CLASS(Texture, Object)
+
 public:
     Texture(const std::string& filePath,
-                 int width, int height, int channels);
+            int width, int height, int channels);
 
 public:
     void SetName(const std::string& inName) { name = inName; }

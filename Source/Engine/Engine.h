@@ -24,13 +24,16 @@ class MeshManager;
 class TextureManager;
 class FontManager;
 class ObjImporter;
+class TextureImporter;
+class AssetPipeline;
 
-namespace RHI {
+namespace RHI
+{
 class ShaderManager;
 class GPUResourceManager;
 class Renderer;
 class RenderPipeline;
-}
+} // namespace RHI
 
 class Editor;
 
@@ -108,6 +111,8 @@ private:
     FontManager* fontManager = nullptr;
 
     ObjImporter* objImporter = nullptr;
+
+    AssetPipeline* assetPipeline = nullptr;
 };
 
 extern Engine* gEngine;

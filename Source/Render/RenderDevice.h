@@ -8,7 +8,10 @@
 #include <string>
 #include <vector>
 
-namespace URay { class Texture; }
+namespace URay
+{
+class Texture;
+}
 
 namespace URay::RHI
 {
