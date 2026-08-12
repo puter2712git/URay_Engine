@@ -2,6 +2,7 @@
 
 #include "Editor/Console/EditorConsole.h"
 #include "Editor/EditorPicker.h"
+#include "Editor/Filesystem/FilesystemWidget.h"
 #include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
 #include "Editor/SceneTree.h"
@@ -38,6 +39,7 @@ bool Editor::Initialize()
     mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree(*this, engine);
     console = new EditorConsole();
+    filesystemWidget = new FilesystemWidget(*engine.GetFilesystem());
 
     Logger::Log("Hello, URay Engine!");
 
@@ -108,6 +110,11 @@ void Editor::PrepareRender()
     {
         bool open = true;
         console->Draw("Console", &open);
+    }
+
+    if (filesystemWidget)
+    {
+        filesystemWidget->Draw();
     }
 
     renderer->EndImGui();
