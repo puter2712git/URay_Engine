@@ -4,6 +4,7 @@
 
 #include "Core/Input/InputManager.h"
 
+#include <string>
 #include <vector>
 
 namespace URay

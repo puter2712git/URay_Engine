@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <map>
+#include <stdexcept>
 
 namespace URay
 {
