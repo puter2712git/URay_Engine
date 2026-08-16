@@ -7,8 +7,10 @@
 #include "Editor/PropertyDrawer.h"
 #include "Editor/SceneTree.h"
 
+#include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/GizmoComponent.h"
+#include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
@@ -22,7 +24,6 @@
 
 namespace URay
 {
-
 
 Editor::Editor(Engine& engine)
     : engine(engine)
@@ -42,7 +43,7 @@ bool Editor::Initialize()
     console = new EditorConsole();
     filesystemWidget = new FilesystemWidget(*engine.GetFilesystem());
 
-    Logger::Log("Hello, URay Engine!");
+    PrepareEditorScene();
 
     return true;
 }
@@ -62,8 +63,6 @@ void Editor::Finalize()
 void Editor::Update()
 {
     InputManager input = engine.GetInputManager();
-
-    GizmoComponent* gizmo = engine.GetGizmo();
 
     if (input.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
     {
@@ -89,6 +88,12 @@ void Editor::Update()
 
     UpdateHover();
     UpdatePick();
+
+    Timer* timer = engine.GetTimer();
+    float deltaTime = timer->GetDeltaTime();
+
+    UpdateCameraMovement(deltaTime);
+    UpdateCameraRotation(deltaTime);
 }
 
 void Editor::PrepareRender()
@@ -125,7 +130,36 @@ void Editor::SelectUnit(Unit* unit)
 {
     selectedUnit = unit;
 
-    engine.GetGizmo()->SetTarget(unit);
+    gizmo->SetTarget(unit);
+}
+
+void Editor::PrepareEditorScene()
+{
+    Scene* editorScene = new Scene(SceneType::Editor);
+
+    Unit* cameraUnit = new Unit();
+    cameraUnit->SetName("Editor Camera");
+
+    TransformComponent* cameraTransform = new TransformComponent();
+    camera = new CameraComponent();
+    cameraUnit->AddComponent(cameraTransform);
+    cameraUnit->AddComponent(camera);
+
+    Unit* gridUnit = new Unit();
+    gridUnit->SetName("Grid");
+    GridComponent* gridComponent = new GridComponent();
+    gridUnit->AddComponent(gridComponent);
+
+    Unit* gizmoUnit = new Unit();
+    gizmoUnit->SetName("Gizmo");
+    gizmo = new GizmoComponent();
+    gizmoUnit->AddComponent(gizmo);
+
+    editorScene->AddUnit(cameraUnit);
+    editorScene->AddUnit(gridUnit);
+    editorScene->AddUnit(gizmoUnit);
+
+    engine.AddScene(editorScene);
 }
 
 void Editor::ShowStatus() const
@@ -204,13 +238,77 @@ void Editor::ShowInspector() const
     ImGui::End();
 }
 
+void Editor::UpdateCameraMovement(float deltaTime)
+{
+    if (!camera)
+        return;
+
+    Vector3 moveDir = Vector3::Zero;
+
+    InputManager& input = engine.GetInputManager();
+
+    if (input.GetKey(GLFW_KEY_A))
+    {
+        moveDir.x -= 3.0f * deltaTime;
+    }
+    if (input.GetKey(GLFW_KEY_D))
+    {
+        moveDir.x += 3.0f * deltaTime;
+    }
+    if (input.GetKey(GLFW_KEY_W))
+    {
+        moveDir.y += 3.0f * deltaTime;
+    }
+    if (input.GetKey(GLFW_KEY_S))
+    {
+        moveDir.y -= 3.0f * deltaTime;
+    }
+
+    const Unit* camUnit = camera->GetOwner();
+    TransformComponent* transform = camUnit->GetTransform();
+
+    Vector3 movePos = transform->TransformVectorNoScale(moveDir);
+    Vector3 camPos = transform->GetPosition();
+
+    if (input.GetKey(GLFW_KEY_Q))
+    {
+        camPos.z -= 3.0f * deltaTime;
+    }
+    if (input.GetKey(GLFW_KEY_E))
+    {
+        camPos.z += 3.0f * deltaTime;
+    }
+
+    transform->SetPosition(camPos + movePos);
+}
+
+void Editor::UpdateCameraRotation(float deltaTime)
+{
+    if (!camera)
+        return;
+
+    InputManager& input = engine.GetInputManager();
+
+    if (!input.GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
+        return;
+
+    const Unit* camUnit = camera->GetOwner();
+    TransformComponent* transform = camUnit->GetTransform();
+
+    Vector3 cameraRot = transform->GetRotation();
+    cameraRot.x -= input.mouseDeltaY * 0.1f;
+    cameraRot.z -= input.mouseDeltaX * 0.1f;
+
+    cameraRot.x = std::clamp(cameraRot.x, -89.0f, 89.0f);
+
+    transform->SetRotation(cameraRot);
+}
+
 void Editor::UpdateHover()
 {
     InputManager input = engine.GetInputManager();
 
-    GizmoComponent* gizmo = engine.GetGizmo();
-
-    PickResult pickResult = picker->Pick(engine.GetCamera(), input.mouseX, input.mouseY);
+    PickResult pickResult = picker->Pick(camera, input.mouseX, input.mouseY);
     if (!pickResult.hit)
     {
         gizmo->SetHoveredAxis(-1);
@@ -229,9 +327,7 @@ void Editor::UpdatePick()
     if (!input.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
         return;
 
-    GizmoComponent* gizmo = engine.GetGizmo();
-
-    PickResult pickResult = picker->Pick(engine.GetCamera(), input.mouseX, input.mouseY);
+    PickResult pickResult = picker->Pick(camera, input.mouseX, input.mouseY);
     if (!pickResult.hit)
     {
         SelectUnit(nullptr);

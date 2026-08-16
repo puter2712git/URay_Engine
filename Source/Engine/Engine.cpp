@@ -87,33 +87,6 @@ bool Engine::Initialize(const std::string& projectPath)
 
     Mesh* quadMesh = meshManager->GetMesh("Quad");
 
-    Scene* editorScene = new Scene(SceneType::Editor);
-
-    Unit* cameraUnit = new Unit();
-    cameraUnit->SetName("Editor Camera");
-    TransformComponent* camTransform = new TransformComponent();
-    camera = new CameraComponent();
-    camTransform->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
-    cameraUnit->AddComponent(camTransform);
-    cameraUnit->AddComponent(camera);
-
-    Unit* gridUnit = new Unit();
-    gridUnit->SetName("Grid");
-    GridComponent* gridComponent = new GridComponent();
-    gridUnit->AddComponent(gridComponent);
-
-    Unit* gizmoUnit = new Unit();
-    gizmoUnit->SetName("Gizmo");
-    gizmo = new GizmoComponent();
-    gizmo->SetEnabled(false);
-    gizmoUnit->AddComponent(gizmo);
-
-    editorScene->AddUnit(cameraUnit);
-    editorScene->AddUnit(gridUnit);
-    editorScene->AddUnit(gizmoUnit);
-
-    scenes.push_back(editorScene);
-
     Scene* gameScene = new Scene(SceneType::Game);
     scenes.push_back(gameScene);
 
@@ -153,9 +126,6 @@ void Engine::Update()
 
     timer->Tick();
 
-    UpdateCameraMovement(timer->GetDeltaTime());
-    UpdateCameraRotation(timer->GetDeltaTime());
-
     for (Scene* scene : scenes)
     {
         scene->Update(timer->GetDeltaTime());
@@ -179,6 +149,11 @@ void Engine::SpawnUnit(Unit* unit)
     {
         gameScene->AddUnit(unit);
     }
+}
+
+void Engine::AddScene(Scene* scene)
+{
+    scenes.push_back(scene);
 }
 
 void Engine::SetGameScene(Scene* gameScene)
@@ -231,68 +206,6 @@ Scene* Engine::GetSceneByType(SceneType type) const
     }
 
     return nullptr;
-}
-
-void Engine::UpdateCameraMovement(float deltaTime)
-{
-    if (!camera)
-        return;
-
-    Vector3 moveDir = Vector3::Zero;
-
-    if (inputManager.GetKey(GLFW_KEY_A))
-    {
-        moveDir.x -= 3.0f * deltaTime;
-    }
-    if (inputManager.GetKey(GLFW_KEY_D))
-    {
-        moveDir.x += 3.0f * deltaTime;
-    }
-    if (inputManager.GetKey(GLFW_KEY_W))
-    {
-        moveDir.y += 3.0f * deltaTime;
-    }
-    if (inputManager.GetKey(GLFW_KEY_S))
-    {
-        moveDir.y -= 3.0f * deltaTime;
-    }
-
-    const Unit* camUnit = camera->GetOwner();
-    TransformComponent* transform = camUnit->GetTransform();
-
-    Vector3 movePos = transform->TransformVectorNoScale(moveDir);
-    Vector3 camPos = transform->GetPosition();
-
-    if (inputManager.GetKey(GLFW_KEY_Q))
-    {
-        camPos.z -= 3.0f * deltaTime;
-    }
-    if (inputManager.GetKey(GLFW_KEY_E))
-    {
-        camPos.z += 3.0f * deltaTime;
-    }
-
-    transform->SetPosition(camPos + movePos);
-}
-
-void Engine::UpdateCameraRotation(float deltaTime)
-{
-    if (!camera)
-        return;
-
-    if (!inputManager.GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
-        return;
-
-    const Unit* camUnit = camera->GetOwner();
-    TransformComponent* transform = camUnit->GetTransform();
-
-    Vector3 cameraRot = transform->GetRotation();
-    cameraRot.x -= inputManager.mouseDeltaY * 0.1f;
-    cameraRot.z -= inputManager.mouseDeltaX * 0.1f;
-
-    cameraRot.x = std::clamp(cameraRot.x, -89.0f, 89.0f);
-
-    transform->SetRotation(cameraRot);
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

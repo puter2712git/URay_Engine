@@ -4,7 +4,13 @@ namespace URay
 {
 
 class Engine;
-namespace RHI { class Renderer; }
+class CameraComponent;
+class GizmoComponent;
+
+namespace RHI
+{
+class Renderer;
+}
 class Unit;
 
 class EditorPicker;
@@ -30,14 +36,22 @@ public:
     void SelectUnit(Unit* unit);
 
 private:
+    void PrepareEditorScene();
+
     void ShowStatus() const;
     void ShowInspector() const;
+
+    void UpdateCameraMovement(float deltaTime);
+    void UpdateCameraRotation(float deltaTime);
 
     void UpdateHover();
     void UpdatePick();
 
 private:
     Engine& engine;
+
+    CameraComponent* camera = nullptr;
+    GizmoComponent* gizmo = nullptr;
 
     EditorPicker* picker = nullptr;
     Unit* selectedUnit = nullptr;

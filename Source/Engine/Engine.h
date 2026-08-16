@@ -53,6 +53,7 @@ public:
 
     void SpawnUnit(Unit* unit);
 
+    void AddScene(Scene* scene);
     void SetGameScene(Scene* gameScene);
 
     void GetWindowSize(int& width, int& height) const;
@@ -80,20 +81,10 @@ public:
 
     VirtualFilesystem* GetFilesystem() const { return filesystem; }
 
-    GizmoComponent* GetGizmo() const { return gizmo; }
-
-    CameraComponent* GetCamera() const { return camera; }
-
-private:
-    void UpdateCameraMovement(float deltaTime);
-    void UpdateCameraRotation(float deltaTime);
-
 private:
     Window* window = nullptr;
 
     std::vector<Scene*> scenes;
-    CameraComponent* camera = nullptr;
-    GizmoComponent* gizmo = nullptr;
 
     RHI::Renderer* renderer = nullptr;
     RHI::RenderPipeline* renderPipeline = nullptr;
