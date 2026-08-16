@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
 
 namespace URay
@@ -7,13 +8,14 @@ namespace URay
 
 class Texture;
 
-namespace RHI {
+namespace RHI
+{
 class Shader;
 class DescriptorSetLayout;
 class DescriptorSet;
 class RenderDevice;
 class GPUResourceManager;
-}
+} // namespace RHI
 
 class Material
 {

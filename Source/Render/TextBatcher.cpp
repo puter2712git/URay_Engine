@@ -12,6 +12,8 @@
 
 #include "Engine/Font/Font.h"
 
+#include <cstring>
+
 namespace URay::RHI
 {
 

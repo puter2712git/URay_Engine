@@ -20,7 +20,7 @@ Texture* TextureImporter::Import(const VirtualPath& path) const
     if (!filesystem.Exists(path))
         return nullptr;
 
-    std::string physicalPath = filesystem.ResolveToPhysicalPath(path);
+    std::string physicalPath = filesystem.ResolveToPhysicalPath(path).string();
 
     int width, height, channels;
     stbi_uc* data = stbi_load(physicalPath.c_str(), &width, &height, &channels, STBI_rgb_alpha);

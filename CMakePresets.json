@@ -1,0 +1,21 @@
+{
+	"version": 6,
+	"configurePresets": [
+		{
+			"name": "Sandbox-Debug",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/Build/Sandbox-Debug",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug",
+				"CMAKE_EXPORT_COMPILER_COMMANDS": "ON"
+			}
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "Sandbox-Debug",
+			"configurePreset": "Sandbox-Debug",
+			"jobs": 8
+		}
+	]
+}

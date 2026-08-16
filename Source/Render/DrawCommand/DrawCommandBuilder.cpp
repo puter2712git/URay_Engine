@@ -13,6 +13,8 @@
 #include "Engine/Material/Material.h"
 #include "Engine/Mesh/Mesh.h"
 
+#include <cstring>
+
 namespace URay::RHI
 {
 

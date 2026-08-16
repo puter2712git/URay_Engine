@@ -30,6 +30,7 @@
 #include <algorithm>
 #include <iostream>
 #include <set>
+#include <string>
 #include <vector>
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
