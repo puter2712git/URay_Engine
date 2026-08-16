@@ -10,7 +10,7 @@ namespace URay
 FilesystemWidget::FilesystemWidget(VirtualFilesystem& filesystem)
     : filesystem(filesystem)
 {
-    rootPath = filesystem.ResolveToPhysicalPath("project://");
+    rootPath = filesystem.ResolveToPhysicalPath("Project://");
     currPath = rootPath;
 
     Refresh();
@@ -22,7 +22,7 @@ void FilesystemWidget::Draw()
 {
     ImGui::Begin("Filesystem");
 
-    fs::path projectPath = filesystem.ResolveToPhysicalPath("project://");
+    fs::path projectPath = filesystem.ResolveToPhysicalPath("Project://");
 
     if (ImGui::Button("<-"))
     {

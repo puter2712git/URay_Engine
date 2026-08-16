@@ -60,11 +60,11 @@ bool Engine::Initialize(const std::string& projectPath)
     timer = new Timer();
 
     filesystem = new VirtualFilesystem();
-    filesystem->Mount("project", projectPath);
-    filesystem->Mount("asset", fs::path(projectPath) / "Asset/Source");
+    filesystem->Mount("Project", projectPath);
+    filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Source");
 
     assetPipeline = new AssetPipeline(*filesystem);
-    assetPipeline->Import("asset://Texture/texture.jpg");
+    assetPipeline->Import("Asset://Texture/texture.jpg");
 
     shaderManager = renderer->GetShaderManager();
 
@@ -76,11 +76,11 @@ bool Engine::Initialize(const std::string& projectPath)
     meshManager->CreateDefaultMeshes();
 
     objImporter = new ObjImporter(*filesystem);
-    objImporter->Import("asset://Mesh/untitled.obj");
+    objImporter->Import("Asset://Mesh/untitled.obj");
 
     textureManager = new TextureManager(*filesystem);
-    textureManager->LoadTexture("Test", "asset://Texture/texture.jpg");
-    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "asset://Texture/DejaVu Sans Mono.png");
+    textureManager->LoadTexture("Test", "Asset://Texture/texture.jpg");
+    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "Asset://Texture/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
     fontManager->LoadFont("Default", fontTexture);
