@@ -15,7 +15,9 @@ TextureImporter::TextureImporter(VirtualFilesystem& filesystem)
 {
 }
 
-Texture* TextureImporter::Import(const VirtualPath& path) const
+TextureImporter::~TextureImporter() = default;
+
+Object* TextureImporter::Import(const VirtualPath& path)
 {
     if (!filesystem.Exists(path))
         return nullptr;

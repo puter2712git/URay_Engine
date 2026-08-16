@@ -14,7 +14,9 @@ namespace URay
 AssetPipeline::AssetPipeline(VirtualFilesystem& filesystem)
     : filesystem(filesystem)
 {
-    textureImporter = new TextureImporter(filesystem);
+    TextureImporter* textureImporter = new TextureImporter(filesystem);
+    importers.insert({ ".jpg", textureImporter });
+    importers.insert({ ".png", textureImporter });
 }
 
 AssetPipeline::~AssetPipeline()
@@ -23,19 +25,23 @@ AssetPipeline::~AssetPipeline()
 
 void AssetPipeline::Import(const VirtualPath& path)
 {
-    Texture* texture = textureImporter->Import(path);
+    const std::string& fileExtension = path.GetExtension();
 
-    int width, height, channels;
-    stbi_uc* pixels = stbi_load(texture->GetFilePath().c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    auto it = importers.find(fileExtension);
+    if (it == importers.end())
+        return;
 
-    YAML::Node node = texture->Serialize();
-    node["UUID"] = UUID::Generate().ToString();
+    Importer* importer = it->second;
+    Object* importResult = importer->Import(path);
 
-    VirtualPath relativePath = path.GetRelativePath();
-    VirtualPath importPath = VirtualPath("project://Asset/Imported/" + relativePath.ToString());
-    std::string extension = path.GetExtension();
-    importPath = importPath.ReplaceExtension(extension + ".props");
-    filesystem.WriteText(importPath, YAML::Dump(node));
+    YAML::Node serializedNode = importResult->Serialize();
+    serializedNode["UUID"] = UUID::Generate().ToString();
+
+    const VirtualPath relativePath = path.GetRelativePath();
+    VirtualPath importPath = VirtualPath("Project://Asset/Imported/" + relativePath.ToString());
+    importPath = importPath.ReplaceExtension(fileExtension + ".props");
+
+    filesystem.WriteText(importPath, YAML::Dump(serializedNode));
 }
 
 } // namespace URay

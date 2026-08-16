@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Importer/Importer.h"
+
 namespace URay
 {
 
@@ -8,13 +10,14 @@ class VirtualPath;
 
 class Texture;
 
-class TextureImporter
+class TextureImporter : public Importer
 {
 public:
     TextureImporter(VirtualFilesystem& filesystem);
+    ~TextureImporter() override;
 
 public:
-    Texture* Import(const VirtualPath& path) const;
+    Object* Import(const VirtualPath& path) override;
 
 private:
     VirtualFilesystem& filesystem;

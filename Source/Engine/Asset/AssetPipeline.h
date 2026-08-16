@@ -1,12 +1,15 @@
 #pragma once
 
+#include <string>
+#include <unordered_map>
+
 namespace URay
 {
 
 class VirtualFilesystem;
 class VirtualPath;
 
-class TextureImporter;
+class Importer;
 
 class AssetPipeline
 {
@@ -20,7 +23,7 @@ public:
 private:
     VirtualFilesystem& filesystem;
 
-    TextureImporter* textureImporter = nullptr;
+    std::unordered_map<std::string, Importer*> importers;
 };
 
 } // namespace URay
