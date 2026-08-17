@@ -52,7 +52,7 @@ void GizmoController::Update(CameraComponent* camera)
 
     const Matrix targetWorldMatrix = S * R * T;
 
-    matrices[0][0] = Matrix::MakeRotation(-90.0f) * targetWorldMatrix;
+    matrices[0][0] = Matrix::MakeRotationZ(-90.0f) * targetWorldMatrix;
     matrices[0][1] = targetWorldMatrix;
     matrices[0][2] = Matrix::MakeRotationX(90.0f) * targetWorldMatrix;
 

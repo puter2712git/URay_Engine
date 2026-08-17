@@ -21,8 +21,9 @@ public:
     ~RenderPipeline() = default;
 
 public:
+    void Reset();
+
     void Execute(const std::vector<Scene*>& scenes);
-    void EndFrame();
 
     DrawCommandBuilder& GetBuilder() { return builder; }
 

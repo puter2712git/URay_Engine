@@ -16,7 +16,6 @@
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
-#include "Core/Log/Log.h"
 #include "Core/Timer.h"
 
 #include "Render/RenderPipeline.h"
@@ -39,12 +38,13 @@ bool Editor::Initialize()
     if (!renderer->InitializeImGui())
         return false;
 
+    gizmo = new GizmoController(*engine.GetMeshManager(), *engine.GetMaterialManager());
+
     picker = new EditorPicker(engine, gizmo);
     mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree(*this, engine);
     console = new EditorConsole();
     filesystemWidget = new FilesystemWidget(*engine.GetFilesystem());
-    gizmo = new GizmoController(*engine.GetMeshManager(), *engine.GetMaterialManager());
 
     PrepareEditorScene();
 
@@ -97,6 +97,8 @@ void Editor::Update()
 
     UpdateCameraMovement(deltaTime);
     UpdateCameraRotation(deltaTime);
+
+    gizmo->Update(camera);
 }
 
 void Editor::PrepareRender()
@@ -128,7 +130,11 @@ void Editor::PrepareRender()
     {
         filesystemWidget->Draw();
     }
+}
 
+void Editor::EndRender()
+{
+    RHI::Renderer* renderer = engine.GetRenderer();
     renderer->EndImGui();
 }
 

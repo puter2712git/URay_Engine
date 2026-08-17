@@ -131,14 +131,34 @@ void Engine::Update()
     }
 }
 
+void Engine::BeginRender()
+{
+    renderPipeline->Reset();
+    renderer->BeginFrame();
+}
+
 void Engine::PrepareRender()
 {
-    renderPipeline->Execute(scenes);
+    for (const Scene* scene : scenes)
+    {
+        for (const Unit* unit : scene->GetUnits())
+        {
+            if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
+            {
+                comp->SubmitCommand(renderPipeline->GetBuilder());
+            }
+        }
+    }
 }
 
 void Engine::Render()
 {
-    renderPipeline->EndFrame();
+    renderPipeline->Execute(scenes);
+}
+
+void Engine::EndRender()
+{
+    renderer->EndFrame();
 }
 
 void Engine::SpawnUnit(Unit* unit)

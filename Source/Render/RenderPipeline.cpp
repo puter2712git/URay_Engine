@@ -18,36 +18,30 @@ RenderPipeline::RenderPipeline(Renderer& renderer)
 {
 }
 
+void RenderPipeline::Reset()
+{
+    builder.Reset();
+}
+
 void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
 {
     CameraComponent* camera = FindCamera(scenes);
     if (!camera)
         return;
 
-    builder.Reset();
-
     Matrix viewMatrix = camera->GetViewMatrix();
     Matrix projMatrix = camera->GetProjMatrix();
     renderer.SetFrameViewInfo(viewMatrix, projMatrix);
 
-    CollectCommand(scenes);
     builder.FlushLines();
     builder.FlushTexts();
 
     std::vector<DrawCommand> cmds = builder.GetCommands();
 
-    if (!renderer.BeginFrame())
-        return;
-
     for (const DrawCommand& cmd : cmds)
     {
         ExecuteCommand(cmd);
     }
-}
-
-void RenderPipeline::EndFrame()
-{
-    renderer.EndFrame();
 }
 
 ::URay::CameraComponent* RenderPipeline::FindCamera(const std::vector<Scene*>& scenes) const

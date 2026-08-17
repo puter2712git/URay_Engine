@@ -8,7 +8,10 @@
 #include <unordered_map>
 #include <vector>
 
-namespace URay { class Font; }
+namespace URay
+{
+class Font;
+}
 
 namespace URay::RHI
 {

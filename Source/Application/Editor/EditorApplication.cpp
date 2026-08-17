@@ -31,10 +31,13 @@ void EditorApplication::Run()
         engine->Update();
         editor->Update();
 
+        engine->BeginRender();
         engine->PrepareRender();
         editor->PrepareRender();
 
         engine->Render();
+        editor->EndRender();
+        engine->EndRender();
     }
 }
 
