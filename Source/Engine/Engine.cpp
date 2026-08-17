@@ -1,10 +1,7 @@
 #include "Engine.h"
 
 #include "Engine/Asset/AssetPipeline.h"
-#include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/GridComponent.h"
-#include "Engine/Component/Render/MeshComponent.h"
-#include "Engine/Component/TransformComponent.h"
+#include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
 #include "Engine/Material/MaterialManager.h"
@@ -60,10 +57,11 @@ bool Engine::Initialize(const std::string& projectPath)
 
     filesystem = new VirtualFilesystem();
     filesystem->Mount("Project", projectPath);
-    filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Source");
+    filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
+    filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
 
     assetPipeline = new AssetPipeline(*filesystem);
-    assetPipeline->Import("Asset://Texture/texture.jpg");
+    assetPipeline->Import("RawAsset://Texture/texture.jpg");
 
     shaderManager = renderer->GetShaderManager();
 
@@ -75,11 +73,11 @@ bool Engine::Initialize(const std::string& projectPath)
     meshManager->CreateDefaultMeshes();
 
     objImporter = new ObjImporter(*filesystem);
-    objImporter->Import("Asset://Mesh/untitled.obj");
+    objImporter->Import("RawAsset://Mesh/untitled.obj");
 
     textureManager = new TextureManager(*filesystem);
-    textureManager->LoadTexture("Test", "Asset://Texture/texture.jpg");
-    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "Asset://Texture/DejaVu Sans Mono.png");
+    textureManager->LoadTexture("Test", "RawAsset://Texture/texture.jpg");
+    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
 
     fontManager = new FontManager();
     fontManager->LoadFont("Default", fontTexture);
