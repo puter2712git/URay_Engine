@@ -1,6 +1,5 @@
 #include "Engine.h"
 
-#include "Engine/Asset/AssetPipeline.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
@@ -59,9 +58,6 @@ bool Engine::Initialize(const std::string& projectPath)
     filesystem->Mount("Project", projectPath);
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
-
-    assetPipeline = new AssetPipeline(*filesystem);
-    assetPipeline->Import("RawAsset://Texture/texture.jpg");
 
     shaderManager = renderer->GetShaderManager();
 

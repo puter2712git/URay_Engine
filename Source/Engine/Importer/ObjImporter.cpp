@@ -2,10 +2,8 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
-#include "Engine/Mesh/MeshManager.h"
 
 #include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/Log.h"
 
 #include <iostream>
 #include <sstream>
@@ -21,11 +19,11 @@ ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
 {
 }
 
-Object* ObjImporter::Import(const VirtualPath& filePath)
+ImportResult ObjImporter::Import(const VirtualPath& filePath)
 {
     if (!filesystem.Exists(filePath))
     {
-        return nullptr;
+        return {};
     }
 
     Reset();
@@ -111,10 +109,12 @@ Object* ObjImporter::Import(const VirtualPath& filePath)
         }
     }
 
-    MeshManager* meshManager = gEngine->GetMeshManager();
-
     Object* newMesh = new Mesh(filePath.GetStem(), vertices, indices);
-    return newMesh;
+
+    ImportResult result = {};
+    result.objects.push_back(Value<Object*>(newMesh));
+
+    return result;
 }
 
 void ObjImporter::Reset()

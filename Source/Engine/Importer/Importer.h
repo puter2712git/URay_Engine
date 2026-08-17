@@ -1,6 +1,7 @@
 #pragma once
 
-#include <string>
+#include "Core/Error/Value.h"
+
 #include <vector>
 
 namespace URay
@@ -11,8 +12,7 @@ class VirtualPath;
 
 struct ImportResult
 {
-    std::vector<Object*> objects;
-    std::vector<std::string> errorMsgs;
+    std::vector<Value<Object*>> objects;
 };
 
 class Importer
