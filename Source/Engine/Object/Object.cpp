@@ -76,6 +76,8 @@ YAML::Node Object::Serialize()
         case PropertyType::Texture:
             node[prop.name] = prop.GetValue<Texture*>(this)->GetName();
             break;
+        default:
+            break;
         }
     }
 
@@ -139,6 +141,8 @@ void Object::Deserialize(const YAML::Node& node)
         case PropertyType::Texture:
             *static_cast<Texture**>(valueAddress) =
                 gEngine->GetTextureManager()->GetTexture(valueNode.as<std::string>());
+            break;
+        default:
             break;
         }
 
