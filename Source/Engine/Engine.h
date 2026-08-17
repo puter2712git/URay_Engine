@@ -73,6 +73,8 @@ public:
 
     RHI::Renderer* GetRenderer() const { return renderer; }
 
+    RHI::RenderPipeline* GetRenderPipeline() const { return renderPipeline; }
+
     RHI::GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;

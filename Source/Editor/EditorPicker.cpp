@@ -1,24 +1,25 @@
 #include "EditorPicker.h"
 
+#include "Editor/GizmoController.h"
+
 #include "Core/Math/Math.h"
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
 
-#include "Engine/Mesh/Mesh.h"
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
 namespace URay
 {
 
-EditorPicker::EditorPicker(Engine& engine)
-    : engine(engine)
+EditorPicker::EditorPicker(Engine& engine, GizmoController* gizmo)
+    : engine(engine), gizmo(gizmo)
 {
 }
 
@@ -77,7 +78,6 @@ PickResult EditorPicker::Pick(CameraComponent* camera, float screenX, float scre
 
 bool EditorPicker::PickGizmo(const Ray& ray, int& outAxis) const
 {
-    GizmoComponent* gizmo = engine.GetGizmo();
     if (!gizmo || !gizmo->GetTarget())
         return false;
 
@@ -90,12 +90,12 @@ bool EditorPicker::PickGizmo(const Ray& ray, int& outAxis) const
 
     for (size_t axis = 0; axis < 3; ++axis)
     {
-        const Mesh* meshAsset = gizmo->GetCurrMesh();
+        const Mesh* meshAsset = gizmo->GetMesh();
 
         const std::vector<RHI::VertexPNT>& vertices = meshAsset->GetVertices();
         const std::vector<uint32_t>& indices = meshAsset->GetIndices();
 
-        const Matrix gizmoWorld = gizmo->GetCurrMatrix(axis);
+        const Matrix gizmoWorld = gizmo->GetWorldMatrix(axis);
         const Matrix invGizmoWorld = gizmoWorld.Inverse();
 
         const Vector3 localOrigin = invGizmoWorld.TransformPoint(ray.origin);

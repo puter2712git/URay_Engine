@@ -3,14 +3,15 @@
 #include "Editor/Console/EditorConsole.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/Filesystem/FilesystemWidget.h"
+#include "Editor/GizmoController.h"
 #include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
 #include "Editor/SceneTree.h"
 
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/ComponentFactory.h"
-#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
@@ -18,6 +19,7 @@
 #include "Core/Log/Log.h"
 #include "Core/Timer.h"
 
+#include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -37,11 +39,12 @@ bool Editor::Initialize()
     if (!renderer->InitializeImGui())
         return false;
 
-    picker = new EditorPicker(engine);
+    picker = new EditorPicker(engine, gizmo);
     mainMenuBar = new MainMenuBar();
     sceneTree = new SceneTree(*this, engine);
     console = new EditorConsole();
     filesystemWidget = new FilesystemWidget(*engine.GetFilesystem());
+    gizmo = new GizmoController(*engine.GetMeshManager(), *engine.GetMaterialManager());
 
     PrepareEditorScene();
 
@@ -76,7 +79,7 @@ void Editor::Update()
     {
         if (gizmo)
         {
-            GizmoMode mode = gizmo->GetCurrMode();
+            GizmoMode mode = gizmo->GetMode();
             int modeIndex = static_cast<int>(mode);
             modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
 
@@ -99,6 +102,9 @@ void Editor::Update()
 void Editor::PrepareRender()
 {
     RHI::Renderer* renderer = engine.GetRenderer();
+    RHI::DrawCommandBuilder& builder = engine.GetRenderPipeline()->GetBuilder();
+
+    gizmo->Draw(builder);
 
     renderer->BeginImGui();
 
@@ -141,6 +147,7 @@ void Editor::PrepareEditorScene()
     cameraUnit->SetName("Editor Camera");
 
     TransformComponent* cameraTransform = new TransformComponent();
+    cameraTransform->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
     camera = new CameraComponent();
     cameraUnit->AddComponent(cameraTransform);
     cameraUnit->AddComponent(camera);
@@ -150,14 +157,8 @@ void Editor::PrepareEditorScene()
     GridComponent* gridComponent = new GridComponent();
     gridUnit->AddComponent(gridComponent);
 
-    Unit* gizmoUnit = new Unit();
-    gizmoUnit->SetName("Gizmo");
-    gizmo = new GizmoComponent();
-    gizmoUnit->AddComponent(gizmo);
-
     editorScene->AddUnit(cameraUnit);
     editorScene->AddUnit(gridUnit);
-    editorScene->AddUnit(gizmoUnit);
 
     engine.AddScene(editorScene);
 }
@@ -337,7 +338,7 @@ void Editor::UpdatePick()
     if (pickResult.gizmoAxis != -1)
     {
         const Vector2 clickPos = Vector2(input.mouseX, input.mouseY);
-        gizmo->StartDragging(clickPos, pickResult.gizmoAxis);
+        gizmo->StartDragging(clickPos, pickResult.gizmoAxis, camera);
         return;
     }
 

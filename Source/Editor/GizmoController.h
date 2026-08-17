@@ -50,7 +50,7 @@ public:
     void Update(CameraComponent* camera);
     void Draw(RHI::DrawCommandBuilder& builder);
 
-    void StartDragging(const Vector2& clickPos, int selectedAxis);
+    void StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent* camera);
     void EndDragging();
 
     Unit* GetTarget() const { return targetUnit; }

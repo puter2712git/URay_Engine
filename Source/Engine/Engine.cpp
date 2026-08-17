@@ -2,7 +2,6 @@
 
 #include "Engine/Asset/AssetPipeline.h"
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"

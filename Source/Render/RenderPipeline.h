@@ -3,7 +3,11 @@
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 
-namespace URay { class CameraComponent; class Scene; }
+namespace URay
+{
+class CameraComponent;
+class Scene;
+} // namespace URay
 
 namespace URay::RHI
 {
@@ -17,12 +21,14 @@ public:
     ~RenderPipeline() = default;
 
 public:
-    void Execute(const std::vector<::URay::Scene*>& scenes);
+    void Execute(const std::vector<Scene*>& scenes);
     void EndFrame();
 
+    DrawCommandBuilder& GetBuilder() { return builder; }
+
 private:
-    ::URay::CameraComponent* FindCamera(const std::vector<::URay::Scene*> scenes) const;
-    void CollectCommand(const std::vector<::URay::Scene*> scenes);
+    ::URay::CameraComponent* FindCamera(const std::vector<Scene*>& scenes) const;
+    void CollectCommand(const std::vector<Scene*>& scenes);
     void ExecuteCommand(const DrawCommand& cmd) const;
 
 private:

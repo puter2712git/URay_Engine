@@ -8,6 +8,8 @@ class Unit;
 class CameraComponent;
 class MeshComponent;
 
+class GizmoController;
+
 struct Ray;
 
 struct PickResult
@@ -21,7 +23,7 @@ struct PickResult
 class EditorPicker
 {
 public:
-    EditorPicker(Engine& engine);
+    EditorPicker(Engine& engine, GizmoController* gizmo);
 
 public:
     PickResult Pick(CameraComponent* camera, float screenX, float screenY) const;
@@ -32,6 +34,7 @@ private:
 
 private:
     Engine& engine;
+    GizmoController* gizmo = nullptr;
 };
 
 } // namespace URay

@@ -5,7 +5,7 @@ namespace URay
 
 class Engine;
 class CameraComponent;
-class GizmoComponent;
+class GizmoController;
 
 namespace RHI
 {
@@ -51,7 +51,7 @@ private:
     Engine& engine;
 
     CameraComponent* camera = nullptr;
-    GizmoComponent* gizmo = nullptr;
+    GizmoController* gizmo = nullptr;
 
     EditorPicker* picker = nullptr;
     Unit* selectedUnit = nullptr;

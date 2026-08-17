@@ -3,7 +3,6 @@
 #include "Render/Renderer.h"
 
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/GizmoComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
@@ -19,7 +18,7 @@ RenderPipeline::RenderPipeline(Renderer& renderer)
 {
 }
 
-void RenderPipeline::Execute(const std::vector<::URay::Scene*>& scenes)
+void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
 {
     CameraComponent* camera = FindCamera(scenes);
     if (!camera)
@@ -51,7 +50,7 @@ void RenderPipeline::EndFrame()
     renderer.EndFrame();
 }
 
-::URay::CameraComponent* RenderPipeline::FindCamera(const std::vector<::URay::Scene*> scenes) const
+::URay::CameraComponent* RenderPipeline::FindCamera(const std::vector<Scene*>& scenes) const
 {
     CameraComponent* camera = nullptr;
 
@@ -66,38 +65,24 @@ void RenderPipeline::EndFrame()
             }
         }
 
-        if (!camera)
+        if (camera)
             break;
     }
 
     return camera;
 }
 
-void RenderPipeline::CollectCommand(const std::vector<::URay::Scene*> scenes)
+void RenderPipeline::CollectCommand(const std::vector<Scene*>& scenes)
 {
-    GizmoComponent* gizmo = nullptr;
-
     for (const Scene* scene : scenes)
     {
         for (const Unit* unit : scene->GetUnits())
         {
             if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
             {
-                if (GizmoComponent* gizmoComp = dynamic_cast<GizmoComponent*>(comp))
-                {
-                    gizmo = gizmoComp;
-                }
-                else
-                {
-                    comp->SubmitCommand(builder);
-                }
+                comp->SubmitCommand(builder);
             }
         }
-    }
-
-    if (gizmo)
-    {
-        gizmo->SubmitCommand(builder);
     }
 }
 
