@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Importer/Importer.h"
+
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 
@@ -14,7 +16,7 @@ class Mesh;
 class VirtualFilesystem;
 class VirtualPath;
 
-class ObjImporter
+class ObjImporter : public Importer
 {
 public:
     ObjImporter(VirtualFilesystem& filesystem);
@@ -46,7 +48,7 @@ private:
     };
 
 public:
-    Mesh* Import(const VirtualPath& filePath);
+    ImportResult Import(const VirtualPath& filePath) override;
 
 private:
     void Reset();

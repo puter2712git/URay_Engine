@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Object/Object.h"
+
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -17,8 +19,14 @@ struct MeshSection
     size_t materialIndex = 0;
 };
 
-class Mesh
+class Mesh : public Object
 {
+    URAY_CLASS(Mesh, Object)
+
+public:
+    Mesh(const std::string& name,
+         const std::vector<RHI::VertexPNT>& vertices, const std::vector<uint32_t>& indices);
+
 public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& inName) { name = inName; }

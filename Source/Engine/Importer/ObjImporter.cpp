@@ -1,6 +1,7 @@
 #include "ObjImporter.h"
 
 #include "Engine/Engine.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -20,7 +21,7 @@ ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
 {
 }
 
-Mesh* ObjImporter::Import(const VirtualPath& filePath)
+Object* ObjImporter::Import(const VirtualPath& filePath)
 {
     if (!filesystem.Exists(filePath))
     {
@@ -112,8 +113,8 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
 
     MeshManager* meshManager = gEngine->GetMeshManager();
 
-    Mesh* newMeshAsset = meshManager->CreateMesh(filePath.ToString(), vertices, indices);
-    return newMeshAsset;
+    Object* newMesh = new Mesh(filePath.GetStem(), vertices, indices);
+    return newMesh;
 }
 
 void ObjImporter::Reset()

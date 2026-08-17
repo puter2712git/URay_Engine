@@ -60,17 +60,13 @@ bool MeshManager::CreateDefaultMeshes()
 }
 
 Mesh* MeshManager::CreateMesh(const std::string& key,
-                                   const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices)
+                              const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices)
 {
     if (meshes.contains(key))
         return nullptr;
 
-    Mesh* mesh = new Mesh();
-    mesh->SetVertices(vertices);
-    mesh->SetIndices(indices);
-
+    Mesh* mesh = new Mesh(key, vertices, indices);
     meshes.insert({ key, mesh });
-    mesh->SetName(key);
 
     return mesh;
 }

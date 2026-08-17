@@ -1,5 +1,6 @@
 #include "AssetPipeline.h"
 
+#include "Engine/Importer/ObjImporter.h"
 #include "Engine/Importer/TextureImporter.h"
 #include "Engine/Texture/Texture.h"
 
@@ -17,6 +18,9 @@ AssetPipeline::AssetPipeline(VirtualFilesystem& filesystem)
     TextureImporter* textureImporter = new TextureImporter(filesystem);
     importers.insert({ ".jpg", textureImporter });
     importers.insert({ ".png", textureImporter });
+
+    ObjImporter* objImporter = new ObjImporter(filesystem);
+    importers.insert({ ".obj", objImporter });
 }
 
 AssetPipeline::~AssetPipeline()

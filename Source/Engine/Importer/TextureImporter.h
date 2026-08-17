@@ -17,7 +17,7 @@ public:
     ~TextureImporter() override;
 
 public:
-    Object* Import(const VirtualPath& path) override;
+    ImportResult Import(const VirtualPath& path) override;
 
 private:
     VirtualFilesystem& filesystem;
