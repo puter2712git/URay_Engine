@@ -27,6 +27,10 @@ size_t GetExtensionStart(const std::string& value)
 
 } // namespace
 
+VirtualPath::VirtualPath()
+{
+}
+
 VirtualPath::VirtualPath(const char* path)
     : path(path)
 {
@@ -108,8 +112,8 @@ VirtualPath VirtualPath::Join(const std::string& child) const
     std::string result = path;
     const size_t separatorPos = result.find(MountSeparator);
     const size_t minimumLength = separatorPos == std::string::npos && result.front() == '/'
-        ? 1
-        : (separatorPos == std::string::npos ? 0 : separatorPos + 3);
+                                     ? 1
+                                     : (separatorPos == std::string::npos ? 0 : separatorPos + 3);
 
     while (result.size() > minimumLength && result.back() == '/')
         result.pop_back();

@@ -8,6 +8,7 @@ namespace URay
 class VirtualPath
 {
 public:
+    VirtualPath();
     VirtualPath(const char* path);
     VirtualPath(const std::string& path);
 
