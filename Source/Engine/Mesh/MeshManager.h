@@ -11,6 +11,7 @@ namespace URay
 
 class RenderDevice;
 class Mesh;
+class Material;
 
 class MeshManager
 {
@@ -19,10 +20,10 @@ public:
     ~MeshManager();
 
 public:
-    bool CreateDefaultMeshes();
+    bool CreateDefaultMeshes(Material* defaultMaterial);
 
     Mesh* CreateMesh(const std::string& key,
-                          const std::vector<RHI::VertexPNT>& vertices, const std::vector<uint32_t>& indices);
+                     const std::vector<RHI::VertexPNT>& vertices, const std::vector<uint32_t>& indices);
 
     Mesh* GetMesh(const std::string& key) const;
     const std::unordered_map<std::string, Mesh*>& GetMeshes() const { return meshes; }

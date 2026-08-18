@@ -11,16 +11,14 @@ void Component::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::Bool, "Enable", offsetof(Component, enabled), sizeof(bool) });
+    StaticClass()->AddProperty({ .type = PropertyType::Bool,
+                                 .name = "Enable",
+                                 .offset = offsetof(Component, enabled),
+                                 .size = sizeof(bool) });
 }
 
 void Component::Update(float deltaTime)
 {
-}
-
-void Component::GetProperties(std::vector<Property>& properties)
-{
-    properties.emplace_back(PropertyType::Bool, "Enable", offsetof(Component, enabled), sizeof(bool));
 }
 
 } // namespace URay

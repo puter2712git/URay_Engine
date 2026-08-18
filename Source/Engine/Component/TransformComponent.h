@@ -15,8 +15,6 @@ class TransformComponent : public Component
 public:
     void Update(float deltaTime) override;
 
-    virtual void GetProperties(std::vector<Property>& properties) override;
-
     virtual const std::string& GetName() const override { return name; }
 
     void UpdateWorldMatrix();

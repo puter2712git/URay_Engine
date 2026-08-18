@@ -79,7 +79,8 @@ ObjImporter::ImportResult ObjImporter::Import(const VirtualPath& filePath)
             indices.push_back(AddVertex(face.objIndice[i + 1]));
         }
     }
-    Object* newMesh = new Mesh(filePath.GetStem(), vertices, indices);
+
+    Mesh* newMesh = new Mesh(filePath.GetStem());
 
     ImportResult result = {};
 

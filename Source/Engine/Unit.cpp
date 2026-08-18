@@ -26,7 +26,10 @@ void Unit::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::String, "Name", offsetof(Unit, name), sizeof(std::string) });
+    StaticClass()->AddProperty({ .type = PropertyType::String,
+                                 .name = "Name",
+                                 .offset = offsetof(Unit, name),
+                                 .size = sizeof(std::string) });
 }
 
 void Unit::Update(float deltaTime)

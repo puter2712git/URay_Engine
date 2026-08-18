@@ -17,9 +17,18 @@ void Texture::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::Int, "Width", offsetof(Texture, width), sizeof(int) });
-    StaticClass()->AddProperty({ PropertyType::Int, "Height", offsetof(Texture, height), sizeof(int) });
-    StaticClass()->AddProperty({ PropertyType::Int, "Channels", offsetof(Texture, channels), sizeof(int) });
+    StaticClass()->AddProperty({ .type = PropertyType::Int,
+                                 .name = "Width",
+                                 .offset = offsetof(Texture, width),
+                                 .size = sizeof(int) });
+    StaticClass()->AddProperty({ .type = PropertyType::Int,
+                                 .name = "Height",
+                                 .offset = offsetof(Texture, height),
+                                 .size = sizeof(int) });
+    StaticClass()->AddProperty({ .type = PropertyType::Int,
+                                 .name = "Channels",
+                                 .offset = offsetof(Texture, channels),
+                                 .size = sizeof(int) });
 }
 
 } // namespace URay

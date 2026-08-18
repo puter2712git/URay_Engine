@@ -4,6 +4,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Material/Material.h"
 #include "Engine/Material/MaterialManager.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
@@ -35,9 +36,11 @@ void SpriteComponent::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::Texture, "Texture",
-                                 offsetof(SpriteComponent, texture), sizeof(Texture*),
-                                 [](Object* owner, const Property& property)
+    StaticClass()->AddProperty({ .type = PropertyType::Texture,
+                                 .name = "Texture",
+                                 .offset = offsetof(SpriteComponent, texture),
+                                 .size = sizeof(Texture*),
+                                 .OnChangedCallback = [](Object* owner, const Property& property)
                                  {
                                      SpriteComponent* spriteComp = static_cast<SpriteComponent*>(owner);
                                      spriteComp->material->SetTexture(spriteComp->texture);
@@ -48,12 +51,13 @@ void SpriteComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
     TransformComponent* transform = GetOwner()->GetTransform();
 
-    MeshCommandContext context = {};
-    context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    context.meshAsset = quadMesh;
-    context.material = material;
-
-    builder.BuildFromMesh(context);
+    builder.BuildFromMesh({
+        .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+        .mesh = quadMesh,
+        .material = material,
+        .indexOffset = 0,
+        .indexCount = static_cast<uint32_t>(quadMesh->GetIndices().size()),
+    });
 }
 
 } // namespace URay

@@ -24,18 +24,12 @@ public:
     virtual const std::string& GetName() const override { return name; }
 
     Mesh* GetMesh() const { return mesh; }
-    void SetMesh(Mesh* newMesh) { mesh = newMesh; }
+    void SetMesh(Mesh* newMesh);
 
     Material* GetMaterial(size_t index = 0) { return materials.size() > index ? materials[index] : nullptr; }
     const std::vector<Material*>& GetMaterials() const { return materials; }
 
-    void SetMaterial(Material* newMaterial, size_t index = 0)
-    {
-        if (materials.size() <= index)
-        {
-            materials[index] = newMaterial;
-        }
-    }
+    void SetMaterial(Material* newMaterial, size_t index = 0);
     void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
 protected:

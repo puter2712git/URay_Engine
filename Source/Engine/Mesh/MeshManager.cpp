@@ -46,15 +46,31 @@ MeshManager::~MeshManager()
     meshes.clear();
 }
 
-bool MeshManager::CreateDefaultMeshes()
+bool MeshManager::CreateDefaultMeshes(Material* defaultMaterial)
 {
+    if (!defaultMaterial)
+        return false;
+
     CreateBox();
+    GetMesh("Box")->SetDefaultMaterials({ defaultMaterial });
+
     CreateQuad();
+    GetMesh("Quad")->SetDefaultMaterials({ defaultMaterial });
+
     CreateCylinder();
+    GetMesh("Cylinder")->SetDefaultMaterials({ defaultMaterial });
+
     CreateCone();
+    GetMesh("Cone")->SetDefaultMaterials({ defaultMaterial });
+
     CreateArrow();
+    GetMesh("Arrow")->SetDefaultMaterials({ defaultMaterial });
+
     CreateRotationGizmo();
+    GetMesh("RotationGizmo")->SetDefaultMaterials({ defaultMaterial });
+
     CreateScaleGizmo();
+    GetMesh("ScaleGizmo")->SetDefaultMaterials({ defaultMaterial });
 
     return true;
 }
@@ -65,7 +81,15 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     if (meshes.contains(key))
         return nullptr;
 
-    Mesh* mesh = new Mesh(key, vertices, indices);
+    Mesh* mesh = new Mesh(key);
+    mesh->SetVertices(vertices);
+    mesh->SetIndices(indices);
+    mesh->SetSections({ MeshSection{
+        .indexOffset = 0,
+        .indexCount = static_cast<uint32_t>(indices.size()),
+        .materialIndex = 0,
+    } });
+
     meshes.insert({ key, mesh });
 
     return mesh;

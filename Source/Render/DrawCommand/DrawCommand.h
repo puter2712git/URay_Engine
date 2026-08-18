@@ -25,6 +25,7 @@ struct DrawCommand
     uint32_t vertexCount = 0;
 
     void* indexBuffer = nullptr;
+    uint32_t indexOffset = 0;
     uint32_t indexCount = 0;
 
     PipelineStateDesc pipelineState = {};

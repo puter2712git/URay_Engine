@@ -12,6 +12,8 @@
 namespace URay
 {
 
+class Material;
+
 struct MeshSection
 {
     uint32_t indexOffset = 0;
@@ -24,8 +26,7 @@ class Mesh : public Object
     URAY_CLASS(Mesh, Object)
 
 public:
-    Mesh(const std::string& name,
-         const std::vector<RHI::VertexPNT>& vertices, const std::vector<uint32_t>& indices);
+    Mesh(const std::string& name);
 
 public:
     const std::string& GetName() const { return name; }
@@ -37,13 +38,19 @@ public:
     const std::vector<uint32_t>& GetIndices() const { return indices; }
     void SetIndices(const std::vector<uint32_t>& newIndices) { indices = newIndices; }
 
+    const std::vector<MeshSection>& GetSections() const { return sections; }
+    void SetSections(const std::vector<MeshSection>& newSections) { sections = newSections; }
+
+    Material* GetDefaultMaterial(size_t index) const { return index < defaultMaterials.size() ? defaultMaterials[index] : nullptr; }
+    const std::vector<Material*>& GetDefaultMaterials() const { return defaultMaterials; }
+    void SetDefaultMaterials(const std::vector<Material*> newMaterials) { defaultMaterials = newMaterials; }
+
 private:
     std::string name;
-
     std::vector<RHI::VertexPNT> vertices;
     std::vector<uint32_t> indices;
-
     std::vector<MeshSection> sections;
+    std::vector<Material*> defaultMaterials;
 };
 
 } // namespace URay

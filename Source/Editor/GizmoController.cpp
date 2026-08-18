@@ -87,7 +87,7 @@ void GizmoController::Draw(DrawCommandBuilder& builder)
                                       : Color::Red;
     }
 
-    xCoordContext.meshAsset = mesh;
+    xCoordContext.mesh = mesh;
     xCoordContext.material = material;
 
     GizmoCommandContext yCoordContext = {};
@@ -106,7 +106,7 @@ void GizmoController::Draw(DrawCommandBuilder& builder)
                                       : Color::Green;
     }
 
-    yCoordContext.meshAsset = mesh;
+    yCoordContext.mesh = mesh;
     yCoordContext.material = material;
 
     GizmoCommandContext zCoordContext = {};
@@ -125,7 +125,7 @@ void GizmoController::Draw(DrawCommandBuilder& builder)
                                       : Color::Blue;
     }
 
-    zCoordContext.meshAsset = mesh;
+    zCoordContext.mesh = mesh;
     zCoordContext.material = material;
 
     builder.BuildFromGizmo(xCoordContext);

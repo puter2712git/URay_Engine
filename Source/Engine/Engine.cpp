@@ -67,11 +67,11 @@ bool Engine::Initialize(const std::string& projectPath)
     Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
 
     materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager(), defaultWhite);
-    materialManager->GetOrCreate("Mesh", shaderManager->GetOrCreate("Mesh"));
+    Material* defaultMaterial = materialManager->GetOrCreate("Mesh", shaderManager->GetOrCreate("Mesh"));
     materialManager->GetOrCreate("Sprite", shaderManager->GetOrCreate("Sprite"));
 
     meshManager = new MeshManager();
-    meshManager->CreateDefaultMeshes();
+    meshManager->CreateDefaultMeshes(defaultMaterial);
 
     objImporter = new ObjImporter(*filesystem);
     objImporter->Import("RawAsset://Mesh/untitled.obj");

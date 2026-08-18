@@ -2,10 +2,8 @@
 
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Object/Object.h"
-#include "Engine/Object/Property/Property.h"
 
 #include <string>
-#include <vector>
 
 namespace URay
 {
@@ -32,8 +30,6 @@ public:
 
 public:
     virtual void Update(float deltaTime);
-
-    virtual void GetProperties(std::vector<Property>& properties);
 
     virtual const std::string& GetName() const { return name; }
 

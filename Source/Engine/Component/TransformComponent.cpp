@@ -12,9 +12,18 @@ void TransformComponent::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::Vector3, "Position", offsetof(TransformComponent, position), sizeof(Vector3) });
-    StaticClass()->AddProperty({ PropertyType::Vector3, "Rotation", offsetof(TransformComponent, rotation), sizeof(Vector3) });
-    StaticClass()->AddProperty({ PropertyType::Vector3, "Scale", offsetof(TransformComponent, scale), sizeof(Vector3) });
+    StaticClass()->AddProperty({ .type = PropertyType::Vector3,
+                                 .name = "Position",
+                                 .offset = offsetof(TransformComponent, position),
+                                 .size = sizeof(Vector3) });
+    StaticClass()->AddProperty({ .type = PropertyType::Vector3,
+                                 .name = "Rotation",
+                                 .offset = offsetof(TransformComponent, rotation),
+                                 .size = sizeof(Vector3) });
+    StaticClass()->AddProperty({ .type = PropertyType::Vector3,
+                                 .name = "Scale",
+                                 .offset = offsetof(TransformComponent, scale),
+                                 .size = sizeof(Vector3) });
 }
 
 void TransformComponent::Update(float deltaTime)
@@ -22,15 +31,6 @@ void TransformComponent::Update(float deltaTime)
     Component::Update(deltaTime);
 
     UpdateWorldMatrix();
-}
-
-void TransformComponent::GetProperties(std::vector<Property>& properties)
-{
-    Component::GetProperties(properties);
-
-    properties.emplace_back(PropertyType::Vector3, "Position", offsetof(TransformComponent, position), sizeof(Vector3));
-    properties.emplace_back(PropertyType::Vector3, "Rotation", offsetof(TransformComponent, rotation), sizeof(Vector3));
-    properties.emplace_back(PropertyType::Vector3, "Scale", offsetof(TransformComponent, scale), sizeof(Vector3));
 }
 
 void TransformComponent::UpdateWorldMatrix()

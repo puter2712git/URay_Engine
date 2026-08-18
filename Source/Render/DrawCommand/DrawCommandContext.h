@@ -6,7 +6,12 @@
 #include <cstdint>
 #include <string>
 
-namespace URay { class Font; class Material; class Mesh; }
+namespace URay
+{
+class Font;
+class Material;
+class Mesh;
+} // namespace URay
 
 namespace URay::RHI
 {
@@ -16,9 +21,11 @@ struct MeshCommandContext
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
 
-    ::URay::Mesh* meshAsset = nullptr;
-
+    ::URay::Mesh* mesh = nullptr;
     ::URay::Material* material = nullptr;
+
+    uint32_t indexOffset = 0;
+    uint32_t indexCount = 0;
 };
 
 struct LineCommandContext
@@ -40,7 +47,7 @@ struct GizmoCommandContext
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
 
-    ::URay::Mesh* meshAsset = nullptr;
+    ::URay::Mesh* mesh = nullptr;
 
     ::URay::Material* material = nullptr;
 };

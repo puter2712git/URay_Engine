@@ -77,15 +77,16 @@ void DrawCommandBuilder::FlushTexts()
 void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
 {
     GPUResourceManager* resourceManager = renderer.GetResourceManager();
-    Mesh* mesh = resourceManager->GetOrCreateMesh(context.meshAsset);
+    Mesh* mesh = resourceManager->GetOrCreateMesh(context.mesh);
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = mesh->GetVertexBuffer()->GetBufferRef();
-    cmd.vertexCount = static_cast<uint32_t>(context.meshAsset->GetVertices().size());
+    cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
     cmd.indexBuffer = mesh->GetIndexBuffer()->GetBufferRef();
-    cmd.indexCount = static_cast<uint32_t>(context.meshAsset->GetIndices().size());
+    cmd.indexOffset = context.indexOffset;
+    cmd.indexCount = context.indexCount;
 
     PipelineStateDesc state = {};
     state.shader = context.material->GetShader();
@@ -130,15 +131,15 @@ void DrawCommandBuilder::BuildFromText(const TextCommandContext& context)
 void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
 {
     GPUResourceManager* resourceManager = renderer.GetResourceManager();
-    Mesh* mesh = resourceManager->GetOrCreateMesh(context.meshAsset);
+    Mesh* mesh = resourceManager->GetOrCreateMesh(context.mesh);
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = mesh->GetVertexBuffer()->GetBufferRef();
-    cmd.vertexCount = static_cast<uint32_t>(context.meshAsset->GetVertices().size());
+    cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
     cmd.indexBuffer = mesh->GetIndexBuffer()->GetBufferRef();
-    cmd.indexCount = static_cast<uint32_t>(context.meshAsset->GetIndices().size());
+    cmd.indexCount = static_cast<uint32_t>(context.mesh->GetIndices().size());
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = false;

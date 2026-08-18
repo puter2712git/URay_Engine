@@ -25,8 +25,10 @@ void TextComponent::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ PropertyType::String, "Text",
-                                 offsetof(TextComponent, text), sizeof(std::string) });
+    StaticClass()->AddProperty({ .type = PropertyType::String,
+                                 .name = "Text",
+                                 .offset = offsetof(TextComponent, text),
+                                 .size = sizeof(std::string) });
 }
 
 void TextComponent::SubmitCommand(DrawCommandBuilder& builder)

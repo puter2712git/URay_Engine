@@ -401,7 +401,7 @@ void Renderer::Draw(const DrawCommand& cmd)
         VkBuffer indexBuffer = static_cast<VkBuffer>(cmd.indexBuffer);
         vkCmdBindIndexBuffer(commandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, cmd.indexOffset, 0, 0);
     }
     else
     {
