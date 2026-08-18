@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Core/File/VirtualPath.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace URay
@@ -11,16 +13,26 @@ namespace URay
 
 class Mesh;
 class Material;
-class MaterialManager;
 class Texture;
+class MeshManager;
+class MaterialManager;
+class TextureManager;
 
 class VirtualFilesystem;
-class VirtualPath;
+
+namespace RHI
+{
+class Shader;
+}
 
 class ObjImporter
 {
 public:
-    ObjImporter(VirtualFilesystem& filesystem);
+    ObjImporter(VirtualFilesystem& filesystem,
+                MeshManager& meshManager,
+                TextureManager& textureManager,
+                MaterialManager& materialManager,
+                RHI::Shader* meshShader);
 
 private:
     struct ObjIndex
@@ -46,6 +58,7 @@ private:
     struct Face
     {
         std::vector<ObjIndex> objIndice;
+        std::string mtlName;
     };
 
     struct MtlInfo
@@ -59,32 +72,36 @@ private:
         float refractiveIndex = 0.0f;
         int illum = 1;
 
-        // VirtualPath diffuseTexturePath = {};
-        // VirtualPath alphaTexturePath = {};
+        VirtualPath diffuseTexturePath = {};
+        VirtualPath alphaTexturePath = {};
     };
 
-    struct ImportResult
+    struct MaterialImportResult
     {
-        Mesh* mesh = nullptr;
         std::vector<Material*> materials;
-        std::vector<Texture*> textures;
+        std::unordered_map<std::string, uint32_t> slots;
     };
 
 public:
-    ImportResult Import(const VirtualPath& filePath);
+    Mesh* Import(const VirtualPath& filePath);
 
 private:
     void Reset();
 
     void ParseObj(const VirtualPath& objPath);
     Face ParseFace(const std::string& line);
+    ObjIndex ParseObjIndex(const std::string& token);
 
     void ParseMtl(const VirtualPath& mtlPath);
-
-    ObjIndex ParseObjIndex(const std::string& token);
+    MaterialImportResult CreateMaterials();
 
 private:
     VirtualFilesystem& filesystem;
+    MeshManager& meshManager;
+    TextureManager& textureManager;
+    MaterialManager& materialManager;
+
+    RHI::Shader* meshShader = nullptr;
 
     std::vector<Vector3> positions;
     std::vector<Vector2> uvs;

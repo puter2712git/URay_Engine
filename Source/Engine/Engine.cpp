@@ -3,6 +3,7 @@
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
+#include "Engine/Material/Material.h"
 #include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
@@ -73,8 +74,9 @@ bool Engine::Initialize(const std::string& projectPath)
     meshManager = new MeshManager();
     meshManager->CreateDefaultMeshes(defaultMaterial);
 
-    objImporter = new ObjImporter(*filesystem);
+    objImporter = new ObjImporter(*filesystem, *meshManager, *textureManager, *materialManager, defaultMaterial->GetShader());
     objImporter->Import("RawAsset://Mesh/untitled.obj");
+    objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
 
     fontManager = new FontManager();
     fontManager->LoadFont("Default", fontTexture);
