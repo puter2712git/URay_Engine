@@ -8,47 +8,34 @@ bool Math::IntersectLineTriangle(
     const Vector3& p0, const Vector3& p1, const Vector3& p2,
     float& outDistance)
 {
-    const Vector3 e0 = p1 - p0;
-    const Vector3 e1 = p2 - p0;
-    const Vector3 norm = Vector3::Cross(e0, e1);
+    constexpr float epsilon = 1e-8f;
 
-    const float normDotDir = Vector3::Dot(norm, ray.direction);
-    if (std::fabs(normDotDir) < 0.001f)
+    const Vector3 edge1 = p1 - p0;
+    const Vector3 edge2 = p2 - p0;
+
+    const Vector3 pvec = Vector3::Cross(ray.direction, edge2);
+    const float det = Vector3::Dot(edge1, pvec);
+
+    if (std::fabs(det) < epsilon)
         return false;
 
-    float d = -Vector3::Dot(norm, p0);
+    const float invDet = 1.0f / det;
 
-    float t = -(Vector3::Dot(norm, ray.origin) + d) / normDotDir;
-
-    if (t < 0)
+    const Vector3 tvec = ray.origin - p0;
+    const float u = Vector3::Dot(tvec, pvec) * invDet;
+    if (u < 0.0f || u > 1.0f)
         return false;
 
-    Vector3 p = ray.origin + ray.direction * t;
-
-    Vector3 ne;
-
-    Vector3 p0p = p - p0;
-    ne = Vector3::Cross(e0, p0p);
-
-    if (Vector3::Dot(norm, ne) < 0)
+    const Vector3 qvec = Vector3::Cross(tvec, edge1);
+    const float v = Vector3::Dot(ray.direction, qvec) * invDet;
+    if (v < 0.0f || u + v > 1.0f)
         return false;
 
-    Vector3 p2p1 = p2 - p1;
-    Vector3 p1p = p - p1;
-    ne = Vector3::Cross(p2p1, p1p);
-
-    if (Vector3::Dot(norm, ne) < 0)
-        return false;
-
-    Vector3 p2p0 = p0 - p2;
-    Vector3 p2p = p - p2;
-    ne = Vector3::Cross(p2p0, p2p);
-
-    if (Vector3::Dot(norm, ne) < 0)
+    const float t = Vector3::Dot(edge2, qvec) * invDet;
+    if (t < epsilon)
         return false;
 
     outDistance = t;
-
     return true;
 }
 

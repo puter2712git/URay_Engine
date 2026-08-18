@@ -135,12 +135,12 @@ bool EditorPicker::PickMesh(const Ray& ray, const MeshComponent* meshComp, float
     if (!transform)
         return false;
 
-    const Mesh* meshAsset = meshComp->GetMesh();
-    if (!meshAsset)
+    const Mesh* mesh = meshComp->GetMesh();
+    if (!mesh)
         return false;
 
-    const std::vector<RHI::VertexPNT>& vertices = meshAsset->GetVertices();
-    const std::vector<uint32_t>& indices = meshAsset->GetIndices();
+    const std::vector<RHI::VertexPNT>& vertices = mesh->GetVertices();
+    const std::vector<uint32_t>& indices = mesh->GetIndices();
 
     bool isHit = false;
 
