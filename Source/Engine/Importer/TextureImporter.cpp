@@ -19,25 +19,7 @@ TextureImporter::~TextureImporter() = default;
 
 Texture* TextureImporter::Import(const VirtualPath& path)
 {
-    if (!filesystem.Exists(path))
-    {
-        return nullptr;
-    }
-
-    std::string physicalPath = filesystem.ResolveToPhysicalPath(path).string();
-
-    int width, height, channels;
-    stbi_uc* data = stbi_load(physicalPath.c_str(), &width, &height, &channels, STBI_rgb_alpha);
-
-    if (!data)
-    {
-        return nullptr;
-    }
-
-    Texture* newTexture = new Texture(physicalPath, width, height, channels);
-    newTexture->SetName(physicalPath);
-
-    return newTexture;
+    return nullptr;
 }
 
 } // namespace URay

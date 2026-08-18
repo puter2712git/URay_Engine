@@ -142,13 +142,7 @@ Texture* RenderDevice::CreateTexture(const ::URay::Texture* textureAsset)
 {
     stbi_set_flip_vertically_on_load(true);
 
-    int width, height, channels;
-    stbi_uc* pixels = stbi_load(textureAsset->GetFilePath().c_str(), &width, &height, &channels, STBI_rgb_alpha);
-
-    if (!pixels)
-        return nullptr;
-
-    VkDeviceSize size = width * height * 4;
+    VkDeviceSize size = textureAsset->GetPixels().size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -160,15 +154,13 @@ Texture* RenderDevice::CreateTexture(const ::URay::Texture* textureAsset)
 
     void* data;
     vkMapMemory(device, stagingBufferMemory, 0, size, 0, &data);
-    std::memcpy(data, pixels, static_cast<size_t>(size));
+    std::memcpy(data, textureAsset->GetPixels().data(), static_cast<size_t>(size));
     vkUnmapMemory(device, stagingBufferMemory);
-
-    stbi_image_free(pixels);
 
     VkImage image;
     VkDeviceMemory imageMemory;
 
-    if (!CreateImage(width, height,
+    if (!CreateImage(textureAsset->GetWidth(), textureAsset->GetHeight(),
                      VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
@@ -182,7 +174,7 @@ Texture* RenderDevice::CreateTexture(const ::URay::Texture* textureAsset)
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     CopyBufferToImage(
         stagingBuffer, image,
-        static_cast<uint32_t>(width), static_cast<uint32_t>(height));
+        static_cast<uint32_t>(textureAsset->GetWidth()), static_cast<uint32_t>(textureAsset->GetHeight()));
     TransitionImageLayout(
         image, VK_FORMAT_R8G8B8A8_SRGB,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);

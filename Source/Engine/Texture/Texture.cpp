@@ -7,9 +7,11 @@ URAY_REGISTER_CLASS(Texture)
 
 Texture::Texture(
     const std::string& filePath,
-    int width, int height, int channels)
+    int width, int height, int channels,
+    const std::vector<uint8_t>& pixels)
     : filePath(filePath),
-      width(width), height(height), channels(channels)
+      width(width), height(height), channels(channels),
+      pixels(pixels)
 {
 }
 

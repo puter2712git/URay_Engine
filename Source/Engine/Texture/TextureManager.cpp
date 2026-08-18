@@ -36,23 +36,24 @@ Texture* TextureManager::LoadTexture(const std::string& key, const VirtualPath& 
     if (!filesystem.Exists(virtualPath))
         return nullptr;
 
-    std::string physicalPathStr = filesystem.ResolveToPhysicalPath(virtualPath).string();
+    std::vector<uint8_t> fileBytes = filesystem.ReadBinary(virtualPath);
 
     int width, height, channels;
-    stbi_uc* data = stbi_load(physicalPathStr.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+    stbi_uc* data = stbi_load_from_memory(fileBytes.data(), static_cast<int>(fileBytes.size()),
+                                          &width, &height, &channels,
+                                          STBI_rgb_alpha);
 
     if (!data)
-    {
-        std::cout << physicalPathStr << "\n";
         return nullptr;
-    }
 
-    Texture* asset = new Texture(physicalPathStr, width, height, channels);
-    textures.insert({ key, asset });
+    std::vector<uint8_t> pixels(data, data + width * height * 4);
 
-    asset->SetName(key);
+    Texture* texture = new Texture(virtualPath.ToString(), width, height, channels, pixels);
+    textures.insert({ key, texture });
 
-    return asset;
+    stbi_image_free(data);
+
+    return texture;
 }
 
 Texture* TextureManager::GetTexture(const std::string& key) const
