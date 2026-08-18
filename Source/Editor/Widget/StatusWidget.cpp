@@ -16,7 +16,8 @@ StatusWidget::~StatusWidget() = default;
 
 void StatusWidget::OnDraw()
 {
-    ImGui::Begin("Status");
+    ApplyRect();
+    ImGui::Begin("Status", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     ImGui::Text("FPS: %d", engine.GetTimer()->GetFPS());
     ImGui::Text("%.4f ms", engine.GetTimer()->GetDeltaTime());

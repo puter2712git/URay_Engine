@@ -17,7 +17,6 @@ class Unit;
 
 class Widget;
 class EditorPicker;
-class MainMenuBar;
 
 class Editor
 {
@@ -54,6 +53,7 @@ private:
     EditorPicker* picker = nullptr;
     Unit* selectedUnit = nullptr;
 
+    std::unique_ptr<Widget> mainMenuBarWidget = nullptr;
     std::unique_ptr<Widget> rootWidget = nullptr;
 };
 

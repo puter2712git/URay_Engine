@@ -1,5 +1,7 @@
 #include "Splitter.h"
 
+#include <algorithm>
+
 namespace URay
 {
 
@@ -10,9 +12,7 @@ Splitter::Splitter(SplitAxis axis, std::unique_ptr<Widget> first, std::unique_pt
     AddChild(std::move(second));
 }
 
-Splitter::~Splitter()
-{
-}
+Splitter::~Splitter() = default;
 
 void Splitter::Arrange(const Rect& rect)
 {

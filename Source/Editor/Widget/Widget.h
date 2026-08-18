@@ -23,6 +23,8 @@ public:
     const Rect& GetRect() const { return rect; }
 
 protected:
+    void ApplyRect() const;
+
     virtual void OnUpdate() {}
     virtual void OnDraw() {}
 

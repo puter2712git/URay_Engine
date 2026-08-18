@@ -22,7 +22,8 @@ SceneTreeWidget::~SceneTreeWidget()
 
 void SceneTreeWidget::OnDraw()
 {
-    ImGui::Begin("Scene Tree");
+    ApplyRect();
+    ImGui::Begin("Scene Tree", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     Scene* scene = engine.GetSceneByType(SceneType::Game);
     if (!scene)

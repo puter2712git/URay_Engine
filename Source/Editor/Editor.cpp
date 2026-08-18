@@ -8,6 +8,7 @@
 #include "Editor/Widget/InspectorWidget.h"
 #include "Editor/Widget/MainMenuBarWidget.h"
 #include "Editor/Widget/SceneTreeWidget.h"
+#include "Editor/Widget/Splitter.h"
 #include "Editor/Widget/StatusWidget.h"
 #include "Editor/Widget/Widget.h"
 
@@ -43,25 +44,38 @@ bool Editor::Initialize()
     if (!renderer->InitializeImGui())
         return false;
 
-    rootWidget = std::make_unique<Widget>();
-
-    std::unique_ptr<MainMenuBarWidget> mainMenuBar = std::make_unique<MainMenuBarWidget>(engine);
-    rootWidget->AddChild(std::move(mainMenuBar));
+    mainMenuBarWidget = std::make_unique<MainMenuBarWidget>(engine);
 
     std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*this, engine);
-    rootWidget->AddChild(std::move(sceneTree));
-
     std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*this);
-    rootWidget->AddChild(std::move(inspector));
-
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
-    rootWidget->AddChild(std::move(console));
-
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(*engine.GetFilesystem());
-    rootWidget->AddChild(std::move(filesystem));
-
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    rootWidget->AddChild(std::move(status));
+
+    std::unique_ptr<Widget> leftPanel = std::make_unique<Splitter>(
+        SplitAxis::Vertical,
+        std::move(sceneTree),
+        std::move(filesystem));
+
+    std::unique_ptr<Widget> centerPanel = std::make_unique<Splitter>(
+        SplitAxis::Vertical,
+        std::make_unique<Widget>(),
+        std::move(console));
+
+    std::unique_ptr<Widget> rightPanel = std::make_unique<Splitter>(
+        SplitAxis::Vertical,
+        std::move(inspector),
+        std::move(status));
+
+    std::unique_ptr<Widget> mainPanel = std::make_unique<Splitter>(
+        SplitAxis::Horizontal,
+        std::move(centerPanel),
+        std::move(rightPanel));
+
+    rootWidget = std::make_unique<Splitter>(
+        SplitAxis::Horizontal,
+        std::move(leftPanel),
+        std::move(mainPanel));
 
     gizmo = new GizmoController(*engine.GetMeshManager(), *engine.GetMaterialManager());
 
@@ -74,6 +88,7 @@ bool Editor::Initialize()
 
 void Editor::Finalize()
 {
+    mainMenuBarWidget.reset();
     rootWidget.reset();
 
     RHI::Renderer* renderer = engine.GetRenderer();
@@ -120,6 +135,7 @@ void Editor::Update()
 
     gizmo->Update(camera);
 
+    mainMenuBarWidget->Update();
     rootWidget->Update();
 }
 
@@ -131,6 +147,14 @@ void Editor::PrepareRender()
     gizmo->Draw(builder);
 
     renderer->BeginImGui();
+
+    mainMenuBarWidget->Draw();
+
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    rootWidget->Arrange({
+        Vector2(viewport->WorkPos.x, viewport->WorkPos.y),
+        Vector2(viewport->WorkSize.x, viewport->WorkSize.y),
+    });
 
     rootWidget->Draw();
 }

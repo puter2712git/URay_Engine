@@ -20,7 +20,8 @@ InspectorWidget::~InspectorWidget() = default;
 
 void InspectorWidget::OnDraw()
 {
-    ImGui::Begin("Inspector");
+    ApplyRect();
+    ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     Unit* selectedUnit = editor.GetSelectedUnit();
 

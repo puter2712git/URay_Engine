@@ -34,8 +34,8 @@ static int TextEditCallbackStub(ImGuiInputTextCallbackData* data);
 
 void ConsoleWidget::OnDraw()
 {
-    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Console"))
+    ApplyRect();
+    if (!ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
     {
         ImGui::End();
         return;

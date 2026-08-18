@@ -20,7 +20,8 @@ FilesystemWidget::~FilesystemWidget() = default;
 
 void FilesystemWidget::OnDraw()
 {
-    ImGui::Begin("Filesystem");
+    ApplyRect();
+    ImGui::Begin("Filesystem", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     fs::path projectPath = filesystem.ResolveToPhysicalPath("Project://");
 
