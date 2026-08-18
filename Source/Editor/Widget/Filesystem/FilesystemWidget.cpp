@@ -18,7 +18,7 @@ FilesystemWidget::FilesystemWidget(VirtualFilesystem& filesystem)
 
 FilesystemWidget::~FilesystemWidget() = default;
 
-void FilesystemWidget::Draw()
+void FilesystemWidget::OnDraw()
 {
     ImGui::Begin("Filesystem");
 

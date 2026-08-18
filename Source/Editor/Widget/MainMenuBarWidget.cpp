@@ -1,14 +1,23 @@
-#include "MainMenuBar.h"
+#include "MainMenuBarWidget.h"
 
 #include "Core/File/FileIO.h"
 
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 
+#include <imgui/imgui.h>
+
 namespace URay
 {
 
-void MainMenuBar::Draw() const
+MainMenuBarWidget::MainMenuBarWidget(Engine& engine)
+    : engine(engine)
+{
+}
+
+MainMenuBarWidget::~MainMenuBarWidget() = default;
+
+void MainMenuBarWidget::OnDraw()
 {
     if (ImGui::BeginMainMenuBar())
     {
@@ -16,7 +25,7 @@ void MainMenuBar::Draw() const
         {
             if (ImGui::MenuItem("Save Scene"))
             {
-                Scene* currScene = gEngine->GetSceneByType(SceneType::Game);
+                Scene* currScene = engine.GetSceneByType(SceneType::Game);
                 if (currScene)
                 {
                     YAML::Node node = currScene->Serialize();
@@ -31,7 +40,7 @@ void MainMenuBar::Draw() const
                 Scene* loadedScene = new Scene(SceneType::Game);
                 loadedScene->Deserialize(sceneNode);
 
-                gEngine->SetGameScene(loadedScene);
+                engine.SetGameScene(loadedScene);
             }
             ImGui::EndMenu();
         }

@@ -1,5 +1,5 @@
-#include "EditorConsole.h"
-#include "EditorConsoleLogSink.h"
+#include "ConsoleWidget.h"
+#include "ConsoleLogSink.h"
 
 #include "Core/Log/Log.h"
 
@@ -8,16 +8,20 @@
 namespace URay
 {
 
-EditorConsole::EditorConsole()
+ConsoleWidget::ConsoleWidget()
 {
     logSink = new EditorConsoleLogSink(*this);
 
     Logger::RegisterSink(logSink);
 }
 
-EditorConsole::~EditorConsole() = default;
+ConsoleWidget::~ConsoleWidget()
+{
+    Logger::UnregisterSink(logSink);
+    delete logSink;
+}
 
-void EditorConsole::ClearLog()
+void ConsoleWidget::ClearLog()
 {
     for (int i = 0; i < items.Size; ++i)
     {
@@ -26,35 +30,15 @@ void EditorConsole::ClearLog()
     items.clear();
 }
 
-void EditorConsole::AddLog(const char* fmt, ...)
-{
-    char buf[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf(buf, IM_COUNTOF(buf), fmt, args);
-    buf[IM_COUNTOF(buf) - 1] = 0;
-    va_end(args);
-    items.push_back(Strdup(buf));
-}
-
 static int TextEditCallbackStub(ImGuiInputTextCallbackData* data);
 
-void EditorConsole::Draw(const char* title, bool* pOpen)
+void ConsoleWidget::OnDraw()
 {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin(title, pOpen))
+    if (!ImGui::Begin("Console"))
     {
         ImGui::End();
         return;
-    }
-
-    if (ImGui::BeginPopupContextItem())
-    {
-        if (ImGui::MenuItem("Close Console"))
-        {
-            *pOpen = false;
-        }
-        ImGui::EndPopup();
     }
 
     ImGui::TextWrapped(
@@ -195,7 +179,18 @@ void EditorConsole::Draw(const char* title, bool* pOpen)
     ImGui::End();
 }
 
-void EditorConsole::ExecCommand(const char* commandLine)
+void ConsoleWidget::AddLog(const char* fmt, ...)
+{
+    char buf[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(buf, IM_COUNTOF(buf), fmt, args);
+    buf[IM_COUNTOF(buf) - 1] = 0;
+    va_end(args);
+    items.push_back(Strdup(buf));
+}
+
+void ConsoleWidget::ExecCommand(const char* commandLine)
 {
     AddLog("# %s\n", commandLine);
 
@@ -239,11 +234,11 @@ void EditorConsole::ExecCommand(const char* commandLine)
 
 static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
-    EditorConsole* console = (EditorConsole*)data->UserData;
+    ConsoleWidget* console = (ConsoleWidget*)data->UserData;
     return console->TextEditCallback(data);
 }
 
-int EditorConsole::TextEditCallback(ImGuiInputTextCallbackData* data)
+int ConsoleWidget::TextEditCallback(ImGuiInputTextCallbackData* data)
 {
     // AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
     switch (data->EventFlag)

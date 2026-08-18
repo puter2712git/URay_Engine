@@ -1,6 +1,6 @@
-#include "SceneTree.h"
+#include "SceneTreeWidget.h"
 
-#include "Editor.h"
+#include "Editor/Editor.h"
 
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
@@ -11,12 +11,16 @@
 namespace URay
 {
 
-SceneTree::SceneTree(Editor& editor, Engine& engine)
+SceneTreeWidget::SceneTreeWidget(Editor& editor, Engine& engine)
     : editor(editor), engine(engine)
 {
 }
 
-void SceneTree::Draw() const
+SceneTreeWidget::~SceneTreeWidget()
+{
+}
+
+void SceneTreeWidget::OnDraw()
 {
     ImGui::Begin("Scene Tree");
 
@@ -49,7 +53,7 @@ void SceneTree::Draw() const
     ImGui::End();
 }
 
-void SceneTree::DrawUnit(Unit* unit, Unit* currSelectedUnit) const
+void SceneTreeWidget::DrawUnit(Unit* unit, Unit* currSelectedUnit) const
 {
     if (!unit)
         return;

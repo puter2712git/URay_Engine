@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Editor/Widget/Widget.h"
+
 #include <filesystem>
 #include <vector>
 
@@ -16,14 +18,14 @@ struct FileEntry
     bool isDirectory = false;
 };
 
-class FilesystemWidget
+class FilesystemWidget final : public Widget
 {
 public:
     FilesystemWidget(VirtualFilesystem& filesystem);
     ~FilesystemWidget();
 
-public:
-    void Draw();
+protected:
+    void OnDraw() override;
 
 private:
     void Refresh();

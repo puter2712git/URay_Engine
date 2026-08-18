@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Editor/Widget/Widget.h"
+
 namespace URay
 {
 
@@ -7,13 +9,14 @@ class Engine;
 class Editor;
 class Unit;
 
-class SceneTree
+class SceneTreeWidget final : public Widget
 {
 public:
-    SceneTree(Editor& editor, Engine& engine);
+    SceneTreeWidget(Editor& editor, Engine& engine);
+    ~SceneTreeWidget() override;
 
-public:
-    void Draw() const;
+protected:
+    void OnDraw() override;
 
 private:
     void DrawUnit(Unit* unit, Unit* currSelectedUnit) const;

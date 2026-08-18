@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 namespace URay
 {
 
@@ -13,17 +15,15 @@ class Renderer;
 }
 class Unit;
 
+class Widget;
 class EditorPicker;
 class MainMenuBar;
-class SceneTree;
-class EditorConsole;
-class FilesystemWidget;
 
 class Editor
 {
 public:
     Editor(Engine& engine);
-    ~Editor() = default;
+    ~Editor();
 
 public:
     bool Initialize();
@@ -38,9 +38,6 @@ public:
 
 private:
     void PrepareEditorScene();
-
-    void ShowStatus() const;
-    void ShowInspector() const;
 
     void UpdateCameraMovement(float deltaTime);
     void UpdateCameraRotation(float deltaTime);
@@ -57,10 +54,7 @@ private:
     EditorPicker* picker = nullptr;
     Unit* selectedUnit = nullptr;
 
-    MainMenuBar* mainMenuBar = nullptr;
-    SceneTree* sceneTree = nullptr;
-    EditorConsole* console = nullptr;
-    FilesystemWidget* filesystemWidget = nullptr;
+    std::unique_ptr<Widget> rootWidget = nullptr;
 };
 
 } // namespace URay

@@ -1,10 +1,10 @@
-#include "EditorConsoleLogSink.h"
-#include "EditorConsole.h"
+#include "ConsoleLogSink.h"
+#include "ConsoleWidget.h"
 
 namespace URay
 {
 
-EditorConsoleLogSink::EditorConsoleLogSink(EditorConsole& console)
+EditorConsoleLogSink::EditorConsoleLogSink(ConsoleWidget& console)
     : console(console)
 {
 }

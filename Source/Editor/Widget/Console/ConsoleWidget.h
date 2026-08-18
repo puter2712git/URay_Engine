@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Editor/Widget/Widget.h"
+
 #include <imgui/imgui.h>
 
 #include <cctype>
@@ -9,17 +11,18 @@ namespace URay
 
 class EditorConsoleLogSink;
 
-class EditorConsole
+class ConsoleWidget final : public Widget
 {
 public:
-    EditorConsole();
-    ~EditorConsole();
+    ConsoleWidget();
+    ~ConsoleWidget() override;
+
+protected:
+    void OnDraw() override;
 
 public:
     void ClearLog();
     void AddLog(const char* fmt, ...) IM_FMTARGS(2);
-
-    void Draw(const char* title, bool* pOpen);
 
     void ExecCommand(const char* commandLine);
 
@@ -66,7 +69,7 @@ private:
 private:
     EditorConsoleLogSink* logSink = nullptr;
 
-    char inputBuffer[256];
+    char inputBuffer[256] = {};
     ImVector<char*> items;
     ImVector<const char*> commands;
     ImVector<char*> history;

@@ -1,12 +1,15 @@
 #include "Editor.h"
 
-#include "Editor/Console/EditorConsole.h"
 #include "Editor/EditorPicker.h"
-#include "Editor/Filesystem/FilesystemWidget.h"
 #include "Editor/GizmoController.h"
-#include "Editor/MainMenuBar.h"
 #include "Editor/PropertyDrawer.h"
-#include "Editor/SceneTree.h"
+#include "Editor/Widget/Console/ConsoleWidget.h"
+#include "Editor/Widget/Filesystem/FilesystemWidget.h"
+#include "Editor/Widget/InspectorWidget.h"
+#include "Editor/Widget/MainMenuBarWidget.h"
+#include "Editor/Widget/SceneTreeWidget.h"
+#include "Editor/Widget/StatusWidget.h"
+#include "Editor/Widget/Widget.h"
 
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/ComponentFactory.h"
@@ -31,6 +34,8 @@ Editor::Editor(Engine& engine)
 {
 }
 
+Editor::~Editor() = default;
+
 bool Editor::Initialize()
 {
     RHI::Renderer* renderer = engine.GetRenderer();
@@ -38,13 +43,29 @@ bool Editor::Initialize()
     if (!renderer->InitializeImGui())
         return false;
 
+    rootWidget = std::make_unique<Widget>();
+
+    std::unique_ptr<MainMenuBarWidget> mainMenuBar = std::make_unique<MainMenuBarWidget>(engine);
+    rootWidget->AddChild(std::move(mainMenuBar));
+
+    std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*this, engine);
+    rootWidget->AddChild(std::move(sceneTree));
+
+    std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*this);
+    rootWidget->AddChild(std::move(inspector));
+
+    std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
+    rootWidget->AddChild(std::move(console));
+
+    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(*engine.GetFilesystem());
+    rootWidget->AddChild(std::move(filesystem));
+
+    std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
+    rootWidget->AddChild(std::move(status));
+
     gizmo = new GizmoController(*engine.GetMeshManager(), *engine.GetMaterialManager());
 
     picker = new EditorPicker(engine, gizmo);
-    mainMenuBar = new MainMenuBar();
-    sceneTree = new SceneTree(*this, engine);
-    console = new EditorConsole();
-    filesystemWidget = new FilesystemWidget(*engine.GetFilesystem());
 
     PrepareEditorScene();
 
@@ -53,8 +74,7 @@ bool Editor::Initialize()
 
 void Editor::Finalize()
 {
-    delete console;
-    delete sceneTree;
+    rootWidget.reset();
 
     RHI::Renderer* renderer = engine.GetRenderer();
     if (renderer)
@@ -99,6 +119,8 @@ void Editor::Update()
     UpdateCameraRotation(deltaTime);
 
     gizmo->Update(camera);
+
+    rootWidget->Update();
 }
 
 void Editor::PrepareRender()
@@ -110,26 +132,7 @@ void Editor::PrepareRender()
 
     renderer->BeginImGui();
 
-    mainMenuBar->Draw();
-
-    ShowStatus();
-    ShowInspector();
-
-    if (sceneTree)
-    {
-        sceneTree->Draw();
-    }
-
-    if (console)
-    {
-        bool open = true;
-        console->Draw("Console", &open);
-    }
-
-    if (filesystemWidget)
-    {
-        filesystemWidget->Draw();
-    }
+    rootWidget->Draw();
 }
 
 void Editor::EndRender()
@@ -167,82 +170,6 @@ void Editor::PrepareEditorScene()
     editorScene->AddUnit(gridUnit);
 
     engine.AddScene(editorScene);
-}
-
-void Editor::ShowStatus() const
-{
-    ImGui::Begin("Status");
-
-    ImGui::Text("FPS: %d", gEngine->GetTimer()->GetFPS());
-    ImGui::Text("%.4f ms", gEngine->GetTimer()->GetDeltaTime());
-
-    ImGui::End();
-}
-
-void Editor::ShowInspector() const
-{
-    ImGui::Begin("Inspector");
-
-    if (!selectedUnit)
-    {
-        ImGui::End();
-        return;
-    }
-
-    Class* cls = nullptr;
-    std::vector<Property> properties;
-
-    cls = selectedUnit->GetClass();
-    properties = cls->GetProperties();
-
-    for (Property& prop : properties)
-    {
-        ImGui::PushID(prop.name.c_str());
-
-        PropertyDrawer::Draw(prop, selectedUnit);
-
-        ImGui::PopID();
-    }
-
-    auto components = selectedUnit->GetComponents();
-    for (Component* comp : components)
-    {
-        cls = comp->GetClass();
-        properties = cls->GetProperties();
-
-        ImGui::PushID(comp);
-
-        ImGui::Text("%s", cls->GetName().c_str());
-
-        for (Property& prop : properties)
-        {
-            ImGui::PushID(prop.name.c_str());
-
-            PropertyDrawer::Draw(prop, comp);
-
-            ImGui::PopID();
-        }
-
-        ImGui::PopID();
-    }
-
-    if (ImGui::BeginPopupContextWindow())
-    {
-        auto& components = ComponentFactory::GetRegisteredComponents();
-        for (auto [name, constructor] : components)
-        {
-            std::string menuName = "Add " + name;
-            if (ImGui::MenuItem(menuName.c_str()))
-            {
-                Component* newComp = constructor();
-                selectedUnit->AddComponent(newComp);
-            }
-        }
-
-        ImGui::EndPopup();
-    }
-
-    ImGui::End();
 }
 
 void Editor::UpdateCameraMovement(float deltaTime)
