@@ -87,7 +87,7 @@ fs::path VirtualFilesystem::ResolveToPhysicalPath(const VirtualPath& virtualPath
 
         fs::path rootPath = it->second;
 
-        fs::path resolvedPath = rootPath / relativePath;
+        fs::path resolvedPath = rootPath / fs::u8path(relativePath);
         return resolvedPath;
     }
 
