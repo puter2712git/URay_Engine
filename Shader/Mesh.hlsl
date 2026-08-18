@@ -1,21 +1,29 @@
 #include "Common.hlsli"
 #include "VertexTypes.hlsli"
 
-VertexPCOut VSMain(VertexPNTIn input)
-{
-    VertexPCOut output;
+[[vk::binding(0, 1)]] Texture2D<float4> diffuseColorTexture;
+[[vk::binding(1, 1)]] SamplerState diffuseColorSampler;
 
-    output.outPosition = mul(frame.proj, mul(frame.view, mul(obj.world, float4(input.inPosition, 1.0))));
-    output.fragColor = float4(1.0, 1.0, 1.0, 1.0);
+VertexPNTOut VSMain(VertexPNTIn input)
+{
+    VertexPNTOut output;
+    
+    float4 worldPosition = mul(obj.world, float4(input.inPosition, 1.0));
+
+    output.outPosition = mul(frame.proj, mul(frame.view, worldPosition));
+    output.outUV = input.inUV;
+    output.outNormal = normalize(mul((float3x3) obj.world, input.inNormal));
 
     return output;
 }
 
-FragOut PSMain(VertexPCOut input)
+FragOut PSMain(VertexPNTOut input)
 {
     FragOut output;
 
-    output.outColor = input.fragColor * obj.colorTint;
+    float4 baseColor = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV);
+    
+    output.outColor = baseColor * obj.colorTint;
 
     return output;
 }

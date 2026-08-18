@@ -10,7 +10,7 @@ struct VertexPCIn
 struct VertexPCOut
 {
     float4 outPosition : SV_Position;
-    [[vk::location(1)]] float4 fragColor : TEXCOORD1;  
+    [[vk::location(1)]] float4 fragColor : TEXCOORD1;
 };
 
 struct FragOut
@@ -42,7 +42,9 @@ struct VertexPNTIn
 struct VertexPNTOut
 {
     float4 outPosition : SV_Position;
+    
     [[vk::location(0)]] float2 outUV : TEXCOORD0;
+    [[vk::location(1)]] float3 outNormal : TEXCOORD1;
 };
 
 #endif
