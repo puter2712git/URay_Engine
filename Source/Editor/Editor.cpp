@@ -2,7 +2,6 @@
 
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
-#include "Editor/PropertyDrawer.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/InspectorWidget.h"
@@ -13,7 +12,6 @@
 #include "Editor/Widget/Widget.h"
 
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/GridComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
