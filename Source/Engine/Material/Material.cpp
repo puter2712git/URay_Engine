@@ -33,7 +33,7 @@ Material::~Material()
     descriptorSets.clear();
 }
 
-bool Material::Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager)
+bool Material::Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite)
 {
     if (!renderDevice || !resourceManager || !shader)
         return false;
@@ -57,6 +57,8 @@ bool Material::Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManag
 
         descriptorSets.push_back(set);
     }
+
+    SetTexture(texture ? texture : defaultWhite);
 
     return true;
 }

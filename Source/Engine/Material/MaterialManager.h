@@ -7,15 +7,21 @@ namespace URay
 {
 
 class Material;
+class Texture;
 
-namespace RHI { class Shader; class RenderDevice; class GPUResourceManager; }
+namespace RHI
+{
+class Shader;
+class RenderDevice;
+class GPUResourceManager;
+} // namespace RHI
 
 class VirtualFilesystem;
 
 class MaterialManager
 {
 public:
-    MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager);
+    MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite);
     ~MaterialManager();
 
 public:
@@ -28,6 +34,8 @@ private:
     RHI::GPUResourceManager* resourceManager = nullptr;
 
     std::unordered_map<std::string, Material*> materials;
+
+    Texture* defaultWhite = nullptr;
 };
 
 } // namespace URay

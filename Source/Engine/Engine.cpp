@@ -61,7 +61,12 @@ bool Engine::Initialize(const std::string& projectPath)
 
     shaderManager = renderer->GetShaderManager();
 
-    materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager());
+    textureManager = new TextureManager(*filesystem);
+    textureManager->LoadTexture("Test", "RawAsset://Texture/texture.jpg");
+    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
+    Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
+
+    materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager(), defaultWhite);
     materialManager->GetOrCreate("Mesh", shaderManager->GetOrCreate("Mesh"));
     materialManager->GetOrCreate("Sprite", shaderManager->GetOrCreate("Sprite"));
 
@@ -70,11 +75,6 @@ bool Engine::Initialize(const std::string& projectPath)
 
     objImporter = new ObjImporter(*filesystem);
     objImporter->Import("RawAsset://Mesh/untitled.obj");
-
-    textureManager = new TextureManager(*filesystem);
-    textureManager->LoadTexture("Test", "RawAsset://Texture/texture.jpg");
-    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
-    textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
 
     fontManager = new FontManager();
     fontManager->LoadFont("Default", fontTexture);

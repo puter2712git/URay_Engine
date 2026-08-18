@@ -24,7 +24,7 @@ public:
     ~Material();
 
 public:
-    bool Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager);
+    bool Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite);
 
     RHI::Shader* GetShader() const { return shader; }
     void SetShader(RHI::Shader* inShader) { shader = inShader; }

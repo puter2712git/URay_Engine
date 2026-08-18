@@ -8,8 +8,8 @@
 namespace URay
 {
 
-MaterialManager::MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager)
-    : renderDevice(renderDevice), resourceManager(resourceManager)
+MaterialManager::MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite)
+    : renderDevice(renderDevice), resourceManager(resourceManager), defaultWhite(defaultWhite)
 {
 }
 
@@ -34,7 +34,7 @@ Material* MaterialManager::GetOrCreate(const std::string& key, RHI::Shader* shad
         return it->second;
 
     Material* material = new Material(shader);
-    if (!material->Initialize(renderDevice, resourceManager))
+    if (!material->Initialize(renderDevice, resourceManager, defaultWhite))
     {
         delete material;
         return nullptr;
