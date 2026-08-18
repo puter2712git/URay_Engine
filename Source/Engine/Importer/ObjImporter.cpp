@@ -28,42 +28,13 @@ ObjImporter::ImportResult ObjImporter::Import(const VirtualPath& filePath)
 
     Reset();
 
-    std::string fileText = filesystem.ReadText(filePath);
-    std::istringstream fileStream(fileText);
+    ParseObj(filePath);
 
-    std::string line;
-    while (std::getline(fileStream, line))
+    VirtualPath mtlPath = filePath.GetDirectory().Join(mtllib);
+    ParseMtl(mtlPath);
+
+    for (const MtlInfo& mtlInfo : mtlInfos)
     {
-        if (line.empty() || line[0] == '#')
-            continue;
-
-        std::istringstream ss(line);
-        std::string type;
-        ss >> type;
-
-        if (type == "v")
-        {
-            Vector3 p;
-            ss >> p.x >> p.y >> p.z;
-            positions.push_back(p);
-        }
-        else if (type == "vt")
-        {
-            Vector2 uv;
-            ss >> uv.x >> uv.y;
-            uvs.push_back(uv);
-        }
-        else if (type == "vn")
-        {
-            Vector3 n;
-            ss >> n.x >> n.y >> n.z;
-            normals.push_back(n);
-        }
-        else if (type == "f")
-        {
-            Face face = ParseFace(line);
-            faces.push_back(face);
-        }
     }
 
     std::vector<VertexPNT> vertices;
@@ -108,11 +79,9 @@ ObjImporter::ImportResult ObjImporter::Import(const VirtualPath& filePath)
             indices.push_back(AddVertex(face.objIndice[i + 1]));
         }
     }
-
     Object* newMesh = new Mesh(filePath.GetStem(), vertices, indices);
 
     ImportResult result = {};
-    result.objects.push_back(Value<Object*>(newMesh));
 
     return result;
 }
@@ -125,6 +94,119 @@ void ObjImporter::Reset()
     faces.clear();
 
     mtllib.clear();
+}
+
+void ObjImporter::ParseObj(const VirtualPath& objPath)
+{
+    std::string fileText = filesystem.ReadText(objPath);
+    std::istringstream fileStream(fileText);
+
+    std::string line;
+    while (std::getline(fileStream, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        std::istringstream ss(line);
+        std::string type;
+        ss >> type;
+
+        if (type == "v")
+        {
+            Vector3 p;
+            ss >> p.x >> p.y >> p.z;
+            positions.push_back(p);
+        }
+        else if (type == "vt")
+        {
+            Vector2 uv;
+            ss >> uv.x >> uv.y;
+            uvs.push_back(uv);
+        }
+        else if (type == "vn")
+        {
+            Vector3 n;
+            ss >> n.x >> n.y >> n.z;
+            normals.push_back(n);
+        }
+        else if (type == "f")
+        {
+            Face face = ParseFace(line);
+            faces.push_back(face);
+        }
+        else if (type == "mtllib")
+        {
+            ss >> mtllib;
+        }
+    }
+}
+
+void ObjImporter::ParseMtl(const VirtualPath& mtlPath)
+{
+    std::string fileText = filesystem.ReadText(mtlPath);
+    std::istringstream fileStream(fileText);
+
+    bool isFirstMtl = true;
+    MtlInfo mtlInfo = {};
+
+    std::string line;
+    while (std::getline(fileStream, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
+
+        std::istringstream ss(line);
+        std::string type;
+        ss >> type;
+
+        if (type == "newmtl")
+        {
+            if (!isFirstMtl)
+            {
+                mtlInfos.push_back(mtlInfo);
+            }
+
+            ss >> mtlInfo.mtlName;
+            isFirstMtl = false;
+        }
+        else if (type == "Ns")
+        {
+            ss >> mtlInfo.specularExponent;
+        }
+        else if (type == "Ka")
+        {
+            ss >> mtlInfo.ambient.x >> mtlInfo.ambient.y >> mtlInfo.ambient.z;
+        }
+        else if (type == "Ks")
+        {
+            ss >> mtlInfo.specular.x >> mtlInfo.specular.y >> mtlInfo.specular.z;
+        }
+        else if (type == "Ke")
+        {
+            ss >> mtlInfo.emissive.x >> mtlInfo.emissive.y >> mtlInfo.emissive.z;
+        }
+        else if (type == "Ni")
+        {
+            ss >> mtlInfo.refractiveIndex;
+        }
+        else if (type == "map_Kd")
+        {
+            std::string path;
+            ss >> path;
+            // mtlInfo.diffuseTexturePath = mtlPath.GetDirectory().Join(path);
+        }
+        else if (type == "map_d")
+        {
+            std::string path;
+            ss >> path;
+            // mtlInfo.alphaTexturePath = mtlPath.GetDirectory().Join(path);
+        }
+    }
+
+    if (!isFirstMtl)
+    {
+        mtlInfos.push_back(mtlInfo);
+    }
 }
 
 ObjImporter::Face ObjImporter::ParseFace(const std::string& line)

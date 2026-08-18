@@ -11,6 +11,7 @@ namespace URay
 
 class Mesh;
 class Material;
+class MaterialManager;
 class Texture;
 
 class VirtualFilesystem;
@@ -58,8 +59,8 @@ private:
         float refractiveIndex = 0.0f;
         int illum = 1;
 
-        std::string diffuseTexturePath;
-        std::string alphaTexturePath;
+        // VirtualPath diffuseTexturePath = {};
+        // VirtualPath alphaTexturePath = {};
     };
 
     struct ImportResult
@@ -75,7 +76,10 @@ public:
 private:
     void Reset();
 
+    void ParseObj(const VirtualPath& objPath);
     Face ParseFace(const std::string& line);
+
+    void ParseMtl(const VirtualPath& mtlPath);
 
     ObjIndex ParseObjIndex(const std::string& token);
 
@@ -88,6 +92,7 @@ private:
     std::vector<Face> faces;
 
     std::string mtllib;
+    std::vector<MtlInfo> mtlInfos;
 };
 
 } // namespace URay
