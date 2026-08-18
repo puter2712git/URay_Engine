@@ -74,6 +74,7 @@ bool Engine::Initialize(const std::string& projectPath)
     textureManager = new TextureManager(*filesystem);
     textureManager->LoadTexture("Test", "RawAsset://Texture/texture.jpg");
     Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
+    textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
 
     fontManager = new FontManager();
     fontManager->LoadFont("Default", fontTexture);
