@@ -19,7 +19,7 @@ ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
 {
 }
 
-ImportResult ObjImporter::Import(const VirtualPath& filePath)
+ObjImporter::ImportResult ObjImporter::Import(const VirtualPath& filePath)
 {
     if (!filesystem.Exists(filePath))
     {
@@ -123,6 +123,8 @@ void ObjImporter::Reset()
     uvs.clear();
     normals.clear();
     faces.clear();
+
+    mtllib.clear();
 }
 
 ObjImporter::Face ObjImporter::ParseFace(const std::string& line)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Engine/Importer/Importer.h"
-
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 
@@ -12,11 +10,13 @@ namespace URay
 {
 
 class Mesh;
+class Material;
+class Texture;
 
 class VirtualFilesystem;
 class VirtualPath;
 
-class ObjImporter : public Importer
+class ObjImporter
 {
 public:
     ObjImporter(VirtualFilesystem& filesystem);
@@ -47,8 +47,30 @@ private:
         std::vector<ObjIndex> objIndice;
     };
 
+    struct MtlInfo
+    {
+        std::string mtlName;
+
+        float specularExponent = 0.0f;
+        Vector3 ambient = Vector3::One;
+        Vector3 specular = Vector3::Zero;
+        Vector3 emissive = Vector3::Zero;
+        float refractiveIndex = 0.0f;
+        int illum = 1;
+
+        std::string diffuseTexturePath;
+        std::string alphaTexturePath;
+    };
+
+    struct ImportResult
+    {
+        Mesh* mesh = nullptr;
+        std::vector<Material*> materials;
+        std::vector<Texture*> textures;
+    };
+
 public:
-    ImportResult Import(const VirtualPath& filePath) override;
+    ImportResult Import(const VirtualPath& filePath);
 
 private:
     void Reset();
@@ -64,6 +86,8 @@ private:
     std::vector<Vector2> uvs;
     std::vector<Vector3> normals;
     std::vector<Face> faces;
+
+    std::string mtllib;
 };
 
 } // namespace URay
