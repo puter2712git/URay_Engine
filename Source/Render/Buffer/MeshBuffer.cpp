@@ -1,17 +1,17 @@
-#include "Mesh.h"
+#include "MeshBuffer.h"
 
-#include "Render/IndexBuffer.h"
-#include "Render/VertexBuffer.h"
+#include "Render/Buffer/IndexBuffer.h"
+#include "Render/Buffer/VertexBuffer.h"
 
 namespace URay::RHI
 {
 
-Mesh::Mesh(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
+MeshBuffer::MeshBuffer(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
     : device(device), vertexBuffer(inVertexBuffer), indexBuffer(inIndexBuffer)
 {
 }
 
-Mesh::~Mesh()
+MeshBuffer::~MeshBuffer()
 {
     if (vertexBuffer)
     {

@@ -20,7 +20,7 @@ namespace URay::RHI
 class Renderer;
 class VertexBuffer;
 class IndexBuffer;
-class Mesh;
+class MeshBuffer;
 class ConstantBuffer;
 class Texture;
 class TextureView;
@@ -46,7 +46,7 @@ public:
 public:
     VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
     IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
-    Mesh* CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
+    MeshBuffer* CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
     Texture* CreateTexture(const TextureDesc& desc);
     bool UploadTextureData(Texture* texture, std::span<const uint8_t> pixelData);

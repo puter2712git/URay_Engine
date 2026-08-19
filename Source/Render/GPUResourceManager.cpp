@@ -1,15 +1,15 @@
 #include "GPUResourceManager.h"
 
 #include "Render/Descriptor/DescriptorSetLayout.h"
-#include "Render/IndexBuffer.h"
-#include "Render/Mesh.h"
+#include "Render/Buffer/IndexBuffer.h"
+#include "Render/Buffer/MeshBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
 #include "Render/PipelineState/PipelineState.h"
 #include "Render/PipelineState/PipelineStateDesc.h"
 #include "Render/RenderDevice.h"
 #include "Render/Texture/Texture.h"
 #include "Render/Texture/TextureView.h"
-#include "Render/VertexBuffer.h"
+#include "Render/Buffer/VertexBuffer.h"
 
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Texture/Texture.h"
@@ -32,13 +32,13 @@ GPUResourceManager::~GPUResourceManager()
     DestroyTextureSamplers();
     DestroyTextureViews();
     DestroyTextures();
-    DestroyMeshes();
+    DestroyMeshBuffers();
 }
 
-Mesh* GPUResourceManager::GetOrCreateMesh(::URay::Mesh* asset)
+MeshBuffer* GPUResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
 {
-    auto it = meshes.find(asset);
-    if (it != meshes.end())
+    auto it = meshBuffers.find(asset);
+    if (it != meshBuffers.end())
         return it->second;
 
     const std::vector<VertexPNT>& vertices = asset->GetVertices();
@@ -54,30 +54,30 @@ Mesh* GPUResourceManager::GetOrCreateMesh(::URay::Mesh* asset)
         return nullptr;
     }
 
-    Mesh* newMesh = renderDevice->CreateMesh(vertexBuffer, indexBuffer);
-    if (!newMesh)
+    MeshBuffer* newMeshBuffer = renderDevice->CreateMeshBuffer(vertexBuffer, indexBuffer);
+    if (!newMeshBuffer)
     {
         delete vertexBuffer;
         delete indexBuffer;
         return nullptr;
     }
 
-    meshes.insert({ asset, newMesh });
-    return newMesh;
+    meshBuffers.insert({ asset, newMeshBuffer });
+    return newMeshBuffer;
 }
 
-void GPUResourceManager::DestroyMeshes()
+void GPUResourceManager::DestroyMeshBuffers()
 {
-    for (auto& [asset, mesh] : meshes)
+    for (auto& [asset, meshBuffer] : meshBuffers)
     {
-        if (mesh)
+        if (meshBuffer)
         {
-            delete mesh;
-            mesh = nullptr;
+            delete meshBuffer;
+            meshBuffer = nullptr;
         }
     }
 
-    meshes.clear();
+    meshBuffers.clear();
 }
 
 Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)

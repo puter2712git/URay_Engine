@@ -1,13 +1,13 @@
 #include "RenderDevice.h"
 
-#include "Render/ConstantBuffer.h"
+#include "Render/Buffer/ConstantBuffer.h"
 #include "Render/Descriptor/DescriptorSet.h"
 #include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/Descriptor/DescriptorSetLayoutBuilder.h"
 #include "Render/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/GPUResourceManager.h"
-#include "Render/IndexBuffer.h"
-#include "Render/Mesh.h"
+#include "Render/Buffer/IndexBuffer.h"
+#include "Render/Buffer/MeshBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
 #include "Render/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/PipelineState/PipelineState.h"
@@ -19,7 +19,7 @@
 #include "Render/Texture/TextureDesc.h"
 #include "Render/Texture/TextureSampler.h"
 #include "Render/Texture/TextureView.h"
-#include "Render/VertexBuffer.h"
+#include "Render/Buffer/VertexBuffer.h"
 
 #include <cassert>
 #include <map>
@@ -136,10 +136,9 @@ IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint32_t>& indice
     return indexBuffer;
 }
 
-Mesh* RenderDevice::CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
+MeshBuffer* RenderDevice::CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
 {
-    Mesh* mesh = new Mesh(device, inVertexBuffer, inIndexBuffer);
-    return mesh;
+    return new MeshBuffer(device, inVertexBuffer, inIndexBuffer);
 }
 
 Texture* RenderDevice::CreateTexture(const TextureDesc& desc)

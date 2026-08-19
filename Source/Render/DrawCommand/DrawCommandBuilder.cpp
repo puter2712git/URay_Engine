@@ -1,14 +1,14 @@
 #include "DrawCommandBuilder.h"
 
 #include "Render/GPUResourceManager.h"
-#include "Render/IndexBuffer.h"
-#include "Render/Mesh.h"
+#include "Render/Buffer/IndexBuffer.h"
+#include "Render/Buffer/MeshBuffer.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
-#include "Render/VertexBuffer.h"
+#include "Render/Buffer/VertexBuffer.h"
 
 #include "Engine/Material/Material.h"
 #include "Engine/Mesh/Mesh.h"
@@ -77,14 +77,14 @@ void DrawCommandBuilder::FlushTexts()
 void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
 {
     GPUResourceManager* resourceManager = renderer.GetResourceManager();
-    Mesh* mesh = resourceManager->GetOrCreateMesh(context.mesh);
+    MeshBuffer* meshBuffer = resourceManager->GetOrCreateMeshBuffer(context.mesh);
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
-    cmd.vertexBuffer = mesh->GetVertexBuffer()->GetBufferRef();
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer()->GetBufferRef();
     cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
-    cmd.indexBuffer = mesh->GetIndexBuffer()->GetBufferRef();
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer()->GetBufferRef();
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
 
@@ -131,14 +131,14 @@ void DrawCommandBuilder::BuildFromText(const TextCommandContext& context)
 void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
 {
     GPUResourceManager* resourceManager = renderer.GetResourceManager();
-    Mesh* mesh = resourceManager->GetOrCreateMesh(context.mesh);
+    MeshBuffer* meshBuffer = resourceManager->GetOrCreateMeshBuffer(context.mesh);
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
-    cmd.vertexBuffer = mesh->GetVertexBuffer()->GetBufferRef();
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer()->GetBufferRef();
     cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
-    cmd.indexBuffer = mesh->GetIndexBuffer()->GetBufferRef();
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer()->GetBufferRef();
     cmd.indexCount = static_cast<uint32_t>(context.mesh->GetIndices().size());
 
     DepthStencilState depthStencil = {};

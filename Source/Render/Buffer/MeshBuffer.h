@@ -8,11 +8,11 @@ namespace URay::RHI
 class VertexBuffer;
 class IndexBuffer;
 
-class Mesh
+class MeshBuffer
 {
 public:
-    Mesh(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
-    ~Mesh();
+    MeshBuffer(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
+    ~MeshBuffer();
 
 public:
     VertexBuffer* GetVertexBuffer() const { return vertexBuffer; }

@@ -1,11 +1,11 @@
 #include "Renderer.h"
 
 #include "Engine/Material/MaterialManager.h"
-#include "Render/ConstantBuffer.h"
+#include "Render/Buffer/ConstantBuffer.h"
 #include "Render/Descriptor/DescriptorSet.h"
 #include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/GPUResourceManager.h"
-#include "Render/IndexBuffer.h"
+#include "Render/Buffer/IndexBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
 #include "Render/PipelineState/PipelineState.h"
 #include "Render/RenderDevice.h"
