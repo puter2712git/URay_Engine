@@ -23,8 +23,9 @@ ObjImporter::ObjImporter(VirtualFilesystem& filesystem,
                          MeshManager& meshManager,
                          TextureManager& textureManager,
                          MaterialManager& materialManager,
-                         RHI::Shader* meshShader) : filesystem(filesystem), meshManager(meshManager),
-                                                    textureManager(textureManager), materialManager(materialManager), meshShader(meshShader)
+                         RHI::Shader* meshShader)
+    : filesystem(filesystem), meshManager(meshManager),
+      textureManager(textureManager), materialManager(materialManager), meshShader(meshShader)
 {
 }
 
@@ -58,6 +59,7 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
         if (objIndex.uvIndex >= 0)
         {
             vertex.uv = uvs[objIndex.uvIndex];
+            vertex.uv.y = 1.0f - vertex.uv.y;
         }
 
         if (objIndex.normalIndex >= 0)
