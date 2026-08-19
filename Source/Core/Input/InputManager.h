@@ -10,31 +10,13 @@ class InputManager
 public:
     void Update();
 
-    bool GetKey(int key) const
-    {
-        return currKeys[key];
-    }
-    bool GetKeyDown(int key) const
-    {
-        return currKeys[key] && !prevKeys[key];
-    }
-    bool GetKeyUp(int key) const
-    {
-        return !currKeys[key] && prevKeys[key];
-    }
+    bool GetKey(int key) const { return currKeys[key]; }
+    bool GetKeyDown(int key) const { return currKeys[key] && !prevKeys[key]; }
+    bool GetKeyUp(int key) const { return !currKeys[key] && prevKeys[key]; }
 
-    bool GetMouse(int mouse) const
-    {
-        return currMouse[mouse];
-    }
-    bool GetMouseDown(int mouse) const
-    {
-        return currMouse[mouse] && !prevMouse[mouse];
-    }
-    bool GetMouseUp(int mouse) const
-    {
-        return !currMouse[mouse] && prevMouse[mouse];
-    }
+    bool GetMouse(int mouse) const { return currMouse[mouse]; }
+    bool GetMouseDown(int mouse) const { return currMouse[mouse] && !prevMouse[mouse]; }
+    bool GetMouseUp(int mouse) const { return !currMouse[mouse] && prevMouse[mouse]; }
 
 public:
     bool currKeys[GLFW_KEY_LAST + 1] = {};
