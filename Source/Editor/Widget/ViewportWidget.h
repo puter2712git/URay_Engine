@@ -5,8 +5,16 @@
 namespace URay
 {
 
+namespace RHI
+{
+class Renderer;
+}
+
 class ViewportWidget : public Widget
 {
+public:
+    ViewportWidget(RHI::Renderer& renderer);
+
 public:
     EventReply OnPointerEnter() override;
     EventReply OnPointerLeave() override;
@@ -19,6 +27,9 @@ public:
 
 protected:
     void OnDraw() override;
+
+private:
+    RHI::Renderer& renderer;
 };
 
 } // namespace URay

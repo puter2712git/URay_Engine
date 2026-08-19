@@ -6,10 +6,14 @@
 
 #include <vulkan/vulkan.h>
 
+#include <memory>
 #include <optional>
 #include <vector>
 
-namespace URay { class Window; }
+namespace URay
+{
+class Window;
+}
 
 namespace URay::RHI
 {
@@ -34,12 +38,17 @@ class IndexBuffer;
 class PipelineLayout;
 class DescriptorSetLayout;
 class DescriptorSet;
+class RenderTarget;
 
 class GPUResourceManager;
 class ShaderManager;
 
 class Renderer
 {
+public:
+    Renderer();
+    ~Renderer();
+
 public:
     bool Initialize(::URay::Window* wnd);
     void Finalize();
@@ -49,6 +58,12 @@ public:
 
     bool BeginFrame();
     void EndFrame();
+
+    void BeginScenePass();
+    void EndScenePass();
+
+    void BeginSwapChainPass();
+    void EndSwapChainPass();
 
     void BeginImGui();
     void EndImGui();
@@ -69,7 +84,10 @@ public:
 
     VkExtent2D GetSwapChainExtent() const { return swapChainExtent; }
 
-    VkRenderPass GetRenderPass() const { return renderPass; }
+    VkRenderPass GetSceneRenderPass() const { return sceneRenderPass; }
+    VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
+
+    VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
 
 private:
     struct QueueFamilyIndices
@@ -104,8 +122,17 @@ private:
     bool CreateSurface();
     void DestroySurface();
 
+    bool CreateSceneRenderPass();
+    void DestroySceneRenderPass();
+
     bool CreateRenderPass();
     void DestroyRenderPass();
+
+    bool CreateSceneRenderTarget();
+    void DestroySceneRenderTarget();
+
+    bool CreateSceneFramebuffer();
+    void DestroySceneFramebuffer();
 
     bool CreateSwapChain();
     void DestroySwapChain();
@@ -192,7 +219,12 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     uint32_t imageIndex = 0;
 
-    VkRenderPass renderPass = VK_NULL_HANDLE;
+    std::unique_ptr<RenderTarget> sceneRenderTarget = nullptr;
+    VkFramebuffer sceneFramebuffer = nullptr;
+    VkDescriptorSet sceneImGuiTexture = VK_NULL_HANDLE;
+
+    VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
+    VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
     std::vector<VkCommandBuffer> commandBuffers;

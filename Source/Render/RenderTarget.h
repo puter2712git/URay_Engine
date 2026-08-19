@@ -1,6 +1,5 @@
 #pragma once
 
-#include <imgui/imgui.h>
 #include <vulkan/vulkan.h>
 
 #include <memory>
@@ -8,28 +7,33 @@
 namespace URay::RHI
 {
 
+class RenderDevice;
 class Texture;
 class TextureView;
 
 class RenderTarget
 {
 public:
+    RenderTarget(RenderDevice& renderDevice, VkExtent2D extent);
+    ~RenderTarget();
+
+public:
+    bool Resize(VkExtent2D newExtent);
+
     TextureView* GetColorView() const { return colorTextureView.get(); }
-    VkFramebuffer GetFramebuffer() const { return framebuffer; }
+    TextureView* GetDepthView() const { return depthTextureView.get(); }
     VkExtent2D GetExtent() const { return extent; }
 
 private:
+    RenderDevice& renderDevice;
+
     std::unique_ptr<Texture> colorTexture = nullptr;
     std::unique_ptr<TextureView> colorTextureView = nullptr;
 
     std::unique_ptr<Texture> depthTexture = nullptr;
     std::unique_ptr<TextureView> depthTextureView = nullptr;
 
-    VkFramebuffer framebuffer = VK_NULL_HANDLE;
-
     VkExtent2D extent = {};
-
-    ImTextureID imguiTexture = nullptr;
 };
 
 } // namespace URay::RHI

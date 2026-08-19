@@ -1,11 +1,18 @@
 #include "ViewportWidget.h"
 
+#include "Render/Renderer.h"
+
 #include "Core/Log/Log.h"
 
 #include <imgui/imgui.h>
 
 namespace URay
 {
+
+ViewportWidget::ViewportWidget(RHI::Renderer& renderer)
+    : renderer(renderer)
+{
+}
 
 EventReply ViewportWidget::OnPointerEnter()
 {
@@ -65,6 +72,16 @@ void ViewportWidget::OnDraw()
         ImGuiWindowFlags_NoResize;
 
     ImGui::Begin("Viewport", nullptr, flags);
+
+    const VkDescriptorSet descriptorSet = renderer.GetSceneImGuiTexture();
+
+    if (descriptorSet != VK_NULL_HANDLE)
+    {
+        const ImTextureID textureId = static_cast<ImTextureID>(reinterpret_cast<uintptr_t>(descriptorSet));
+        const ImVec2 imageSize = ImGui::GetContentRegionAvail();
+
+        ImGui::Image(ImTextureRef(textureId), imageSize);
+    }
 
     ImGui::End();
 }

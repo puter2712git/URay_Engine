@@ -32,7 +32,6 @@ public:
 
     void Update();
     void PrepareRender();
-    void EndRender();
 
     Unit* GetSelectedUnit() const { return selectedUnit; }
     void SelectUnit(Unit* unit);

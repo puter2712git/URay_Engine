@@ -1,13 +1,14 @@
 #include "RenderDevice.h"
 
 #include "Render/Buffer/ConstantBuffer.h"
+#include "Render/Buffer/IndexBuffer.h"
+#include "Render/Buffer/MeshBuffer.h"
+#include "Render/Buffer/VertexBuffer.h"
 #include "Render/Descriptor/DescriptorSet.h"
 #include "Render/Descriptor/DescriptorSetLayout.h"
 #include "Render/Descriptor/DescriptorSetLayoutBuilder.h"
 #include "Render/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/GPUResourceManager.h"
-#include "Render/Buffer/IndexBuffer.h"
-#include "Render/Buffer/MeshBuffer.h"
 #include "Render/PipelineLayout/PipelineLayout.h"
 #include "Render/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/PipelineState/PipelineState.h"
@@ -19,7 +20,6 @@
 #include "Render/Texture/TextureDesc.h"
 #include "Render/Texture/TextureSampler.h"
 #include "Render/Texture/TextureView.h"
-#include "Render/Buffer/VertexBuffer.h"
 
 #include <cassert>
 #include <map>
@@ -514,7 +514,7 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
     pipelineInfo.layout = pipelineLayout->GetHandle();
-    pipelineInfo.renderPass = renderer->GetRenderPass();
+    pipelineInfo.renderPass = renderer->GetSceneRenderPass();
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;

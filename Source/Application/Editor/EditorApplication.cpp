@@ -36,7 +36,6 @@ void EditorApplication::Run()
         editor->PrepareRender();
 
         engine->Render();
-        editor->EndRender();
         engine->EndRender();
     }
 }

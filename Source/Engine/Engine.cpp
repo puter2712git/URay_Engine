@@ -150,11 +150,16 @@ void Engine::PrepareRender()
 
 void Engine::Render()
 {
+    renderer->BeginScenePass();
     renderPipeline->Execute(scenes);
+    renderer->EndScenePass();
 }
 
 void Engine::EndRender()
 {
+    renderer->BeginSwapChainPass();
+    renderer->EndImGui();
+    renderer->EndSwapChainPass();
     renderer->EndFrame();
 }
 

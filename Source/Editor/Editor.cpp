@@ -50,7 +50,7 @@ bool Editor::Initialize()
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(*engine.GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>();
+    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(*renderer);
 
     std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
     std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
@@ -144,12 +144,6 @@ void Editor::PrepareRender()
     });
 
     rootWidget->Draw();
-}
-
-void Editor::EndRender()
-{
-    RHI::Renderer* renderer = engine.GetRenderer();
-    renderer->EndImGui();
 }
 
 void Editor::SelectUnit(Unit* unit)
