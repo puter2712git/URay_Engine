@@ -5,6 +5,7 @@
 #include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>
 
+#include <span>
 #include <string>
 #include <vector>
 
@@ -28,6 +29,7 @@ class DescriptorSet;
 class PipelineLayout;
 class PipelineState;
 
+struct TextureDesc;
 struct TextureSamplerDesc;
 struct DescriptorSetLayoutDesc;
 struct PipelineLayoutDesc;
@@ -46,7 +48,9 @@ public:
     IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
     Mesh* CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
-    Texture* CreateTexture(const ::URay::Texture* textureAsset);
+    Texture* CreateTexture(const TextureDesc& desc);
+    bool UploadTextureData(Texture* texture, std::span<const uint8_t> pixelData);
+
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 

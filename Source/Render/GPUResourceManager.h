@@ -10,7 +10,11 @@
 #include <string>
 #include <unordered_map>
 
-namespace URay { class Mesh; class Texture; }
+namespace URay
+{
+class Mesh;
+class Texture;
+} // namespace URay
 
 namespace URay::RHI
 {
@@ -36,7 +40,7 @@ public:
     Mesh* GetOrCreateMesh(::URay::Mesh* asset);
     void DestroyMeshes();
 
-    Texture* GetOrCreateTexture(::URay::Texture* textureAsset);
+    Texture* GetOrCreateTexture(::URay::Texture* texture);
     void DestroyTextures();
 
     TextureView* GetOrCreateTextureView(Texture* texture);

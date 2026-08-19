@@ -12,6 +12,7 @@
 #include "Render/VertexBuffer.h"
 
 #include "Engine/Mesh/Mesh.h"
+#include "Engine/Texture/Texture.h"
 
 #include <vulkan/vulkan.h>
 
@@ -79,18 +80,33 @@ void GPUResourceManager::DestroyMeshes()
     meshes.clear();
 }
 
-Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* textureAsset)
+Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
 {
-    auto it = textures.find(textureAsset);
+    auto it = textures.find(texture);
     if (it != textures.end())
         return it->second;
 
-    Texture* texture = renderDevice->CreateTexture(textureAsset);
-    if (!texture)
+    const TextureDesc textureDesc = {
+        .width = static_cast<uint32_t>(texture->GetWidth()),
+        .height = static_cast<uint32_t>(texture->GetHeight()),
+        .format = Format::RGBA8_sRGB,
+        .usage = TextureUsage::TransferDst | TextureUsage::Sampled,
+    };
+
+    Texture* newTexture = renderDevice->CreateTexture(textureDesc);
+    if (!newTexture)
         return nullptr;
 
-    textures.insert({ textureAsset, texture });
-    return texture;
+    std::span<const uint8_t> pixelData = texture->GetPixels();
+    if (!renderDevice->UploadTextureData(newTexture, pixelData))
+    {
+        delete newTexture;
+        newTexture = nullptr;
+        return nullptr;
+    }
+
+    textures.insert({ texture, newTexture });
+    return newTexture;
 }
 
 void GPUResourceManager::DestroyTextures()

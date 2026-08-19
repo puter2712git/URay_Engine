@@ -16,13 +16,12 @@
 #include "Renderer.h"
 #include "Shader/Shader.h"
 #include "Texture/Texture.h"
+#include "Texture/TextureDesc.h"
 #include "Texture/TextureSampler.h"
 #include "Texture/TextureView.h"
 #include "VertexBuffer.h"
 
 #include "Engine/Texture/Texture.h"
-
-#include <stb/stb_image.h>
 
 #include <cassert>
 #include <map>
@@ -30,6 +29,13 @@
 
 namespace URay::RHI
 {
+
+namespace
+{
+VkFormat ToVkFormat(Format format);
+VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage);
+VkImageAspectFlags ToVkImageAspectFlags(Format format);
+} // namespace
 
 RenderDevice::RenderDevice(Renderer* renderer,
                            VkPhysicalDevice physicalDevice, VkDevice device,
@@ -138,57 +144,92 @@ Mesh* RenderDevice::CreateMesh(VertexBuffer* inVertexBuffer, IndexBuffer* inInde
     return mesh;
 }
 
-Texture* RenderDevice::CreateTexture(const ::URay::Texture* textureAsset)
+Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
 {
-    stbi_set_flip_vertically_on_load(true);
+    if (desc.width == 0 || desc.height == 0)
+        return nullptr;
+    if (desc.format == Format::Unknown)
+        return nullptr;
+    if (desc.usage == TextureUsage::None)
+        return nullptr;
 
-    VkDeviceSize size = textureAsset->GetPixels().size();
+    VkImage image = VK_NULL_HANDLE;
+    VkDeviceMemory imageMemory = VK_NULL_HANDLE;
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(size,
-                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer,
-                 stagingBufferMemory);
+    VkFormat format = ToVkFormat(desc.format);
+    VkImageUsageFlags usageFlags = ToVkImageUsageFlags(desc.usage);
 
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, size, 0, &data);
-    std::memcpy(data, textureAsset->GetPixels().data(), static_cast<size_t>(size));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    VkImage image;
-    VkDeviceMemory imageMemory;
-
-    if (!CreateImage(textureAsset->GetWidth(), textureAsset->GetHeight(),
-                     VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-                     VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+    if (!CreateImage(desc.width, desc.height,
+                     format, VK_IMAGE_TILING_OPTIMAL,
+                     usageFlags,
                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
                      image, imageMemory))
     {
         return nullptr;
     }
 
+    Texture* newTexture = new Texture(device, image, imageMemory, desc);
+    return newTexture;
+}
+
+bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8_t> pixelData)
+{
+    if (!texture)
+        return false;
+
+    const TextureDesc& textureDesc = texture->GetDesc();
+
+    if ((textureDesc.usage & TextureUsage::TransferDst) == TextureUsage::None)
+        return false;
+
+    VkFormat vkFormat = ToVkFormat(textureDesc.format);
+
+    VkDeviceSize dataSize = static_cast<VkDeviceSize>(textureDesc.width) * textureDesc.height * 4;
+    if (dataSize != static_cast<VkDeviceSize>(pixelData.size()))
+        return false;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    CreateBuffer(dataSize,
+                 VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 stagingBuffer,
+                 stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, dataSize, 0, &data);
+    std::memcpy(data, pixelData.data(), static_cast<size_t>(dataSize));
+    vkUnmapMemory(device, stagingBufferMemory);
+
     TransitionImageLayout(
-        image, VK_FORMAT_R8G8B8A8_SRGB,
+        texture->GetHandle(), vkFormat,
         VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     CopyBufferToImage(
-        stagingBuffer, image,
-        static_cast<uint32_t>(textureAsset->GetWidth()), static_cast<uint32_t>(textureAsset->GetHeight()));
+        stagingBuffer, texture->GetHandle(),
+        textureDesc.width, textureDesc.height);
     TransitionImageLayout(
-        image, VK_FORMAT_R8G8B8A8_SRGB,
+        texture->GetHandle(), vkFormat,
         VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
 
-    Texture* texture = new Texture(device, image, imageMemory);
-    return texture;
+    return true;
 }
 
 TextureView* RenderDevice::CreateTextureView(Texture* texture)
 {
-    VkImageView imageView = CreateImageView(texture->GetHandle(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT);
+    if (!texture)
+        return nullptr;
+
+    const TextureDesc& textureDesc = texture->GetDesc();
+    VkFormat vkFormat = ToVkFormat(textureDesc.format);
+    VkImageAspectFlags vkAspectFlags = ToVkImageAspectFlags(textureDesc.format);
+
+    VkImageView imageView = CreateImageView(texture->GetHandle(), vkFormat, vkAspectFlags);
+
+    if (imageView == VK_NULL_HANDLE)
+        return nullptr;
 
     TextureView* textureView = new TextureView(device, imageView, texture);
     return textureView;
@@ -568,10 +609,20 @@ bool RenderDevice::CreateImage(uint32_t width, uint32_t height,
     allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+    {
+        vkDestroyImage(device, image, nullptr);
+        image = VK_NULL_HANDLE;
         return false;
+    }
 
     if (vkBindImageMemory(device, image, imageMemory, 0) != VK_SUCCESS)
+    {
+        vkFreeMemory(device, imageMemory, nullptr);
+        vkDestroyImage(device, image, nullptr);
+        imageMemory = VK_NULL_HANDLE;
+        image = VK_NULL_HANDLE;
         return false;
+    }
 
     return true;
 }
@@ -792,5 +843,73 @@ uint32_t RenderDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 
     return UINT32_MAX;
 }
+
+namespace
+{
+VkFormat ToVkFormat(Format format)
+{
+    switch (format)
+    {
+    case Format::RGBA8_UNorm:
+        return VK_FORMAT_R8G8B8A8_UNORM;
+    case Format::RGBA8_sRGB:
+        return VK_FORMAT_R8G8B8A8_SRGB;
+    case Format::BGRA8_sRGB:
+        return VK_FORMAT_B8G8R8A8_SRGB;
+    case Format::D32_Float:
+        return VK_FORMAT_D32_SFLOAT;
+    case Format::D32_Float_S8_UInt:
+        return VK_FORMAT_D32_SFLOAT_S8_UINT;
+    case Format::D24_UNorm_S8_UInt:
+        return VK_FORMAT_D24_UNORM_S8_UINT;
+    default:
+        return VK_FORMAT_UNDEFINED;
+    }
+}
+
+VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage)
+{
+    VkImageUsageFlags result = 0;
+
+    if ((usage & TextureUsage::TransferSrc) != TextureUsage::None)
+    {
+        result |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    }
+    if ((usage & TextureUsage::TransferDst) != TextureUsage::None)
+    {
+        result |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    }
+    if ((usage & TextureUsage::Sampled) != TextureUsage::None)
+    {
+        result |= VK_IMAGE_USAGE_SAMPLED_BIT;
+    }
+    if ((usage & TextureUsage::ColorAttachment) != TextureUsage::None)
+    {
+        result |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    }
+    if ((usage & TextureUsage::DepthAttachment) != TextureUsage::None)
+    {
+        result |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    }
+
+    return result;
+}
+
+VkImageAspectFlags ToVkImageAspectFlags(Format format)
+{
+    switch (format)
+    {
+    case Format::D32_Float:
+        return VK_IMAGE_ASPECT_DEPTH_BIT;
+
+    case Format::D32_Float_S8_UInt:
+    case Format::D24_UNorm_S8_UInt:
+        return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+
+    default:
+        return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
+} // namespace
 
 } // namespace URay::RHI
