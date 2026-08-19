@@ -14,6 +14,9 @@ public:
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
+    EventReply OnKeyDown(const KeyEvent& event) override;
+    EventReply OnKeyUp(const KeyEvent& event) override;
+
 protected:
     void OnDraw() override;
 };

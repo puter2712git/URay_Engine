@@ -23,7 +23,8 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 {
     Logger::Log("Viewport pointer down.");
     return {
-        .capturePointer = true
+        .requestFocus = true,
+        .capturePointer = true,
     };
 }
 
@@ -38,6 +39,18 @@ EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
     return {
         .releasePointer = true
     };
+}
+
+EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
+{
+    Logger::Log("Viewport key down: " + std::to_string(static_cast<uint16_t>(event.key)));
+    return {};
+}
+
+EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
+{
+    Logger::Log("Viewport key up: " + std::to_string(static_cast<uint16_t>(event.key)));
+    return {};
 }
 
 void ViewportWidget::OnDraw()

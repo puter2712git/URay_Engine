@@ -29,6 +29,27 @@ void UIInputRouter::Process(Widget& root, const InputManager& input)
         }
     }
 
+    if (focusedWidget && input.GetKeyDown(GLFW_KEY_SPACE))
+    {
+        const KeyEvent event = {
+            .key = KeyCode::Space,
+            .modifiers = ModifierKey::None,
+            .isRepeat = false,
+        };
+
+        focusedWidget->OnKeyDown(event);
+    }
+    if (focusedWidget && input.GetKeyUp(GLFW_KEY_SPACE))
+    {
+        const KeyEvent event = {
+            .key = KeyCode::Space,
+            .modifiers = ModifierKey::None,
+            .isRepeat = false,
+        };
+
+        focusedWidget->OnKeyUp(event);
+    }
+
     Widget* pointerTarget = pointerCapturedWidget ? pointerCapturedWidget : hitWidget;
     if (!pointerTarget)
         return;
@@ -41,10 +62,12 @@ void UIInputRouter::Process(Widget& root, const InputManager& input)
         pointerTarget->OnPointerMove(event);
     }
 
+    EventReply reply = {};
+
     if (input.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
     {
         const PointerEvent event = MakePointerEvent(input, MouseButton::Left);
-        const EventReply reply = pointerTarget->OnPointerDown(event);
+        reply = pointerTarget->OnPointerDown(event);
 
         if (reply.capturePointer)
         {
@@ -52,17 +75,27 @@ void UIInputRouter::Process(Widget& root, const InputManager& input)
             pointerTarget->pointerCaptured = true;
         }
     }
-
     if (input.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
     {
         const PointerEvent event = MakePointerEvent(input, MouseButton::Left);
-        const EventReply reply = pointerTarget->OnPointerUp(event);
+        reply = pointerTarget->OnPointerUp(event);
 
         if (reply.releasePointer && pointerCapturedWidget)
         {
             pointerCapturedWidget->pointerCaptured = false;
             pointerCapturedWidget = nullptr;
         }
+    }
+
+    if (reply.requestFocus && focusedWidget != pointerTarget)
+    {
+        if (focusedWidget)
+        {
+            focusedWidget->focused = false;
+        }
+
+        focusedWidget = pointerTarget;
+        focusedWidget->focused = true;
     }
 }
 
