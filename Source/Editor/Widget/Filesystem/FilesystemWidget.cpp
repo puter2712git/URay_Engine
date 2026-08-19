@@ -18,6 +18,13 @@ FilesystemWidget::FilesystemWidget(VirtualFilesystem& filesystem)
 
 FilesystemWidget::~FilesystemWidget() = default;
 
+EventReply FilesystemWidget::OnPointerDown(const PointerEvent& event)
+{
+    return EventReply{
+        .requestFocus = true,
+    };
+}
+
 void FilesystemWidget::OnDraw()
 {
     ApplyRect();

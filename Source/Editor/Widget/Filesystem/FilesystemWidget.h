@@ -24,6 +24,9 @@ public:
     FilesystemWidget(VirtualFilesystem& filesystem);
     ~FilesystemWidget();
 
+public:
+    EventReply OnPointerDown(const PointerEvent& event) override;
+
 protected:
     void OnDraw() override;
 

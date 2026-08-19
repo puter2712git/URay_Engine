@@ -13,6 +13,9 @@ public:
     InspectorWidget(Editor& editor);
     ~InspectorWidget() override;
 
+public:
+    EventReply OnPointerDown(const PointerEvent& event) override;
+
 protected:
     void OnDraw() override;
 

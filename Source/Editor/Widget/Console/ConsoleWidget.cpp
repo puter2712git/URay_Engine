@@ -21,6 +21,13 @@ ConsoleWidget::~ConsoleWidget()
     delete logSink;
 }
 
+EventReply ConsoleWidget::OnPointerDown(const PointerEvent& event)
+{
+    return EventReply{
+        .requestFocus = true,
+    };
+}
+
 void ConsoleWidget::ClearLog()
 {
     for (int i = 0; i < items.Size; ++i)

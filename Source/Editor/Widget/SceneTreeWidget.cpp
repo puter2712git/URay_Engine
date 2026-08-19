@@ -20,6 +20,13 @@ SceneTreeWidget::~SceneTreeWidget()
 {
 }
 
+EventReply SceneTreeWidget::OnPointerDown(const PointerEvent& event)
+{
+    return EventReply{
+        .requestFocus = true,
+    };
+}
+
 void SceneTreeWidget::OnDraw()
 {
     ApplyRect();

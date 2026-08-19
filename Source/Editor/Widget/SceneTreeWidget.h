@@ -15,6 +15,9 @@ public:
     SceneTreeWidget(Editor& editor, Engine& engine);
     ~SceneTreeWidget() override;
 
+public:
+    EventReply OnPointerDown(const PointerEvent& event) override;
+
 protected:
     void OnDraw() override;
 

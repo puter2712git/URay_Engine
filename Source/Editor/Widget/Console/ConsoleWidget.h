@@ -17,6 +17,9 @@ public:
     ConsoleWidget();
     ~ConsoleWidget() override;
 
+public:
+    EventReply OnPointerDown(const PointerEvent& event) override;
+
 protected:
     void OnDraw() override;
 

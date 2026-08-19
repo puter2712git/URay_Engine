@@ -18,6 +18,13 @@ InspectorWidget::InspectorWidget(Editor& editor)
 
 InspectorWidget::~InspectorWidget() = default;
 
+EventReply InspectorWidget::OnPointerDown(const PointerEvent& event)
+{
+    return EventReply{
+        .requestFocus = true,
+    };
+}
+
 void InspectorWidget::OnDraw()
 {
     ApplyRect();

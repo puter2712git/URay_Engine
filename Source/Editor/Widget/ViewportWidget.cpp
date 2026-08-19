@@ -57,7 +57,14 @@ void ViewportWidget::OnDraw()
 {
     ApplyRect();
 
-    ImGui::Begin("Viewport", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+    constexpr ImGuiWindowFlags flags =
+        ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoResize;
+
+    ImGui::Begin("Viewport", nullptr, flags);
 
     ImGui::End();
 }
