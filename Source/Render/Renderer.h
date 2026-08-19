@@ -72,6 +72,9 @@ public:
 
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
 
+    void RequestSceneRenderTargetResize(VkExtent2D extent);
+    VkExtent2D GetSceneRenderTargetExtent() const;
+
     void Draw(const DrawCommand& cmd);
 
     void CreatePipelineLayout();
@@ -163,6 +166,8 @@ private:
     bool CreateFrameDescriptorSet();
     void DestroyFrameDescriptorSet();
 
+    void ProcessPendingSceneRenderTargetResize();
+
     bool CheckValidationLayerSupport() const;
     std::vector<const char*> GetRequiredExtensions() const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
@@ -242,6 +247,8 @@ private:
 
     DescriptorSetLayout* frameDescriptorSetLayout = nullptr;
     std::vector<DescriptorSet*> frameDescriptorSets;
+
+    std::optional<VkExtent2D> pendingSceneRenderTargetExtent;
 };
 
 } // namespace URay::RHI

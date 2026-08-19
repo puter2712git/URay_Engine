@@ -246,6 +246,8 @@ bool Renderer::BeginFrame()
 {
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
+    ProcessPendingSceneRenderTargetResize();
+
     VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_NOT_READY)
@@ -429,6 +431,27 @@ void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newPr
 {
     viewMatrix = newViewMatrix;
     projMatrix = newProjMatrix;
+}
+
+void Renderer::RequestSceneRenderTargetResize(VkExtent2D extent)
+{
+    if (extent.width == 0 || extent.height == 0)
+        return;
+
+    const VkExtent2D currExtent = sceneRenderTarget->GetExtent();
+
+    if (currExtent.width == extent.width && currExtent.height == extent.height)
+    {
+        pendingSceneRenderTargetExtent.reset();
+        return;
+    }
+
+    pendingSceneRenderTargetExtent = extent;
+}
+
+VkExtent2D Renderer::GetSceneRenderTargetExtent() const
+{
+    return sceneRenderTarget->GetExtent();
 }
 
 void Renderer::Draw(const DrawCommand& cmd)
@@ -1158,6 +1181,39 @@ void Renderer::DestroyFrameDescriptorSet()
     }
 
     frameDescriptorSets.clear();
+}
+
+void Renderer::ProcessPendingSceneRenderTargetResize()
+{
+    if (!pendingSceneRenderTargetExtent.has_value())
+        return;
+
+    const VkExtent2D extent = *pendingSceneRenderTargetExtent;
+    pendingSceneRenderTargetExtent.reset();
+
+    vkDeviceWaitIdle(device);
+
+    if (sceneImGuiTexture != VK_NULL_HANDLE)
+    {
+        ImGui_ImplVulkan_RemoveTexture(sceneImGuiTexture);
+        sceneImGuiTexture = VK_NULL_HANDLE;
+    }
+
+    DestroySceneFramebuffer();
+
+    if (!sceneRenderTarget->Resize(extent))
+    {
+        throw std::runtime_error("Failed to resize scene render target.");
+    }
+
+    if (!CreateSceneFramebuffer())
+    {
+        throw std::runtime_error("Failed to recreate scene framebuffer.");
+    }
+
+    sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
+        sceneRenderTarget->GetColorView()->GetHandle(),
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 bool Renderer::CheckValidationLayerSupport() const

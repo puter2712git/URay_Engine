@@ -73,14 +73,21 @@ void ViewportWidget::OnDraw()
 
     ImGui::Begin("Viewport", nullptr, flags);
 
-    const VkDescriptorSet descriptorSet = renderer.GetSceneImGuiTexture();
+    const ImVec2 logicalSize = ImGui::GetContentRegionAvail();
+    const ImVec2 framebufferScale = ImGui::GetIO().DisplayFramebufferScale;
 
-    if (descriptorSet != VK_NULL_HANDLE)
+    VkExtent2D targetExtent = {
+        .width = static_cast<uint32_t>(std::round(logicalSize.x * framebufferScale.x)),
+        .height = static_cast<uint32_t>(std::round(logicalSize.y * framebufferScale.y)),
+    };
+
+    renderer.RequestSceneRenderTargetResize(targetExtent);
+
+    const VkDescriptorSet descriptorSet = renderer.GetSceneImGuiTexture();
+    if (descriptorSet)
     {
         const ImTextureID textureId = static_cast<ImTextureID>(reinterpret_cast<uintptr_t>(descriptorSet));
-        const ImVec2 imageSize = ImGui::GetContentRegionAvail();
-
-        ImGui::Image(ImTextureRef(textureId), imageSize);
+        ImGui::Image(ImTextureRef(textureId), logicalSize);
     }
 
     ImGui::End();
