@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Editor/Input/UIInputRouter.h"
+
 #include <memory>
 
 namespace URay
@@ -55,6 +57,8 @@ private:
 
     std::unique_ptr<Widget> mainMenuBarWidget = nullptr;
     std::unique_ptr<Widget> rootWidget = nullptr;
+
+    UIInputRouter inputRouter;
 };
 
 } // namespace URay

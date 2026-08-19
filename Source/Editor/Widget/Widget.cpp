@@ -30,6 +30,12 @@ void Widget::AddChild(std::unique_ptr<Widget> child)
     children.push_back(std::move(child));
 }
 
+bool Widget::HitTest(const Vector2& position) const
+{
+    return position.x >= rect.position.x && position.x < rect.position.x + rect.size.x &&
+           position.y >= rect.position.y && position.y < rect.position.y + rect.size.y;
+}
+
 void Widget::ApplyRect() const
 {
     ImGui::SetNextWindowPos(ImVec2(rect.position.x, rect.position.y), ImGuiCond_Always);

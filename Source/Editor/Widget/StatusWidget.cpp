@@ -4,6 +4,8 @@
 
 #include "Core/Timer.h"
 
+#include <imgui/imgui.h>
+
 namespace URay
 {
 

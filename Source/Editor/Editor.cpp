@@ -9,6 +9,7 @@
 #include "Editor/Widget/SceneTreeWidget.h"
 #include "Editor/Widget/Splitter.h"
 #include "Editor/Widget/StatusWidget.h"
+#include "Editor/Widget/ViewportWidget.h"
 #include "Editor/Widget/Widget.h"
 
 #include "Engine/Component/CameraComponent.h"
@@ -49,31 +50,17 @@ bool Editor::Initialize()
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(*engine.GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
+    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>();
 
-    std::unique_ptr<Widget> leftPanel = std::make_unique<Splitter>(
-        SplitAxis::Vertical,
-        std::move(sceneTree),
-        std::move(filesystem));
-
-    std::unique_ptr<Widget> centerPanel = std::make_unique<Splitter>(
-        SplitAxis::Vertical,
-        std::make_unique<Widget>(),
-        std::move(console));
-
-    std::unique_ptr<Widget> rightPanel = std::make_unique<Splitter>(
-        SplitAxis::Vertical,
-        std::move(inspector),
-        std::move(status));
-
-    std::unique_ptr<Widget> mainPanel = std::make_unique<Splitter>(
-        SplitAxis::Horizontal,
-        std::move(centerPanel),
-        std::move(rightPanel));
+    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
+    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
+    std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>(SplitAxis::Horizontal, std::move(console), std::move(filesystem));
+    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
 
     rootWidget = std::make_unique<Splitter>(
         SplitAxis::Horizontal,
         std::move(leftPanel),
-        std::move(mainPanel));
+        std::move(rightPanel));
 
     gizmo = new GizmoController(*engine.GetMeshManager(), *engine.GetMaterialManager());
 
@@ -132,6 +119,8 @@ void Editor::Update()
     UpdateCameraRotation(deltaTime);
 
     gizmo->Update(camera);
+
+    inputRouter.Process(*rootWidget, engine.GetInputManager());
 
     mainMenuBarWidget->Update();
     rootWidget->Update();
