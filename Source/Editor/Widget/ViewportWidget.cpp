@@ -7,6 +7,18 @@
 namespace URay
 {
 
+EventReply ViewportWidget::OnPointerEnter()
+{
+    Logger::Log("Viewport pointer enter.");
+    return {};
+}
+
+EventReply ViewportWidget::OnPointerLeave()
+{
+    Logger::Log("Viewport pointer leave.");
+    return {};
+}
+
 EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 {
     Logger::Log("Viewport pointer down.");
@@ -17,7 +29,6 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 
 EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
 {
-    Logger::Log("Viewport pointer move.");
     return {};
 }
 

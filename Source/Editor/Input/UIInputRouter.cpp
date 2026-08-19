@@ -12,7 +12,22 @@ void UIInputRouter::Process(Widget& root, const InputManager& input)
     const Vector2 position = Vector2(input.mouseX, input.mouseY);
     Widget* hitWidget = FindTopWidget(root, position);
 
-    hoveredWidget = hitWidget;
+    if (hitWidget != hoveredWidget)
+    {
+        if (hoveredWidget)
+        {
+            hoveredWidget->hovered = false;
+            hoveredWidget->OnPointerLeave();
+        }
+
+        hoveredWidget = hitWidget;
+
+        if (hoveredWidget)
+        {
+            hoveredWidget->hovered = true;
+            hoveredWidget->OnPointerEnter();
+        }
+    }
 
     Widget* pointerTarget = pointerCapturedWidget ? pointerCapturedWidget : hitWidget;
     if (!pointerTarget)
