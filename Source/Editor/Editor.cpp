@@ -2,6 +2,7 @@
 
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
+#include "Editor/Input/UIInputRouter.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/InspectorWidget.h"
@@ -42,6 +43,8 @@ bool Editor::Initialize()
 
     if (!renderer->InitializeImGui())
         return false;
+
+    inputRouter = std::make_unique<UIInputRouter>(*engine.GetWindow());
 
     CameraComponent& camera = PrepareEditorScene();
 
@@ -94,7 +97,7 @@ void Editor::Update()
 
     // gizmo->Update(camera);
 
-    inputRouter.Process(*rootWidget, engine.GetInputManager());
+    inputRouter->Process(*rootWidget, engine.GetInputManager());
 
     mainMenuBarWidget->Update(deltaTime);
     rootWidget->Update(deltaTime);

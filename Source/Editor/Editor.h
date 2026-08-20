@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Editor/Input/UIInputRouter.h"
-
 #include <memory>
 
 namespace URay
@@ -18,6 +16,7 @@ class Renderer;
 
 class Widget;
 class ViewportWidget;
+class UIInputRouter;
 
 class Editor
 {
@@ -48,7 +47,7 @@ private:
 
     ViewportWidget* viewportWidget = nullptr;
 
-    UIInputRouter inputRouter;
+    std::unique_ptr<UIInputRouter> inputRouter = nullptr;
 };
 
 } // namespace URay

@@ -1,7 +1,12 @@
 #pragma once
 
+#include "Platform/Window/Cursor.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
+
+#include <memory>
+#include <unordered_map>
 
 namespace URay
 {
@@ -16,13 +21,14 @@ public:
     bool Initialize();
     void Finalize();
 
-    GLFWwindow* GetGLFWWindow() const
-    {
-        return glfwWindow;
-    }
+    void ChangeCursor(CursorType type);
+
+    GLFWwindow* GetGLFWWindow() const { return glfwWindow; }
 
 private:
     GLFWwindow* glfwWindow = nullptr;
+
+    std::unordered_map<CursorType, GLFWcursor*> cursors;
 };
 
 } // namespace URay

@@ -4,8 +4,15 @@
 
 #include "Core/Input/InputManager.h"
 
+#include "Platform/Window/Window.h"
+
 namespace URay
 {
+
+UIInputRouter::UIInputRouter(Window& window)
+    : window(window)
+{
+}
 
 void UIInputRouter::Process(Widget& root, const InputManager& input)
 {
@@ -90,7 +97,7 @@ void UIInputRouter::UpdateHoveredWidget(Widget* hitWidget)
     if (hoveredWidget)
     {
         hoveredWidget->hovered = false;
-        hoveredWidget->OnPointerLeave();
+        ApplyReply(hoveredWidget, hoveredWidget->OnPointerLeave());
     }
 
     hoveredWidget = hitWidget;
@@ -98,7 +105,7 @@ void UIInputRouter::UpdateHoveredWidget(Widget* hitWidget)
     if (hoveredWidget)
     {
         hoveredWidget->hovered = true;
-        hoveredWidget->OnPointerEnter();
+        ApplyReply(hoveredWidget, hoveredWidget->OnPointerEnter());
     }
 }
 
@@ -125,6 +132,11 @@ void UIInputRouter::ApplyReply(Widget* target, const EventReply& reply)
 
         focusedWidget = target;
         focusedWidget->focused = true;
+    }
+
+    if (reply.cursor.has_value())
+    {
+        window.ChangeCursor(*reply.cursor);
     }
 }
 

@@ -18,14 +18,18 @@ Splitter::~Splitter() = default;
 
 EventReply Splitter::OnPointerEnter()
 {
-    Logger::Log("Splitter Enter");
-    return {};
+    return {
+        .cursor = axis == SplitAxis::Horizontal
+                      ? CursorType::HRESIZE
+                      : CursorType::VRESIZE
+    };
 }
 
 EventReply Splitter::OnPointerLeave()
 {
-    Logger::Log("Splitter Leave");
-    return {};
+    return {
+        .cursor = CursorType::ARROW
+    };
 }
 
 void Splitter::Arrange(const Rect& rect)

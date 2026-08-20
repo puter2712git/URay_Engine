@@ -8,11 +8,15 @@ namespace URay
 
 class Widget;
 class InputManager;
+class Window;
 
 struct EventReply;
 
 class UIInputRouter
 {
+public:
+    UIInputRouter(Window& window);
+
 public:
     void Process(Widget& root, const InputManager& input);
 
@@ -28,6 +32,8 @@ private:
     Widget* FindTopWidget(Widget& root, const Vector2& position) const;
 
 private:
+    Window& window;
+
     Widget* hoveredWidget = nullptr;
     Widget* focusedWidget = nullptr;
     Widget* pointerCapturedWidget = nullptr;
