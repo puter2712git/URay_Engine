@@ -1,7 +1,5 @@
 #include "Splitter.h"
 
-#include "Core/Log/Log.h"
-
 #include <algorithm>
 
 namespace URay
@@ -42,6 +40,8 @@ EventReply Splitter::OnPointerDown(const PointerEvent& event)
             .capturePointer = true,
         };
     }
+
+    return {};
 }
 
 EventReply Splitter::OnPointerMove(const PointerEvent& event)
@@ -53,6 +53,8 @@ EventReply Splitter::OnPointerMove(const PointerEvent& event)
                           : event.delta.y;
         splitRatio += delta * 0.001f;
     }
+
+    return {};
 }
 
 EventReply Splitter::OnPointerUp(const PointerEvent& event)
@@ -65,6 +67,8 @@ EventReply Splitter::OnPointerUp(const PointerEvent& event)
             .releasePointer = true,
         };
     }
+
+    return {};
 }
 
 void Splitter::Arrange(const Rect& rect)
