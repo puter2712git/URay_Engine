@@ -24,7 +24,7 @@ public:
     virtual ~Widget() = default;
 
 public:
-    void Update();
+    void Update(float deltaTime);
     void PrepareRender(RHI::DrawCommandBuilder& builder);
     void Draw();
 
@@ -52,7 +52,7 @@ public:
 protected:
     void ApplyRect() const;
 
-    virtual void OnUpdate() {}
+    virtual void OnUpdate(float) {}
     virtual void OnPrepareRender(RHI::DrawCommandBuilder& builder) {}
     virtual void OnDraw() {}
 

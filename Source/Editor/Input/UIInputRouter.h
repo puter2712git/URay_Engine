@@ -9,15 +9,23 @@ namespace URay
 class Widget;
 class InputManager;
 
+struct EventReply;
+
 class UIInputRouter
 {
 public:
     void Process(Widget& root, const InputManager& input);
 
 private:
-    Widget* FindTopWidget(Widget& root, const Vector2& position) const;
+    void DispatchKeyEvent(const KeyEvent& event);
+    void DispatchPointerEvent(Widget& root, const PointerEvent& event);
+    void DispatchScrollEvent(Widget& root, const ScrollEvent& event);
+    void DispatchTextInputEvent(const TextInputEvent& event);
 
-    PointerEvent MakePointerEvent(const InputManager& input, MouseButton mouseButton) const;
+    void UpdateHoveredWidget(Widget* hitWidget);
+    void ApplyReply(Widget* target, const EventReply& reply);
+
+    Widget* FindTopWidget(Widget& root, const Vector2& position) const;
 
 private:
     Widget* hoveredWidget = nullptr;

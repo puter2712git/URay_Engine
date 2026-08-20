@@ -9,92 +9,121 @@ namespace URay
 
 void UIInputRouter::Process(Widget& root, const InputManager& input)
 {
-    const Vector2 position = Vector2(input.mouseX, input.mouseY);
-    Widget* hitWidget = FindTopWidget(root, position);
-
-    if (hitWidget != hoveredWidget)
+    for (const InputEvent& inputEvent : input.GetEvents())
     {
-        if (hoveredWidget)
+        if (const auto* keyEvent = std::get_if<KeyEvent>(&inputEvent))
         {
-            hoveredWidget->hovered = false;
-            hoveredWidget->OnPointerLeave();
+            DispatchKeyEvent(*keyEvent);
         }
-
-        hoveredWidget = hitWidget;
-
-        if (hoveredWidget)
+        else if (const auto* pointerEvent = std::get_if<PointerEvent>(&inputEvent))
         {
-            hoveredWidget->hovered = true;
-            hoveredWidget->OnPointerEnter();
+            DispatchPointerEvent(root, *pointerEvent);
+        }
+        else if (const auto* scrollEvent = std::get_if<ScrollEvent>(&inputEvent))
+        {
+            DispatchScrollEvent(root, *scrollEvent);
+        }
+        else if (const auto* textEvent = std::get_if<TextInputEvent>(&inputEvent))
+        {
+            DispatchTextInputEvent(*textEvent);
         }
     }
+}
 
-    if (focusedWidget && input.GetKeyDown(GLFW_KEY_SPACE))
-    {
-        const KeyEvent event = {
-            .key = KeyCode::Space,
-            .modifiers = ModifierKey::None,
-            .isRepeat = false,
-        };
-
-        focusedWidget->OnKeyDown(event);
-    }
-    if (focusedWidget && input.GetKeyUp(GLFW_KEY_SPACE))
-    {
-        const KeyEvent event = {
-            .key = KeyCode::Space,
-            .modifiers = ModifierKey::None,
-            .isRepeat = false,
-        };
-
-        focusedWidget->OnKeyUp(event);
-    }
-
-    Widget* pointerTarget = pointerCapturedWidget ? pointerCapturedWidget : hitWidget;
-    if (!pointerTarget)
+void UIInputRouter::DispatchKeyEvent(const KeyEvent& event)
+{
+    if (!focusedWidget)
         return;
 
-    const bool hasPointerMoved = input.mouseDeltaX != 0.0 || input.mouseDeltaY != 0.0;
-
-    if (hasPointerMoved)
+    if (event.action == KeyAction::Released)
     {
-        const PointerEvent event = MakePointerEvent(input, MouseButton::None);
-        pointerTarget->OnPointerMove(event);
+        focusedWidget->OnKeyUp(event);
     }
+    else
+    {
+        focusedWidget->OnKeyDown(event);
+    }
+}
+
+void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event)
+{
+    Widget* hitWidget = FindTopWidget(root, event.position);
+    UpdateHoveredWidget(hitWidget);
+
+    Widget* target = pointerCapturedWidget ? pointerCapturedWidget : hitWidget;
+    if (!target)
+        return;
 
     EventReply reply = {};
 
-    if (input.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
+    switch (event.action)
     {
-        const PointerEvent event = MakePointerEvent(input, MouseButton::Left);
-        reply = pointerTarget->OnPointerDown(event);
+    case PointerAction::Moved:
+        target->OnPointerMove(event);
+        return;
 
-        if (reply.capturePointer)
-        {
-            pointerCapturedWidget = pointerTarget;
-            pointerTarget->pointerCaptured = true;
-        }
-    }
-    if (input.GetMouseUp(GLFW_MOUSE_BUTTON_LEFT))
-    {
-        const PointerEvent event = MakePointerEvent(input, MouseButton::Left);
-        reply = pointerTarget->OnPointerUp(event);
+    case PointerAction::Pressed:
+        reply = target->OnPointerDown(event);
+        break;
 
-        if (reply.releasePointer && pointerCapturedWidget)
-        {
-            pointerCapturedWidget->pointerCaptured = false;
-            pointerCapturedWidget = nullptr;
-        }
+    case PointerAction::Released:
+        reply = target->OnPointerUp(event);
+        break;
     }
 
-    if (reply.requestFocus && focusedWidget != pointerTarget)
+    ApplyReply(target, reply);
+}
+
+void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
+{
+}
+
+void UIInputRouter::DispatchTextInputEvent(const TextInputEvent& event)
+{
+}
+
+void UIInputRouter::UpdateHoveredWidget(Widget* hitWidget)
+{
+    if (hitWidget == hoveredWidget)
+        return;
+
+    if (hoveredWidget)
+    {
+        hoveredWidget->hovered = false;
+        hoveredWidget->OnPointerLeave();
+    }
+
+    hoveredWidget = hitWidget;
+
+    if (hoveredWidget)
+    {
+        hoveredWidget->hovered = true;
+        hoveredWidget->OnPointerEnter();
+    }
+}
+
+void UIInputRouter::ApplyReply(Widget* target, const EventReply& reply)
+{
+    if (reply.capturePointer)
+    {
+        pointerCapturedWidget = target;
+        target->pointerCaptured = true;
+    }
+
+    if (reply.releasePointer && pointerCapturedWidget)
+    {
+        pointerCapturedWidget->pointerCaptured = false;
+        pointerCapturedWidget = nullptr;
+    }
+
+    if (reply.requestFocus && focusedWidget != target)
     {
         if (focusedWidget)
         {
             focusedWidget->focused = false;
         }
 
-        focusedWidget = pointerTarget;
+        focusedWidget = target;
         focusedWidget->focused = true;
     }
 }
@@ -115,18 +144,6 @@ Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) cons
     }
 
     return &root;
-}
-
-PointerEvent UIInputRouter::MakePointerEvent(const InputManager& input, MouseButton mouseButton) const
-{
-    return PointerEvent{
-        .pointerId = 0,
-        .position = Vector2(input.mouseX, input.mouseY),
-        .delta = Vector2(input.mouseDeltaX, input.mouseDeltaY),
-        .changedButton = mouseButton,
-        .pressedButtons = static_cast<uint8_t>(mouseButton),
-        .modifiers = ModifierKey::None
-    };
 }
 
 } // namespace URay

@@ -63,7 +63,7 @@ void Splitter::Arrange(const Rect& rect)
     second->Arrange(secondRect);
 }
 
-void Splitter::OnUpdate()
+void Splitter::OnUpdate(float)
 {
 }
 

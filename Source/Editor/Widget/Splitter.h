@@ -23,7 +23,7 @@ public:
     void Arrange(const Rect& rect) override;
 
 protected:
-    void OnUpdate() override;
+    void OnUpdate(float) override;
 
 private:
     SplitAxis axis = SplitAxis::Horizontal;

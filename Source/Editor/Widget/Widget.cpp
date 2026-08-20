@@ -5,13 +5,13 @@
 namespace URay
 {
 
-void Widget::Update()
+void Widget::Update(float deltaTime)
 {
-    OnUpdate();
+    OnUpdate(deltaTime);
 
     for (const auto& child : children)
     {
-        child->Update();
+        child->Update(deltaTime);
     }
 }
 

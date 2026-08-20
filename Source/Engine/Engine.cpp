@@ -14,6 +14,7 @@
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Timer.h"
 
+#include "Platform/Input/GLFWInputAdapter.h"
 #include "Platform/Window.h"
 
 #include "Render/RenderPipeline.h"
@@ -116,6 +117,7 @@ void Engine::Finalize()
 
 void Engine::Update()
 {
+    inputManager.ClearEvents();
     inputManager.Update();
 
     glfwPollEvents();
@@ -231,21 +233,35 @@ Scene* Engine::GetSceneByType(SceneType type) const
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key < 0)
+    const KeyCode keyCode = Platform::ToKeyCode(key);
+    const std::optional<KeyAction> keyAction = Platform::ToKeyAction(action);
+
+    if (keyCode == KeyCode::Unknown || !keyAction)
         return;
 
-    gEngine->GetInputManager().currKeys[key] = action != GLFW_RELEASE;
+    gEngine->GetInputManager().OnKey(
+        keyCode,
+        *keyAction,
+        Platform::ToModifierKey(mods));
 }
 
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
-    gEngine->GetInputManager().currMouse[button] = action != GLFW_RELEASE;
+    const MouseButton mouseButton = Platform::ToMouseButton(button);
+    const std::optional<KeyAction> mouseAction = Platform::ToKeyAction(action);
+
+    if (mouseButton == MouseButton::None || !mouseAction)
+        return;
+
+    gEngine->GetInputManager().OnMouseButton(
+        mouseButton,
+        *mouseAction,
+        Platform::ToModifierKey(mods));
 }
 
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    gEngine->GetInputManager().mouseX = xpos;
-    gEngine->GetInputManager().mouseY = ypos;
+    gEngine->GetInputManager().OnCursorMoved(Vector2(xpos, ypos));
 }
 
 } // namespace URay

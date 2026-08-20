@@ -1,6 +1,8 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include "Core/Input/InputEvent.h"
+
+#include <vector>
 
 namespace URay
 {
@@ -9,21 +11,34 @@ class InputManager
 {
 public:
     void Update();
+    void ClearEvents();
 
-    bool GetKey(int key) const { return currKeys[key]; }
-    bool GetKeyDown(int key) const { return currKeys[key] && !prevKeys[key]; }
-    bool GetKeyUp(int key) const { return !currKeys[key] && prevKeys[key]; }
+    void OnKey(KeyCode key, KeyAction action, ModifierKey modifiers);
+    void OnMouseButton(MouseButton button, KeyAction action, ModifierKey modifiers);
+    void OnCursorMoved(Vector2 position);
 
-    bool GetMouse(int mouse) const { return currMouse[mouse]; }
-    bool GetMouseDown(int mouse) const { return currMouse[mouse] && !prevMouse[mouse]; }
-    bool GetMouseUp(int mouse) const { return !currMouse[mouse] && prevMouse[mouse]; }
+    bool GetKey(KeyCode key) const;
+    bool GetKeyDown(KeyCode key) const;
+    bool GetKeyUp(KeyCode key) const;
 
-public:
-    bool currKeys[GLFW_KEY_LAST + 1] = {};
-    bool prevKeys[GLFW_KEY_LAST + 1] = {};
+    bool GetMouse(MouseButton button) const;
+    bool GetMouseDown(MouseButton button) const;
+    bool GetMouseUp(MouseButton button) const;
 
-    bool currMouse[GLFW_MOUSE_BUTTON_LAST + 1] = {};
-    bool prevMouse[GLFW_MOUSE_BUTTON_LAST + 1] = {};
+    float GetMouseX() const { return static_cast<float>(mouseX); }
+    float GetMouseY() const { return static_cast<float>(mouseY); }
+
+    float GetMouseDeltaX() const { return static_cast<float>(mouseDeltaX); }
+    float GetMouseDeltaY() const { return static_cast<float>(mouseDeltaY); }
+
+    const std::vector<InputEvent>& GetEvents() const { return events; }
+
+private:
+    bool currKeys[static_cast<size_t>(KeyCode::Count)] = {};
+    bool prevKeys[static_cast<size_t>(KeyCode::Count)] = {};
+
+    MouseButtonMask currMouseButtons = 0;
+    MouseButtonMask prevMouseButtons = 0;
 
     double mouseX = 0.0;
     double mouseY = 0.0;
@@ -36,6 +51,8 @@ public:
 
     double scrollX = 0.0;
     double scrollY = 0.0;
+
+    std::vector<InputEvent> events;
 };
 
 } // namespace URay

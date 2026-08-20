@@ -4,7 +4,9 @@
 #include "Editor/GizmoController.h"
 
 #include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Unit.h"
 
 #include "Render/Renderer.h"
 
@@ -40,6 +42,16 @@ ViewportWidget::~ViewportWidget()
 
 EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 {
+    if (event.changedButton == MouseButton::Right)
+    {
+        isCameraRotating = true;
+
+        return EventReply{
+            .requestFocus = true,
+            .capturePointer = true,
+        };
+    }
+
     if (event.changedButton == MouseButton::Left)
     {
         const auto targetPosition = WindowToRenderTarget(event.position);
@@ -72,6 +84,13 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 
 EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
 {
+    if (isCameraRotating)
+    {
+        pendingCameraLookDelta.x += event.delta.x;
+        pendingCameraLookDelta.y += event.delta.y;
+        return {};
+    }
+
     if (gizmo)
     {
         const auto targetPosition = WindowToRenderTarget(event.position);
@@ -86,6 +105,11 @@ EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
 
 EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
 {
+    if (event.changedButton == MouseButton::Right)
+    {
+        isCameraRotating = false;
+    }
+
     if (event.changedButton == MouseButton::Left)
     {
         if (gizmo && gizmo->IsDragging())
@@ -95,13 +119,13 @@ EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
     }
 
     return EventReply{
-        .releasePointer = true,
+        .releasePointer = event.pressedButtons == 0,
     };
 }
 
 EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
 {
-    if (event.key == KeyCode::Space)
+    if (event.key == KeyCode::Space && event.action == KeyAction::Pressed)
     {
         if (gizmo)
         {
@@ -114,17 +138,117 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
         }
     }
 
+    if (event.key == KeyCode::W)
+    {
+        cameraForward = true;
+    }
+    if (event.key == KeyCode::S)
+    {
+        cameraBackward = true;
+    }
+    if (event.key == KeyCode::D)
+    {
+        cameraRight = true;
+    }
+    if (event.key == KeyCode::A)
+    {
+        cameraLeft = true;
+    }
+    if (event.key == KeyCode::E)
+    {
+        cameraUp = true;
+    }
+    if (event.key == KeyCode::Q)
+    {
+        cameraDown = true;
+    }
+
     return {};
 }
 
 EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
 {
+    if (event.key == KeyCode::W)
+    {
+        cameraForward = false;
+    }
+    if (event.key == KeyCode::S)
+    {
+        cameraBackward = false;
+    }
+    if (event.key == KeyCode::D)
+    {
+        cameraRight = false;
+    }
+    if (event.key == KeyCode::A)
+    {
+        cameraLeft = false;
+    }
+    if (event.key == KeyCode::E)
+    {
+        cameraUp = false;
+    }
+    if (event.key == KeyCode::Q)
+    {
+        cameraDown = false;
+    }
+
     return {};
 }
 
 void ViewportWidget::SetSelectedUnit(Unit* unit)
 {
     gizmo->SetTarget(unit);
+}
+
+void ViewportWidget::OnUpdate(float deltaTime)
+{
+    Vector3 cameraMove = Vector3::Zero;
+
+    if (cameraForward)
+    {
+        cameraMove.y += 5.0f * deltaTime;
+    }
+    if (cameraBackward)
+    {
+        cameraMove.y -= 5.0f * deltaTime;
+    }
+    if (cameraRight)
+    {
+        cameraMove.x += 5.0f * deltaTime;
+    }
+    if (cameraLeft)
+    {
+        cameraMove.x -= 5.0f * deltaTime;
+    }
+
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
+    cameraMove = cameraTransform->TransformVectorNoScale(cameraMove);
+
+    if (cameraUp)
+    {
+        cameraMove.z += 5.0f * deltaTime;
+    }
+    if (cameraDown)
+    {
+        cameraMove.z -= 5.0f * deltaTime;
+    }
+
+    const Vector3 currCameraPosition = cameraTransform->GetPosition();
+    cameraTransform->SetPosition(currCameraPosition + cameraMove);
+
+    if (isCameraRotating)
+    {
+        Vector3 rotation = cameraTransform->GetRotation();
+        rotation.x -= pendingCameraLookDelta.y * 0.1f;
+        rotation.z -= pendingCameraLookDelta.x * 0.1f;
+
+        rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
+
+        cameraTransform->SetRotation(rotation);
+    }
+
+    pendingCameraLookDelta = Vector2::Zero;
 }
 
 void ViewportWidget::OnPrepareRender(RHI::DrawCommandBuilder& builder)

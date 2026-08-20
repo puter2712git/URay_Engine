@@ -96,8 +96,8 @@ void Editor::Update()
 
     inputRouter.Process(*rootWidget, engine.GetInputManager());
 
-    mainMenuBarWidget->Update();
-    rootWidget->Update();
+    mainMenuBarWidget->Update(deltaTime);
+    rootWidget->Update(deltaTime);
 }
 
 void Editor::PrepareRender()

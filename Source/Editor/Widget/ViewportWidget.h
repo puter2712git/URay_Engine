@@ -40,6 +40,7 @@ public:
     void SetSelectedUnit(Unit* unit);
 
 protected:
+    void OnUpdate(float deltaTime) override;
     void OnPrepareRender(RHI::DrawCommandBuilder& builder) override;
     void OnDraw() override;
 
@@ -57,6 +58,19 @@ private:
 
     Rect imageRect = {};
     Extent2D targetExtent = {};
+
+    std::vector<PointerEvent> pendingPointerEvents;
+    std::vector<KeyEvent> pendingKeyEvents;
+
+    bool cameraForward = false;
+    bool cameraBackward = false;
+    bool cameraRight = false;
+    bool cameraLeft = false;
+    bool cameraUp = false;
+    bool cameraDown = false;
+
+    bool isCameraRotating = false;
+    Vector2 pendingCameraLookDelta = Vector2::Zero;
 };
 
 } // namespace URay
