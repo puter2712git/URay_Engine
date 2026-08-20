@@ -2,6 +2,10 @@
 
 #include "Editor/Widget/Widget.h"
 
+#include "Core/Math/Extent2D.h"
+
+#include <optional>
+
 namespace URay
 {
 
@@ -29,7 +33,13 @@ protected:
     void OnDraw() override;
 
 private:
+    std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
+
+private:
     RHI::Renderer& renderer;
+
+    Rect imageRect = {};
+    Extent2D targetExtent = {};
 };
 
 } // namespace URay

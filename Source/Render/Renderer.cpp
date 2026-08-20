@@ -338,7 +338,10 @@ void Renderer::BeginScenePass()
     renderPassInfo.renderPass = sceneRenderPass;
     renderPassInfo.framebuffer = sceneFramebuffer;
     renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = sceneRenderTarget->GetExtent();
+    renderPassInfo.renderArea.extent = {
+        .width = sceneRenderTarget->GetExtent().width,
+        .height = sceneRenderTarget->GetExtent().height,
+    };
 
     std::array<VkClearValue, 2> clearValues = {};
     clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
@@ -360,7 +363,10 @@ void Renderer::BeginScenePass()
 
     VkRect2D scissor = {};
     scissor.offset = { 0, 0 };
-    scissor.extent = sceneRenderTarget->GetExtent();
+    scissor.extent = {
+        .width = sceneRenderTarget->GetExtent().width,
+        .height = sceneRenderTarget->GetExtent().height,
+    };
     vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
 }
 
@@ -433,12 +439,12 @@ void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newPr
     projMatrix = newProjMatrix;
 }
 
-void Renderer::RequestSceneRenderTargetResize(VkExtent2D extent)
+void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
 {
     if (extent.width == 0 || extent.height == 0)
         return;
 
-    const VkExtent2D currExtent = sceneRenderTarget->GetExtent();
+    const Extent2D currExtent = sceneRenderTarget->GetExtent();
 
     if (currExtent.width == extent.width && currExtent.height == extent.height)
     {
@@ -449,7 +455,7 @@ void Renderer::RequestSceneRenderTargetResize(VkExtent2D extent)
     pendingSceneRenderTargetExtent = extent;
 }
 
-VkExtent2D Renderer::GetSceneRenderTargetExtent() const
+Extent2D Renderer::GetSceneRenderTargetExtent() const
 {
     return sceneRenderTarget->GetExtent();
 }
@@ -959,7 +965,11 @@ void Renderer::DestroyRenderPass()
 
 bool Renderer::CreateSceneRenderTarget()
 {
-    sceneRenderTarget = std::make_unique<RenderTarget>(*renderDevice, swapChainExtent);
+    const Extent2D extent = {
+        .width = swapChainExtent.width,
+        .height = swapChainExtent.height,
+    };
+    sceneRenderTarget = std::make_unique<RenderTarget>(*renderDevice, extent);
     return true;
 }
 
@@ -1188,7 +1198,7 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     if (!pendingSceneRenderTargetExtent.has_value())
         return;
 
-    const VkExtent2D extent = *pendingSceneRenderTargetExtent;
+    const Extent2D extent = *pendingSceneRenderTargetExtent;
     pendingSceneRenderTargetExtent.reset();
 
     vkDeviceWaitIdle(device);

@@ -2,6 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommand.h"
 
+#include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
 
 #include <vulkan/vulkan.h>
@@ -72,8 +73,8 @@ public:
 
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
 
-    void RequestSceneRenderTargetResize(VkExtent2D extent);
-    VkExtent2D GetSceneRenderTargetExtent() const;
+    void RequestSceneRenderTargetResize(const Extent2D& extent);
+    Extent2D GetSceneRenderTargetExtent() const;
 
     void Draw(const DrawCommand& cmd);
 
@@ -248,7 +249,7 @@ private:
     DescriptorSetLayout* frameDescriptorSetLayout = nullptr;
     std::vector<DescriptorSet*> frameDescriptorSets;
 
-    std::optional<VkExtent2D> pendingSceneRenderTargetExtent;
+    std::optional<Extent2D> pendingSceneRenderTargetExtent;
 };
 
 } // namespace URay::RHI

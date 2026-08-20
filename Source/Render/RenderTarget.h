@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "Core/Math/Extent2D.h"
 
 #include <memory>
 
@@ -14,15 +14,15 @@ class TextureView;
 class RenderTarget
 {
 public:
-    RenderTarget(RenderDevice& renderDevice, VkExtent2D extent);
+    RenderTarget(RenderDevice& renderDevice, const Extent2D& extent);
     ~RenderTarget();
 
 public:
-    bool Resize(VkExtent2D newExtent);
+    bool Resize(const Extent2D& newExtent);
 
     TextureView* GetColorView() const { return colorTextureView.get(); }
     TextureView* GetDepthView() const { return depthTextureView.get(); }
-    VkExtent2D GetExtent() const { return extent; }
+    const Extent2D& GetExtent() const { return extent; }
 
 private:
     RenderDevice& renderDevice;
@@ -33,7 +33,7 @@ private:
     std::unique_ptr<Texture> depthTexture = nullptr;
     std::unique_ptr<TextureView> depthTextureView = nullptr;
 
-    VkExtent2D extent = {};
+    Extent2D extent = {};
 };
 
 } // namespace URay::RHI

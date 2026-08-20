@@ -10,7 +10,7 @@
 namespace URay::RHI
 {
 
-RenderTarget::RenderTarget(RenderDevice& renderDevice, VkExtent2D extent)
+RenderTarget::RenderTarget(RenderDevice& renderDevice, const Extent2D& extent)
     : renderDevice(renderDevice)
 {
     if (!Resize(extent))
@@ -19,7 +19,7 @@ RenderTarget::RenderTarget(RenderDevice& renderDevice, VkExtent2D extent)
 
 RenderTarget::~RenderTarget() = default;
 
-bool RenderTarget::Resize(VkExtent2D newExtent)
+bool RenderTarget::Resize(const Extent2D& newExtent)
 {
     if (newExtent.width == 0 || newExtent.height == 0)
         return false;
