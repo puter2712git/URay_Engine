@@ -20,6 +20,9 @@ public:
     ~Splitter() override;
 
 public:
+    EventReply OnPointerEnter() override;
+    EventReply OnPointerLeave() override;
+
     void Arrange(const Rect& rect) override;
 
 protected:

@@ -1,5 +1,7 @@
 #include "Splitter.h"
 
+#include "Core/Log/Log.h"
+
 #include <algorithm>
 
 namespace URay
@@ -13,6 +15,18 @@ Splitter::Splitter(SplitAxis axis, std::unique_ptr<Widget> first, std::unique_pt
 }
 
 Splitter::~Splitter() = default;
+
+EventReply Splitter::OnPointerEnter()
+{
+    Logger::Log("Splitter Enter");
+    return {};
+}
+
+EventReply Splitter::OnPointerLeave()
+{
+    Logger::Log("Splitter Leave");
+    return {};
+}
 
 void Splitter::Arrange(const Rect& rect)
 {
