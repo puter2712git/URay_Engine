@@ -47,10 +47,10 @@ public:
     GizmoController(MeshManager& meshManager, MaterialManager& materialManager);
 
 public:
-    void Update(CameraComponent* camera);
+    void Update(const Vector2& targetPosition, CameraComponent& camera);
     void Draw(RHI::DrawCommandBuilder& builder);
 
-    void StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent* camera);
+    void StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent& camera);
     void EndDragging();
 
     Unit* GetTarget() const { return targetUnit; }
@@ -74,11 +74,11 @@ public:
     const TransformComponent* GetTargetTransform() const;
 
 private:
-    void UpdateGizmo(CameraComponent* camera);
+    void UpdateGizmo(const Vector2& targetPosition, CameraComponent& camera);
 
-    void UpdateTranslation(CameraComponent* camera);
-    void UpdateRotation(CameraComponent* camera);
-    void UpdateScale(CameraComponent* camera);
+    void UpdateTranslation(const Vector2& targetPosition, CameraComponent& camera);
+    void UpdateRotation(const Vector2& targetPosition, CameraComponent& camera);
+    void UpdateScale(const Vector2& targetPosition, CameraComponent& camera);
 
     Vector3 GetCurrAxisDir();
     bool GetDragPlaneHitPoint(const Vector3& lineDir, Vector3& outHitPoint) const;

@@ -2,6 +2,7 @@
 
 #include "Engine/Component/Component.h"
 
+#include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
 
 namespace URay
@@ -17,6 +18,8 @@ public:
     virtual const std::string& GetName() const override { return name; }
 
     Vector3 ScreenToWorld(const Vector3& screenPos) const;
+
+    void SetViewportExtent(const Extent2D& extent);
 
     Matrix GetViewMatrix() const { return viewMatrix; }
 
@@ -40,6 +43,8 @@ private:
 
     float near = 0.1f;
     float far = 1000.0f;
+
+    Extent2D viewportExtent = {};
 
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;

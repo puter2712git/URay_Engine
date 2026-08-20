@@ -1,5 +1,11 @@
 #include "ViewportWidget.h"
 
+#include "Editor/EditorPicker.h"
+#include "Editor/GizmoController.h"
+
+#include "Engine/Component/CameraComponent.h"
+#include "Engine/Engine.h"
+
 #include "Render/Renderer.h"
 
 #include "Core/Log/Log.h"
@@ -9,26 +15,55 @@
 namespace URay
 {
 
-ViewportWidget::ViewportWidget(RHI::Renderer& renderer)
-    : renderer(renderer)
+ViewportWidget::ViewportWidget(RHI::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc)
+    : renderer(renderer), camera(camera), onSelectUnit(onSelectUnitFunc)
 {
+    camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
+
+    gizmo = std::make_unique<GizmoController>(*engine.GetMeshManager(), *engine.GetMaterialManager());
+    picker = std::make_unique<EditorPicker>(engine, gizmo.get());
 }
 
-EventReply ViewportWidget::OnPointerEnter()
+ViewportWidget::~ViewportWidget()
 {
-    Logger::Log("Viewport pointer enter.");
-    return {};
-}
-
-EventReply ViewportWidget::OnPointerLeave()
-{
-    Logger::Log("Viewport pointer leave.");
-    return {};
+    if (picker)
+    {
+        picker.reset();
+        picker = nullptr;
+    }
+    if (gizmo)
+    {
+        gizmo.reset();
+        gizmo = nullptr;
+    }
 }
 
 EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 {
-    Logger::Log("Viewport pointer down.");
+    if (event.changedButton == MouseButton::Left)
+    {
+        const auto targetPosition = WindowToRenderTarget(event.position);
+        if (!targetPosition)
+            return {};
+
+        const PickResult pickResult = picker->Pick(&camera, targetPosition->x, targetPosition->y);
+        if (!pickResult.hit)
+        {
+            onSelectUnit(nullptr);
+        }
+        else
+        {
+            if (pickResult.gizmoAxis != -1)
+            {
+                gizmo->StartDragging(*targetPosition, pickResult.gizmoAxis, camera);
+            }
+            else
+            {
+                onSelectUnit(pickResult.pickedUnit);
+            }
+        }
+    }
+
     return {
         .requestFocus = true,
         .capturePointer = true,
@@ -42,22 +77,45 @@ EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
 
 EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
 {
-    Logger::Log("Viewport pointer up.");
-    return {
-        .releasePointer = true
+    if (event.changedButton == MouseButton::Left)
+    {
+        if (gizmo && gizmo->IsDragging())
+        {
+            gizmo->EndDragging();
+        }
+    }
+
+    return EventReply{
+        .releasePointer = true,
     };
 }
 
 EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
 {
-    Logger::Log("Viewport key down: " + std::to_string(static_cast<uint16_t>(event.key)));
+    if (event.key == KeyCode::Space)
+    {
+        if (gizmo)
+        {
+            GizmoMode mode = gizmo->GetMode();
+            int modeIndex = static_cast<int>(mode);
+            modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
+
+            GizmoMode newMode = static_cast<GizmoMode>(modeIndex);
+            gizmo->SetMode(newMode);
+        }
+    }
+
     return {};
 }
 
 EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
 {
-    Logger::Log("Viewport key up: " + std::to_string(static_cast<uint16_t>(event.key)));
     return {};
+}
+
+void ViewportWidget::SetSelectedUnit(Unit* unit)
+{
+    gizmo->SetTarget(unit);
 }
 
 void ViewportWidget::OnDraw()
@@ -96,6 +154,7 @@ void ViewportWidget::OnDraw()
         };
 
         renderer.RequestSceneRenderTargetResize(requestedExtent);
+        camera.SetViewportExtent(targetExtent);
 
         const ImTextureID textureId = static_cast<ImTextureID>(reinterpret_cast<uintptr_t>(descriptorSet));
         ImGui::Image(ImTextureRef(textureId), logicalSize);

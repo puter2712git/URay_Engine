@@ -9,16 +9,15 @@ namespace URay
 
 class Engine;
 class CameraComponent;
-class GizmoController;
+class Unit;
 
 namespace RHI
 {
 class Renderer;
 }
-class Unit;
 
 class Widget;
-class EditorPicker;
+class ViewportWidget;
 
 class Editor
 {
@@ -37,25 +36,17 @@ public:
     void SelectUnit(Unit* unit);
 
 private:
-    void PrepareEditorScene();
-
-    void UpdateCameraMovement(float deltaTime);
-    void UpdateCameraRotation(float deltaTime);
-
-    void UpdateHover();
-    void UpdatePick();
+    CameraComponent& PrepareEditorScene();
 
 private:
     Engine& engine;
 
-    CameraComponent* camera = nullptr;
-    GizmoController* gizmo = nullptr;
-
-    EditorPicker* picker = nullptr;
     Unit* selectedUnit = nullptr;
 
     std::unique_ptr<Widget> mainMenuBarWidget = nullptr;
     std::unique_ptr<Widget> rootWidget = nullptr;
+
+    ViewportWidget* viewportWidget = nullptr;
 
     UIInputRouter inputRouter;
 };

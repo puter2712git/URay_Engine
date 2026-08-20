@@ -2,12 +2,10 @@
 
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
-#include "Engine/Engine.h"
 #include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Unit.h"
 
-#include "Core/Input/InputManager.h"
 #include "Core/Math/Math.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
@@ -29,20 +27,20 @@ GizmoController::GizmoController(MeshManager& meshManager, MaterialManager& mate
     material = materialManager.GetOrCreate("Mesh");
 }
 
-void GizmoController::Update(CameraComponent* camera)
+void GizmoController::Update(const Vector2& targetPosition, CameraComponent& camera)
 {
     if (!targetUnit || !targetUnit->GetTransform())
         return;
 
-    UpdateGizmo(camera);
+    UpdateGizmo(targetPosition, camera);
 
     const TransformComponent* transform = targetUnit->GetTransform();
-    const Vector3 targetPosition = transform->GetPosition();
+    const Vector3 selectedUnitPosition = transform->GetPosition();
 
-    const TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
+    const TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
     const Vector3 cameraPosition = cameraTransform->GetPosition();
 
-    const float toCameraLength = (targetPosition - cameraPosition).GetLength();
+    const float toCameraLength = (selectedUnitPosition - cameraPosition).GetLength();
 
     float gizmoScale = std::clamp(toCameraLength * scaleFactor, minScale, maxScale);
 
@@ -133,14 +131,14 @@ void GizmoController::Draw(DrawCommandBuilder& builder)
     builder.BuildFromGizmo(zCoordContext);
 }
 
-void GizmoController::StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent* camera)
+void GizmoController::StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent& camera)
 {
-    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
 
     isDragging = true;
     SetSelectedAxis(selectedAxis);
 
-    const Vector3 cameraWorldFarPos = camera->ScreenToWorld(Vector3(clickPos.x, clickPos.y, 1.0f));
+    const Vector3 cameraWorldFarPos = camera.ScreenToWorld(Vector3(clickPos.x, clickPos.y, 1.0f));
     dragStartWorldPos = cameraTransform->GetPosition();
     dragStartLineDir = cameraWorldFarPos - dragStartWorldPos;
     targetInitPosition = targetUnit->GetTransform()->GetPosition();
@@ -170,7 +168,7 @@ const TransformComponent* GizmoController::GetTargetTransform() const
     return targetUnit->GetTransform();
 }
 
-void GizmoController::UpdateGizmo(CameraComponent* camera)
+void GizmoController::UpdateGizmo(const Vector2& targetPosition, CameraComponent& camera)
 {
     if (!IsDragging())
         return;
@@ -178,28 +176,26 @@ void GizmoController::UpdateGizmo(CameraComponent* camera)
     switch (mode)
     {
     case GizmoMode::Translation:
-        UpdateTranslation(camera);
+        UpdateTranslation(targetPosition, camera);
         break;
     case GizmoMode::Rotation:
-        UpdateRotation(camera);
+        UpdateRotation(targetPosition, camera);
         break;
     case GizmoMode::Scale:
-        UpdateScale(camera);
+        UpdateScale(targetPosition, camera);
         break;
     default:
         break;
     }
 }
 
-void GizmoController::UpdateTranslation(CameraComponent* camera)
+void GizmoController::UpdateTranslation(const Vector2& targetPosition, CameraComponent& camera)
 {
-    InputManager& input = gEngine->GetInputManager();
-
-    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
     Vector3 cameraForward = cameraTransform->GetForward();
     Vector3 axisDir = dragAxisDir;
 
-    Vector3 currCameraFarPos = camera->ScreenToWorld(Vector3(input.mouseX, input.mouseY, 1.0f));
+    Vector3 currCameraFarPos = camera.ScreenToWorld(Vector3(targetPosition.x, targetPosition.y, 1.0f));
     Vector3 currLineDir = currCameraFarPos - dragStartWorldPos;
 
     Vector3 planeNormal = Vector3::Cross(axisDir, Vector3::Cross(cameraForward, axisDir).GetNormalized()).GetNormalized();
@@ -225,15 +221,13 @@ void GizmoController::UpdateTranslation(CameraComponent* camera)
     targetUnit->GetTransform()->SetPosition(movedPos);
 }
 
-void GizmoController::UpdateRotation(CameraComponent* camera)
+void GizmoController::UpdateRotation(const Vector2& targetPosition, CameraComponent& camera)
 {
-    InputManager& input = gEngine->GetInputManager();
-
     Vector3 startHitPoint;
     if (!GetDragPlaneHitPoint(dragStartLineDir, startHitPoint))
         return;
 
-    Vector3 currCameraFarPos = camera->ScreenToWorld(Vector3(input.mouseX, input.mouseY, 1.0f));
+    Vector3 currCameraFarPos = camera.ScreenToWorld(Vector3(targetPosition.x, targetPosition.y, 1.0f));
     Vector3 currHitPoint;
     if (!GetDragPlaneHitPoint(currCameraFarPos - dragStartWorldPos, currHitPoint))
         return;
@@ -266,11 +260,9 @@ void GizmoController::UpdateRotation(CameraComponent* camera)
     targetUnit->GetTransform()->SetRotation(rotation);
 }
 
-void GizmoController::UpdateScale(CameraComponent* camera)
+void GizmoController::UpdateScale(const Vector2& targetPosition, CameraComponent& camera)
 {
-    InputManager& input = gEngine->GetInputManager();
-
-    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
 
     Vector3 planeNormal = Vector3::Cross(
                               dragAxisDir,
@@ -281,7 +273,7 @@ void GizmoController::UpdateScale(CameraComponent* camera)
     if (!Math::IntersectLinePlane(dragStartWorldPos, dragStartLineDir, targetInitPosition, planeNormal, startHitPoint))
         return;
 
-    Vector3 currCameraFarPos = camera->ScreenToWorld(Vector3(input.mouseX, input.mouseY, 1.0f));
+    Vector3 currCameraFarPos = camera.ScreenToWorld(Vector3(targetPosition.x, targetPosition.y, 1.0f));
     Vector3 currHitPoint;
     if (!Math::IntersectLinePlane(dragStartWorldPos, currCameraFarPos - dragStartWorldPos, targetInitPosition, planeNormal, currHitPoint))
         return;

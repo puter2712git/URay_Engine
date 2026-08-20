@@ -26,9 +26,8 @@ void CameraComponent::Update(float deltaTime)
 
 Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const
 {
-    int width = 0;
-    int height = 0;
-    gEngine->GetWindowSize(width, height);
+    uint32_t width = viewportExtent.width;
+    uint32_t height = viewportExtent.height;
 
     float ndcX = (2.0f * screenPos.x) / width - 1.0f;
     float ndcY = 1.0f - (2.0f * screenPos.y) / height;
@@ -46,6 +45,21 @@ Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const
     return worldPos;
 }
 
+void CameraComponent::SetViewportExtent(const Extent2D& extent)
+{
+    if (extent.width == 0 || extent.height == 0)
+        return;
+
+    if (viewportExtent.width == extent.width &&
+        viewportExtent.height == extent.height)
+    {
+        return;
+    }
+
+    viewportExtent = extent;
+    UpdateProjMatrix();
+}
+
 void CameraComponent::UpdateViewMatrix()
 {
     Unit* owner = GetOwner();
@@ -59,9 +73,11 @@ void CameraComponent::UpdateViewMatrix()
 
 void CameraComponent::UpdateProjMatrix()
 {
-    int width = 0;
-    int height = 0;
-    gEngine->GetFramebufferSize(width, height);
+    uint32_t width = viewportExtent.width;
+    uint32_t height = viewportExtent.height;
+
+    if (width == 0 || height == 0)
+        return;
 
     float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
     float fovRad = Math::DegToRad(fov);
