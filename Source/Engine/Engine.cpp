@@ -15,7 +15,7 @@
 #include "Core/Timer.h"
 
 #include "Platform/Input/GLFWInputAdapter.h"
-#include "Platform/Window.h"
+#include "Platform/Window/Window.h"
 
 #include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"

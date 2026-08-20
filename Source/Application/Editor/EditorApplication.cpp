@@ -3,7 +3,7 @@
 #include "Editor/Editor.h"
 #include "Engine/Engine.h"
 
-#include "Platform/Window.h"
+#include "Platform/Window/Window.h"
 
 namespace URay
 {
