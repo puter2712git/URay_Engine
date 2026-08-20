@@ -15,6 +15,16 @@ void Widget::Update()
     }
 }
 
+void Widget::PrepareRender(RHI::DrawCommandBuilder& builder)
+{
+    OnPrepareRender(builder);
+
+    for (const auto& child : children)
+    {
+        child->PrepareRender(builder);
+    }
+}
+
 void Widget::Draw()
 {
     OnDraw();

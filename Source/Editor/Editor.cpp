@@ -105,7 +105,7 @@ void Editor::PrepareRender()
     RHI::Renderer* renderer = engine.GetRenderer();
     RHI::DrawCommandBuilder& builder = engine.GetRenderPipeline()->GetBuilder();
 
-    // gizmo->Draw(builder);
+    rootWidget->PrepareRender(builder);
 
     renderer->BeginImGui();
 

@@ -72,6 +72,15 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
 
 EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
 {
+    if (gizmo)
+    {
+        const auto targetPosition = WindowToRenderTarget(event.position);
+        if (!targetPosition)
+            return {};
+
+        gizmo->Update(*targetPosition, camera);
+    }
+
     return {};
 }
 
@@ -116,6 +125,11 @@ EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
 void ViewportWidget::SetSelectedUnit(Unit* unit)
 {
     gizmo->SetTarget(unit);
+}
+
+void ViewportWidget::OnPrepareRender(RHI::DrawCommandBuilder& builder)
+{
+    gizmo->Draw(builder);
 }
 
 void ViewportWidget::OnDraw()

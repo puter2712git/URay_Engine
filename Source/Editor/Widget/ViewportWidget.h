@@ -40,6 +40,7 @@ public:
     void SetSelectedUnit(Unit* unit);
 
 protected:
+    void OnPrepareRender(RHI::DrawCommandBuilder& builder) override;
     void OnDraw() override;
 
 private:

@@ -11,6 +11,11 @@
 namespace URay
 {
 
+namespace RHI
+{
+class DrawCommandBuilder;
+}
+
 class Widget
 {
     friend class UIInputRouter;
@@ -20,6 +25,7 @@ public:
 
 public:
     void Update();
+    void PrepareRender(RHI::DrawCommandBuilder& builder);
     void Draw();
 
     void AddChild(std::unique_ptr<Widget> child);
@@ -47,6 +53,7 @@ protected:
     void ApplyRect() const;
 
     virtual void OnUpdate() {}
+    virtual void OnPrepareRender(RHI::DrawCommandBuilder& builder) {}
     virtual void OnDraw() {}
 
 protected:
