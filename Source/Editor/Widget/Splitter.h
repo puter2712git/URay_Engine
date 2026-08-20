@@ -22,6 +22,9 @@ public:
 public:
     EventReply OnPointerEnter() override;
     EventReply OnPointerLeave() override;
+    EventReply OnPointerDown(const PointerEvent& event) override;
+    EventReply OnPointerMove(const PointerEvent& event) override;
+    EventReply OnPointerUp(const PointerEvent& event) override;
 
     void Arrange(const Rect& rect) override;
 

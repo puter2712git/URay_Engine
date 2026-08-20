@@ -32,6 +32,41 @@ EventReply Splitter::OnPointerLeave()
     };
 }
 
+EventReply Splitter::OnPointerDown(const PointerEvent& event)
+{
+    if (event.changedButton == MouseButton::Left)
+    {
+        isDragging = true;
+
+        return EventReply{
+            .capturePointer = true,
+        };
+    }
+}
+
+EventReply Splitter::OnPointerMove(const PointerEvent& event)
+{
+    if (isDragging)
+    {
+        float delta = axis == SplitAxis::Horizontal
+                          ? event.delta.x
+                          : event.delta.y;
+        splitRatio += delta * 0.001f;
+    }
+}
+
+EventReply Splitter::OnPointerUp(const PointerEvent& event)
+{
+    if (event.changedButton == MouseButton::Left && isDragging)
+    {
+        isDragging = false;
+
+        return EventReply{
+            .releasePointer = true,
+        };
+    }
+}
+
 void Splitter::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
