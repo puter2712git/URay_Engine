@@ -45,6 +45,9 @@ protected:
     void OnDraw() override;
 
 private:
+    void UpdateCameraMovement(float deltaTime);
+    void UpdateCameraRotation();
+
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
 
 private:
@@ -59,8 +62,7 @@ private:
     Rect imageRect = {};
     Extent2D targetExtent = {};
 
-    std::vector<PointerEvent> pendingPointerEvents;
-    std::vector<KeyEvent> pendingKeyEvents;
+    Vector2 cachedPosition = Vector2::Zero;
 
     bool cameraForward = false;
     bool cameraBackward = false;

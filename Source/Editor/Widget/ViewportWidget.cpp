@@ -97,7 +97,7 @@ EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
         if (!targetPosition)
             return {};
 
-        gizmo->Update(*targetPosition, camera);
+        cachedPosition = *targetPosition;
     }
 
     return {};
@@ -203,52 +203,21 @@ void ViewportWidget::SetSelectedUnit(Unit* unit)
 
 void ViewportWidget::OnUpdate(float deltaTime)
 {
-    Vector3 cameraMove = Vector3::Zero;
-
-    if (cameraForward)
+    PickResult pickResult = picker->Pick(&camera, cachedPosition.x, cachedPosition.y);
+    if (!pickResult.hit)
     {
-        cameraMove.y += 5.0f * deltaTime;
-    }
-    if (cameraBackward)
-    {
-        cameraMove.y -= 5.0f * deltaTime;
-    }
-    if (cameraRight)
-    {
-        cameraMove.x += 5.0f * deltaTime;
-    }
-    if (cameraLeft)
-    {
-        cameraMove.x -= 5.0f * deltaTime;
+        gizmo->SetHoveredAxis(-1);
     }
 
-    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
-    cameraMove = cameraTransform->TransformVectorNoScale(cameraMove);
-
-    if (cameraUp)
+    if (pickResult.gizmoAxis != -1)
     {
-        cameraMove.z += 5.0f * deltaTime;
-    }
-    if (cameraDown)
-    {
-        cameraMove.z -= 5.0f * deltaTime;
+        gizmo->SetHoveredAxis(pickResult.gizmoAxis);
     }
 
-    const Vector3 currCameraPosition = cameraTransform->GetPosition();
-    cameraTransform->SetPosition(currCameraPosition + cameraMove);
+    gizmo->Update(cachedPosition, camera);
 
-    if (isCameraRotating)
-    {
-        Vector3 rotation = cameraTransform->GetRotation();
-        rotation.x -= pendingCameraLookDelta.y * 0.1f;
-        rotation.z -= pendingCameraLookDelta.x * 0.1f;
-
-        rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
-
-        cameraTransform->SetRotation(rotation);
-    }
-
-    pendingCameraLookDelta = Vector2::Zero;
+    UpdateCameraMovement(deltaTime);
+    UpdateCameraRotation();
 }
 
 void ViewportWidget::OnPrepareRender(RHI::DrawCommandBuilder& builder)
@@ -299,6 +268,61 @@ void ViewportWidget::OnDraw()
     }
 
     ImGui::End();
+}
+
+void ViewportWidget::UpdateCameraMovement(float deltaTime)
+{
+    Vector3 cameraMove = Vector3::Zero;
+
+    if (cameraForward)
+    {
+        cameraMove.y += 5.0f * deltaTime;
+    }
+    if (cameraBackward)
+    {
+        cameraMove.y -= 5.0f * deltaTime;
+    }
+    if (cameraRight)
+    {
+        cameraMove.x += 5.0f * deltaTime;
+    }
+    if (cameraLeft)
+    {
+        cameraMove.x -= 5.0f * deltaTime;
+    }
+
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
+    cameraMove = cameraTransform->TransformVectorNoScale(cameraMove);
+
+    if (cameraUp)
+    {
+        cameraMove.z += 5.0f * deltaTime;
+    }
+    if (cameraDown)
+    {
+        cameraMove.z -= 5.0f * deltaTime;
+    }
+
+    const Vector3 currCameraPosition = cameraTransform->GetPosition();
+    cameraTransform->SetPosition(currCameraPosition + cameraMove);
+}
+
+void ViewportWidget::UpdateCameraRotation()
+{
+    if (!isCameraRotating)
+        return;
+
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
+
+    Vector3 rotation = cameraTransform->GetRotation();
+    rotation.x -= pendingCameraLookDelta.y * 0.1f;
+    rotation.z -= pendingCameraLookDelta.x * 0.1f;
+
+    rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
+
+    cameraTransform->SetRotation(rotation);
+
+    pendingCameraLookDelta = Vector2::Zero;
 }
 
 std::optional<Vector2> ViewportWidget::WindowToRenderTarget(const Vector2& windowPosition) const
