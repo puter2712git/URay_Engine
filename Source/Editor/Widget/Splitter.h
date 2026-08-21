@@ -38,6 +38,9 @@ private:
     float handleThickness = 4.0f;
 
     bool isDragging = false;
+
+    float dragStartPosition = 0.0f;
+    float dragStartRatio = 0.0f;
 };
 
 } // namespace URay

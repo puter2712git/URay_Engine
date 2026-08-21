@@ -25,8 +25,12 @@ EventReply Splitter::OnPointerEnter()
 
 EventReply Splitter::OnPointerLeave()
 {
+    CursorType cursorType = axis == SplitAxis::Horizontal
+                                ? CursorType::HRESIZE
+                                : CursorType::VRESIZE;
+
     return {
-        .cursor = CursorType::ARROW
+        .cursor = isDragging ? cursorType : CursorType::ARROW
     };
 }
 
@@ -35,6 +39,9 @@ EventReply Splitter::OnPointerDown(const PointerEvent& event)
     if (event.changedButton == MouseButton::Left)
     {
         isDragging = true;
+
+        dragStartPosition = axis == SplitAxis::Horizontal ? event.position.x : event.position.y;
+        dragStartRatio = splitRatio;
 
         return EventReply{
             .capturePointer = true,
@@ -48,10 +55,13 @@ EventReply Splitter::OnPointerMove(const PointerEvent& event)
 {
     if (isDragging)
     {
-        float delta = axis == SplitAxis::Horizontal
-                          ? event.delta.x
-                          : event.delta.y;
-        splitRatio += delta * 0.001f;
+        const float currPosition = axis == SplitAxis::Horizontal ? event.position.x : event.position.y;
+        const float movedPixels = currPosition - dragStartPosition;
+
+        uint32_t contentLength = axis == SplitAxis::Horizontal ? rect.size.x : rect.size.y;
+
+        const float firstLength = dragStartRatio * contentLength + movedPixels;
+        splitRatio = std::clamp(firstLength / contentLength, 0.0f, 1.0f);
     }
 
     return {};
