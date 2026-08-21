@@ -1,5 +1,6 @@
 #include "Editor.h"
 
+#include "Editor/EditorLayout.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
@@ -20,6 +21,7 @@
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 
+#include "Core/File/VirtualPath.h"
 #include "Core/Timer.h"
 
 #include "Render/RenderPipeline.h"
@@ -45,6 +47,7 @@ bool Editor::Initialize()
         return false;
 
     inputRouter = std::make_unique<UIInputRouter>(*engine.GetWindow());
+    editorLayout = std::make_unique<EditorLayout>(*engine.GetFilesystem());
 
     CameraComponent& camera = PrepareEditorScene();
 
@@ -59,21 +62,26 @@ bool Editor::Initialize()
                                                                                 { SelectUnit(unit); });
     viewportWidget = viewport.get();
 
-    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
-    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
-    std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>(SplitAxis::Horizontal, std::move(console), std::move(filesystem));
-    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>(SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
+    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
+    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
+    std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>("LeftPanel2", SplitAxis::Horizontal, std::move(console), std::move(filesystem));
+    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
 
     rootWidget = std::make_unique<Splitter>(
+        "Root",
         SplitAxis::Horizontal,
         std::move(leftPanel),
         std::move(rightPanel));
+
+    editorLayout->LoadLayout(*rootWidget);
 
     return true;
 }
 
 void Editor::Finalize()
 {
+    editorLayout->SaveLayout(*rootWidget);
+
     mainMenuBarWidget.reset();
     rootWidget.reset();
 
@@ -86,16 +94,8 @@ void Editor::Finalize()
 
 void Editor::Update()
 {
-    // UpdateHover();
-    // UpdatePick();
-
     Timer* timer = engine.GetTimer();
     float deltaTime = timer->GetDeltaTime();
-
-    // UpdateCameraMovement(deltaTime);
-    // UpdateCameraRotation(deltaTime);
-
-    // gizmo->Update(camera);
 
     inputRouter->Process(*rootWidget, engine.GetInputManager());
 
@@ -158,111 +158,5 @@ CameraComponent& Editor::PrepareEditorScene()
 
     return *camera;
 }
-
-// void Editor::UpdateCameraMovement(float deltaTime)
-//{
-//     if (!camera)
-//         return;
-//
-//     Vector3 moveDir = Vector3::Zero;
-//
-//     InputManager& input = engine.GetInputManager();
-//
-//     if (input.GetKey(GLFW_KEY_A))
-//     {
-//         moveDir.x -= 3.0f * deltaTime;
-//     }
-//     if (input.GetKey(GLFW_KEY_D))
-//     {
-//         moveDir.x += 3.0f * deltaTime;
-//     }
-//     if (input.GetKey(GLFW_KEY_W))
-//     {
-//         moveDir.y += 3.0f * deltaTime;
-//     }
-//     if (input.GetKey(GLFW_KEY_S))
-//     {
-//         moveDir.y -= 3.0f * deltaTime;
-//     }
-//
-//     const Unit* camUnit = camera->GetOwner();
-//     TransformComponent* transform = camUnit->GetTransform();
-//
-//     Vector3 movePos = transform->TransformVectorNoScale(moveDir);
-//     Vector3 camPos = transform->GetPosition();
-//
-//     if (input.GetKey(GLFW_KEY_Q))
-//     {
-//         camPos.z -= 3.0f * deltaTime;
-//     }
-//     if (input.GetKey(GLFW_KEY_E))
-//     {
-//         camPos.z += 3.0f * deltaTime;
-//     }
-//
-//     transform->SetPosition(camPos + movePos);
-// }
-
-// void Editor::UpdateCameraRotation(float deltaTime)
-//{
-//     if (!camera)
-//         return;
-//
-//     InputManager& input = engine.GetInputManager();
-//
-//     if (!input.GetMouse(GLFW_MOUSE_BUTTON_RIGHT))
-//         return;
-//
-//     const Unit* camUnit = camera->GetOwner();
-//     TransformComponent* transform = camUnit->GetTransform();
-//
-//     Vector3 cameraRot = transform->GetRotation();
-//     cameraRot.x -= input.mouseDeltaY * 0.1f;
-//     cameraRot.z -= input.mouseDeltaX * 0.1f;
-//
-//     cameraRot.x = std::clamp(cameraRot.x, -89.0f, 89.0f);
-//
-//     transform->SetRotation(cameraRot);
-// }
-
-// void Editor::UpdateHover()
-//{
-//     InputManager input = engine.GetInputManager();
-//
-//     PickResult pickResult = picker->Pick(camera, input.mouseX, input.mouseY);
-//     if (!pickResult.hit)
-//     {
-//         gizmo->SetHoveredAxis(-1);
-//         return;
-//     }
-//
-//     if (pickResult.gizmoAxis != -1)
-//     {
-//         gizmo->SetHoveredAxis(pickResult.gizmoAxis);
-//     }
-// }
-
-// void Editor::UpdatePick()
-//{
-//     InputManager input = engine.GetInputManager();
-//     if (!input.GetMouseDown(GLFW_MOUSE_BUTTON_LEFT))
-//         return;
-//
-//     PickResult pickResult = picker->Pick(camera, input.mouseX, input.mouseY);
-//     if (!pickResult.hit)
-//     {
-//         SelectUnit(nullptr);
-//         return;
-//     }
-//
-//     if (pickResult.gizmoAxis != -1)
-//     {
-//         const Vector2 clickPos = Vector2(input.mouseX, input.mouseY);
-//         gizmo->StartDragging(clickPos, pickResult.gizmoAxis, camera);
-//         return;
-//     }
-//
-//     SelectUnit(pickResult.pickedUnit);
-// }
 
 } // namespace URay

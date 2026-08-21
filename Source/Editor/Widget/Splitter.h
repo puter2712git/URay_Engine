@@ -3,6 +3,7 @@
 #include "Editor/Widget/Widget.h"
 
 #include <memory>
+#include <string>
 
 namespace URay
 {
@@ -16,7 +17,7 @@ enum class SplitAxis
 class Splitter : public Widget
 {
 public:
-    Splitter(SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
+    Splitter(const std::string& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
     ~Splitter() override;
 
 public:
@@ -28,10 +29,17 @@ public:
 
     void Arrange(const Rect& rect) override;
 
+    float GetSplitRatio() const { return splitRatio; }
+    void SetSplitRatio(float ratio) { splitRatio = ratio; }
+
+    const std::string& GetLayoutId() const { return layoutId; }
+
 protected:
     void OnUpdate(float) override;
 
 private:
+    std::string layoutId;
+
     SplitAxis axis = SplitAxis::Horizontal;
 
     float splitRatio = 0.5f;

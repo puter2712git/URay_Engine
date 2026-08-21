@@ -5,8 +5,8 @@
 namespace URay
 {
 
-Splitter::Splitter(SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second)
-    : axis(axis)
+Splitter::Splitter(const std::string& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second)
+    : layoutId(layoutId), axis(axis)
 {
     AddChild(std::move(first));
     AddChild(std::move(second));

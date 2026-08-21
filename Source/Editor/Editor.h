@@ -17,6 +17,7 @@ class Renderer;
 class Widget;
 class ViewportWidget;
 class UIInputRouter;
+class EditorLayout;
 
 class Editor
 {
@@ -48,6 +49,7 @@ private:
     ViewportWidget* viewportWidget = nullptr;
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
+    std::unique_ptr<EditorLayout> editorLayout = nullptr;
 };
 
 } // namespace URay

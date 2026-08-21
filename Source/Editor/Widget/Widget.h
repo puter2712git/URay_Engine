@@ -29,7 +29,7 @@ public:
     void Draw();
 
     void AddChild(std::unique_ptr<Widget> child);
-    const std::vector<std::unique_ptr<Widget>>& GetChildren() { return children; }
+    const std::vector<std::unique_ptr<Widget>>& GetChildren() const { return children; }
 
     virtual void Arrange(const Rect& rect) { this->rect = rect; }
     const Rect& GetRect() const { return rect; }
