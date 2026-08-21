@@ -3,6 +3,7 @@
 #include "Scene/SceneType.h"
 
 #include "Core/Input/InputManager.h"
+#include "Core/Performance/ScopeTimer.h"
 
 #include <string>
 #include <vector>
@@ -18,6 +19,7 @@ class Unit;
 class Window;
 class Timer;
 class VirtualFilesystem;
+class PerformanceAnalytics;
 
 class MaterialManager;
 class MeshManager;
@@ -40,8 +42,8 @@ class Editor;
 class Engine
 {
 public:
-    Engine() = default;
-    ~Engine() = default;
+    Engine();
+    ~Engine();
 
 public:
     bool Initialize(const std::string& projectPath);
@@ -86,6 +88,8 @@ public:
 
     VirtualFilesystem* GetFilesystem() const { return filesystem; }
 
+    PerformanceAnalytics* GetPerformanceAnalytics() const { return performanceAnalytics.get(); }
+
 private:
     Window* window = nullptr;
 
@@ -100,6 +104,8 @@ private:
 
     InputManager inputManager;
 
+    std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
+
     RHI::ShaderManager* shaderManager = nullptr;
     MaterialManager* materialManager = nullptr;
     MeshManager* meshManager = nullptr;
@@ -112,5 +118,8 @@ private:
 };
 
 extern Engine* gEngine;
+
+#define URAY_PROFILE_SCOPE(name) \
+    ::URay::ScopeTimer _urayScopeTimer(*gEngine->GetPerformanceAnalytics(), name);
 
 } // namespace URay

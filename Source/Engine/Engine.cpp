@@ -12,6 +12,7 @@
 #include "Engine/Unit.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
 #include "Platform/Input/GLFWInputAdapter.h"
@@ -35,6 +36,10 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
 
 Engine* gEngine;
+
+Engine::Engine() = default;
+
+Engine::~Engine() = default;
 
 bool Engine::Initialize(const std::string& projectPath)
 {
@@ -60,6 +65,8 @@ bool Engine::Initialize(const std::string& projectPath)
     filesystem->Mount("Project", projectPath);
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
+
+    performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
     shaderManager = renderer->GetShaderManager();
 
@@ -117,6 +124,10 @@ void Engine::Finalize()
 
 void Engine::Update()
 {
+    performanceAnalytics->Reset();
+
+    URAY_PROFILE_SCOPE("Engine::Update");
+
     inputManager.ClearEvents();
     inputManager.Update();
 
@@ -132,12 +143,16 @@ void Engine::Update()
 
 void Engine::BeginRender()
 {
+    URAY_PROFILE_SCOPE("Engine::BeginRender");
+
     renderPipeline->Reset();
     renderer->BeginFrame();
 }
 
 void Engine::PrepareRender()
 {
+    URAY_PROFILE_SCOPE("Engine::PrepareRender");
+
     for (const Scene* scene : scenes)
     {
         for (const Unit* unit : scene->GetUnits())
@@ -152,6 +167,8 @@ void Engine::PrepareRender()
 
 void Engine::Render()
 {
+    URAY_PROFILE_SCOPE("Engine::Render");
+
     renderer->BeginScenePass();
     renderPipeline->Execute(scenes);
     renderer->EndScenePass();
@@ -159,6 +176,8 @@ void Engine::Render()
 
 void Engine::EndRender()
 {
+    URAY_PROFILE_SCOPE("Engine::EndRender");
+
     renderer->BeginSwapChainPass();
     renderer->EndImGui();
     renderer->EndSwapChainPass();
