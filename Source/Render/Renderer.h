@@ -14,7 +14,8 @@
 namespace URay
 {
 class Window;
-}
+class VirtualFilesystem;
+} // namespace URay
 
 namespace URay::RHI
 {
@@ -54,7 +55,7 @@ public:
     bool Initialize(::URay::Window* wnd);
     void Finalize();
 
-    bool InitializeImGui();
+    bool InitializeImGui(const VirtualFilesystem& filesystem);
     void FinalizeImGui();
 
     bool BeginFrame();

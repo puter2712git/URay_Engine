@@ -43,7 +43,7 @@ bool Editor::Initialize()
 {
     RHI::Renderer* renderer = engine.GetRenderer();
 
-    if (!renderer->InitializeImGui())
+    if (!renderer->InitializeImGui(*engine.GetFilesystem()))
         return false;
 
     inputRouter = std::make_unique<UIInputRouter>(*engine.GetWindow());

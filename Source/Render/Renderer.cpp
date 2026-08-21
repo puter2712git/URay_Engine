@@ -17,6 +17,8 @@
 
 #include "Engine/Material/Material.h"
 
+#include "Core/File/VirtualFilesystem.h"
+
 #include "Platform/Window/Window.h"
 
 #define GLFW_INCLUDE_VULKAN
@@ -198,11 +200,32 @@ void Renderer::Finalize()
     DestroyInstance();
 }
 
-bool Renderer::InitializeImGui()
+bool Renderer::InitializeImGui(const VirtualFilesystem& filesystem)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    const std::vector<uint8_t> fontBytes = filesystem.ReadBinary("RawAsset://Font/PretendardVariable.ttf");
+    if (fontBytes.empty())
+        return false;
+
+    void* fontData = IM_ALLOC(fontBytes.size());
+    std::memcpy(fontData, fontBytes.data(), fontBytes.size());
+
+    ImFontConfig fontConfig;
+    fontConfig.FontDataOwnedByAtlas = true;
+
+    if (!io.Fonts->AddFontFromMemoryTTF(
+            fontData,
+            static_cast<int>(fontBytes.size()),
+            18.0f,
+            &fontConfig,
+            io.Fonts->GetGlyphRangesKorean()))
+    {
+        IM_FREE(fontData);
+        return false;
+    }
 
     ImGui::StyleColorsDark();
 
