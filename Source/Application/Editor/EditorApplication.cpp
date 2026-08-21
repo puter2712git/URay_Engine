@@ -1,5 +1,6 @@
 #include "EditorApplication.h"
 
+#include "Core/Performance/PerformanceAnalytics.h"
 #include "Editor/Editor.h"
 #include "Engine/Engine.h"
 
@@ -26,8 +27,12 @@ bool EditorApplication::Initialize(const std::string& projectPath)
 
 void EditorApplication::Run()
 {
+    PerformanceAnalytics* analytics = engine->GetPerformanceAnalytics();
+
     while (!glfwWindowShouldClose(engine->GetWindow()->GetGLFWWindow()))
     {
+        analytics->BeginFrame();
+
         engine->Update();
         editor->Update();
 
@@ -37,6 +42,8 @@ void EditorApplication::Run()
 
         engine->Render();
         engine->EndRender();
+
+        analytics->EndFrame();
     }
 }
 

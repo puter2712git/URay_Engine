@@ -3,14 +3,19 @@
 namespace URay
 {
 
-void PerformanceAnalytics::Reset()
+void PerformanceAnalytics::BeginFrame()
 {
-    samples.clear();
+    currSamples.clear();
+}
+
+void PerformanceAnalytics::EndFrame()
+{
+    completedSamples = std::move(currSamples);
 }
 
 void PerformanceAnalytics::AddSample(const ScopeSample& sample)
 {
-    samples.push_back(sample);
+    currSamples.push_back(sample);
 }
 
 } // namespace URay

@@ -1,7 +1,7 @@
 #include "Engine.h"
 
-#include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
@@ -160,8 +160,6 @@ void Engine::Finalize()
 
 void Engine::Update()
 {
-    performanceAnalytics->Reset();
-
     URAY_PROFILE_SCOPE("Engine::Update");
 
     inputManager.ClearEvents();

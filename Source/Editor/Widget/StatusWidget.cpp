@@ -27,7 +27,7 @@ void StatusWidget::OnDraw()
     ImGui::Text("%.4f ms", engine.GetTimer()->GetDeltaTime() * 1000);
 
     const PerformanceAnalytics* analytics = engine.GetPerformanceAnalytics();
-    const auto& samples = analytics->GetSamples();
+    const auto& samples = analytics->GetCompletedSamples();
 
     if (!samples.empty())
     {

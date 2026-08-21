@@ -33,14 +33,20 @@ void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
     Matrix projMatrix = camera->GetProjMatrix();
     renderer.SetFrameViewInfo(viewMatrix, projMatrix);
 
-    builder.FlushLines();
+    {
+        URAY_PROFILE_SCOPE("DrawCommandBuilder::FlushLines")
+        builder.FlushLines();
+    }
     builder.FlushTexts();
 
     const std::vector<DrawCommand>& cmds = builder.GetCommands();
 
-    for (const DrawCommand& cmd : cmds)
     {
-        ExecuteCommand(cmd);
+        URAY_PROFILE_SCOPE("RenderPipeline::ExecuteDrawCommands")
+        for (const DrawCommand& cmd : cmds)
+        {
+            ExecuteCommand(cmd);
+        }
     }
 }
 
