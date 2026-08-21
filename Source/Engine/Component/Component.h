@@ -31,29 +31,16 @@ public:
 public:
     virtual void Update(float deltaTime);
 
-    virtual const std::string& GetName() const { return name; }
+    virtual void OnAttached() {}
+    virtual void OnDetached() {}
 
-    Unit* GetOwner() const
-    {
-        return owner;
-    }
-    void SetOwner(Unit* unit)
-    {
-        owner = unit;
-    }
+    Unit* GetOwner() const { return owner; }
+    void SetOwner(Unit* unit) { owner = unit; }
 
-    bool IsEnabled() const
-    {
-        return enabled;
-    }
-    void SetEnabled(bool isEnabled)
-    {
-        enabled = isEnabled;
-    }
+    bool IsEnabled() const { return enabled; }
+    void SetEnabled(bool isEnabled) { enabled = isEnabled; }
 
 protected:
-    std::string name = "Component";
-
     Unit* owner = nullptr;
 
     bool enabled = true;

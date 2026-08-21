@@ -52,6 +52,19 @@ void Unit::Deserialize(const YAML::Node& node)
 {
 }
 
+void Unit::RegisterTransformUpdateCallback(const std::function<void()>& callback)
+{
+    transformUpdateCallbacks.push_back(callback);
+}
+
+void Unit::InvokeCallbacks()
+{
+    for (const auto& callback : transformUpdateCallbacks)
+    {
+        callback();
+    }
+}
+
 Component* Unit::AddComponent(Component* comp)
 {
     if (!comp)
@@ -63,6 +76,7 @@ Component* Unit::AddComponent(Component* comp)
     }
 
     comp->SetOwner(this);
+    comp->OnAttached();
 
     components.push_back(comp);
     return comp;

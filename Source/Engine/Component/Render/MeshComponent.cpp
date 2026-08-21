@@ -11,6 +11,8 @@
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
 
+#include <algorithm>
+
 namespace URay
 {
 
@@ -40,6 +42,17 @@ void MeshComponent::RegisterClass()
                                  } });
 }
 
+void MeshComponent::OnAttached()
+{
+    Unit* owner = GetOwner();
+    owner->RegisterTransformUpdateCallback([&]()
+                                           { UpdateWorldBounds(); });
+}
+
+void MeshComponent::OnDetached()
+{
+}
+
 void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
 {
     if (!IsEnabled())
@@ -64,6 +77,44 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
             .indexCount = section.indexCount,
         });
     }
+
+    const Vector3& min = worldBounds.min;
+    const Vector3& max = worldBounds.max;
+
+    const Vector3 p[8] = {
+        { min.x, min.y, min.z },
+        { max.x, min.y, min.z },
+        { max.x, max.y, min.z },
+        { min.x, max.y, min.z },
+        { min.x, min.y, max.z },
+        { max.x, min.y, max.z },
+        { max.x, max.y, max.z },
+        { min.x, max.y, max.z },
+    };
+
+    constexpr uint32_t edges[12][2] = {
+        { 0, 1 },
+        { 1, 2 },
+        { 2, 3 },
+        { 3, 0 },
+        { 4, 5 },
+        { 5, 6 },
+        { 6, 7 },
+        { 7, 4 },
+        { 0, 4 },
+        { 1, 5 },
+        { 2, 6 },
+        { 3, 7 },
+    };
+
+    for (const auto& edge : edges)
+    {
+        builder.BuildFromLine({
+            .start = p[edge[0]],
+            .end = p[edge[1]],
+            .color = Color::Green,
+        });
+    }
 }
 
 void MeshComponent::SetMesh(Mesh* newMesh)
@@ -71,6 +122,8 @@ void MeshComponent::SetMesh(Mesh* newMesh)
     mesh = newMesh;
     materials = mesh ? mesh->GetDefaultMaterials()
                      : std::vector<Material*>();
+
+    UpdateWorldBounds();
 }
 
 void MeshComponent::SetMaterial(Material* newMaterial, size_t index)
@@ -81,6 +134,57 @@ void MeshComponent::SetMaterial(Material* newMaterial, size_t index)
     }
 
     materials[index] = newMaterial;
+}
+
+void MeshComponent::UpdateWorldBounds()
+{
+    if (!mesh)
+    {
+        worldBounds = {};
+        return;
+    }
+
+    Unit* owner = GetOwner();
+    if (!owner)
+    {
+        worldBounds = {};
+        return;
+    }
+
+    TransformComponent* transform = owner->GetTransform();
+    const AABB& localBounds = mesh->GetLocalBounds();
+
+    const Vector3 corners[8] = {
+        { localBounds.min.x, localBounds.min.y, localBounds.min.z },
+        { localBounds.min.x, localBounds.min.y, localBounds.max.z },
+        { localBounds.min.x, localBounds.max.y, localBounds.min.z },
+        { localBounds.min.x, localBounds.max.y, localBounds.max.z },
+        { localBounds.max.x, localBounds.min.y, localBounds.min.z },
+        { localBounds.max.x, localBounds.min.y, localBounds.max.z },
+        { localBounds.max.x, localBounds.max.y, localBounds.min.z },
+        { localBounds.max.x, localBounds.max.y, localBounds.max.z },
+    };
+
+    const Vector3 first = transform
+                              ? transform->TransformPoint(corners[0])
+                              : corners[0];
+
+    worldBounds.min = first;
+    worldBounds.max = first;
+
+    for (size_t i = 1; i < std::size(corners); ++i)
+    {
+        const Vector3 p = transform
+                              ? transform->TransformPoint(corners[i])
+                              : corners[i];
+
+        worldBounds.min.x = std::min(worldBounds.min.x, p.x);
+        worldBounds.min.y = std::min(worldBounds.min.y, p.y);
+        worldBounds.min.z = std::min(worldBounds.min.z, p.z);
+        worldBounds.max.x = std::max(worldBounds.max.x, p.x);
+        worldBounds.max.y = std::max(worldBounds.max.y, p.y);
+        worldBounds.max.z = std::max(worldBounds.max.z, p.z);
+    }
 }
 
 } // namespace URay

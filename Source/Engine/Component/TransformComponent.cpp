@@ -1,6 +1,7 @@
 #include "TransformComponent.h"
 
 #include "Engine/Object/Class/Class.h"
+#include "Engine/Unit.h"
 
 namespace URay
 {
@@ -44,6 +45,8 @@ void TransformComponent::UpdateWorldMatrix()
     const Matrix S = Matrix::MakeScale(scale);
 
     worldMatrix = S * R * T;
+
+    GetOwner()->InvokeCallbacks();
 }
 
 Vector3 TransformComponent::TransformPoint(const Vector3& point) const

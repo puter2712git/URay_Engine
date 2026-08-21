@@ -2,6 +2,8 @@
 
 #include "Engine/Component/Render/RenderComponent.h"
 
+#include "Core/Math/AABB.h"
+
 #include <vulkan/vulkan.h>
 
 namespace URay
@@ -19,9 +21,10 @@ public:
     ~MeshComponent() = default;
 
 public:
-    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
+    virtual void OnAttached() override;
+    virtual void OnDetached() override;
 
-    virtual const std::string& GetName() const override { return name; }
+    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
 
     Mesh* GetMesh() const { return mesh; }
     void SetMesh(Mesh* newMesh);
@@ -32,12 +35,14 @@ public:
     void SetMaterial(Material* newMaterial, size_t index = 0);
     void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
-protected:
-    std::string name = "Mesh";
+private:
+    void UpdateWorldBounds();
 
 private:
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
+
+    AABB worldBounds = {};
 };
 
 } // namespace URay

@@ -15,8 +15,6 @@ class TransformComponent : public Component
 public:
     void Update(float deltaTime) override;
 
-    virtual const std::string& GetName() const override { return name; }
-
     void UpdateWorldMatrix();
 
     Vector3 TransformPoint(const Vector3& point) const;
@@ -54,9 +52,6 @@ public:
     }
 
     const Matrix& GetWorldMatrix() const { return worldMatrix; }
-
-protected:
-    std::string name = "Transform";
 
 private:
     Vector3 position = Vector3::Zero;

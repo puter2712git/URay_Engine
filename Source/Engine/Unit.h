@@ -2,6 +2,7 @@
 
 #include "Engine/Object/Object.h"
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,9 @@ public:
 
     virtual YAML::Node Serialize() override;
     virtual void Deserialize(const YAML::Node& node) override;
+
+    void RegisterTransformUpdateCallback(const std::function<void()>& callback);
+    void InvokeCallbacks();
 
     Component* AddComponent(Component* comp);
 
@@ -54,6 +58,8 @@ private:
 
     std::vector<Component*> components;
     TransformComponent* transform = nullptr;
+
+    std::vector<std::function<void()>> transformUpdateCallbacks;
 };
 
 } // namespace URay
