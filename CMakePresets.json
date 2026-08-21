@@ -9,12 +9,26 @@
 				"CMAKE_BUILD_TYPE": "Debug",
 				"CMAKE_EXPORT_COMPILER_COMMANDS": "ON"
 			}
+		},
+		{
+			"name": "Sandbox-Release",
+			"generator": "Ninja",
+			"binaryDir": "${sourceDir}/Build/Sandbox-Release",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"CMAKE_EXPORT_COMPILER_COMMANDS": "ON"
+			}
 		}
 	],
 	"buildPresets": [
 		{
 			"name": "Sandbox-Debug",
 			"configurePreset": "Sandbox-Debug",
+			"jobs": 8
+		},
+		{
+			"name": "Sandbox-Release",
+			"configurePreset": "Sandbox-Release",
 			"jobs": 8
 		}
 	]
