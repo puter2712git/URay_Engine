@@ -36,7 +36,7 @@ void RenderPipeline::Execute(const std::vector<Scene*>& scenes)
     builder.FlushLines();
     builder.FlushTexts();
 
-    std::vector<DrawCommand> cmds = builder.GetCommands();
+    const std::vector<DrawCommand>& cmds = builder.GetCommands();
 
     for (const DrawCommand& cmd : cmds)
     {

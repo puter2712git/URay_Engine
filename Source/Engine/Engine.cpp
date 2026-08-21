@@ -1,6 +1,8 @@
 #include "Engine.h"
 
 #include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
 #include "Engine/Material/Material.h"
@@ -86,12 +88,46 @@ bool Engine::Initialize(const std::string& projectPath)
     objImporter->Import("RawAsset://Mesh/untitled.obj");
     objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
 
+    Mesh* appleMesh = objImporter->Import("RawAsset://Mesh/apple_mid.obj");
+    Mesh* bittenAppleMesh = objImporter->Import("RawAsset://Mesh/bitten_apple_mid.obj");
+
     fontManager = new FontManager();
     fontManager->LoadFont("Default", fontTexture);
 
     Mesh* quadMesh = meshManager->GetMesh("Quad");
 
     Scene* gameScene = new Scene(SceneType::Game);
+
+    constexpr uint32_t gridWidth = 50;
+    constexpr uint32_t gridDepth = 40;
+    constexpr uint32_t gridHeight = 2;
+    constexpr float spacing = 1.5f;
+
+    for (uint32_t z = 0; z < gridHeight; ++z)
+    {
+        for (uint32_t y = 0; y < gridDepth; ++y)
+        {
+            for (uint32_t x = 0; x < gridWidth; ++x)
+            {
+                Unit* appleUnit = new Unit();
+                appleUnit->SetName("Apple");
+
+                TransformComponent* transform = new TransformComponent();
+                transform->SetPosition(Vector3(
+                    (static_cast<float>(x) - (gridWidth - 1) * 0.5f) * spacing,
+                    (static_cast<float>(y) - (gridDepth - 1) * 0.5f) * spacing,
+                    (static_cast<float>(z) - (gridHeight - 1) * 0.5f) * spacing));
+
+                MeshComponent* meshComponent = new MeshComponent();
+                meshComponent->SetMesh((x + y + z) % 2 == 0 ? appleMesh : bittenAppleMesh);
+
+                appleUnit->AddComponent(transform);
+                appleUnit->AddComponent(meshComponent);
+                gameScene->AddUnit(appleUnit);
+            }
+        }
+    }
+
     scenes.push_back(gameScene);
 
     return true;

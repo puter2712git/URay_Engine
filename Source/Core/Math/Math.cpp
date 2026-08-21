@@ -1,5 +1,8 @@
 #include "Math.h"
 
+#include <algorithm>
+#include <limits>
+
 namespace URay
 {
 
@@ -54,6 +57,50 @@ bool Math::IntersectLinePlane(
         return false;
 
     hitPoint = start + dir * t;
+    return true;
+}
+
+bool Math::IntersectRayAABB(
+    const Ray& ray,
+    const AABB& aabb,
+    float& outDistance)
+{
+    constexpr float epsilon = 1e-8f;
+
+    float tEnter = 0.0f;
+    float tExit = std::numeric_limits<float>::max();
+
+    auto intersectAxis = [&](float origin, float direction,
+                             float minValue, float maxValue)
+    {
+        if (std::abs(direction) < epsilon)
+        {
+            return origin >= minValue && origin <= maxValue;
+        }
+
+        const float invDirection = 1.0f / direction;
+        float t0 = (minValue - origin) * invDirection;
+        float t1 = (maxValue - origin) * invDirection;
+
+        if (t0 > t1)
+        {
+            std::swap(t0, t1);
+        }
+
+        tEnter = std::max(tEnter, t0);
+        tExit = std::min(tExit, t1);
+
+        return tEnter <= tExit;
+    };
+
+    if (!intersectAxis(ray.origin.x, ray.direction.x, aabb.min.x, aabb.max.x) ||
+        !intersectAxis(ray.origin.y, ray.direction.y, aabb.min.y, aabb.max.y) ||
+        !intersectAxis(ray.origin.z, ray.direction.z, aabb.min.z, aabb.max.z))
+    {
+        return false;
+    }
+
+    outDistance = tEnter;
     return true;
 }
 

@@ -47,7 +47,7 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
 
     TransformComponent* transform = GetOwner()->GetTransform();
 
-    std::vector<MeshSection> sections = mesh->GetSections();
+    const std::vector<MeshSection>& sections = mesh->GetSections();
     for (size_t sectionIndex = 0; sectionIndex < sections.size(); ++sectionIndex)
     {
         const MeshSection& section = sections[sectionIndex];

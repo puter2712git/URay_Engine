@@ -33,13 +33,25 @@ public:
     Vector3 GetUp() const;
 
     const Vector3& GetPosition() const { return position; }
-    void SetPosition(const Vector3& inPosition) { position = inPosition; }
+    void SetPosition(const Vector3& inPosition)
+    {
+        position = inPosition;
+        isDirty = true;
+    }
 
     const Vector3& GetRotation() const { return rotation; }
-    void SetRotation(const Vector3& inRotation) { rotation = inRotation; }
+    void SetRotation(const Vector3& inRotation)
+    {
+        rotation = inRotation;
+        isDirty = true;
+    }
 
     const Vector3& GetScale() const { return scale; }
-    void SetScale(const Vector3& inScale) { scale = inScale; }
+    void SetScale(const Vector3& inScale)
+    {
+        scale = inScale;
+        isDirty = true;
+    }
 
     const Matrix& GetWorldMatrix() const { return worldMatrix; }
 
@@ -52,6 +64,8 @@ private:
     Vector3 scale = Vector3::One;
 
     Matrix worldMatrix = Matrix::Identity;
+
+    bool isDirty = false;
 };
 
 } // namespace URay

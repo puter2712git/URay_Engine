@@ -30,7 +30,11 @@ void TransformComponent::Update(float deltaTime)
 {
     Component::Update(deltaTime);
 
-    UpdateWorldMatrix();
+    if (isDirty)
+    {
+        UpdateWorldMatrix();
+        isDirty = false;
+    }
 }
 
 void TransformComponent::UpdateWorldMatrix()

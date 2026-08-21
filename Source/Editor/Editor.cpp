@@ -94,6 +94,8 @@ void Editor::Finalize()
 
 void Editor::Update()
 {
+    URAY_PROFILE_SCOPE("Editor::Update")
+
     Timer* timer = engine.GetTimer();
     float deltaTime = timer->GetDeltaTime();
 
@@ -105,6 +107,8 @@ void Editor::Update()
 
 void Editor::PrepareRender()
 {
+    URAY_PROFILE_SCOPE("Editor::PrepareRender")
+
     RHI::Renderer* renderer = engine.GetRenderer();
     RHI::DrawCommandBuilder& builder = engine.GetRenderPipeline()->GetBuilder();
 

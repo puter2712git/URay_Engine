@@ -24,7 +24,7 @@ void StatusWidget::OnDraw()
     ImGui::Begin("Status", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     ImGui::Text("FPS: %d", engine.GetTimer()->GetFPS());
-    ImGui::Text("%.4f ms", engine.GetTimer()->GetDeltaTime());
+    ImGui::Text("%.4f ms", engine.GetTimer()->GetDeltaTime() * 1000);
 
     const PerformanceAnalytics* analytics = engine.GetPerformanceAnalytics();
     const auto& samples = analytics->GetSamples();

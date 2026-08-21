@@ -2,6 +2,8 @@
 
 #include "Engine/Object/Object.h"
 
+#include "Core/Math/AABB.h"
+
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -33,7 +35,7 @@ public:
     void SetName(const std::string& inName) { name = inName; }
 
     const std::vector<RHI::VertexPNT>& GetVertices() const { return vertices; }
-    void SetVertices(const std::vector<RHI::VertexPNT>& newVertices) { vertices = newVertices; }
+    void SetVertices(const std::vector<RHI::VertexPNT>& newVertices);
 
     const std::vector<uint32_t>& GetIndices() const { return indices; }
     void SetIndices(const std::vector<uint32_t>& newIndices) { indices = newIndices; }
@@ -45,12 +47,16 @@ public:
     const std::vector<Material*>& GetDefaultMaterials() const { return defaultMaterials; }
     void SetDefaultMaterials(const std::vector<Material*> newMaterials) { defaultMaterials = newMaterials; }
 
+    const AABB& GetLocalBounds() const { return localBounds; }
+
 private:
     std::string name;
     std::vector<RHI::VertexPNT> vertices;
     std::vector<uint32_t> indices;
     std::vector<MeshSection> sections;
     std::vector<Material*> defaultMaterials;
+
+    AABB localBounds = {};
 };
 
 } // namespace URay

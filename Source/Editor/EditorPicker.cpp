@@ -149,6 +149,10 @@ bool EditorPicker::PickMesh(const Ray& ray, const MeshComponent* meshComp, float
 
     const Ray& localRay = Ray(localOrigin, localDirection);
 
+    float boxDistance = 0.0f;
+    if (!Math::IntersectRayAABB(localRay, mesh->GetLocalBounds(), boxDistance))
+        return false;
+
     for (size_t i = 0; i + 2 < indices.size(); i += 3)
     {
         const Vector3 p0 = vertices[indices[i]].position;

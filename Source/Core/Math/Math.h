@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Math/AABB.h"
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
 
@@ -34,6 +35,11 @@ public:
         const Vector3& start, const Vector3& dir,
         const Vector3& planePoint, const Vector3& planeNormal,
         Vector3& hitPoint);
+
+    static bool IntersectRayAABB(
+        const Ray& ray,
+        const AABB& aabb,
+        float& outDistance);
 };
 
 } // namespace URay

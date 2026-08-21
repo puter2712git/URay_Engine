@@ -41,9 +41,17 @@ void SceneTreeWidget::OnDraw()
 
     Unit* currSelectedUnit = editor.GetSelectedUnit();
 
-    for (Unit* unit : scene->GetUnits())
+    const auto& units = scene->GetUnits();
+
+    ImGuiListClipper clipper;
+    clipper.Begin(static_cast<int>(units.size()));
+
+    while (clipper.Step())
     {
-        DrawUnit(unit, currSelectedUnit);
+        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i)
+        {
+            DrawUnit(units[i], currSelectedUnit);
+        }
     }
 
     if (ImGui::BeginPopupContextWindow())
