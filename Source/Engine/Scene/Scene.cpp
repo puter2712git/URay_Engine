@@ -1,7 +1,11 @@
 #include "Scene.h"
 
 #include "Engine/Component/ComponentFactory.h"
+#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Spatial/Octree.h"
 #include "Engine/Unit.h"
+
+#include "Core/Math/AABB.h"
 
 namespace URay
 {
@@ -9,6 +13,10 @@ namespace URay
 Scene::Scene(SceneType type)
     : type(type)
 {
+    octree = std::make_unique<Octree>(AABB{
+        .min = Vector3(-100.0f, -100.0f, -100.0f),
+        .max = Vector3(100.0f, 100.0f, 100.0f),
+    });
 }
 
 Scene::~Scene()
@@ -69,6 +77,14 @@ void Scene::AddUnit(Unit* unit)
 
     unit->SetOwner(this);
     units.push_back(unit);
+
+    if (MeshComponent* meshComp = unit->GetComponent<MeshComponent>())
+    {
+        if (octree)
+        {
+            octree->Insert(meshComp);
+        }
+    }
 }
 
 } // namespace URay

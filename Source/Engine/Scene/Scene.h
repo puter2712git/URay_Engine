@@ -4,12 +4,14 @@
 
 #include "Engine/Object/Object.h"
 
+#include <memory>
 #include <vector>
 
 namespace URay
 {
 
 class Unit;
+class Octree;
 
 class Scene : public Object
 {
@@ -28,10 +30,14 @@ public:
     void AddUnit(Unit* unit);
     const std::vector<Unit*>& GetUnits() const { return units; }
 
+    Octree* GetOctree() const { return octree.get(); }
+
 private:
     SceneType type = SceneType::Game;
 
     std::vector<Unit*> units;
+
+    std::unique_ptr<Octree> octree = nullptr;
 };
 
 } // namespace URay

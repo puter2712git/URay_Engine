@@ -79,44 +79,6 @@ void MeshComponent::SubmitCommand(DrawCommandBuilder& builder)
             .indexCount = section.indexCount,
         });
     }
-
-    const Vector3& min = worldBounds.min;
-    const Vector3& max = worldBounds.max;
-
-    const Vector3 p[8] = {
-        { min.x, min.y, min.z },
-        { max.x, min.y, min.z },
-        { max.x, max.y, min.z },
-        { min.x, max.y, min.z },
-        { min.x, min.y, max.z },
-        { max.x, min.y, max.z },
-        { max.x, max.y, max.z },
-        { min.x, max.y, max.z },
-    };
-
-    constexpr uint32_t edges[12][2] = {
-        { 0, 1 },
-        { 1, 2 },
-        { 2, 3 },
-        { 3, 0 },
-        { 4, 5 },
-        { 5, 6 },
-        { 6, 7 },
-        { 7, 4 },
-        { 0, 4 },
-        { 1, 5 },
-        { 2, 6 },
-        { 3, 7 },
-    };
-
-    for (const auto& edge : edges)
-    {
-        builder.BuildFromLine({
-            .start = p[edge[0]],
-            .end = p[edge[1]],
-            .color = Color::Green,
-        });
-    }
 }
 
 void MeshComponent::SetMesh(Mesh* newMesh)

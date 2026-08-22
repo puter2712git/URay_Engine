@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -10,10 +11,12 @@
 #include "Engine/Mesh/Mesh.h"
 #include "Engine/Mesh/MeshManager.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Spatial/Octree.h"
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Math/Frustum.h"
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
@@ -187,15 +190,58 @@ void Engine::PrepareRender()
 {
     URAY_PROFILE_SCOPE("Engine::PrepareRender");
 
+    // RenderPipeline::FindCamera()와 같은 우선순위로 카메라 선택
+    CameraComponent* camera = nullptr;
+
     for (const Scene* scene : scenes)
     {
         for (const Unit* unit : scene->GetUnits())
         {
+            if (CameraComponent* found = unit->GetComponent<CameraComponent>())
+            {
+                camera = found;
+                break;
+            }
+        }
+
+        if (camera)
+            break;
+    }
+
+    if (!camera)
+        return;
+
+    const Frustum frustum = Frustum::FromViewProjection(
+        camera->GetViewMatrix() * camera->GetProjMatrix());
+
+    for (const Scene* scene : scenes)
+    {
+        for (const Unit* unit : scene->GetUnits())
+        {
+            // Mesh만 frustum culling
+            if (MeshComponent* mesh = unit->GetComponent<MeshComponent>())
+            {
+                if (frustum.Intersects(mesh->GetWorldBounds()) !=
+                    FrustumIntersection::Outside)
+                {
+                    mesh->SubmitCommand(renderPipeline->GetBuilder());
+                }
+
+                continue;
+            }
+
+            // Grid, Text, Sprite 등 octree 비대상은 기존대로 렌더
             if (RenderComponent* comp = unit->GetComponent<RenderComponent>())
             {
                 comp->SubmitCommand(renderPipeline->GetBuilder());
             }
         }
+
+        // 처음에는 그대로 남겨 두면 octree 경계가 보이므로 확인하기 편함.
+        // if (Octree* octree = scene->GetOctree())
+        //{
+        //    octree->BuildDebugLines(renderPipeline->GetBuilder());
+        //}
     }
 }
 
