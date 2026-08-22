@@ -26,10 +26,7 @@ public:
     SceneType GetType() const { return type; }
 
     void AddUnit(Unit* unit);
-    const std::vector<Unit*>& GetUnits() const
-    {
-        return units;
-    }
+    const std::vector<Unit*>& GetUnits() const { return units; }
 
 private:
     SceneType type = SceneType::Game;

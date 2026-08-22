@@ -11,6 +11,7 @@ namespace URay
 
 class Component;
 class TransformComponent;
+class Scene;
 
 class Unit : public Object
 {
@@ -51,6 +52,9 @@ public:
 
     const std::vector<Unit*>& GetChildren() const { return children; }
 
+    Scene* GetOwner() const { return scene; }
+    void SetOwner(Scene* scene) { this->scene = scene; }
+
 private:
     std::string name;
 
@@ -58,6 +62,8 @@ private:
 
     std::vector<Component*> components;
     TransformComponent* transform = nullptr;
+
+    Scene* scene = nullptr;
 
     std::vector<std::function<void()>> transformUpdateCallbacks;
 };

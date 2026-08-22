@@ -44,8 +44,10 @@ void MeshComponent::RegisterClass()
 
 void MeshComponent::OnAttached()
 {
+    UpdateWorldBounds();
+
     Unit* owner = GetOwner();
-    owner->RegisterTransformUpdateCallback([&]()
+    owner->RegisterTransformUpdateCallback([this]()
                                            { UpdateWorldBounds(); });
 }
 

@@ -35,6 +35,8 @@ public:
     void SetMaterial(Material* newMaterial, size_t index = 0);
     void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
+    const AABB& GetWorldBounds() const { return worldBounds; }
+
 private:
     void UpdateWorldBounds();
 

@@ -64,8 +64,11 @@ void Scene::Deserialize(const YAML::Node& node)
 
 void Scene::AddUnit(Unit* unit)
 {
-    if (unit)
-        units.push_back(unit);
+    if (!unit)
+        return;
+
+    unit->SetOwner(this);
+    units.push_back(unit);
 }
 
 } // namespace URay
