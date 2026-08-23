@@ -6,6 +6,8 @@
 
 #include "Core/Math/Math.h"
 
+#include "Render/Scene/Object/ViewObject.h"
+
 namespace URay
 {
 
@@ -18,10 +20,58 @@ void CameraComponent::RegisterClass()
 
 void CameraComponent::Update(float deltaTime)
 {
-    Component::Update(deltaTime);
+    Super::Update(deltaTime);
 
     UpdateViewMatrix();
     UpdateProjMatrix();
+
+    if (renderObject && renderObject->IsDirty())
+    {
+        renderObject->SetDirty(false);
+
+        Unit* owner = GetOwner();
+        if (!owner)
+            return;
+
+        TransformComponent* transform = owner->GetTransform();
+
+        renderObject->Update(RHI::ViewObjectState{
+            .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+            .viewMatrix = GetViewMatrix(),
+            .projMatrix = GetProjMatrix(),
+        });
+    }
+}
+
+void CameraComponent::OnAttached()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    owner->RegisterTransformUpdateCallback([this]()
+                                           {
+        if (renderObject)
+        {
+            renderObject->SetDirty(true);
+    } });
+}
+
+void CameraComponent::OnDetached()
+{
+}
+
+RHI::RenderObject* CameraComponent::CreateRenderObject()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return nullptr;
+
+    TransformComponent* transform = owner->GetTransform();
+    Matrix worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+
+    renderObject = new RHI::ViewObject(worldMatrix, viewMatrix, projMatrix);
+    return renderObject;
 }
 
 Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const

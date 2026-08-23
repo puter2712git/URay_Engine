@@ -13,6 +13,11 @@ namespace URay
 class Unit;
 class Octree;
 
+namespace RHI
+{
+class RenderScene;
+}
+
 class Scene : public Object
 {
 public:
@@ -25,16 +30,19 @@ public:
     virtual YAML::Node Serialize() override;
     virtual void Deserialize(const YAML::Node& node) override;
 
-    SceneType GetType() const { return type; }
-
     void AddUnit(Unit* unit);
-    const std::vector<Unit*>& GetUnits() const { return units; }
 
+    void SetRenderScene(RHI::RenderScene* renderScene) { this->renderScene = renderScene; }
+
+    RHI::RenderScene* GetRenderScene() const { return renderScene; }
+    SceneType GetType() const { return type; }
+    const std::vector<Unit*>& GetUnits() const { return units; }
     Octree* GetOctree() const { return octree.get(); }
 
 private:
-    SceneType type = SceneType::Game;
+    RHI::RenderScene* renderScene = nullptr;
 
+    SceneType type = SceneType::Game;
     std::vector<Unit*> units;
 
     std::unique_ptr<Octree> octree = nullptr;

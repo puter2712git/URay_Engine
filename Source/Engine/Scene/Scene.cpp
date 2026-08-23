@@ -5,6 +5,9 @@
 #include "Engine/Spatial/Octree.h"
 #include "Engine/Unit.h"
 
+#include "Render/Scene/Object/RenderObject.h"
+#include "Render/Scene/RenderScene.h"
+
 #include "Core/Math/AABB.h"
 
 namespace URay
@@ -78,11 +81,13 @@ void Scene::AddUnit(Unit* unit)
     unit->SetOwner(this);
     units.push_back(unit);
 
-    if (MeshComponent* meshComp = unit->GetComponent<MeshComponent>())
+    const auto& components = unit->GetComponents();
+    for (const auto& comp : components)
     {
-        if (octree)
+        if (IRenderable* rcomp = dynamic_cast<IRenderable*>(comp))
         {
-            octree->Insert(meshComp);
+            std::unique_ptr<RHI::RenderObject> robject(rcomp->CreateRenderObject());
+            renderScene->Add(std::move(robject));
         }
     }
 }

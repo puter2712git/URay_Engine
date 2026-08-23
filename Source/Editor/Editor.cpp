@@ -140,6 +140,7 @@ void Editor::SelectUnit(Unit* unit)
 CameraComponent& Editor::PrepareEditorScene()
 {
     Scene* editorScene = new Scene(SceneType::Editor);
+    engine.GetRenderer()->CreateRenderScene(editorScene);
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");

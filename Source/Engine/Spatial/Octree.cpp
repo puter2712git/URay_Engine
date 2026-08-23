@@ -72,7 +72,7 @@ void Octree::BuildDebugLines(RHI::DrawCommandBuilder& builder) const
 
 bool Octree::Insert(int nodeIndex, MeshComponent* entry)
 {
-    const AABB entryBounds = entry->GetWorldBounds();
+    const AABB entryBounds = {};
 
     if (!nodes[nodeIndex].bounds.Contains(entryBounds))
         return false;
@@ -136,7 +136,7 @@ void Octree::Subdivide(int nodeIndex)
 
     for (MeshComponent* entry : oldEntries)
     {
-        const AABB& entryBounds = entry->GetWorldBounds();
+        const AABB& entryBounds = {};
 
         bool moved = false;
 

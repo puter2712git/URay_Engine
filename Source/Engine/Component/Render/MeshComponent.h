@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/Component.h"
+#include "Engine/Component/IRenderable.h"
 
 #include "Core/Math/AABB.h"
 
@@ -12,19 +13,23 @@ namespace URay
 class Mesh;
 class Material;
 
-class MeshComponent : public RenderComponent
+namespace RHI
 {
-    URAY_CLASS(MeshComponent, RenderComponent)
+class MeshObject;
+}
+
+class MeshComponent : public Component, public IRenderable
+{
+    URAY_CLASS(MeshComponent, Component)
 
 public:
     MeshComponent();
     ~MeshComponent() = default;
 
 public:
-    virtual void OnAttached() override;
-    virtual void OnDetached() override;
+    void Update(float deltaTime) override;
 
-    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
+    RHI::RenderObject* CreateRenderObject() override;
 
     Mesh* GetMesh() const { return mesh; }
     void SetMesh(Mesh* newMesh);
@@ -35,16 +40,11 @@ public:
     void SetMaterial(Material* newMaterial, size_t index = 0);
     void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
-    const AABB& GetWorldBounds() const { return worldBounds; }
-
 private:
-    void UpdateWorldBounds();
+    RHI::MeshObject* renderObject = nullptr;
 
-private:
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
-
-    AABB worldBounds = {};
 };
 
 } // namespace URay

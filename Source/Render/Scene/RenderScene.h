@@ -6,15 +6,22 @@
 namespace URay::RHI
 {
 
-class RenderInstance;
+class RenderObject;
+class ViewObject;
 
 class RenderScene
 {
 public:
-    void Add(std::unique_ptr<RenderInstance> instance);
+    RenderScene();
+    ~RenderScene();
+
+public:
+    void Add(std::unique_ptr<RenderObject> object);
 
 private:
-    std::vector<std::unique_ptr<RenderInstance>> instances;
+    std::vector<std::unique_ptr<RenderObject>> objects;
+
+    std::vector<ViewObject*> viewObjects;
 };
 
 } // namespace URay::RHI

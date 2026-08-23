@@ -15,10 +15,22 @@ namespace URay
 {
 class Window;
 class VirtualFilesystem;
+class Scene;
 } // namespace URay
 
 namespace URay::RHI
 {
+
+class RenderDevice;
+class VertexBuffer;
+class IndexBuffer;
+class PipelineLayout;
+class DescriptorSetLayout;
+class DescriptorSet;
+class RenderTarget;
+class GPUResourceManager;
+class ShaderManager;
+class RenderScene;
 
 struct ObjectConstants
 {
@@ -32,18 +44,6 @@ struct FrameConstants
     Matrix view = Matrix::Identity;
     Matrix proj = Matrix::Identity;
 };
-
-class RenderDevice;
-
-class VertexBuffer;
-class IndexBuffer;
-class PipelineLayout;
-class DescriptorSetLayout;
-class DescriptorSet;
-class RenderTarget;
-
-class GPUResourceManager;
-class ShaderManager;
 
 class Renderer
 {
@@ -71,6 +71,9 @@ public:
     void EndImGui();
 
     void WaitIdle();
+
+    void CreateRenderScene(Scene* scene);
+    void DestroyRenderScene(Scene* scene);
 
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
 
@@ -251,6 +254,8 @@ private:
     std::vector<DescriptorSet*> frameDescriptorSets;
 
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
+
+    std::unordered_map<Scene*, RenderScene*> scenes;
 };
 
 } // namespace URay::RHI

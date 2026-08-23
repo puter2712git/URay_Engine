@@ -11,11 +11,13 @@
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderTarget.h"
+#include "Render/Scene/RenderScene.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Texture/TextureView.h"
 
 #include "Engine/Material/Material.h"
+#include "Engine/Scene/Scene.h"
 
 #include "Core/File/VirtualFilesystem.h"
 
@@ -454,6 +456,23 @@ void Renderer::EndImGui()
 void Renderer::WaitIdle()
 {
     vkDeviceWaitIdle(device);
+}
+
+void Renderer::CreateRenderScene(Scene* scene)
+{
+    auto it = scenes.find(scene);
+    if (it != scenes.end())
+        return;
+
+    RenderScene* renderScene = new RenderScene();
+    scene->SetRenderScene(renderScene);
+
+    scenes.insert({ scene, renderScene });
+}
+
+void Renderer::DestroyRenderScene(Scene* scene)
+{
+    scenes.erase(scene);
 }
 
 void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix)
