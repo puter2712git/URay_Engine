@@ -1,6 +1,6 @@
 #include "TextureView.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 TextureView::TextureView(VkDevice device, VkImageView handle, Texture* ref)
@@ -16,4 +16,4 @@ TextureView::~TextureView()
     }
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

@@ -14,7 +14,7 @@
 
 #include <cstring>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 TextBatcher::TextBatcher(Renderer* renderer)
@@ -137,4 +137,4 @@ void TextBatcher::Collect(const TextCommandContext& context)
     }
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

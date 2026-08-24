@@ -35,7 +35,7 @@ void CameraComponent::Update(float deltaTime)
 
         TransformComponent* transform = owner->GetTransform();
 
-        renderObject->Update(RHI::ViewObjectState{
+        renderObject->Update(Render::ViewObjectState{
             .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
             .viewMatrix = GetViewMatrix(),
             .projMatrix = GetProjMatrix(),
@@ -61,7 +61,7 @@ void CameraComponent::OnDetached()
 {
 }
 
-RHI::RenderObject* CameraComponent::CreateRenderObject()
+Render::RenderObject* CameraComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
     if (!owner)
@@ -70,7 +70,7 @@ RHI::RenderObject* CameraComponent::CreateRenderObject()
     TransformComponent* transform = owner->GetTransform();
     Matrix worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
 
-    renderObject = new RHI::ViewObject(worldMatrix, viewMatrix, projMatrix);
+    renderObject = new Render::ViewObject(worldMatrix, viewMatrix, projMatrix);
     return renderObject;
 }
 

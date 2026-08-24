@@ -1,6 +1,6 @@
 #include "ViewObject.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 ViewObject::ViewObject(const Matrix& worldMatrix, const Matrix& viewMatrix, const Matrix& projMatrix)
@@ -18,4 +18,4 @@ void ViewObject::Update(const ViewObjectState& state)
     projMatrix = state.projMatrix;
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

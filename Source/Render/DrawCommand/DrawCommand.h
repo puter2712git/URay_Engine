@@ -7,7 +7,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class VertexBuffer;
@@ -33,4 +33,4 @@ struct DrawCommand
     DescriptorSet* descriptorSet = nullptr;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

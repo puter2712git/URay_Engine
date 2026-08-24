@@ -1,6 +1,6 @@
 #include "PipelineStateDesc.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
-} // namespace URay::RHI
+} // namespace URay::Render

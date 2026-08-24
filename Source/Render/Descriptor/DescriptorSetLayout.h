@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class DescriptorSetLayout
@@ -20,4 +20,4 @@ private:
     VkDescriptorSetLayout handle = VK_NULL_HANDLE;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

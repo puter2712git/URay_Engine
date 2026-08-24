@@ -2,7 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 MeshObject::MeshObject(const MeshObjectState& state)
@@ -40,4 +40,4 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
     }
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

@@ -64,11 +64,11 @@ bool Engine::Initialize(const std::string& projectPath)
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
 
-    renderer = new RHI::Renderer();
+    renderer = new Render::Renderer();
     if (!renderer->Initialize(window, *filesystem))
         return false;
 
-    renderPipeline = new RHI::RenderPipeline(*renderer);
+    renderPipeline = new Render::RenderPipeline(*renderer);
 
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
@@ -197,7 +197,7 @@ void Engine::Render()
 
     const auto& scenes = renderer->GetScenes();
 
-    std::vector<RHI::RenderScene*> renderScenes;
+    std::vector<Render::RenderScene*> renderScenes;
     for (const auto& [scene, renderScene] : scenes)
     {
         renderScenes.push_back(renderScene);
@@ -266,7 +266,7 @@ void Engine::GetFramebufferSize(int& width, int& height) const
     height = static_cast<int>(extent.height);
 }
 
-RHI::GPUResourceManager* Engine::GetGPUResourceManager() const
+Render::GPUResourceManager* Engine::GetGPUResourceManager() const
 {
     return renderer->GetResourceManager();
 }

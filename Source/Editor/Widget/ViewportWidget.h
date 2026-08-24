@@ -18,7 +18,7 @@ class Unit;
 class GizmoController;
 class EditorPicker;
 
-namespace RHI
+namespace Render
 {
 class Renderer;
 }
@@ -26,7 +26,7 @@ class Renderer;
 class ViewportWidget : public Widget
 {
 public:
-    ViewportWidget(RHI::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc);
+    ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc);
     ~ViewportWidget() override;
 
 public:
@@ -41,7 +41,7 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
-    void OnPrepareRender(RHI::DrawCommandBuilder& builder) override;
+    void OnPrepareRender(Render::DrawCommandBuilder& builder) override;
     void OnDraw() override;
 
 private:
@@ -51,7 +51,7 @@ private:
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
 
 private:
-    RHI::Renderer& renderer;
+    Render::Renderer& renderer;
 
     CameraComponent& camera;
     std::unique_ptr<GizmoController> gizmo = nullptr;

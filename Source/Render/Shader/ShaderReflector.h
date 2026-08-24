@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct ShaderReflection;
@@ -30,4 +30,4 @@ private:
         PushConstantRange& outRange);
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

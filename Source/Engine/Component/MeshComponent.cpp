@@ -17,7 +17,7 @@
 namespace URay
 {
 
-using namespace RHI;
+using namespace Render;
 
 URAY_REGISTER_CLASS(MeshComponent)
 URAY_REGISTER_COMPONENT(MeshComponent)
@@ -57,7 +57,7 @@ void MeshComponent::Update(float deltaTime)
 
         TransformComponent* transform = owner->GetTransform();
 
-        renderObject->Update(RHI::MeshObjectState{
+        renderObject->Update(Render::MeshObjectState{
             .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
             .mesh = mesh,
             .materials = materials,
@@ -74,7 +74,7 @@ void MeshComponent::OnAttached()
         {
             TransformComponent* transform = GetOwner()->GetTransform();
 
-            renderObject->Update(RHI::MeshObjectState{
+            renderObject->Update(Render::MeshObjectState{
                 .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
                 .mesh = mesh,
                 .materials = materials,
@@ -86,7 +86,7 @@ void MeshComponent::OnDetached()
 {
 }
 
-RHI::RenderObject* MeshComponent::CreateRenderObject()
+Render::RenderObject* MeshComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
     if (!owner)
@@ -94,12 +94,12 @@ RHI::RenderObject* MeshComponent::CreateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    RHI::MeshObjectState objectState = {};
+    Render::MeshObjectState objectState = {};
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     objectState.mesh = mesh;
     objectState.materials = materials;
 
-    renderObject = new RHI::MeshObject(objectState);
+    renderObject = new Render::MeshObject(objectState);
     return renderObject;
 }
 

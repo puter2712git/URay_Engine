@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct ShaderStage
@@ -63,4 +63,4 @@ private:
     std::vector<PushConstantRange> pushConstantRanges;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

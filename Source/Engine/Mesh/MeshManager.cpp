@@ -8,7 +8,7 @@
 namespace URay
 {
 
-using RHI::VertexPNT;
+using Render::VertexPNT;
 
 namespace
 {

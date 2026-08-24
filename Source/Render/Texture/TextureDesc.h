@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 enum class Format
@@ -50,4 +50,4 @@ struct TextureDesc
     TextureUsage usage = TextureUsage::None;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

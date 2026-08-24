@@ -14,7 +14,7 @@ namespace URay
 class Texture;
 }
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class Renderer;
@@ -117,4 +117,4 @@ public:
     uint32_t vertexCount = 0;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

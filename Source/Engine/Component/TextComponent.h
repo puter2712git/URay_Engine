@@ -12,7 +12,7 @@ class Mesh;
 class Material;
 class Font;
 
-namespace RHI
+namespace Render
 {
 class TextObject;
 }
@@ -26,10 +26,10 @@ public:
     ~TextComponent() = default;
 
 public:
-    RHI::RenderObject* CreateRenderObject() override;
+    Render::RenderObject* CreateRenderObject() override;
 
 private:
-    RHI::TextObject* renderObject = nullptr;
+    Render::TextObject* renderObject = nullptr;
 
     Font* font = nullptr;
     std::string text;

@@ -5,7 +5,7 @@
 
 #include "Core/File/VirtualFilesystem.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 ShaderManager::ShaderManager(VirtualFilesystem& filesystem)
@@ -74,4 +74,4 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     return newShader;
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

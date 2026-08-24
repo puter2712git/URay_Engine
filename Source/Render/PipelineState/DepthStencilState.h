@@ -2,7 +2,7 @@
 
 #include "Operations.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct DepthStencilState
@@ -16,4 +16,4 @@ struct DepthStencilState
     bool operator==(const DepthStencilState&) const = default;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

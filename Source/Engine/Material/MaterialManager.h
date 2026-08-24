@@ -9,29 +9,29 @@ namespace URay
 class Material;
 class Texture;
 
-namespace RHI
+namespace Render
 {
 class Shader;
 class RenderDevice;
 class GPUResourceManager;
-} // namespace RHI
+} // namespace Render
 
 class VirtualFilesystem;
 
 class MaterialManager
 {
 public:
-    MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite);
+    MaterialManager(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite);
     ~MaterialManager();
 
 public:
-    Material* GetOrCreate(const std::string& key, RHI::Shader* shader = nullptr);
+    Material* GetOrCreate(const std::string& key, Render::Shader* shader = nullptr);
 
     const std::unordered_map<std::string, Material*>& GetMaterials() const { return materials; }
 
 private:
-    RHI::RenderDevice* renderDevice = nullptr;
-    RHI::GPUResourceManager* resourceManager = nullptr;
+    Render::RenderDevice* renderDevice = nullptr;
+    Render::GPUResourceManager* resourceManager = nullptr;
 
     std::unordered_map<std::string, Material*> materials;
 

@@ -10,7 +10,7 @@ class Texture;
 class Mesh;
 class Material;
 
-namespace RHI
+namespace Render
 {
 class MeshObject;
 }
@@ -24,12 +24,12 @@ public:
     virtual ~SpriteComponent() override = default;
 
 public:
-    RHI::RenderObject* CreateRenderObject() override;
+    Render::RenderObject* CreateRenderObject() override;
 
     Material* GetMaterial() const { return material; }
 
 private:
-    RHI::MeshObject* renderObject = nullptr;
+    Render::MeshObject* renderObject = nullptr;
 
     Texture* texture = nullptr;
 

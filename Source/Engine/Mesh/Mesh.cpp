@@ -16,7 +16,7 @@ Mesh::Mesh(const std::string& name) : name(name)
 {
 }
 
-void Mesh::SetVertices(const std::vector<RHI::VertexPNT>& newVertices)
+void Mesh::SetVertices(const std::vector<Render::VertexPNT>& newVertices)
 {
     vertices = newVertices;
 
@@ -28,7 +28,7 @@ void Mesh::SetVertices(const std::vector<RHI::VertexPNT>& newVertices)
 
     for (size_t i = 0; i < vertices.size(); ++i)
     {
-        const RHI::VertexPNT& vertex = vertices[i];
+        const Render::VertexPNT& vertex = vertices[i];
 
         localBounds.min.x = std::min(vertex.position.x, localBounds.min.x);
         localBounds.min.y = std::min(vertex.position.y, localBounds.min.y);

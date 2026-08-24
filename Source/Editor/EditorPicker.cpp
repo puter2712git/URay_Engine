@@ -92,7 +92,7 @@ bool EditorPicker::PickGizmo(const Ray& ray, int& outAxis) const
     {
         const Mesh* meshAsset = gizmo->GetMesh();
 
-        const std::vector<RHI::VertexPNT>& vertices = meshAsset->GetVertices();
+        const std::vector<Render::VertexPNT>& vertices = meshAsset->GetVertices();
         const std::vector<uint32_t>& indices = meshAsset->GetIndices();
 
         const Matrix gizmoWorld = gizmo->GetWorldMatrix(axis);
@@ -139,7 +139,7 @@ bool EditorPicker::PickMesh(const Ray& ray, const MeshComponent* meshComp, float
     if (!mesh)
         return false;
 
-    const std::vector<RHI::VertexPNT>& vertices = mesh->GetVertices();
+    const std::vector<Render::VertexPNT>& vertices = mesh->GetVertices();
     const std::vector<uint32_t>& indices = mesh->GetIndices();
 
     bool isHit = false;

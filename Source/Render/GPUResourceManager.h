@@ -16,7 +16,7 @@ class Mesh;
 class Texture;
 } // namespace URay
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class RenderDevice;
@@ -74,4 +74,4 @@ private:
     std::unordered_map<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

@@ -6,7 +6,7 @@
 namespace URay
 {
 
-namespace RHI
+namespace Render
 {
 class LineObject;
 }
@@ -16,10 +16,10 @@ class GridComponent : public Component, public IRenderable
     URAY_CLASS(GridComponent, Component)
 
 public:
-    RHI::RenderObject* CreateRenderObject() override;
+    Render::RenderObject* CreateRenderObject() override;
 
 private:
-    RHI::LineObject* renderObject = nullptr;
+    Render::LineObject* renderObject = nullptr;
 };
 
 } // namespace URay

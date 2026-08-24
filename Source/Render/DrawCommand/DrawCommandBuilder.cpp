@@ -15,7 +15,7 @@
 
 #include <cstring>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer, GPUResourceManager& resourceManager)
@@ -160,4 +160,4 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     drawCmds.push_back(cmd);
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

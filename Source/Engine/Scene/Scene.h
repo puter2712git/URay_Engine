@@ -13,7 +13,7 @@ namespace URay
 class Unit;
 class Octree;
 
-namespace RHI
+namespace Render
 {
 class RenderScene;
 }
@@ -32,15 +32,15 @@ public:
 
     void AddUnit(Unit* unit);
 
-    void SetRenderScene(RHI::RenderScene* renderScene) { this->renderScene = renderScene; }
+    void SetRenderScene(Render::RenderScene* renderScene) { this->renderScene = renderScene; }
 
-    RHI::RenderScene* GetRenderScene() const { return renderScene; }
+    Render::RenderScene* GetRenderScene() const { return renderScene; }
     SceneType GetType() const { return type; }
     const std::vector<Unit*>& GetUnits() const { return units; }
     Octree* GetOctree() const { return octree.get(); }
 
 private:
-    RHI::RenderScene* renderScene = nullptr;
+    Render::RenderScene* renderScene = nullptr;
 
     SceneType type = SceneType::Game;
     std::vector<Unit*> units;

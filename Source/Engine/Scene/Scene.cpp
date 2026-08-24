@@ -86,7 +86,7 @@ void Scene::AddUnit(Unit* unit)
     {
         if (IRenderable* rcomp = dynamic_cast<IRenderable*>(comp))
         {
-            std::unique_ptr<RHI::RenderObject> robject(rcomp->CreateRenderObject());
+            std::unique_ptr<Render::RenderObject> robject(rcomp->CreateRenderObject());
             renderScene->Add(std::move(robject));
         }
     }

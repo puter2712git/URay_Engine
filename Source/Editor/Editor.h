@@ -9,7 +9,7 @@ class Engine;
 class CameraComponent;
 class Unit;
 
-namespace RHI
+namespace Render
 {
 class Renderer;
 }

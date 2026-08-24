@@ -13,7 +13,7 @@ class Material;
 class Mesh;
 } // namespace URay
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct MeshCommandContext
@@ -52,4 +52,4 @@ struct GizmoCommandContext
     ::URay::Material* material = nullptr;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

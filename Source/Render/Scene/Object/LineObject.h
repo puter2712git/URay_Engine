@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct Line
@@ -36,4 +36,4 @@ private:
     std::vector<Line> lines;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

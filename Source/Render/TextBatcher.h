@@ -13,7 +13,7 @@ namespace URay
 class Font;
 }
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class Renderer;
@@ -44,4 +44,4 @@ private:
     void* mappedVertexBufferData = nullptr;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

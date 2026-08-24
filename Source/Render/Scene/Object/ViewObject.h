@@ -4,7 +4,7 @@
 
 #include "Core/Math/Matrix.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct ViewObjectState
@@ -31,4 +31,4 @@ private:
     Matrix projMatrix = Matrix::Identity;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

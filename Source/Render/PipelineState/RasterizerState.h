@@ -1,6 +1,6 @@
 #pragma once
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 enum class CullMode
@@ -17,4 +17,4 @@ struct RasterizerState
     bool operator==(const RasterizerState&) const = default;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

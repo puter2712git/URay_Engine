@@ -14,7 +14,7 @@ namespace URay
 
 class Material;
 
-namespace RHI
+namespace Render
 {
 
 struct MeshObjectState
@@ -41,6 +41,6 @@ private:
     AABB worldBounds = {};
 };
 
-} // namespace RHI
+} // namespace Render
 
 } // namespace URay

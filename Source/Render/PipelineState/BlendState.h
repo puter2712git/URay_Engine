@@ -1,6 +1,6 @@
 #pragma once
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct BlendState
@@ -10,4 +10,4 @@ struct BlendState
     bool operator==(const BlendState&) const = default;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

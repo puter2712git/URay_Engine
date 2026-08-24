@@ -2,7 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 LineObject::LineObject(const LineObjectState& state)
@@ -30,4 +30,4 @@ void LineObject::Submit(DrawCommandBuilder& builder) const
     }
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

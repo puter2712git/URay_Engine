@@ -7,7 +7,7 @@
 namespace URay
 {
 
-using namespace RHI;
+using namespace Render;
 
 URAY_REGISTER_CLASS(GridComponent)
 
@@ -16,7 +16,7 @@ void GridComponent::RegisterClass()
     Super::RegisterClass();
 }
 
-RHI::RenderObject* GridComponent::CreateRenderObject()
+Render::RenderObject* GridComponent::CreateRenderObject()
 {
     Line xCoordLine = {};
     xCoordLine.start = Vector3(-100.0f, 0.0f, 0.0f);
@@ -33,12 +33,12 @@ RHI::RenderObject* GridComponent::CreateRenderObject()
     zCoordLine.end = Vector3(0.0f, 0.0f, 100.0f);
     zCoordLine.color = Color::Blue;
 
-    RHI::LineObjectState state = {};
+    Render::LineObjectState state = {};
     state.lines = { xCoordLine,
                     yCoordLine,
                     zCoordLine };
 
-    renderObject = new RHI::LineObject(state);
+    renderObject = new Render::LineObject(state);
     return renderObject;
 }
 

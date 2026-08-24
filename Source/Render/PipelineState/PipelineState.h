@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class PipelineLayout;
@@ -26,4 +26,4 @@ private:
     PipelineLayout* layout = nullptr;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

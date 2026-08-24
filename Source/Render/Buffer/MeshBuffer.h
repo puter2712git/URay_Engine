@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class VertexBuffer;
@@ -25,4 +25,4 @@ private:
     IndexBuffer* indexBuffer = nullptr;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

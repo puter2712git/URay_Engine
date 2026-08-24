@@ -29,13 +29,13 @@ class ObjImporter;
 class TextureImporter;
 class AssetPipeline;
 
-namespace RHI
+namespace Render
 {
 class ShaderManager;
 class GPUResourceManager;
 class Renderer;
 class RenderPipeline;
-} // namespace RHI
+} // namespace Render
 
 class Editor;
 
@@ -76,11 +76,11 @@ public:
 
     FontManager* GetFontManager() const { return fontManager; }
 
-    RHI::Renderer* GetRenderer() const { return renderer; }
+    Render::Renderer* GetRenderer() const { return renderer; }
 
-    RHI::RenderPipeline* GetRenderPipeline() const { return renderPipeline; }
+    Render::RenderPipeline* GetRenderPipeline() const { return renderPipeline; }
 
-    RHI::GPUResourceManager* GetGPUResourceManager() const;
+    Render::GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;
 
@@ -95,8 +95,8 @@ private:
 
     std::vector<Scene*> scenes;
 
-    RHI::Renderer* renderer = nullptr;
-    RHI::RenderPipeline* renderPipeline = nullptr;
+    Render::Renderer* renderer = nullptr;
+    Render::RenderPipeline* renderPipeline = nullptr;
 
     Timer* timer = nullptr;
 
@@ -106,7 +106,7 @@ private:
 
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
-    RHI::ShaderManager* shaderManager = nullptr;
+    Render::ShaderManager* shaderManager = nullptr;
     MaterialManager* materialManager = nullptr;
     MeshManager* meshManager = nullptr;
     TextureManager* textureManager = nullptr;

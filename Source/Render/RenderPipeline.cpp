@@ -11,7 +11,7 @@
 
 #include "Editor/Editor.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 RenderPipeline::RenderPipeline(Renderer& renderer)
@@ -79,4 +79,4 @@ void RenderPipeline::ExecuteCommand(const DrawCommand& cmd) const
     renderer.Draw(cmd);
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

@@ -16,7 +16,7 @@
 namespace URay
 {
 
-using namespace RHI;
+using namespace Render;
 
 GizmoController::GizmoController(MeshManager& meshManager, MaterialManager& materialManager)
 {

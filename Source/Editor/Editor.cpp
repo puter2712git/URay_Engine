@@ -41,7 +41,7 @@ Editor::~Editor() = default;
 
 bool Editor::Initialize()
 {
-    RHI::Renderer* renderer = engine.GetRenderer();
+    Render::Renderer* renderer = engine.GetRenderer();
 
     if (!renderer->InitializeImGui(*engine.GetFilesystem()))
         return false;
@@ -85,7 +85,7 @@ void Editor::Finalize()
     mainMenuBarWidget.reset();
     rootWidget.reset();
 
-    RHI::Renderer* renderer = engine.GetRenderer();
+    Render::Renderer* renderer = engine.GetRenderer();
     if (renderer)
     {
         renderer->FinalizeImGui();
@@ -109,8 +109,8 @@ void Editor::PrepareRender()
 {
     URAY_PROFILE_SCOPE("Editor::PrepareRender")
 
-    RHI::Renderer* renderer = engine.GetRenderer();
-    RHI::DrawCommandBuilder& builder = engine.GetRenderPipeline()->GetBuilder();
+    Render::Renderer* renderer = engine.GetRenderer();
+    Render::DrawCommandBuilder& builder = engine.GetRenderPipeline()->GetBuilder();
 
     rootWidget->PrepareRender(builder);
 

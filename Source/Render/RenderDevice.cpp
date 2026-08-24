@@ -25,7 +25,7 @@
 #include <map>
 #include <stdexcept>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 namespace
@@ -909,4 +909,4 @@ VkImageAspectFlags ToVkImageAspectFlags(Format format)
 }
 } // namespace
 
-} // namespace URay::RHI
+} // namespace URay::Render

@@ -18,7 +18,7 @@ class MaterialManager;
 class TransformComponent;
 class CameraComponent;
 
-namespace RHI
+namespace Render
 {
 class DrawCommandBuilder;
 }
@@ -48,7 +48,7 @@ public:
 
 public:
     void Update(const Vector2& targetPosition, CameraComponent& camera);
-    void Draw(RHI::DrawCommandBuilder& builder);
+    void Draw(Render::DrawCommandBuilder& builder);
 
     void StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent& camera);
     void EndDragging();

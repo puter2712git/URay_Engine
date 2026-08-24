@@ -2,7 +2,7 @@
 
 #include "Render/Renderer.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 VertexBuffer::VertexBuffer(VkDevice device, uint32_t size)
@@ -22,4 +22,4 @@ VertexBuffer::~VertexBuffer()
     }
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

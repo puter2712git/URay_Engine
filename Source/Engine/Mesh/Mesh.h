@@ -34,8 +34,8 @@ public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& inName) { name = inName; }
 
-    const std::vector<RHI::VertexPNT>& GetVertices() const { return vertices; }
-    void SetVertices(const std::vector<RHI::VertexPNT>& newVertices);
+    const std::vector<Render::VertexPNT>& GetVertices() const { return vertices; }
+    void SetVertices(const std::vector<Render::VertexPNT>& newVertices);
 
     const std::vector<uint32_t>& GetIndices() const { return indices; }
     void SetIndices(const std::vector<uint32_t>& newIndices) { indices = newIndices; }
@@ -51,7 +51,7 @@ public:
 
 private:
     std::string name;
-    std::vector<RHI::VertexPNT> vertices;
+    std::vector<Render::VertexPNT> vertices;
     std::vector<uint32_t> indices;
     std::vector<MeshSection> sections;
     std::vector<Material*> defaultMaterials;

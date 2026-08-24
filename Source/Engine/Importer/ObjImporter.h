@@ -20,7 +20,7 @@ class TextureManager;
 
 class VirtualFilesystem;
 
-namespace RHI
+namespace Render
 {
 class Shader;
 }
@@ -32,7 +32,7 @@ public:
                 MeshManager& meshManager,
                 TextureManager& textureManager,
                 MaterialManager& materialManager,
-                RHI::Shader* meshShader);
+                Render::Shader* meshShader);
 
 private:
     struct ObjIndex
@@ -101,7 +101,7 @@ private:
     TextureManager& textureManager;
     MaterialManager& materialManager;
 
-    RHI::Shader* meshShader = nullptr;
+    Render::Shader* meshShader = nullptr;
 
     std::vector<Vector3> positions;
     std::vector<Vector2> uvs;

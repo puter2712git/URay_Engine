@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class Texture;
@@ -23,4 +23,4 @@ private:
     Texture* refTexture = nullptr;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

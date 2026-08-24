@@ -1,6 +1,6 @@
 #include "Texture.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 Texture::Texture(VkDevice device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc)
@@ -16,4 +16,4 @@ Texture::~Texture()
         vkFreeMemory(device, memory, nullptr);
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

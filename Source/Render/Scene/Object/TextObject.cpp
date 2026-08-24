@@ -2,7 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 TextObject::TextObject(const TextObjectState& state)
@@ -33,4 +33,4 @@ void TextObject::Submit(DrawCommandBuilder& builder) const
     builder.BuildText(context);
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

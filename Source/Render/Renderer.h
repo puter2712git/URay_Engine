@@ -18,7 +18,7 @@ class VirtualFilesystem;
 class Scene;
 } // namespace URay
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class RenderDevice;
@@ -260,4 +260,4 @@ private:
     std::unordered_map<Scene*, RenderScene*> scenes;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

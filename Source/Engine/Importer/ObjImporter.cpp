@@ -17,13 +17,13 @@
 namespace URay
 {
 
-using RHI::VertexPNT;
+using Render::VertexPNT;
 
 ObjImporter::ObjImporter(VirtualFilesystem& filesystem,
                          MeshManager& meshManager,
                          TextureManager& textureManager,
                          MaterialManager& materialManager,
-                         RHI::Shader* meshShader)
+                         Render::Shader* meshShader)
     : filesystem(filesystem), meshManager(meshManager),
       textureManager(textureManager), materialManager(materialManager), meshShader(meshShader)
 {

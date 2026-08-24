@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class RenderObject;
@@ -29,4 +29,4 @@ private:
     std::vector<ViewObject*> viewObjects;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

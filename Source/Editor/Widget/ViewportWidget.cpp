@@ -17,7 +17,7 @@
 namespace URay
 {
 
-ViewportWidget::ViewportWidget(RHI::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc)
+ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc)
     : renderer(renderer), camera(camera), onSelectUnit(onSelectUnitFunc)
 {
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
@@ -220,7 +220,7 @@ void ViewportWidget::OnUpdate(float deltaTime)
     UpdateCameraRotation();
 }
 
-void ViewportWidget::OnPrepareRender(RHI::DrawCommandBuilder& builder)
+void ViewportWidget::OnPrepareRender(Render::DrawCommandBuilder& builder)
 {
     gizmo->Draw(builder);
 }

@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class DescriptorSetLayout;
@@ -22,4 +22,4 @@ private:
     std::vector<VkDescriptorSetLayoutBinding> bindings;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

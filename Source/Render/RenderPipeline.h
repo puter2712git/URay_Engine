@@ -9,7 +9,7 @@ class CameraComponent;
 class Scene;
 } // namespace URay
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class Renderer;
@@ -39,4 +39,4 @@ private:
     DrawCommandBuilder builder;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

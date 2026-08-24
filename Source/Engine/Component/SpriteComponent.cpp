@@ -14,7 +14,7 @@
 namespace URay
 {
 
-using namespace RHI;
+using namespace Render;
 
 URAY_REGISTER_CLASS(SpriteComponent)
 URAY_REGISTER_COMPONENT(SpriteComponent)
@@ -46,7 +46,7 @@ void SpriteComponent::RegisterClass()
                                  } });
 }
 
-RHI::RenderObject* SpriteComponent::CreateRenderObject()
+Render::RenderObject* SpriteComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
     if (!owner)
@@ -54,12 +54,12 @@ RHI::RenderObject* SpriteComponent::CreateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    RHI::MeshObjectState objectState = {};
+    Render::MeshObjectState objectState = {};
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     objectState.mesh = quadMesh;
     objectState.materials = { material };
 
-    renderObject = new RHI::MeshObject(objectState);
+    renderObject = new Render::MeshObject(objectState);
     return renderObject;
 }
 

@@ -3,7 +3,7 @@
 namespace URay
 {
 
-namespace RHI
+namespace Render
 {
 class RenderObject;
 }
@@ -11,7 +11,7 @@ class RenderObject;
 class IRenderable
 {
 public:
-    virtual RHI::RenderObject* CreateRenderObject() = 0;
+    virtual Render::RenderObject* CreateRenderObject() = 0;
 };
 
 } // namespace URay

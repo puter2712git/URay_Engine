@@ -9,7 +9,7 @@
 namespace URay
 {
 
-namespace RHI
+namespace Render
 {
 class ViewObject;
 }
@@ -24,7 +24,7 @@ public:
     void OnAttached() override;
     void OnDetached() override;
 
-    RHI::RenderObject* CreateRenderObject() override;
+    Render::RenderObject* CreateRenderObject() override;
 
     Vector3 ScreenToWorld(const Vector3& screenPos) const;
 
@@ -41,7 +41,7 @@ private:
     void UpdateProjMatrix();
 
 private:
-    RHI::ViewObject* renderObject = nullptr;
+    Render::ViewObject* renderObject = nullptr;
 
     float fov = 60.0f;
 

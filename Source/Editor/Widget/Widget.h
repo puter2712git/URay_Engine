@@ -11,7 +11,7 @@
 namespace URay
 {
 
-namespace RHI
+namespace Render
 {
 class DrawCommandBuilder;
 }
@@ -25,7 +25,7 @@ public:
 
 public:
     void Update(float deltaTime);
-    void PrepareRender(RHI::DrawCommandBuilder& builder);
+    void PrepareRender(Render::DrawCommandBuilder& builder);
     void Draw();
 
     void AddChild(std::unique_ptr<Widget> child);
@@ -53,7 +53,7 @@ protected:
     void ApplyRect() const;
 
     virtual void OnUpdate(float) {}
-    virtual void OnPrepareRender(RHI::DrawCommandBuilder& builder) {}
+    virtual void OnPrepareRender(Render::DrawCommandBuilder& builder) {}
     virtual void OnDraw() {}
 
 protected:

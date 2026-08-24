@@ -2,7 +2,7 @@
 
 #include "Core/Math/Matrix.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class DrawCommandBuilder;
@@ -24,4 +24,4 @@ protected:
     bool isDirty = false;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

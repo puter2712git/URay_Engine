@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 enum class ResourceType
@@ -25,4 +25,4 @@ struct ResourceBinding
     bool operator==(const ResourceBinding&) const = default;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

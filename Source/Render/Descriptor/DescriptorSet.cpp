@@ -3,7 +3,7 @@
 #include "Render/Buffer/ConstantBuffer.h"
 #include "Render/Texture/TextureView.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 DescriptorSet::DescriptorSet(VkDevice device, VkDescriptorSet handle, DescriptorSetLayout* layout)
@@ -75,4 +75,4 @@ void DescriptorSet::WriteSampler(
     vkUpdateDescriptorSets(device, 1, &write, 0, nullptr);
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

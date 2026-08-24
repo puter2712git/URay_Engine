@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 enum class PrimitiveTopology : uint8_t

@@ -9,7 +9,7 @@ namespace URay
 
 class Font;
 
-namespace RHI
+namespace Render
 {
 
 struct TextObjectState
@@ -34,6 +34,6 @@ private:
     std::string text;
 };
 
-} // namespace RHI
+} // namespace Render
 
 } // namespace URay

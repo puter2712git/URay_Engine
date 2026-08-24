@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct DescriptorSetLayoutDesc
@@ -38,4 +38,4 @@ struct DescriptorSetLayoutDescHash
     }
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

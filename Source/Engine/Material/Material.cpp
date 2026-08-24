@@ -14,14 +14,14 @@
 namespace URay
 {
 
-Material::Material(RHI::Shader* shader)
+Material::Material(Render::Shader* shader)
     : shader(shader)
 {
 }
 
 Material::~Material()
 {
-    for (RHI::DescriptorSet* set : descriptorSets)
+    for (Render::DescriptorSet* set : descriptorSets)
     {
         if (set)
         {
@@ -33,12 +33,12 @@ Material::~Material()
     descriptorSets.clear();
 }
 
-bool Material::Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite)
+bool Material::Initialize(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite)
 {
     if (!renderDevice || !resourceManager || !shader)
         return false;
 
-    const RHI::DescriptorSetLayoutDesc* setLayoutDesc = shader->GetDescriptorSetLayoutDesc(1);
+    const Render::DescriptorSetLayoutDesc* setLayoutDesc = shader->GetDescriptorSetLayoutDesc(1);
     if (!setLayoutDesc)
     {
         // No needing material descriptor. This case, just return true.
@@ -49,9 +49,9 @@ bool Material::Initialize(RHI::RenderDevice* renderDevice, RHI::GPUResourceManag
     if (!descriptorSetLayout)
         return false;
 
-    for (uint32_t i = 0; i < RHI::MAX_FRAMES_IN_FLIGHT; ++i)
+    for (uint32_t i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        RHI::DescriptorSet* set = renderDevice->CreateDescriptorSet(descriptorSetLayout);
+        Render::DescriptorSet* set = renderDevice->CreateDescriptorSet(descriptorSetLayout);
         if (!set)
             return false;
 
@@ -67,11 +67,11 @@ void Material::SetTexture(Texture* textureAsset)
 {
     texture = textureAsset;
 
-    RHI::GPUResourceManager* resourceManager = gEngine->GetGPUResourceManager();
-    RHI::Texture* texture = resourceManager->GetOrCreateTexture(textureAsset);
-    RHI::TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
+    Render::GPUResourceManager* resourceManager = gEngine->GetGPUResourceManager();
+    Render::Texture* texture = resourceManager->GetOrCreateTexture(textureAsset);
+    Render::TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
 
-    for (RHI::DescriptorSet* descriptorSet : descriptorSets)
+    for (Render::DescriptorSet* descriptorSet : descriptorSets)
     {
         descriptorSet->WriteSampledImage(0, textureView);
         descriptorSet->WriteSampler(1, resourceManager->GetOrCreateTextureSampler({}));

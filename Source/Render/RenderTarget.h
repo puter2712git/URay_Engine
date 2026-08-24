@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class RenderDevice;
@@ -36,4 +36,4 @@ private:
     Extent2D extent = {};
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

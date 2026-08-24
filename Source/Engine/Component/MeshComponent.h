@@ -13,7 +13,7 @@ namespace URay
 class Mesh;
 class Material;
 
-namespace RHI
+namespace Render
 {
 class MeshObject;
 }
@@ -31,7 +31,7 @@ public:
     void OnAttached() override;
     void OnDetached() override;
 
-    RHI::RenderObject* CreateRenderObject() override;
+    Render::RenderObject* CreateRenderObject() override;
 
     Mesh* GetMesh() const { return mesh; }
     void SetMesh(Mesh* newMesh);
@@ -43,7 +43,7 @@ public:
     void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
 private:
-    RHI::MeshObject* renderObject = nullptr;
+    Render::MeshObject* renderObject = nullptr;
 
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;

@@ -8,7 +8,7 @@
 namespace URay
 {
 
-MaterialManager::MaterialManager(RHI::RenderDevice* renderDevice, RHI::GPUResourceManager* resourceManager, Texture* defaultWhite)
+MaterialManager::MaterialManager(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite)
     : renderDevice(renderDevice), resourceManager(resourceManager), defaultWhite(defaultWhite)
 {
 }
@@ -27,7 +27,7 @@ MaterialManager::~MaterialManager()
     materials.clear();
 }
 
-Material* MaterialManager::GetOrCreate(const std::string& key, RHI::Shader* shader)
+Material* MaterialManager::GetOrCreate(const std::string& key, Render::Shader* shader)
 {
     auto it = materials.find(key);
     if (it != materials.end())

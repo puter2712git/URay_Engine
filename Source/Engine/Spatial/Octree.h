@@ -10,7 +10,7 @@ namespace URay
 
 class MeshComponent;
 
-namespace RHI
+namespace Render
 {
 class DrawCommandBuilder;
 }

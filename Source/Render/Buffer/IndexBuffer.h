@@ -2,7 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 class Renderer;
@@ -31,4 +31,4 @@ private:
     VkDeviceMemory memory = VK_NULL_HANDLE;
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

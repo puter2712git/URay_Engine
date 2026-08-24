@@ -28,7 +28,7 @@ void TextComponent::RegisterClass()
                                  .size = sizeof(std::string) });
 }
 
-RHI::RenderObject* TextComponent::CreateRenderObject()
+Render::RenderObject* TextComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
     if (!owner)
@@ -36,12 +36,12 @@ RHI::RenderObject* TextComponent::CreateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    RHI::TextObjectState state = {};
+    Render::TextObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     state.font = font;
     state.text = text;
 
-    renderObject = new RHI::TextObject(state);
+    renderObject = new Render::TextObject(state);
     return renderObject;
 }
 

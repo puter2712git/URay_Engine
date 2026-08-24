@@ -1,6 +1,6 @@
 #include "RenderObject.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
-} // namespace URay::RHI
+} // namespace URay::Render

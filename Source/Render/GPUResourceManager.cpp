@@ -16,7 +16,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 GPUResourceManager::GPUResourceManager(RenderDevice* renderDevice)
@@ -263,4 +263,4 @@ void GPUResourceManager::DestroyPSOs()
     pipelines.clear();
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

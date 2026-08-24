@@ -4,7 +4,7 @@
 
 #include <functional>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 struct TextureSamplerDesc
@@ -40,4 +40,4 @@ struct TextureSamplerDescHash
     }
 };
 
-} // namespace URay::RHI
+} // namespace URay::Render

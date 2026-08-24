@@ -49,7 +49,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     return VK_FALSE;
 }
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 #ifdef NDEBUG
@@ -1535,4 +1535,4 @@ VkFormat Renderer::FindSupportedFormat(const std::vector<VkFormat>& candidates, 
     throw std::runtime_error("Failed to find supported format!");
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

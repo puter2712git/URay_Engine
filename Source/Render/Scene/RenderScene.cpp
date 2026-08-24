@@ -3,7 +3,7 @@
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 RenderScene::RenderScene() = default;
@@ -20,4 +20,4 @@ void RenderScene::Add(std::unique_ptr<RenderObject> object)
     objects.push_back(std::move(object));
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

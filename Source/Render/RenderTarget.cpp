@@ -7,7 +7,7 @@
 
 #include <stdexcept>
 
-namespace URay::RHI
+namespace URay::Render
 {
 
 RenderTarget::RenderTarget(RenderDevice& renderDevice, const Extent2D& extent)
@@ -65,4 +65,4 @@ bool RenderTarget::Resize(const Extent2D& newExtent)
     return true;
 }
 
-} // namespace URay::RHI
+} // namespace URay::Render

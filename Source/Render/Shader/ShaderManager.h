@@ -12,7 +12,7 @@ namespace URay
 
 class VirtualFilesystem;
 
-namespace RHI
+namespace Render
 {
 
 class Shader;
@@ -35,6 +35,6 @@ private:
     std::unordered_map<std::string, Shader*> shaders;
 };
 
-} // namespace RHI
+} // namespace Render
 
 } // namespace URay
