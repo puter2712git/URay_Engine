@@ -1,14 +1,14 @@
 #include "DrawCommandBuilder.h"
 
-#include "Render/GPUResourceManager.h"
 #include "Render/Buffer/IndexBuffer.h"
 #include "Render/Buffer/MeshBuffer.h"
+#include "Render/Buffer/VertexBuffer.h"
+#include "Render/GPUResourceManager.h"
 #include "Render/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
-#include "Render/Buffer/VertexBuffer.h"
 
 #include "Engine/Material/Material.h"
 #include "Engine/Mesh/Mesh.h"
@@ -18,8 +18,8 @@
 namespace URay::RHI
 {
 
-DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer)
-    : renderer(renderer)
+DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer, GPUResourceManager& resourceManager)
+    : renderer(renderer), resourceManager(resourceManager)
 {
     textBatcher = new TextBatcher(&renderer);
 }
@@ -74,10 +74,22 @@ void DrawCommandBuilder::FlushTexts()
     textBatcher->Flush(*this);
 }
 
-void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
+void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
 {
-    GPUResourceManager* resourceManager = renderer.GetResourceManager();
-    MeshBuffer* meshBuffer = resourceManager->GetOrCreateMeshBuffer(context.mesh);
+    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
+
+    DepthStencilState depthStencil = {};
+    depthStencil.depthTestEnable = true;
+    depthStencil.depthWriteEnable = true;
+    depthStencil.depthCompareOp = CompareOp::Less;
+    depthStencil.stencilTestEnable = false;
+
+    PipelineStateDesc stateDesc = {};
+    stateDesc.shader = context.material->GetShader();
+    stateDesc.topology = PrimitiveTopology::TriangleList;
+    stateDesc.vertexLayout = VertexLayout::PNT;
+    stateDesc.depthStencil = depthStencil;
+    stateDesc.blend.blendEnable = true;
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
@@ -87,29 +99,13 @@ void DrawCommandBuilder::BuildFromMesh(const MeshCommandContext& context)
     cmd.indexBuffer = meshBuffer->GetIndexBuffer()->GetBufferRef();
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
-
-    PipelineStateDesc state = {};
-    state.shader = context.material->GetShader();
-    state.topology = PrimitiveTopology::TriangleList;
-    state.vertexLayout = VertexLayout::PNT;
-
-    DepthStencilState depthStencil = {};
-    depthStencil.depthTestEnable = true;
-    depthStencil.depthWriteEnable = true;
-    depthStencil.depthCompareOp = CompareOp::Less;
-    depthStencil.stencilTestEnable = false;
-
-    state.depthStencil = depthStencil;
-
-    state.blend.blendEnable = true;
-
-    cmd.pipelineState = state;
+    cmd.pipelineState = stateDesc;
     cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
 
     drawCmds.push_back(cmd);
 }
 
-void DrawCommandBuilder::BuildFromLine(const LineCommandContext& context)
+void DrawCommandBuilder::BuildLine(const LineCommandContext& context)
 {
     Vertex v0 = {};
     v0.pos = context.start;
@@ -123,9 +119,12 @@ void DrawCommandBuilder::BuildFromLine(const LineCommandContext& context)
     lineVertices.push_back(v1);
 }
 
-void DrawCommandBuilder::BuildFromText(const TextCommandContext& context)
+void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 {
-    textBatcher->Collect(context);
+    if (textBatcher)
+    {
+        textBatcher->Collect(context);
+    }
 }
 
 void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)

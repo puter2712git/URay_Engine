@@ -1,16 +1,25 @@
 #pragma once
 
-#include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/Component.h"
+#include "Engine/Component/IRenderable.h"
 
 namespace URay
 {
 
-class GridComponent : public RenderComponent
+namespace RHI
 {
-    URAY_CLASS(GridComponent, RenderComponent)
+class LineObject;
+}
+
+class GridComponent : public Component, public IRenderable
+{
+    URAY_CLASS(GridComponent, Component)
 
 public:
-    void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
+    RHI::RenderObject* CreateRenderObject() override;
+
+private:
+    RHI::LineObject* renderObject = nullptr;
 };
 
 } // namespace URay

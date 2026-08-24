@@ -35,8 +35,6 @@ public:
 public:
     void Insert(MeshComponent* entry);
 
-    void BuildDebugLines(RHI::DrawCommandBuilder& builder) const;
-
 private:
     bool Insert(int nodeIndex, MeshComponent* entry);
 

@@ -28,6 +28,8 @@ public:
 
 public:
     void Update(float deltaTime) override;
+    void OnAttached() override;
+    void OnDetached() override;
 
     RHI::RenderObject* CreateRenderObject() override;
 

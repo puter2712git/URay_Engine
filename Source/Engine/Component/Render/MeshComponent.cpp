@@ -65,6 +65,27 @@ void MeshComponent::Update(float deltaTime)
     }
 }
 
+void MeshComponent::OnAttached()
+{
+    Unit* owner = GetOwner();
+    owner->RegisterTransformUpdateCallback([this]()
+                                           {
+        if (renderObject)
+        {
+            TransformComponent* transform = GetOwner()->GetTransform();
+
+            renderObject->Update(RHI::MeshObjectState{
+                .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+                .mesh = mesh,
+                .materials = materials,
+            });
+    } });
+}
+
+void MeshComponent::OnDetached()
+{
+}
+
 RHI::RenderObject* MeshComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
@@ -72,9 +93,13 @@ RHI::RenderObject* MeshComponent::CreateRenderObject()
         return nullptr;
 
     TransformComponent* transform = owner->GetTransform();
-    Matrix worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
 
-    renderObject = new RHI::MeshObject(*mesh, worldMatrix);
+    RHI::MeshObjectState objectState = {};
+    objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    objectState.mesh = mesh;
+    objectState.materials = materials;
+
+    renderObject = new RHI::MeshObject(objectState);
     return renderObject;
 }
 

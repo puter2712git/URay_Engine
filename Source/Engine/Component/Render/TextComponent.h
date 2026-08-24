@@ -1,6 +1,7 @@
 #pragma once
 
-#include "RenderComponent.h"
+#include "Engine/Component/Component.h"
+#include "Engine/Component/IRenderable.h"
 
 #include <string>
 
@@ -9,23 +10,28 @@ namespace URay
 
 class Mesh;
 class Material;
-
 class Font;
 
-class TextComponent : public RenderComponent
+namespace RHI
 {
-    URAY_CLASS(TextComponent, RenderComponent)
+class TextObject;
+}
+
+class TextComponent : public Component, public IRenderable
+{
+    URAY_CLASS(TextComponent, Component)
 
 public:
     TextComponent();
     ~TextComponent() = default;
 
 public:
-    virtual void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
+    RHI::RenderObject* CreateRenderObject() override;
 
 private:
-    Font* font = nullptr;
+    RHI::TextObject* renderObject = nullptr;
 
+    Font* font = nullptr;
     std::string text;
 };
 

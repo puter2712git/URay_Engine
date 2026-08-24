@@ -2,7 +2,6 @@
 
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
-#include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"
@@ -196,8 +195,16 @@ void Engine::Render()
 {
     URAY_PROFILE_SCOPE("Engine::Render");
 
+    const auto& scenes = renderer->GetScenes();
+
+    std::vector<RHI::RenderScene*> renderScenes;
+    for (const auto& [scene, renderScene] : scenes)
+    {
+        renderScenes.push_back(renderScene);
+    }
+
     renderer->BeginScenePass();
-    renderPipeline->Execute(scenes);
+    renderPipeline->Execute(renderScenes);
     renderer->EndScenePass();
 }
 

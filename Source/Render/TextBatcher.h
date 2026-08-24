@@ -35,7 +35,7 @@ public:
 private:
     Renderer* renderer = nullptr;
 
-    std::unordered_map<::URay::Font*, std::vector<Vertex>> vertices;
+    std::unordered_map<Font*, std::vector<Vertex>> vertices;
 
     DescriptorSet* descriptorSet = nullptr;
 

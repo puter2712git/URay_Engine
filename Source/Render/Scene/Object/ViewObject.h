@@ -23,6 +23,9 @@ public:
 public:
     void Update(const ViewObjectState& state);
 
+    const Matrix& GetViewMatrix() const { return viewMatrix; }
+    const Matrix& GetProjMatrix() const { return projMatrix; }
+
 private:
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;

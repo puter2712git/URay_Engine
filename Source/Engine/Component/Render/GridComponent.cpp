@@ -2,6 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
+#include "Render/Scene/Object/LineObject.h"
 
 namespace URay
 {
@@ -15,26 +16,30 @@ void GridComponent::RegisterClass()
     Super::RegisterClass();
 }
 
-void GridComponent::SubmitCommand(DrawCommandBuilder& builder)
+RHI::RenderObject* GridComponent::CreateRenderObject()
 {
-    LineCommandContext xCoord = {};
-    xCoord.start = Vector3(-100.0f, 0.0f, 0.0f);
-    xCoord.end = Vector3(100.0f, 0.0f, 0.0f);
-    xCoord.color = Color::Red;
+    Line xCoordLine = {};
+    xCoordLine.start = Vector3(-100.0f, 0.0f, 0.0f);
+    xCoordLine.end = Vector3(100.0f, 0.0f, 0.0f);
+    xCoordLine.color = Color::Red;
 
-    LineCommandContext yCoord = {};
-    yCoord.start = Vector3(0.0f, -100.0f, 0.0f);
-    yCoord.end = Vector3(0.0f, 100.0f, 0.0f);
-    yCoord.color = Color::Green;
+    Line yCoordLine = {};
+    yCoordLine.start = Vector3(0.0f, -100.0f, 0.0f);
+    yCoordLine.end = Vector3(0.0f, 100.0f, 0.0f);
+    yCoordLine.color = Color::Green;
 
-    LineCommandContext zCoord = {};
-    zCoord.start = Vector3(0.0f, 0.0f, -100.0f);
-    zCoord.end = Vector3(0.0f, 0.0f, 100.0f);
-    zCoord.color = Color::Blue;
+    Line zCoordLine = {};
+    zCoordLine.start = Vector3(0.0f, 0.0f, -100.0f);
+    zCoordLine.end = Vector3(0.0f, 0.0f, 100.0f);
+    zCoordLine.color = Color::Blue;
 
-    builder.BuildFromLine(xCoord);
-    builder.BuildFromLine(yCoord);
-    builder.BuildFromLine(zCoord);
+    RHI::LineObjectState state = {};
+    state.lines = { xCoordLine,
+                    yCoordLine,
+                    zCoordLine };
+
+    renderObject = new RHI::LineObject(state);
+    return renderObject;
 }
 
 } // namespace URay

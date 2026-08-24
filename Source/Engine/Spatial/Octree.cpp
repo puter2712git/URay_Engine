@@ -43,33 +43,6 @@ static const std::array<Vector3, 8> depthColors = {
     Vector3{ 0.7f, 0.3f, 1.0f }, // purple
 };
 
-void Octree::BuildDebugLines(RHI::DrawCommandBuilder& builder) const
-{
-    for (const Node& node : nodes)
-    {
-        const Vector3& min = node.bounds.min;
-        const Vector3& max = node.bounds.max;
-
-        const Vector3& depthColor = depthColors[node.depth];
-        const Color color = Color(depthColor.x, depthColor.y, depthColor.z, 1.0f);
-
-        builder.BuildFromLine({ { min.x, min.y, min.z }, { max.x, min.y, min.z }, color });
-        builder.BuildFromLine({ { min.x, max.y, min.z }, { max.x, max.y, min.z }, color });
-        builder.BuildFromLine({ { min.x, min.y, max.z }, { max.x, min.y, max.z }, color });
-        builder.BuildFromLine({ { min.x, max.y, max.z }, { max.x, max.y, max.z }, color });
-
-        builder.BuildFromLine({ { min.x, min.y, min.z }, { min.x, max.y, min.z }, color });
-        builder.BuildFromLine({ { max.x, min.y, min.z }, { max.x, max.y, min.z }, color });
-        builder.BuildFromLine({ { min.x, min.y, max.z }, { min.x, max.y, max.z }, color });
-        builder.BuildFromLine({ { max.x, min.y, max.z }, { max.x, max.y, max.z }, color });
-
-        builder.BuildFromLine({ { min.x, min.y, min.z }, { min.x, min.y, max.z }, color });
-        builder.BuildFromLine({ { max.x, min.y, min.z }, { max.x, min.y, max.z }, color });
-        builder.BuildFromLine({ { min.x, max.y, min.z }, { min.x, max.y, max.z }, color });
-        builder.BuildFromLine({ { max.x, max.y, min.z }, { max.x, max.y, max.z }, color });
-    }
-}
-
 bool Octree::Insert(int nodeIndex, MeshComponent* entry)
 {
     const AABB entryBounds = {};

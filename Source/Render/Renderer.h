@@ -97,6 +97,8 @@ public:
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
 
+    const std::unordered_map<Scene*, RenderScene*>& GetScenes() const { return scenes; }
+
 private:
     struct QueueFamilyIndices
     {

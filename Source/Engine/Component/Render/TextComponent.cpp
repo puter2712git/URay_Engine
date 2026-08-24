@@ -1,17 +1,14 @@
 #include "TextComponent.h"
 
-#include "Engine/Font/FontManager.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Font/FontManager.h"
 #include "Engine/Unit.h"
 
-#include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/DrawCommand/DrawCommandContext.h"
+#include "Render/Scene/Object/TextObject.h"
 
 namespace URay
 {
-
-using namespace RHI;
 
 URAY_REGISTER_CLASS(TextComponent)
 URAY_REGISTER_COMPONENT(TextComponent)
@@ -31,20 +28,21 @@ void TextComponent::RegisterClass()
                                  .size = sizeof(std::string) });
 }
 
-void TextComponent::SubmitCommand(DrawCommandBuilder& builder)
+RHI::RenderObject* TextComponent::CreateRenderObject()
 {
-    if (!font || text.empty())
-        return;
-
     Unit* owner = GetOwner();
-    TransformComponent* transform = owner ? owner->GetTransform() : nullptr;
+    if (!owner)
+        return nullptr;
 
-    TextCommandContext context = {};
-    context.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    context.text = text;
-    context.font = font;
+    TransformComponent* transform = owner->GetTransform();
 
-    builder.BuildFromText(context);
+    RHI::TextObjectState state = {};
+    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    state.font = font;
+    state.text = text;
+
+    renderObject = new RHI::TextObject(state);
+    return renderObject;
 }
 
 } // namespace URay

@@ -13,6 +13,8 @@ namespace URay::RHI
 {
 
 class Renderer;
+class RenderScene;
+class ViewObject;
 
 class RenderPipeline
 {
@@ -23,13 +25,12 @@ public:
 public:
     void Reset();
 
-    void Execute(const std::vector<Scene*>& scenes);
+    void Execute(const std::vector<RenderScene*>& scenes);
 
     DrawCommandBuilder& GetBuilder() { return builder; }
 
 private:
-    ::URay::CameraComponent* FindCamera(const std::vector<Scene*>& scenes) const;
-    void CollectCommand(const std::vector<Scene*>& scenes);
+    ViewObject* FindView(const std::vector<RenderScene*>& scenes) const;
     void ExecuteCommand(const DrawCommand& cmd) const;
 
 private:

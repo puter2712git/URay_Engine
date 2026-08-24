@@ -12,11 +12,12 @@ namespace URay::RHI
 
 class Renderer;
 class TextBatcher;
+class GPUResourceManager;
 
 class DrawCommandBuilder
 {
 public:
-    DrawCommandBuilder(Renderer& renderer);
+    DrawCommandBuilder(Renderer& renderer, GPUResourceManager& resourceManager);
     ~DrawCommandBuilder();
 
 public:
@@ -25,9 +26,10 @@ public:
     void FlushLines();
     void FlushTexts();
 
-    void BuildFromMesh(const MeshCommandContext& context);
-    void BuildFromLine(const LineCommandContext& context);
-    void BuildFromText(const TextCommandContext& context);
+    void BuildMesh(const MeshCommandContext& context);
+    void BuildLine(const LineCommandContext& context);
+    void BuildText(const TextCommandContext& context);
+
     void BuildFromGizmo(const GizmoCommandContext& context);
 
     const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
@@ -35,6 +37,8 @@ public:
 
 private:
     Renderer& renderer;
+    GPUResourceManager& resourceManager;
+
     std::vector<DrawCommand> drawCmds;
 
     std::vector<Vertex> lineVertices;

@@ -9,8 +9,7 @@
 #include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
-#include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/DrawCommand/DrawCommandContext.h"
+#include "Render/Scene/Object/MeshObject.h"
 
 namespace URay
 {
@@ -47,17 +46,21 @@ void SpriteComponent::RegisterClass()
                                  } });
 }
 
-void SpriteComponent::SubmitCommand(DrawCommandBuilder& builder)
+RHI::RenderObject* SpriteComponent::CreateRenderObject()
 {
-    TransformComponent* transform = GetOwner()->GetTransform();
+    Unit* owner = GetOwner();
+    if (!owner)
+        return nullptr;
 
-    builder.BuildFromMesh({
-        .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
-        .mesh = quadMesh,
-        .material = material,
-        .indexOffset = 0,
-        .indexCount = static_cast<uint32_t>(quadMesh->GetIndices().size()),
-    });
+    TransformComponent* transform = owner->GetTransform();
+
+    RHI::MeshObjectState objectState = {};
+    objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    objectState.mesh = quadMesh;
+    objectState.materials = { material };
+
+    renderObject = new RHI::MeshObject(objectState);
+    return renderObject;
 }
 
 } // namespace URay

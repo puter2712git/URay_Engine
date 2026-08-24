@@ -27,17 +27,15 @@ struct MeshObjectState
 class MeshObject : public RenderObject
 {
 public:
-    MeshObject(const Mesh& mesh, const Matrix& worldMatrix);
+    MeshObject(const MeshObjectState& state);
     ~MeshObject() override;
 
 public:
     void Update(const MeshObjectState& state);
+    void Submit(DrawCommandBuilder& builder) const override;
 
 private:
-    std::vector<RHI::VertexPNT> vertices;
-    std::vector<uint32_t> indices;
-    std::vector<MeshSection> sections;
-
+    Mesh* mesh = nullptr;
     std::vector<Material*> materials;
 
     AABB worldBounds = {};

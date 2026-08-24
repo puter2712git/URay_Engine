@@ -1,16 +1,17 @@
 #include "MeshObject.h"
 
+#include "Render/DrawCommand/DrawCommandBuilder.h"
+
 namespace URay::RHI
 {
 
-MeshObject::MeshObject(const Mesh& mesh, const Matrix& worldMatrix)
+MeshObject::MeshObject(const MeshObjectState& state)
 {
-    vertices = mesh.GetVertices();
-    indices = mesh.GetIndices();
-    sections = mesh.GetSections();
+    worldMatrix = state.worldMatrix;
+    mesh = state.mesh;
+    materials = state.materials;
 
-    this->worldMatrix = worldMatrix;
-    worldBounds = mesh.GetLocalBounds().Transform(worldMatrix);
+    worldBounds = mesh->GetLocalBounds().Transform(worldMatrix);
 }
 
 MeshObject::~MeshObject() = default;
@@ -18,14 +19,25 @@ MeshObject::~MeshObject() = default;
 void MeshObject::Update(const MeshObjectState& state)
 {
     worldMatrix = state.worldMatrix;
-
-    vertices = state.mesh->GetVertices();
-    indices = state.mesh->GetIndices();
-    sections = state.mesh->GetSections();
-
+    mesh = state.mesh;
     materials = state.materials;
 
     worldBounds = state.mesh->GetLocalBounds().Transform(worldMatrix);
+}
+
+void MeshObject::Submit(DrawCommandBuilder& builder) const
+{
+    for (const auto& section : mesh->GetSections())
+    {
+        builder.BuildMesh({
+            .worldMatrix = worldMatrix,
+            .colorTint = Color::White,
+            .mesh = mesh,
+            .material = materials[section.materialIndex],
+            .indexOffset = section.indexOffset,
+            .indexCount = section.indexCount,
+        });
+    }
 }
 
 } // namespace URay::RHI

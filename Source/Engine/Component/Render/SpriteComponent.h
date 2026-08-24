@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/Component.h"
+#include "Engine/Component/IRenderable.h"
 
 namespace URay
 {
@@ -9,20 +10,27 @@ class Texture;
 class Mesh;
 class Material;
 
-class SpriteComponent : public RenderComponent
+namespace RHI
 {
-    URAY_CLASS(SpriteComponent, RenderComponent)
+class MeshObject;
+}
+
+class SpriteComponent : public Component, public IRenderable
+{
+    URAY_CLASS(SpriteComponent, Component)
 
 public:
     SpriteComponent();
     virtual ~SpriteComponent() override = default;
 
 public:
-    void SubmitCommand(RHI::DrawCommandBuilder& builder) override;
+    RHI::RenderObject* CreateRenderObject() override;
 
     Material* GetMaterial() const { return material; }
 
 private:
+    RHI::MeshObject* renderObject = nullptr;
+
     Texture* texture = nullptr;
 
     Mesh* quadMesh = nullptr;
