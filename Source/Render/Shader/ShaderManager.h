@@ -1,11 +1,18 @@
 #pragma once
 
+#include "Core/File/VirtualPath.h"
+
 #include <string>
 #include <unordered_map>
 
 #include <vulkan/vulkan.h>
 
-namespace URay::RHI
+namespace URay
+{
+
+class VirtualFilesystem;
+
+namespace RHI
 {
 
 class Shader;
@@ -13,17 +20,21 @@ class Shader;
 class ShaderManager
 {
 public:
-    ShaderManager() = default;
+    ShaderManager(VirtualFilesystem& filesystem);
     ~ShaderManager();
 
 public:
     Shader* GetOrCreate(const std::string& key,
-                        const std::string& vertexFilePath = "",
-                        const std::string& fragmentFilePath = "");
+                        const VirtualPath& vertexFilePath = "",
+                        const VirtualPath& fragmentFilePath = "");
 
 private:
+    VirtualFilesystem& filesystem;
+
     uint64_t shaderIdCounter = 0;
     std::unordered_map<std::string, Shader*> shaders;
 };
 
-} // namespace URay::RHI
+} // namespace RHI
+
+} // namespace URay

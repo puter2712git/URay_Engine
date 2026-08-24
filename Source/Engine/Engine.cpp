@@ -57,18 +57,18 @@ bool Engine::Initialize(const std::string& projectPath)
     glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
-    renderer = new RHI::Renderer();
-    if (!renderer->Initialize(window))
-        return false;
-
-    renderPipeline = new RHI::RenderPipeline(*renderer);
-
     timer = new Timer();
 
     filesystem = new VirtualFilesystem();
     filesystem->Mount("Project", projectPath);
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
+
+    renderer = new RHI::Renderer();
+    if (!renderer->Initialize(window, *filesystem))
+        return false;
+
+    renderPipeline = new RHI::RenderPipeline(*renderer);
 
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 

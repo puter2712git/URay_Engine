@@ -52,7 +52,7 @@ public:
     ~Renderer();
 
 public:
-    bool Initialize(::URay::Window* wnd);
+    bool Initialize(Window* wnd, VirtualFilesystem& filesystem);
     void Finalize();
 
     bool InitializeImGui(const VirtualFilesystem& filesystem);

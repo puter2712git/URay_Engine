@@ -3,10 +3,15 @@
 #include "Shader.h"
 #include "ShaderReflector.h"
 
-#include "Core/File/FileIO.h"
+#include "Core/File/VirtualFilesystem.h"
 
 namespace URay::RHI
 {
+
+ShaderManager::ShaderManager(VirtualFilesystem& filesystem)
+    : filesystem(filesystem)
+{
+}
 
 ShaderManager::~ShaderManager()
 {
@@ -23,19 +28,19 @@ ShaderManager::~ShaderManager()
 }
 
 Shader* ShaderManager::GetOrCreate(const std::string& key,
-                                   const std::string& vertexFilePath,
-                                   const std::string& fragmentFilePath)
+                                   const VirtualPath& vertexFilePath,
+                                   const VirtualPath& fragmentFilePath)
 {
     auto it = shaders.find(key);
     if (it != shaders.end())
         return it->second;
 
-    std::vector<uint8_t> vertexShaderCode = FileIO::ReadBinary(vertexFilePath);
-    if (vertexFilePath.empty())
+    std::vector<uint8_t> vertexShaderCode = filesystem.ReadBinary(vertexFilePath);
+    if (vertexShaderCode.empty())
         return nullptr;
 
-    std::vector<uint8_t> fragmentShaderCode = FileIO::ReadBinary(fragmentFilePath);
-    if (fragmentFilePath.empty())
+    std::vector<uint8_t> fragmentShaderCode = filesystem.ReadBinary(fragmentFilePath);
+    if (fragmentShaderCode.empty())
         return nullptr;
 
     ShaderReflection vertexReflection = {};
@@ -47,13 +52,13 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
         return nullptr;
 
     ShaderStage vertexStage = {};
-    vertexStage.filePath = vertexFilePath;
+    vertexStage.filePath = vertexFilePath.ToString();
     vertexStage.code = vertexShaderCode;
     vertexStage.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     vertexStage.entry = "VSMain";
 
     ShaderStage fragmentStage = {};
-    fragmentStage.filePath = fragmentFilePath;
+    fragmentStage.filePath = fragmentFilePath.ToString();
     fragmentStage.code = fragmentShaderCode;
     fragmentStage.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragmentStage.entry = "PSMain";

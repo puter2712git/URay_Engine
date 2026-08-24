@@ -103,7 +103,7 @@ Renderer::Renderer() = default;
 
 Renderer::~Renderer() = default;
 
-bool Renderer::Initialize(::URay::Window* wnd)
+bool Renderer::Initialize(Window* wnd, VirtualFilesystem& filesystem)
 {
     window = wnd;
     glfwSetWindowUserPointer(window->GetGLFWWindow(), this);
@@ -136,11 +136,11 @@ bool Renderer::Initialize(::URay::Window* wnd)
 
     resourceManager = new GPUResourceManager(renderDevice);
 
-    shaderManager = new ShaderManager();
-    Shader* shader = shaderManager->GetOrCreate("Sprite", "Shader/Sprite.vert.spv", "Shader/Sprite.frag.spv");
-    Shader* lineShader = shaderManager->GetOrCreate("Line", "Shader/Line.vert.spv", "Shader/Line.frag.spv");
-    Shader* baseShader = shaderManager->GetOrCreate("Mesh", "Shader/Mesh.vert.spv", "Shader/Mesh.frag.spv");
-    Shader* fontShader = shaderManager->GetOrCreate("Font", "Shader/Font.vert.spv", "Shader/Font.frag.spv");
+    shaderManager = new ShaderManager(filesystem);
+    Shader* shader = shaderManager->GetOrCreate("Sprite", "Asset://Shader/Sprite.vert.spv", "Asset://Shader/Sprite.frag.spv");
+    Shader* lineShader = shaderManager->GetOrCreate("Line", "Asset://Shader/Line.vert.spv", "Asset://Shader/Line.frag.spv");
+    Shader* baseShader = shaderManager->GetOrCreate("Mesh", "Asset://Shader/Mesh.vert.spv", "Asset://Shader/Mesh.frag.spv");
+    Shader* fontShader = shaderManager->GetOrCreate("Font", "Asset://Shader/Font.vert.spv", "Asset://Shader/Font.frag.spv");
 
     if (!CreateSceneRenderTarget())
         return false;
