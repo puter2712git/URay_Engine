@@ -1,4 +1,4 @@
-#include "MeshComponent.h"
+#include "Engine/Component/MeshComponent.h"
 
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"

@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Font/FontManager.h"
 #include "Engine/Importer/ObjImporter.h"

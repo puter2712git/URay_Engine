@@ -8,7 +8,7 @@
 #include "Core/Math/Vector3.h"
 
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"

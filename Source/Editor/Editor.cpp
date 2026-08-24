@@ -15,7 +15,7 @@
 #include "Editor/Widget/Widget.h"
 
 #include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/Render/GridComponent.h"
+#include "Engine/Component/GridComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"

@@ -1,4 +1,4 @@
-#include "SpriteComponent.h"
+#include "Engine/Component/SpriteComponent.h"
 
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"

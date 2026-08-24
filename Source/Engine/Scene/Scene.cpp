@@ -1,7 +1,7 @@
 #include "Scene.h"
 
 #include "Engine/Component/ComponentFactory.h"
-#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/MeshComponent.h"
 #include "Engine/Spatial/Octree.h"
 #include "Engine/Unit.h"
 

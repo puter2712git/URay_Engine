@@ -1,4 +1,4 @@
-#include "TextComponent.h"
+#include "Engine/Component/TextComponent.h"
 
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
