@@ -1,11 +1,11 @@
 #include "AssetSystem.h"
 
-#include "Engine/Font/FontManager.h"
-#include "Engine/Importer/ObjImporter.h"
-#include "Engine/Material/Material.h"
-#include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/MeshManager.h"
-#include "Engine/Texture/TextureManager.h"
+#include "Engine/Asset/Font/FontManager.h"
+#include "Engine/Asset/Importer/ObjImporter.h"
+#include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Material/MaterialManager.h"
+#include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Asset/Texture/TextureManager.h"
 
 #include "Core/File/VirtualFilesystem.h"
 

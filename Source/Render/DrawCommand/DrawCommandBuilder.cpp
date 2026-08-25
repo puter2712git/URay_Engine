@@ -10,8 +10,8 @@
 #include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
 
-#include "Engine/Material/Material.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 
 #include <cstring>
 

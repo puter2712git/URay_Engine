@@ -1,7 +1,7 @@
 #include "Material.h"
 
 #include "Engine/Engine.h"
-#include "Engine/Texture/Texture.h"
+#include "Engine/Asset/Texture/Texture.h"
 
 #include "Render/Descriptor/DescriptorSet.h"
 #include "Render/GPUResourceManager.h"

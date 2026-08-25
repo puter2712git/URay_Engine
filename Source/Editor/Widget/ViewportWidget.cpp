@@ -3,7 +3,7 @@
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 
-#include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Unit.h"

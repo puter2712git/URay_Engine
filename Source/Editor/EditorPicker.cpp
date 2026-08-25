@@ -7,11 +7,11 @@
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
 
-#include "Engine/Component/CameraComponent.h"
-#include "Engine/Component/MeshComponent.h"
+#include "Engine/Component/Render/CameraComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"
 

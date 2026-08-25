@@ -1,7 +1,7 @@
 #include "GizmoController.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Unit.h"
 

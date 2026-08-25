@@ -2,10 +2,10 @@
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
-#include "Engine/Material/Material.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Object/Property/Property.h"
-#include "Engine/Texture/Texture.h"
+#include "Engine/Asset/Texture/Texture.h"
 
 #include "Core/Math/Vector3.h"
 

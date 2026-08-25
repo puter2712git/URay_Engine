@@ -3,7 +3,7 @@
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Vertex.h"
 
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 
 #include "Core/Math/AABB.h"
 

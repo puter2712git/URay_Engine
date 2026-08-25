@@ -1,4 +1,4 @@
-#include "Engine/Component/GridComponent.h"
+#include "Engine/Component/Render/GridComponent.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"

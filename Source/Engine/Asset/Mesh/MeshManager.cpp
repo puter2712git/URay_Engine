@@ -1,6 +1,6 @@
 #include "MeshManager.h"
 
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 
 #include "Core/Math/Math.h"
 #include "Core/Math/Matrix.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Component/RenderComponent.h"
+#include "Engine/Component/Render/RenderComponent.h"
 
 #include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"

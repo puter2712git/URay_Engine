@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Component/RenderComponent.h"
+#include "Engine/Component/Render/RenderComponent.h"
 
 #include "Core/Math/AABB.h"
 

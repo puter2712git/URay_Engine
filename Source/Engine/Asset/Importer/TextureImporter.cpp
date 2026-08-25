@@ -1,6 +1,6 @@
 #include "TextureImporter.h"
 
-#include "Engine/Texture/Texture.h"
+#include "Engine/Asset/Texture/Texture.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"

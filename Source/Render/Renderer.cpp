@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-#include "Engine/Material/MaterialManager.h"
+#include "Engine/Asset/Material/MaterialManager.h"
 #include "Render/Buffer/ConstantBuffer.h"
 #include "Render/Buffer/IndexBuffer.h"
 #include "Render/Descriptor/DescriptorSet.h"
@@ -16,7 +16,7 @@
 #include "Render/Shader/ShaderManager.h"
 #include "Render/Texture/TextureView.h"
 
-#include "Engine/Material/Material.h"
+#include "Engine/Asset/Material/Material.h"
 #include "Engine/Scene/Scene.h"
 
 #include "Core/File/VirtualFilesystem.h"

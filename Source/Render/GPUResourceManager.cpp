@@ -11,8 +11,8 @@
 #include "Render/Texture/TextureView.h"
 #include "Render/Buffer/VertexBuffer.h"
 
-#include "Engine/Mesh/Mesh.h"
-#include "Engine/Texture/Texture.h"
+#include "Engine/Asset/Mesh/Mesh.h"
+#include "Engine/Asset/Texture/Texture.h"
 
 #include <vulkan/vulkan.h>
 

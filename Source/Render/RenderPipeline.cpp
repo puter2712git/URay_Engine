@@ -4,7 +4,7 @@
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
 
-#include "Engine/Component/CameraComponent.h"
+#include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Unit.h"

@@ -1,10 +1,10 @@
-#include "Engine/Component/SpriteComponent.h"
+#include "Engine/Component/Render/SpriteComponent.h"
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Material/Material.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Unit.h"
 
 #include "Render/Scene/Object/MeshObject.h"

@@ -1,6 +1,6 @@
 #include "Octree.h"
 
-#include "Engine/Component/MeshComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"

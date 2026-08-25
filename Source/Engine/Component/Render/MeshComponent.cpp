@@ -1,10 +1,10 @@
-#include "Engine/Component/MeshComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/Mesh.h"
+#include "Engine/Asset/Material/MaterialManager.h"
+#include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Unit.h"
 
