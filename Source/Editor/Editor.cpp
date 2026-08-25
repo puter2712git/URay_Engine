@@ -20,6 +20,7 @@
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Core/File/VirtualPath.h"
@@ -140,8 +141,8 @@ void Editor::SelectUnit(Unit* unit)
 
 CameraComponent& Editor::PrepareEditorScene()
 {
-    Scene* editorScene = new Scene(SceneType::Editor);
-    engine.GetRenderer()->CreateRenderScene(editorScene);
+    std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor);
+    engine.GetRenderer()->CreateRenderScene(editorScene.get());
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");
@@ -160,7 +161,8 @@ CameraComponent& Editor::PrepareEditorScene()
     editorScene->AddUnit(cameraUnit);
     editorScene->AddUnit(gridUnit);
 
-    engine.AddScene(editorScene);
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    sceneSystem.LoadScene(std::move(editorScene));
 
     return *camera;
 }

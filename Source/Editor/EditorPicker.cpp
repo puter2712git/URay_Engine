@@ -7,12 +7,13 @@
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
 
+#include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 namespace URay
@@ -49,7 +50,8 @@ PickResult EditorPicker::Pick(CameraComponent* camera, float screenX, float scre
 
     float minDist = std::numeric_limits<float>::max();
 
-    const Scene* scene = engine.GetSceneByType(SceneType::Game);
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    const Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
     const std::vector<Unit*> units = scene->GetUnits();
 
     for (Unit* unit : units)

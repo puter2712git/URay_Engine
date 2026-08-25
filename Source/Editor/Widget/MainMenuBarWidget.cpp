@@ -5,10 +5,13 @@
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
+
+#include <memory>
 
 namespace URay
 {
@@ -28,7 +31,9 @@ void MainMenuBarWidget::OnDraw()
         {
             if (ImGui::MenuItem("Save Scene"))
             {
-                Scene* currScene = engine.GetSceneByType(SceneType::Game);
+                SceneSystem& sceneSystem = engine.GetSceneSystem();
+
+                Scene* currScene = sceneSystem.GetSceneByType(SceneType::Game);
                 if (currScene)
                 {
                     AssetSystem& assetSystem = engine.GetAssetSystem();
@@ -46,11 +51,12 @@ void MainMenuBarWidget::OnDraw()
                 const std::string sceneText = filesystem.ReadText("Asset://Scene/TestScene.urscene");
                 YAML::Node sceneNode = YAML::Load(sceneText);
 
-                Scene* loadedScene = new Scene(SceneType::Game);
-                engine.GetRenderer()->CreateRenderScene(loadedScene);
+                std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game);
+                engine.GetRenderer()->CreateRenderScene(loadedScene.get());
                 loadedScene->Deserialize(sceneNode);
 
-                engine.SetGameScene(loadedScene);
+                SceneSystem& sceneSystem = engine.GetSceneSystem();
+                sceneSystem.SwitchScene(std::move(loadedScene));
             }
             ImGui::EndMenu();
         }

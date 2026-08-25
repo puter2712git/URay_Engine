@@ -1,19 +1,20 @@
 #include "Engine.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Component/Render/CameraComponent.h"
-#include "Engine/Component/Render/MeshComponent.h"
-#include "Engine/Component/TransformComponent.h"
 #include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Asset/Importer/ObjImporter.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
-#include "Engine/Scene/Scene.h"
-#include "Engine/Spatial/Octree.h"
 #include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Component/Render/CameraComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/TransformComponent.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
+#include "Engine/Spatial/Octree.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Math/Frustum.h"
@@ -80,10 +81,12 @@ bool Engine::Initialize(const std::string& projectPath)
         return false;
     }
 
-    Scene* gameScene = new Scene(SceneType::Game);
-    renderer->CreateRenderScene(gameScene);
+    sceneSystem = std::make_unique<SceneSystem>();
 
-    scenes.push_back(gameScene);
+    std::unique_ptr<Scene> gameScene = std::make_unique<Scene>(SceneType::Game);
+    renderer->CreateRenderScene(gameScene.get());
+
+    sceneSystem->LoadScene(std::move(gameScene));
 
     return true;
 }
@@ -92,6 +95,11 @@ void Engine::Finalize()
 {
     renderer->WaitIdle();
 
+    if (sceneSystem)
+    {
+        sceneSystem.reset();
+    }
+
     if (assetSystem)
     {
         assetSystem.reset();
@@ -99,11 +107,6 @@ void Engine::Finalize()
 
     delete renderPipeline;
     renderPipeline = nullptr;
-
-    for (Scene* scene : scenes)
-    {
-        delete scene;
-    }
 
     delete timer;
 
@@ -125,10 +128,7 @@ void Engine::Update()
 
     timer->Tick();
 
-    for (Scene* scene : scenes)
-    {
-        scene->Update(timer->GetDeltaTime());
-    }
+    sceneSystem->Update(timer->GetDeltaTime());
 }
 
 void Engine::BeginRender()
@@ -171,42 +171,6 @@ void Engine::EndRender()
     renderer->EndFrame();
 }
 
-void Engine::SpawnUnit(Unit* unit)
-{
-    Scene* gameScene = GetSceneByType(SceneType::Game);
-    if (gameScene)
-    {
-        gameScene->AddUnit(unit);
-    }
-}
-
-void Engine::AddScene(Scene* scene)
-{
-    scenes.push_back(scene);
-}
-
-void Engine::SetGameScene(Scene* gameScene)
-{
-    if (!gameScene)
-        return;
-
-    Scene* currGameScene = GetSceneByType(SceneType::Game);
-    if (currGameScene)
-    {
-        scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
-                                    [&](Scene* scene)
-                                    {
-                                        return currGameScene == scene;
-                                    }),
-                     scenes.end());
-
-        delete currGameScene;
-        currGameScene = nullptr;
-    }
-
-    scenes.push_back(gameScene);
-}
-
 void Engine::GetWindowSize(int& width, int& height) const
 {
     glfwGetWindowSize(window->GetGLFWWindow(), &width, &height);
@@ -222,19 +186,6 @@ void Engine::GetFramebufferSize(int& width, int& height) const
 Render::GPUResourceManager* Engine::GetGPUResourceManager() const
 {
     return renderer->GetResourceManager();
-}
-
-Scene* Engine::GetSceneByType(SceneType type) const
-{
-    for (Scene* scene : scenes)
-    {
-        if (scene->GetType() == type)
-        {
-            return scene;
-        }
-    }
-
-    return nullptr;
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

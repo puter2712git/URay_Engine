@@ -4,6 +4,7 @@
 
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include <imgui/imgui.h>
@@ -32,7 +33,8 @@ void SceneTreeWidget::OnDraw()
     ApplyRect();
     ImGui::Begin("Scene Tree", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    Scene* scene = engine.GetSceneByType(SceneType::Game);
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
     if (!scene)
     {
         ImGui::End();
@@ -60,7 +62,7 @@ void SceneTreeWidget::OnDraw()
         {
             Unit* newUnit = new Unit();
             newUnit->SetName("New Unit");
-            gEngine->SpawnUnit(newUnit);
+            scene->AddUnit(newUnit);
         }
 
         ImGui::EndPopup();

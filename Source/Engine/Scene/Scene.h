@@ -1,7 +1,5 @@
 #pragma once
 
-#include "SceneType.h"
-
 #include "Engine/Object/Object.h"
 
 #include <memory>
@@ -17,6 +15,12 @@ namespace Render
 {
 class RenderScene;
 }
+
+enum class SceneType
+{
+    Game,
+    Editor,
+};
 
 class Scene : public Object
 {

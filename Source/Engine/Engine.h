@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Scene/SceneType.h"
-
 #include "Core/Input/InputManager.h"
 #include "Core/Performance/ScopeTimer.h"
 
@@ -21,13 +19,8 @@ class Timer;
 class VirtualFilesystem;
 class PerformanceAnalytics;
 
-class MaterialManager;
-class MeshManager;
-class TextureManager;
-class FontManager;
-class ObjImporter;
-class TextureImporter;
 class AssetSystem;
+class SceneSystem;
 
 namespace Render
 {
@@ -56,11 +49,6 @@ public:
     void Render();
     void EndRender();
 
-    void SpawnUnit(Unit* unit);
-
-    void AddScene(Scene* scene);
-    void SetGameScene(Scene* gameScene);
-
     void GetWindowSize(int& width, int& height) const;
     void GetFramebufferSize(int& width, int& height) const;
 
@@ -72,16 +60,13 @@ public:
     Render::RenderPipeline* GetRenderPipeline() const { return renderPipeline; }
     Render::GPUResourceManager* GetGPUResourceManager() const;
 
-    Scene* GetSceneByType(SceneType type) const;
-
     PerformanceAnalytics* GetPerformanceAnalytics() const { return performanceAnalytics.get(); }
 
     AssetSystem& GetAssetSystem() const { return *assetSystem; }
+    SceneSystem& GetSceneSystem() const { return *sceneSystem; }
 
 private:
     Window* window = nullptr;
-
-    std::vector<Scene*> scenes;
 
     Render::Renderer* renderer = nullptr;
     Render::RenderPipeline* renderPipeline = nullptr;
@@ -92,6 +77,7 @@ private:
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
     std::unique_ptr<AssetSystem> assetSystem = nullptr;
+    std::unique_ptr<SceneSystem> sceneSystem = nullptr;
 };
 
 extern Engine* gEngine;
