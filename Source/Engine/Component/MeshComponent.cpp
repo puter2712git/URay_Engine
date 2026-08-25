@@ -44,44 +44,6 @@ void MeshComponent::RegisterClass()
                                  } });
 }
 
-void MeshComponent::Update(float deltaTime)
-{
-    Super::Update(deltaTime);
-
-    if (renderObject && renderObject->IsDirty())
-    {
-        renderObject->SetDirty(false);
-
-        Unit* owner = GetOwner();
-        if (!owner)
-            return;
-
-        TransformComponent* transform = owner->GetTransform();
-
-        renderObject->Update(Render::MeshObjectState{
-            .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
-            .mesh = mesh,
-            .materials = materials,
-        });
-    }
-}
-
-void MeshComponent::OnAttached()
-{
-    Unit* owner = GetOwner();
-
-    owner->RegisterTransformUpdateCallback([this]()
-                                           {
-        if (renderObject)
-        {
-            renderObject->SetDirty(true);
-    } });
-}
-
-void MeshComponent::OnDetached()
-{
-}
-
 Render::RenderObject* MeshComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
@@ -105,10 +67,7 @@ void MeshComponent::SetMesh(Mesh* newMesh)
     materials = mesh ? mesh->GetDefaultMaterials()
                      : std::vector<Material*>();
 
-    if (renderObject)
-    {
-        renderObject->SetDirty(true);
-    }
+    MarkDirty();
 }
 
 void MeshComponent::SetMaterial(Material* newMaterial, size_t index)
@@ -123,10 +82,24 @@ void MeshComponent::SetMaterial(Material* newMaterial, size_t index)
 
     materials[index] = newMaterial;
 
-    if (renderObject)
-    {
-        renderObject->SetDirty(true);
-    }
+    MarkDirty();
+}
+
+void MeshComponent::UpdateRenderObject()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    TransformComponent* transform = owner->GetTransform();
+
+    MeshObjectState state = {};
+    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    state.mesh = mesh;
+    state.materials = materials;
+
+    MeshObject* meshObject = static_cast<MeshObject*>(renderObject);
+    meshObject->Update(state);
 }
 
 } // namespace URay

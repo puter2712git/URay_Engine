@@ -1,7 +1,7 @@
 #include "Unit.h"
 
 #include "Engine/Component/Component.h"
-#include "Engine/Component/IRenderable.h"
+#include "Engine/Component/RenderComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Scene/Scene.h"
 
@@ -86,9 +86,9 @@ Component* Unit::AddComponent(Component* comp)
 
     if (scene)
     {
-        if (IRenderable* renderable = dynamic_cast<IRenderable*>(comp))
+        if (RenderComponent* renderComp = dynamic_cast<RenderComponent*>(comp))
         {
-            std::unique_ptr<Render::RenderObject> robj(renderable->CreateRenderObject());
+            std::unique_ptr<Render::RenderObject> robj(renderComp->CreateRenderObject());
             if (robj && scene->GetRenderScene())
             {
                 scene->GetRenderScene()->Add(std::move(robj));

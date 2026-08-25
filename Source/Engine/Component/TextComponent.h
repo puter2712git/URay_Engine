@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/Component/Component.h"
-#include "Engine/Component/IRenderable.h"
+#include "Engine/Component/RenderComponent.h"
 
 #include <string>
 
@@ -17,24 +16,21 @@ namespace Render
 class TextObject;
 }
 
-class TextComponent : public Component, public IRenderable
+class TextComponent : public RenderComponent
 {
-    URAY_CLASS(TextComponent, Component)
+    URAY_CLASS(TextComponent, RenderComponent)
 
 public:
     TextComponent();
     ~TextComponent() = default;
 
 public:
-    void Update(float deltaTime) override;
-    void OnAttached() override;
-    void OnDetached() override;
-
     Render::RenderObject* CreateRenderObject() override;
 
-private:
-    Render::TextObject* renderObject = nullptr;
+protected:
+    void UpdateRenderObject() override;
 
+private:
     Font* font = nullptr;
     std::string text;
 };

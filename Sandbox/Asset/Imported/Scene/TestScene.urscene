@@ -1,0 +1,16 @@
+New Unit:
+  TransformComponent:
+    Position:
+      - 2.5575175
+      - -1.1783803
+      - 0.9498358
+    Rotation:
+      - 0
+      - 0
+      - -57.140495
+    Scale:
+      - 1
+      - 1
+      - 1
+  MeshComponent:
+    Mesh: RawAsset://Mesh/SilverWolf/SilverWolf.obj

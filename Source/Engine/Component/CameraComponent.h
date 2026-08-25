@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/Component/Component.h"
-#include "Engine/Component/IRenderable.h"
+#include "Engine/Component/RenderComponent.h"
 
 #include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
@@ -14,15 +13,12 @@ namespace Render
 class ViewObject;
 }
 
-class CameraComponent : public Component, public IRenderable
+class CameraComponent : public RenderComponent
 {
-    URAY_CLASS(CameraComponent, Component)
+    URAY_CLASS(CameraComponent, RenderComponent)
 
 public:
     void Update(float deltaTime) override;
-
-    void OnAttached() override;
-    void OnDetached() override;
 
     Render::RenderObject* CreateRenderObject() override;
 
@@ -36,13 +32,14 @@ public:
     float GetNearPlane() const { return near; }
     float GetFarPlane() const { return far; }
 
+protected:
+    void UpdateRenderObject() override;
+
 private:
     void UpdateViewMatrix();
     void UpdateProjMatrix();
 
 private:
-    Render::ViewObject* renderObject = nullptr;
-
     float fov = 60.0f;
 
     float near = 0.1f;

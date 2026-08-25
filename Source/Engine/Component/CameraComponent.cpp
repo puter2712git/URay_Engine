@@ -24,41 +24,6 @@ void CameraComponent::Update(float deltaTime)
 
     UpdateViewMatrix();
     UpdateProjMatrix();
-
-    if (renderObject && renderObject->IsDirty())
-    {
-        renderObject->SetDirty(false);
-
-        Unit* owner = GetOwner();
-        if (!owner)
-            return;
-
-        TransformComponent* transform = owner->GetTransform();
-
-        renderObject->Update(Render::ViewObjectState{
-            .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
-            .viewMatrix = GetViewMatrix(),
-            .projMatrix = GetProjMatrix(),
-        });
-    }
-}
-
-void CameraComponent::OnAttached()
-{
-    Unit* owner = GetOwner();
-    if (!owner)
-        return;
-
-    owner->RegisterTransformUpdateCallback([this]()
-                                           {
-        if (renderObject)
-        {
-            renderObject->SetDirty(true);
-    } });
-}
-
-void CameraComponent::OnDetached()
-{
 }
 
 Render::RenderObject* CameraComponent::CreateRenderObject()
@@ -108,6 +73,23 @@ void CameraComponent::SetViewportExtent(const Extent2D& extent)
 
     viewportExtent = extent;
     UpdateProjMatrix();
+}
+
+void CameraComponent::UpdateRenderObject()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    TransformComponent* transform = owner->GetTransform();
+
+    Render::ViewObjectState state = {};
+    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    state.viewMatrix = viewMatrix;
+    state.projMatrix = projMatrix;
+
+    Render::ViewObject* viewObject = static_cast<Render::ViewObject*>(renderObject);
+    viewObject->Update(state);
 }
 
 void CameraComponent::UpdateViewMatrix()

@@ -38,45 +38,6 @@ void TextComponent::RegisterClass()
                                  } });
 }
 
-void TextComponent::Update(float deltaTime)
-{
-    Super::Update(deltaTime);
-
-    if (renderObject && renderObject->IsDirty())
-    {
-        renderObject->SetDirty(false);
-
-        Unit* owner = GetOwner();
-        if (!owner)
-            return;
-
-        TransformComponent* transform = owner->GetTransform();
-
-        Render::TextObjectState state = {};
-        state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-        state.font = font;
-        state.text = text;
-
-        renderObject->Update(state);
-    }
-}
-
-void TextComponent::OnAttached()
-{
-    Unit* owner = GetOwner();
-
-    owner->RegisterTransformUpdateCallback([this]()
-                                           {
-        if (renderObject)
-        {
-            renderObject->SetDirty(true);
-    } });
-}
-
-void TextComponent::OnDetached()
-{
-}
-
 Render::RenderObject* TextComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
@@ -92,6 +53,23 @@ Render::RenderObject* TextComponent::CreateRenderObject()
 
     renderObject = new Render::TextObject(state);
     return renderObject;
+}
+
+void TextComponent::UpdateRenderObject()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    TransformComponent* transform = owner->GetTransform();
+
+    Render::TextObjectState state = {};
+    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    state.font = font;
+    state.text = text;
+
+    Render::TextObject* textObject = static_cast<Render::TextObject*>(renderObject);
+    textObject->Update(state);
 }
 
 } // namespace URay

@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/Component/Component.h"
-#include "Engine/Component/IRenderable.h"
+#include "Engine/Component/RenderComponent.h"
 
 #include "Core/Math/AABB.h"
 
@@ -18,19 +17,15 @@ namespace Render
 class MeshObject;
 }
 
-class MeshComponent : public Component, public IRenderable
+class MeshComponent : public RenderComponent
 {
-    URAY_CLASS(MeshComponent, Component)
+    URAY_CLASS(MeshComponent, RenderComponent)
 
 public:
     MeshComponent();
     ~MeshComponent() = default;
 
 public:
-    void Update(float deltaTime) override;
-    void OnAttached() override;
-    void OnDetached() override;
-
     Render::RenderObject* CreateRenderObject() override;
 
     Mesh* GetMesh() const { return mesh; }
@@ -42,9 +37,10 @@ public:
     void SetMaterial(Material* newMaterial, size_t index = 0);
     void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
 
-private:
-    Render::MeshObject* renderObject = nullptr;
+protected:
+    void UpdateRenderObject() override;
 
+private:
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
 };

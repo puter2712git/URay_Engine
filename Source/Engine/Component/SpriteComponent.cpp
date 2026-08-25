@@ -42,44 +42,6 @@ void SpriteComponent::RegisterClass()
                                  } });
 }
 
-void SpriteComponent::Update(float deltaTime)
-{
-    Super::Update(deltaTime);
-
-    if (renderObject && renderObject->IsDirty())
-    {
-        renderObject->SetDirty(false);
-
-        Unit* owner = GetOwner();
-        if (!owner)
-            return;
-
-        TransformComponent* transform = owner->GetTransform();
-
-        renderObject->Update(Render::MeshObjectState{
-            .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
-            .mesh = quadMesh,
-            .materials = { material },
-        });
-    }
-}
-
-void SpriteComponent::OnAttached()
-{
-    Unit* owner = GetOwner();
-
-    owner->RegisterTransformUpdateCallback([this]()
-                                           {
-        if (renderObject)
-        {
-            renderObject->SetDirty(true);
-    } });
-}
-
-void SpriteComponent::OnDetached()
-{
-}
-
 Render::RenderObject* SpriteComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
@@ -95,6 +57,23 @@ Render::RenderObject* SpriteComponent::CreateRenderObject()
 
     renderObject = new Render::MeshObject(objectState);
     return renderObject;
+}
+
+void SpriteComponent::UpdateRenderObject()
+{
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    TransformComponent* transform = owner->GetTransform();
+
+    Render::MeshObjectState state = {};
+    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    state.mesh = quadMesh;
+    state.materials = { material };
+
+    Render::MeshObject* meshObject = static_cast<Render::MeshObject*>(renderObject);
+    meshObject->Update(state);
 }
 
 } // namespace URay

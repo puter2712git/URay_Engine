@@ -6,6 +6,8 @@
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 
+#include "Render/Renderer.h"
+
 #include <imgui/imgui.h>
 
 namespace URay
@@ -45,6 +47,7 @@ void MainMenuBarWidget::OnDraw()
                 YAML::Node sceneNode = YAML::Load(sceneText);
 
                 Scene* loadedScene = new Scene(SceneType::Game);
+                engine.GetRenderer()->CreateRenderScene(loadedScene);
                 loadedScene->Deserialize(sceneNode);
 
                 engine.SetGameScene(loadedScene);

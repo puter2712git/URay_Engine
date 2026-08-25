@@ -2,6 +2,7 @@
 
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/MeshComponent.h"
+#include "Engine/Component/RenderComponent.h"
 #include "Engine/Spatial/Octree.h"
 #include "Engine/Unit.h"
 
@@ -84,9 +85,9 @@ void Scene::AddUnit(Unit* unit)
     const auto& components = unit->GetComponents();
     for (const auto& comp : components)
     {
-        if (IRenderable* rcomp = dynamic_cast<IRenderable*>(comp))
+        if (RenderComponent* renderComp = dynamic_cast<RenderComponent*>(comp))
         {
-            std::unique_ptr<Render::RenderObject> robject(rcomp->CreateRenderObject());
+            std::unique_ptr<Render::RenderObject> robject(renderComp->CreateRenderObject());
             renderScene->Add(std::move(robject));
         }
     }

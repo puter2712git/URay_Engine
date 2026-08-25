@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Engine/Component/Component.h"
-#include "Engine/Component/IRenderable.h"
+#include "Engine/Component/RenderComponent.h"
 
 namespace URay
 {
@@ -11,15 +10,15 @@ namespace Render
 class LineObject;
 }
 
-class GridComponent : public Component, public IRenderable
+class GridComponent : public RenderComponent
 {
-    URAY_CLASS(GridComponent, Component)
+    URAY_CLASS(GridComponent, RenderComponent)
 
 public:
     Render::RenderObject* CreateRenderObject() override;
 
-private:
-    Render::LineObject* renderObject = nullptr;
+protected:
+    void UpdateRenderObject() override;
 };
 
 } // namespace URay

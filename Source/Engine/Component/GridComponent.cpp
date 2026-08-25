@@ -42,4 +42,8 @@ Render::RenderObject* GridComponent::CreateRenderObject()
     return renderObject;
 }
 
+void GridComponent::UpdateRenderObject()
+{
+}
+
 } // namespace URay
