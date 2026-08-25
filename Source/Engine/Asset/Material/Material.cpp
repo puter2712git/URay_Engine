@@ -3,13 +3,13 @@
 #include "Engine/Engine.h"
 #include "Engine/Asset/Texture/Texture.h"
 
-#include "Render/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/GPUResourceManager.h"
-#include "Render/RenderDevice.h"
+#include "Render/RHI/RenderDevice.h"
 #include "Render/RenderInfo.h"
 #include "Render/Shader/Shader.h"
-#include "Render/Texture/Texture.h"
-#include "Render/Texture/TextureView.h"
+#include "Render/RHI/Texture/Texture.h"
+#include "Render/RHI/Texture/TextureView.h"
 
 namespace URay
 {

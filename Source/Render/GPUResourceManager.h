@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Render/Descriptor/DescriptorSetLayoutDesc.h"
-#include "Render/PipelineLayout/PipelineLayoutDesc.h"
-#include "Render/PipelineState/PipelineStateDesc.h"
-#include "Render/Texture/TextureSampler.h"
+#include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
+#include "Render/RHI/PipelineLayout/PipelineLayoutDesc.h"
+#include "Render/RHI/PipelineState/PipelineStateDesc.h"
+#include "Render/RHI/Texture/TextureSampler.h"
 
 #include <vulkan/vulkan.h>
 

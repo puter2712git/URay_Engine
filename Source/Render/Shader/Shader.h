@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/Descriptor/DescriptorSetLayoutDesc.h"
-#include "Render/PushConstantRange.h"
+#include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
+#include "Render/RHI/PushConstantRange.h"
 
 #include <vulkan/vulkan.h>
 

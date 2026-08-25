@@ -1,7 +1,7 @@
 #include "MeshBuffer.h"
 
-#include "Render/Buffer/IndexBuffer.h"
-#include "Render/Buffer/VertexBuffer.h"
+#include "Render/RHI/Buffer/IndexBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 
 namespace URay::Render
 {

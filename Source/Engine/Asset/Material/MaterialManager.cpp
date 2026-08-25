@@ -3,7 +3,7 @@
 #include "Material.h"
 
 #include "Render/GPUResourceManager.h"
-#include "Render/RenderDevice.h"
+#include "Render/RHI/RenderDevice.h"
 
 namespace URay
 {

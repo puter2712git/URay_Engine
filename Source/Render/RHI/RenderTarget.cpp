@@ -1,9 +1,9 @@
 #include "RenderTarget.h"
 
-#include "Render/RenderDevice.h"
-#include "Render/Texture/Texture.h"
-#include "Render/Texture/TextureDesc.h"
-#include "Render/Texture/TextureView.h"
+#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Texture/Texture.h"
+#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/TextureView.h"
 
 #include <stdexcept>
 

@@ -1,7 +1,7 @@
 #include "DescriptorSet.h"
 
-#include "Render/Buffer/ConstantBuffer.h"
-#include "Render/Texture/TextureView.h"
+#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Texture/TextureView.h"
 
 namespace URay::Render
 {

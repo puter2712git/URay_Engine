@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Shader/ShaderStageFlags.h"
+#include "Render/Shader/ShaderStageFlags.h"
 
 namespace URay::Render
 {
