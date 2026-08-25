@@ -1,7 +1,12 @@
 #include "Unit.h"
 
 #include "Engine/Component/Component.h"
+#include "Engine/Component/IRenderable.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Scene/Scene.h"
+
+#include "Render/Scene/Object/RenderObject.h"
+#include "Render/Scene/RenderScene.h"
 
 namespace URay
 {
@@ -76,9 +81,21 @@ Component* Unit::AddComponent(Component* comp)
     }
 
     comp->SetOwner(this);
+    components.push_back(comp);
     comp->OnAttached();
 
-    components.push_back(comp);
+    if (scene)
+    {
+        if (IRenderable* renderable = dynamic_cast<IRenderable*>(comp))
+        {
+            std::unique_ptr<Render::RenderObject> robj(renderable->CreateRenderObject());
+            if (robj && scene->GetRenderScene())
+            {
+                scene->GetRenderScene()->Add(std::move(robj));
+            }
+        }
+    }
+
     return comp;
 }
 

@@ -12,9 +12,8 @@ namespace URay
 
 class Unit;
 class Mesh;
-class MeshManager;
 class Material;
-class MaterialManager;
+class AssetSystem;
 class TransformComponent;
 class CameraComponent;
 
@@ -44,7 +43,7 @@ enum class GizmoMode : uint8_t
 class GizmoController
 {
 public:
-    GizmoController(MeshManager& meshManager, MaterialManager& materialManager);
+    GizmoController(AssetSystem& assetSystem);
 
 public:
     void Update(const Vector2& targetPosition, CameraComponent& camera);

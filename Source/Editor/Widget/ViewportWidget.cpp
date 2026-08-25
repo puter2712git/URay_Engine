@@ -22,7 +22,7 @@ ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& came
 {
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
-    gizmo = std::make_unique<GizmoController>(*engine.GetMeshManager(), *engine.GetMaterialManager());
+    gizmo = std::make_unique<GizmoController>(engine.GetAssetSystem());
     picker = std::make_unique<EditorPicker>(engine, gizmo.get());
 }
 

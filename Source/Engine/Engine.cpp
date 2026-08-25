@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/MeshComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -59,77 +60,28 @@ bool Engine::Initialize(const std::string& projectPath)
 
     timer = new Timer();
 
-    filesystem = new VirtualFilesystem();
-    filesystem->Mount("Project", projectPath);
-    filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
-    filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
+    assetSystem = std::make_unique<AssetSystem>();
+    if (!assetSystem->Initialize(projectPath))
+        return false;
 
     renderer = new Render::Renderer();
-    if (!renderer->Initialize(window, *filesystem))
+    if (!renderer->Initialize(window, assetSystem->GetFilesystem()))
         return false;
 
     renderPipeline = new Render::RenderPipeline(*renderer);
 
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
-    shaderManager = renderer->GetShaderManager();
-
-    textureManager = new TextureManager(*filesystem);
-    textureManager->LoadTexture("Test", "RawAsset://Texture/texture.jpg");
-    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
-    Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
-
-    materialManager = new MaterialManager(renderer->GetDevice(), renderer->GetResourceManager(), defaultWhite);
-    Material* defaultMaterial = materialManager->GetOrCreate("Mesh", shaderManager->GetOrCreate("Mesh"));
-    materialManager->GetOrCreate("Sprite", shaderManager->GetOrCreate("Sprite"));
-
-    meshManager = new MeshManager();
-    meshManager->CreateDefaultMeshes(defaultMaterial);
-
-    objImporter = new ObjImporter(*filesystem, *meshManager, *textureManager, *materialManager, defaultMaterial->GetShader());
-    objImporter->Import("RawAsset://Mesh/untitled.obj");
-    objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
-
-    Mesh* appleMesh = objImporter->Import("RawAsset://Mesh/apple_mid.obj");
-    Mesh* bittenAppleMesh = objImporter->Import("RawAsset://Mesh/bitten_apple_mid.obj");
-
-    fontManager = new FontManager();
-    fontManager->LoadFont("Default", fontTexture);
-
-    Mesh* quadMesh = meshManager->GetMesh("Quad");
+    if (!assetSystem->InitializeRuntimeAssets(
+            *renderer->GetDevice(),
+            *renderer->GetResourceManager(),
+            *renderer->GetShaderManager()))
+    {
+        return false;
+    }
 
     Scene* gameScene = new Scene(SceneType::Game);
     renderer->CreateRenderScene(gameScene);
-
-    constexpr uint32_t gridWidth = 50;
-    constexpr uint32_t gridDepth = 40;
-    constexpr uint32_t gridHeight = 2;
-    constexpr float spacing = 1.5f;
-
-    for (uint32_t z = 0; z < gridHeight; ++z)
-    {
-        for (uint32_t y = 0; y < gridDepth; ++y)
-        {
-            for (uint32_t x = 0; x < gridWidth; ++x)
-            {
-                Unit* appleUnit = new Unit();
-                appleUnit->SetName("Apple");
-
-                TransformComponent* transform = new TransformComponent();
-                transform->SetPosition(Vector3(
-                    (static_cast<float>(x) - (gridWidth - 1) * 0.5f) * spacing,
-                    (static_cast<float>(y) - (gridDepth - 1) * 0.5f) * spacing,
-                    (static_cast<float>(z) - (gridHeight - 1) * 0.5f) * spacing));
-
-                MeshComponent* meshComponent = new MeshComponent();
-                meshComponent->SetMesh((x + y + z) % 2 == 0 ? appleMesh : bittenAppleMesh);
-
-                appleUnit->AddComponent(transform);
-                appleUnit->AddComponent(meshComponent);
-                gameScene->AddUnit(appleUnit);
-            }
-        }
-    }
 
     scenes.push_back(gameScene);
 
@@ -140,6 +92,11 @@ void Engine::Finalize()
 {
     renderer->WaitIdle();
 
+    if (assetSystem)
+    {
+        assetSystem.reset();
+    }
+
     delete renderPipeline;
     renderPipeline = nullptr;
 
@@ -147,10 +104,6 @@ void Engine::Finalize()
     {
         delete scene;
     }
-
-    delete materialManager;
-
-    delete meshManager;
 
     delete timer;
 

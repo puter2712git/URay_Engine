@@ -1,12 +1,10 @@
 #include "Engine/Component/SpriteComponent.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Material/Material.h"
-#include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/Mesh.h"
-#include "Engine/Mesh/MeshManager.h"
-#include "Engine/Texture/TextureManager.h"
 #include "Engine/Unit.h"
 
 #include "Render/Scene/Object/MeshObject.h"
@@ -21,13 +19,11 @@ URAY_REGISTER_COMPONENT(SpriteComponent)
 
 SpriteComponent::SpriteComponent()
 {
-    TextureManager* textureManager = gEngine->GetTextureManager();
-    texture = textureManager->GetTexture("Test");
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    MeshManager* meshManager = gEngine->GetMeshManager();
-    quadMesh = meshManager->GetMesh("Quad");
-
-    material = gEngine->GetMaterialManager()->GetOrCreate("Sprite");
+    texture = assetSystem.FindTexture("DefaultWhite");
+    quadMesh = assetSystem.FindMesh("Quad");
+    material = assetSystem.FindMaterial("Sprite");
     material->SetTexture(texture);
 }
 
@@ -44,6 +40,44 @@ void SpriteComponent::RegisterClass()
                                      SpriteComponent* spriteComp = static_cast<SpriteComponent*>(owner);
                                      spriteComp->material->SetTexture(spriteComp->texture);
                                  } });
+}
+
+void SpriteComponent::Update(float deltaTime)
+{
+    Super::Update(deltaTime);
+
+    if (renderObject && renderObject->IsDirty())
+    {
+        renderObject->SetDirty(false);
+
+        Unit* owner = GetOwner();
+        if (!owner)
+            return;
+
+        TransformComponent* transform = owner->GetTransform();
+
+        renderObject->Update(Render::MeshObjectState{
+            .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+            .mesh = quadMesh,
+            .materials = { material },
+        });
+    }
+}
+
+void SpriteComponent::OnAttached()
+{
+    Unit* owner = GetOwner();
+
+    owner->RegisterTransformUpdateCallback([this]()
+                                           {
+        if (renderObject)
+        {
+            renderObject->SetDirty(true);
+    } });
+}
+
+void SpriteComponent::OnDetached()
+{
 }
 
 Render::RenderObject* SpriteComponent::CreateRenderObject()

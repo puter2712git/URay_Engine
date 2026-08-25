@@ -119,8 +119,8 @@ void TextBatcher::Collect(const TextCommandContext& context)
 
         const Vector2 startUV = context.font->GetUVFromChar(context.text[i]);
 
-        const float vTop = 1.0f - startUV.y;
-        const float vBottom = 1.0f - (startUV.y + context.font->GetCellHeightUV());
+        const float vTop = startUV.y;
+        const float vBottom = startUV.y + context.font->GetCellHeightUV();
 
         const Vector2 uv0 = Vector2(startUV.x, vBottom);
         const Vector2 uv1 = Vector2(startUV.x + context.font->GetCellWidthUV(), vBottom);

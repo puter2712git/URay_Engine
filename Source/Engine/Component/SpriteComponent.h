@@ -24,6 +24,10 @@ public:
     virtual ~SpriteComponent() override = default;
 
 public:
+    void Update(float deltaTime) override;
+    void OnAttached() override;
+    void OnDetached() override;
+
     Render::RenderObject* CreateRenderObject() override;
 
     Material* GetMaterial() const { return material; }

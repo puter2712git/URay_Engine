@@ -1,9 +1,8 @@
 #include "GizmoController.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
-#include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/MeshManager.h"
 #include "Engine/Unit.h"
 
 #include "Core/Math/Math.h"
@@ -18,13 +17,13 @@ namespace URay
 
 using namespace Render;
 
-GizmoController::GizmoController(MeshManager& meshManager, MaterialManager& materialManager)
+GizmoController::GizmoController(AssetSystem& assetSystem)
 {
-    meshes[static_cast<size_t>(GizmoMode::Translation)] = meshManager.GetMesh("Arrow");
-    meshes[static_cast<size_t>(GizmoMode::Rotation)] = meshManager.GetMesh("RotationGizmo");
-    meshes[static_cast<size_t>(GizmoMode::Scale)] = meshManager.GetMesh("ScaleGizmo");
+    meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.FindMesh("Arrow");
+    meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.FindMesh("RotationGizmo");
+    meshes[static_cast<size_t>(GizmoMode::Scale)] = assetSystem.FindMesh("ScaleGizmo");
 
-    material = materialManager.GetOrCreate("Mesh");
+    material = assetSystem.FindMaterial("Mesh");
 }
 
 void GizmoController::Update(const Vector2& targetPosition, CameraComponent& camera)

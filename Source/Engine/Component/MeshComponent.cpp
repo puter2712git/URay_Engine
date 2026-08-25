@@ -1,10 +1,10 @@
 #include "Engine/Component/MeshComponent.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Material/MaterialManager.h"
 #include "Engine/Mesh/Mesh.h"
-#include "Engine/Mesh/MeshManager.h"
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Unit.h"
 
@@ -24,7 +24,8 @@ URAY_REGISTER_COMPONENT(MeshComponent)
 
 MeshComponent::MeshComponent()
 {
-    Mesh* defaultMesh = gEngine->GetMeshManager()->GetMesh("Box");
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    Mesh* defaultMesh = assetSystem.FindMesh("Box");
     SetMesh(defaultMesh);
 }
 
@@ -68,17 +69,12 @@ void MeshComponent::Update(float deltaTime)
 void MeshComponent::OnAttached()
 {
     Unit* owner = GetOwner();
+
     owner->RegisterTransformUpdateCallback([this]()
                                            {
         if (renderObject)
         {
-            TransformComponent* transform = GetOwner()->GetTransform();
-
-            renderObject->Update(Render::MeshObjectState{
-                .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
-                .mesh = mesh,
-                .materials = materials,
-            });
+            renderObject->SetDirty(true);
     } });
 }
 
@@ -105,9 +101,6 @@ Render::RenderObject* MeshComponent::CreateRenderObject()
 
 void MeshComponent::SetMesh(Mesh* newMesh)
 {
-    if (mesh == newMesh)
-        return;
-
     mesh = newMesh;
     materials = mesh ? mesh->GetDefaultMaterials()
                      : std::vector<Material*>();

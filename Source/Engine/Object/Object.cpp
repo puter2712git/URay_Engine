@@ -1,10 +1,9 @@
 #include "Object.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Mesh/Mesh.h"
-#include "Engine/Mesh/MeshManager.h"
 #include "Engine/Texture/Texture.h"
-#include "Engine/Texture/TextureManager.h"
 
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
@@ -136,11 +135,11 @@ void Object::Deserialize(const YAML::Node& node)
             break;
         case PropertyType::Mesh:
             *static_cast<Mesh**>(valueAddress) =
-                gEngine->GetMeshManager()->GetMesh(valueNode.as<std::string>());
+                gEngine->GetAssetSystem().FindMesh(valueNode.as<std::string>());
             break;
         case PropertyType::Texture:
             *static_cast<Texture**>(valueAddress) =
-                gEngine->GetTextureManager()->GetTexture(valueNode.as<std::string>());
+                gEngine->GetAssetSystem().FindTexture(valueNode.as<std::string>());
             break;
         default:
             break;

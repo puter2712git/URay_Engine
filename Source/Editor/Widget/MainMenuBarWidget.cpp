@@ -2,6 +2,7 @@
 
 #include "Core/File/VirtualFilesystem.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 
@@ -28,17 +29,19 @@ void MainMenuBarWidget::OnDraw()
                 Scene* currScene = engine.GetSceneByType(SceneType::Game);
                 if (currScene)
                 {
-                    VirtualFilesystem* filesystem = engine.GetFilesystem();
+                    AssetSystem& assetSystem = engine.GetAssetSystem();
+                    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
                     YAML::Node node = currScene->Serialize();
-                    filesystem->WriteText("Asset://Scene/TestScene.urscene", YAML::Dump(node));
+                    filesystem.WriteText("Asset://Scene/TestScene.urscene", YAML::Dump(node));
                 }
             }
             if (ImGui::MenuItem("Load Scene"))
             {
-                VirtualFilesystem* filesystem = engine.GetFilesystem();
+                AssetSystem& assetSystem = engine.GetAssetSystem();
+                VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
-                const std::string sceneText = filesystem->ReadText("Asset://Scene/TestScene.urscene");
+                const std::string sceneText = filesystem.ReadText("Asset://Scene/TestScene.urscene");
                 YAML::Node sceneNode = YAML::Load(sceneText);
 
                 Scene* loadedScene = new Scene(SceneType::Game);

@@ -14,6 +14,7 @@
 #include "Editor/Widget/ViewportWidget.h"
 #include "Editor/Widget/Widget.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/CameraComponent.h"
 #include "Engine/Component/GridComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -43,11 +44,11 @@ bool Editor::Initialize()
 {
     Render::Renderer* renderer = engine.GetRenderer();
 
-    if (!renderer->InitializeImGui(*engine.GetFilesystem()))
+    if (!renderer->InitializeImGui(engine.GetAssetSystem().GetFilesystem()))
         return false;
 
     inputRouter = std::make_unique<UIInputRouter>(*engine.GetWindow());
-    editorLayout = std::make_unique<EditorLayout>(*engine.GetFilesystem());
+    editorLayout = std::make_unique<EditorLayout>(engine.GetAssetSystem().GetFilesystem());
 
     CameraComponent& camera = PrepareEditorScene();
 
@@ -56,7 +57,7 @@ bool Editor::Initialize()
     std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*this, engine);
     std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*this);
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
-    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(*engine.GetFilesystem());
+    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine.GetAssetSystem().GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
     std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(*renderer, camera, engine, [this](Unit* unit)
                                                                                 { SelectUnit(unit); });

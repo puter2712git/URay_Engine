@@ -27,7 +27,7 @@ class TextureManager;
 class FontManager;
 class ObjImporter;
 class TextureImporter;
-class AssetPipeline;
+class AssetSystem;
 
 namespace Render
 {
@@ -65,30 +65,18 @@ public:
     void GetFramebufferSize(int& width, int& height) const;
 
     Window* GetWindow() const { return window; }
-
+    Timer* GetTimer() const { return timer; }
     InputManager& GetInputManager() { return inputManager; }
 
-    MeshManager* GetMeshManager() const { return meshManager; }
-
-    TextureManager* GetTextureManager() const { return textureManager; }
-
-    MaterialManager* GetMaterialManager() const { return materialManager; }
-
-    FontManager* GetFontManager() const { return fontManager; }
-
     Render::Renderer* GetRenderer() const { return renderer; }
-
     Render::RenderPipeline* GetRenderPipeline() const { return renderPipeline; }
-
     Render::GPUResourceManager* GetGPUResourceManager() const;
 
     Scene* GetSceneByType(SceneType type) const;
 
-    Timer* GetTimer() const { return timer; }
-
-    VirtualFilesystem* GetFilesystem() const { return filesystem; }
-
     PerformanceAnalytics* GetPerformanceAnalytics() const { return performanceAnalytics.get(); }
+
+    AssetSystem& GetAssetSystem() const { return *assetSystem; }
 
 private:
     Window* window = nullptr;
@@ -99,22 +87,11 @@ private:
     Render::RenderPipeline* renderPipeline = nullptr;
 
     Timer* timer = nullptr;
-
-    VirtualFilesystem* filesystem = nullptr;
-
     InputManager inputManager;
 
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
-    Render::ShaderManager* shaderManager = nullptr;
-    MaterialManager* materialManager = nullptr;
-    MeshManager* meshManager = nullptr;
-    TextureManager* textureManager = nullptr;
-    FontManager* fontManager = nullptr;
-
-    ObjImporter* objImporter = nullptr;
-
-    AssetPipeline* assetPipeline = nullptr;
+    std::unique_ptr<AssetSystem> assetSystem = nullptr;
 };
 
 extern Engine* gEngine;

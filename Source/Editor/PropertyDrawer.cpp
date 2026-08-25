@@ -1,13 +1,11 @@
 #include "PropertyDrawer.h"
 
-#include "Engine/Material/Material.h"
-#include "Engine/Material/MaterialManager.h"
-#include "Engine/Mesh/Mesh.h"
-#include "Engine/Mesh/MeshManager.h"
-#include "Engine/Texture/Texture.h"
-#include "Engine/Texture/TextureManager.h"
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
+#include "Engine/Material/Material.h"
+#include "Engine/Mesh/Mesh.h"
 #include "Engine/Object/Property/Property.h"
+#include "Engine/Texture/Texture.h"
 
 #include "Core/Math/Vector3.h"
 
@@ -82,8 +80,7 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
     Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8_t*>(addr) + prop.offset);
 
-    MeshManager* meshManager = gEngine->GetMeshManager();
-    const auto& meshes = meshManager->GetMeshes();
+    const auto& meshes = gEngine->GetAssetSystem().GetMeshes();
 
     size_t meshCount = meshes.size();
     std::vector<std::string> meshNames(meshCount);
@@ -139,8 +136,7 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 {
     Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8_t*>(addr) + prop.offset);
 
-    TextureManager* textureManager = gEngine->GetTextureManager();
-    const auto& textures = textureManager->GetTextures();
+    const auto& textures = gEngine->GetAssetSystem().GetTextures();
 
     size_t textureCount = textures.size();
     std::vector<std::string> textureNames(textureCount);
@@ -196,8 +192,7 @@ bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
 {
     Material** currMaterial = reinterpret_cast<Material**>(static_cast<uint8_t*>(addr) + prop.offset);
 
-    MaterialManager* materialManager = gEngine->GetMaterialManager();
-    const auto& materials = materialManager->GetMaterials();
+    const auto& materials = gEngine->GetAssetSystem().GetMaterials();
 
     size_t materialCount = materials.size();
     std::vector<std::string> materialNames(materialCount);
