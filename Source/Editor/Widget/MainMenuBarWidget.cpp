@@ -7,6 +7,7 @@
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -52,7 +53,7 @@ void MainMenuBarWidget::OnDraw()
                 YAML::Node sceneNode = YAML::Load(sceneText);
 
                 std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game);
-                engine.GetRenderer()->CreateRenderScene(loadedScene.get());
+                engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
                 loadedScene->Deserialize(sceneNode);
 
                 SceneSystem& sceneSystem = engine.GetSceneSystem();

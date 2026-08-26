@@ -12,6 +12,7 @@ class Scene;
 namespace URay::Render
 {
 
+class RenderSystem;
 class Renderer;
 class RenderScene;
 class ViewObject;
@@ -19,7 +20,7 @@ class ViewObject;
 class RenderPipeline
 {
 public:
-    RenderPipeline(Renderer& renderer);
+    RenderPipeline(RenderSystem& renderSystem);
     ~RenderPipeline() = default;
 
 public:

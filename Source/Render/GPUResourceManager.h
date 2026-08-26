@@ -55,7 +55,7 @@ public:
     PipelineLayout* GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc);
     void DestroyPipelineLayouts();
 
-    PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc);
+    PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc, VkRenderPass renderPass);
     void DestroyPSOs();
 
 private:

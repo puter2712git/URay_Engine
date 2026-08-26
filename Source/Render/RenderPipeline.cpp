@@ -1,5 +1,6 @@
 #include "RenderPipeline.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -14,8 +15,8 @@
 namespace URay::Render
 {
 
-RenderPipeline::RenderPipeline(Renderer& renderer)
-    : renderer(renderer), builder(DrawCommandBuilder(renderer, *renderer.GetResourceManager()))
+RenderPipeline::RenderPipeline(RenderSystem& renderSystem)
+    : renderer(renderSystem.GetRenderer()), builder(DrawCommandBuilder(renderSystem))
 {
 }
 

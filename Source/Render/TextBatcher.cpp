@@ -1,10 +1,10 @@
 #include "TextBatcher.h"
 
-#include "Render/RHI/Descriptor/DescriptorSet.h"
-#include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/GPUResourceManager.h"
+#include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/Shader.h"
@@ -17,34 +17,35 @@
 namespace URay::Render
 {
 
-TextBatcher::TextBatcher(Renderer* renderer)
-    : renderer(renderer)
+TextBatcher::TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, ShaderManager& shaderManager)
+    : device(device), resourceManager(resourceManager), shaderManager(shaderManager)
 {
-    RenderDevice* device = renderer->GetDevice();
-
-    VkDeviceSize bufferSize = 1024 * 1024 * 4;
-
-    device->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                         vertexBuffer, vertexBufferMemory);
-
-    vkMapMemory(device->GetVKDevice(), vertexBufferMemory, 0, bufferSize, 0, &mappedVertexBufferData);
-
-    Shader* shader = renderer->GetShaderManager()->GetOrCreate("Font");
-
-    const DescriptorSetLayoutDesc* layoutDesc = shader->GetDescriptorSetLayoutDesc(1);
-
-    GPUResourceManager* resourceManager = renderer->GetResourceManager();
-    DescriptorSetLayout* setLayout = resourceManager->GetOrCreateDescriptorSetLayout(*layoutDesc);
-    descriptorSet = device->CreateDescriptorSet(setLayout);
 }
 
 TextBatcher::~TextBatcher()
 {
-    RenderDevice* device = renderer->GetDevice();
+    vkDestroyBuffer(device.GetVKDevice(), vertexBuffer, nullptr);
+    vkFreeMemory(device.GetVKDevice(), vertexBufferMemory, nullptr);
+}
 
-    vkDestroyBuffer(device->GetVKDevice(), vertexBuffer, nullptr);
-    vkFreeMemory(device->GetVKDevice(), vertexBufferMemory, nullptr);
+bool TextBatcher::Initialize()
+{
+    VkDeviceSize bufferSize = 1024 * 1024 * 4;
+
+    device.CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                        vertexBuffer, vertexBufferMemory);
+
+    vkMapMemory(device.GetVKDevice(), vertexBufferMemory, 0, bufferSize, 0, &mappedVertexBufferData);
+
+    Shader* shader = shaderManager.GetOrCreate("Font");
+
+    const DescriptorSetLayoutDesc* layoutDesc = shader->GetDescriptorSetLayoutDesc(1);
+
+    DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
+    descriptorSet = device.CreateDescriptorSet(setLayout);
+
+    return true;
 }
 
 void TextBatcher::Reset()
@@ -71,7 +72,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
         cmd.vertexCount = static_cast<uint32_t>(verts.size());
 
         PipelineStateDesc psoDesc = {};
-        psoDesc.shader = renderer->GetShaderManager()->GetOrCreate("Font");
+        psoDesc.shader = shaderManager.GetOrCreate("Font");
         psoDesc.topology = PrimitiveTopology::TriangleList;
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;
@@ -80,12 +81,11 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
 
         cmd.pipelineState = psoDesc;
 
-        GPUResourceManager* resourceManager = renderer->GetResourceManager();
-        Texture* texture = resourceManager->GetOrCreateTexture(font->GetBitmapTexture());
-        TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
+        Texture* texture = resourceManager.GetOrCreateTexture(font->GetBitmapTexture());
+        TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
 
         descriptorSet->WriteSampledImage(0, textureView);
-        descriptorSet->WriteSampler(1, resourceManager->GetOrCreateTextureSampler({}));
+        descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
 
         cmd.descriptorSet = descriptorSet;
 

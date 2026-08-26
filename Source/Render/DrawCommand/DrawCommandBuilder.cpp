@@ -1,11 +1,12 @@
 #include "DrawCommandBuilder.h"
 
+#include "Render/GPUResourceManager.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
-#include "Render/GPUResourceManager.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RenderInfo.h"
+#include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
@@ -18,10 +19,13 @@
 namespace URay::Render
 {
 
-DrawCommandBuilder::DrawCommandBuilder(Renderer& renderer, GPUResourceManager& resourceManager)
-    : renderer(renderer), resourceManager(resourceManager)
+DrawCommandBuilder::DrawCommandBuilder(RenderSystem& renderSystem)
+    : device(renderSystem.GetDevice()),
+      renderer(renderSystem.GetRenderer()),
+      resourceManager(renderSystem.GetResourceManager()),
+      shaderManager(renderSystem.GetShaderManager())
 {
-    textBatcher = new TextBatcher(&renderer);
+    textBatcher = new TextBatcher(device, resourceManager, shaderManager);
 }
 
 DrawCommandBuilder::~DrawCommandBuilder()
@@ -41,19 +45,17 @@ void DrawCommandBuilder::Reset()
 
 void DrawCommandBuilder::FlushLines()
 {
-    RenderDevice* device = renderer.GetDevice();
-
     VkDeviceSize lineDataSize = sizeof(Vertex) * lineVertices.size();
-    std::memcpy(device->mappedPersistentVertexBufferData, lineVertices.data(), lineDataSize);
-    device->vertexCount = static_cast<uint32_t>(lineVertices.size());
+    std::memcpy(device.mappedPersistentVertexBufferData, lineVertices.data(), lineDataSize);
+    device.vertexCount = static_cast<uint32_t>(lineVertices.size());
 
     DrawCommand cmd = {};
     cmd.worldMatrix = Matrix::Identity;
-    cmd.vertexBuffer = device->persistentVertexBuffer;
+    cmd.vertexBuffer = device.persistentVertexBuffer;
     cmd.vertexCount = static_cast<uint32_t>(lineVertices.size());
 
     PipelineStateDesc state = {};
-    state.shader = renderer.GetShaderManager()->GetOrCreate("Line");
+    state.shader = shaderManager.GetOrCreate("Line");
     state.topology = PrimitiveTopology::LineList;
     state.depthStencil.depthTestEnable = true;
     state.depthStencil.depthWriteEnable = false;
@@ -129,8 +131,7 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 
 void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
 {
-    GPUResourceManager* resourceManager = renderer.GetResourceManager();
-    MeshBuffer* meshBuffer = resourceManager->GetOrCreateMeshBuffer(context.mesh);
+    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;

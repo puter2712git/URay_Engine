@@ -10,14 +10,17 @@
 namespace URay::Render
 {
 
+class RenderSystem;
+class RenderDevice;
 class Renderer;
-class TextBatcher;
 class GPUResourceManager;
+class ShaderManager;
+class TextBatcher;
 
 class DrawCommandBuilder
 {
 public:
-    DrawCommandBuilder(Renderer& renderer, GPUResourceManager& resourceManager);
+    DrawCommandBuilder(RenderSystem& renderSystem);
     ~DrawCommandBuilder();
 
 public:
@@ -36,8 +39,10 @@ public:
     void AddDrawCommand(const DrawCommand& cmd) { drawCmds.push_back(cmd); }
 
 private:
+    RenderDevice& device;
     Renderer& renderer;
     GPUResourceManager& resourceManager;
+    ShaderManager& shaderManager;
 
     std::vector<DrawCommand> drawCmds;
 

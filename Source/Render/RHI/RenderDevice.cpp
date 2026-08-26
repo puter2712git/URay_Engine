@@ -1,5 +1,6 @@
 #include "RenderDevice.h"
 
+#include "Render/GPUResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
@@ -8,21 +9,25 @@
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutBuilder.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
-#include "Render/GPUResourceManager.h"
+#include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
-#include "Render/RenderInfo.h"
-#include "Render/Renderer.h"
-#include "Render/Shader/Shader.h"
+#include "Render/RHI/SwapChain.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureDesc.h"
 #include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/RHI/Vulkan/VulkanContext.h"
+#include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
+#include "Render/RenderInfo.h"
+#include "Render/Renderer.h"
+#include "Render/Shader/Shader.h"
 
 #include <cassert>
 #include <map>
+#include <set>
 #include <stdexcept>
 
 namespace URay::Render
@@ -35,13 +40,25 @@ VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage);
 VkImageAspectFlags ToVkImageAspectFlags(Format format);
 } // namespace
 
-RenderDevice::RenderDevice(Renderer* renderer,
-                           VkPhysicalDevice physicalDevice, VkDevice device,
-                           VkQueue graphicsQueue, VkCommandPool commandPool)
-    : renderer(renderer),
-      physicalDevice(physicalDevice), device(device),
-      graphicsQueue(graphicsQueue), commandPool(commandPool)
+RenderDevice::RenderDevice(VulkanContext& context)
+    : context(context)
 {
+}
+
+RenderDevice::~RenderDevice() = default;
+
+bool RenderDevice::Initialize()
+{
+    instance = context.GetInstance();
+
+    if (!PickPhysicalDevice())
+        return false;
+    if (!CreateLogicalDevice())
+        return false;
+
+    if (!CreateCommandPool())
+        return false;
+
     VkDeviceSize frameBufferSize = sizeof(FrameConstants);
     frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
@@ -61,9 +78,11 @@ RenderDevice::RenderDevice(Renderer* renderer,
     CreateDescriptorPool();
 
     CreatePersistentVertexBuffer();
+
+    return true;
 }
 
-RenderDevice::~RenderDevice()
+void RenderDevice::Finalize()
 {
     DestroyPersistentVertexBuffer();
 
@@ -73,6 +92,18 @@ RenderDevice::~RenderDevice()
     {
         delete buffer;
         buffer = nullptr;
+    }
+
+    if (commandPool)
+    {
+        vkDestroyCommandPool(device, commandPool, nullptr);
+        commandPool = VK_NULL_HANDLE;
+    }
+
+    if (device)
+    {
+        vkDestroyDevice(device, nullptr);
+        device = VK_NULL_HANDLE;
     }
 }
 
@@ -334,21 +365,8 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
     return pipelineLayout;
 }
 
-PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
+PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout, VkRenderPass renderPass)
 {
-    PipelineLayoutDesc pipelineLayoutDesc = {};
-
-    GPUResourceManager* resourceManager = renderer->GetResourceManager();
-    for (auto& [set, descriptorSetLayoutDesc] : desc.shader->GetDescriptorSetLayoutDescs())
-    {
-        pipelineLayoutDesc.setLayouts[set] =
-            resourceManager->GetOrCreateDescriptorSetLayout(descriptorSetLayoutDesc);
-    }
-
-    pipelineLayoutDesc.pushConstantRanges = desc.shader->GetPushConstantRanges();
-
-    PipelineLayout* pipelineLayout = resourceManager->GetOrCreatePipelineLayout(pipelineLayoutDesc);
-
     VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexStage().code);
     VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentStage().code);
 
@@ -403,19 +421,8 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     }
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
-    VkExtent2D swapChainExtent = renderer->GetSwapChainExtent();
-
     VkViewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = static_cast<float>(swapChainExtent.height);
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = -static_cast<float>(swapChainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
     VkRect2D scissor = {};
-    scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
 
     VkPipelineViewportStateCreateInfo viewportState = {};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -513,8 +520,8 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     pipelineInfo.pDepthStencilState = &depthStencil;
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
-    pipelineInfo.layout = pipelineLayout->GetHandle();
-    pipelineInfo.renderPass = renderer->GetSceneRenderPass();
+    pipelineInfo.layout = layout.GetHandle();
+    pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
@@ -530,9 +537,41 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc)
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
-    PipelineState* pso = new PipelineState(device, pipeline, pipelineLayout);
+    PipelineState* pso = new PipelineState(device, pipeline, &layout);
 
     return pso;
+}
+
+Framebuffer* RenderDevice::CreateFramebuffer(const FramebufferDesc& desc)
+{
+    VkFramebufferCreateInfo framebufferInfo = {};
+    framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferInfo.renderPass = desc.renderPass;
+    framebufferInfo.attachmentCount = static_cast<uint32_t>(desc.attachments.size());
+    framebufferInfo.pAttachments = desc.attachments.data();
+    framebufferInfo.width = desc.extent.width;
+    framebufferInfo.height = desc.extent.height;
+    framebufferInfo.layers = 1;
+
+    VkFramebuffer handle = VK_NULL_HANDLE;
+
+    if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &handle) != VK_SUCCESS)
+        return nullptr;
+
+    Framebuffer* framebuffer = new Framebuffer(device, handle);
+    return framebuffer;
+}
+
+SwapChain* RenderDevice::CreateSwapChain(const SwapChainDesc& desc)
+{
+    SwapChain* swapChain = new SwapChain(*this, context);
+    if (!swapChain->Initialize(desc))
+    {
+        delete swapChain;
+        return nullptr;
+    }
+
+    return swapChain;
 }
 
 void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
@@ -731,6 +770,160 @@ VkImageView RenderDevice::CreateImageView(VkImage image, VkFormat format, VkImag
         return VK_NULL_HANDLE;
 
     return imageView;
+}
+
+bool RenderDevice::PickPhysicalDevice()
+{
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    if (deviceCount == 0)
+        return false;
+
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    for (const auto& device : devices)
+    {
+        if (IsDeviceSuitable(device))
+        {
+            physicalDevice = device;
+            break;
+        }
+    }
+
+    if (physicalDevice == VK_NULL_HANDLE)
+        return false;
+
+    return true;
+}
+
+bool RenderDevice::CreateLogicalDevice()
+{
+    QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    std::set<uint32_t> uniqueQueueFamilies = {
+        indices.graphicsFamily.value(),
+        indices.presentFamily.value(),
+    };
+
+    float queuePriority = 1.0f;
+    for (uint32_t queueFamily : uniqueQueueFamilies)
+    {
+        VkDeviceQueueCreateInfo queueCreateInfo = {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.push_back(queueCreateInfo);
+    }
+
+    VkPhysicalDeviceFeatures deviceFeatures = {};
+    deviceFeatures.samplerAnisotropy = VK_TRUE;
+
+    VkDeviceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
+    createInfo.pEnabledFeatures = &deviceFeatures;
+
+    const auto& deviceExtensions = context.GetDeviceExtensions();
+    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+        return false;
+
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+
+    return true;
+}
+
+bool RenderDevice::CreateCommandPool()
+{
+    const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
+
+    return vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) == VK_SUCCESS;
+}
+
+bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
+{
+    QueueFamilyIndices indices = FindQueueFamilyIndices(device);
+
+    bool extensionsSupported = CheckDeviceExtensionSupport(device);
+
+    bool swapChainAdequate = false;
+    if (extensionsSupported)
+    {
+        Vulkan::SurfaceSupportDetails swapChainSupport = Vulkan::QuerySurfaceSupport(device, context.GetSurface());
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+
+    return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
+}
+
+QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device) const
+{
+    QueueFamilyIndices indices = {};
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    int index = 0;
+    for (const auto& queueFamily : queueFamilies)
+    {
+        if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+        {
+            indices.graphicsFamily = index;
+        }
+
+        VkBool32 presentSupport = false;
+        vkGetPhysicalDeviceSurfaceSupportKHR(device, index, context.GetSurface(), &presentSupport);
+
+        if (presentSupport)
+        {
+            indices.presentFamily = index;
+        }
+
+        if (indices.IsComplete())
+            break;
+
+        ++index;
+    }
+
+    return indices;
+}
+
+bool RenderDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
+{
+    uint32_t extensionCount = 0;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    const auto& deviceExtensions = context.GetDeviceExtensions();
+    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+    for (const auto& extension : availableExtensions)
+    {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
 }
 
 VkCommandBuffer RenderDevice::BeginSingleTimeCommands() const

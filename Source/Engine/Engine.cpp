@@ -25,8 +25,8 @@
 #include "Platform/Window/Window.h"
 
 #include "Render/RenderPipeline.h"
+#include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
-#include "Render/Shader/ShaderManager.h"
 
 #include "Editor/Editor.h"
 
@@ -51,7 +51,7 @@ bool Engine::Initialize(const std::string& projectPath)
 {
     gEngine = this;
 
-    window = new Window();
+    window = std::make_unique<Window>();
     if (!window->Initialize())
         return false;
 
@@ -59,24 +59,22 @@ bool Engine::Initialize(const std::string& projectPath)
     glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
-    timer = new Timer();
+    timer = std::make_unique<Timer>();
+    inputManager = std::make_unique<InputManager>();
+    performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
     assetSystem = std::make_unique<AssetSystem>();
     if (!assetSystem->Initialize(projectPath))
         return false;
 
-    renderer = new Render::Renderer();
-    if (!renderer->Initialize(window, assetSystem->GetFilesystem()))
+    renderSystem = std::make_unique<Render::RenderSystem>();
+    if (!renderSystem->Initialize(*window, assetSystem->GetFilesystem()))
         return false;
 
-    renderPipeline = new Render::RenderPipeline(*renderer);
-
-    performanceAnalytics = std::make_unique<PerformanceAnalytics>();
-
     if (!assetSystem->InitializeRuntimeAssets(
-            *renderer->GetDevice(),
-            *renderer->GetResourceManager(),
-            *renderer->GetShaderManager()))
+            renderSystem->GetDevice(),
+            renderSystem->GetResourceManager(),
+            renderSystem->GetShaderManager()))
     {
         return false;
     }
@@ -84,7 +82,7 @@ bool Engine::Initialize(const std::string& projectPath)
     sceneSystem = std::make_unique<SceneSystem>();
 
     std::unique_ptr<Scene> gameScene = std::make_unique<Scene>(SceneType::Game);
-    renderer->CreateRenderScene(gameScene.get());
+    renderSystem->GetRenderer().CreateRenderScene(gameScene.get());
 
     sceneSystem->LoadScene(std::move(gameScene));
 
@@ -93,36 +91,48 @@ bool Engine::Initialize(const std::string& projectPath)
 
 void Engine::Finalize()
 {
-    renderer->WaitIdle();
+    renderSystem->WaitIdle();
 
     if (sceneSystem)
     {
         sceneSystem.reset();
     }
 
+    if (renderSystem)
+    {
+        renderSystem->Finalize();
+        renderSystem.reset();
+    }
+
     if (assetSystem)
     {
+        assetSystem->Finalize();
         assetSystem.reset();
     }
 
-    delete renderPipeline;
-    renderPipeline = nullptr;
+    if (performanceAnalytics)
+    {
+        performanceAnalytics.reset();
+    }
 
-    delete timer;
+    if (timer)
+    {
+        timer.reset();
+    }
 
-    renderer->Finalize();
-    delete renderer;
-
-    window->Finalize();
-    delete window;
+    if (window)
+    {
+        window->Finalize();
+        window.reset();
+    }
 }
 
 void Engine::Update()
 {
     URAY_PROFILE_SCOPE("Engine::Update");
 
-    inputManager.ClearEvents();
-    inputManager.Update();
+    inputManager->ClearEvents();
+    inputManager->Update();
 
     glfwPollEvents();
 
@@ -135,8 +145,8 @@ void Engine::BeginRender()
 {
     URAY_PROFILE_SCOPE("Engine::BeginRender");
 
-    renderPipeline->Reset();
-    renderer->BeginFrame();
+    renderSystem->GetPipeline().Reset();
+    renderSystem->BeginFrame();
 }
 
 void Engine::PrepareRender()
@@ -148,7 +158,8 @@ void Engine::Render()
 {
     URAY_PROFILE_SCOPE("Engine::Render");
 
-    const auto& scenes = renderer->GetScenes();
+    Render::Renderer& renderer = renderSystem->GetRenderer();
+    const auto& scenes = renderer.GetScenes();
 
     std::vector<Render::RenderScene*> renderScenes;
     for (const auto& [scene, renderScene] : scenes)
@@ -156,36 +167,21 @@ void Engine::Render()
         renderScenes.push_back(renderScene);
     }
 
-    renderer->BeginScenePass();
-    renderPipeline->Execute(renderScenes);
-    renderer->EndScenePass();
+    renderer.BeginScenePass();
+    renderSystem->GetPipeline().Execute(renderScenes);
+    renderer.EndScenePass();
 }
 
 void Engine::EndRender()
 {
     URAY_PROFILE_SCOPE("Engine::EndRender");
 
-    renderer->BeginSwapChainPass();
-    renderer->EndImGui();
-    renderer->EndSwapChainPass();
-    renderer->EndFrame();
-}
+    Render::Renderer& renderer = renderSystem->GetRenderer();
 
-void Engine::GetWindowSize(int& width, int& height) const
-{
-    glfwGetWindowSize(window->GetGLFWWindow(), &width, &height);
-}
-
-void Engine::GetFramebufferSize(int& width, int& height) const
-{
-    VkExtent2D extent = renderer->GetSwapChainExtent();
-    width = static_cast<int>(extent.width);
-    height = static_cast<int>(extent.height);
-}
-
-Render::GPUResourceManager* Engine::GetGPUResourceManager() const
-{
-    return renderer->GetResourceManager();
+    renderer.BeginSwapChainPass();
+    renderer.EndImGui();
+    renderer.EndSwapChainPass();
+    renderer.EndFrame();
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

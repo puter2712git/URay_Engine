@@ -5,6 +5,7 @@
 #include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>
 
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -17,6 +18,7 @@ class Texture;
 namespace URay::Render
 {
 
+class VulkanContext;
 class Renderer;
 class VertexBuffer;
 class IndexBuffer;
@@ -28,20 +30,37 @@ class DescriptorSetLayout;
 class DescriptorSet;
 class PipelineLayout;
 class PipelineState;
+class Framebuffer;
+class SwapChain;
 
 struct TextureDesc;
 struct TextureSamplerDesc;
 struct DescriptorSetLayoutDesc;
 struct PipelineLayoutDesc;
 struct PipelineStateDesc;
+struct FramebufferDesc;
+struct SwapChainDesc;
+
+struct QueueFamilyIndices
+{
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
+
+    bool IsComplete() const
+    {
+        return graphicsFamily.has_value() && presentFamily.has_value();
+    }
+};
 
 class RenderDevice
 {
 public:
-    RenderDevice(Renderer* renderer,
-                 VkPhysicalDevice physicalDevcie, VkDevice device,
-                 VkQueue graphicsQueue, VkCommandPool commandPool);
+    RenderDevice(VulkanContext& context);
     ~RenderDevice();
+
+public:
+    bool Initialize();
+    void Finalize();
 
 public:
     VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
@@ -50,7 +69,6 @@ public:
 
     Texture* CreateTexture(const TextureDesc& desc);
     bool UploadTextureData(Texture* texture, std::span<const uint8_t> pixelData);
-
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 
@@ -58,8 +76,10 @@ public:
     DescriptorSet* CreateDescriptorSet(DescriptorSetLayout* layout);
 
     PipelineLayout* CreatePipelineLayout(const PipelineLayoutDesc& desc);
+    PipelineState* CreatePSO(const PipelineStateDesc& pipelineState, PipelineLayout& layout, VkRenderPass renderPass);
 
-    PipelineState* CreatePSO(const PipelineStateDesc& pipelineState);
+    Framebuffer* CreateFramebuffer(const FramebufferDesc& desc);
+    SwapChain* CreateSwapChain(const SwapChainDesc& desc);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties,
@@ -76,11 +96,25 @@ public:
                            uint32_t width, uint32_t height) const;
     VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
+    QueueFamilyIndices FindQueueFamilyIndices(VkPhysicalDevice device) const;
+
+    VkPhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
     VkDevice GetVKDevice() const { return device; }
 
     const std::vector<ConstantBuffer*>& GetFrameConstantBuffers() const { return frameConstantBuffers; }
 
+    VkQueue GetGraphicsQueue() const { return graphicsQueue; }
+    VkQueue GetPresentQueue() const { return presentQueue; }
+
 private:
+    bool PickPhysicalDevice();
+    bool CreateLogicalDevice();
+
+    bool CreateCommandPool();
+
+    bool IsDeviceSuitable(VkPhysicalDevice device) const;
+    bool CheckDeviceExtensionSupport(VkPhysicalDevice device) const;
+
     VkCommandBuffer BeginSingleTimeCommands() const;
     void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
 
@@ -92,17 +126,19 @@ private:
 
     VkShaderModule CreateShaderModule(const std::vector<uint8_t>& code) const;
 
-    DescriptorSetLayoutDesc CreateDescriptorSetLayoutDesc() const;
-
     uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
 
 private:
+    VulkanContext& context;
+
     Renderer* renderer = nullptr;
 
+    VkInstance instance = VK_NULL_HANDLE;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
 
     VkQueue graphicsQueue = VK_NULL_HANDLE;
+    VkQueue presentQueue = VK_NULL_HANDLE;
 
     VkCommandPool commandPool = VK_NULL_HANDLE;
 

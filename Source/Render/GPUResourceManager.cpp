@@ -1,15 +1,16 @@
 #include "GPUResourceManager.h"
 
-#include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/Shader/Shader.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Texture/Texture.h"
@@ -235,15 +236,25 @@ void GPUResourceManager::DestroyPipelineLayouts()
     }
 }
 
-PipelineState* GPUResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc)
+PipelineState* GPUResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc, VkRenderPass renderPass)
 {
     auto it = pipelines.find(psoDesc);
     if (it != pipelines.end())
         return it->second;
 
-    PipelineState* pso = renderDevice->CreatePSO(psoDesc);
-    if (pso == VK_NULL_HANDLE)
-        return VK_NULL_HANDLE;
+    PipelineLayoutDesc layoutDesc = {};
+
+    for (auto& [set, descriptorSetlayoutDesc] : psoDesc.shader->GetDescriptorSetLayoutDescs())
+    {
+        layoutDesc.setLayouts[set] = GetOrCreateDescriptorSetLayout(descriptorSetlayoutDesc);
+    }
+    layoutDesc.pushConstantRanges = psoDesc.shader->GetPushConstantRanges();
+
+    PipelineLayout* layout = GetOrCreatePipelineLayout(layoutDesc);
+
+    PipelineState* pso = renderDevice->CreatePSO(psoDesc, *layout, renderPass);
+    if (!pso)
+        return nullptr;
 
     pipelines.insert({ psoDesc, pso });
     return pso;

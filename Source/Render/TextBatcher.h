@@ -16,24 +16,30 @@ class Font;
 namespace URay::Render
 {
 
-class Renderer;
+class RenderDevice;
+class GPUResourceManager;
+class ShaderManager;
 class DrawCommandBuilder;
 class DescriptorSet;
 
 class TextBatcher
 {
 public:
-    TextBatcher(Renderer* renderer);
+    TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, ShaderManager& shaderManager);
     ~TextBatcher();
 
 public:
+    bool Initialize();
+
     void Reset();
     void Flush(DrawCommandBuilder& builder);
 
     void Collect(const TextCommandContext& context);
 
 private:
-    Renderer* renderer = nullptr;
+    RenderDevice& device;
+    GPUResourceManager& resourceManager;
+    ShaderManager& shaderManager;
 
     std::unordered_map<Font*, std::vector<Vertex>> vertices;
 

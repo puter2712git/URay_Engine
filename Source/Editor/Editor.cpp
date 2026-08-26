@@ -27,6 +27,7 @@
 #include "Core/Timer.h"
 
 #include "Render/RenderPipeline.h"
+#include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -43,12 +44,12 @@ Editor::~Editor() = default;
 
 bool Editor::Initialize()
 {
-    Render::Renderer* renderer = engine.GetRenderer();
+    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
 
-    if (!renderer->InitializeImGui(engine.GetAssetSystem().GetFilesystem()))
+    if (!renderSystem.InitializeImGui(engine.GetAssetSystem().GetFilesystem()))
         return false;
 
-    inputRouter = std::make_unique<UIInputRouter>(*engine.GetWindow());
+    inputRouter = std::make_unique<UIInputRouter>(engine.GetWindow());
     editorLayout = std::make_unique<EditorLayout>(engine.GetAssetSystem().GetFilesystem());
 
     CameraComponent& camera = PrepareEditorScene();
@@ -60,7 +61,7 @@ bool Editor::Initialize()
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine.GetAssetSystem().GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(*renderer, camera, engine, [this](Unit* unit)
+    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), camera, engine, [this](Unit* unit)
                                                                                 { SelectUnit(unit); });
     viewportWidget = viewport.get();
 
@@ -87,19 +88,16 @@ void Editor::Finalize()
     mainMenuBarWidget.reset();
     rootWidget.reset();
 
-    Render::Renderer* renderer = engine.GetRenderer();
-    if (renderer)
-    {
-        renderer->FinalizeImGui();
-    }
+    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
+    renderSystem.FinalizeImGui();
 }
 
 void Editor::Update()
 {
     URAY_PROFILE_SCOPE("Editor::Update")
 
-    Timer* timer = engine.GetTimer();
-    float deltaTime = timer->GetDeltaTime();
+    Timer& timer = engine.GetTimer();
+    float deltaTime = timer.GetDeltaTime();
 
     inputRouter->Process(*rootWidget, engine.GetInputManager());
 
@@ -111,12 +109,12 @@ void Editor::PrepareRender()
 {
     URAY_PROFILE_SCOPE("Editor::PrepareRender")
 
-    Render::Renderer* renderer = engine.GetRenderer();
-    Render::DrawCommandBuilder& builder = engine.GetRenderPipeline()->GetBuilder();
+    Render::Renderer& renderer = engine.GetRenderSystem().GetRenderer();
+    Render::DrawCommandBuilder& builder = engine.GetRenderSystem().GetPipeline().GetBuilder();
 
     rootWidget->PrepareRender(builder);
 
-    renderer->BeginImGui();
+    renderer.BeginImGui();
 
     mainMenuBarWidget->Draw();
 
@@ -142,7 +140,7 @@ void Editor::SelectUnit(Unit* unit)
 CameraComponent& Editor::PrepareEditorScene()
 {
     std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor);
-    engine.GetRenderer()->CreateRenderScene(editorScene.get());
+    engine.GetRenderSystem().GetRenderer().CreateRenderScene(editorScene.get());
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");

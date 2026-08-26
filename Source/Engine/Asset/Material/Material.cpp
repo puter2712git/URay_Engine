@@ -1,15 +1,16 @@
 #include "Material.h"
 
-#include "Engine/Engine.h"
 #include "Engine/Asset/Texture/Texture.h"
+#include "Engine/Engine.h"
 
-#include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/GPUResourceManager.h"
+#include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
-#include "Render/RenderInfo.h"
-#include "Render/Shader/Shader.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderSystem.h"
+#include "Render/Shader/Shader.h"
 
 namespace URay
 {
@@ -67,14 +68,15 @@ void Material::SetTexture(Texture* textureAsset)
 {
     texture = textureAsset;
 
-    Render::GPUResourceManager* resourceManager = gEngine->GetGPUResourceManager();
-    Render::Texture* texture = resourceManager->GetOrCreateTexture(textureAsset);
-    Render::TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::GPUResourceManager& resourceManager = renderSystem.GetResourceManager();
+    Render::Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
+    Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
 
     for (Render::DescriptorSet* descriptorSet : descriptorSets)
     {
         descriptorSet->WriteSampledImage(0, textureView);
-        descriptorSet->WriteSampler(1, resourceManager->GetOrCreateTextureSampler({}));
+        descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
     }
 }
 

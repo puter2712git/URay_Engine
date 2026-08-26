@@ -27,11 +27,11 @@ bool EditorApplication::Initialize(const std::string& projectPath)
 
 void EditorApplication::Run()
 {
-    PerformanceAnalytics* analytics = engine->GetPerformanceAnalytics();
+    PerformanceAnalytics& analytics = engine->GetPerformanceAnalytics();
 
-    while (!glfwWindowShouldClose(engine->GetWindow()->GetGLFWWindow()))
+    while (!glfwWindowShouldClose(engine->GetWindow().GetGLFWWindow()))
     {
-        analytics->BeginFrame();
+        analytics.BeginFrame();
 
         engine->Update();
         editor->Update();
@@ -43,7 +43,7 @@ void EditorApplication::Run()
         engine->Render();
         engine->EndRender();
 
-        analytics->EndFrame();
+        analytics.EndFrame();
     }
 }
 
