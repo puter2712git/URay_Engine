@@ -40,8 +40,12 @@ void MainMenuBarWidget::OnDraw()
                     AssetSystem& assetSystem = engine.GetAssetSystem();
                     VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
+                    const VirtualPath path = "Asset://Scene/TestScene.urscene";
+
                     YAML::Node node = currScene->Serialize();
-                    filesystem.WriteText("Asset://Scene/TestScene.urscene", YAML::Dump(node));
+                    filesystem.WriteText(path, YAML::Dump(node));
+
+                    currScene->SetFilePath(path);
                 }
             }
             if (ImGui::MenuItem("Load Scene"))
@@ -49,10 +53,11 @@ void MainMenuBarWidget::OnDraw()
                 AssetSystem& assetSystem = engine.GetAssetSystem();
                 VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
-                const std::string sceneText = filesystem.ReadText("Asset://Scene/TestScene.urscene");
+                const VirtualPath path = "Asset://Scene/TestScene.urscene";
+                const std::string sceneText = filesystem.ReadText(path);
                 YAML::Node sceneNode = YAML::Load(sceneText);
 
-                std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game);
+                std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, path);
                 engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
                 loadedScene->Deserialize(sceneNode);
 

@@ -1,9 +1,9 @@
 #include "Editor.h"
 
-#include "Editor/EditorLayout.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
+#include "Editor/Settings/EditorSettings.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/InspectorWidget.h"
@@ -23,6 +23,7 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
+#include "Core/File/VirtualFilesystem.h"
 #include "Core/File/VirtualPath.h"
 #include "Core/Timer.h"
 
@@ -50,9 +51,9 @@ bool Editor::Initialize()
         return false;
 
     inputRouter = std::make_unique<UIInputRouter>(engine.GetWindow());
-    editorLayout = std::make_unique<EditorLayout>(engine.GetAssetSystem().GetFilesystem());
+    editorSettings = std::make_unique<EditorSettings>(engine.GetAssetSystem().GetFilesystem());
 
-    CameraComponent& camera = PrepareEditorScene();
+    editorCamera = &PrepareEditorScene();
 
     mainMenuBarWidget = std::make_unique<MainMenuBarWidget>(engine);
 
@@ -61,7 +62,7 @@ bool Editor::Initialize()
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine.GetAssetSystem().GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), camera, engine, [this](Unit* unit)
+    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, [this](Unit* unit)
                                                                                 { SelectUnit(unit); });
     viewportWidget = viewport.get();
 
@@ -76,14 +77,57 @@ bool Editor::Initialize()
         std::move(leftPanel),
         std::move(rightPanel));
 
-    editorLayout->LoadLayout(*rootWidget);
+    EditorSettingsContext settingsContext = {
+        .rootWidget = *rootWidget
+    };
+
+    if (editorSettings->Load(settingsContext))
+    {
+        TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
+        cameraTransform->SetPosition(settingsContext.cameraSettings.position);
+        cameraTransform->SetRotation(settingsContext.cameraSettings.rotation);
+
+        AssetSystem& assetSystem = engine.GetAssetSystem();
+        VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+
+        const std::string sceneText = filesystem.ReadText(settingsContext.startScenePath);
+        YAML::Node sceneNode = YAML::Load(sceneText);
+
+        std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, settingsContext.startScenePath);
+        engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
+        loadedScene->Deserialize(sceneNode);
+
+        SceneSystem& sceneSystem = engine.GetSceneSystem();
+        sceneSystem.SwitchScene(std::move(loadedScene));
+    }
+    else
+    {
+        std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, "");
+        engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
+
+        SceneSystem& sceneSystem = engine.GetSceneSystem();
+        sceneSystem.SwitchScene(std::move(loadedScene));
+    }
 
     return true;
 }
 
 void Editor::Finalize()
 {
-    editorLayout->SaveLayout(*rootWidget);
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+
+    TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
+
+    EditorSettingsContext settingsContext = {
+        .rootWidget = *rootWidget,
+        .startScenePath = sceneSystem.GetSceneByType(SceneType::Game)->GetFilePath().ToString(),
+        .cameraSettings = {
+            .position = cameraTransform->GetPosition(),
+            .rotation = cameraTransform->GetRotation(),
+        },
+    };
+
+    editorSettings->Save(settingsContext);
 
     mainMenuBarWidget.reset();
     rootWidget.reset();
@@ -139,7 +183,7 @@ void Editor::SelectUnit(Unit* unit)
 
 CameraComponent& Editor::PrepareEditorScene()
 {
-    std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor);
+    std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor, "");
     engine.GetRenderSystem().GetRenderer().CreateRenderScene(editorScene.get());
 
     Unit* cameraUnit = new Unit();

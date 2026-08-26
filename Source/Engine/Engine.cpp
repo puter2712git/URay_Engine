@@ -64,11 +64,6 @@ bool Engine::Initialize(const std::string& projectPath)
 
     sceneSystem = std::make_unique<SceneSystem>();
 
-    std::unique_ptr<Scene> gameScene = std::make_unique<Scene>(SceneType::Game);
-    renderSystem->GetRenderer().CreateRenderScene(gameScene.get());
-
-    sceneSystem->LoadScene(std::move(gameScene));
-
     return true;
 }
 

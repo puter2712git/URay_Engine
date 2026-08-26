@@ -1,17 +1,34 @@
-- Name: New Unit
+- Name: SilverWolf
   Components:
     TransformComponent:
       Position:
-        - 6.990752
+        - 2.693096
         - 0
         - 0
       Rotation:
-        - 38.393448
-        - 0
-        - 0
+        - 1
+        - 1
+        - 1
       Scale:
         - 1
         - 1
         - 1
     MeshComponent:
       Mesh: RawAsset://Mesh/SilverWolf/SilverWolf.obj
+- Name: Text
+  Components:
+    TextComponent:
+      Text: testawawawawawawawaw
+    TransformComponent:
+      Position:
+        - -0.87926245
+        - -1.9512193
+        - 0.002422146
+      Rotation:
+        - 1
+        - 1
+        - 56.8154
+      Scale:
+        - 1
+        - 1
+        - 1

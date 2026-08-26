@@ -14,8 +14,8 @@
 namespace URay
 {
 
-Scene::Scene(SceneType type)
-    : type(type)
+Scene::Scene(SceneType type, const VirtualPath& filePath)
+    : type(type), filePath(filePath)
 {
     octree = std::make_unique<Octree>(AABB{
         .min = Vector3(-100.0f, -100.0f, -100.0f),

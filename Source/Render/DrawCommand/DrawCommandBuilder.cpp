@@ -26,6 +26,7 @@ DrawCommandBuilder::DrawCommandBuilder(RenderSystem& renderSystem)
       shaderManager(renderSystem.GetShaderManager())
 {
     textBatcher = new TextBatcher(device, resourceManager, shaderManager);
+    textBatcher->Initialize();
 }
 
 DrawCommandBuilder::~DrawCommandBuilder()

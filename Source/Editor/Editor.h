@@ -17,7 +17,7 @@ class Renderer;
 class Widget;
 class ViewportWidget;
 class UIInputRouter;
-class EditorLayout;
+class EditorSettings;
 
 class Editor
 {
@@ -43,13 +43,15 @@ private:
 
     Unit* selectedUnit = nullptr;
 
+    CameraComponent* editorCamera = nullptr;
+
     std::unique_ptr<Widget> mainMenuBarWidget = nullptr;
     std::unique_ptr<Widget> rootWidget = nullptr;
 
     ViewportWidget* viewportWidget = nullptr;
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
-    std::unique_ptr<EditorLayout> editorLayout = nullptr;
+    std::unique_ptr<EditorSettings> editorSettings = nullptr;
 };
 
 } // namespace URay

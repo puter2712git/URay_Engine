@@ -2,6 +2,8 @@
 
 #include "Engine/Object/Object.h"
 
+#include "Core/File/VirtualPath.h"
+
 #include <memory>
 #include <vector>
 
@@ -25,7 +27,7 @@ enum class SceneType
 class Scene : public Object
 {
 public:
-    Scene(SceneType type);
+    Scene(SceneType type, const VirtualPath& filePath);
     ~Scene();
 
 public:
@@ -36,6 +38,9 @@ public:
 
     void AddUnit(Unit* unit);
 
+    const VirtualPath& GetFilePath() const { return filePath; }
+    void SetFilePath(const VirtualPath& filePath) { this->filePath = filePath; }
+
     void SetRenderScene(Render::RenderScene* renderScene) { this->renderScene = renderScene; }
 
     Render::RenderScene* GetRenderScene() const { return renderScene; }
@@ -44,6 +49,8 @@ public:
     Octree* GetOctree() const { return octree.get(); }
 
 private:
+    VirtualPath filePath = {};
+
     Render::RenderScene* renderScene = nullptr;
 
     SceneType type = SceneType::Game;

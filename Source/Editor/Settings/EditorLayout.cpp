@@ -8,33 +8,25 @@
 namespace URay
 {
 
-EditorLayout::EditorLayout(VirtualFilesystem& filesystem)
-    : filesystem(filesystem)
+EditorLayout::EditorLayout()
 {
 }
 
-void EditorLayout::SaveLayout(const Widget& root)
+YAML::Node EditorLayout::SaveLayout(const Widget& root)
 {
     YAML::Node splitters;
 
     CollectSplitters(root, splitters);
 
-    YAML::Node document;
-    document["version"] = 1;
-    document["splitters"] = splitters;
-
-    filesystem.WriteText("Project://Config/EditorLayout.ini", YAML::Dump(document));
+    return splitters;
 }
 
-void EditorLayout::LoadLayout(Widget& root)
+void EditorLayout::LoadLayout(Widget& root, const YAML::Node& layout)
 {
-    const std::string layoutText = filesystem.ReadText("Project://Config/EditorLayout.ini");
-    if (layoutText.empty())
-        return;
-
-    YAML::Node layout = YAML::Load(layoutText);
-
-    ApplySplitters(root, layout["splitters"]);
+    if (layout)
+    {
+        ApplySplitters(root, layout);
+    }
 }
 
 void EditorLayout::CollectSplitters(const Widget& widget, YAML::Node& splitters)
