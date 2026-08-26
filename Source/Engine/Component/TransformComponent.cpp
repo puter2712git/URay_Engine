@@ -16,15 +16,30 @@ void TransformComponent::RegisterClass()
     StaticClass()->AddProperty({ .type = PropertyType::Vector3,
                                  .name = "Position",
                                  .offset = offsetof(TransformComponent, position),
-                                 .size = sizeof(Vector3) });
+                                 .size = sizeof(Vector3),
+                                 .OnChangedCallback = [](Object* owner, const Property&)
+                                 {
+                                     TransformComponent* transform = static_cast<TransformComponent*>(owner);
+                                     transform->SetPosition(transform->GetPosition());
+                                 } });
     StaticClass()->AddProperty({ .type = PropertyType::Vector3,
                                  .name = "Rotation",
                                  .offset = offsetof(TransformComponent, rotation),
-                                 .size = sizeof(Vector3) });
+                                 .size = sizeof(Vector3),
+                                 .OnChangedCallback = [](Object* owner, const Property&)
+                                 {
+                                     TransformComponent* transform = static_cast<TransformComponent*>(owner);
+                                     transform->SetRotation(transform->GetRotation());
+                                 } });
     StaticClass()->AddProperty({ .type = PropertyType::Vector3,
                                  .name = "Scale",
                                  .offset = offsetof(TransformComponent, scale),
-                                 .size = sizeof(Vector3) });
+                                 .size = sizeof(Vector3),
+                                 .OnChangedCallback = [](Object* owner, const Property&)
+                                 {
+                                     TransformComponent* transform = static_cast<TransformComponent*>(owner);
+                                     transform->SetRotation(transform->GetScale());
+                                 } });
 }
 
 void TransformComponent::Update(float deltaTime)

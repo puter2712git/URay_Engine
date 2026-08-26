@@ -3,8 +3,8 @@
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
-#include "Engine/Spatial/Octree.h"
 #include "Engine/Scene/Unit.h"
+#include "Engine/Spatial/Octree.h"
 
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -48,22 +48,27 @@ void Scene::Update(float deltaTime)
 
 YAML::Node Scene::Serialize()
 {
-    YAML::Node node;
+    YAML::Node unitNodes(YAML::NodeType::Sequence);
 
     for (Unit* unit : units)
-        node[unit->GetName()] = unit->Serialize();
+    {
+        YAML::Node unitNode;
+        unitNode["Name"] = unit->GetName();
+        unitNode["Components"] = unit->Serialize();
+        unitNodes.push_back(unitNode);
+    }
 
-    return node;
+    return unitNodes;
 }
 
 void Scene::Deserialize(const YAML::Node& node)
 {
-    for (const auto& unitNode : node)
+    for (const YAML::Node& unitNode : node)
     {
         Unit* newUnit = new Unit();
-        newUnit->SetName(unitNode.first.as<std::string>());
+        newUnit->SetName(unitNode["Name"].as<std::string>());
 
-        for (const auto& compNode : unitNode.second)
+        for (const auto& compNode : unitNode["Components"])
         {
             Component* comp = ComponentFactory::Create(compNode.first.as<std::string>());
             comp->Deserialize(compNode.second);
