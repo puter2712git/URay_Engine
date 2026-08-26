@@ -17,8 +17,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaml-cpp)
 
 target_link_libraries(URay_Engine PRIVATE
+    URay_ThirdParty
     glfw
     Vulkan::Vulkan
     freetype
     yaml-cpp::yaml-cpp
+)
+
+target_link_libraries(URay_ThirdParty PRIVATE
+    glfw
+    Vulkan::Vulkan
 )
