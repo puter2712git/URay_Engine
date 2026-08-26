@@ -75,9 +75,6 @@ public:
 
     void WaitIdle();
 
-    void CreateRenderScene(Scene* scene);
-    void DestroyRenderScene(Scene* scene);
-
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
 
     void RequestSceneRenderTargetResize(const Extent2D& extent);
@@ -89,8 +86,6 @@ public:
     VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
-
-    const std::unordered_map<Scene*, RenderScene*>& GetScenes() const { return scenes; }
 
 private:
     bool CreateSceneRenderPass();
@@ -171,8 +166,6 @@ private:
     std::vector<DescriptorSet*> frameDescriptorSets;
 
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
-
-    std::unordered_map<Scene*, RenderScene*> scenes;
 };
 
 } // namespace URay::Render

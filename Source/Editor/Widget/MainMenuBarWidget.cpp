@@ -58,7 +58,6 @@ void MainMenuBarWidget::OnDraw()
                 YAML::Node sceneNode = YAML::Load(sceneText);
 
                 std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, path);
-                engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
                 loadedScene->Deserialize(sceneNode);
 
                 SceneSystem& sceneSystem = engine.GetSceneSystem();

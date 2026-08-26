@@ -20,6 +20,8 @@ public:
 
     Scene* GetSceneByType(SceneType type) const;
 
+    const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
+
 private:
     std::vector<std::unique_ptr<Scene>> scenes;
 };

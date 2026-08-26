@@ -127,23 +127,17 @@ void Engine::BeginRender()
     renderSystem->BeginFrame();
 }
 
-void Engine::PrepareRender()
-{
-    URAY_PROFILE_SCOPE("Engine::PrepareRender");
-}
-
 void Engine::Render()
 {
     URAY_PROFILE_SCOPE("Engine::Render");
 
-    Render::Renderer& renderer = renderSystem->GetRenderer();
-    const auto& scenes = renderer.GetScenes();
-
     std::vector<Render::RenderScene*> renderScenes;
-    for (const auto& [scene, renderScene] : scenes)
+    for (const auto& scene : sceneSystem->GetScenes())
     {
-        renderScenes.push_back(renderScene);
+        renderScenes.push_back(scene->GetRenderScene());
     }
+
+    Render::Renderer& renderer = renderSystem->GetRenderer();
 
     renderer.BeginScenePass();
     renderSystem->GetPipeline().Execute(renderScenes);

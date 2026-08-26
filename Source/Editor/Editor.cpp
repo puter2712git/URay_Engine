@@ -94,7 +94,6 @@ bool Editor::Initialize()
         YAML::Node sceneNode = YAML::Load(sceneText);
 
         std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, settingsContext.startScenePath);
-        engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
         loadedScene->Deserialize(sceneNode);
 
         SceneSystem& sceneSystem = engine.GetSceneSystem();
@@ -103,7 +102,6 @@ bool Editor::Initialize()
     else
     {
         std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, "");
-        engine.GetRenderSystem().GetRenderer().CreateRenderScene(loadedScene.get());
 
         SceneSystem& sceneSystem = engine.GetSceneSystem();
         sceneSystem.SwitchScene(std::move(loadedScene));
@@ -184,7 +182,6 @@ void Editor::SelectUnit(Unit* unit)
 CameraComponent& Editor::PrepareEditorScene()
 {
     std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor, "");
-    engine.GetRenderSystem().GetRenderer().CreateRenderScene(editorScene.get());
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");

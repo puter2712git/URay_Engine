@@ -21,6 +21,8 @@ Scene::Scene(SceneType type, const VirtualPath& filePath)
         .min = Vector3(-100.0f, -100.0f, -100.0f),
         .max = Vector3(100.0f, 100.0f, 100.0f),
     });
+
+    renderScene = new Render::RenderScene();
 }
 
 Scene::~Scene()

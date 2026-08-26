@@ -399,23 +399,6 @@ void Renderer::WaitIdle()
     vkDeviceWaitIdle(device.GetVKDevice());
 }
 
-void Renderer::CreateRenderScene(Scene* scene)
-{
-    auto it = scenes.find(scene);
-    if (it != scenes.end())
-        return;
-
-    RenderScene* renderScene = new RenderScene();
-    scene->SetRenderScene(renderScene);
-
-    scenes.insert({ scene, renderScene });
-}
-
-void Renderer::DestroyRenderScene(Scene* scene)
-{
-    scenes.erase(scene);
-}
-
 void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix)
 {
     viewMatrix = newViewMatrix;

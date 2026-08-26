@@ -34,7 +34,6 @@ public:
     void Update();
 
     void BeginRender();
-    void PrepareRender();
     void Render();
     void EndRender();
 
