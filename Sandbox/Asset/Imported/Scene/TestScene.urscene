@@ -6,9 +6,9 @@
         - 0
         - 0
       Rotation:
-        - 1
-        - 1
-        - 1
+        - 0
+        - 0
+        - 0
       Scale:
         - 1
         - 1
@@ -25,10 +25,27 @@
         - -1.9512193
         - 0.002422146
       Rotation:
-        - 1
-        - 1
+        - 0
+        - 0
         - 56.8154
       Scale:
         - 1
         - 1
         - 1
+- Name: Sprite
+  Components:
+    TransformComponent:
+      Position:
+        - 3.2703395
+        - 0
+        - 0
+      Rotation:
+        - 0
+        - 22.691275
+        - 0
+      Scale:
+        - 2.0413268
+        - 1
+        - 2.0833466
+    SpriteComponent:
+      Texture: DefaultWhite

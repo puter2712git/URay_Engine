@@ -49,6 +49,7 @@ Texture* TextureManager::LoadTexture(const std::string& key, const VirtualPath& 
     std::vector<uint8_t> pixels(data, data + width * height * 4);
 
     Texture* texture = new Texture(virtualPath.ToString(), width, height, channels, pixels);
+    texture->SetName(key);
     textures.insert({ key, texture });
 
     stbi_image_free(data);

@@ -38,7 +38,7 @@ void TransformComponent::RegisterClass()
                                  .OnChangedCallback = [](Object* owner, const Property&)
                                  {
                                      TransformComponent* transform = static_cast<TransformComponent*>(owner);
-                                     transform->SetRotation(transform->GetScale());
+                                     transform->SetScale(transform->GetScale());
                                  } });
 }
 

@@ -31,3 +31,4 @@ compile_commands.json
 
 *.spv
 Sandbox/Config/EditorLayout.ini
+Sandbox/Config/Editor.ini
