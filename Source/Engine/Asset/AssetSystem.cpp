@@ -14,6 +14,10 @@
 namespace URay
 {
 
+AssetSystem::AssetSystem() = default;
+
+AssetSystem::~AssetSystem() = default;
+
 bool AssetSystem::Initialize(const std::filesystem::path& projectPath)
 {
     filesystem = std::make_unique<VirtualFilesystem>();

@@ -29,6 +29,10 @@ class ShaderManager;
 class AssetSystem
 {
 public:
+    AssetSystem();
+    ~AssetSystem();
+
+public:
     bool Initialize(const std::filesystem::path& projectPath);
     bool InitializeRuntimeAssets(
         Render::RenderDevice& renderDevice,

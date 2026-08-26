@@ -9,10 +9,6 @@
 namespace URay
 {
 
-class Scene;
-class GizmoComponent;
-class Unit;
-
 class Window;
 class Timer;
 class PerformanceAnalytics;
@@ -23,11 +19,6 @@ class SceneSystem;
 namespace Render
 {
 class RenderSystem;
-
-class ShaderManager;
-class GPUResourceManager;
-class Renderer;
-class RenderPipeline;
 } // namespace Render
 
 class Engine

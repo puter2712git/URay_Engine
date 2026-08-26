@@ -1,23 +1,8 @@
 #include "Engine.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/Font/FontManager.h"
-#include "Engine/Asset/Importer/ObjImporter.h"
-#include "Engine/Asset/Material/Material.h"
-#include "Engine/Asset/Material/MaterialManager.h"
-#include "Engine/Asset/Mesh/Mesh.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
-#include "Engine/Asset/Texture/TextureManager.h"
-#include "Engine/Component/Render/CameraComponent.h"
-#include "Engine/Component/Render/MeshComponent.h"
-#include "Engine/Component/TransformComponent.h"
-#include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
-#include "Engine/Scene/Unit.h"
-#include "Engine/Spatial/Octree.h"
 
-#include "Core/File/VirtualFilesystem.h"
-#include "Core/Math/Frustum.h"
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
@@ -27,8 +12,6 @@
 #include "Render/RenderPipeline.h"
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
-
-#include "Editor/Editor.h"
 
 #include <GLFW/glfw3.h>
 
