@@ -47,7 +47,7 @@ void MeshComponent::RegisterClass()
 Render::RenderObject* MeshComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
-    if (!owner)
+    if (!owner || !mesh)
         return nullptr;
 
     TransformComponent* transform = owner->GetTransform();

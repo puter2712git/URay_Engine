@@ -38,6 +38,8 @@ bool RenderPipeline::Initialize()
 
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<OverlayPass>());
+
+    return true;
 }
 
 void RenderPipeline::Finalize()

@@ -22,6 +22,9 @@ void SceneSystem::SwitchScene(std::unique_ptr<Scene> scene)
 
 void SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
 {
+    if (!scene)
+        return;
+
     scenes.push_back(std::move(scene));
 }
 

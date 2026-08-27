@@ -11,6 +11,8 @@
 
 #include <imgui/imgui.h>
 
+#include <cstring>
+
 namespace URay
 {
 
@@ -65,7 +67,8 @@ bool PropertyDrawer::DrawString(Property& prop, void* addr)
     std::string* data = reinterpret_cast<std::string*>(static_cast<uint8_t*>(addr) + prop.offset);
 
     char buffer[256];
-    std::strncpy(buffer, data->c_str(), sizeof(buffer));
+    std::strncpy(buffer, data->c_str(), sizeof(buffer) - 1);
+    buffer[sizeof(buffer) - 1] = '\0';
 
     if (ImGui::InputText(prop.name.c_str(), buffer, sizeof(buffer)))
     {
@@ -86,7 +89,7 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
     std::vector<std::string> meshNames(meshCount);
     std::vector<Mesh*> meshArr(meshCount);
 
-    size_t selectedIndex = -1;
+    int selectedIndex = -1;
     int i = 0;
     for (auto [meshName, mesh] : meshes)
     {
@@ -103,7 +106,8 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 
     bool isChanged = false;
 
-    if (ImGui::BeginCombo("Mesh", meshNames[selectedIndex].c_str()))
+    const char* preview = selectedIndex >= 0 ? meshNames[selectedIndex].c_str() : "None";
+    if (ImGui::BeginCombo("Mesh", preview))
     {
         for (int index = 0; index < meshCount; ++index)
         {
@@ -142,7 +146,7 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
     std::vector<std::string> textureNames(textureCount);
     std::vector<Texture*> textureAssets(textureCount);
 
-    size_t selectedIndex = -1;
+    int selectedIndex = -1;
     int i = 0;
     for (auto& [textureName, texture] : textures)
     {
@@ -159,7 +163,8 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 
     bool isChanged = false;
 
-    if (ImGui::BeginCombo("Texture", textureNames[selectedIndex].c_str()))
+    const char* preview = selectedIndex >= 0 ? textureNames[selectedIndex].c_str() : "None";
+    if (ImGui::BeginCombo("Texture", preview))
     {
         for (size_t index = 0; index < textureCount; ++index)
         {
@@ -198,7 +203,7 @@ bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
     std::vector<std::string> materialNames(materialCount);
     std::vector<Material*> materialAssets(materialCount);
 
-    size_t selectedIndex = -1;
+    int selectedIndex = -1;
     int i = 0;
     for (auto& [materialName, material] : materials)
     {
@@ -215,7 +220,8 @@ bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
 
     bool isChanged = false;
 
-    if (ImGui::BeginCombo("Material", materialNames[selectedIndex].c_str()))
+    const char* preview = selectedIndex >= 0 ? materialNames[selectedIndex].c_str() : "None";
+    if (ImGui::BeginCombo("Material", preview))
     {
         for (size_t index = 0; index < materialCount; ++index)
         {

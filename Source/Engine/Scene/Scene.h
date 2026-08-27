@@ -40,16 +40,14 @@ public:
     const VirtualPath& GetFilePath() const { return filePath; }
     void SetFilePath(const VirtualPath& filePath) { this->filePath = filePath; }
 
-    void SetRenderScene(Render::RenderScene* renderScene) { this->renderScene = renderScene; }
-
-    Render::RenderScene* GetRenderScene() const { return renderScene; }
+    Render::RenderScene* GetRenderScene() const { return renderScene.get(); }
     SceneType GetType() const { return type; }
     const std::vector<Unit*>& GetUnits() const { return units; }
 
 private:
     VirtualPath filePath = {};
 
-    Render::RenderScene* renderScene = nullptr;
+    std::unique_ptr<Render::RenderScene> renderScene = nullptr;
 
     SceneType type = SceneType::Game;
     std::vector<Unit*> units;

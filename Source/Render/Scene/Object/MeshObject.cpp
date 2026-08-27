@@ -11,7 +11,8 @@ MeshObject::MeshObject(const MeshObjectState& state)
     mesh = state.mesh;
     materials = state.materials;
 
-    worldBounds = mesh->GetLocalBounds().Transform(worldMatrix);
+    if (mesh)
+        worldBounds = mesh->GetLocalBounds().Transform(worldMatrix);
 }
 
 MeshObject::~MeshObject() = default;
@@ -22,13 +23,20 @@ void MeshObject::Update(const MeshObjectState& state)
     mesh = state.mesh;
     materials = state.materials;
 
-    worldBounds = state.mesh->GetLocalBounds().Transform(worldMatrix);
+    worldBounds = mesh ? mesh->GetLocalBounds().Transform(worldMatrix) : AABB{};
 }
 
 void MeshObject::Submit(DrawCommandBuilder& builder) const
 {
+    if (!mesh)
+        return;
+
     for (const auto& section : mesh->GetSections())
     {
+        if (section.materialIndex >= materials.size() ||
+            !materials[section.materialIndex])
+            continue;
+
         builder.BuildMesh({
             .worldMatrix = worldMatrix,
             .colorTint = Color::White,

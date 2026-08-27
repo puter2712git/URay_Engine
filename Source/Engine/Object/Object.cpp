@@ -70,11 +70,17 @@ YAML::Node Object::Serialize()
             node[prop.name] = prop.GetValue<std::string>(this);
             break;
         case PropertyType::Mesh:
-            node[prop.name] = prop.GetValue<Mesh*>(this)->GetName();
+        {
+            Mesh* mesh = prop.GetValue<Mesh*>(this);
+            node[prop.name] = mesh ? mesh->GetName() : "";
             break;
+        }
         case PropertyType::Texture:
-            node[prop.name] = prop.GetValue<Texture*>(this)->GetName();
+        {
+            Texture* texture = prop.GetValue<Texture*>(this);
+            node[prop.name] = texture ? texture->GetName() : "";
             break;
+        }
         default:
             break;
         }
@@ -134,13 +140,21 @@ void Object::Deserialize(const YAML::Node& node)
             *static_cast<std::string*>(valueAddress) = valueNode.as<std::string>();
             break;
         case PropertyType::Mesh:
-            *static_cast<Mesh**>(valueAddress) =
-                gEngine->GetAssetSystem().FindMesh(valueNode.as<std::string>());
+        {
+            const std::string assetName = valueNode.as<std::string>();
+            *static_cast<Mesh**>(valueAddress) = assetName.empty()
+                                                     ? nullptr
+                                                     : gEngine->GetAssetSystem().FindMesh(assetName);
             break;
+        }
         case PropertyType::Texture:
-            *static_cast<Texture**>(valueAddress) =
-                gEngine->GetAssetSystem().FindTexture(valueNode.as<std::string>());
+        {
+            const std::string assetName = valueNode.as<std::string>();
+            *static_cast<Texture**>(valueAddress) = assetName.empty()
+                                                        ? nullptr
+                                                        : gEngine->GetAssetSystem().FindTexture(assetName);
             break;
+        }
         default:
             break;
         }

@@ -13,7 +13,7 @@ namespace URay
 Scene::Scene(SceneType type, const VirtualPath& filePath)
     : type(type), filePath(filePath)
 {
-    renderScene = new Render::RenderScene();
+    renderScene = std::make_unique<Render::RenderScene>();
 }
 
 Scene::~Scene()
@@ -64,6 +64,9 @@ void Scene::Deserialize(const YAML::Node& node)
         for (const auto& compNode : unitNode["Components"])
         {
             Component* comp = ComponentFactory::Create(compNode.first.as<std::string>());
+            if (!comp)
+                continue;
+
             comp->Deserialize(compNode.second);
             newUnit->AddComponent(comp);
         }
