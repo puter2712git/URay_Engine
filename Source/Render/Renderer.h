@@ -82,9 +82,6 @@ public:
 
     void Draw(const DrawCommand& cmd);
 
-    VkRenderPass GetSceneRenderPass() const { return sceneRenderPass; }
-    VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
-
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
 
 private:

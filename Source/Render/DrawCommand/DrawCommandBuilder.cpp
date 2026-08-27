@@ -1,6 +1,7 @@
 #include "DrawCommandBuilder.h"
 
 #include "Render/GPUResourceManager.h"
+#include "Render/LineBatcher.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
@@ -25,7 +26,12 @@ DrawCommandBuilder::DrawCommandBuilder(RenderSystem& renderSystem)
       resourceManager(renderSystem.GetResourceManager()),
       shaderManager(renderSystem.GetShaderManager())
 {
-    textBatcher = new TextBatcher(device, resourceManager, shaderManager);
+    lineBatcher = std::make_unique<LineBatcher>(
+        device, resourceManager, shaderManager);
+    lineBatcher->Initialize();
+
+    textBatcher = std::make_unique<TextBatcher>(
+        device, resourceManager, shaderManager);
     textBatcher->Initialize();
 }
 
@@ -33,40 +39,27 @@ DrawCommandBuilder::~DrawCommandBuilder()
 {
     if (textBatcher)
     {
-        delete textBatcher;
-        textBatcher = nullptr;
+        textBatcher.reset();
+    }
+    if (lineBatcher)
+    {
+        lineBatcher.reset();
     }
 }
 
 void DrawCommandBuilder::Reset()
 {
+    lineBatcher->Reset();
     textBatcher->Reset();
     drawCmds.clear();
 }
 
 void DrawCommandBuilder::FlushLines()
 {
-    VkDeviceSize lineDataSize = sizeof(Vertex) * lineVertices.size();
-    std::memcpy(device.mappedPersistentVertexBufferData, lineVertices.data(), lineDataSize);
-    device.vertexCount = static_cast<uint32_t>(lineVertices.size());
+    if (!lineBatcher)
+        return;
 
-    DrawCommand cmd = {};
-    cmd.worldMatrix = Matrix::Identity;
-    cmd.vertexBuffer = device.persistentVertexBuffer;
-    cmd.vertexCount = static_cast<uint32_t>(lineVertices.size());
-
-    PipelineStateDesc state = {};
-    state.shader = shaderManager.GetOrCreate("Line");
-    state.topology = PrimitiveTopology::LineList;
-    state.depthStencil.depthTestEnable = true;
-    state.depthStencil.depthWriteEnable = false;
-    state.rasterizer.cullMode = CullMode::None;
-
-    cmd.pipelineState = state;
-
-    drawCmds.push_back(cmd);
-
-    lineVertices.clear();
+    lineBatcher->Flush(*this);
 }
 
 void DrawCommandBuilder::FlushTexts()
@@ -110,16 +103,10 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
 
 void DrawCommandBuilder::BuildLine(const LineCommandContext& context)
 {
-    Vertex v0 = {};
-    v0.pos = context.start;
-    v0.color = context.color;
-
-    Vertex v1 = {};
-    v1.pos = context.end;
-    v1.color = context.color;
-
-    lineVertices.push_back(v0);
-    lineVertices.push_back(v1);
+    if (lineBatcher)
+    {
+        lineBatcher->Collect(context);
+    }
 }
 
 void DrawCommandBuilder::BuildText(const TextCommandContext& context)

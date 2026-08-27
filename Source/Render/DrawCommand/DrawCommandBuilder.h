@@ -5,6 +5,7 @@
 
 #include "Render/Vertex.h"
 
+#include <memory>
 #include <vector>
 
 namespace URay::Render
@@ -15,6 +16,7 @@ class RenderDevice;
 class Renderer;
 class GPUResourceManager;
 class ShaderManager;
+class LineBatcher;
 class TextBatcher;
 
 class DrawCommandBuilder
@@ -46,9 +48,8 @@ private:
 
     std::vector<DrawCommand> drawCmds;
 
-    std::vector<Vertex> lineVertices;
-
-    TextBatcher* textBatcher = nullptr;
+    std::unique_ptr<LineBatcher> lineBatcher = nullptr;
+    std::unique_ptr<TextBatcher> textBatcher = nullptr;
 };
 
 } // namespace URay::Render
