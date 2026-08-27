@@ -204,7 +204,7 @@ void ViewportWidget::SetSelectedUnit(Unit* unit)
 void ViewportWidget::OnUpdate(float deltaTime)
 {
     PickResult pickResult = picker->Pick(&camera, cachedPosition.x, cachedPosition.y);
-    if (!pickResult.hit)
+    if (!pickResult.hit || pickResult.gizmoAxis == -1)
     {
         gizmo->SetHoveredAxis(-1);
     }
