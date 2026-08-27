@@ -26,6 +26,9 @@ public:
     ~DrawCommandBuilder();
 
 public:
+    bool Initialize();
+    void Finalize();
+
     void Reset();
 
     void FlushLines();

@@ -35,17 +35,13 @@ bool LineBatcher::Initialize()
 
     Shader* shader = shaderManager.GetOrCreate("Line");
 
-    const DescriptorSetLayoutDesc* layoutDesc =
-        shader->GetDescriptorSetLayoutDesc(1);
-
-    if (!layoutDesc)
-        return false;
-
-    DescriptorSetLayout* setLayout =
-        resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
-    descriptorSet = device.CreateDescriptorSet(setLayout);
-
     return true;
+}
+
+void LineBatcher::Finalize()
+{
+    vkFreeMemory(device.GetVKDevice(), vertexBufferMemory, nullptr);
+    vkDestroyBuffer(device.GetVKDevice(), vertexBuffer, nullptr);
 }
 
 void LineBatcher::Reset()

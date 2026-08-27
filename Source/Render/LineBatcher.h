@@ -39,8 +39,6 @@ private:
 
     std::vector<Vertex> vertices;
 
-    DescriptorSet* descriptorSet = nullptr;
-
     VkBuffer vertexBuffer = VK_NULL_HANDLE;
     VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
     void* mappedVertexBufferData = nullptr;

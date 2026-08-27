@@ -1,5 +1,8 @@
 #include "RenderPipeline.h"
 
+#include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/RenderPass/OpaquePass.h"
+#include "Render/RenderPass/OverlayPass.h"
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Scene/Object/ViewObject.h"
@@ -16,13 +19,39 @@ namespace URay::Render
 {
 
 RenderPipeline::RenderPipeline(RenderSystem& renderSystem)
-    : renderer(renderSystem.GetRenderer()), builder(DrawCommandBuilder(renderSystem))
+    : renderSystem(renderSystem)
 {
+}
+
+RenderPipeline::~RenderPipeline() = default;
+
+bool RenderPipeline::Initialize()
+{
+    builder = std::make_unique<DrawCommandBuilder>(renderSystem);
+    if (!builder->Initialize())
+        return false;
+
+    passes.push_back(std::make_unique<OpaquePass>());
+    passes.push_back(std::make_unique<OverlayPass>());
+}
+
+void RenderPipeline::Finalize()
+{
+    if (builder)
+    {
+        builder->Finalize();
+        builder.reset();
+    }
 }
 
 void RenderPipeline::Reset()
 {
-    builder.Reset();
+    builder->Reset();
+
+    for (auto& cmds : drawCmds)
+    {
+        cmds.clear();
+    }
 }
 
 void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
@@ -30,6 +59,8 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
     ViewObject* view = FindView(scenes);
     if (!view)
         return;
+
+    Renderer& renderer = renderSystem.GetRenderer();
 
     const Matrix& viewMatrix = view->GetViewMatrix();
     const Matrix& projMatrix = view->GetProjMatrix();
@@ -42,22 +73,36 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
             RenderObject* robj = scene->GetObject(index);
             if (robj)
             {
-                robj->Submit(builder);
+                robj->Submit(*builder);
             }
         }
     }
 
-    builder.FlushLines();
-    builder.FlushTexts();
+    builder->FlushLines();
+    builder->FlushTexts();
 
-    const std::vector<DrawCommand>& cmds = builder.GetCommands();
+    const std::vector<DrawCommand>& cmds = builder->GetCommands();
 
+    for (const DrawCommand& cmd : cmds)
     {
-        URAY_PROFILE_SCOPE("RenderPipeline::ExecuteDrawCommands")
-        for (const DrawCommand& cmd : cmds)
-        {
-            ExecuteCommand(cmd);
-        }
+        RenderPassId passId = cmd.passId;
+        size_t passIdIndex = static_cast<size_t>(passId);
+
+        drawCmds[passIdIndex].push_back(cmd);
+    }
+
+    const RenderPassContext passContext = {
+        .renderer = renderSystem.GetRenderer(),
+    };
+
+    for (auto& pass : passes)
+    {
+        RenderPassId passId = pass->GetPassId();
+        size_t passIdIndex = static_cast<size_t>(passId);
+
+        pass->Begin(passContext);
+        pass->Execute(passContext, drawCmds[passIdIndex]);
+        pass->End(passContext);
     }
 }
 
@@ -73,11 +118,6 @@ ViewObject* RenderPipeline::FindView(const std::vector<RenderScene*>& scenes) co
     }
 
     return nullptr;
-}
-
-void RenderPipeline::ExecuteCommand(const DrawCommand& cmd) const
-{
-    renderer.Draw(cmd);
 }
 
 } // namespace URay::Render

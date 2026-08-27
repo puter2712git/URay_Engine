@@ -45,6 +45,8 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
     shaderManager->GetOrCreate("Font", "Asset://Shader/Font.vert.spv", "Asset://Shader/Font.frag.spv");
 
     pipeline = std::make_unique<RenderPipeline>(*this);
+    if (!pipeline->Initialize())
+        return false;
 
     return true;
 }
@@ -55,6 +57,7 @@ void RenderSystem::Finalize()
 
     if (pipeline)
     {
+        pipeline->Finalize();
         pipeline.reset();
     }
 

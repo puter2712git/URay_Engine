@@ -80,6 +80,8 @@ public:
     void RequestSceneRenderTargetResize(const Extent2D& extent);
     Extent2D GetSceneRenderTargetExtent() const;
 
+    void ClearSceneDepth(float depth, uint32_t stencil);
+
     void Draw(const DrawCommand& cmd);
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }

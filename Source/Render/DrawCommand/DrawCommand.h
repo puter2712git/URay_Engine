@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
+#include "Render/RenderPass/RenderPassId.h"
 
 #include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
@@ -17,6 +18,8 @@ class DescriptorSet;
 
 struct DrawCommand
 {
+    RenderPassId passId = RenderPassId::Opaque;
+
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     uint32_t objectId = 0;

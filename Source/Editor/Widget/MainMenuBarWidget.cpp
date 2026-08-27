@@ -40,7 +40,7 @@ void MainMenuBarWidget::OnDraw()
                     AssetSystem& assetSystem = engine.GetAssetSystem();
                     VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
-                    const VirtualPath path = "Asset://Scene/TestScene.urscene";
+                    const VirtualPath path = "Asset://Scene/AppleGrid.urscene";
 
                     YAML::Node node = currScene->Serialize();
                     filesystem.WriteText(path, YAML::Dump(node));
@@ -53,7 +53,7 @@ void MainMenuBarWidget::OnDraw()
                 AssetSystem& assetSystem = engine.GetAssetSystem();
                 VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
-                const VirtualPath path = "Asset://Scene/TestScene.urscene";
+                const VirtualPath path = "Asset://Scene/AppleGrid.urscene";
                 const std::string sceneText = filesystem.ReadText(path);
                 YAML::Node sceneNode = YAML::Load(sceneText);
 

@@ -57,6 +57,8 @@ bool AssetSystem::InitializeRuntimeAssets(
         *materialManager, defaultMat->GetShader());
     objImporter->Import("RawAsset://Mesh/untitled.obj");
     objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
+    objImporter->Import("RawAsset://Mesh/apple_mid.obj");
+    objImporter->Import("RawAsset://Mesh/bitten_apple_mid.obj");
 
     return true;
 }

@@ -26,16 +26,28 @@ DrawCommandBuilder::DrawCommandBuilder(RenderSystem& renderSystem)
       resourceManager(renderSystem.GetResourceManager()),
       shaderManager(renderSystem.GetShaderManager())
 {
-    lineBatcher = std::make_unique<LineBatcher>(
-        device, resourceManager, shaderManager);
-    lineBatcher->Initialize();
-
-    textBatcher = std::make_unique<TextBatcher>(
-        device, resourceManager, shaderManager);
-    textBatcher->Initialize();
 }
 
 DrawCommandBuilder::~DrawCommandBuilder()
+{
+}
+
+bool DrawCommandBuilder::Initialize()
+{
+    lineBatcher = std::make_unique<LineBatcher>(
+        device, resourceManager, shaderManager);
+    if (!lineBatcher->Initialize())
+        return false;
+
+    textBatcher = std::make_unique<TextBatcher>(
+        device, resourceManager, shaderManager);
+    if (!textBatcher->Initialize())
+        return false;
+
+    return true;
+}
+
+void DrawCommandBuilder::Finalize()
 {
     if (textBatcher)
     {
@@ -43,6 +55,7 @@ DrawCommandBuilder::~DrawCommandBuilder()
     }
     if (lineBatcher)
     {
+        lineBatcher->Finalize();
         lineBatcher.reset();
     }
 }
@@ -122,6 +135,7 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
     DrawCommand cmd = {};
+    cmd.passId = RenderPassId::Overlay;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer()->GetBufferRef();

@@ -15,6 +15,7 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RenderInfo.h"
+#include "Render/RenderPass/RenderPass.h"
 #include "Render/Scene/RenderScene.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
@@ -424,6 +425,32 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
 Extent2D Renderer::GetSceneRenderTargetExtent() const
 {
     return sceneRenderTarget->GetExtent();
+}
+
+void Renderer::ClearSceneDepth(float depth, uint32_t stencil)
+{
+    VkClearAttachment attachment = {};
+    attachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    attachment.clearValue.depthStencil = {
+        .depth = depth,
+        .stencil = stencil,
+    };
+
+    VkClearRect rect = {};
+    rect.rect.offset = { 0, 0 };
+    rect.rect.extent = {
+        sceneRenderTarget->GetExtent().width,
+        sceneRenderTarget->GetExtent().height,
+    };
+    rect.baseArrayLayer = 0;
+    rect.layerCount = 1;
+
+    vkCmdClearAttachments(
+        commandBuffers[currentFrame],
+        1,
+        &attachment,
+        1,
+        &rect);
 }
 
 void Renderer::Draw(const DrawCommand& cmd)

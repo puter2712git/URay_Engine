@@ -1,7 +1,12 @@
 #pragma once
 
 #include "Render/DrawCommand/DrawCommand.h"
-#include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/RenderPass/RenderPass.h"
+#include "Render/RenderPass/RenderPassId.h"
+
+#include <array>
+#include <memory>
+#include <vector>
 
 namespace URay
 {
@@ -12,8 +17,8 @@ class Scene;
 namespace URay::Render
 {
 
+class DrawCommandBuilder;
 class RenderSystem;
-class Renderer;
 class RenderScene;
 class ViewObject;
 
@@ -21,23 +26,28 @@ class RenderPipeline
 {
 public:
     RenderPipeline(RenderSystem& renderSystem);
-    ~RenderPipeline() = default;
+    ~RenderPipeline();
 
 public:
+    bool Initialize();
+    void Finalize();
+
     void Reset();
 
     void Execute(const std::vector<RenderScene*>& scenes);
 
-    DrawCommandBuilder& GetBuilder() { return builder; }
+    DrawCommandBuilder& GetBuilder() { return *builder; }
 
 private:
     ViewObject* FindView(const std::vector<RenderScene*>& scenes) const;
-    void ExecuteCommand(const DrawCommand& cmd) const;
 
 private:
-    Renderer& renderer;
+    RenderSystem& renderSystem;
 
-    DrawCommandBuilder builder;
+    std::unique_ptr<DrawCommandBuilder> builder = nullptr;
+
+    std::vector<std::unique_ptr<RenderPass>> passes;
+    std::array<std::vector<DrawCommand>, static_cast<uint8_t>(RenderPassId::Count)> drawCmds;
 };
 
 } // namespace URay::Render
