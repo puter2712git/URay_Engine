@@ -6,6 +6,7 @@
 #include "Engine/Scene/Unit.h"
 #include "Engine/Spatial/Octree.h"
 
+#include "Render/Scene/Object/BoundedObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/RenderScene.h"
 
@@ -96,6 +97,11 @@ void Scene::AddUnit(Unit* unit)
         {
             std::unique_ptr<Render::RenderObject> robject(renderComp->CreateRenderObject());
             renderScene->Add(std::move(robject));
+
+            if (Render::BoundedObject* boundedObject = dynamic_cast<Render::BoundedObject*>(robject))
+            {
+                octree->Insert(boundedObject);
+            }
         }
     }
 }

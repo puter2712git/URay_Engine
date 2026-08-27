@@ -1,6 +1,6 @@
 #include "Octree.h"
 
-#include "Engine/Component/Render/MeshComponent.h"
+#include "Render/Scene/Object/BoundedObject.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
@@ -24,7 +24,7 @@ Octree::~Octree()
 {
 }
 
-void Octree::Insert(MeshComponent* entry)
+void Octree::Insert(Render::BoundedObject* entry)
 {
     if (!entry || nodes.empty())
         return;
@@ -43,9 +43,9 @@ static const std::array<Vector3, 8> depthColors = {
     Vector3{ 0.7f, 0.3f, 1.0f }, // purple
 };
 
-bool Octree::Insert(int nodeIndex, MeshComponent* entry)
+bool Octree::Insert(int nodeIndex, Render::BoundedObject* entry)
 {
-    const AABB entryBounds = {};
+    const AABB& entryBounds = entry->GetWorldBounds();
 
     if (!nodes[nodeIndex].bounds.Contains(entryBounds))
         return false;
@@ -105,11 +105,11 @@ void Octree::Subdivide(int nodeIndex)
 
     nodes[nodeIndex].children = childIndices;
 
-    std::vector<MeshComponent*> oldEntries = std::move(nodes[nodeIndex].entries);
+    std::vector<Render::BoundedObject*> oldEntries = std::move(nodes[nodeIndex].entries);
 
-    for (MeshComponent* entry : oldEntries)
+    for (Render::BoundedObject* entry : oldEntries)
     {
-        const AABB& entryBounds = {};
+        const AABB& entryBounds = entry->GetWorldBounds();
 
         bool moved = false;
 

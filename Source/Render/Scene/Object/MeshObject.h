@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Render/Scene/Object/BoundedObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Vertex.h"
 
@@ -24,7 +25,7 @@ struct MeshObjectState
     std::vector<Material*> materials;
 };
 
-class MeshObject : public RenderObject
+class MeshObject : public RenderObject, public BoundedObject
 {
 public:
     MeshObject(const MeshObjectState& state);
@@ -33,6 +34,8 @@ public:
 public:
     void Update(const MeshObjectState& state);
     void Submit(DrawCommandBuilder& builder) const override;
+
+    const AABB& GetWorldBounds() const { return worldBounds; }
 
 private:
     Mesh* mesh = nullptr;

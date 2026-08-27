@@ -8,12 +8,11 @@
 namespace URay
 {
 
-class MeshComponent;
-
 namespace Render
 {
+class BoundedObject;
 class DrawCommandBuilder;
-}
+} // namespace Render
 
 class Octree
 {
@@ -22,7 +21,7 @@ private:
     {
         AABB bounds = {};
         std::array<int, 8> children = { -1, -1, -1, -1, -1, -1, -1, -1 };
-        std::vector<MeshComponent*> entries;
+        std::vector<Render::BoundedObject*> entries;
         uint32_t depth = 0;
 
         bool IsLeaf() const { return children[0] == -1; }
@@ -33,10 +32,10 @@ public:
     ~Octree();
 
 public:
-    void Insert(MeshComponent* entry);
+    void Insert(Render::BoundedObject* entry);
 
 private:
-    bool Insert(int nodeIndex, MeshComponent* entry);
+    bool Insert(int nodeIndex, Render::BoundedObject* entry);
 
     void Subdivide(int nodeIndex);
 
