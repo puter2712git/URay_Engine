@@ -5,13 +5,18 @@
 #include "Render/RenderPass/OverlayPass.h"
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
+#include "Render/Scene/Object/BoundedObject.h"
+#include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
+
+#include "Core/Math/Frustum.h"
 
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/Unit.h"
+#include "Engine/Spatial/Octree.h"
 
 #include "Editor/Editor.h"
 
@@ -66,14 +71,26 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
     const Matrix& projMatrix = view->GetProjMatrix();
     renderer.SetFrameViewInfo(viewMatrix, projMatrix);
 
+    const Frustum frustum =
+        Frustum::FromViewProjection(viewMatrix * projMatrix);
+
     for (const RenderScene* scene : scenes)
     {
-        for (size_t index = 0; index < scene->GetObjectCount(); ++index)
+        for (RenderObject* object : scene->GetUnboundedObjects())
         {
-            RenderObject* robj = scene->GetObject(index);
-            if (robj)
+            if (object)
+                object->Submit(*builder);
+        }
+
+        std::vector<BoundedObject*> visibleObjects;
+        scene->GetOctree()->Query(frustum, visibleObjects);
+
+        for (BoundedObject* boundedObject : visibleObjects)
+        {
+            if (RenderObject* object =
+                    dynamic_cast<RenderObject*>(boundedObject))
             {
-                robj->Submit(*builder);
+                object->Submit(*builder);
             }
         }
     }

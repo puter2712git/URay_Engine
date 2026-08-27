@@ -1,16 +1,11 @@
 #include "Scene.h"
 
 #include "Engine/Component/ComponentFactory.h"
-#include "Engine/Component/Render/MeshComponent.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Scene/Unit.h"
-#include "Engine/Spatial/Octree.h"
 
-#include "Render/Scene/Object/BoundedObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/RenderScene.h"
-
-#include "Core/Math/AABB.h"
 
 namespace URay
 {
@@ -18,11 +13,6 @@ namespace URay
 Scene::Scene(SceneType type, const VirtualPath& filePath)
     : type(type), filePath(filePath)
 {
-    octree = std::make_unique<Octree>(AABB{
-        .min = Vector3(-100.0f, -100.0f, -100.0f),
-        .max = Vector3(100.0f, 100.0f, 100.0f),
-    });
-
     renderScene = new Render::RenderScene();
 }
 
@@ -97,11 +87,6 @@ void Scene::AddUnit(Unit* unit)
         {
             std::unique_ptr<Render::RenderObject> robject(renderComp->CreateRenderObject());
             renderScene->Add(std::move(robject));
-
-            if (Render::BoundedObject* boundedObject = dynamic_cast<Render::BoundedObject*>(robject))
-            {
-                octree->Insert(boundedObject);
-            }
         }
     }
 }

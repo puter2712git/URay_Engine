@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/AABB.h"
+#include "Core/Math/Frustum.h"
 
 #include <array>
 #include <vector>
@@ -34,10 +35,20 @@ public:
 public:
     void Insert(Render::BoundedObject* entry);
 
+    void Query(const Frustum& frustum,
+               std::vector<Render::BoundedObject*>& results) const;
+
 private:
     bool Insert(int nodeIndex, Render::BoundedObject* entry);
 
     void Subdivide(int nodeIndex);
+
+    void Query(int nodeIndex,
+               const Frustum& frustum,
+               std::vector<Render::BoundedObject*>& results) const;
+
+    void Collect(int nodeIndex,
+                 std::vector<Render::BoundedObject*>& results) const;
 
 private:
     std::vector<Node> nodes;

@@ -2,11 +2,6 @@
 
 #include "Render/Scene/Object/BoundedObject.h"
 
-#include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/DrawCommand/DrawCommandContext.h"
-
-#include <stack>
-
 namespace URay
 {
 
@@ -30,6 +25,65 @@ void Octree::Insert(Render::BoundedObject* entry)
         return;
 
     Insert(0, entry);
+}
+
+void Octree::Query(const Frustum& frustum,
+                   std::vector<Render::BoundedObject*>& results) const
+{
+    if (nodes.empty())
+        return;
+
+    Query(0, frustum, results);
+}
+
+void Octree::Query(int nodeIndex,
+                   const Frustum& frustum,
+                   std::vector<Render::BoundedObject*>& results) const
+{
+    const Node& node = nodes[nodeIndex];
+    const FrustumIntersection intersection = frustum.Intersects(node.bounds);
+
+    if (intersection == FrustumIntersection::Outside)
+        return;
+
+    if (intersection == FrustumIntersection::Inside)
+    {
+        Collect(nodeIndex, results);
+        return;
+    }
+
+    for (Render::BoundedObject* entry : node.entries)
+    {
+        if (frustum.Intersects(entry->GetWorldBounds()) !=
+            FrustumIntersection::Outside)
+        {
+            results.push_back(entry);
+        }
+    }
+
+    if (!node.IsLeaf())
+    {
+        for (int childIndex : node.children)
+        {
+            Query(childIndex, frustum, results);
+        }
+    }
+}
+
+void Octree::Collect(int nodeIndex,
+                     std::vector<Render::BoundedObject*>& results) const
+{
+    const Node& node = nodes[nodeIndex];
+
+    results.insert(results.end(), node.entries.begin(), node.entries.end());
+
+    if (!node.IsLeaf())
+    {
+        for (int childIndex : node.children)
+        {
+            Collect(childIndex, results);
+        }
+    }
 }
 
 static const std::array<Vector3, 8> depthColors = {

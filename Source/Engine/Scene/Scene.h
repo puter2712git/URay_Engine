@@ -11,7 +11,6 @@ namespace URay
 {
 
 class Unit;
-class Octree;
 
 namespace Render
 {
@@ -46,7 +45,6 @@ public:
     Render::RenderScene* GetRenderScene() const { return renderScene; }
     SceneType GetType() const { return type; }
     const std::vector<Unit*>& GetUnits() const { return units; }
-    Octree* GetOctree() const { return octree.get(); }
 
 private:
     VirtualPath filePath = {};
@@ -55,8 +53,6 @@ private:
 
     SceneType type = SceneType::Game;
     std::vector<Unit*> units;
-
-    std::unique_ptr<Octree> octree = nullptr;
 };
 
 } // namespace URay
