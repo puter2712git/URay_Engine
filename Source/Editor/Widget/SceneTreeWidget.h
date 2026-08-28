@@ -22,11 +22,15 @@ protected:
     void OnDraw() override;
 
 private:
-    void DrawUnit(Unit* unit, Unit* currSelectedUnit) const;
+    void DrawUnit(Unit* unit, Unit* currSelectedUnit);
+    void DrawUnitDragDrop(Unit* unit);
 
 private:
     Engine& engine;
     Editor& editor;
+
+    Unit* pendingDraggedUnit = nullptr;
+    Unit* pendingParentUnit = nullptr;
 };
 
 } // namespace URay

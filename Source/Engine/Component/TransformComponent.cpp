@@ -55,11 +55,22 @@ void TransformComponent::Update(float deltaTime)
 
 void TransformComponent::UpdateWorldMatrix()
 {
+    Unit* owner = GetOwner();
+    if (!owner)
+        return;
+
+    TransformComponent* relativeTransform = FindRelativeTransform(owner->GetParent());
+
     const Matrix T = Matrix::MakeTranslation(position);
     const Matrix R = Matrix::MakeRotation(rotation);
     const Matrix S = Matrix::MakeScale(scale);
 
     worldMatrix = S * R * T;
+
+    if (relativeTransform)
+    {
+        worldMatrix = worldMatrix * relativeTransform->GetWorldMatrix();
+    }
 
     GetOwner()->InvokeCallbacks();
 }
@@ -155,6 +166,39 @@ Vector3 TransformComponent::GetUp() const
     Vector3 worldUp = Vector3::Up;
     Vector3 up = TransformVectorNoScale(worldUp);
     return up;
+}
+
+void TransformComponent::SetDirty(bool dirty)
+{
+    if (isDirty == dirty)
+        return;
+
+    isDirty = dirty;
+
+    Unit* owner = GetOwner();
+    if (owner)
+    {
+        for (Unit* unit : owner->GetChildren())
+        {
+            TransformComponent* transform = unit->GetTransform();
+            if (transform)
+            {
+                transform->SetDirty(true);
+            }
+        }
+    }
+}
+
+TransformComponent* TransformComponent::FindRelativeTransform(Unit* parentUnit) const
+{
+    if (!parentUnit)
+        return nullptr;
+
+    TransformComponent* parentTransform = parentUnit->GetTransform();
+    if (parentTransform)
+        return parentTransform;
+
+    return FindRelativeTransform(parentUnit->GetParent());
 }
 
 } // namespace URay

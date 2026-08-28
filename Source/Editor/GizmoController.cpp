@@ -34,20 +34,38 @@ void GizmoController::Update(const Vector2& targetPosition, CameraComponent& cam
     UpdateGizmo(targetPosition, camera);
 
     const TransformComponent* transform = targetUnit->GetTransform();
-    const Vector3 selectedUnitPosition = transform->GetPosition();
+    const Matrix targetWorldMatrix = transform->GetWorldMatrix();
 
-    const TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
-    const Vector3 cameraPosition = cameraTransform->GetPosition();
+    Vector3 xAxis(targetWorldMatrix.m00, targetWorldMatrix.m01, targetWorldMatrix.m02);
+    Vector3 yAxis(targetWorldMatrix.m10, targetWorldMatrix.m11, targetWorldMatrix.m12);
+    Vector3 zAxis(targetWorldMatrix.m20, targetWorldMatrix.m21, targetWorldMatrix.m22);
 
-    const float toCameraLength = (selectedUnitPosition - cameraPosition).GetLength();
+    xAxis = xAxis.GetNormalized();
+    yAxis = yAxis.GetNormalized();
+    zAxis = zAxis.GetNormalized();
 
-    float gizmoScale = std::clamp(toCameraLength * scaleFactor, minScale, maxScale);
+    Matrix noScaleWorld = Matrix::Identity;
 
-    const Matrix T = Matrix::MakeTranslation(transform->GetPosition());
-    const Matrix R = Matrix::MakeRotation(transform->GetRotation());
-    const Matrix S = Matrix::MakeScale(Vector3(gizmoScale, gizmoScale, gizmoScale));
+    noScaleWorld.m00 = xAxis.x;
+    noScaleWorld.m01 = xAxis.y;
+    noScaleWorld.m02 = xAxis.z;
 
-    const Matrix targetWorldMatrix = S * R * T;
+    noScaleWorld.m10 = yAxis.x;
+    noScaleWorld.m11 = yAxis.y;
+    noScaleWorld.m12 = yAxis.z;
+
+    noScaleWorld.m20 = zAxis.x;
+    noScaleWorld.m21 = zAxis.y;
+    noScaleWorld.m22 = zAxis.z;
+
+    noScaleWorld.m30 = targetWorldMatrix.m30;
+    noScaleWorld.m31 = targetWorldMatrix.m31;
+    noScaleWorld.m32 = targetWorldMatrix.m32;
+
+    const Matrix gizmoScaleMatrix =
+        Matrix::MakeScale(Vector3(1.0f, 1.0f, 1.0f));
+
+    const Matrix targetGizmoWorld = gizmoScaleMatrix * noScaleWorld;
 
     matrices[0][0] = Matrix::MakeRotationZ(-90.0f) * targetWorldMatrix;
     matrices[0][1] = targetWorldMatrix;

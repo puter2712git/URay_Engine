@@ -8,6 +8,8 @@
 namespace URay
 {
 
+class Unit;
+
 class TransformComponent : public Component
 {
     URAY_CLASS(TransformComponent, Component)
@@ -34,24 +36,29 @@ public:
     void SetPosition(const Vector3& inPosition)
     {
         position = inPosition;
-        isDirty = true;
+        SetDirty(true);
     }
 
     const Vector3& GetRotation() const { return rotation; }
     void SetRotation(const Vector3& inRotation)
     {
         rotation = inRotation;
-        isDirty = true;
+        SetDirty(true);
     }
 
     const Vector3& GetScale() const { return scale; }
     void SetScale(const Vector3& inScale)
     {
         scale = inScale;
-        isDirty = true;
+        SetDirty(true);
     }
 
+    void SetDirty(bool dirty);
+
     const Matrix& GetWorldMatrix() const { return worldMatrix; }
+
+private:
+    TransformComponent* FindRelativeTransform(Unit* parentUnit) const;
 
 private:
     Vector3 position = Vector3::Zero;

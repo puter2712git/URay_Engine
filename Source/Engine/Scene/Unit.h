@@ -50,14 +50,19 @@ public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& newName) { name = newName; }
 
+    Unit* GetParent() const { return parent; }
+    bool SetParent(Unit* unit);
+
     const std::vector<Unit*>& GetChildren() const { return children; }
 
     Scene* GetOwner() const { return scene; }
     void SetOwner(Scene* scene) { this->scene = scene; }
 
 private:
+private:
     std::string name;
 
+    Unit* parent = nullptr;
     std::vector<Unit*> children;
 
     std::vector<Component*> components;

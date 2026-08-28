@@ -8,6 +8,8 @@
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/RenderScene.h"
 
+#include <algorithm>
+
 namespace URay
 {
 
@@ -68,6 +70,36 @@ void Unit::InvokeCallbacks()
     {
         callback();
     }
+}
+
+bool Unit::SetParent(Unit* unit)
+{
+    if (unit == this)
+        return false;
+
+    for (Unit* ancestor = unit; ancestor; ancestor = ancestor->parent)
+    {
+        if (ancestor == this)
+            return false;
+    }
+
+    if (parent == unit)
+        return true;
+
+    if (parent)
+    {
+        auto& siblings = parent->children;
+        siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
+    }
+
+    parent = unit;
+
+    if (parent)
+    {
+        parent->children.push_back(this);
+    }
+
+    return true;
 }
 
 Component* Unit::AddComponent(Component* comp)
