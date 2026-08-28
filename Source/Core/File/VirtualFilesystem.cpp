@@ -70,6 +70,42 @@ bool VirtualFilesystem::WriteText(const VirtualPath& virtualPath, const std::str
     return file.good();
 }
 
+std::vector<VirtualFileEntry> VirtualFilesystem::ListDirectory(
+    const VirtualPath& directory) const
+{
+    std::vector<VirtualFileEntry> result;
+
+    const fs::path physicalDirectory = ResolveToPhysicalPath(directory);
+
+    if (physicalDirectory.empty() || !fs::is_directory(physicalDirectory))
+        return result;
+
+    std::error_code error;
+    fs::directory_iterator iterator(physicalDirectory, error);
+
+    if (error)
+        return result;
+
+    for (const fs::directory_entry& entry : iterator)
+    {
+        std::error_code directoryError;
+
+        const bool isDirectory = entry.is_directory(directoryError);
+
+        if (directoryError)
+            continue;
+
+        VirtualFileEntry fileEntry = {};
+        fileEntry.path = directory.Join(entry.path().filename().string());
+
+        fileEntry.isDirectory = isDirectory;
+
+        result.push_back(fileEntry);
+    }
+
+    return result;
+}
+
 fs::path VirtualFilesystem::ResolveToPhysicalPath(const VirtualPath& virtualPath) const
 {
     std::string pathStr = virtualPath.ToString();

@@ -12,6 +12,12 @@ namespace URay
 
 namespace fs = std::filesystem;
 
+struct VirtualFileEntry
+{
+    VirtualPath path;
+    bool isDirectory = false;
+};
+
 class VirtualFilesystem
 {
 public:
@@ -23,6 +29,8 @@ public:
     std::string ReadText(const VirtualPath& path) const;
 
     bool WriteText(const VirtualPath& path, const std::string& text) const;
+
+    std::vector<VirtualFileEntry> ListDirectory(const VirtualPath& directory) const;
 
     fs::path ResolveToPhysicalPath(const VirtualPath& virtualPath) const;
 

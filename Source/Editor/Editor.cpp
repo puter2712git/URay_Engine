@@ -60,7 +60,7 @@ bool Editor::Initialize()
     std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*this, engine);
     std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*this);
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
-    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine.GetAssetSystem().GetFilesystem());
+    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine, engine.GetAssetSystem().GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
     std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, [this](Unit* unit)
                                                                                 { SelectUnit(unit); });

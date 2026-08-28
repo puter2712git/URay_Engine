@@ -2,26 +2,26 @@
 
 #include "Editor/Widget/Widget.h"
 
-#include <filesystem>
+#include "Core/File/VirtualPath.h"
+
 #include <vector>
 
 namespace URay
 {
 
-namespace fs = std::filesystem;
-
+class Engine;
 class VirtualFilesystem;
 
 struct FileEntry
 {
-    fs::path path;
+    VirtualPath path = {};
     bool isDirectory = false;
 };
 
 class FilesystemWidget final : public Widget
 {
 public:
-    FilesystemWidget(VirtualFilesystem& filesystem);
+    FilesystemWidget(Engine& engine, VirtualFilesystem& filesystem);
     ~FilesystemWidget();
 
 public:
@@ -32,13 +32,16 @@ protected:
 
 private:
     void Refresh();
-    void NavigateTo(const fs::path& path);
+    void NavigateTo(const VirtualPath& path);
+
+    void OnFileDoubleClicked(const VirtualPath& path);
 
 private:
+    Engine& engine;
     VirtualFilesystem& filesystem;
 
-    fs::path rootPath;
-    fs::path currPath;
+    VirtualPath rootPath = {};
+    VirtualPath currPath = {};
 
     std::vector<FileEntry> entries;
 };
