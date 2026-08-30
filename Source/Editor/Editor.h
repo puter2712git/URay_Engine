@@ -18,6 +18,7 @@ class Widget;
 class ViewportWidget;
 class UIInputRouter;
 class EditorSettings;
+class SelectionSystem;
 
 class Editor
 {
@@ -32,18 +33,15 @@ public:
     void Update();
     void PrepareRender();
 
-    Unit* GetSelectedUnit() const { return selectedUnit; }
-    void SelectUnit(Unit* unit);
-
 private:
     CameraComponent& PrepareEditorScene();
 
 private:
     Engine& engine;
 
-    Unit* selectedUnit = nullptr;
-
     CameraComponent* editorCamera = nullptr;
+
+    std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
 
     std::unique_ptr<Widget> mainMenuBarWidget = nullptr;
     std::unique_ptr<Widget> rootWidget = nullptr;

@@ -5,14 +5,15 @@
 namespace URay
 {
 
+class SelectionSystem;
+
 class Engine;
-class Editor;
 class Unit;
 
 class SceneTreeWidget final : public Widget
 {
 public:
-    SceneTreeWidget(Editor& editor, Engine& engine);
+    SceneTreeWidget(SelectionSystem& selectionSystem, Engine& engine);
     ~SceneTreeWidget() override;
 
 public:
@@ -26,8 +27,8 @@ private:
     void DrawUnitDragDrop(Unit* unit);
 
 private:
+    SelectionSystem& selectionSystem;
     Engine& engine;
-    Editor& editor;
 
     Unit* pendingDraggedUnit = nullptr;
     Unit* pendingParentUnit = nullptr;

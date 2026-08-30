@@ -2,6 +2,8 @@
 
 #include "Editor/Widget/Widget.h"
 
+#include "Engine/Ray/EventRay.h"
+
 #include "Core/Math/Extent2D.h"
 
 #include <functional>
@@ -17,6 +19,7 @@ class Unit;
 
 class GizmoController;
 class EditorPicker;
+class SelectionSystem;
 
 namespace Render
 {
@@ -26,7 +29,7 @@ class Renderer;
 class ViewportWidget : public Widget
 {
 public:
-    ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc);
+    ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem);
     ~ViewportWidget() override;
 
 public:
@@ -36,8 +39,6 @@ public:
 
     EventReply OnKeyDown(const KeyEvent& event) override;
     EventReply OnKeyUp(const KeyEvent& event) override;
-
-    void SetSelectedUnit(Unit* unit);
 
 protected:
     void OnUpdate(float deltaTime) override;
@@ -57,7 +58,9 @@ private:
     std::unique_ptr<GizmoController> gizmo = nullptr;
     std::unique_ptr<EditorPicker> picker = nullptr;
 
-    std::function<void(Unit*)> onSelectUnit;
+    SelectionSystem& selectionSystem;
+
+    RayHandle onSelectedRayHandle;
 
     Rect imageRect = {};
     Extent2D targetExtent = {};

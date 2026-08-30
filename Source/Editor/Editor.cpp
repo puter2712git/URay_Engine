@@ -3,6 +3,7 @@
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
+#include "Editor/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
@@ -55,15 +56,16 @@ bool Editor::Initialize()
 
     editorCamera = &PrepareEditorScene();
 
+    selectionSystem = std::make_unique<SelectionSystem>();
+
     mainMenuBarWidget = std::make_unique<MainMenuBarWidget>(engine);
 
-    std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*this, engine);
-    std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*this);
+    std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*selectionSystem, engine);
+    std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*selectionSystem);
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine, engine.GetAssetSystem().GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, [this](Unit* unit)
-                                                                                { SelectUnit(unit); });
+    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, *selectionSystem);
     viewportWidget = viewport.get();
 
     std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
@@ -167,16 +169,6 @@ void Editor::PrepareRender()
     });
 
     rootWidget->Draw();
-}
-
-void Editor::SelectUnit(Unit* unit)
-{
-    selectedUnit = unit;
-
-    if (viewportWidget)
-    {
-        viewportWidget->SetSelectedUnit(unit);
-    }
 }
 
 CameraComponent& Editor::PrepareEditorScene()

@@ -1,7 +1,7 @@
 #include "InspectorWidget.h"
 
-#include "Editor/Editor.h"
 #include "Editor/PropertyDrawer.h"
+#include "Editor/SelectionSystem.h"
 
 #include "Engine/Component/Component.h"
 #include "Engine/Scene/Unit.h"
@@ -11,8 +11,8 @@
 namespace URay
 {
 
-InspectorWidget::InspectorWidget(Editor& editor)
-    : editor(editor)
+InspectorWidget::InspectorWidget(SelectionSystem& selectionSystem)
+    : selectionSystem(selectionSystem)
 {
 }
 
@@ -30,7 +30,7 @@ void InspectorWidget::OnDraw()
     ApplyRect();
     ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    Unit* selectedUnit = editor.GetSelectedUnit();
+    Unit* selectedUnit = selectionSystem.GetSelectedUnit();
 
     if (!selectedUnit)
     {

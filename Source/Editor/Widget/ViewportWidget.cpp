@@ -2,6 +2,7 @@
 
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
+#include "Editor/SelectionSystem.h"
 
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -17,17 +18,22 @@
 namespace URay
 {
 
-ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, std::function<void(Unit*)> onSelectUnitFunc)
-    : renderer(renderer), camera(camera), onSelectUnit(onSelectUnitFunc)
+ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem)
+    : renderer(renderer), camera(camera), selectionSystem(selectionSystem)
 {
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
     gizmo = std::make_unique<GizmoController>(engine.GetAssetSystem());
     picker = std::make_unique<EditorPicker>(engine, gizmo.get());
+
+    onSelectedRayHandle = selectionSystem.RegisterOnSelected([this](Unit* unit)
+                                                             { gizmo->SetTarget(unit); });
 }
 
 ViewportWidget::~ViewportWidget()
 {
+    selectionSystem.UnregisterOnSelected(onSelectedRayHandle);
+
     if (picker)
     {
         picker.reset();
@@ -61,7 +67,7 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
         const PickResult pickResult = picker->Pick(&camera, targetPosition->x, targetPosition->y);
         if (!pickResult.hit)
         {
-            onSelectUnit(nullptr);
+            selectionSystem.SelectUnit(nullptr);
         }
         else
         {
@@ -71,7 +77,7 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
             }
             else
             {
-                onSelectUnit(pickResult.pickedUnit);
+                selectionSystem.SelectUnit(pickResult.pickedUnit);
             }
         }
     }
@@ -194,11 +200,6 @@ EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
     }
 
     return {};
-}
-
-void ViewportWidget::SetSelectedUnit(Unit* unit)
-{
-    gizmo->SetTarget(unit);
 }
 
 void ViewportWidget::OnUpdate(float deltaTime)

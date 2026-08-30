@@ -5,12 +5,12 @@
 namespace URay
 {
 
-class Editor;
+class SelectionSystem;
 
 class InspectorWidget final : public Widget
 {
 public:
-    InspectorWidget(Editor& editor);
+    InspectorWidget(SelectionSystem& selectionSystem);
     ~InspectorWidget() override;
 
 public:
@@ -20,7 +20,7 @@ protected:
     void OnDraw() override;
 
 private:
-    Editor& editor;
+    SelectionSystem& selectionSystem;
 };
 
 } // namespace URay

@@ -1,6 +1,6 @@
 #include "SceneTreeWidget.h"
 
-#include "Editor/Editor.h"
+#include "Editor/SelectionSystem.h"
 
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -13,8 +13,8 @@
 namespace URay
 {
 
-SceneTreeWidget::SceneTreeWidget(Editor& editor, Engine& engine)
-    : editor(editor), engine(engine)
+SceneTreeWidget::SceneTreeWidget(SelectionSystem& selectionSystem, Engine& engine)
+    : selectionSystem(selectionSystem), engine(engine)
 {
 }
 
@@ -42,7 +42,7 @@ void SceneTreeWidget::OnDraw()
         return;
     }
 
-    Unit* currSelectedUnit = editor.GetSelectedUnit();
+    Unit* currSelectedUnit = selectionSystem.GetSelectedUnit();
 
     pendingDraggedUnit = nullptr;
     pendingParentUnit = nullptr;
@@ -111,7 +111,7 @@ void SceneTreeWidget::DrawUnit(Unit* unit, Unit* currSelectedUnit)
 
     if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
     {
-        editor.SelectUnit(unit);
+        selectionSystem.SelectUnit(unit);
     }
 
     if (opened)
