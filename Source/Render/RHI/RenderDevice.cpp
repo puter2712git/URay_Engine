@@ -5,6 +5,7 @@
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutBuilder.h"
@@ -56,8 +57,11 @@ bool RenderDevice::Initialize()
     if (!CreateLogicalDevice())
         return false;
 
-    if (!CreateCommandPool())
+    CommandPool* cmdPool = CreateCommandPool();
+    if (!cmdPool)
         return false;
+
+    commandPool.reset(cmdPool);
 
     VkDeviceSize frameBufferSize = sizeof(FrameConstants);
     frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -96,8 +100,7 @@ void RenderDevice::Finalize()
 
     if (commandPool)
     {
-        vkDestroyCommandPool(device, commandPool, nullptr);
-        commandPool = VK_NULL_HANDLE;
+        commandPool.reset();
     }
 
     if (device)
@@ -574,6 +577,24 @@ SwapChain* RenderDevice::CreateSwapChain(const SwapChainDesc& desc)
     return swapChain;
 }
 
+CommandPool* RenderDevice::CreateCommandPool()
+{
+    const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+
+    VkCommandPoolCreateInfo poolInfo = {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
+    poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
+
+    VkCommandPool handle = VK_NULL_HANDLE;
+
+    if (vkCreateCommandPool(device, &poolInfo, nullptr, &handle) != VK_SUCCESS)
+        return nullptr;
+
+    CommandPool* commandPool = new CommandPool(*this, handle);
+    return commandPool;
+}
+
 void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                                 VkMemoryPropertyFlags properties,
                                 VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
@@ -841,18 +862,6 @@ bool RenderDevice::CreateLogicalDevice()
     return true;
 }
 
-bool RenderDevice::CreateCommandPool()
-{
-    const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
-
-    VkCommandPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
-
-    return vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) == VK_SUCCESS;
-}
-
 bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
 {
     QueueFamilyIndices indices = FindQueueFamilyIndices(device);
@@ -931,7 +940,7 @@ VkCommandBuffer RenderDevice::BeginSingleTimeCommands() const
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
+    allocInfo.commandPool = commandPool->GetHandle();
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
@@ -958,7 +967,7 @@ void RenderDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
     vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(graphicsQueue);
 
-    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+    vkFreeCommandBuffers(device, commandPool->GetHandle(), 1, &commandBuffer);
 }
 
 void RenderDevice::CreateDescriptorPool()

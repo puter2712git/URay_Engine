@@ -5,6 +5,7 @@
 #include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>
 
+#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -32,6 +33,7 @@ class PipelineLayout;
 class PipelineState;
 class Framebuffer;
 class SwapChain;
+class CommandPool;
 
 struct TextureDesc;
 struct TextureSamplerDesc;
@@ -81,6 +83,8 @@ public:
     Framebuffer* CreateFramebuffer(const FramebufferDesc& desc);
     SwapChain* CreateSwapChain(const SwapChainDesc& desc);
 
+    CommandPool* CreateCommandPool();
+
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties,
                       VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
@@ -110,8 +114,6 @@ private:
     bool PickPhysicalDevice();
     bool CreateLogicalDevice();
 
-    bool CreateCommandPool();
-
     bool IsDeviceSuitable(VkPhysicalDevice device) const;
     bool CheckDeviceExtensionSupport(VkPhysicalDevice device) const;
 
@@ -140,7 +142,7 @@ private:
     VkQueue graphicsQueue = VK_NULL_HANDLE;
     VkQueue presentQueue = VK_NULL_HANDLE;
 
-    VkCommandPool commandPool = VK_NULL_HANDLE;
+    std::unique_ptr<CommandPool> commandPool = nullptr;
 
     std::vector<ConstantBuffer*> frameConstantBuffers;
 
