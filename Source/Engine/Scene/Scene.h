@@ -4,6 +4,8 @@
 
 #include "Core/File/VirtualPath.h"
 
+#include <functional>
+#include <map>
 #include <memory>
 #include <vector>
 
@@ -21,6 +23,12 @@ enum class SceneType
 {
     Game,
     Editor,
+};
+
+struct UpdateGroup
+{
+    int priority = 0;
+    std::vector<std::function<void(float)>> functions;
 };
 
 class Scene : public Object
@@ -51,6 +59,8 @@ private:
 
     SceneType type = SceneType::Game;
     std::vector<Unit*> units;
+
+    std::map<int, UpdateGroup, std::greater<int>> updateGroups;
 };
 
 } // namespace URay

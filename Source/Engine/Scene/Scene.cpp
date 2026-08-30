@@ -2,7 +2,10 @@
 
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/TransformComponent.h"
 #include "Engine/Scene/Unit.h"
+
+#include "Core/Log/Log.h"
 
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -32,10 +35,41 @@ Scene::~Scene()
 
 void Scene::Update(float deltaTime)
 {
+    updateGroups.clear();
+
     for (Unit* unit : units)
     {
-        if (unit)
-            unit->Update(deltaTime);
+        auto& comps = unit->GetComponents();
+
+        for (Component* comp : comps)
+        {
+            if (TransformComponent* transform = dynamic_cast<TransformComponent*>(comp))
+            {
+                UpdateGroup& group = updateGroups[-100];
+                group.functions.emplace_back([transform](float dt)
+                                             { transform->Update(dt); });
+            }
+            else if (RenderComponent* renderComp = dynamic_cast<RenderComponent*>(comp))
+            {
+                UpdateGroup& group = updateGroups[-101];
+                group.functions.emplace_back([renderComp](float dt)
+                                             { renderComp->Update(dt); });
+            }
+            else
+            {
+                UpdateGroup& group = updateGroups[0];
+                group.functions.emplace_back([comp](float dt)
+                                             { comp->Update(dt); });
+            }
+        }
+    }
+
+    for (auto& [prio, group] : updateGroups)
+    {
+        for (auto& func : group.functions)
+        {
+            func(deltaTime);
+        }
     }
 }
 
