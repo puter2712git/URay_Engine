@@ -307,22 +307,22 @@ void Renderer::EndFrame()
 
 void Renderer::BeginScenePass()
 {
-    RenderPassBeginInfo beginInfo = {};
-    beginInfo.renderPass = sceneRenderPass;
-    beginInfo.framebuffer = sceneFramebuffer->GetHandle();
-    beginInfo.renderArea.offset = { 0, 0 };
-    beginInfo.renderArea.extent = {
-        .width = sceneRenderTarget->GetExtent().width,
-        .height = sceneRenderTarget->GetExtent().height,
-    };
-
-    std::array<VkClearValue, 2> clearValues = {};
+    std::vector<VkClearValue> clearValues(2);
     clearValues[0].color = { .float32 = { 0.01f, 0.01f, 0.01f, 1.0f } };
     clearValues[1].depthStencil = { 1.0f, 0 };
 
-    beginInfo.clearValues = clearValues;
+    VkRect2D renderArea = {};
+    renderArea.offset = { 0, 0 };
+    renderArea.extent = {
+        sceneRenderTarget->GetExtent().width,
+        sceneRenderTarget->GetExtent().height
+    };
 
-    commandBuffers[currentFrame]->BeginRenderPass(beginInfo);
+    commandBuffers[currentFrame]->BeginRenderPass(
+        sceneRenderPass,
+        *sceneFramebuffer,
+        renderArea,
+        clearValues);
 
     VkViewport viewport = {};
     viewport.x = 0.0f;
@@ -349,34 +349,32 @@ void Renderer::EndScenePass()
 
 void Renderer::BeginSwapChainPass()
 {
-    const VkExtent2D swapChainExtent = swapChain->GetExtent();
-
-    RenderPassBeginInfo beginInfo = {};
-    beginInfo.renderPass = swapChainRenderPass;
-    beginInfo.framebuffer = swapChainFramebuffers[imageIndex]->GetHandle();
-    beginInfo.renderArea.offset = { 0, 0 };
-    beginInfo.renderArea.extent = swapChainExtent;
-
-    std::array<VkClearValue, 2> clearValues = {};
+    std::vector<VkClearValue> clearValues(2);
     clearValues[0].color = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
     clearValues[1].depthStencil = { 1.0f, 0 };
 
-    beginInfo.clearValues = clearValues;
+    VkRect2D renderArea = {};
+    renderArea.offset = { 0, 0 };
+    renderArea.extent = swapChain->GetExtent();
 
-    commandBuffers[currentFrame]->BeginRenderPass(beginInfo);
+    commandBuffers[currentFrame]->BeginRenderPass(
+        swapChainRenderPass,
+        *swapChainFramebuffers[imageIndex],
+        renderArea,
+        clearValues);
 
     VkViewport viewport = {};
     viewport.x = 0.0f;
-    viewport.y = static_cast<float>(swapChainExtent.height);
-    viewport.width = static_cast<float>(swapChainExtent.width);
-    viewport.height = -static_cast<float>(swapChainExtent.height);
+    viewport.y = static_cast<float>(swapChain->GetExtent().height);
+    viewport.width = static_cast<float>(swapChain->GetExtent().width);
+    viewport.height = -static_cast<float>(swapChain->GetExtent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(commandBuffers[currentFrame]->GetHandle(), 0, 1, &viewport);
 
     VkRect2D scissor = {};
     scissor.offset = { 0, 0 };
-    scissor.extent = swapChainExtent;
+    scissor.extent = swapChain->GetExtent();
     vkCmdSetScissor(commandBuffers[currentFrame]->GetHandle(), 0, 1, &scissor);
 }
 
