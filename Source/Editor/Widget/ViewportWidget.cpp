@@ -4,13 +4,16 @@
 #include "Editor/GizmoController.h"
 #include "Editor/SelectionSystem.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Renderer.h"
 
+#include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"
 
 #include <imgui/imgui.h>
@@ -19,7 +22,7 @@ namespace URay
 {
 
 ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem)
-    : renderer(renderer), camera(camera), selectionSystem(selectionSystem)
+    : renderer(renderer), camera(camera), engine(engine), selectionSystem(selectionSystem)
 {
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
@@ -131,6 +134,14 @@ EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
 
 EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
 {
+    if (event.key == KeyCode::S &&
+        event.action == KeyAction::Pressed &&
+        (event.modifiers & ModifierKey::Ctrl) != ModifierKey::None)
+    {
+        SaveCurrScene();
+        return {};
+    }
+
     if (event.key == KeyCode::Space && event.action == KeyAction::Pressed)
     {
         if (gizmo)
@@ -349,6 +360,36 @@ std::optional<Vector2> ViewportWidget::WindowToRenderTarget(const Vector2& windo
     return Vector2(
         viewportPosition.x / imageRect.size.x * targetExtent.width,
         viewportPosition.y / imageRect.size.y * targetExtent.height);
+}
+
+bool ViewportWidget::SaveCurrScene()
+{
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+
+    if (!scene)
+        return false;
+
+    const VirtualPath& scenePath = scene->GetFilePath();
+
+    if (scenePath.ToString().empty())
+    {
+        Logger::Log("Failed to save scene: Scene Path is empty.");
+        return false;
+    }
+
+    VirtualFilesystem& filesystem = engine.GetAssetSystem().GetFilesystem();
+
+    const std::string sceneText = YAML::Dump(scene->Serialize());
+
+    if (!filesystem.WriteText(scenePath, sceneText))
+    {
+        Logger::Log("Failed to save scene: " + scenePath.ToString());
+        return false;
+    }
+
+    Logger::Log("Scene saved: " + scenePath.ToString());
+    return true;
 }
 
 } // namespace URay

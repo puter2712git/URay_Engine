@@ -51,7 +51,10 @@ private:
 
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
 
+    bool SaveCurrScene();
+
 private:
+    Engine& engine;
     Render::Renderer& renderer;
 
     CameraComponent& camera;

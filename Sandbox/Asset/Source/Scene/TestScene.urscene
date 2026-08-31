@@ -2,7 +2,7 @@
   Components:
     TransformComponent:
       Position:
-        - 2.693096
+        - 7.84196
         - -2.014151
         - 0
       Rotation:
@@ -49,3 +49,20 @@
         - 2.0833466
     SpriteComponent:
       Texture: DefaultWhite
+- Name: Land
+  Components:
+    TransformComponent:
+      Position:
+        - 0
+        - 0
+        - -2.0813289
+      Rotation:
+        - 0
+        - 0
+        - 0
+      Scale:
+        - 100
+        - 100
+        - 1
+    MeshComponent:
+      Mesh: Box
