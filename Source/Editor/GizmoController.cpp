@@ -67,13 +67,13 @@ void GizmoController::Update(const Vector2& targetPosition, CameraComponent& cam
 
     const Matrix targetGizmoWorld = gizmoScaleMatrix * noScaleWorld;
 
-    matrices[0][0] = Matrix::MakeRotationZ(-90.0f) * targetWorldMatrix;
-    matrices[0][1] = targetWorldMatrix;
-    matrices[0][2] = Matrix::MakeRotationX(90.0f) * targetWorldMatrix;
+    matrices[0][0] = Matrix::MakeRotationZ(-90.0f) * targetGizmoWorld;
+    matrices[0][1] = targetGizmoWorld;
+    matrices[0][2] = Matrix::MakeRotationX(90.0f) * targetGizmoWorld;
 
-    matrices[1][0] = Matrix::MakeRotationY(90.0f) * targetWorldMatrix;
-    matrices[1][1] = Matrix::MakeRotationX(90.0f) * targetWorldMatrix;
-    matrices[1][2] = targetWorldMatrix;
+    matrices[1][0] = Matrix::MakeRotationY(90.0f) * targetGizmoWorld;
+    matrices[1][1] = Matrix::MakeRotationX(90.0f) * targetGizmoWorld;
+    matrices[1][2] = targetGizmoWorld;
 
     matrices[2] = matrices[0];
 }
