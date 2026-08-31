@@ -28,7 +28,7 @@ public:
     ~Engine();
 
 public:
-    bool Initialize(const std::string& projectPath);
+    bool Initialize(const std::string& enginePath, const std::string& projectPath);
     void Finalize();
 
     void Update();

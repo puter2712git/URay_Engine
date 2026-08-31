@@ -18,9 +18,12 @@ AssetSystem::AssetSystem() = default;
 
 AssetSystem::~AssetSystem() = default;
 
-bool AssetSystem::Initialize(const std::filesystem::path& projectPath)
+bool AssetSystem::Initialize(
+    const std::string& enginePath,
+    const std::string& projectPath)
 {
     filesystem = std::make_unique<VirtualFilesystem>();
+    filesystem->Mount("Engine", enginePath);
     filesystem->Mount("Project", projectPath);
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");

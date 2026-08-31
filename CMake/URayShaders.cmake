@@ -8,9 +8,11 @@ find_program(DXC_EXECUTABLE
     REQUIRED
 )
 
-set(URAY_PROJECT_DIR "${URAY_SOURCE_DIR}/Sandbox")
-set(URAY_SHADER_SOURCE_DIR "${URAY_PROJECT_DIR}/Asset/Source/Shader")
-set(URAY_SHADER_OUTPUT_DIR "${URAY_PROJECT_DIR}/Asset/Imported/Shader")
+set(URAY_ENGINE_DIR "${URAY_SOURCE_DIR}/Engine")
+set(URAY_SHADER_SOURCE_DIR
+    "${URAY_ENGINE_DIR}/Asset/Source/Shader")
+set(URAY_SHADER_OUTPUT_DIR
+    "${URAY_ENGINE_DIR}/Asset/Imported/Shader")
 
 file(GLOB URAY_HLSL_SHADERS CONFIGURE_DEPENDS
     "${URAY_SHADER_SOURCE_DIR}/*.hlsl")
@@ -28,16 +30,11 @@ foreach(shader_file IN LISTS URAY_HLSL_SHADERS)
         OUTPUT "${vertex_shader}" "${fragment_shader}"
         COMMAND ${CMAKE_COMMAND} -E make_directory "${URAY_SHADER_OUTPUT_DIR}"
         COMMAND "${DXC_EXECUTABLE}"
-            -spirv -T vs_6_0 -E VSMain -I "${URAY_SHADER_DIR}"
+            -spirv -T vs_6_0 -E VSMain -I "${URAY_SHADER_SOURCE_DIR}"
             "${shader_file}" -Fo "${vertex_shader}"
         COMMAND "${DXC_EXECUTABLE}"
-            -spirv -T ps_6_0 -E PSMain -I "${URAY_SHADER_DIR}"
+            -spirv -T ps_6_0 -E PSMain -I "${URAY_SHADER_SOURCE_DIR}"
             "${shader_file}" -Fo "${fragment_shader}"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:URay_Engine>/Shader"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${vertex_shader}" "$<TARGET_FILE_DIR:URay_Engine>/Shader/${shader_name}.vert.spv"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${fragment_shader}" "$<TARGET_FILE_DIR:URay_Engine>/Shader/${shader_name}.frag.spv"
         DEPENDS "${shader_file}" ${URAY_HLSL_INCLUDES}
         COMMENT "Compiling ${shader_name}.hlsl to SPIR-V"
         VERBATIM

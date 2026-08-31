@@ -12,10 +12,12 @@ namespace URay
 EditorApplication::EditorApplication() = default;
 EditorApplication::~EditorApplication() = default;
 
-bool EditorApplication::Initialize(const std::string& projectPath)
+bool EditorApplication::Initialize(
+    const std::string& enginePath,
+    const std::string& projectPath)
 {
     engine = std::make_unique<Engine>();
-    if (!engine->Initialize(projectPath))
+    if (!engine->Initialize(enginePath, projectPath))
         return false;
 
     editor = std::make_unique<Editor>(*engine);

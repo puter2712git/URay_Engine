@@ -39,10 +39,10 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
         return false;
 
     shaderManager = std::make_unique<ShaderManager>(filesystem);
-    shaderManager->GetOrCreate("Sprite", "Asset://Shader/Sprite.vert.spv", "Asset://Shader/Sprite.frag.spv");
-    shaderManager->GetOrCreate("Line", "Asset://Shader/Line.vert.spv", "Asset://Shader/Line.frag.spv");
-    shaderManager->GetOrCreate("Mesh", "Asset://Shader/Mesh.vert.spv", "Asset://Shader/Mesh.frag.spv");
-    shaderManager->GetOrCreate("Font", "Asset://Shader/Font.vert.spv", "Asset://Shader/Font.frag.spv");
+    shaderManager->GetOrCreate("Sprite", "Engine://Asset/Imported/Shader/Sprite.vert.spv", "Engine://Asset/Imported/Shader/Sprite.frag.spv");
+    shaderManager->GetOrCreate("Line", "Engine://Asset/Imported/Shader/Line.vert.spv", "Engine://Asset/Imported/Shader/Line.frag.spv");
+    shaderManager->GetOrCreate("Mesh", "Engine://Asset/Imported/Shader/Mesh.vert.spv", "Engine://Asset/Imported/Shader/Mesh.frag.spv");
+    shaderManager->GetOrCreate("Font", "Engine://Asset/Imported/Shader/Font.vert.spv", "Engine://Asset/Imported/Shader/Font.frag.spv");
 
     pipeline = std::make_unique<RenderPipeline>(*this);
     if (!pipeline->Initialize())

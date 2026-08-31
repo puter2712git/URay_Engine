@@ -33,7 +33,7 @@ public:
     ~AssetSystem();
 
 public:
-    bool Initialize(const std::filesystem::path& projectPath);
+    bool Initialize(const std::string& enginePath, const std::string& projectPath);
     bool InitializeRuntimeAssets(
         Render::RenderDevice& renderDevice,
         Render::GPUResourceManager& resourceManager,

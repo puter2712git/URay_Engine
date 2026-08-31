@@ -16,7 +16,7 @@ public:
     ~EditorApplication();
 
 public:
-    bool Initialize(const std::string& projectPath);
+    bool Initialize(const std::string& enginePath, const std::string& projectPath);
     void Run();
     void Finalize();
 

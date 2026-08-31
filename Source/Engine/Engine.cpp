@@ -30,7 +30,9 @@ Engine::Engine() = default;
 
 Engine::~Engine() = default;
 
-bool Engine::Initialize(const std::string& projectPath)
+bool Engine::Initialize(
+    const std::string& enginePath,
+    const std::string& projectPath)
 {
     gEngine = this;
 
@@ -47,7 +49,7 @@ bool Engine::Initialize(const std::string& projectPath)
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
     assetSystem = std::make_unique<AssetSystem>();
-    if (!assetSystem->Initialize(projectPath))
+    if (!assetSystem->Initialize(enginePath, projectPath))
         return false;
 
     renderSystem = std::make_unique<Render::RenderSystem>();
