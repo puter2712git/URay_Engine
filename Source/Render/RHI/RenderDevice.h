@@ -108,8 +108,6 @@ public:
     VkPhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
     VkDevice GetVKDevice() const { return device; }
 
-    const std::vector<ConstantBuffer*>& GetFrameConstantBuffers() const { return frameConstantBuffers; }
-
     VkQueue GetGraphicsQueue() const { return graphicsQueue; }
     VkQueue GetPresentQueue() const { return presentQueue; }
 
@@ -143,8 +141,6 @@ private:
     VkQueue presentQueue = VK_NULL_HANDLE;
 
     std::unique_ptr<CommandPool> commandPool = nullptr;
-
-    std::vector<ConstantBuffer*> frameConstantBuffers;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 };

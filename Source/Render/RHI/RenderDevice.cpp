@@ -62,22 +62,6 @@ bool RenderDevice::Initialize()
     if (!commandPool)
         return false;
 
-    VkDeviceSize frameBufferSize = sizeof(FrameConstants);
-    frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        VkBuffer handle;
-        VkDeviceMemory memory;
-
-        CreateBuffer(frameBufferSize,
-                     VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     handle, memory);
-
-        frameConstantBuffers[i] = new ConstantBuffer(device, handle, memory, frameBufferSize);
-    }
-
     CreateDescriptorPool();
 
     return true;
@@ -86,12 +70,6 @@ bool RenderDevice::Initialize()
 void RenderDevice::Finalize()
 {
     DestroyDescriptorPool();
-
-    for (ConstantBuffer* buffer : frameConstantBuffers)
-    {
-        delete buffer;
-        buffer = nullptr;
-    }
 
     if (commandPool)
     {

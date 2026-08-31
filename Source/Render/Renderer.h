@@ -25,6 +25,7 @@ class VulkanContext;
 class RenderDevice;
 class VertexBuffer;
 class IndexBuffer;
+class ConstantBuffer;
 class PipelineLayout;
 class DescriptorSetLayout;
 class DescriptorSet;
@@ -115,6 +116,9 @@ private:
     bool CreateDepthResources();
     void DestroyDepthResources();
 
+    bool CreateFrameConstantBuffer();
+    void DestroyFrameConstantBuffer();
+
     bool CreateFrameDescriptorSetLayout();
     void DestroyFrameDescriptorSetLayout();
 
@@ -167,6 +171,8 @@ private:
     std::vector<DescriptorSet*> frameDescriptorSets;
 
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
+
+    std::vector<std::unique_ptr<ConstantBuffer>> frameConstantBuffers;
 };
 
 } // namespace URay::Render

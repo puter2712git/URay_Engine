@@ -115,6 +115,8 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
     if (!CreateSyncObjects())
         return false;
 
+    if (!CreateFrameConstantBuffer())
+        return false;
     if (!CreateFrameDescriptorSetLayout())
         return false;
     if (!CreateFrameDescriptorSet())
@@ -131,6 +133,7 @@ void Renderer::Finalize()
 
     DestroyFrameDescriptorSet();
     DestroyFrameDescriptorSetLayout();
+    DestroyFrameConstantBuffer();
 
     DestroyDepthResources();
 
@@ -240,8 +243,9 @@ bool Renderer::BeginFrame()
     frameConstants.view = viewMatrix;
     frameConstants.proj = projMatrix;
 
-    ConstantBuffer* frameConstantBuffer = device.GetFrameConstantBuffers()[currentFrame];
-    frameConstantBuffer->UpdateData(&frameConstants, sizeof(FrameConstants));
+    frameConstantBuffers[currentFrame]->UpdateData(
+        &frameConstants,
+        sizeof(FrameConstants));
 
     return true;
 }
@@ -877,7 +881,7 @@ bool Renderer::CreateFrameDescriptorSet()
 
         frameDescriptorSets.push_back(descriptorSet);
 
-        descriptorSet->WriteUniformBuffer(0, device.GetFrameConstantBuffers()[i]);
+        descriptorSet->WriteUniformBuffer(0, frameConstantBuffers[i].get());
     }
 
     return true;
@@ -895,6 +899,38 @@ void Renderer::DestroyFrameDescriptorSet()
     }
 
     frameDescriptorSets.clear();
+}
+
+bool Renderer::CreateFrameConstantBuffer()
+{
+    frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+    VkDeviceSize frameConstantSize = sizeof(FrameConstants);
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        VkBuffer handle = VK_NULL_HANDLE;
+        VkDeviceMemory memory = VK_NULL_HANDLE;
+
+        device.CreateBuffer(
+            frameConstantSize,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            handle,
+            memory);
+
+        frameConstantBuffers[i] = std::make_unique<ConstantBuffer>(
+            device.GetVKDevice(), handle, memory, frameConstantSize);
+    }
+
+    return true;
+}
+
+void Renderer::DestroyFrameConstantBuffer()
+{
+    for (auto& frameConstantBuffer : frameConstantBuffers)
+    {
+        frameConstantBuffer.reset();
+    }
 }
 
 void Renderer::ProcessPendingSceneRenderTargetResize()
