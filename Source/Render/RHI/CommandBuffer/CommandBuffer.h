@@ -17,8 +17,6 @@ class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
 
-struct RenderPassBeginInfo;
-
 class CommandBuffer
 {
 public:
