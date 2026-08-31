@@ -304,96 +304,6 @@ void Renderer::EndFrame()
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void Renderer::BeginScenePass()
-{
-    std::vector<VkClearValue> clearValues(2);
-    clearValues[0].color = { .float32 = { 0.01f, 0.01f, 0.01f, 1.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-
-    VkRect2D renderArea = {};
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = {
-        sceneRenderTarget->GetExtent().width,
-        sceneRenderTarget->GetExtent().height
-    };
-
-    commandBuffers[currentFrame]->BeginRenderPass(
-        sceneRenderPass,
-        *sceneFramebuffer,
-        renderArea,
-        clearValues);
-
-    commandBuffers[currentFrame]->SetViewport(
-        0.0f,
-        static_cast<float>(sceneRenderTarget->GetExtent().height),
-        static_cast<float>(sceneRenderTarget->GetExtent().width),
-        -static_cast<float>(sceneRenderTarget->GetExtent().height),
-        0.0f,
-        1.0f);
-    commandBuffers[currentFrame]->SetScissor(
-        0,
-        0,
-        sceneRenderTarget->GetExtent().width,
-        sceneRenderTarget->GetExtent().height);
-}
-
-void Renderer::EndScenePass()
-{
-    commandBuffers[currentFrame]->EndRenderPass();
-}
-
-void Renderer::BeginSwapChainPass()
-{
-    std::vector<VkClearValue> clearValues(2);
-    clearValues[0].color = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
-
-    VkRect2D renderArea = {};
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = swapChain->GetExtent();
-
-    commandBuffers[currentFrame]->BeginRenderPass(
-        swapChainRenderPass,
-        *swapChainFramebuffers[imageIndex],
-        renderArea,
-        clearValues);
-
-    commandBuffers[currentFrame]->SetViewport(
-        0.0f,
-        static_cast<float>(swapChain->GetExtent().height),
-        static_cast<float>(swapChain->GetExtent().width),
-        -static_cast<float>(swapChain->GetExtent().height),
-        0.0f,
-        1.0f);
-    commandBuffers[currentFrame]->SetScissor(
-        0,
-        0,
-        swapChain->GetExtent().width,
-        swapChain->GetExtent().height);
-}
-
-void Renderer::EndSwapChainPass()
-{
-    commandBuffers[currentFrame]->EndRenderPass();
-}
-
-void Renderer::BeginImGui()
-{
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-}
-
-void Renderer::EndImGui()
-{
-    ImGui::Render();
-    ImDrawData* drawData = ImGui::GetDrawData();
-
-    ImGui_ImplVulkan_RenderDrawData(
-        drawData,
-        commandBuffers[currentFrame]->GetHandle());
-}
-
 void Renderer::WaitIdle()
 {
     vkDeviceWaitIdle(device.GetVKDevice());
@@ -426,69 +336,24 @@ Extent2D Renderer::GetSceneRenderTargetExtent() const
     return sceneRenderTarget->GetExtent();
 }
 
-void Renderer::ClearSceneDepth(float depth, uint32_t stencil)
+CommandBuffer& Renderer::GetCommandBuffer() const
 {
-    VkClearAttachment attachment = {};
-    attachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-    attachment.clearValue.depthStencil = {
-        .depth = depth,
-        .stencil = stencil,
-    };
-
-    VkClearRect rect = {};
-    rect.rect.offset = { 0, 0 };
-    rect.rect.extent = {
-        sceneRenderTarget->GetExtent().width,
-        sceneRenderTarget->GetExtent().height,
-    };
-    rect.baseArrayLayer = 0;
-    rect.layerCount = 1;
-
-    vkCmdClearAttachments(
-        commandBuffers[currentFrame]->GetHandle(),
-        1,
-        &attachment,
-        1,
-        &rect);
+    return *commandBuffers[currentFrame];
 }
 
-void Renderer::Draw(const DrawCommand& cmd)
+DescriptorSet& Renderer::GetFrameDescriptorSet() const
 {
-    CommandBuffer& commandBuffer = *commandBuffers[currentFrame];
+    return *frameDescriptorSets[currentFrame];
+}
 
-    PipelineState* pso = resourceManager.GetOrCreatePSO(cmd.pipelineState, sceneRenderPass);
-    commandBuffer.BindPipeline(*pso);
+Framebuffer& Renderer::GetSwapChainFramebuffer() const
+{
+    return *swapChainFramebuffers[imageIndex];
+}
 
-    commandBuffer.BindDescriptorSet(*pso->GetLayout(), *frameDescriptorSets[currentFrame], 0);
-
-    if (cmd.descriptorSet)
-    {
-        commandBuffer.BindDescriptorSet(*pso->GetLayout(), *cmd.descriptorSet, 1);
-    }
-
-    ObjectConstants objConstants = {};
-    objConstants.world = cmd.worldMatrix;
-    objConstants.colorTint = cmd.colorTint;
-    objConstants.objectId = cmd.objectId;
-
-    if (pso->GetLayout()->SupportsPushConstants())
-    {
-        vkCmdPushConstants(commandBuffers[currentFrame]->GetHandle(), pso->GetLayout()->GetHandle(),
-                           VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                           0, sizeof(objConstants), &objConstants);
-    }
-
-    commandBuffer.BindVertexBuffer(*cmd.vertexBuffer);
-
-    if (cmd.indexBuffer)
-    {
-        commandBuffer.BindIndexBuffer(*cmd.indexBuffer);
-        commandBuffer.DrawIndexed(cmd.indexCount, cmd.indexOffset);
-    }
-    else
-    {
-        commandBuffer.Draw(cmd.vertexCount);
-    }
+VkExtent2D Renderer::GetSwapChainExtent() const
+{
+    return swapChain->GetExtent();
 }
 
 void Renderer::CleanupSwapChain()

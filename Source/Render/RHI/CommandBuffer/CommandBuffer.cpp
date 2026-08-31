@@ -150,6 +150,31 @@ void CommandBuffer::SetScissor(
     vkCmdSetScissor(handle, 0, 1, &scissor);
 }
 
+void CommandBuffer::ClearDepth(float depth, uint32_t stencil, uint32_t width, uint32_t height)
+{
+    VkClearAttachment attachment = {};
+    attachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    attachment.clearValue.depthStencil = {
+        .depth = depth,
+        .stencil = stencil
+    };
+
+    VkClearRect clearRect = {};
+    clearRect.rect = {
+        .offset = { 0, 0 },
+        .extent = { width, height }
+    };
+    clearRect.baseArrayLayer = 0;
+    clearRect.layerCount = 1;
+
+    vkCmdClearAttachments(
+        handle,
+        1,
+        &attachment,
+        1,
+        &clearRect);
+}
+
 void CommandBuffer::Draw(uint32_t vertexCount)
 {
     vkCmdDraw(handle, vertexCount, 1, 0, 0);

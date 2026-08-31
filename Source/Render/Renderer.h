@@ -70,15 +70,6 @@ public:
     bool BeginFrame();
     void EndFrame();
 
-    void BeginScenePass();
-    void EndScenePass();
-
-    void BeginSwapChainPass();
-    void EndSwapChainPass();
-
-    void BeginImGui();
-    void EndImGui();
-
     void WaitIdle();
 
     void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
@@ -86,9 +77,17 @@ public:
     void RequestSceneRenderTargetResize(const Extent2D& extent);
     Extent2D GetSceneRenderTargetExtent() const;
 
-    void ClearSceneDepth(float depth, uint32_t stencil);
+    CommandBuffer& GetCommandBuffer() const;
+    DescriptorSet& GetFrameDescriptorSet() const;
 
-    void Draw(const DrawCommand& cmd);
+    RenderTarget& GetSceneRenderTarget() const { return *sceneRenderTarget; }
+    VkRenderPass GetSceneRenderPass() const { return sceneRenderPass; }
+    Framebuffer& GetSceneFramebuffer() const { return *sceneFramebuffer; }
+
+    VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
+    Framebuffer& GetSwapChainFramebuffer() const;
+
+    VkExtent2D GetSwapChainExtent() const;
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
 

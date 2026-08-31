@@ -111,7 +111,15 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
     }
 
     const RenderPassContext passContext = {
-        .renderer = renderSystem.GetRenderer(),
+        .commandBuffer = renderer.GetCommandBuffer(),
+        .resourceManager = renderSystem.GetResourceManager(),
+        .frameDescriptorSet = renderer.GetFrameDescriptorSet(),
+        .sceneRenderTarget = renderer.GetSceneRenderTarget(),
+        .sceneRenderPass = renderer.GetSceneRenderPass(),
+        .sceneFramebuffer = renderer.GetSceneFramebuffer(),
+        .swapChainRenderPass = renderer.GetSwapChainRenderPass(),
+        .swapChainFramebuffer = renderer.GetSwapChainFramebuffer(),
+        .swapChainExtent = renderer.GetSwapChainExtent()
     };
 
     for (auto& pass : passes)

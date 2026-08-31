@@ -22,6 +22,13 @@ public:
     RenderPassId GetPassId() const override { return RenderPassId::UI; }
 
 private:
+    void BeginImGui();
+    void EndImGui(const RenderPassContext& context);
+
+    void BeginSwapChainPass(const RenderPassContext& context);
+    void EndSwapChainPass(const RenderPassContext& context);
+
+private:
     ImGuiDrawable& drawable;
 };
 

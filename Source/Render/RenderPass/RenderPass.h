@@ -12,11 +12,27 @@
 namespace URay::Render
 {
 
-class Renderer;
+class CommandBuffer;
+class GPUResourceManager;
+class DescriptorSet;
+class RenderTarget;
+class Framebuffer;
 
 struct RenderPassContext
 {
-    Renderer& renderer;
+    CommandBuffer& commandBuffer;
+
+    GPUResourceManager& resourceManager;
+
+    DescriptorSet& frameDescriptorSet;
+
+    RenderTarget& sceneRenderTarget;
+    VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
+    Framebuffer& sceneFramebuffer;
+
+    VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
+    Framebuffer& swapChainFramebuffer;
+    VkExtent2D swapChainExtent = {};
 };
 
 class RenderPass
