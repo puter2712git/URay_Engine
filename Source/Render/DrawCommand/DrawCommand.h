@@ -24,10 +24,10 @@ struct DrawCommand
     Color colorTint = Color::White;
     uint32_t objectId = 0;
 
-    void* vertexBuffer = nullptr;
+    VertexBuffer* vertexBuffer = nullptr;
     uint32_t vertexCount = 0;
 
-    void* indexBuffer = nullptr;
+    IndexBuffer* indexBuffer = nullptr;
     uint32_t indexOffset = 0;
     uint32_t indexCount = 0;
 

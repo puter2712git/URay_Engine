@@ -10,24 +10,22 @@ class Renderer;
 class VertexBuffer
 {
 public:
-    VertexBuffer(VkDevice device, uint32_t size);
+    VertexBuffer(VkDevice device, uint32_t size,
+                 VkBuffer handle, VkDeviceMemory memory);
     ~VertexBuffer();
 
 public:
-    VkBuffer& GetBufferRef()
-    {
-        return buffer;
-    }
+    void* Map();
+    void Unmap();
 
-    VkDeviceMemory& GetMemoryRef()
-    {
-        return memory;
-    }
+    VkBuffer GetHandle() const { return handle; }
+    VkDeviceMemory GetMemory() const { return memory; }
 
 private:
     VkDevice device = VK_NULL_HANDLE;
+    uint32_t size = 0;
 
-    VkBuffer buffer = VK_NULL_HANDLE;
+    VkBuffer handle = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
 };
 

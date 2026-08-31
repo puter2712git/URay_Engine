@@ -3,6 +3,7 @@
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/GPUResourceManager.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/Shader/Shader.h"
@@ -26,12 +27,12 @@ bool LineBatcher::Initialize()
 {
     VkDeviceSize bufferSize = 1024 * 1024 * 4;
 
-    device.CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                        vertexBuffer, vertexBufferMemory);
+    vertexBuffer.reset(device.CreateVertexBuffer(
+        bufferSize,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 
-    vkMapMemory(device.GetVKDevice(), vertexBufferMemory,
-                0, bufferSize, 0, &mappedVertexBufferData);
+    mappedVertexBufferData = vertexBuffer->Map();
 
     Shader* shader = shaderManager.GetOrCreate("Line");
 
@@ -40,8 +41,15 @@ bool LineBatcher::Initialize()
 
 void LineBatcher::Finalize()
 {
-    vkFreeMemory(device.GetVKDevice(), vertexBufferMemory, nullptr);
-    vkDestroyBuffer(device.GetVKDevice(), vertexBuffer, nullptr);
+    if (vertexBuffer)
+    {
+        if (mappedVertexBufferData)
+        {
+            vertexBuffer->Unmap();
+        }
+
+        vertexBuffer.reset();
+    }
 }
 
 void LineBatcher::Reset()
@@ -59,7 +67,7 @@ void LineBatcher::Flush(DrawCommandBuilder& builder)
 
     DrawCommand cmd = {};
     cmd.worldMatrix = Matrix::Identity;
-    cmd.vertexBuffer = vertexBuffer;
+    cmd.vertexBuffer = vertexBuffer.get();
     cmd.vertexCount = static_cast<uint32_t>(vertices.size());
 
     PipelineStateDesc psoDesc = {};

@@ -83,6 +83,20 @@ void RenderDevice::Finalize()
     }
 }
 
+VertexBuffer* RenderDevice::CreateVertexBuffer(
+    VkDeviceSize size,
+    VkBufferUsageFlags usage,
+    VkMemoryPropertyFlags properties)
+{
+    VkBuffer handle = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+
+    CreateBuffer(size, usage, properties, handle, memory);
+
+    VertexBuffer* vertexBuffer = new VertexBuffer(device, size, handle, memory);
+    return vertexBuffer;
+}
+
 VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<VertexPNT>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(VertexPNT) * vertices.size();
@@ -98,14 +112,12 @@ VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<VertexPNT>& ver
     std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
-    VertexBuffer* vertexBuffer = new VertexBuffer(device, bufferSize);
+    VertexBuffer* vertexBuffer = CreateVertexBuffer(
+        bufferSize,
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-    CreateBuffer(bufferSize,
-                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 vertexBuffer->GetBufferRef(), vertexBuffer->GetMemoryRef());
-
-    CopyBuffer(stagingBuffer, vertexBuffer->GetBufferRef(), bufferSize);
+    CopyBuffer(stagingBuffer, vertexBuffer->GetHandle(), bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);
@@ -128,14 +140,17 @@ IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint32_t>& indice
     std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
-    IndexBuffer* indexBuffer = new IndexBuffer(device, bufferSize);
+    VkBuffer handle = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
 
     CreateBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 indexBuffer->GetBufferRef(), indexBuffer->GetMemoryRef());
+                 handle, memory);
 
-    CopyBuffer(stagingBuffer, indexBuffer->GetBufferRef(), bufferSize);
+    CopyBuffer(stagingBuffer, handle, bufferSize);
+
+    IndexBuffer* indexBuffer = new IndexBuffer(device, bufferSize, handle, memory);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);

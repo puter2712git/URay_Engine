@@ -3,6 +3,7 @@
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/GPUResourceManager.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
@@ -22,21 +23,18 @@ TextBatcher::TextBatcher(RenderDevice& device, GPUResourceManager& resourceManag
 {
 }
 
-TextBatcher::~TextBatcher()
-{
-    vkDestroyBuffer(device.GetVKDevice(), vertexBuffer, nullptr);
-    vkFreeMemory(device.GetVKDevice(), vertexBufferMemory, nullptr);
-}
+TextBatcher::~TextBatcher() = default;
 
 bool TextBatcher::Initialize()
 {
     VkDeviceSize bufferSize = 1024 * 1024 * 4;
 
-    device.CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                        vertexBuffer, vertexBufferMemory);
+    vertexBuffer.reset(device.CreateVertexBuffer(
+        bufferSize,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
 
-    vkMapMemory(device.GetVKDevice(), vertexBufferMemory, 0, bufferSize, 0, &mappedVertexBufferData);
+    mappedVertexBufferData = vertexBuffer->Map();
 
     Shader* shader = shaderManager.GetOrCreate("Font");
 
@@ -46,6 +44,19 @@ bool TextBatcher::Initialize()
     descriptorSet = device.CreateDescriptorSet(setLayout);
 
     return true;
+}
+
+void TextBatcher::Finalize()
+{
+    if (vertexBuffer)
+    {
+        if (mappedVertexBufferData)
+        {
+            vertexBuffer->Unmap();
+        }
+
+        vertexBuffer.reset();
+    }
 }
 
 void TextBatcher::Reset()
@@ -68,7 +79,7 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
 
         DrawCommand cmd = {};
         cmd.worldMatrix = Matrix::Identity;
-        cmd.vertexBuffer = vertexBuffer;
+        cmd.vertexBuffer = vertexBuffer.get();
         cmd.vertexCount = static_cast<uint32_t>(verts.size());
 
         PipelineStateDesc psoDesc = {};

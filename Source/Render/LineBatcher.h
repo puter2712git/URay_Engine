@@ -4,6 +4,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <memory>
 #include <vector>
 
 namespace URay::Render
@@ -14,6 +15,7 @@ class GPUResourceManager;
 class ShaderManager;
 class DrawCommandBuilder;
 class DescriptorSet;
+class VertexBuffer;
 
 struct LineCommandContext;
 
@@ -39,8 +41,7 @@ private:
 
     std::vector<Vertex> vertices;
 
-    VkBuffer vertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+    std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;
 };
 

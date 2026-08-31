@@ -68,7 +68,9 @@ public:
     void Finalize();
 
 public:
+    VertexBuffer* CreateVertexBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
+
     IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
     MeshBuffer* CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 

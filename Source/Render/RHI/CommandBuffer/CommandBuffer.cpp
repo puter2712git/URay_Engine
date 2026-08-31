@@ -1,7 +1,12 @@
 #include "CommandBuffer.h"
 
+#include "Render/RHI/Buffer/IndexBuffer.h"
+#include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/CommandBuffer/RenderPassBeginInfo.h"
+#include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/PipelineLayout/PipelineLayout.h"
+#include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
 
 namespace URay::Render
@@ -71,6 +76,51 @@ void CommandBuffer::BeginRenderPass(const RenderPassBeginInfo& info)
 void CommandBuffer::EndRenderPass()
 {
     vkCmdEndRenderPass(handle);
+}
+
+void CommandBuffer::BindPipeline(const PipelineState& pso)
+{
+    vkCmdBindPipeline(handle, VK_PIPELINE_BIND_POINT_GRAPHICS, pso.GetHandle());
+}
+
+void CommandBuffer::BindVertexBuffer(const VertexBuffer& buffer)
+{
+    VkBuffer buffers[] = { buffer.GetHandle() };
+    VkDeviceSize offsets[] = { 0 };
+    vkCmdBindVertexBuffers(handle, 0, 1, buffers, offsets);
+}
+
+void CommandBuffer::BindIndexBuffer(const IndexBuffer& buffer)
+{
+    vkCmdBindIndexBuffer(handle, buffer.GetHandle(), 0, VK_INDEX_TYPE_UINT32);
+}
+
+void CommandBuffer::BindDescriptorSet(
+    const PipelineLayout& layout,
+    const DescriptorSet& descriptorSet,
+    uint32_t set)
+{
+    VkDescriptorSet vkDescriptorSet = descriptorSet.GetHandle();
+
+    vkCmdBindDescriptorSets(
+        handle,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        layout.GetHandle(),
+        set,
+        1,
+        &vkDescriptorSet,
+        0,
+        nullptr);
+}
+
+void CommandBuffer::Draw(uint32_t vertexCount)
+{
+    vkCmdDraw(handle, vertexCount, 1, 0, 0);
+}
+
+void CommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset)
+{
+    vkCmdDrawIndexed(handle, indexCount, 1, indexOffset, 0, 0);
 }
 
 } // namespace URay::Render

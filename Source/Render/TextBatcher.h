@@ -5,6 +5,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -21,6 +22,7 @@ class GPUResourceManager;
 class ShaderManager;
 class DrawCommandBuilder;
 class DescriptorSet;
+class VertexBuffer;
 
 class TextBatcher
 {
@@ -30,6 +32,7 @@ public:
 
 public:
     bool Initialize();
+    void Finalize();
 
     void Reset();
     void Flush(DrawCommandBuilder& builder);
@@ -45,8 +48,7 @@ private:
 
     DescriptorSet* descriptorSet = nullptr;
 
-    VkBuffer vertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory vertexBufferMemory = VK_NULL_HANDLE;
+    std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;
 };
 

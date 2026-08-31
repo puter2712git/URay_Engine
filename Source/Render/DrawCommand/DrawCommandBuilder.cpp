@@ -103,9 +103,9 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
-    cmd.vertexBuffer = meshBuffer->GetVertexBuffer()->GetBufferRef();
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
     cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
-    cmd.indexBuffer = meshBuffer->GetIndexBuffer()->GetBufferRef();
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer();
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
     cmd.pipelineState = stateDesc;
@@ -138,9 +138,9 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     cmd.passId = RenderPassId::Overlay;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
-    cmd.vertexBuffer = meshBuffer->GetVertexBuffer()->GetBufferRef();
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
     cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
-    cmd.indexBuffer = meshBuffer->GetIndexBuffer()->GetBufferRef();
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer();
     cmd.indexCount = static_cast<uint32_t>(context.mesh->GetIndices().size());
 
     DepthStencilState depthStencil = {};

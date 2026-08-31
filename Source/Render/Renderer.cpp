@@ -458,21 +458,16 @@ void Renderer::ClearSceneDepth(float depth, uint32_t stencil)
 
 void Renderer::Draw(const DrawCommand& cmd)
 {
-    PipelineState* pso = resourceManager.GetOrCreatePSO(cmd.pipelineState, sceneRenderPass);
-    vkCmdBindPipeline(commandBuffers[currentFrame]->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pso->GetHandle());
+    CommandBuffer& commandBuffer = *commandBuffers[currentFrame];
 
-    VkDescriptorSet vkFrameDescriptorSet = frameDescriptorSets[currentFrame]->GetHandle();
-    vkCmdBindDescriptorSets(commandBuffers[currentFrame]->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                            pso->GetLayout()->GetHandle(), 0, 1, &vkFrameDescriptorSet, 0, nullptr);
+    PipelineState* pso = resourceManager.GetOrCreatePSO(cmd.pipelineState, sceneRenderPass);
+    commandBuffer.BindPipeline(*pso);
+
+    commandBuffer.BindDescriptorSet(*pso->GetLayout(), *frameDescriptorSets[currentFrame], 0);
 
     if (cmd.descriptorSet)
     {
-        VkDescriptorSet vkDescriptorSet = cmd.descriptorSet->GetHandle();
-        if (vkDescriptorSet != VK_NULL_HANDLE)
-        {
-            vkCmdBindDescriptorSets(commandBuffers[currentFrame]->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                    pso->GetLayout()->GetHandle(), 1, 1, &vkDescriptorSet, 0, nullptr);
-        }
+        commandBuffer.BindDescriptorSet(*pso->GetLayout(), *cmd.descriptorSet, 1);
     }
 
     ObjectConstants objConstants = {};
@@ -487,20 +482,16 @@ void Renderer::Draw(const DrawCommand& cmd)
                            0, sizeof(objConstants), &objConstants);
     }
 
-    VkBuffer vertexBuffers[] = { static_cast<VkBuffer>(cmd.vertexBuffer) };
-    VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffers[currentFrame]->GetHandle(), 0, 1, vertexBuffers, offsets);
+    commandBuffer.BindVertexBuffer(*cmd.vertexBuffer);
 
     if (cmd.indexBuffer)
     {
-        VkBuffer indexBuffer = static_cast<VkBuffer>(cmd.indexBuffer);
-        vkCmdBindIndexBuffer(commandBuffers[currentFrame]->GetHandle(), indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-        vkCmdDrawIndexed(commandBuffers[currentFrame]->GetHandle(), cmd.indexCount, 1, cmd.indexOffset, 0, 0);
+        commandBuffer.BindIndexBuffer(*cmd.indexBuffer);
+        commandBuffer.DrawIndexed(cmd.indexCount, cmd.indexOffset);
     }
     else
     {
-        vkCmdDraw(commandBuffers[currentFrame]->GetHandle(), cmd.vertexCount, 1, 0, 0);
+        commandBuffer.Draw(cmd.vertexCount);
     }
 }
 

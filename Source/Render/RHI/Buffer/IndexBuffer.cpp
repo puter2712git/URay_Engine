@@ -5,16 +5,17 @@
 namespace URay::Render
 {
 
-IndexBuffer::IndexBuffer(VkDevice device, uint32_t size)
-    : device(device)
+IndexBuffer::IndexBuffer(VkDevice device, uint32_t size,
+                         VkBuffer handle, VkDeviceMemory memory)
+    : device(device), size(size), handle(handle), memory(memory)
 {
 }
 
 IndexBuffer::~IndexBuffer()
 {
-    if (buffer)
+    if (handle)
     {
-        vkDestroyBuffer(device, buffer, nullptr);
+        vkDestroyBuffer(device, handle, nullptr);
     }
     if (memory)
     {
