@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/DrawCommand/DrawCommandContext.h"
+#include "Render/DrawCommand/DrawCommand.h"
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -24,6 +24,8 @@ class DrawCommandBuilder;
 class DescriptorSet;
 class VertexBuffer;
 
+struct TextCommandContext;
+
 class TextBatcher
 {
 public:
@@ -35,7 +37,7 @@ public:
     void Finalize();
 
     void Reset();
-    void Flush(DrawCommandBuilder& builder);
+    std::vector<DrawCommand> Flush();
 
     void Collect(const TextCommandContext& context);
 

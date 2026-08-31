@@ -72,7 +72,8 @@ void DrawCommandBuilder::FlushLines()
     if (!lineBatcher)
         return;
 
-    lineBatcher->Flush(*this);
+    DrawCommand cmd = lineBatcher->Flush();
+    drawCmds.push_back(cmd);
 }
 
 void DrawCommandBuilder::FlushTexts()
@@ -80,7 +81,8 @@ void DrawCommandBuilder::FlushTexts()
     if (!textBatcher)
         return;
 
-    textBatcher->Flush(*this);
+    std::vector<DrawCommand> cmds = textBatcher->Flush();
+    drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 
 void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)

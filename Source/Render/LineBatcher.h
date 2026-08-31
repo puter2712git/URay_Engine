@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Render/DrawCommand/DrawCommand.h"
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
@@ -30,7 +31,7 @@ public:
     void Finalize();
 
     void Reset();
-    void Flush(DrawCommandBuilder& builder);
+    DrawCommand Flush();
 
     void Collect(const LineCommandContext& context);
 

@@ -41,7 +41,6 @@ public:
     void BuildFromGizmo(const GizmoCommandContext& context);
 
     const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
-    void AddDrawCommand(const DrawCommand& cmd) { drawCmds.push_back(cmd); }
 
 private:
     RenderDevice& device;

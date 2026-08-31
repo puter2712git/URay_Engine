@@ -1,7 +1,6 @@
 #include "LineBatcher.h"
 
-#include "Render/DrawCommand/DrawCommand.h"
-#include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/DrawCommand/DrawCommandContext.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
@@ -57,10 +56,10 @@ void LineBatcher::Reset()
     vertices.clear();
 }
 
-void LineBatcher::Flush(DrawCommandBuilder& builder)
+DrawCommand LineBatcher::Flush()
 {
     if (vertices.empty())
-        return;
+        return {};
 
     VkDeviceSize size = sizeof(Vertex) * vertices.size();
     std::memcpy(mappedVertexBufferData, vertices.data(), size);
@@ -79,7 +78,7 @@ void LineBatcher::Flush(DrawCommandBuilder& builder)
 
     cmd.pipelineState = psoDesc;
 
-    builder.AddDrawCommand(cmd);
+    return cmd;
 }
 
 void LineBatcher::Collect(const LineCommandContext& context)

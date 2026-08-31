@@ -1,7 +1,6 @@
 #include "TextBatcher.h"
 
-#include "Render/DrawCommand/DrawCommand.h"
-#include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/DrawCommand/DrawCommandContext.h"
 #include "Render/GPUResourceManager.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
@@ -67,8 +66,10 @@ void TextBatcher::Reset()
     }
 }
 
-void TextBatcher::Flush(DrawCommandBuilder& builder)
+std::vector<DrawCommand> TextBatcher::Flush()
 {
+    std::vector<DrawCommand> drawCmds;
+
     for (auto& [font, verts] : vertices)
     {
         if (verts.empty())
@@ -100,8 +101,10 @@ void TextBatcher::Flush(DrawCommandBuilder& builder)
 
         cmd.descriptorSet = descriptorSet;
 
-        builder.AddDrawCommand(cmd);
+        drawCmds.push_back(cmd);
     }
+
+    return drawCmds;
 }
 
 void TextBatcher::Collect(const TextCommandContext& context)
