@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Render/DrawCommand/DrawCommand.h"
+#include "Render/RHI/Texture/TextureDesc.h"
 
 #include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
@@ -37,6 +38,8 @@ class Framebuffer;
 class SwapChain;
 class CommandPool;
 class CommandBuffer;
+class Texture;
+class TextureView;
 
 struct ObjectConstants
 {
@@ -127,7 +130,7 @@ private:
 
     void ProcessPendingSceneRenderTargetResize();
 
-    VkFormat FindDepthFormat() const;
+    Format FindDepthFormat() const;
     bool HasStencilComponent(VkFormat format) const;
 
     VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
@@ -163,9 +166,8 @@ private:
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;
 
-    VkImage depthImage = VK_NULL_HANDLE;
-    VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
-    VkImageView depthImageView = VK_NULL_HANDLE;
+    std::unique_ptr<Texture> depthTexture = nullptr;
+    std::unique_ptr<TextureView> depthTextureView = nullptr;
 
     DescriptorSetLayout* frameDescriptorSetLayout = nullptr;
     std::vector<DescriptorSet*> frameDescriptorSets;

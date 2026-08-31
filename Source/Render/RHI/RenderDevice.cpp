@@ -23,6 +23,7 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
+#include "Render/RHI/Vulkan/VulkanUtils.h"
 #include "Render/RenderInfo.h"
 #include "Render/Renderer.h"
 #include "Render/Shader/Shader.h"
@@ -34,13 +35,6 @@
 
 namespace URay::Render
 {
-
-namespace
-{
-VkFormat ToVkFormat(Format format);
-VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage);
-VkImageAspectFlags ToVkImageAspectFlags(Format format);
-} // namespace
 
 RenderDevice::RenderDevice(VulkanContext& context)
     : context(context)
@@ -175,8 +169,8 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
     VkImage image = VK_NULL_HANDLE;
     VkDeviceMemory imageMemory = VK_NULL_HANDLE;
 
-    VkFormat format = ToVkFormat(desc.format);
-    VkImageUsageFlags usageFlags = ToVkImageUsageFlags(desc.usage);
+    VkFormat format = Vulkan::ToVkFormat(desc.format);
+    VkImageUsageFlags usageFlags = Vulkan::ToVkImageUsageFlags(desc.usage);
 
     if (!CreateImage(desc.width, desc.height,
                      format, VK_IMAGE_TILING_OPTIMAL,
@@ -201,7 +195,7 @@ bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8_t> 
     if ((textureDesc.usage & TextureUsage::TransferDst) == TextureUsage::None)
         return false;
 
-    VkFormat vkFormat = ToVkFormat(textureDesc.format);
+    VkFormat vkFormat = Vulkan::ToVkFormat(textureDesc.format);
 
     VkDeviceSize dataSize = static_cast<VkDeviceSize>(textureDesc.width) * textureDesc.height * 4;
     if (dataSize != static_cast<VkDeviceSize>(pixelData.size()))
@@ -242,8 +236,8 @@ TextureView* RenderDevice::CreateTextureView(Texture* texture)
         return nullptr;
 
     const TextureDesc& textureDesc = texture->GetDesc();
-    VkFormat vkFormat = ToVkFormat(textureDesc.format);
-    VkImageAspectFlags vkAspectFlags = ToVkImageAspectFlags(textureDesc.format);
+    VkFormat vkFormat = Vulkan::ToVkFormat(textureDesc.format);
+    VkImageAspectFlags vkAspectFlags = Vulkan::ToVkImageAspectFlags(textureDesc.format);
 
     VkImageView imageView = CreateImageView(texture->GetHandle(), vkFormat, vkAspectFlags);
 
@@ -1019,73 +1013,5 @@ uint32_t RenderDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags
 
     return UINT32_MAX;
 }
-
-namespace
-{
-VkFormat ToVkFormat(Format format)
-{
-    switch (format)
-    {
-    case Format::RGBA8_UNorm:
-        return VK_FORMAT_R8G8B8A8_UNORM;
-    case Format::RGBA8_sRGB:
-        return VK_FORMAT_R8G8B8A8_SRGB;
-    case Format::BGRA8_sRGB:
-        return VK_FORMAT_B8G8R8A8_SRGB;
-    case Format::D32_Float:
-        return VK_FORMAT_D32_SFLOAT;
-    case Format::D32_Float_S8_UInt:
-        return VK_FORMAT_D32_SFLOAT_S8_UINT;
-    case Format::D24_UNorm_S8_UInt:
-        return VK_FORMAT_D24_UNORM_S8_UINT;
-    default:
-        return VK_FORMAT_UNDEFINED;
-    }
-}
-
-VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage)
-{
-    VkImageUsageFlags result = 0;
-
-    if ((usage & TextureUsage::TransferSrc) != TextureUsage::None)
-    {
-        result |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    }
-    if ((usage & TextureUsage::TransferDst) != TextureUsage::None)
-    {
-        result |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    }
-    if ((usage & TextureUsage::Sampled) != TextureUsage::None)
-    {
-        result |= VK_IMAGE_USAGE_SAMPLED_BIT;
-    }
-    if ((usage & TextureUsage::ColorAttachment) != TextureUsage::None)
-    {
-        result |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-    }
-    if ((usage & TextureUsage::DepthAttachment) != TextureUsage::None)
-    {
-        result |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    }
-
-    return result;
-}
-
-VkImageAspectFlags ToVkImageAspectFlags(Format format)
-{
-    switch (format)
-    {
-    case Format::D32_Float:
-        return VK_IMAGE_ASPECT_DEPTH_BIT;
-
-    case Format::D32_Float_S8_UInt:
-    case Format::D24_UNorm_S8_UInt:
-        return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-
-    default:
-        return VK_IMAGE_ASPECT_COLOR_BIT;
-    }
-}
-} // namespace
 
 } // namespace URay::Render

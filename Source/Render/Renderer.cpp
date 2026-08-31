@@ -15,8 +15,11 @@
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/SwapChain.h"
+#include "Render/RHI/Texture/Texture.h"
+#include "Render/RHI/Texture/TextureDesc.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
+#include "Render/RHI/Vulkan/VulkanUtils.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderPass/RenderPass.h"
 #include "Render/Scene/RenderScene.h"
@@ -96,7 +99,8 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
     swapChainFramebuffers.resize(swapChain->GetImageViews().size());
     for (size_t i = 0; i < swapChain->GetImageViews().size(); ++i)
     {
-        std::array<VkImageView, 2> attachments = { swapChain->GetImageView(i), depthImageView };
+        std::array<VkImageView, 2> attachments = { swapChain->GetImageView(i),
+                                                   depthTextureView->GetHandle() };
 
         FramebufferDesc desc = {};
         desc.renderPass = swapChainRenderPass;
@@ -535,7 +539,8 @@ void Renderer::RecreateSwapChain()
 
     for (size_t i = 0; i < swapChain->GetImageViews().size(); ++i)
     {
-        std::array<VkImageView, 2> attachments = { swapChain->GetImageView(i), depthImageView };
+        std::array<VkImageView, 2> attachments = { swapChain->GetImageView(i),
+                                                   depthTextureView->GetHandle() };
 
         FramebufferDesc desc = {};
         desc.renderPass = swapChainRenderPass;
@@ -646,7 +651,7 @@ bool Renderer::CreateRenderPass()
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
     VkAttachmentDescription depthAttachment = {};
-    depthAttachment.format = FindDepthFormat();
+    depthAttachment.format = Vulkan::ToVkFormat(FindDepthFormat());
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -814,22 +819,36 @@ void Renderer::DestroySyncObjects()
 
 bool Renderer::CreateDepthResources()
 {
-    VkFormat depthFormat = FindDepthFormat();
-    VkExtent2D swapChainExtent = swapChain->GetExtent();
+    TextureDesc desc = {};
+    desc.width = swapChain->GetExtent().width;
+    desc.height = swapChain->GetExtent().height;
+    desc.format = FindDepthFormat();
+    desc.usage = TextureUsage::DepthAttachment;
 
-    device.CreateImage(swapChainExtent.width, swapChainExtent.height, depthFormat, VK_IMAGE_TILING_OPTIMAL,
-                       VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                       depthImage, depthImageMemory);
-    depthImageView = device.CreateImageView(depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
+    depthTexture.reset(device.CreateTexture(desc));
+    if (!depthTexture)
+        return false;
+
+    depthTextureView.reset(device.CreateTextureView(depthTexture.get()));
+    if (!depthTextureView)
+    {
+        depthTexture.reset();
+        return false;
+    }
 
     return true;
 }
 
 void Renderer::DestroyDepthResources()
 {
-    vkDestroyImageView(device.GetVKDevice(), depthImageView, nullptr);
-    vkDestroyImage(device.GetVKDevice(), depthImage, nullptr);
-    vkFreeMemory(device.GetVKDevice(), depthImageMemory, nullptr);
+    if (depthTextureView)
+    {
+        depthTextureView.reset();
+    }
+    if (depthTexture)
+    {
+        depthTexture.reset();
+    }
 }
 
 bool Renderer::CreateFrameDescriptorSetLayout()
@@ -957,10 +976,16 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
-VkFormat Renderer::FindDepthFormat() const
+Format Renderer::FindDepthFormat() const
 {
-    return FindSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
-                               VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+    const VkFormat format = FindSupportedFormat(
+        { VK_FORMAT_D32_SFLOAT,
+          VK_FORMAT_D32_SFLOAT_S8_UINT,
+          VK_FORMAT_D24_UNORM_S8_UINT },
+        VK_IMAGE_TILING_OPTIMAL,
+        VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+
+    return Vulkan::FromVkFormat(format);
 }
 
 bool Renderer::HasStencilComponent(VkFormat format) const
