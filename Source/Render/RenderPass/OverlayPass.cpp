@@ -16,6 +16,7 @@ void OverlayPass::Begin(const RenderPassContext& context)
 
 void OverlayPass::End(const RenderPassContext& context)
 {
+    context.renderer.EndScenePass();
 }
 
 void OverlayPass::Execute(

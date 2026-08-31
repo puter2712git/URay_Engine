@@ -36,6 +36,8 @@ public:
 
     void Execute(const std::vector<RenderScene*>& scenes);
 
+    void AddRenderPass(std::unique_ptr<RenderPass> pass);
+
     DrawCommandBuilder& GetBuilder() { return *builder; }
 
 private:

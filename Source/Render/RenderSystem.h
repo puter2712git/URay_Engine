@@ -36,9 +36,6 @@ public:
     bool BeginFrame();
     void EndFrame();
 
-    void BeginImGui();
-    void EndImGui();
-
     Renderer& GetRenderer() const { return *renderer; }
     RenderDevice& GetDevice() const { return *device; }
     GPUResourceManager& GetResourceManager() const { return *resourceManager; }

@@ -17,7 +17,7 @@ public:
 
     void Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds) override;
 
-    RenderPassId GetPassId() const { return RenderPassId::Opaque; }
+    RenderPassId GetPassId() const override { return RenderPassId::Opaque; }
 };
 
 } // namespace URay::Render

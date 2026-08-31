@@ -116,14 +116,4 @@ void RenderSystem::EndFrame()
     renderer->EndFrame();
 }
 
-void RenderSystem::BeginImGui()
-{
-    renderer->BeginImGui();
-}
-
-void RenderSystem::EndImGui()
-{
-    renderer->EndImGui();
-}
-
 } // namespace URay::Render

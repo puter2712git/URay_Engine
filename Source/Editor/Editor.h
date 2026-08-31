@@ -19,6 +19,7 @@ class ViewportWidget;
 class UIInputRouter;
 class EditorSettings;
 class SelectionSystem;
+class WidgetDrawer;
 
 class Editor
 {
@@ -47,6 +48,8 @@ private:
     std::unique_ptr<Widget> rootWidget = nullptr;
 
     ViewportWidget* viewportWidget = nullptr;
+
+    std::unique_ptr<WidgetDrawer> widgetDrawer = nullptr;
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
     std::unique_ptr<EditorSettings> editorSettings = nullptr;

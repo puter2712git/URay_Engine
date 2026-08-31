@@ -42,7 +42,6 @@ void EditorApplication::Run()
         editor->PrepareRender();
 
         engine->Render();
-        engine->EndRender();
 
         analytics.EndFrame();
     }

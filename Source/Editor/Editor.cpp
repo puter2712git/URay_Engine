@@ -14,6 +14,7 @@
 #include "Editor/Widget/StatusWidget.h"
 #include "Editor/Widget/ViewportWidget.h"
 #include "Editor/Widget/Widget.h"
+#include "Editor/Widget/WidgetDrawer.h"
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/CameraComponent.h"
@@ -28,6 +29,7 @@
 #include "Core/File/VirtualPath.h"
 #include "Core/Timer.h"
 
+#include "Render/RenderPass/UIPass.h"
 #include "Render/RenderPipeline.h"
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
@@ -79,6 +81,13 @@ bool Editor::Initialize()
         std::move(leftPanel),
         std::move(rightPanel));
 
+    std::vector<Widget*> rootWidgets = { mainMenuBarWidget.get(), rootWidget.get() };
+    widgetDrawer = std::make_unique<WidgetDrawer>(rootWidgets);
+
+    Render::RenderPipeline& pipeline = renderSystem.GetPipeline();
+    std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>(*widgetDrawer);
+    pipeline.AddRenderPass(std::move(uiPass));
+
     EditorSettingsContext settingsContext = {
         .rootWidget = *rootWidget
     };
@@ -129,6 +138,11 @@ void Editor::Finalize()
 
     editorSettings->Save(settingsContext);
 
+    if (widgetDrawer)
+    {
+        widgetDrawer.reset();
+    }
+
     mainMenuBarWidget.reset();
     rootWidget.reset();
 
@@ -158,17 +172,11 @@ void Editor::PrepareRender()
 
     rootWidget->PrepareRender(builder);
 
-    renderer.BeginImGui();
-
-    mainMenuBarWidget->Draw();
-
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     rootWidget->Arrange({
         Vector2(viewport->WorkPos.x, viewport->WorkPos.y),
         Vector2(viewport->WorkSize.x, viewport->WorkSize.y),
     });
-
-    rootWidget->Draw();
 }
 
 CameraComponent& Editor::PrepareEditorScene()

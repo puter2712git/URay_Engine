@@ -4,6 +4,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <vector>
+
 namespace URay::Render
 {
 
@@ -13,6 +15,7 @@ class VertexBuffer;
 class IndexBuffer;
 class PipelineLayout;
 class DescriptorSet;
+class Framebuffer;
 
 struct RenderPassBeginInfo;
 
@@ -27,7 +30,11 @@ public:
     bool End();
     bool Reset();
 
-    void BeginRenderPass(const RenderPassBeginInfo& info);
+    void BeginRenderPass(
+        VkRenderPass pass,
+        Framebuffer& framebuffer,
+        VkRect2D renderArea,
+        const std::vector<VkClearValue>& clearValues);
     void EndRenderPass();
 
     void BindPipeline(const PipelineState& pso);

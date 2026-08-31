@@ -5,6 +5,7 @@
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/CommandBuffer/RenderPassBeginInfo.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
@@ -59,18 +60,21 @@ bool CommandBuffer::Reset()
     return true;
 }
 
-void CommandBuffer::BeginRenderPass(const RenderPassBeginInfo& info)
+void CommandBuffer::BeginRenderPass(
+    VkRenderPass pass,
+    Framebuffer& framebuffer,
+    VkRect2D renderArea,
+    const std::vector<VkClearValue>& clearValues)
 {
     VkRenderPassBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    beginInfo.renderPass = info.renderPass;
-    beginInfo.framebuffer = info.framebuffer;
-    beginInfo.renderArea = info.renderArea;
+    beginInfo.renderPass = pass;
+    beginInfo.framebuffer = framebuffer.GetHandle();
+    beginInfo.renderArea = renderArea;
+    beginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    beginInfo.pClearValues = clearValues.data();
 
-    beginInfo.clearValueCount = static_cast<uint32_t>(info.clearValues.size());
-    beginInfo.pClearValues = info.clearValues.data();
-
-    vkCmdBeginRenderPass(handle, &beginInfo, info.contents);
+    vkCmdBeginRenderPass(handle, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void CommandBuffer::EndRenderPass()

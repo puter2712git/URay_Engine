@@ -15,6 +15,7 @@ OpaquePass::~OpaquePass() = default;
 
 void OpaquePass::Begin(const RenderPassContext& context)
 {
+    context.renderer.BeginScenePass();
 }
 
 void OpaquePass::End(const RenderPassContext& context)

@@ -5,11 +5,13 @@
 namespace URay::Render
 {
 
-class OverlayPass final : public RenderPass
+class ImGuiDrawable;
+
+class UIPass final : public RenderPass
 {
 public:
-    OverlayPass();
-    ~OverlayPass() override;
+    explicit UIPass(ImGuiDrawable& drawable);
+    ~UIPass() override;
 
 public:
     void Begin(const RenderPassContext& context) override;
@@ -17,7 +19,10 @@ public:
 
     void Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds) override;
 
-    RenderPassId GetPassId() const override { return RenderPassId::Overlay; }
+    RenderPassId GetPassId() const override { return RenderPassId::UI; }
+
+private:
+    ImGuiDrawable& drawable;
 };
 
 } // namespace URay::Render

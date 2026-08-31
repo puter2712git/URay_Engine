@@ -126,6 +126,7 @@ void Engine::BeginRender()
     URAY_PROFILE_SCOPE("Engine::BeginRender");
 
     renderSystem->GetPipeline().Reset();
+
     renderSystem->BeginFrame();
 }
 
@@ -141,20 +142,7 @@ void Engine::Render()
 
     Render::Renderer& renderer = renderSystem->GetRenderer();
 
-    renderer.BeginScenePass();
     renderSystem->GetPipeline().Execute(renderScenes);
-    renderer.EndScenePass();
-}
-
-void Engine::EndRender()
-{
-    URAY_PROFILE_SCOPE("Engine::EndRender");
-
-    Render::Renderer& renderer = renderSystem->GetRenderer();
-
-    renderer.BeginSwapChainPass();
-    renderer.EndImGui();
-    renderer.EndSwapChainPass();
     renderer.EndFrame();
 }
 

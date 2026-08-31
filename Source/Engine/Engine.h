@@ -35,7 +35,6 @@ public:
 
     void BeginRender();
     void Render();
-    void EndRender();
 
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }

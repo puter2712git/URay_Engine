@@ -125,6 +125,11 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
     }
 }
 
+void RenderPipeline::AddRenderPass(std::unique_ptr<RenderPass> pass)
+{
+    passes.push_back(std::move(pass));
+}
+
 ViewObject* RenderPipeline::FindView(const std::vector<RenderScene*>& scenes) const
 {
     for (const RenderScene* scene : scenes)
