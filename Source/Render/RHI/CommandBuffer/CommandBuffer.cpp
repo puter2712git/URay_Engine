@@ -117,6 +117,40 @@ void CommandBuffer::BindDescriptorSet(
         nullptr);
 }
 
+void CommandBuffer::SetViewport(
+    float x,
+    float y,
+    float width,
+    float height,
+    float minDepth,
+    float maxDepth)
+{
+    VkViewport viewport = {};
+    viewport.x = x;
+    viewport.y = y;
+    viewport.width = width;
+    viewport.height = height;
+    viewport.minDepth = minDepth;
+    viewport.maxDepth = maxDepth;
+
+    vkCmdSetViewport(handle, 0, 1, &viewport);
+}
+
+void CommandBuffer::SetScissor(
+    int offsetX,
+    int offsetY,
+    uint32_t width,
+    uint32_t height)
+{
+    VkRect2D scissor = {};
+    scissor.offset.x = offsetX;
+    scissor.offset.y = offsetY;
+    scissor.extent.width = width;
+    scissor.extent.height = height;
+
+    vkCmdSetScissor(handle, 0, 1, &scissor);
+}
+
 void CommandBuffer::Draw(uint32_t vertexCount)
 {
     vkCmdDraw(handle, vertexCount, 1, 0, 0);

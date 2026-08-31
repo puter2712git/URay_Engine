@@ -46,6 +46,9 @@ public:
         const DescriptorSet& descriptorSet,
         uint32_t set);
 
+    void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth);
+    void SetScissor(int offsetX, int offsetY, uint32_t width, uint32_t height);
+
     void Draw(uint32_t vertexCount);
     void DrawIndexed(uint32_t indexCount, uint32_t indexOffset);
 

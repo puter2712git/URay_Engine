@@ -324,22 +324,18 @@ void Renderer::BeginScenePass()
         renderArea,
         clearValues);
 
-    VkViewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = static_cast<float>(sceneRenderTarget->GetExtent().height);
-    viewport.width = static_cast<float>(sceneRenderTarget->GetExtent().width);
-    viewport.height = -static_cast<float>(sceneRenderTarget->GetExtent().height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffers[currentFrame]->GetHandle(), 0, 1, &viewport);
-
-    VkRect2D scissor = {};
-    scissor.offset = { 0, 0 };
-    scissor.extent = {
-        .width = sceneRenderTarget->GetExtent().width,
-        .height = sceneRenderTarget->GetExtent().height,
-    };
-    vkCmdSetScissor(commandBuffers[currentFrame]->GetHandle(), 0, 1, &scissor);
+    commandBuffers[currentFrame]->SetViewport(
+        0.0f,
+        static_cast<float>(sceneRenderTarget->GetExtent().height),
+        static_cast<float>(sceneRenderTarget->GetExtent().width),
+        -static_cast<float>(sceneRenderTarget->GetExtent().height),
+        0.0f,
+        1.0f);
+    commandBuffers[currentFrame]->SetScissor(
+        0,
+        0,
+        sceneRenderTarget->GetExtent().width,
+        sceneRenderTarget->GetExtent().height);
 }
 
 void Renderer::EndScenePass()
@@ -363,19 +359,18 @@ void Renderer::BeginSwapChainPass()
         renderArea,
         clearValues);
 
-    VkViewport viewport = {};
-    viewport.x = 0.0f;
-    viewport.y = static_cast<float>(swapChain->GetExtent().height);
-    viewport.width = static_cast<float>(swapChain->GetExtent().width);
-    viewport.height = -static_cast<float>(swapChain->GetExtent().height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffers[currentFrame]->GetHandle(), 0, 1, &viewport);
-
-    VkRect2D scissor = {};
-    scissor.offset = { 0, 0 };
-    scissor.extent = swapChain->GetExtent();
-    vkCmdSetScissor(commandBuffers[currentFrame]->GetHandle(), 0, 1, &scissor);
+    commandBuffers[currentFrame]->SetViewport(
+        0.0f,
+        static_cast<float>(swapChain->GetExtent().height),
+        static_cast<float>(swapChain->GetExtent().width),
+        -static_cast<float>(swapChain->GetExtent().height),
+        0.0f,
+        1.0f);
+    commandBuffers[currentFrame]->SetScissor(
+        0,
+        0,
+        swapChain->GetExtent().width,
+        swapChain->GetExtent().height);
 }
 
 void Renderer::EndSwapChainPass()
