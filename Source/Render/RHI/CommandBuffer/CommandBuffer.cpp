@@ -1,6 +1,7 @@
 #include "CommandBuffer.h"
 
 #include "Render/RHI/CommandBuffer/CommandPool.h"
+#include "Render/RHI/CommandBuffer/RenderPassBeginInfo.h"
 #include "Render/RHI/RenderDevice.h"
 
 namespace URay::Render
@@ -43,6 +44,33 @@ bool CommandBuffer::End()
         return false;
 
     return true;
+}
+
+bool CommandBuffer::Reset()
+{
+    if (vkResetCommandBuffer(handle, 0) != VK_SUCCESS)
+        return false;
+
+    return true;
+}
+
+void CommandBuffer::BeginRenderPass(const RenderPassBeginInfo& info)
+{
+    VkRenderPassBeginInfo beginInfo = {};
+    beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    beginInfo.renderPass = info.renderPass;
+    beginInfo.framebuffer = info.framebuffer;
+    beginInfo.renderArea = info.renderArea;
+
+    beginInfo.clearValueCount = static_cast<uint32_t>(info.clearValues.size());
+    beginInfo.pClearValues = info.clearValues.data();
+
+    vkCmdBeginRenderPass(handle, &beginInfo, info.contents);
+}
+
+void CommandBuffer::EndRenderPass()
+{
+    vkCmdEndRenderPass(handle);
 }
 
 } // namespace URay::Render

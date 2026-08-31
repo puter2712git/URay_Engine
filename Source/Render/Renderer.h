@@ -34,6 +34,8 @@ class ShaderManager;
 class RenderScene;
 class Framebuffer;
 class SwapChain;
+class CommandPool;
+class CommandBuffer;
 
 struct ObjectConstants
 {
@@ -147,8 +149,8 @@ private:
     VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
     VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
 
-    VkCommandPool commandPool = VK_NULL_HANDLE;
-    std::vector<VkCommandBuffer> commandBuffers;
+    std::unique_ptr<CommandPool> commandPool = nullptr;
+    std::vector<std::unique_ptr<CommandBuffer>> commandBuffers;
 
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;

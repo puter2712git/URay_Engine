@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/RHI/CommandBuffer/CommandPoolFlags.h"
+#include "Render/RHI/Queue/QueueType.h"
 #include "Render/Vertex.h"
 
 #include <spirv/spirv_reflect.h>
@@ -84,7 +86,7 @@ public:
     Framebuffer* CreateFramebuffer(const FramebufferDesc& desc);
     SwapChain* CreateSwapChain(const SwapChainDesc& desc);
 
-    CommandPool* CreateCommandPool();
+    CommandPool* CreateCommandPool(QueueType queueType, CommandPoolFlags poolFlags);
 
     void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                       VkMemoryPropertyFlags properties,

@@ -4,6 +4,9 @@
 #include "Render/GPUResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
+#include "Render/RHI/CommandBuffer/CommandBuffer.h"
+#include "Render/RHI/CommandBuffer/CommandPool.h"
+#include "Render/RHI/CommandBuffer/RenderPassBeginInfo.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Framebuffer.h"
@@ -227,14 +230,10 @@ bool Renderer::BeginFrame()
 
     vkResetFences(device.GetVKDevice(), 1, &inFlightFences[currentFrame]);
 
-    vkResetCommandBuffer(commandBuffers[currentFrame], 0);
+    if (!commandBuffers[currentFrame]->Reset())
+        return false;
 
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = 0;
-    beginInfo.pInheritanceInfo = nullptr;
-
-    if (vkBeginCommandBuffer(commandBuffers[currentFrame], &beginInfo) != VK_SUCCESS)
+    if (!commandBuffers[currentFrame]->Begin(CommandBufferUsage::None))
         return false;
 
     FrameConstants frameConstants = {};
@@ -249,11 +248,13 @@ bool Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
-    if (vkEndCommandBuffer(commandBuffers[currentFrame]) != VK_SUCCESS)
+    if (!commandBuffers[currentFrame]->End())
         return;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkCommandBuffer vkCommandBuffer = commandBuffers[currentFrame]->GetHandle();
 
     VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
@@ -261,7 +262,7 @@ void Renderer::EndFrame()
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[currentFrame];
+    submitInfo.pCommandBuffers = &vkCommandBuffer;
 
     VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
     submitInfo.signalSemaphoreCount = 1;
@@ -298,24 +299,22 @@ void Renderer::EndFrame()
 
 void Renderer::BeginScenePass()
 {
-    VkRenderPassBeginInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = sceneRenderPass;
-    renderPassInfo.framebuffer = sceneFramebuffer->GetHandle();
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = {
+    RenderPassBeginInfo beginInfo = {};
+    beginInfo.renderPass = sceneRenderPass;
+    beginInfo.framebuffer = sceneFramebuffer->GetHandle();
+    beginInfo.renderArea.offset = { 0, 0 };
+    beginInfo.renderArea.extent = {
         .width = sceneRenderTarget->GetExtent().width,
         .height = sceneRenderTarget->GetExtent().height,
     };
 
     std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+    clearValues[0].color = { .float32 = { 0.01f, 0.01f, 0.01f, 1.0f } };
     clearValues[1].depthStencil = { 1.0f, 0 };
 
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
+    beginInfo.clearValues = clearValues;
 
-    vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    commandBuffers[currentFrame]->BeginRenderPass(beginInfo);
 
     VkViewport viewport = {};
     viewport.x = 0.0f;
@@ -324,7 +323,7 @@ void Renderer::BeginScenePass()
     viewport.height = -static_cast<float>(sceneRenderTarget->GetExtent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+    vkCmdSetViewport(commandBuffers[currentFrame]->GetHandle(), 0, 1, &viewport);
 
     VkRect2D scissor = {};
     scissor.offset = { 0, 0 };
@@ -332,33 +331,31 @@ void Renderer::BeginScenePass()
         .width = sceneRenderTarget->GetExtent().width,
         .height = sceneRenderTarget->GetExtent().height,
     };
-    vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
+    vkCmdSetScissor(commandBuffers[currentFrame]->GetHandle(), 0, 1, &scissor);
 }
 
 void Renderer::EndScenePass()
 {
-    vkCmdEndRenderPass(commandBuffers[currentFrame]);
+    commandBuffers[currentFrame]->EndRenderPass();
 }
 
 void Renderer::BeginSwapChainPass()
 {
     const VkExtent2D swapChainExtent = swapChain->GetExtent();
 
-    VkRenderPassBeginInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassInfo.renderPass = swapChainRenderPass;
-    renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex]->GetHandle();
-    renderPassInfo.renderArea.offset = { 0, 0 };
-    renderPassInfo.renderArea.extent = swapChainExtent;
+    RenderPassBeginInfo beginInfo = {};
+    beginInfo.renderPass = swapChainRenderPass;
+    beginInfo.framebuffer = swapChainFramebuffers[imageIndex]->GetHandle();
+    beginInfo.renderArea.offset = { 0, 0 };
+    beginInfo.renderArea.extent = swapChainExtent;
 
     std::array<VkClearValue, 2> clearValues = {};
-    clearValues[0].color = { { 0.0f, 0.0f, 0.0f, 1.0f } };
+    clearValues[0].color = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
     clearValues[1].depthStencil = { 1.0f, 0 };
 
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-    renderPassInfo.pClearValues = clearValues.data();
+    beginInfo.clearValues = clearValues;
 
-    vkCmdBeginRenderPass(commandBuffers[currentFrame], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    commandBuffers[currentFrame]->BeginRenderPass(beginInfo);
 
     VkViewport viewport = {};
     viewport.x = 0.0f;
@@ -367,17 +364,17 @@ void Renderer::BeginSwapChainPass()
     viewport.height = -static_cast<float>(swapChainExtent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(commandBuffers[currentFrame], 0, 1, &viewport);
+    vkCmdSetViewport(commandBuffers[currentFrame]->GetHandle(), 0, 1, &viewport);
 
     VkRect2D scissor = {};
     scissor.offset = { 0, 0 };
     scissor.extent = swapChainExtent;
-    vkCmdSetScissor(commandBuffers[currentFrame], 0, 1, &scissor);
+    vkCmdSetScissor(commandBuffers[currentFrame]->GetHandle(), 0, 1, &scissor);
 }
 
 void Renderer::EndSwapChainPass()
 {
-    vkCmdEndRenderPass(commandBuffers[currentFrame]);
+    commandBuffers[currentFrame]->EndRenderPass();
 }
 
 void Renderer::BeginImGui()
@@ -392,7 +389,9 @@ void Renderer::EndImGui()
     ImGui::Render();
     ImDrawData* drawData = ImGui::GetDrawData();
 
-    ImGui_ImplVulkan_RenderDrawData(drawData, commandBuffers[currentFrame]);
+    ImGui_ImplVulkan_RenderDrawData(
+        drawData,
+        commandBuffers[currentFrame]->GetHandle());
 }
 
 void Renderer::WaitIdle()
@@ -446,7 +445,7 @@ void Renderer::ClearSceneDepth(float depth, uint32_t stencil)
     rect.layerCount = 1;
 
     vkCmdClearAttachments(
-        commandBuffers[currentFrame],
+        commandBuffers[currentFrame]->GetHandle(),
         1,
         &attachment,
         1,
@@ -456,10 +455,10 @@ void Renderer::ClearSceneDepth(float depth, uint32_t stencil)
 void Renderer::Draw(const DrawCommand& cmd)
 {
     PipelineState* pso = resourceManager.GetOrCreatePSO(cmd.pipelineState, sceneRenderPass);
-    vkCmdBindPipeline(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, pso->GetHandle());
+    vkCmdBindPipeline(commandBuffers[currentFrame]->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS, pso->GetHandle());
 
     VkDescriptorSet vkFrameDescriptorSet = frameDescriptorSets[currentFrame]->GetHandle();
-    vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+    vkCmdBindDescriptorSets(commandBuffers[currentFrame]->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
                             pso->GetLayout()->GetHandle(), 0, 1, &vkFrameDescriptorSet, 0, nullptr);
 
     if (cmd.descriptorSet)
@@ -467,7 +466,7 @@ void Renderer::Draw(const DrawCommand& cmd)
         VkDescriptorSet vkDescriptorSet = cmd.descriptorSet->GetHandle();
         if (vkDescriptorSet != VK_NULL_HANDLE)
         {
-            vkCmdBindDescriptorSets(commandBuffers[currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS,
+            vkCmdBindDescriptorSets(commandBuffers[currentFrame]->GetHandle(), VK_PIPELINE_BIND_POINT_GRAPHICS,
                                     pso->GetLayout()->GetHandle(), 1, 1, &vkDescriptorSet, 0, nullptr);
         }
     }
@@ -479,25 +478,25 @@ void Renderer::Draw(const DrawCommand& cmd)
 
     if (pso->GetLayout()->SupportsPushConstants())
     {
-        vkCmdPushConstants(commandBuffers[currentFrame], pso->GetLayout()->GetHandle(),
+        vkCmdPushConstants(commandBuffers[currentFrame]->GetHandle(), pso->GetLayout()->GetHandle(),
                            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
                            0, sizeof(objConstants), &objConstants);
     }
 
     VkBuffer vertexBuffers[] = { static_cast<VkBuffer>(cmd.vertexBuffer) };
     VkDeviceSize offsets[] = { 0 };
-    vkCmdBindVertexBuffers(commandBuffers[currentFrame], 0, 1, vertexBuffers, offsets);
+    vkCmdBindVertexBuffers(commandBuffers[currentFrame]->GetHandle(), 0, 1, vertexBuffers, offsets);
 
     if (cmd.indexBuffer)
     {
         VkBuffer indexBuffer = static_cast<VkBuffer>(cmd.indexBuffer);
-        vkCmdBindIndexBuffer(commandBuffers[currentFrame], indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        vkCmdBindIndexBuffer(commandBuffers[currentFrame]->GetHandle(), indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 
-        vkCmdDrawIndexed(commandBuffers[currentFrame], cmd.indexCount, 1, cmd.indexOffset, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[currentFrame]->GetHandle(), cmd.indexCount, 1, cmd.indexOffset, 0, 0);
     }
     else
     {
-        vkCmdDraw(commandBuffers[currentFrame], cmd.vertexCount, 1, 0, 0);
+        vkCmdDraw(commandBuffers[currentFrame]->GetHandle(), cmd.vertexCount, 1, 0, 0);
     }
 }
 
@@ -755,14 +754,8 @@ void Renderer::DestroySceneFramebuffer()
 
 bool Renderer::CreateCommandPool()
 {
-    QueueFamilyIndices queueFamilyIndices = device.FindQueueFamilyIndices(device.GetPhysicalDevice());
-
-    VkCommandPoolCreateInfo poolInfo = {};
-    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-
-    if (vkCreateCommandPool(device.GetVKDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+    commandPool.reset(device.CreateCommandPool(QueueType::Graphics, CommandPoolFlags::ResetCommandBuffer));
+    if (!commandPool)
         return false;
 
     return true;
@@ -770,21 +763,20 @@ bool Renderer::CreateCommandPool()
 
 void Renderer::DestroyCommandPool()
 {
-    vkDestroyCommandPool(device.GetVKDevice(), commandPool, nullptr);
+    if (commandPool)
+    {
+        commandBuffers.clear();
+        commandPool.reset();
+    }
 }
 
 bool Renderer::CreateCommandBuffer()
 {
     commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = commandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
-
-    if (vkAllocateCommandBuffers(device.GetVKDevice(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-        return false;
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        commandBuffers[i].reset(commandPool->Allocate());
+    }
 
     return true;
 }

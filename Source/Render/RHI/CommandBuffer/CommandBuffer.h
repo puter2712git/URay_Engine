@@ -9,6 +9,8 @@ namespace URay::Render
 
 class CommandPool;
 
+struct RenderPassBeginInfo;
+
 class CommandBuffer
 {
 public:
@@ -18,6 +20,10 @@ public:
 public:
     bool Begin(CommandBufferUsage usage);
     bool End();
+    bool Reset();
+
+    void BeginRenderPass(const RenderPassBeginInfo& info);
+    void EndRenderPass();
 
     VkCommandBuffer GetHandle() const { return handle; }
 

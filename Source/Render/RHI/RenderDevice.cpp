@@ -58,7 +58,7 @@ bool RenderDevice::Initialize()
     if (!CreateLogicalDevice())
         return false;
 
-    commandPool.reset(CreateCommandPool());
+    commandPool.reset(CreateCommandPool(QueueType::Graphics, CommandPoolFlags::Transient));
     if (!commandPool)
         return false;
 
@@ -572,14 +572,24 @@ SwapChain* RenderDevice::CreateSwapChain(const SwapChainDesc& desc)
     return swapChain;
 }
 
-CommandPool* RenderDevice::CreateCommandPool()
+CommandPool* RenderDevice::CreateCommandPool(QueueType queueType, CommandPoolFlags poolFlags)
 {
     const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+    uint32_t queueFamilyIndex = 0;
+
+    switch (queueType)
+    {
+    case QueueType::Graphics:
+        queueFamilyIndex = indices.graphicsFamily.value();
+        break;
+    default:
+        break;
+    }
 
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
+    poolInfo.flags = static_cast<uint32_t>(poolFlags);
+    poolInfo.queueFamilyIndex = queueFamilyIndex;
 
     VkCommandPool handle = VK_NULL_HANDLE;
 
