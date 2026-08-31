@@ -1,0 +1,30 @@
+#pragma once
+
+#include "Render/RHI/CommandBuffer/CommandBufferUsage.h"
+
+#include <vulkan/vulkan.h>
+
+namespace URay::Render
+{
+
+class CommandPool;
+
+class CommandBuffer
+{
+public:
+    CommandBuffer(CommandPool& pool, VkCommandBuffer handle);
+    ~CommandBuffer();
+
+public:
+    bool Begin(CommandBufferUsage usage);
+    bool End();
+
+    VkCommandBuffer GetHandle() const { return handle; }
+
+private:
+    CommandPool& pool;
+
+    VkCommandBuffer handle = VK_NULL_HANDLE;
+};
+
+} // namespace URay::Render

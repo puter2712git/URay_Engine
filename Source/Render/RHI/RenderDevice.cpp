@@ -5,6 +5,7 @@
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
@@ -57,11 +58,9 @@ bool RenderDevice::Initialize()
     if (!CreateLogicalDevice())
         return false;
 
-    CommandPool* cmdPool = CreateCommandPool();
-    if (!cmdPool)
+    commandPool.reset(CreateCommandPool());
+    if (!commandPool)
         return false;
-
-    commandPool.reset(cmdPool);
 
     VkDeviceSize frameBufferSize = sizeof(FrameConstants);
     frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -81,15 +80,11 @@ bool RenderDevice::Initialize()
 
     CreateDescriptorPool();
 
-    CreatePersistentVertexBuffer();
-
     return true;
 }
 
 void RenderDevice::Finalize()
 {
-    DestroyPersistentVertexBuffer();
-
     DestroyDescriptorPool();
 
     for (ConstantBuffer* buffer : frameConstantBuffers)
@@ -625,11 +620,11 @@ void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
 
 void RenderDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const
 {
-    VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+    CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
     VkBufferCopy copyRegion = {};
     copyRegion.size = size;
-    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+    vkCmdCopyBuffer(commandBuffer->GetHandle(), srcBuffer, dstBuffer, 1, &copyRegion);
 
     EndSingleTimeCommands(commandBuffer);
 }
@@ -687,7 +682,7 @@ bool RenderDevice::CreateImage(uint32_t width, uint32_t height,
 void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,
                                          VkImageLayout oldLayout, VkImageLayout newLayout) const
 {
-    VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+    CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier = {};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -744,7 +739,7 @@ void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,
         barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     }
 
-    vkCmdPipelineBarrier(commandBuffer, sourceStage, destinationStage,
+    vkCmdPipelineBarrier(commandBuffer->GetHandle(), sourceStage, destinationStage,
                          0, 0, nullptr, 0, nullptr, 1, &barrier);
 
     EndSingleTimeCommands(commandBuffer);
@@ -752,7 +747,7 @@ void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,
 
 void RenderDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const
 {
-    VkCommandBuffer commandBuffer = BeginSingleTimeCommands();
+    CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
     VkBufferImageCopy region = {};
     region.bufferOffset = 0;
@@ -767,7 +762,7 @@ void RenderDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wi
     region.imageOffset = { 0, 0, 0 };
     region.imageExtent = { width, height, 1 };
 
-    vkCmdCopyBufferToImage(commandBuffer, buffer, image,
+    vkCmdCopyBufferToImage(commandBuffer->GetHandle(), buffer, image,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
     EndSingleTimeCommands(commandBuffer);
@@ -935,39 +930,35 @@ bool RenderDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
     return requiredExtensions.empty();
 }
 
-VkCommandBuffer RenderDevice::BeginSingleTimeCommands() const
+CommandBuffer* RenderDevice::BeginSingleTimeCommands() const
 {
-    VkCommandBufferAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool->GetHandle();
-    allocInfo.commandBufferCount = 1;
+    CommandBuffer* commandBuffer = commandPool->Allocate();
 
-    VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
-
-    VkCommandBufferBeginInfo beginInfo = {};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    if (!commandBuffer->Begin(CommandBufferUsage::OneTimeSubmit))
+    {
+        delete commandBuffer;
+        return nullptr;
+    }
 
     return commandBuffer;
 }
 
-void RenderDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer) const
+void RenderDevice::EndSingleTimeCommands(CommandBuffer* commandBuffer) const
 {
-    vkEndCommandBuffer(commandBuffer);
+    if (!commandBuffer->End())
+        return;
+
+    VkCommandBuffer vkCommandBuffer = commandBuffer->GetHandle();
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.pCommandBuffers = &vkCommandBuffer;
 
     vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
     vkQueueWaitIdle(graphicsQueue);
 
-    vkFreeCommandBuffers(device, commandPool->GetHandle(), 1, &commandBuffer);
+    delete commandBuffer;
 }
 
 void RenderDevice::CreateDescriptorPool()
@@ -995,23 +986,6 @@ void RenderDevice::DestroyDescriptorPool()
     {
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
     }
-}
-
-void RenderDevice::CreatePersistentVertexBuffer()
-{
-    VkDeviceSize bufferSize = 1024 * 1024 * 4;
-
-    CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 persistentVertexBuffer, persistentVertexBufferMemory);
-
-    vkMapMemory(device, persistentVertexBufferMemory, 0, bufferSize, 0, &mappedPersistentVertexBufferData);
-}
-
-void RenderDevice::DestroyPersistentVertexBuffer()
-{
-    vkDestroyBuffer(device, persistentVertexBuffer, nullptr);
-    vkFreeMemory(device, persistentVertexBufferMemory, nullptr);
 }
 
 VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8_t>& code) const

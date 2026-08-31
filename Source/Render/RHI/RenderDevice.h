@@ -34,6 +34,7 @@ class PipelineState;
 class Framebuffer;
 class SwapChain;
 class CommandPool;
+class CommandBuffer;
 
 struct TextureDesc;
 struct TextureSamplerDesc;
@@ -117,14 +118,11 @@ private:
     bool IsDeviceSuitable(VkPhysicalDevice device) const;
     bool CheckDeviceExtensionSupport(VkPhysicalDevice device) const;
 
-    VkCommandBuffer BeginSingleTimeCommands() const;
-    void EndSingleTimeCommands(VkCommandBuffer commandBuffer) const;
+    CommandBuffer* BeginSingleTimeCommands() const;
+    void EndSingleTimeCommands(CommandBuffer* commandBuffer) const;
 
     void CreateDescriptorPool();
     void DestroyDescriptorPool();
-
-    void CreatePersistentVertexBuffer();
-    void DestroyPersistentVertexBuffer();
 
     VkShaderModule CreateShaderModule(const std::vector<uint8_t>& code) const;
 
@@ -147,12 +145,6 @@ private:
     std::vector<ConstantBuffer*> frameConstantBuffers;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
-
-public:
-    VkBuffer persistentVertexBuffer = VK_NULL_HANDLE;
-    VkDeviceMemory persistentVertexBufferMemory = VK_NULL_HANDLE;
-    void* mappedPersistentVertexBufferData = nullptr;
-    uint32_t vertexCount = 0;
 };
 
 } // namespace URay::Render

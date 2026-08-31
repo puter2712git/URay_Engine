@@ -6,6 +6,7 @@ namespace URay::Render
 {
 
 class RenderDevice;
+class CommandBuffer;
 
 class CommandPool
 {
@@ -14,6 +15,9 @@ public:
     ~CommandPool();
 
 public:
+    CommandBuffer* Allocate();
+
+    RenderDevice& GetDevice() const { return device; }
     VkCommandPool GetHandle() const { return handle; }
 
 private:
