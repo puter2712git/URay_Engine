@@ -48,32 +48,6 @@ void ConsoleWidget::OnDraw()
         return;
     }
 
-    ImGui::TextWrapped(
-        "This example implements a console with basic coloring, completion (TAB key) and history (Up/Down keys). A more elaborate "
-        "implementation may want to store entries along with extra data such as timestamp, emitter, etc.");
-    ImGui::TextWrapped("Enter 'HELP' for help.");
-
-    if (ImGui::SmallButton("Add Debug Text"))
-    {
-        AddLog("%d some text", items.Size);
-        AddLog("some more text");
-        AddLog("display very important message here!");
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Add Debug Error"))
-    {
-        AddLog("[error] something went wrong");
-    }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Clear"))
-    {
-        ClearLog();
-    }
-    ImGui::SameLine();
-    bool copy_to_clipboard = ImGui::SmallButton("Copy");
-
-    ImGui::Separator();
-
     if (ImGui::BeginPopup("Options"))
     {
         ImGui::Checkbox("Auto-scroll", &autoScroll);
@@ -124,8 +98,6 @@ void ConsoleWidget::OnDraw()
         // - Split them into same height items would be simpler and facilitate random-seeking into your list.
         // - Consider using manual call to IsRectVisible() and skipping extraneous decoration from your items.
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
-        if (copy_to_clipboard)
-            ImGui::LogToClipboard();
         for (const char* item : items)
         {
             if (!filter.PassFilter(item))
@@ -151,8 +123,6 @@ void ConsoleWidget::OnDraw()
             if (has_color)
                 ImGui::PopStyleColor();
         }
-        if (copy_to_clipboard)
-            ImGui::LogFinish();
 
         // Keep up at the bottom of the scroll region if we were already at the bottom at the beginning of the frame.
         // Using a scrollbar or mouse-wheel will take away from the bottom edge.
