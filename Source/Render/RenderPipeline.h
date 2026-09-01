@@ -21,6 +21,7 @@ class DrawCommandBuilder;
 class RenderSystem;
 class RenderScene;
 class ViewObject;
+class FogObject;
 
 class RenderPipeline
 {
@@ -42,6 +43,7 @@ public:
 
 private:
     ViewObject* FindView(const std::vector<RenderScene*>& scenes) const;
+    FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;
 
 private:
     RenderSystem& renderSystem;

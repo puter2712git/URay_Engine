@@ -10,7 +10,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/Scene/Object/MeshObject.h"
+#include "Render/Scene/Object/Drawable/MeshObject.h"
 
 #include <algorithm>
 

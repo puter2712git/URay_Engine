@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/Scene/Object/RenderObject.h"
+#include "Render/Scene/Object/Drawable/DrawableObject.h"
 
 #include <string>
 
@@ -19,7 +19,7 @@ struct TextObjectState
     std::string text;
 };
 
-class TextObject : public RenderObject
+class TextObject : public DrawableObject
 {
 public:
     TextObject(const TextObjectState& state);

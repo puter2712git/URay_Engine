@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/Scene/Object/BoundedObject.h"
-#include "Render/Scene/Object/RenderObject.h"
+#include "Render/Scene/Object/Drawable/DrawableObject.h"
 #include "Render/Vertex.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
@@ -25,7 +25,7 @@ struct MeshObjectState
     std::vector<Material*> materials;
 };
 
-class MeshObject : public RenderObject, public BoundedObject
+class MeshObject : public DrawableObject, public BoundedObject
 {
 public:
     MeshObject(const MeshObjectState& state);

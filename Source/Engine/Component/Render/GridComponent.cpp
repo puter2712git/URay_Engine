@@ -2,7 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/Scene/Object/LineObject.h"
+#include "Render/Scene/Object/Drawable/LineObject.h"
 
 namespace URay
 {

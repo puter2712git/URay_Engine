@@ -1,11 +1,11 @@
 #include "PropertyDrawer.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Engine.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
-#include "Engine/Object/Property/Property.h"
 #include "Engine/Asset/Texture/Texture.h"
+#include "Engine/Engine.h"
+#include "Engine/Object/Property/Property.h"
 
 #include "Core/Math/Vector3.h"
 
@@ -25,8 +25,14 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
     case PropertyType::Bool:
         isChanged = DrawBool(prop, addr);
         break;
+    case PropertyType::Float:
+        isChanged = DrawFloat(prop, addr);
+        break;
     case PropertyType::Vector3:
         isChanged = DrawVector3(prop, addr);
+        break;
+    case PropertyType::Vector4:
+        isChanged = DrawVector4(prop, addr);
         break;
     case PropertyType::String:
         isChanged = DrawString(prop, addr);
@@ -56,10 +62,24 @@ bool PropertyDrawer::DrawBool(Property& prop, void* addr)
     return ImGui::Checkbox(prop.name.c_str(), data);
 }
 
+bool PropertyDrawer::DrawFloat(Property& prop, void* addr)
+{
+    float* data = reinterpret_cast<float*>(
+        static_cast<uint8_t*>(addr) + prop.offset);
+    return ImGui::DragFloat(prop.name.c_str(), data, 0.1f);
+}
+
 bool PropertyDrawer::DrawVector3(Property& prop, void* addr)
 {
     Vector3* data = reinterpret_cast<Vector3*>(static_cast<uint8_t*>(addr) + prop.offset);
     return ImGui::DragFloat3(prop.name.c_str(), &data->x, 0.1f);
+}
+
+bool PropertyDrawer::DrawVector4(Property& prop, void* addr)
+{
+    Vector4* data = reinterpret_cast<Vector4*>(
+        static_cast<uint8_t*>(addr) + prop.offset);
+    return ImGui::DragFloat4(prop.name.c_str(), &data->x, 0.1f);
 }
 
 bool PropertyDrawer::DrawString(Property& prop, void* addr)

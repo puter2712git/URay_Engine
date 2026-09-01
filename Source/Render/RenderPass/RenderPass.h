@@ -18,6 +18,8 @@ class DescriptorSet;
 class RenderTarget;
 class Framebuffer;
 
+class FogObject;
+
 struct RenderPassContext
 {
     CommandBuffer& commandBuffer;
@@ -37,6 +39,8 @@ struct RenderPassContext
     VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
     Framebuffer& swapChainFramebuffer;
     VkExtent2D swapChainExtent = {};
+
+    FogObject* fogObject = nullptr;
 };
 
 class RenderPass

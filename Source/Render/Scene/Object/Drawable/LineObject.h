@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/Scene/Object/RenderObject.h"
+#include "Render/Scene/Object/Drawable/DrawableObject.h"
 
 #include "Core/Math/Color.h"
 #include "Core/Math/Vector3.h"
@@ -22,7 +22,7 @@ struct LineObjectState
     std::vector<Line> lines;
 };
 
-class LineObject : public RenderObject
+class LineObject : public DrawableObject
 {
 public:
     LineObject(const LineObjectState& state);

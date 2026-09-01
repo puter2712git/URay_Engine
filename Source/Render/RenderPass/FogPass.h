@@ -21,9 +21,9 @@ class ConstantBuffer;
 struct FogConstants
 {
     Color fogColor = Color::White;
-    float fogStart = 10.0f;
+    float fogStart = 1.0f;
     float fogEnd = 1000.0f;
-    float density = 10.0f;
+    float density = 1.0f;
     uint32_t enabled = false;
 };
 

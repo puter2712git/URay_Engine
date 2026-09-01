@@ -6,7 +6,7 @@
 #include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/TextObject.h"
+#include "Render/Scene/Object/Drawable/TextObject.h"
 
 namespace URay
 {

@@ -7,6 +7,8 @@
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Scene/Object/BoundedObject.h"
+#include "Render/Scene/Object/Drawable/DrawableObject.h"
+#include "Render/Scene/Object/FogObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -69,6 +71,8 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
     if (!view)
         return;
 
+    FogObject* fog = FindFog(scenes);
+
     Renderer& renderer = renderSystem.GetRenderer();
 
     const Matrix& viewMatrix = view->GetViewMatrix();
@@ -82,8 +86,11 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
     {
         for (RenderObject* object : scene->GetUnboundedObjects())
         {
-            if (object)
-                object->Submit(*builder);
+            if (DrawableObject* drawableObject =
+                    dynamic_cast<DrawableObject*>(object))
+            {
+                drawableObject->Submit(*builder);
+            }
         }
 
         std::vector<BoundedObject*> visibleObjects;
@@ -91,10 +98,10 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
 
         for (BoundedObject* boundedObject : visibleObjects)
         {
-            if (RenderObject* object =
-                    dynamic_cast<RenderObject*>(boundedObject))
+            if (DrawableObject* drawableObject =
+                    dynamic_cast<DrawableObject*>(boundedObject))
             {
-                object->Submit(*builder);
+                drawableObject->Submit(*builder);
             }
         }
     }
@@ -127,7 +134,9 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
 
         .swapChainRenderPass = renderer.GetSwapChainRenderPass(),
         .swapChainFramebuffer = renderer.GetSwapChainFramebuffer(),
-        .swapChainExtent = renderer.GetSwapChainExtent()
+        .swapChainExtent = renderer.GetSwapChainExtent(),
+
+        .fogObject = fog
     };
 
     for (auto& pass : passes)
@@ -154,6 +163,27 @@ ViewObject* RenderPipeline::FindView(const std::vector<RenderScene*>& scenes) co
         if (view)
         {
             return view;
+        }
+    }
+
+    return nullptr;
+}
+
+FogObject* RenderPipeline::FindFog(
+    const std::vector<RenderScene*>& scenes) const
+{
+    for (const RenderScene* scene : scenes)
+    {
+        size_t objCount = scene->GetObjectCount();
+
+        for (size_t i = 0; i < objCount; ++i)
+        {
+            RenderObject* robj = scene->GetObject(i);
+
+            if (FogObject* fog = dynamic_cast<FogObject*>(robj))
+            {
+                return fog;
+            }
         }
     }
 

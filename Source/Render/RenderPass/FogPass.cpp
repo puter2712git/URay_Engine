@@ -10,6 +10,7 @@
 #include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderSystem.h"
+#include "Render/Scene/Object/FogObject.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 
@@ -134,11 +135,16 @@ void FogPass::Execute(
     const std::vector<DrawCommand>&)
 {
     FogConstants constants = {};
-    constants.fogColor = Color(0.75f, 0.75f, 0.8f, 1.0f);
-    constants.fogStart = 5.0f;
-    constants.fogEnd = 20.0f;
-    constants.density = 0.8f;
-    constants.enabled = 1;
+    constants.enabled = 0;
+
+    if (context.fogObject)
+    {
+        constants.fogColor = context.fogObject->fogColor;
+        constants.fogStart = context.fogObject->fogStart;
+        constants.fogEnd = context.fogObject->fogEnd;
+        constants.density = context.fogObject->density;
+        constants.enabled = 1;
+    }
 
     constantBuffers[currentFrame]->UpdateData(
         &constants,
