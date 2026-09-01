@@ -1,7 +1,8 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "Core/Type/Types.h"
 
+#include <vulkan/vulkan.h>
 #include <memory>
 #include <vector>
 
@@ -27,14 +28,14 @@ public:
 
     bool Recreate(const SwapChainDesc& desc);
 
-    VkResult AcquireNextImage(VkSemaphore signalSemaphore, uint32_t& imageIndex);
-    VkResult Present(uint32_t imageIndex, VkSemaphore waitSemaphore);
+    VkResult AcquireNextImage(VkSemaphore signalSemaphore, uint32& imageIndex);
+    VkResult Present(uint32 imageIndex, VkSemaphore waitSemaphore);
 
     VkSwapchainKHR GetHandle() const { return handle; }
 
     VkExtent2D GetExtent() const { return extent; }
     VkFormat GetFormat() const { return format; }
-    VkImageView GetImageView(uint32_t index) const;
+    VkImageView GetImageView(uint32 index) const;
     const std::vector<VkImageView>& GetImageViews() const { return imageViews; }
 
 private:

@@ -3,6 +3,7 @@
 #include "Core/File/VirtualPath.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Type/Types.h"
 
 #include <string>
 #include <unordered_map>
@@ -80,7 +81,7 @@ private:
     struct MaterialImportResult
     {
         std::vector<Material*> materials;
-        std::unordered_map<std::string, uint32_t> slots;
+        std::unordered_map<std::string, uint32> slots;
     };
 
 public:

@@ -3,6 +3,7 @@
 #include "Render/RenderPass/RenderPass.h"
 
 #include "Core/Math/Color.h"
+#include "Core/Type/Types.h"
 
 #include <cstdint>
 #include <memory>
@@ -24,7 +25,7 @@ struct FogConstants
     float fogStart = 1.0f;
     float fogEnd = 1000.0f;
     float density = 1.0f;
-    uint32_t enabled = false;
+    uint32 enabled = false;
 };
 
 class FogPass final : public RenderPass

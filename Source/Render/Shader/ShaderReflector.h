@@ -3,8 +3,9 @@
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/PushConstantRange.h"
 
-#include <spirv/spirv_reflect.h>
+#include "Core/Type/Types.h"
 
+#include <spirv/spirv_reflect.h>
 #include <map>
 #include <vector>
 
@@ -17,13 +18,13 @@ class ShaderReflector
 {
 public:
     static bool ReflectSPIRV(
-        const std::vector<uint8_t>& code,
+        const std::vector<uint8>& code,
         ShaderReflection& outReflection);
 
 private:
     static bool CreateDescriptorSetLayoutDesc(
         const SpvReflectShaderModule& module,
-        std::map<uint32_t, DescriptorSetLayoutDesc>& outDescs);
+        std::map<uint32, DescriptorSetLayoutDesc>& outDescs);
 
     static bool CreatePushConstantRange(
         const SpvReflectShaderModule& module,

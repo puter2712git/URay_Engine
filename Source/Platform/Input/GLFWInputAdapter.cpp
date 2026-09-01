@@ -1,5 +1,7 @@
 #include "GLFWInputAdapter.h"
 
+#include "Core/Type/Types.h"
+
 #include <GLFW/glfw3.h>
 
 namespace URay::Platform
@@ -8,10 +10,10 @@ namespace URay::Platform
 namespace
 {
 
-static_assert(static_cast<uint16_t>(KeyCode::Digit9) == static_cast<uint16_t>(KeyCode::Digit0) + 9);
-static_assert(static_cast<uint16_t>(KeyCode::Z) == static_cast<uint16_t>(KeyCode::A) + 25);
-static_assert(static_cast<uint16_t>(KeyCode::F25) == static_cast<uint16_t>(KeyCode::F1) + 24);
-static_assert(static_cast<uint16_t>(KeyCode::Keypad9) == static_cast<uint16_t>(KeyCode::Keypad0) + 9);
+static_assert(static_cast<uint16>(KeyCode::Digit9) == static_cast<uint16>(KeyCode::Digit0) + 9);
+static_assert(static_cast<uint16>(KeyCode::Z) == static_cast<uint16>(KeyCode::A) + 25);
+static_assert(static_cast<uint16>(KeyCode::F25) == static_cast<uint16>(KeyCode::F1) + 24);
+static_assert(static_cast<uint16>(KeyCode::Keypad9) == static_cast<uint16>(KeyCode::Keypad0) + 9);
 
 constexpr KeyCode ToContiguousKeyCode(int key, int firstNativeKey, KeyCode firstEngineKey, int count)
 {
@@ -19,7 +21,7 @@ constexpr KeyCode ToContiguousKeyCode(int key, int firstNativeKey, KeyCode first
         return KeyCode::Unknown;
 
     return static_cast<KeyCode>(
-        static_cast<uint16_t>(firstEngineKey) + static_cast<uint16_t>(key - firstNativeKey));
+        static_cast<uint16>(firstEngineKey) + static_cast<uint16>(key - firstNativeKey));
 }
 
 } // namespace

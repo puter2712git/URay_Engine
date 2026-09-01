@@ -4,6 +4,10 @@
 #include "Editor/GizmoController.h"
 #include "Editor/SelectionSystem.h"
 
+#include "Core/File/VirtualFilesystem.h"
+#include "Core/Log/Log.h"
+#include "Core/Type/Types.h"
+
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
@@ -12,9 +16,6 @@
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Renderer.h"
-
-#include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/Log.h"
 
 #include <imgui/imgui.h>
 
@@ -282,8 +283,8 @@ void ViewportWidget::OnDraw()
 
         const ImVec2 framebufferScale = ImGui::GetIO().DisplayFramebufferScale;
         const Extent2D requestedExtent = {
-            .width = static_cast<uint32_t>(std::round(logicalSize.x * framebufferScale.x)),
-            .height = static_cast<uint32_t>(std::round(logicalSize.y * framebufferScale.y)),
+            .width = static_cast<uint32>(std::round(logicalSize.x * framebufferScale.x)),
+            .height = static_cast<uint32>(std::round(logicalSize.y * framebufferScale.y)),
         };
 
         renderer.RequestSceneRenderTargetResize(requestedExtent);

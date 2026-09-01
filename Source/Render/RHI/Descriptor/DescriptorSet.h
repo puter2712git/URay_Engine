@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include <vulkan/vulkan.h>
 
 namespace URay::Render
@@ -17,18 +19,18 @@ public:
 
 public:
     void WriteUniformBuffer(
-        uint32_t binding,
+        uint32 binding,
         const ConstantBuffer* buffer,
         VkDeviceSize offset = 0,
         VkDeviceSize range = VK_WHOLE_SIZE);
 
     void WriteSampledImage(
-        uint32_t binding,
+        uint32 binding,
         const TextureView* textureView,
         VkImageLayout layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     void WriteSampler(
-        uint32_t binding,
+        uint32 binding,
         VkSampler sampler);
 
     VkDescriptorSet GetHandle() const

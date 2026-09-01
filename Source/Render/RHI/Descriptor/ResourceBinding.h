@@ -2,6 +2,8 @@
 
 #include "Render/Shader/ShaderStageFlags.h"
 
+#include "Core/Type/Types.h"
+
 #include <cstdint>
 
 namespace URay::Render
@@ -16,10 +18,10 @@ enum class ResourceType
 
 struct ResourceBinding
 {
-    uint32_t set = 0;
-    uint32_t bindingIndex = 0;
+    uint32 set = 0;
+    uint32 bindingIndex = 0;
     ResourceType resourceType = ResourceType::ConstantBuffer;
-    uint32_t arrayCount = 1;
+    uint32 arrayCount = 1;
     ShaderStageFlags stageFlags = ShaderStageFlags::Vertex;
 
     bool operator==(const ResourceBinding&) const = default;

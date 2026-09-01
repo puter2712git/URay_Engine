@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include <cstdint>
 #include <functional>
 #include <unordered_map>
@@ -8,7 +10,7 @@
 namespace URay
 {
 
-using RayHandle = std::uint32_t;
+using RayHandle = uint32;
 
 template <typename... Args>
 class EventRay

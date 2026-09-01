@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include <cstdint>
 #include <string>
 
@@ -8,8 +10,8 @@ namespace URay
 
 struct UUID
 {
-    uint64_t high;
-    uint64_t low;
+    uint64 high;
+    uint64 low;
 
     static UUID Generate();
 

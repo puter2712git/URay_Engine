@@ -2,6 +2,7 @@
 
 #include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
+#include "Core/Type/Types.h"
 
 #include <cstdint>
 #include <string>
@@ -24,8 +25,8 @@ struct MeshCommandContext
     Mesh* mesh = nullptr;
     Material* material = nullptr;
 
-    uint32_t indexOffset = 0;
-    uint32_t indexCount = 0;
+    uint32 indexOffset = 0;
+    uint32 indexCount = 0;
 };
 
 struct LineCommandContext

@@ -3,9 +3,9 @@
 #include "Core/Math/Color.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Type/Types.h"
 
 #include <vulkan/vulkan.h>
-
 #include <array>
 
 namespace URay::Render
@@ -50,7 +50,7 @@ struct Vertex
     }
 };
 
-enum class VertexLayout : uint8_t
+enum class VertexLayout : uint8
 {
     PTC,
     PNT

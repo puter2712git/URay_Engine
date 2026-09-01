@@ -4,6 +4,8 @@
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
 
+#include "Core/Type/Types.h"
+
 #include <algorithm>
 #include <limits>
 
@@ -48,7 +50,7 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
     VkPresentModeKHR presentMode = ChoosePresentMode(details.presentModes);
     VkExtent2D extent = ChooseExtent(details.capabilities, desc.extent);
 
-    uint32_t imageCount = details.capabilities.minImageCount + 1;
+    uint32 imageCount = details.capabilities.minImageCount + 1;
 
     if (details.capabilities.maxImageCount > 0 &&
         imageCount > details.capabilities.maxImageCount)
@@ -67,7 +69,7 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     QueueFamilyIndices indices = device.FindQueueFamilyIndices(device.GetPhysicalDevice());
-    uint32_t queueFamilyIndices[] = {
+    uint32 queueFamilyIndices[] = {
         indices.graphicsFamily.value(),
         indices.presentFamily.value(),
     };
@@ -110,7 +112,7 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
     return true;
 }
 
-VkResult SwapChain::AcquireNextImage(VkSemaphore signalSemaphore, uint32_t& imageIndex)
+VkResult SwapChain::AcquireNextImage(VkSemaphore signalSemaphore, uint32& imageIndex)
 {
     return vkAcquireNextImageKHR(
         device.GetVKDevice(),
@@ -121,7 +123,7 @@ VkResult SwapChain::AcquireNextImage(VkSemaphore signalSemaphore, uint32_t& imag
         &imageIndex);
 }
 
-VkResult SwapChain::Present(uint32_t imageIndex, VkSemaphore waitSemaphore)
+VkResult SwapChain::Present(uint32 imageIndex, VkSemaphore waitSemaphore)
 {
     VkSwapchainKHR swapChains[] = { handle };
 
@@ -136,7 +138,7 @@ VkResult SwapChain::Present(uint32_t imageIndex, VkSemaphore waitSemaphore)
     return vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
 }
 
-VkImageView SwapChain::GetImageView(uint32_t index) const
+VkImageView SwapChain::GetImageView(uint32 index) const
 {
     if (index >= imageViews.size())
         return VK_NULL_HANDLE;
@@ -177,7 +179,7 @@ VkPresentModeKHR SwapChain::ChoosePresentMode(const std::vector<VkPresentModeKHR
 
 VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities, const VkExtent2D& requestedExtent) const
 {
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    if (capabilities.currentExtent.width != std::numeric_limits<uint32>::max())
     {
         return capabilities.currentExtent;
     }

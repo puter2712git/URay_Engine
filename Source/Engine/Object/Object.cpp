@@ -8,6 +8,7 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Math/Vector4.h"
+#include "Core/Type/Types.h"
 
 namespace URay
 {
@@ -110,7 +111,7 @@ void Object::Deserialize(const YAML::Node& node)
         if (!valueNode)
             continue;
 
-        void* valueAddress = reinterpret_cast<uint8_t*>(this) + prop.offset;
+        void* valueAddress = reinterpret_cast<uint8*>(this) + prop.offset;
 
         switch (prop.type)
         {

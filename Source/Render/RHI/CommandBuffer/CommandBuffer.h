@@ -2,8 +2,9 @@
 
 #include "Render/RHI/CommandBuffer/CommandBufferUsage.h"
 
-#include <vulkan/vulkan.h>
+#include "Core/Type/Types.h"
 
+#include <vulkan/vulkan.h>
 #include <vector>
 
 namespace URay::Render
@@ -42,15 +43,15 @@ public:
     void BindDescriptorSet(
         const PipelineLayout& layout,
         const DescriptorSet& descriptorSet,
-        uint32_t set);
+        uint32 set);
 
     void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth);
-    void SetScissor(int offsetX, int offsetY, uint32_t width, uint32_t height);
+    void SetScissor(int offsetX, int offsetY, uint32 width, uint32 height);
 
-    void ClearDepth(float depth, uint32_t stencil, uint32_t width, uint32_t height);
+    void ClearDepth(float depth, uint32 stencil, uint32 width, uint32 height);
 
-    void Draw(uint32_t vertexCount);
-    void DrawIndexed(uint32_t indexCount, uint32_t indexOffset);
+    void Draw(uint32 vertexCount);
+    void DrawIndexed(uint32 indexCount, uint32 indexOffset);
 
     VkCommandBuffer GetHandle() const { return handle; }
 

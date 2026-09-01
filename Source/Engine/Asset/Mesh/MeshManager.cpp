@@ -4,6 +4,7 @@
 
 #include "Core/Math/Math.h"
 #include "Core/Math/Matrix.h"
+#include "Core/Type/Types.h"
 
 namespace URay
 {
@@ -76,7 +77,7 @@ bool MeshManager::CreateDefaultMeshes(Material* defaultMaterial)
 }
 
 Mesh* MeshManager::CreateMesh(const std::string& key,
-                              const std::vector<VertexPNT>& vertices, const std::vector<uint32_t>& indices)
+                              const std::vector<VertexPNT>& vertices, const std::vector<uint32>& indices)
 {
     if (meshes.contains(key))
         return nullptr;
@@ -86,7 +87,7 @@ Mesh* MeshManager::CreateMesh(const std::string& key,
     mesh->SetIndices(indices);
     mesh->SetSections({ MeshSection{
         .indexOffset = 0,
-        .indexCount = static_cast<uint32_t>(indices.size()),
+        .indexCount = static_cast<uint32>(indices.size()),
         .materialIndex = 0,
     } });
 
@@ -139,7 +140,7 @@ void MeshManager::CreateBox()
         MakeVertex({  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f }, { 0.0f, 1.0f }),
         MakeVertex({  0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f }, { 1.0f, 1.0f }),
     };
-    std::vector<uint32_t> boxIndices = {
+    std::vector<uint32> boxIndices = {
          0,  2,  1,  1,  2,  3,
          4,  5,  6,  5,  7,  6,
          8,  9, 10,  9, 11, 10,
@@ -161,7 +162,7 @@ void MeshManager::CreateQuad()
         MakeVertex({  0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }),
         MakeVertex({ -0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }),
     };
-    std::vector<uint32_t> quadIndices = {
+    std::vector<uint32> quadIndices = {
         0, 1, 2,
         0, 2, 3,
     };
@@ -173,16 +174,16 @@ void MeshManager::CreateQuad()
 void MeshManager::CreateCylinder()
 {
     std::vector<VertexPNT> cylinderVertices;
-    std::vector<uint32_t> cylinderIndices;
+    std::vector<uint32> cylinderIndices;
 
     const float radius = 0.5f;
     const float height = 2.0f;
-    const uint32_t sliceCount = 20;
+    const uint32 sliceCount = 20;
     const float halfHeight = height * 0.5f;
     const float dTheta = Math::TWO_PI / sliceCount;
 
-    const uint32_t sideBaseIndex = static_cast<uint32_t>(cylinderVertices.size());
-    for (uint32_t i = 0; i <= sliceCount; ++i)
+    const uint32 sideBaseIndex = static_cast<uint32>(cylinderVertices.size());
+    for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float cosT = std::cos(theta);
@@ -195,19 +196,19 @@ void MeshManager::CreateCylinder()
                                               { static_cast<float>(i) / sliceCount, 0.0f }));
     }
 
-    for (uint32_t i = 0; i < sliceCount; ++i)
+    for (uint32 i = 0; i < sliceCount; ++i)
     {
-        const uint32_t i0 = sideBaseIndex + i * 2;
-        const uint32_t i1 = i0 + 1;
-        const uint32_t i2 = i0 + 2;
-        const uint32_t i3 = i0 + 3;
+        const uint32 i0 = sideBaseIndex + i * 2;
+        const uint32 i1 = i0 + 1;
+        const uint32 i2 = i0 + 2;
+        const uint32 i3 = i0 + 3;
 
         cylinderIndices.insert(cylinderIndices.end(), { i0, i1, i2, i1, i3, i2 });
     }
 
-    const uint32_t topBaseIndex = static_cast<uint32_t>(cylinderVertices.size());
+    const uint32 topBaseIndex = static_cast<uint32>(cylinderVertices.size());
     cylinderVertices.push_back(MakeVertex({ 0.0f, 0.0f, halfHeight }, { 0.0f, 0.0f, 1.0f }, { 0.5f, 0.5f }));
-    for (uint32_t i = 0; i <= sliceCount; ++i)
+    for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float x = radius * std::cos(theta);
@@ -215,14 +216,14 @@ void MeshManager::CreateCylinder()
         cylinderVertices.push_back(MakeVertex({ x, y, halfHeight }, { 0.0f, 0.0f, 1.0f },
                                               { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
-    for (uint32_t i = 0; i < sliceCount; ++i)
+    for (uint32 i = 0; i < sliceCount; ++i)
     {
         cylinderIndices.insert(cylinderIndices.end(), { topBaseIndex, topBaseIndex + 1 + i, topBaseIndex + 2 + i });
     }
 
-    const uint32_t bottomBaseIndex = static_cast<uint32_t>(cylinderVertices.size());
+    const uint32 bottomBaseIndex = static_cast<uint32>(cylinderVertices.size());
     cylinderVertices.push_back(MakeVertex({ 0.0f, 0.0f, -halfHeight }, { 0.0f, 0.0f, -1.0f }, { 0.5f, 0.5f }));
-    for (uint32_t i = 0; i <= sliceCount; ++i)
+    for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float x = radius * std::cos(theta);
@@ -230,7 +231,7 @@ void MeshManager::CreateCylinder()
         cylinderVertices.push_back(MakeVertex({ x, y, -halfHeight }, { 0.0f, 0.0f, -1.0f },
                                               { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
-    for (uint32_t i = 0; i < sliceCount; ++i)
+    for (uint32 i = 0; i < sliceCount; ++i)
     {
         cylinderIndices.insert(cylinderIndices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
@@ -241,18 +242,18 @@ void MeshManager::CreateCylinder()
 void MeshManager::CreateCone()
 {
     std::vector<VertexPNT> coneVertices;
-    std::vector<uint32_t> coneIndices;
+    std::vector<uint32> coneIndices;
 
     const float radius = 0.5f;
     const float height = 2.0f;
-    const uint32_t sliceCount = 20;
+    const uint32 sliceCount = 20;
     const float halfHeight = height * 0.5f;
     const float dTheta = Math::TWO_PI / sliceCount;
     const float normalLength = std::sqrt(height * height + radius * radius);
 
-    const uint32_t sideBaseIndex = static_cast<uint32_t>(coneVertices.size());
+    const uint32 sideBaseIndex = static_cast<uint32>(coneVertices.size());
     coneVertices.push_back(MakeVertex({ 0.0f, 0.0f, halfHeight }, { 0.0f, 0.0f, 1.0f }, { 0.5f, 1.0f }));
-    for (uint32_t i = 0; i <= sliceCount; ++i)
+    for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float cosT = std::cos(theta);
@@ -261,14 +262,14 @@ void MeshManager::CreateCone()
         coneVertices.push_back(MakeVertex({ radius * cosT, radius * sinT, -halfHeight }, sideNormal,
                                           { static_cast<float>(i) / sliceCount, 0.0f }));
     }
-    for (uint32_t i = 0; i < sliceCount; ++i)
+    for (uint32 i = 0; i < sliceCount; ++i)
     {
         coneIndices.insert(coneIndices.end(), { sideBaseIndex, sideBaseIndex + 1 + i, sideBaseIndex + 2 + i });
     }
 
-    const uint32_t bottomBaseIndex = static_cast<uint32_t>(coneVertices.size());
+    const uint32 bottomBaseIndex = static_cast<uint32>(coneVertices.size());
     coneVertices.push_back(MakeVertex({ 0.0f, 0.0f, -halfHeight }, { 0.0f, 0.0f, -1.0f }, { 0.5f, 0.5f }));
-    for (uint32_t i = 0; i <= sliceCount; ++i)
+    for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
         const float x = radius * std::cos(theta);
@@ -276,7 +277,7 @@ void MeshManager::CreateCone()
         coneVertices.push_back(MakeVertex({ x, y, -halfHeight }, { 0.0f, 0.0f, -1.0f },
                                           { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
-    for (uint32_t i = 0; i < sliceCount; ++i)
+    for (uint32 i = 0; i < sliceCount; ++i)
     {
         coneIndices.insert(coneIndices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
@@ -287,17 +288,17 @@ void MeshManager::CreateCone()
 void MeshManager::CreateArrow()
 {
     std::vector<VertexPNT> arrowVertices;
-    std::vector<uint32_t> arrowIndices;
+    std::vector<uint32> arrowIndices;
 
     auto appendMesh = [&arrowVertices, &arrowIndices](const Mesh* source, const Matrix& transform)
     {
-        const uint32_t offset = static_cast<uint32_t>(arrowVertices.size());
+        const uint32 offset = static_cast<uint32>(arrowVertices.size());
         const Matrix normalTransform = transform.Inverse();
         for (const VertexPNT& sourceVertex : source->GetVertices())
         {
             arrowVertices.push_back(TransformVertex(sourceVertex, transform, normalTransform));
         }
-        for (uint32_t index : source->GetIndices())
+        for (uint32 index : source->GetIndices())
         {
             arrowIndices.push_back(index + offset);
         }
@@ -315,17 +316,17 @@ void MeshManager::CreateArrow()
 void MeshManager::CreateRotationGizmo()
 {
     std::vector<VertexPNT> vertices;
-    std::vector<uint32_t> indices;
+    std::vector<uint32> indices;
 
     constexpr float outerRadius = 1.5f;
     constexpr float innerRadius = 1.35f;
-    constexpr uint32_t sliceCount = 96;
+    constexpr uint32 sliceCount = 96;
     const float dTheta = Math::TWO_PI / static_cast<float>(sliceCount);
 
     vertices.reserve((sliceCount + 1) * 2);
     indices.reserve(sliceCount * 6);
 
-    for (uint32_t i = 0; i <= sliceCount; ++i)
+    for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = static_cast<float>(i) * dTheta;
         const float cosTheta = std::cos(theta);
@@ -338,12 +339,12 @@ void MeshManager::CreateRotationGizmo()
                                       { static_cast<float>(i) / sliceCount, 0.0f }));
     }
 
-    for (uint32_t i = 0; i < sliceCount; ++i)
+    for (uint32 i = 0; i < sliceCount; ++i)
     {
-        const uint32_t currentOuter = i * 2;
-        const uint32_t currentInner = currentOuter + 1;
-        const uint32_t nextOuter = currentOuter + 2;
-        const uint32_t nextInner = currentOuter + 3;
+        const uint32 currentOuter = i * 2;
+        const uint32 currentInner = currentOuter + 1;
+        const uint32 nextOuter = currentOuter + 2;
+        const uint32 nextInner = currentOuter + 3;
         indices.insert(indices.end(), { currentOuter, currentInner, nextOuter, nextOuter, currentInner, nextInner });
     }
 
@@ -353,17 +354,17 @@ void MeshManager::CreateRotationGizmo()
 void MeshManager::CreateScaleGizmo()
 {
     std::vector<VertexPNT> vertices;
-    std::vector<uint32_t> indices;
+    std::vector<uint32> indices;
 
     auto appendMesh = [&vertices, &indices](const Mesh* source, const Matrix& transform)
     {
-        const uint32_t offset = static_cast<uint32_t>(vertices.size());
+        const uint32 offset = static_cast<uint32>(vertices.size());
         const Matrix normalTransform = transform.Inverse();
         for (const VertexPNT& sourceVertex : source->GetVertices())
         {
             vertices.push_back(TransformVertex(sourceVertex, transform, normalTransform));
         }
-        for (uint32_t index : source->GetIndices())
+        for (uint32 index : source->GetIndices())
         {
             indices.push_back(index + offset);
         }

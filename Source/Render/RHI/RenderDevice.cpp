@@ -1,6 +1,8 @@
 #include "RenderDevice.h"
 
 #include "Render/GPUResourceManager.h"
+#include "Render/Renderer.h"
+#include "Render/RenderInfo.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
@@ -24,9 +26,9 @@
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
-#include "Render/RenderInfo.h"
-#include "Render/Renderer.h"
 #include "Render/Shader/Shader.h"
+
+#include "Core/Type/Types.h"
 
 #include <cassert>
 #include <map>
@@ -119,9 +121,9 @@ VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<VertexPNT>& ver
     return vertexBuffer;
 }
 
-IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint32_t>& indices)
+IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint32>& indices)
 {
-    VkDeviceSize bufferSize = sizeof(uint32_t) * indices.size();
+    VkDeviceSize bufferSize = sizeof(uint32) * indices.size();
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -185,7 +187,7 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
     return newTexture;
 }
 
-bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8_t> pixelData)
+bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pixelData)
 {
     if (!texture)
         return false;
@@ -313,7 +315,7 @@ DescriptorSet* RenderDevice::CreateDescriptorSet(DescriptorSetLayout* layout)
 
 PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& desc)
 {
-    uint32_t maxSetNum = 0;
+    uint32 maxSetNum = 0;
     for (auto& [set, layout] : desc.setLayouts)
     {
         maxSetNum = std::max(maxSetNum, set);
@@ -335,9 +337,9 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
 
     VkPipelineLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    layoutInfo.setLayoutCount = static_cast<uint32_t>(setLayouts.size());
+    layoutInfo.setLayoutCount = static_cast<uint32>(setLayouts.size());
     layoutInfo.pSetLayouts = setLayouts.data();
-    layoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
+    layoutInfo.pushConstantRangeCount = static_cast<uint32>(pushConstantRanges.size());
     layoutInfo.pPushConstantRanges = pushConstantRanges.data();
 
     VkPipelineLayout handle = VK_NULL_HANDLE;
@@ -376,7 +378,7 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
 
     VkPipelineDynamicStateCreateInfo dynamicState = {};
     dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+    dynamicState.dynamicStateCount = static_cast<uint32>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
     const auto bindingDescription = desc.vertexLayout == VertexLayout::PNT
@@ -390,7 +392,7 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo.vertexBindingDescriptionCount = 1;
     vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+    vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32>(attributeDescriptions.size());
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
@@ -532,7 +534,7 @@ Framebuffer* RenderDevice::CreateFramebuffer(const FramebufferDesc& desc)
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = desc.renderPass;
-    framebufferInfo.attachmentCount = static_cast<uint32_t>(desc.attachments.size());
+    framebufferInfo.attachmentCount = static_cast<uint32>(desc.attachments.size());
     framebufferInfo.pAttachments = desc.attachments.data();
     framebufferInfo.width = desc.extent.width;
     framebufferInfo.height = desc.extent.height;
@@ -562,7 +564,7 @@ SwapChain* RenderDevice::CreateSwapChain(const SwapChainDesc& desc)
 CommandPool* RenderDevice::CreateCommandPool(QueueType queueType, CommandPoolFlags poolFlags)
 {
     const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
-    uint32_t queueFamilyIndex = 0;
+    uint32 queueFamilyIndex = 0;
 
     switch (queueType)
     {
@@ -575,7 +577,7 @@ CommandPool* RenderDevice::CreateCommandPool(QueueType queueType, CommandPoolFla
 
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.flags = static_cast<uint32_t>(poolFlags);
+    poolInfo.flags = static_cast<uint32>(poolFlags);
     poolInfo.queueFamilyIndex = queueFamilyIndex;
 
     VkCommandPool handle = VK_NULL_HANDLE;
@@ -626,7 +628,7 @@ void RenderDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
     EndSingleTimeCommands(commandBuffer);
 }
 
-bool RenderDevice::CreateImage(uint32_t width, uint32_t height,
+bool RenderDevice::CreateImage(uint32 width, uint32 height,
                                VkFormat format, VkImageTiling tiling,
                                VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                                VkImage& image, VkDeviceMemory& imageMemory) const
@@ -742,7 +744,7 @@ void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,
     EndSingleTimeCommands(commandBuffer);
 }
 
-void RenderDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height) const
+void RenderDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32 width, uint32 height) const
 {
     CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
@@ -787,7 +789,7 @@ VkImageView RenderDevice::CreateImageView(VkImage image, VkFormat format, VkImag
 
 bool RenderDevice::PickPhysicalDevice()
 {
-    uint32_t deviceCount = 0;
+    uint32 deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
     if (deviceCount == 0)
@@ -816,13 +818,13 @@ bool RenderDevice::CreateLogicalDevice()
     QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {
+    std::set<uint32> uniqueQueueFamilies = {
         indices.graphicsFamily.value(),
         indices.presentFamily.value(),
     };
 
     float queuePriority = 1.0f;
-    for (uint32_t queueFamily : uniqueQueueFamilies)
+    for (uint32 queueFamily : uniqueQueueFamilies)
     {
         VkDeviceQueueCreateInfo queueCreateInfo = {};
         queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -837,12 +839,12 @@ bool RenderDevice::CreateLogicalDevice()
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.queueCreateInfoCount = static_cast<uint32>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
 
     const auto& deviceExtensions = context.GetDeviceExtensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.enabledExtensionCount = static_cast<uint32>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
@@ -877,7 +879,7 @@ QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device)
 {
     QueueFamilyIndices indices = {};
 
-    uint32_t queueFamilyCount = 0;
+    uint32 queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -910,7 +912,7 @@ QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device)
 
 bool RenderDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
 {
-    uint32_t extensionCount = 0;
+    uint32 extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
@@ -962,17 +964,17 @@ void RenderDevice::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 3> poolSizes = {};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 1000;
+    poolSizes[0].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT) * 1000;
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-    poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 1000;
+    poolSizes[1].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT) * 1000;
     poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-    poolSizes[2].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 1000;
+    poolSizes[2].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT) * 1000;
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.poolSizeCount = static_cast<uint32>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 1000;
+    poolInfo.maxSets = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT) * 1000;
 
     vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
 }
@@ -985,12 +987,12 @@ void RenderDevice::DestroyDescriptorPool()
     }
 }
 
-VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8_t>& code) const
+VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8>& code) const
 {
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+    createInfo.pCode = reinterpret_cast<const uint32*>(code.data());
 
     VkShaderModule shaderModule;
     if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
@@ -999,12 +1001,12 @@ VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8_t>& code
     return shaderModule;
 }
 
-uint32_t RenderDevice::FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const
+uint32 RenderDevice::FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties) const
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
-    for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i)
+    for (uint32 i = 0; i < memProperties.memoryTypeCount; ++i)
     {
         if (typeFilter & (1 << i) &&
             (memProperties.memoryTypes[i].propertyFlags & properties) == properties)

@@ -12,6 +12,8 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/Shader/Shader.h"
 
+#include "Core/Type/Types.h"
+
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Texture/Texture.h"
 
@@ -47,7 +49,7 @@ MeshBuffer* GPUResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
     if (!vertexBuffer)
         return nullptr;
 
-    const std::vector<uint32_t>& indices = asset->GetIndices();
+    const std::vector<uint32>& indices = asset->GetIndices();
     IndexBuffer* indexBuffer = renderDevice->CreateIndexBuffer(indices);
     if (!indexBuffer)
     {
@@ -88,8 +90,8 @@ Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
         return it->second;
 
     const TextureDesc textureDesc = {
-        .width = static_cast<uint32_t>(texture->GetWidth()),
-        .height = static_cast<uint32_t>(texture->GetHeight()),
+        .width = static_cast<uint32>(texture->GetWidth()),
+        .height = static_cast<uint32>(texture->GetHeight()),
         .format = Format::RGBA8_sRGB,
         .usage = TextureUsage::TransferDst | TextureUsage::Sampled,
     };
@@ -98,7 +100,7 @@ Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
     if (!newTexture)
         return nullptr;
 
-    std::span<const uint8_t> pixelData = texture->GetPixels();
+    std::span<const uint8> pixelData = texture->GetPixels();
     if (!renderDevice->UploadTextureData(newTexture, pixelData))
     {
         delete newTexture;

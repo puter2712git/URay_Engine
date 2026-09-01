@@ -3,6 +3,7 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Type/Types.h"
 
 #include <array>
 #include <cstdint>
@@ -22,7 +23,7 @@ namespace Render
 class DrawCommandBuilder;
 }
 
-enum class Axis : uint8_t
+enum class Axis : uint8
 {
     X,
     Y,
@@ -31,7 +32,7 @@ enum class Axis : uint8_t
     Count
 };
 
-enum class GizmoMode : uint8_t
+enum class GizmoMode : uint8
 {
     Translation,
     Rotation,

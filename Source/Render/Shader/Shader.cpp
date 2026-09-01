@@ -1,12 +1,14 @@
 #include "Shader.h"
 
+#include "Core/Type/Types.h"
+
 #include <cassert>
 #include <map>
 
 namespace URay::Render
 {
 
-Shader::Shader(uint32_t id,
+Shader::Shader(uint32 id,
                const ShaderStage& vertexStage,
                const ShaderStage& fragmentStage,
                const ShaderReflection& vertexReflection,
@@ -15,15 +17,15 @@ Shader::Shader(uint32_t id,
       vertexStage(vertexStage), fragmentStage(fragmentStage),
       vertexReflection(vertexReflection), fragmentReflection(fragmentReflection)
 {
-    std::map<std::pair<uint32_t, uint32_t>, ResourceBinding> mergedBindings;
+    std::map<std::pair<uint32, uint32>, ResourceBinding> mergedBindings;
 
-    auto Merge = [&](const std::map<uint32_t, DescriptorSetLayoutDesc>& descs)
+    auto Merge = [&](const std::map<uint32, DescriptorSetLayoutDesc>& descs)
     {
         for (auto& [set, desc] : descs)
         {
             for (const auto& binding : desc.bindings)
             {
-                std::pair<uint32_t, uint32_t> key = { binding.set,
+                std::pair<uint32, uint32> key = { binding.set,
                                                       binding.bindingIndex };
 
                 auto [it, inserted] = mergedBindings.insert({ key, binding });
@@ -69,7 +71,7 @@ Shader::Shader(uint32_t id,
     }
 }
 
-const DescriptorSetLayoutDesc* Shader::GetDescriptorSetLayoutDesc(uint32_t set) const
+const DescriptorSetLayoutDesc* Shader::GetDescriptorSetLayoutDesc(uint32 set) const
 {
     auto it = setLayoutDescs.find(set);
     if (it != setLayoutDescs.end())

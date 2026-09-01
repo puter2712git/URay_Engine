@@ -2,10 +2,12 @@
 
 #include "Render/Renderer.h"
 
+#include "Core/Type/Types.h"
+
 namespace URay::Render
 {
 
-VertexBuffer::VertexBuffer(VkDevice device, uint32_t size,
+VertexBuffer::VertexBuffer(VkDevice device, uint32 size,
                            VkBuffer handle, VkDeviceMemory memory)
     : device(device), size(size), handle(handle), memory(memory)
 {

@@ -2,6 +2,8 @@
 
 #include "Engine/Object/Object.h"
 
+#include "Core/Type/Types.h"
+
 #include <string>
 #include <vector>
 
@@ -15,7 +17,7 @@ class Texture : public Object
 public:
     Texture(const std::string& filePath,
             int width, int height, int channels,
-            const std::vector<uint8_t>& pixels);
+            const std::vector<uint8>& pixels);
 
 public:
     void SetName(const std::string& inName) { name = inName; }
@@ -27,7 +29,7 @@ public:
     int GetHeight() const { return height; }
     int GetChannels() const { return channels; }
 
-    const std::vector<uint8_t>& GetPixels() const { return pixels; }
+    const std::vector<uint8>& GetPixels() const { return pixels; }
 
 private:
     std::string name;
@@ -37,7 +39,7 @@ private:
     int height = 0;
     int channels = 0;
 
-    std::vector<uint8_t> pixels;
+    std::vector<uint8> pixels;
 };
 
 } // namespace URay

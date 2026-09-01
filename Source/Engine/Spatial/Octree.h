@@ -2,6 +2,7 @@
 
 #include "Core/Math/AABB.h"
 #include "Core/Math/Frustum.h"
+#include "Core/Type/Types.h"
 
 #include <array>
 #include <vector>
@@ -23,13 +24,13 @@ private:
         AABB bounds = {};
         std::array<int, 8> children = { -1, -1, -1, -1, -1, -1, -1, -1 };
         std::vector<Render::BoundedObject*> entries;
-        uint32_t depth = 0;
+        uint32 depth = 0;
 
         bool IsLeaf() const { return children[0] == -1; }
     };
 
 public:
-    Octree(const AABB& rootBounds, uint32_t maxDepth = 7, uint32_t maxObjectCount = 8);
+    Octree(const AABB& rootBounds, uint32 maxDepth = 7, uint32 maxObjectCount = 8);
     ~Octree();
 
 public:
@@ -53,8 +54,8 @@ private:
 private:
     std::vector<Node> nodes;
 
-    uint32_t maxDepth = 7;
-    uint32_t maxObjectCount = 8;
+    uint32 maxDepth = 7;
+    uint32 maxObjectCount = 8;
 };
 
 } // namespace URay

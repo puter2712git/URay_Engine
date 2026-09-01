@@ -1,5 +1,7 @@
 #include "VulkanSurfaceSupport.h"
 
+#include "Core/Type/Types.h"
+
 namespace URay::Render::Vulkan
 {
 
@@ -11,7 +13,7 @@ SurfaceSupportDetails QuerySurfaceSupport(
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &details.capabilities);
 
-    uint32_t formatCount;
+    uint32 formatCount;
     vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, nullptr);
 
     if (formatCount != 0)
@@ -20,7 +22,7 @@ SurfaceSupportDetails QuerySurfaceSupport(
         vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, surface, &formatCount, details.formats.data());
     }
 
-    uint32_t presentModeCount;
+    uint32 presentModeCount;
     vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, surface, &presentModeCount, nullptr);
 
     if (presentModeCount != 0)

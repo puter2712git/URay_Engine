@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/Vector2.h"
+#include "Core/Type/Types.h"
 
 #include <cstdint>
 #include <variant>
@@ -8,7 +9,7 @@
 namespace URay
 {
 
-enum class MouseButton : uint8_t
+enum class MouseButton : uint8
 {
     None = 0,
     Left = 1 << 0,
@@ -16,9 +17,9 @@ enum class MouseButton : uint8_t
     Middle = 1 << 2,
 };
 
-using MouseButtonMask = uint8_t;
+using MouseButtonMask = uint8;
 
-enum class ModifierKey : uint8_t
+enum class ModifierKey : uint8
 {
     None = 0,
     Shift = 1 << 0,
@@ -30,16 +31,16 @@ enum class ModifierKey : uint8_t
 constexpr ModifierKey operator|(ModifierKey lhs, ModifierKey rhs)
 {
     return static_cast<ModifierKey>(
-        static_cast<uint8_t>(lhs) | static_cast<uint8_t>(rhs));
+        static_cast<uint8>(lhs) | static_cast<uint8>(rhs));
 }
 
 constexpr ModifierKey operator&(ModifierKey lhs, ModifierKey rhs)
 {
     return static_cast<ModifierKey>(
-        static_cast<uint8_t>(lhs) & static_cast<uint8_t>(rhs));
+        static_cast<uint8>(lhs) & static_cast<uint8>(rhs));
 }
 
-enum class KeyCode : uint16_t
+enum class KeyCode : uint16
 {
     Unknown = 0,
 
@@ -175,14 +176,14 @@ enum class KeyCode : uint16_t
     Count,
 };
 
-enum class KeyAction : uint8_t
+enum class KeyAction : uint8
 {
     Pressed,
     Released,
     Repeated,
 };
 
-enum class PointerAction : uint8_t
+enum class PointerAction : uint8
 {
     Moved,
     Pressed,
@@ -193,7 +194,7 @@ struct PointerEvent
 {
     PointerAction action = PointerAction::Moved;
 
-    uint32_t pointerId = 0; // Only mouse for now on.
+    uint32 pointerId = 0; // Only mouse for now on.
     Vector2 position = Vector2::Zero;
     Vector2 delta = Vector2::Zero;
 

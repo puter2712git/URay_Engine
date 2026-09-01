@@ -1,11 +1,13 @@
 #include "Octree.h"
 
+#include "Core/Type/Types.h"
+
 #include "Render/Scene/Object/BoundedObject.h"
 
 namespace URay
 {
 
-Octree::Octree(const AABB& rootBounds, uint32_t maxDepth, uint32_t maxObjectCount)
+Octree::Octree(const AABB& rootBounds, uint32 maxDepth, uint32 maxObjectCount)
     : maxDepth(maxDepth), maxObjectCount(maxObjectCount)
 {
     nodes.clear();
@@ -130,7 +132,7 @@ bool Octree::Insert(int nodeIndex, Render::BoundedObject* entry)
 void Octree::Subdivide(int nodeIndex)
 {
     const AABB parentBounds = nodes[nodeIndex].bounds;
-    const uint32_t childDepth = nodes[nodeIndex].depth + 1;
+    const uint32 childDepth = nodes[nodeIndex].depth + 1;
 
     const Vector3 center = (parentBounds.min + parentBounds.max) * 0.5f;
 

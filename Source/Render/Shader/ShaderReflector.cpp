@@ -1,6 +1,7 @@
+#include "Shader.h"
 #include "ShaderReflector.h"
 
-#include "Shader.h"
+#include "Core/Type/Types.h"
 
 namespace URay::Render
 {
@@ -24,12 +25,12 @@ ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
 } // namespace
 
 bool ShaderReflector::ReflectSPIRV(
-    const std::vector<uint8_t>& code,
+    const std::vector<uint8>& code,
     ShaderReflection& outReflection)
 {
     SpvReflectShaderModule module;
     SpvReflectResult result = spvReflectCreateShaderModule(
-        code.size() * sizeof(uint8_t),
+        code.size() * sizeof(uint8),
         code.data(),
         &module);
 
@@ -48,11 +49,11 @@ bool ShaderReflector::ReflectSPIRV(
 
 bool ShaderReflector::CreateDescriptorSetLayoutDesc(
     const SpvReflectShaderModule& module,
-    std::map<uint32_t, DescriptorSetLayoutDesc>& outDescs)
+    std::map<uint32, DescriptorSetLayoutDesc>& outDescs)
 {
     outDescs = {};
 
-    uint32_t setCount = 0;
+    uint32 setCount = 0;
     spvReflectEnumerateDescriptorSets(&module, &setCount, nullptr);
 
     std::vector<SpvReflectDescriptorSet*> sets(setCount);
@@ -63,7 +64,7 @@ bool ShaderReflector::CreateDescriptorSetLayoutDesc(
         std::vector<ResourceBinding>& bindings = outDescs[set->set].bindings;
         bindings.resize(set->binding_count);
 
-        for (uint32_t i = 0; i < set->binding_count; ++i)
+        for (uint32 i = 0; i < set->binding_count; ++i)
         {
             const auto* binding = set->bindings[i];
 
@@ -102,7 +103,7 @@ bool ShaderReflector::CreatePushConstantRange(
 {
     outRange = {};
 
-    uint32_t pushCount = 0;
+    uint32 pushCount = 0;
     spvReflectEnumeratePushConstantBlocks(&module, &pushCount, nullptr);
 
     std::vector<SpvReflectBlockVariable*> pushBlocks(pushCount);

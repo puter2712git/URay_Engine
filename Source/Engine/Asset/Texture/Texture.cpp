@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include "Core/Type/Types.h"
+
 namespace URay
 {
 
@@ -8,7 +10,7 @@ URAY_REGISTER_CLASS(Texture)
 Texture::Texture(
     const std::string& filePath,
     int width, int height, int channels,
-    const std::vector<uint8_t>& pixels)
+    const std::vector<uint8>& pixels)
     : filePath(filePath),
       width(width), height(height), channels(channels),
       pixels(pixels)

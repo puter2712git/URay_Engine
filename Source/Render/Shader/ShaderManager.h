@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Core/File/VirtualPath.h"
+#include "Core/Type/Types.h"
 
 #include <string>
 #include <unordered_map>
-
 #include <vulkan/vulkan.h>
 
 namespace URay
@@ -31,7 +31,7 @@ public:
 private:
     VirtualFilesystem& filesystem;
 
-    uint64_t shaderIdCounter = 0;
+    uint64 shaderIdCounter = 0;
     std::unordered_map<std::string, Shader*> shaders;
 };
 

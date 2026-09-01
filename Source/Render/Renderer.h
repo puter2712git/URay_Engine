@@ -5,9 +5,9 @@
 
 #include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
+#include "Core/Type/Types.h"
 
 #include <vulkan/vulkan.h>
-
 #include <memory>
 #include <optional>
 #include <vector>
@@ -45,7 +45,7 @@ struct ObjectConstants
 {
     Matrix world = Matrix::Identity;
     Color colorTint = Color::White;
-    uint32_t objectId = 0;
+    uint32 objectId = 0;
 };
 
 struct FrameConstants
@@ -165,7 +165,7 @@ private:
 
     std::unique_ptr<SwapChain> swapChain = nullptr;
     std::vector<std::unique_ptr<Framebuffer>> swapChainFramebuffers;
-    uint32_t imageIndex = 0;
+    uint32 imageIndex = 0;
 
     std::unique_ptr<RenderTarget> sceneRenderTarget = nullptr;
     std::unique_ptr<Framebuffer> sceneFramebuffer = nullptr;

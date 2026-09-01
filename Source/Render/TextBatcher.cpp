@@ -2,13 +2,15 @@
 
 #include "Render/DrawCommand/DrawCommandContext.h"
 #include "Render/GPUResourceManager.h"
+#include "Render/Renderer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
-#include "Render/Renderer.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
+
+#include "Core/Type/Types.h"
 
 #include "Engine/Asset/Font/Font.h"
 
@@ -81,7 +83,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         DrawCommand cmd = {};
         cmd.worldMatrix = Matrix::Identity;
         cmd.vertexBuffer = vertexBuffer.get();
-        cmd.vertexCount = static_cast<uint32_t>(verts.size());
+        cmd.vertexCount = static_cast<uint32>(verts.size());
 
         PipelineStateDesc psoDesc = {};
         psoDesc.shader = shaderManager.GetOrCreate("Font");

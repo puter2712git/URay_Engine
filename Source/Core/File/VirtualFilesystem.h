@@ -2,6 +2,8 @@
 
 #include "VirtualPath.h"
 
+#include "Core/Type/Types.h"
+
 #include <filesystem>
 #include <string>
 #include <unordered_map>
@@ -25,7 +27,7 @@ public:
 
     bool Exists(const VirtualPath& virtualPath) const;
 
-    std::vector<uint8_t> ReadBinary(const VirtualPath& virtualPath) const;
+    std::vector<uint8> ReadBinary(const VirtualPath& virtualPath) const;
     std::string ReadText(const VirtualPath& path) const;
 
     bool WriteText(const VirtualPath& path, const std::string& text) const;

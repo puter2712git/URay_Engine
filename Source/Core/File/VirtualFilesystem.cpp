@@ -1,5 +1,7 @@
 #include "VirtualFilesystem.h"
 
+#include "Core/Type/Types.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -17,19 +19,19 @@ bool VirtualFilesystem::Exists(const VirtualPath& virtualPath) const
     return fs::exists(physicalPath);
 }
 
-std::vector<uint8_t> VirtualFilesystem::ReadBinary(const VirtualPath& virtualPath) const
+std::vector<uint8> VirtualFilesystem::ReadBinary(const VirtualPath& virtualPath) const
 {
     if (!Exists(virtualPath))
-        return std::vector<uint8_t>();
+        return std::vector<uint8>();
 
     fs::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath, std::ios::ate | std::ios::binary);
     if (!file | !file.is_open())
-        return std::vector<uint8_t>();
+        return std::vector<uint8>();
 
     const size_t size = static_cast<size_t>(file.tellg());
-    std::vector<uint8_t> buffer(size);
+    std::vector<uint8> buffer(size);
 
     file.seekg(0, std::ios::beg);
     file.read(reinterpret_cast<char*>(buffer.data()), size);

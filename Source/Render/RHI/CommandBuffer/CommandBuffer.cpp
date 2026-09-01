@@ -9,6 +9,8 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
 
+#include "Core/Type/Types.h"
+
 namespace URay::Render
 {
 
@@ -35,7 +37,7 @@ bool CommandBuffer::Begin(CommandBufferUsage usage)
 {
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = static_cast<uint32_t>(usage);
+    beginInfo.flags = static_cast<uint32>(usage);
 
     if (vkBeginCommandBuffer(handle, &beginInfo) != VK_SUCCESS)
         return false;
@@ -70,7 +72,7 @@ void CommandBuffer::BeginRenderPass(
     beginInfo.renderPass = pass;
     beginInfo.framebuffer = framebuffer.GetHandle();
     beginInfo.renderArea = renderArea;
-    beginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    beginInfo.clearValueCount = static_cast<uint32>(clearValues.size());
     beginInfo.pClearValues = clearValues.data();
 
     vkCmdBeginRenderPass(handle, &beginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -101,7 +103,7 @@ void CommandBuffer::BindIndexBuffer(const IndexBuffer& buffer)
 void CommandBuffer::BindDescriptorSet(
     const PipelineLayout& layout,
     const DescriptorSet& descriptorSet,
-    uint32_t set)
+    uint32 set)
 {
     VkDescriptorSet vkDescriptorSet = descriptorSet.GetHandle();
 
@@ -138,8 +140,8 @@ void CommandBuffer::SetViewport(
 void CommandBuffer::SetScissor(
     int offsetX,
     int offsetY,
-    uint32_t width,
-    uint32_t height)
+    uint32 width,
+    uint32 height)
 {
     VkRect2D scissor = {};
     scissor.offset.x = offsetX;
@@ -150,7 +152,7 @@ void CommandBuffer::SetScissor(
     vkCmdSetScissor(handle, 0, 1, &scissor);
 }
 
-void CommandBuffer::ClearDepth(float depth, uint32_t stencil, uint32_t width, uint32_t height)
+void CommandBuffer::ClearDepth(float depth, uint32 stencil, uint32 width, uint32 height)
 {
     VkClearAttachment attachment = {};
     attachment.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -175,12 +177,12 @@ void CommandBuffer::ClearDepth(float depth, uint32_t stencil, uint32_t width, ui
         &clearRect);
 }
 
-void CommandBuffer::Draw(uint32_t vertexCount)
+void CommandBuffer::Draw(uint32 vertexCount)
 {
     vkCmdDraw(handle, vertexCount, 1, 0, 0);
 }
 
-void CommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset)
+void CommandBuffer::DrawIndexed(uint32 indexCount, uint32 indexOffset)
 {
     vkCmdDrawIndexed(handle, indexCount, 1, indexOffset, 0, 0);
 }

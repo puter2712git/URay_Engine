@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include "Render/Vertex.h"
 
 #include <string>
@@ -23,7 +25,7 @@ public:
     bool CreateDefaultMeshes(Material* defaultMaterial);
 
     Mesh* CreateMesh(const std::string& key,
-                     const std::vector<Render::VertexPNT>& vertices, const std::vector<uint32_t>& indices);
+                     const std::vector<Render::VertexPNT>& vertices, const std::vector<uint32>& indices);
 
     Mesh* GetMesh(const std::string& key) const;
     const std::unordered_map<std::string, Mesh*>& GetMeshes() const { return meshes; }

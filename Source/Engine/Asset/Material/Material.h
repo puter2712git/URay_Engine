@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/Color.h"
+#include "Core/Type/Types.h"
 
 #include <cstdint>
 #include <vector>
@@ -37,7 +38,7 @@ public:
     const Color& GetBaseColor() const { return baseColor; }
     void SetBaseColor(const Color& inBaseColor) { baseColor = inBaseColor; }
 
-    Render::DescriptorSet* GetDescriptorSet(uint32_t frameIndex) const
+    Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const
     {
         if (descriptorSets.size() <= frameIndex)
             return nullptr;

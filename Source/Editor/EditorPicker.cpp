@@ -6,6 +6,7 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Ray.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Type/Types.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"
@@ -95,7 +96,7 @@ bool EditorPicker::PickGizmo(const Ray& ray, int& outAxis) const
         const Mesh* meshAsset = gizmo->GetMesh();
 
         const std::vector<Render::VertexPNT>& vertices = meshAsset->GetVertices();
-        const std::vector<uint32_t>& indices = meshAsset->GetIndices();
+        const std::vector<uint32>& indices = meshAsset->GetIndices();
 
         const Matrix gizmoWorld = gizmo->GetWorldMatrix(axis);
         const Matrix invGizmoWorld = gizmoWorld.Inverse();
@@ -142,7 +143,7 @@ bool EditorPicker::PickMesh(const Ray& ray, const MeshComponent* meshComp, float
         return false;
 
     const std::vector<Render::VertexPNT>& vertices = mesh->GetVertices();
-    const std::vector<uint32_t>& indices = mesh->GetIndices();
+    const std::vector<uint32>& indices = mesh->GetIndices();
 
     bool isHit = false;
 

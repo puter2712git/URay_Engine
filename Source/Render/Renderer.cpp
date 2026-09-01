@@ -1,7 +1,8 @@
 #include "Renderer.h"
 
-#include "Engine/Asset/Material/MaterialManager.h"
 #include "Render/GPUResourceManager.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderPass/RenderPass.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
@@ -19,16 +20,16 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
-#include "Render/RenderInfo.h"
-#include "Render/RenderPass/RenderPass.h"
 #include "Render/Scene/RenderScene.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 
-#include "Engine/Asset/Material/Material.h"
-#include "Engine/Scene/Scene.h"
-
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Type/Types.h"
+
+#include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Material/MaterialManager.h"
+#include "Engine/Scene/Scene.h"
 
 #include "Platform/Window/Window.h"
 
@@ -73,8 +74,8 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
 
     SwapChainDesc swapChainDesc = {};
     swapChainDesc.extent = {
-        .width = static_cast<uint32_t>(width),
-        .height = static_cast<uint32_t>(height),
+        .width = static_cast<uint32>(width),
+        .height = static_cast<uint32>(height),
     };
 
     swapChain.reset(device.CreateSwapChain(swapChainDesc));
@@ -152,7 +153,7 @@ bool Renderer::InitializeImGui(const VirtualFilesystem& filesystem)
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
-    const std::vector<uint8_t> fontBytes = filesystem.ReadBinary("RawAsset://Font/PretendardVariable.ttf");
+    const std::vector<uint8> fontBytes = filesystem.ReadBinary("RawAsset://Font/PretendardVariable.ttf");
     if (fontBytes.empty())
         return false;
 
@@ -186,7 +187,7 @@ bool Renderer::InitializeImGui(const VirtualFilesystem& filesystem)
     initInfo.DescriptorPool = VK_NULL_HANDLE;
     initInfo.DescriptorPoolSize = 8;
     initInfo.MinImageCount = 2;
-    initInfo.ImageCount = static_cast<uint32_t>(swapChain->GetImageViews().size());
+    initInfo.ImageCount = static_cast<uint32>(swapChain->GetImageViews().size());
     initInfo.PipelineInfoMain.RenderPass = swapChainRenderPass;
     initInfo.PipelineInfoMain.Subpass = 0;
     ImGui_ImplVulkan_Init(&initInfo);
@@ -380,8 +381,8 @@ void Renderer::RecreateSwapChain()
 
     SwapChainDesc swapChainDesc = {};
     swapChainDesc.extent = {
-        static_cast<uint32_t>(width),
-        static_cast<uint32_t>(height),
+        static_cast<uint32>(width),
+        static_cast<uint32>(height),
     };
     swapChain.reset(device.CreateSwapChain(swapChainDesc));
     if (!swapChain)
@@ -448,7 +449,7 @@ bool Renderer::CreateSceneRenderPass()
     std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.attachmentCount = static_cast<uint32>(attachments.size());
     renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
@@ -471,7 +472,7 @@ bool Renderer::CreateSceneRenderPass()
 
     std::array<VkSubpassDependency, 2> dependencies = { dependency, sceneToShaderRead };
 
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.dependencyCount = static_cast<uint32>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
     if (vkCreateRenderPass(device.GetVKDevice(), &renderPassInfo, nullptr, &sceneRenderPass) != VK_SUCCESS)
@@ -532,11 +533,11 @@ bool Renderer::CreatePostProcessRenderPass()
 
     VkRenderPassCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    createInfo.attachmentCount = static_cast<uint32>(attachments.size());
     createInfo.pAttachments = attachments.data();
     createInfo.subpassCount = 1;
     createInfo.pSubpasses = &subpass;
-    createInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    createInfo.dependencyCount = static_cast<uint32>(dependencies.size());
     createInfo.pDependencies = dependencies.data();
 
     if (vkCreateRenderPass(device.GetVKDevice(), &createInfo, nullptr, &postProcessRenderPass) != VK_SUCCESS)
@@ -593,7 +594,7 @@ bool Renderer::CreateRenderPass()
     std::array<VkAttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
     VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    renderPassInfo.attachmentCount = static_cast<uint32>(attachments.size());
     renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
@@ -871,7 +872,7 @@ void Renderer::DestroyFrameDescriptorSetLayout()
 
 bool Renderer::CreateFrameDescriptorSet()
 {
-    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         DescriptorSet* descriptorSet = device.CreateDescriptorSet(frameDescriptorSetLayout);
 

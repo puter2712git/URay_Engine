@@ -3,13 +3,15 @@
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
+#include "Core/Type/Types.h"
+
 #include "Render/GPUResourceManager.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderSystem.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
-#include "Render/RenderInfo.h"
-#include "Render/RenderSystem.h"
 #include "Render/Shader/Shader.h"
 
 namespace URay
@@ -50,7 +52,7 @@ bool Material::Initialize(Render::RenderDevice* renderDevice, Render::GPUResourc
     if (!descriptorSetLayout)
         return false;
 
-    for (uint32_t i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
+    for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
     {
         Render::DescriptorSet* set = renderDevice->CreateDescriptorSet(descriptorSetLayout);
         if (!set)

@@ -1,7 +1,8 @@
-#include "DescriptorSetLayoutBuilder.h"
-
 #include "DescriptorSetLayout.h"
+#include "DescriptorSetLayoutBuilder.h"
 #include "ResourceBinding.h"
+
+#include "Core/Type/Types.h"
 
 namespace URay::Render
 {
@@ -38,7 +39,7 @@ DescriptorSetLayout* DescriptorSetLayoutBuilder::Build(VkDevice device)
 {
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+    layoutInfo.bindingCount = static_cast<uint32>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
     VkDescriptorSetLayout handle = VK_NULL_HANDLE;

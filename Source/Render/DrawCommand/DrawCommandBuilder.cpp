@@ -2,15 +2,17 @@
 
 #include "Render/GPUResourceManager.h"
 #include "Render/LineBatcher.h"
+#include "Render/Renderer.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderSystem.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/RenderDevice.h"
-#include "Render/RenderInfo.h"
-#include "Render/RenderSystem.h"
-#include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
+
+#include "Core/Type/Types.h"
 
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
@@ -106,7 +108,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
-    cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
+    cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
@@ -141,9 +143,9 @@ void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
-    cmd.vertexCount = static_cast<uint32_t>(context.mesh->GetVertices().size());
+    cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();
-    cmd.indexCount = static_cast<uint32_t>(context.mesh->GetIndices().size());
+    cmd.indexCount = static_cast<uint32>(context.mesh->GetIndices().size());
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = false;

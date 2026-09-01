@@ -1,5 +1,8 @@
 #include "PropertyDrawer.h"
 
+#include "Core/Math/Vector3.h"
+#include "Core/Type/Types.h"
+
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
@@ -7,10 +10,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Object/Property/Property.h"
 
-#include "Core/Math/Vector3.h"
-
 #include <imgui/imgui.h>
-
 #include <cstring>
 
 namespace URay
@@ -61,40 +61,40 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawBool(Property& prop, void* addr)
 {
-    bool* data = reinterpret_cast<bool*>(static_cast<uint8_t*>(addr) + prop.offset);
+    bool* data = reinterpret_cast<bool*>(static_cast<uint8*>(addr) + prop.offset);
     return ImGui::Checkbox(prop.name.c_str(), data);
 }
 
 bool PropertyDrawer::DrawFloat(Property& prop, void* addr)
 {
     float* data = reinterpret_cast<float*>(
-        static_cast<uint8_t*>(addr) + prop.offset);
+        static_cast<uint8*>(addr) + prop.offset);
     return ImGui::DragFloat(prop.name.c_str(), data, 0.1f);
 }
 
 bool PropertyDrawer::DrawVector3(Property& prop, void* addr)
 {
-    Vector3* data = reinterpret_cast<Vector3*>(static_cast<uint8_t*>(addr) + prop.offset);
+    Vector3* data = reinterpret_cast<Vector3*>(static_cast<uint8*>(addr) + prop.offset);
     return ImGui::DragFloat3(prop.name.c_str(), &data->x, 0.1f);
 }
 
 bool PropertyDrawer::DrawVector4(Property& prop, void* addr)
 {
     Vector4* data = reinterpret_cast<Vector4*>(
-        static_cast<uint8_t*>(addr) + prop.offset);
+        static_cast<uint8*>(addr) + prop.offset);
     return ImGui::DragFloat4(prop.name.c_str(), &data->x, 0.1f);
 }
 
 bool PropertyDrawer::DrawColor(Property& prop, void* addr)
 {
     Color* data = reinterpret_cast<Color*>(
-        static_cast<uint8_t*>(addr) + prop.offset);
+        static_cast<uint8*>(addr) + prop.offset);
     return ImGui::ColorEdit4(prop.name.c_str(), &data->r);
 }
 
 bool PropertyDrawer::DrawString(Property& prop, void* addr)
 {
-    std::string* data = reinterpret_cast<std::string*>(static_cast<uint8_t*>(addr) + prop.offset);
+    std::string* data = reinterpret_cast<std::string*>(static_cast<uint8*>(addr) + prop.offset);
 
     char buffer[256];
     std::strncpy(buffer, data->c_str(), sizeof(buffer) - 1);
@@ -111,7 +111,7 @@ bool PropertyDrawer::DrawString(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
-    Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8_t*>(addr) + prop.offset);
+    Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8*>(addr) + prop.offset);
 
     const auto& meshes = gEngine->GetAssetSystem().GetMeshes();
 
@@ -168,7 +168,7 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 {
-    Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8_t*>(addr) + prop.offset);
+    Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8*>(addr) + prop.offset);
 
     const auto& textures = gEngine->GetAssetSystem().GetTextures();
 
@@ -225,7 +225,7 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
 {
-    Material** currMaterial = reinterpret_cast<Material**>(static_cast<uint8_t*>(addr) + prop.offset);
+    Material** currMaterial = reinterpret_cast<Material**>(static_cast<uint8*>(addr) + prop.offset);
 
     const auto& materials = gEngine->GetAssetSystem().GetMaterials();
 

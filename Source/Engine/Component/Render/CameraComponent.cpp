@@ -5,6 +5,7 @@
 #include "Engine/Scene/Unit.h"
 
 #include "Core/Math/Math.h"
+#include "Core/Type/Types.h"
 
 #include "Render/Scene/Object/ViewObject.h"
 
@@ -41,8 +42,8 @@ Render::RenderObject* CameraComponent::CreateRenderObject()
 
 Vector3 CameraComponent::ScreenToWorld(const Vector3& screenPos) const
 {
-    uint32_t width = viewportExtent.width;
-    uint32_t height = viewportExtent.height;
+    uint32 width = viewportExtent.width;
+    uint32 height = viewportExtent.height;
 
     float ndcX = (2.0f * screenPos.x) / width - 1.0f;
     float ndcY = 1.0f - (2.0f * screenPos.y) / height;
@@ -105,8 +106,8 @@ void CameraComponent::UpdateViewMatrix()
 
 void CameraComponent::UpdateProjMatrix()
 {
-    uint32_t width = viewportExtent.width;
-    uint32_t height = viewportExtent.height;
+    uint32 width = viewportExtent.width;
+    uint32 height = viewportExtent.height;
 
     if (width == 0 || height == 0)
         return;

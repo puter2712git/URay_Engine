@@ -4,6 +4,8 @@
 #include "Render/RenderPass/RenderPass.h"
 #include "Render/RenderPass/RenderPassId.h"
 
+#include "Core/Type/Types.h"
+
 #include <array>
 #include <memory>
 #include <vector>
@@ -51,7 +53,7 @@ private:
     std::unique_ptr<DrawCommandBuilder> builder = nullptr;
 
     std::vector<std::unique_ptr<RenderPass>> passes;
-    std::array<std::vector<DrawCommand>, static_cast<uint8_t>(RenderPassId::Count)> drawCmds;
+    std::array<std::vector<DrawCommand>, static_cast<uint8>(RenderPassId::Count)> drawCmds;
 };
 
 } // namespace URay::Render

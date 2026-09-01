@@ -2,6 +2,8 @@
 
 #include "Render/RHI/PushConstantRange.h"
 
+#include "Core/Type/Types.h"
+
 #include <map>
 #include <vector>
 
@@ -12,7 +14,7 @@ class DescriptorSetLayout;
 
 struct PipelineLayoutDesc
 {
-    std::map<uint32_t, DescriptorSetLayout*> setLayouts;
+    std::map<uint32, DescriptorSetLayout*> setLayouts;
     std::vector<PushConstantRange> pushConstantRanges;
 
     bool operator==(const PipelineLayoutDesc&) const = default;

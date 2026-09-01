@@ -1,13 +1,14 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "Core/Type/Types.h"
 
+#include <vulkan/vulkan.h>
 #include <cstdint>
 
 namespace URay::Render
 {
 
-enum class ShaderStageFlags : uint32_t
+enum class ShaderStageFlags : uint32
 {
     Vertex = 1 << 0,
     Fragment = 1 << 1,
@@ -17,13 +18,13 @@ enum class ShaderStageFlags : uint32_t
 constexpr ShaderStageFlags operator|(ShaderStageFlags lhs, ShaderStageFlags rhs)
 {
     return static_cast<ShaderStageFlags>(
-        static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+        static_cast<uint32>(lhs) | static_cast<uint32>(rhs));
 }
 
 constexpr ShaderStageFlags operator&(ShaderStageFlags lhs, ShaderStageFlags rhs)
 {
     return static_cast<ShaderStageFlags>(
-        static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+        static_cast<uint32>(lhs) & static_cast<uint32>(rhs));
 }
 
 constexpr VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags)

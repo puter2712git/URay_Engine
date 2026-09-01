@@ -1,8 +1,8 @@
+#include "Texture.h"
 #include "TextureManager.h"
 
-#include "Texture.h"
-
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Type/Types.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -36,7 +36,7 @@ Texture* TextureManager::LoadTexture(const std::string& key, const VirtualPath& 
     if (!filesystem.Exists(virtualPath))
         return nullptr;
 
-    std::vector<uint8_t> fileBytes = filesystem.ReadBinary(virtualPath);
+    std::vector<uint8> fileBytes = filesystem.ReadBinary(virtualPath);
 
     int width, height, channels;
     stbi_uc* data = stbi_load_from_memory(fileBytes.data(), static_cast<int>(fileBytes.size()),
@@ -46,7 +46,7 @@ Texture* TextureManager::LoadTexture(const std::string& key, const VirtualPath& 
     if (!data)
         return nullptr;
 
-    std::vector<uint8_t> pixels(data, data + width * height * 4);
+    std::vector<uint8> pixels(data, data + width * height * 4);
 
     Texture* texture = new Texture(virtualPath.ToString(), width, height, channels, pixels);
     texture->SetName(key);

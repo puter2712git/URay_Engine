@@ -4,9 +4,10 @@
 #include "Render/RHI/Queue/QueueType.h"
 #include "Render/Vertex.h"
 
+#include "Core/Type/Types.h"
+
 #include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>
-
 #include <memory>
 #include <optional>
 #include <span>
@@ -48,8 +49,8 @@ struct SwapChainDesc;
 
 struct QueueFamilyIndices
 {
-    std::optional<uint32_t> graphicsFamily;
-    std::optional<uint32_t> presentFamily;
+    std::optional<uint32> graphicsFamily;
+    std::optional<uint32> presentFamily;
 
     bool IsComplete() const
     {
@@ -71,11 +72,11 @@ public:
     VertexBuffer* CreateVertexBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
 
-    IndexBuffer* CreateIndexBuffer(const std::vector<uint32_t>& indices);
+    IndexBuffer* CreateIndexBuffer(const std::vector<uint32>& indices);
     MeshBuffer* CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
     Texture* CreateTexture(const TextureDesc& desc);
-    bool UploadTextureData(Texture* texture, std::span<const uint8_t> pixelData);
+    bool UploadTextureData(Texture* texture, std::span<const uint8> pixelData);
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
 
@@ -95,14 +96,14 @@ public:
                       VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
 
-    bool CreateImage(uint32_t width, uint32_t height,
+    bool CreateImage(uint32 width, uint32 height,
                      VkFormat format, VkImageTiling tiling,
                      VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                      VkImage& image, VkDeviceMemory& imageMemory) const;
     void TransitionImageLayout(VkImage image, VkFormat format,
                                VkImageLayout oldLayout, VkImageLayout newLayout) const;
     void CopyBufferToImage(VkBuffer buffer, VkImage image,
-                           uint32_t width, uint32_t height) const;
+                           uint32 width, uint32 height) const;
     VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
     QueueFamilyIndices FindQueueFamilyIndices(VkPhysicalDevice device) const;
@@ -126,9 +127,9 @@ private:
     void CreateDescriptorPool();
     void DestroyDescriptorPool();
 
-    VkShaderModule CreateShaderModule(const std::vector<uint8_t>& code) const;
+    VkShaderModule CreateShaderModule(const std::vector<uint8>& code) const;
 
-    uint32_t FindMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) const;
+    uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties) const;
 
 private:
     VulkanContext& context;

@@ -1,9 +1,10 @@
 #include "VulkanContext.h"
 
+#include "Core/Type/Types.h"
+
 #include "Platform/Window/Window.h"
 
 #include <glfw/glfw3.h>
-
 #include <iostream>
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
@@ -113,13 +114,13 @@ bool VulkanContext::CreateInstance(const VulkanContextDesc& desc)
     extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.enabledExtensionCount = static_cast<uint32>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = {};
     if (enableValidationLayers)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.enabledLayerCount = static_cast<uint32>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
         PopulateDebugMessengerCreateInfo(debugCreateInfo);
@@ -169,7 +170,7 @@ bool VulkanContext::CreateSurface(Window& window)
 
 bool VulkanContext::CheckValidationLayerSupport() const
 {
-    uint32_t layerCount = 0;
+    uint32 layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
     std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -197,7 +198,7 @@ bool VulkanContext::CheckValidationLayerSupport() const
 
 std::vector<const char*> VulkanContext::GetRequiredExtensions() const
 {
-    uint32_t glfwExtensionCount = 0;
+    uint32 glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 

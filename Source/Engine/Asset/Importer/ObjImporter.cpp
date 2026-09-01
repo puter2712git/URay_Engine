@@ -1,14 +1,15 @@
 #include "ObjImporter.h"
 
-#include "Engine/Engine.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Engine.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Type/Types.h"
 
 #include <iostream>
 #include <sstream>
@@ -44,10 +45,10 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
     ParseMtl(mtlPath);
 
     std::vector<VertexPNT> vertices;
-    std::vector<uint32_t> indices;
-    std::unordered_map<ObjIndex, uint32_t, ObjIndexHash> vertexMap;
+    std::vector<uint32> indices;
+    std::unordered_map<ObjIndex, uint32, ObjIndexHash> vertexMap;
 
-    auto AddVertex = [&](const ObjIndex& objIndex) -> uint32_t
+    auto AddVertex = [&](const ObjIndex& objIndex) -> uint32
     {
         auto it = vertexMap.find(objIndex);
         if (it != vertexMap.end())
@@ -67,7 +68,7 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
             vertex.normal = normals[objIndex.normalIndex];
         }
 
-        uint32_t newIndex = static_cast<uint32_t>(vertices.size());
+        uint32 newIndex = static_cast<uint32>(vertices.size());
         vertices.push_back(vertex);
         vertexMap.insert({ objIndex, newIndex });
 
@@ -76,7 +77,7 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
 
     MaterialImportResult materialImportResult = CreateMaterials(filePath.ToString());
     std::vector<Material*>& materials = materialImportResult.materials;
-    std::unordered_map<std::string, uint32_t>& materialSlots = materialImportResult.slots;
+    std::unordered_map<std::string, uint32>& materialSlots = materialImportResult.slots;
 
     if (materials.empty())
     {
@@ -86,12 +87,12 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
 
     std::vector<MeshSection> sections;
 
-    uint32_t activeMaterialSlot = UINT32_MAX;
+    uint32 activeMaterialSlot = UINT32_MAX;
     MeshSection activeSection = {};
 
     for (const Face& face : faces)
     {
-        uint32_t materialSlot = 0;
+        uint32 materialSlot = 0;
 
         auto it = materialSlots.find(face.mtlName);
         if (it != materialSlots.end())
@@ -108,7 +109,7 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
 
             activeMaterialSlot = materialSlot;
             activeSection = {
-                .indexOffset = static_cast<uint32_t>(indices.size()),
+                .indexOffset = static_cast<uint32>(indices.size()),
                 .indexCount = 0,
                 .materialIndex = materialSlot
             };
@@ -344,7 +345,7 @@ ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string
             }
         }
 
-        uint32_t slot = static_cast<uint32_t>(result.materials.size());
+        uint32 slot = static_cast<uint32>(result.materials.size());
 
         result.materials.push_back(material);
         result.slots.insert({ info.mtlName, slot });

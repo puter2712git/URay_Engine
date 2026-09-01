@@ -1,13 +1,14 @@
 #pragma once
 
-#include <vulkan/vulkan.h>
+#include "Core/Type/Types.h"
 
+#include <vulkan/vulkan.h>
 #include <cstdint>
 
 namespace URay::Render
 {
 
-enum class CommandPoolFlags : uint32_t
+enum class CommandPoolFlags : uint32
 {
     None = 0,
     Transient = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT,

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include <cstdint>
 
 namespace URay::Render
@@ -19,7 +21,7 @@ enum class Format
     D24_UNorm_S8_UInt,
 };
 
-enum class TextureUsage : uint32_t
+enum class TextureUsage : uint32
 {
     None = 0,
     TransferSrc = 1 << 0,
@@ -32,19 +34,19 @@ enum class TextureUsage : uint32_t
 constexpr TextureUsage operator|(TextureUsage lhs, TextureUsage rhs)
 {
     return static_cast<TextureUsage>(
-        static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+        static_cast<uint32>(lhs) | static_cast<uint32>(rhs));
 }
 
 constexpr TextureUsage operator&(TextureUsage lhs, TextureUsage rhs)
 {
     return static_cast<TextureUsage>(
-        static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+        static_cast<uint32>(lhs) & static_cast<uint32>(rhs));
 }
 
 struct TextureDesc
 {
-    uint32_t width = 0;
-    uint32_t height = 0;
+    uint32 width = 0;
+    uint32 height = 0;
 
     Format format = Format::Unknown;
     TextureUsage usage = TextureUsage::None;

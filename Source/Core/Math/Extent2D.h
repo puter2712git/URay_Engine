@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include <cstdint>
 
 namespace URay
@@ -7,8 +9,8 @@ namespace URay
 
 struct Extent2D
 {
-    uint32_t width = 0;
-    uint32_t height = 0;
+    uint32 width = 0;
+    uint32 height = 0;
 };
 
 } // namespace URay

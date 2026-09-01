@@ -3,6 +3,8 @@
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Texture/TextureView.h"
 
+#include "Core/Type/Types.h"
+
 namespace URay::Render
 {
 
@@ -16,7 +18,7 @@ DescriptorSet::~DescriptorSet()
 }
 
 void DescriptorSet::WriteUniformBuffer(
-    uint32_t binding,
+    uint32 binding,
     const ConstantBuffer* buffer,
     VkDeviceSize offset,
     VkDeviceSize range)
@@ -38,7 +40,7 @@ void DescriptorSet::WriteUniformBuffer(
 }
 
 void DescriptorSet::WriteSampledImage(
-    uint32_t binding,
+    uint32 binding,
     const TextureView* textureView,
     VkImageLayout layout)
 {
@@ -58,7 +60,7 @@ void DescriptorSet::WriteSampledImage(
 }
 
 void DescriptorSet::WriteSampler(
-    uint32_t binding,
+    uint32 binding,
     VkSampler sampler)
 {
     VkDescriptorImageInfo samplerInfo = {};

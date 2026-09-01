@@ -8,6 +8,8 @@
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 
+#include "Core/Type/Types.h"
+
 namespace URay::Render
 {
 
@@ -67,7 +69,7 @@ DrawCommand LineBatcher::Flush()
     DrawCommand cmd = {};
     cmd.worldMatrix = Matrix::Identity;
     cmd.vertexBuffer = vertexBuffer.get();
-    cmd.vertexCount = static_cast<uint32_t>(vertices.size());
+    cmd.vertexCount = static_cast<uint32>(vertices.size());
 
     PipelineStateDesc psoDesc = {};
     psoDesc.shader = shaderManager.GetOrCreate("Line");

@@ -3,11 +3,11 @@
 #include "Engine/Object/Object.h"
 
 #include "Core/Math/AABB.h"
+#include "Core/Type/Types.h"
 
 #include "Render/Vertex.h"
 
 #include <vulkan/vulkan.h>
-
 #include <string>
 #include <vector>
 
@@ -18,8 +18,8 @@ class Material;
 
 struct MeshSection
 {
-    uint32_t indexOffset = 0;
-    uint32_t indexCount = 0;
+    uint32 indexOffset = 0;
+    uint32 indexCount = 0;
     size_t materialIndex = 0;
 };
 
@@ -37,8 +37,8 @@ public:
     const std::vector<Render::VertexPNT>& GetVertices() const { return vertices; }
     void SetVertices(const std::vector<Render::VertexPNT>& newVertices);
 
-    const std::vector<uint32_t>& GetIndices() const { return indices; }
-    void SetIndices(const std::vector<uint32_t>& newIndices) { indices = newIndices; }
+    const std::vector<uint32>& GetIndices() const { return indices; }
+    void SetIndices(const std::vector<uint32>& newIndices) { indices = newIndices; }
 
     const std::vector<MeshSection>& GetSections() const { return sections; }
     void SetSections(const std::vector<MeshSection>& newSections) { sections = newSections; }
@@ -52,7 +52,7 @@ public:
 private:
     std::string name;
     std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32_t> indices;
+    std::vector<uint32> indices;
     std::vector<MeshSection> sections;
     std::vector<Material*> defaultMaterials;
 

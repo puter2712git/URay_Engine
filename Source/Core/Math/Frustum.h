@@ -2,6 +2,7 @@
 
 #include "Core/Math/AABB.h"
 #include "Core/Math/Plane.h"
+#include "Core/Type/Types.h"
 
 #include <array>
 
@@ -15,7 +16,7 @@ enum class FrustumIntersection
     Inside,
 };
 
-enum class FrustumPlane : uint8_t
+enum class FrustumPlane : uint8
 {
     Left,
     Right,

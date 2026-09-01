@@ -1,9 +1,9 @@
-#include "ShaderManager.h"
-
 #include "Shader.h"
+#include "ShaderManager.h"
 #include "ShaderReflector.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Type/Types.h"
 
 namespace URay::Render
 {
@@ -35,11 +35,11 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     if (it != shaders.end())
         return it->second;
 
-    std::vector<uint8_t> vertexShaderCode = filesystem.ReadBinary(vertexFilePath);
+    std::vector<uint8> vertexShaderCode = filesystem.ReadBinary(vertexFilePath);
     if (vertexShaderCode.empty())
         return nullptr;
 
-    std::vector<uint8_t> fragmentShaderCode = filesystem.ReadBinary(fragmentFilePath);
+    std::vector<uint8> fragmentShaderCode = filesystem.ReadBinary(fragmentFilePath);
     if (fragmentShaderCode.empty())
         return nullptr;
 

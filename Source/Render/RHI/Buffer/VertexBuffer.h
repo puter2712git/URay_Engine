@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Type/Types.h"
+
 #include <vulkan/vulkan.h>
 
 namespace URay::Render
@@ -10,7 +12,7 @@ class Renderer;
 class VertexBuffer
 {
 public:
-    VertexBuffer(VkDevice device, uint32_t size,
+    VertexBuffer(VkDevice device, uint32 size,
                  VkBuffer handle, VkDeviceMemory memory);
     ~VertexBuffer();
 
@@ -23,7 +25,7 @@ public:
 
 private:
     VkDevice device = VK_NULL_HANDLE;
-    uint32_t size = 0;
+    uint32 size = 0;
 
     VkBuffer handle = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
