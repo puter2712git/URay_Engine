@@ -84,24 +84,15 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
 
     for (const RenderScene* scene : scenes)
     {
-        for (RenderObject* object : scene->GetUnboundedObjects())
-        {
-            if (DrawableObject* drawableObject =
-                    dynamic_cast<DrawableObject*>(object))
-            {
-                drawableObject->Submit(*builder);
-            }
-        }
+        size_t objectCount = scene->GetObjectCount();
 
-        std::vector<BoundedObject*> visibleObjects;
-        scene->GetOctree()->Query(frustum, visibleObjects);
-
-        for (BoundedObject* boundedObject : visibleObjects)
+        for (size_t i = 0; i < objectCount; ++i)
         {
-            if (DrawableObject* drawableObject =
-                    dynamic_cast<DrawableObject*>(boundedObject))
+            RenderObject* robj = scene->GetObject(i);
+
+            if (DrawableObject* drawableObj = dynamic_cast<DrawableObject*>(robj))
             {
-                drawableObject->Submit(*builder);
+                drawableObj->Submit(*builder);
             }
         }
     }

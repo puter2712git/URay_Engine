@@ -128,4 +128,17 @@ void Scene::AddUnit(Unit* unit)
     }
 }
 
+void Scene::DestroyUnit(Unit* unit)
+{
+    if (!unit)
+        return;
+
+    auto it = std::find(units.begin(), units.end(), unit);
+    if (it != units.end())
+    {
+        delete unit;
+        units.erase(it);
+    }
+}
+
 } // namespace URay

@@ -15,6 +15,9 @@ class RenderComponent : public Component
     URAY_CLASS(RenderComponent, Component)
 
 public:
+    virtual ~RenderComponent() override;
+
+public:
     virtual void Update(float deltaTime) override;
     virtual void OnAttached() override;
     virtual void OnDetached() override;

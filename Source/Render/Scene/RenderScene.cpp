@@ -10,13 +10,7 @@
 namespace URay::Render
 {
 
-RenderScene::RenderScene()
-{
-    octree = std::make_unique<URay::Octree>(AABB{
-        .min = Vector3(-100.0f, -100.0f, -100.0f),
-        .max = Vector3(100.0f, 100.0f, 100.0f),
-    });
-}
+RenderScene::RenderScene() = default;
 
 RenderScene::~RenderScene() = default;
 
@@ -32,17 +26,16 @@ void RenderScene::Add(std::unique_ptr<RenderObject> object)
         viewObjects.push_back(viewObj);
     }
 
-    if (BoundedObject* boundedObject =
-            dynamic_cast<BoundedObject*>(renderObject))
-    {
-        octree->Insert(boundedObject);
-    }
-    else
-    {
-        unboundedObjects.push_back(renderObject);
-    }
-
     objects.push_back(std::move(object));
+}
+
+void RenderScene::Destroy(RenderObject* object)
+{
+    if (!object)
+        return;
+
+    std::erase_if(objects, [&](std::unique_ptr<RenderObject>& robj)
+                  { return object == robj.get(); });
 }
 
 } // namespace URay::Render

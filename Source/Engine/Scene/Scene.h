@@ -44,6 +44,7 @@ public:
     virtual void Deserialize(const YAML::Node& node) override;
 
     void AddUnit(Unit* unit);
+    void DestroyUnit(Unit* unit);
 
     const VirtualPath& GetFilePath() const { return filePath; }
     void SetFilePath(const VirtualPath& filePath) { this->filePath = filePath; }

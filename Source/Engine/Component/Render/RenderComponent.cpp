@@ -1,13 +1,27 @@
 #include "RenderComponent.h"
 
+#include "Engine/Scene/Scene.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Scene/Object/RenderObject.h"
+#include "Render/Scene/RenderScene.h"
 
 namespace URay
 {
 
 URAY_REGISTER_CLASS(RenderComponent)
+
+RenderComponent::~RenderComponent()
+{
+    Unit* unit = GetOwner();
+    if (unit)
+    {
+        Scene* scene = unit->GetOwner();
+        Render::RenderScene* renderScene = scene->GetRenderScene();
+
+        renderScene->Destroy(renderObject);
+    }
+}
 
 void RenderComponent::RegisterClass()
 {

@@ -142,6 +142,20 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
         return {};
     }
 
+    if (event.key == KeyCode::Delete)
+    {
+        SceneSystem& sceneSystem = engine.GetSceneSystem();
+        Scene* currScene = sceneSystem.GetSceneByType(SceneType::Game);
+
+        Unit* selectedUnit = selectionSystem.GetSelectedUnit();
+
+        if (currScene && selectedUnit)
+        {
+            selectionSystem.SelectUnit(nullptr);
+            currScene->DestroyUnit(selectedUnit);
+        }
+    }
+
     if (event.key == KeyCode::Space && event.action == KeyAction::Pressed)
     {
         if (gizmo)
