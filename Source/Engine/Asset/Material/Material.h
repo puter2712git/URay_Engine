@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Core/Math/Color.h"
+
 #include <cstdint>
 #include <vector>
 
@@ -32,6 +34,9 @@ public:
     Texture* GetTexture() const { return texture; }
     void SetTexture(Texture* texture);
 
+    const Color& GetBaseColor() const { return baseColor; }
+    void SetBaseColor(const Color& inBaseColor) { baseColor = inBaseColor; }
+
     Render::DescriptorSet* GetDescriptorSet(uint32_t frameIndex) const
     {
         if (descriptorSets.size() <= frameIndex)
@@ -43,6 +48,7 @@ public:
 protected:
     Render::Shader* shader = nullptr;
     Texture* texture = nullptr;
+    Color baseColor = Color::White;
 
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<Render::DescriptorSet*> descriptorSets;

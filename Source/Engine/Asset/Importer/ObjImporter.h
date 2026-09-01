@@ -66,6 +66,7 @@ private:
         std::string mtlName;
 
         float specularExponent = 0.0f;
+        Vector3 diffuse = Vector3::One;
         Vector3 ambient = Vector3::One;
         Vector3 specular = Vector3::Zero;
         Vector3 emissive = Vector3::Zero;
@@ -93,7 +94,7 @@ private:
     ObjIndex ParseObjIndex(const std::string& token);
 
     void ParseMtl(const VirtualPath& mtlPath);
-    MaterialImportResult CreateMaterials();
+    MaterialImportResult CreateMaterials(const std::string& meshKey);
 
 private:
     VirtualFilesystem& filesystem;

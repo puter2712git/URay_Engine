@@ -2,6 +2,8 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 
+#include "Engine/Asset/Material/Material.h"
+
 namespace URay::Render
 {
 
@@ -39,7 +41,7 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
 
         builder.BuildMesh({
             .worldMatrix = worldMatrix,
-            .colorTint = Color::White,
+            .colorTint = materials[section.materialIndex]->GetBaseColor(),
             .mesh = mesh,
             .material = materials[section.materialIndex],
             .indexOffset = section.indexOffset,

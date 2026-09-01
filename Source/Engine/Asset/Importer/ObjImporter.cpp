@@ -74,7 +74,7 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
         return newIndex;
     };
 
-    MaterialImportResult materialImportResult = CreateMaterials();
+    MaterialImportResult materialImportResult = CreateMaterials(filePath.ToString());
     std::vector<Material*>& materials = materialImportResult.materials;
     std::unordered_map<std::string, uint32_t>& materialSlots = materialImportResult.slots;
 
@@ -277,6 +277,10 @@ void ObjImporter::ParseMtl(const VirtualPath& mtlPath)
         {
             ss >> mtlInfo.ambient.x >> mtlInfo.ambient.y >> mtlInfo.ambient.z;
         }
+        else if (type == "Kd")
+        {
+            ss >> mtlInfo.diffuse.x >> mtlInfo.diffuse.y >> mtlInfo.diffuse.z;
+        }
         else if (type == "Ks")
         {
             ss >> mtlInfo.specular.x >> mtlInfo.specular.y >> mtlInfo.specular.z;
@@ -309,13 +313,20 @@ void ObjImporter::ParseMtl(const VirtualPath& mtlPath)
     }
 }
 
-ObjImporter::MaterialImportResult ObjImporter::CreateMaterials()
+ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string& meshKey)
 {
     MaterialImportResult result = {};
 
     for (const MtlInfo& info : mtlInfos)
     {
-        Material* material = materialManager.GetOrCreate(info.mtlName, meshShader);
+        const std::string materialKey = meshKey + "::" + info.mtlName;
+        Material* material = materialManager.GetOrCreate(materialKey, meshShader);
+        material->SetBaseColor({
+            info.diffuse.x,
+            info.diffuse.y,
+            info.diffuse.z,
+            1.0f,
+        });
 
         if (!info.diffuseTexturePath.ToString().empty())
         {

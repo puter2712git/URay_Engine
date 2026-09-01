@@ -62,6 +62,7 @@ bool AssetSystem::InitializeRuntimeAssets(
     objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
     objImporter->Import("RawAsset://Mesh/apple_mid.obj");
     objImporter->Import("RawAsset://Mesh/bitten_apple_mid.obj");
+    objImporter->Import("RawAsset://Mesh/Village/village.obj");
 
     return true;
 }

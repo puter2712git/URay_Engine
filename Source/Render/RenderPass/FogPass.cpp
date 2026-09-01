@@ -135,8 +135,8 @@ void FogPass::Execute(
 {
     FogConstants constants = {};
     constants.fogColor = Color(0.75f, 0.75f, 0.8f, 1.0f);
-    constants.fogStart = 10.0f;
-    constants.fogEnd = 100.0f;
+    constants.fogStart = 5.0f;
+    constants.fogEnd = 20.0f;
     constants.density = 0.8f;
     constants.enabled = 1;
 
