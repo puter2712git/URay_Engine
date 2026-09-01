@@ -5,19 +5,19 @@
 
 #include <yaml-cpp/yaml.h>
 
-#define URAY_CLASS(self, parent)              \
-public:                                       \
-    typedef parent Super;                     \
-                                              \
-    static void RegisterClass();              \
-    inline static Class* StaticClass()        \
-    {                                         \
-        static Class* cls = new Class(#self); \
-        return cls;                           \
-    }                                         \
-    virtual Class* GetClass() const override  \
-    {                                         \
-        return self::StaticClass();           \
+#define URAY_CLASS(self, parent)                                     \
+public:                                                              \
+    typedef parent Super;                                            \
+                                                                     \
+    static void RegisterClass();                                     \
+    inline static Class* StaticClass()                               \
+    {                                                                \
+        static Class* cls = new Class(#self, parent::StaticClass()); \
+        return cls;                                                  \
+    }                                                                \
+    virtual Class* GetClass() const override                         \
+    {                                                                \
+        return self::StaticClass();                                  \
     }
 
 #define URAY_REGISTER_CLASS(self)            \
@@ -41,7 +41,7 @@ public:
 
     inline static Class* StaticClass()
     {
-        static Class* cls = new Class("Object");
+        static Class* cls = new Class("Object", nullptr);
         return cls;
     }
 
@@ -52,6 +52,28 @@ public:
 
     virtual YAML::Node Serialize();
     virtual void Deserialize(const YAML::Node& node);
+
+    bool IsA(Class* cls) const;
+
+    template <typename T>
+    bool IsA() const
+    {
+        return IsA(T::StaticClass());
+    }
 };
+
+template <typename To, typename From>
+To* Cast(From* src)
+{
+    if (src == nullptr)
+        return nullptr;
+
+    if (src->IsA<To>())
+    {
+        return static_cast<To*>(src);
+    }
+
+    return nullptr;
+}
 
 } // namespace URay

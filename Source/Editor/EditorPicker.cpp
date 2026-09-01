@@ -62,7 +62,7 @@ PickResult EditorPicker::Pick(CameraComponent* camera, float screenX, float scre
         {
             bool isHit = false;
 
-            if (const MeshComponent* meshComp = dynamic_cast<const MeshComponent*>(comp))
+            if (const MeshComponent* meshComp = Cast<const MeshComponent>(comp))
             {
                 isHit = PickMesh(ray, meshComp, minDist);
             }

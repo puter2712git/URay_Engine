@@ -107,7 +107,7 @@ Component* Unit::AddComponent(Component* comp)
     if (!comp)
         return nullptr;
 
-    if (TransformComponent* transformComp = dynamic_cast<TransformComponent*>(comp))
+    if (TransformComponent* transformComp = Cast<TransformComponent>(comp))
     {
         transform = transformComp;
     }
@@ -118,7 +118,7 @@ Component* Unit::AddComponent(Component* comp)
 
     if (scene)
     {
-        if (RenderComponent* renderComp = dynamic_cast<RenderComponent*>(comp))
+        if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
         {
             std::unique_ptr<Render::RenderObject> robj(renderComp->CreateRenderObject());
             if (robj && scene->GetRenderScene())

@@ -43,13 +43,13 @@ void Scene::Update(float deltaTime)
 
         for (Component* comp : comps)
         {
-            if (TransformComponent* transform = dynamic_cast<TransformComponent*>(comp))
+            if (TransformComponent* transform = Cast<TransformComponent>(comp))
             {
                 UpdateGroup& group = updateGroups[-100];
                 group.functions.emplace_back([transform](float dt)
                                              { transform->Update(dt); });
             }
-            else if (RenderComponent* renderComp = dynamic_cast<RenderComponent*>(comp))
+            else if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
             {
                 UpdateGroup& group = updateGroups[-101];
                 group.functions.emplace_back([renderComp](float dt)
@@ -120,7 +120,7 @@ void Scene::AddUnit(Unit* unit)
     const auto& components = unit->GetComponents();
     for (const auto& comp : components)
     {
-        if (RenderComponent* renderComp = dynamic_cast<RenderComponent*>(comp))
+        if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
         {
             std::unique_ptr<Render::RenderObject> robject(renderComp->CreateRenderObject());
             renderScene->Add(std::move(robject));

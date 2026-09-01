@@ -37,7 +37,7 @@ public:
     {
         for (Component* comp : components)
         {
-            if (T* target = dynamic_cast<T*>(comp))
+            if (T* target = Cast<T>(comp))
                 return target;
         }
         return nullptr;

@@ -11,7 +11,8 @@ namespace URay
 class Class
 {
 public:
-    Class(const std::string& name);
+    Class(const std::string& name, Class* superClass);
+    ~Class();
 
 public:
     void AddProperty(Property prop) { properties.push_back(prop); }
@@ -19,9 +20,13 @@ public:
 
     const std::string& GetName() const { return name; }
 
+    Class* GetSuperClass() const { return superClass; }
+
 private:
     std::string name;
     std::vector<Property> properties;
+
+    Class* superClass = nullptr;
 };
 
 } // namespace URay

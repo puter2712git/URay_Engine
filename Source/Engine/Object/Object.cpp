@@ -184,4 +184,19 @@ void Object::Deserialize(const YAML::Node& node)
     }
 }
 
+bool Object::IsA(Class* cls) const
+{
+    Class* self = GetClass();
+
+    do
+    {
+        if (self == cls)
+            return true;
+
+        self = self->GetSuperClass();
+    } while (self);
+
+    return false;
+}
+
 } // namespace URay
