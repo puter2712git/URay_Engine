@@ -16,11 +16,11 @@ OverlayPass::~OverlayPass() = default;
 
 void OverlayPass::Begin(const RenderPassContext& context)
 {
-    context.commandBuffer.ClearDepth(
-        0.0f,
-        0,
-        context.sceneRenderTarget.GetExtent().width,
-        context.sceneRenderTarget.GetExtent().height);
+    // context.commandBuffer.ClearDepth(
+    //     0.0f,
+    //     0,
+    //     context.sceneRenderTarget.GetExtent().width,
+    //     context.sceneRenderTarget.GetExtent().height);
 }
 
 void OverlayPass::End(const RenderPassContext& context)

@@ -30,6 +30,10 @@ struct RenderPassContext
     VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
     Framebuffer& sceneFramebuffer;
 
+    RenderTarget& postProcessRenderTarget;
+    VkRenderPass postProcessRenderPass = VK_NULL_HANDLE;
+    Framebuffer& postProcessFramebuffer;
+
     VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
     Framebuffer& swapChainFramebuffer;
     VkExtent2D swapChainExtent = {};

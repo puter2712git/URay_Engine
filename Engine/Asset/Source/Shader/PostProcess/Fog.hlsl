@@ -1,3 +1,5 @@
+#include "../Common.hlsli"
+
 struct FogConstants
 {
     float4 fogColor;
@@ -53,12 +55,14 @@ float4 PSMain(VSOut input) : SV_TARGET
     float4 sceneColor = sceneColorTexture.Sample(sceneSampler, input.uv);
     float depth = sceneDepthTexture.Sample(sceneSampler, input.uv);
     
+    float viewDistance = LinearViewDepth(depth, frame.nearPlane, frame.farPlane);
+    
     float fogFactor = 0.0;
     
     if (fog.enabled)
     {
         float fogRange = max(fog.fogEnd - fog.fogStart, 0.0001);
-        fogFactor = saturate((depth - fog.fogStart) / fogRange);
+        fogFactor = saturate((viewDistance - fog.fogStart) / fogRange);
         fogFactor *= saturate(fog.density);
     }
 

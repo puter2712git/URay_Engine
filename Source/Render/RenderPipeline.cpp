@@ -1,6 +1,7 @@
 #include "RenderPipeline.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/RenderPass/FogPass.h"
 #include "Render/RenderPass/OpaquePass.h"
 #include "Render/RenderPass/OverlayPass.h"
 #include "Render/RenderSystem.h"
@@ -38,6 +39,7 @@ bool RenderPipeline::Initialize()
 
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<OverlayPass>());
+    passes.push_back(std::make_unique<FogPass>(renderSystem));
 
     return true;
 }
@@ -114,9 +116,15 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
         .commandBuffer = renderer.GetCommandBuffer(),
         .resourceManager = renderSystem.GetResourceManager(),
         .frameDescriptorSet = renderer.GetFrameDescriptorSet(),
+
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
         .sceneRenderPass = renderer.GetSceneRenderPass(),
         .sceneFramebuffer = renderer.GetSceneFramebuffer(),
+
+        .postProcessRenderTarget = renderer.GetPostProcessRenderTarget(),
+        .postProcessRenderPass = renderer.GetPostProcessRenderPass(),
+        .postProcessFramebuffer = renderer.GetPostProcessFramebuffer(),
+
         .swapChainRenderPass = renderer.GetSwapChainRenderPass(),
         .swapChainFramebuffer = renderer.GetSwapChainFramebuffer(),
         .swapChainExtent = renderer.GetSwapChainExtent()

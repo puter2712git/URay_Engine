@@ -43,7 +43,7 @@ bool RenderTarget::Resize(const Extent2D& newExtent)
         .width = newExtent.width,
         .height = newExtent.height,
         .format = Format::D32_Float_S8_UInt,
-        .usage = TextureUsage::DepthAttachment,
+        .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled,
     };
 
     std::unique_ptr<Texture> newDepthTexture(renderDevice.CreateTexture(depthDesc));

@@ -14,21 +14,30 @@ set(URAY_SHADER_SOURCE_DIR
 set(URAY_SHADER_OUTPUT_DIR
     "${URAY_ENGINE_DIR}/Asset/Imported/Shader")
 
-file(GLOB URAY_HLSL_SHADERS CONFIGURE_DEPENDS
+file(GLOB_RECURSE URAY_HLSL_SHADERS CONFIGURE_DEPENDS
     "${URAY_SHADER_SOURCE_DIR}/*.hlsl")
-file(GLOB URAY_HLSL_INCLUDES CONFIGURE_DEPENDS
+file(GLOB_RECURSE URAY_HLSL_INCLUDES CONFIGURE_DEPENDS
     "${URAY_SHADER_SOURCE_DIR}/*.hlsli")
 
 set(URAY_COMPILED_SHADERS)
+
 foreach(shader_file IN LISTS URAY_HLSL_SHADERS)
     get_filename_component(shader_name "${shader_file}" NAME_WE)
+    get_filename_component(shader_directory "${shader_file}" DIRECTORY)
 
-    set(vertex_shader "${URAY_SHADER_OUTPUT_DIR}/${shader_name}.vert.spv")
-    set(fragment_shader "${URAY_SHADER_OUTPUT_DIR}/${shader_name}.frag.spv")
+    file(RELATIVE_PATH shader_relative_directory
+        "${URAY_SHADER_SOURCE_DIR}"
+        "${shader_directory}")
+
+    set(shader_output_directory
+        "${URAY_SHADER_OUTPUT_DIR}/${shader_relative_directory}")
+
+    set(vertex_shader "${shader_output_directory}/${shader_name}.vert.spv")
+    set(fragment_shader "${shader_output_directory}/${shader_name}.frag.spv")
 
     add_custom_command(
         OUTPUT "${vertex_shader}" "${fragment_shader}"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${URAY_SHADER_OUTPUT_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${shader_output_directory}"
         COMMAND "${DXC_EXECUTABLE}"
             -spirv -T vs_6_0 -E VSMain -I "${URAY_SHADER_SOURCE_DIR}"
             "${shader_file}" -Fo "${vertex_shader}"

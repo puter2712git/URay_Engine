@@ -52,6 +52,9 @@ struct FrameConstants
 {
     Matrix view = Matrix::Identity;
     Matrix proj = Matrix::Identity;
+
+    float nearPlane = 0.1f;
+    float farPlane = 1000.0f;
 };
 
 class Renderer
@@ -84,6 +87,10 @@ public:
     VkRenderPass GetSceneRenderPass() const { return sceneRenderPass; }
     Framebuffer& GetSceneFramebuffer() const { return *sceneFramebuffer; }
 
+    RenderTarget& GetPostProcessRenderTarget() const { return *postProcessRenderTarget; }
+    VkRenderPass GetPostProcessRenderPass() const { return postProcessRenderPass; }
+    Framebuffer& GetPostProcessFramebuffer() const { return *postProcessFramebuffer; }
+
     VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
     Framebuffer& GetSwapChainFramebuffer() const;
 
@@ -95,14 +102,26 @@ private:
     bool CreateSceneRenderPass();
     void DestroySceneRenderPass();
 
+    bool CreatePostProcessRenderPass();
+    void DestroyPostProcessRenderPass();
+
     bool CreateRenderPass();
     void DestroyRenderPass();
 
     bool CreateSceneRenderTarget();
     void DestroySceneRenderTarget();
 
+    bool CreatePostProcessRenderTarget();
+    void DestroyPostProcessRenderTarget();
+
     bool CreateSceneFramebuffer();
     void DestroySceneFramebuffer();
+
+    bool CreatePostProcessFramebuffer();
+    void DestroyPostProcessFramebuffer();
+
+    bool CreateSwapChainFramebuffer();
+    void DestroySwapChainFramebuffer();
 
     void CleanupSwapChain();
     void RecreateSwapChain();
@@ -150,9 +169,14 @@ private:
 
     std::unique_ptr<RenderTarget> sceneRenderTarget = nullptr;
     std::unique_ptr<Framebuffer> sceneFramebuffer = nullptr;
+
+    std::unique_ptr<RenderTarget> postProcessRenderTarget = nullptr;
+    std::unique_ptr<Framebuffer> postProcessFramebuffer = nullptr;
+
     VkDescriptorSet sceneImGuiTexture = VK_NULL_HANDLE;
 
     VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
+    VkRenderPass postProcessRenderPass = VK_NULL_HANDLE;
     VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
 
     std::unique_ptr<CommandPool> commandPool = nullptr;

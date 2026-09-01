@@ -9,6 +9,7 @@ enum class RenderPassId : uint8_t
 {
     Opaque,
     Overlay,
+    Fog,
     UI,
     Count,
 };

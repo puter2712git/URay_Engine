@@ -84,6 +84,8 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
 
     if (!CreateSceneRenderPass())
         return false;
+    if (!CreatePostProcessRenderPass())
+        return false;
     if (!CreateRenderPass())
         return false;
 
@@ -91,27 +93,16 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
         return false;
     if (!CreateSceneFramebuffer())
         return false;
+    if (!CreatePostProcessRenderTarget())
+        return false;
+    if (!CreatePostProcessFramebuffer())
+        return false;
 
     if (!CreateDepthResources())
         return false;
 
-    swapChainFramebuffers.resize(swapChain->GetImageViews().size());
-    for (size_t i = 0; i < swapChain->GetImageViews().size(); ++i)
-    {
-        std::array<VkImageView, 2> attachments = { swapChain->GetImageView(i),
-                                                   depthTextureView->GetHandle() };
-
-        FramebufferDesc desc = {};
-        desc.renderPass = swapChainRenderPass;
-        desc.attachments = attachments;
-        desc.extent = swapChain->GetExtent();
-
-        Framebuffer* framebuffer = device.CreateFramebuffer(desc);
-        if (!framebuffer)
-            return false;
-
-        swapChainFramebuffers[i].reset(framebuffer);
-    }
+    if (!CreateSwapChainFramebuffer())
+        return false;
 
     if (!CreateCommandBuffer())
         return false;
@@ -142,6 +133,10 @@ void Renderer::Finalize()
 
     DestroySceneFramebuffer();
     DestroySceneRenderTarget();
+
+    DestroyPostProcessFramebuffer();
+    DestroyPostProcessRenderTarget();
+    DestroyPostProcessRenderPass();
 
     DestroyRenderPass();
     DestroySceneRenderPass();
@@ -197,7 +192,7 @@ bool Renderer::InitializeImGui(const VirtualFilesystem& filesystem)
     ImGui_ImplVulkan_Init(&initInfo);
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        sceneRenderTarget->GetColorView()->GetHandle(),
+        postProcessRenderTarget->GetColorView()->GetHandle(),
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     return true;
@@ -245,6 +240,8 @@ bool Renderer::BeginFrame()
     FrameConstants frameConstants = {};
     frameConstants.view = viewMatrix;
     frameConstants.proj = projMatrix;
+    frameConstants.nearPlane = 0.1f;
+    frameConstants.farPlane = 1000.0f;
 
     frameConstantBuffers[currentFrame]->UpdateData(
         &frameConstants,
@@ -432,11 +429,11 @@ bool Renderer::CreateSceneRenderPass()
     depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 
     VkAttachmentReference depthAttachmentRef = {};
     depthAttachmentRef.attachment = 1;
@@ -467,8 +464,8 @@ bool Renderer::CreateSceneRenderPass()
     VkSubpassDependency sceneToShaderRead = {};
     sceneToShaderRead.srcSubpass = 0;
     sceneToShaderRead.dstSubpass = VK_SUBPASS_EXTERNAL;
-    sceneToShaderRead.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    sceneToShaderRead.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    sceneToShaderRead.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT;
+    sceneToShaderRead.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     sceneToShaderRead.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
     sceneToShaderRead.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
@@ -488,6 +485,72 @@ void Renderer::DestroySceneRenderPass()
     if (sceneRenderPass)
     {
         vkDestroyRenderPass(device.GetVKDevice(), sceneRenderPass, nullptr);
+    }
+}
+
+bool Renderer::CreatePostProcessRenderPass()
+{
+    VkAttachmentDescription colorAttachment = {};
+    colorAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    VkAttachmentReference colorAttachmentRef = {};
+    colorAttachmentRef.attachment = 0;
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    VkSubpassDependency externalToPostProcess = {};
+    externalToPostProcess.srcSubpass = VK_SUBPASS_EXTERNAL;
+    externalToPostProcess.dstSubpass = 0;
+    externalToPostProcess.srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    externalToPostProcess.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+    externalToPostProcess.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    externalToPostProcess.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    VkSubpassDependency postProcessToExternal = {};
+    postProcessToExternal.srcSubpass = 0;
+    postProcessToExternal.dstSubpass = VK_SUBPASS_EXTERNAL;
+    postProcessToExternal.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    postProcessToExternal.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    postProcessToExternal.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    postProcessToExternal.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+    std::array<VkAttachmentDescription, 1> attachments = { colorAttachment };
+
+    std::array<VkSubpassDependency, 2> dependencies = { externalToPostProcess,
+                                                        postProcessToExternal };
+
+    VkRenderPassCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    createInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+    createInfo.pAttachments = attachments.data();
+    createInfo.subpassCount = 1;
+    createInfo.pSubpasses = &subpass;
+    createInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    createInfo.pDependencies = dependencies.data();
+
+    if (vkCreateRenderPass(device.GetVKDevice(), &createInfo, nullptr, &postProcessRenderPass) != VK_SUCCESS)
+        return false;
+
+    return true;
+}
+
+void Renderer::DestroyPostProcessRenderPass()
+{
+    if (postProcessRenderPass)
+    {
+        vkDestroyRenderPass(device.GetVKDevice(), postProcessRenderPass, nullptr);
+        postProcessRenderPass = VK_NULL_HANDLE;
     }
 }
 
@@ -577,7 +640,26 @@ void Renderer::DestroySceneRenderTarget()
     if (sceneRenderTarget)
     {
         sceneRenderTarget.reset();
-        sceneRenderTarget = nullptr;
+    }
+}
+
+bool Renderer::CreatePostProcessRenderTarget()
+{
+    const Extent2D extent = {
+        .width = swapChain->GetExtent().width,
+        .height = swapChain->GetExtent().height
+    };
+
+    postProcessRenderTarget = std::make_unique<RenderTarget>(device, extent);
+
+    return postProcessRenderTarget != nullptr;
+}
+
+void Renderer::DestroyPostProcessRenderTarget()
+{
+    if (postProcessRenderTarget)
+    {
+        postProcessRenderTarget.reset();
     }
 }
 
@@ -607,6 +689,56 @@ void Renderer::DestroySceneFramebuffer()
     {
         sceneFramebuffer.reset();
     }
+}
+
+bool Renderer::CreatePostProcessFramebuffer()
+{
+    std::array<VkImageView, 1> attachments = { postProcessRenderTarget->GetColorView()->GetHandle() };
+
+    FramebufferDesc desc = {};
+    desc.renderPass = postProcessRenderPass;
+    desc.attachments = attachments;
+    desc.extent = {
+        .width = postProcessRenderTarget->GetExtent().width,
+        .height = postProcessRenderTarget->GetExtent().height
+    };
+
+    postProcessFramebuffer.reset(device.CreateFramebuffer(desc));
+    if (!postProcessFramebuffer)
+        return false;
+
+    return true;
+}
+
+void Renderer::DestroyPostProcessFramebuffer()
+{
+    if (postProcessFramebuffer)
+    {
+        postProcessFramebuffer.reset();
+    }
+}
+
+bool Renderer::CreateSwapChainFramebuffer()
+{
+    swapChainFramebuffers.resize(swapChain->GetImageViews().size());
+    for (size_t i = 0; i < swapChain->GetImageViews().size(); ++i)
+    {
+        std::array<VkImageView, 2> attachments = { swapChain->GetImageView(i),
+                                                   depthTextureView->GetHandle() };
+
+        FramebufferDesc desc = {};
+        desc.renderPass = swapChainRenderPass;
+        desc.attachments = attachments;
+        desc.extent = swapChain->GetExtent();
+
+        Framebuffer* framebuffer = device.CreateFramebuffer(desc);
+        if (!framebuffer)
+            return false;
+
+        swapChainFramebuffers[i].reset(framebuffer);
+    }
+
+    return true;
 }
 
 bool Renderer::CreateCommandPool()
@@ -817,19 +949,28 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     }
 
     DestroySceneFramebuffer();
+    DestroyPostProcessFramebuffer();
 
     if (!sceneRenderTarget->Resize(extent))
     {
         throw std::runtime_error("Failed to resize scene render target.");
+    }
+    if (!postProcessRenderTarget->Resize(extent))
+    {
+        throw std::runtime_error("Failed to resize post process render target.");
     }
 
     if (!CreateSceneFramebuffer())
     {
         throw std::runtime_error("Failed to recreate scene framebuffer.");
     }
+    if (!CreatePostProcessFramebuffer())
+    {
+        throw std::runtime_error("Failed to recreate post process framebuffer.");
+    }
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        sceneRenderTarget->GetColorView()->GetHandle(),
+        postProcessRenderTarget->GetColorView()->GetHandle(),
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
