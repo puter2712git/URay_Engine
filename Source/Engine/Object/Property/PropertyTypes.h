@@ -11,6 +11,7 @@ enum class PropertyType
     Vector2,
     Vector3,
     Vector4,
+    Color,
     String,
     Mesh,
     Texture,

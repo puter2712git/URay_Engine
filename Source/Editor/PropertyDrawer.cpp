@@ -34,6 +34,9 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
     case PropertyType::Vector4:
         isChanged = DrawVector4(prop, addr);
         break;
+    case PropertyType::Color:
+        isChanged = DrawColor(prop, addr);
+        break;
     case PropertyType::String:
         isChanged = DrawString(prop, addr);
         break;
@@ -80,6 +83,13 @@ bool PropertyDrawer::DrawVector4(Property& prop, void* addr)
     Vector4* data = reinterpret_cast<Vector4*>(
         static_cast<uint8_t*>(addr) + prop.offset);
     return ImGui::DragFloat4(prop.name.c_str(), &data->x, 0.1f);
+}
+
+bool PropertyDrawer::DrawColor(Property& prop, void* addr)
+{
+    Color* data = reinterpret_cast<Color*>(
+        static_cast<uint8_t*>(addr) + prop.offset);
+    return ImGui::ColorEdit4(prop.name.c_str(), &data->r);
 }
 
 bool PropertyDrawer::DrawString(Property& prop, void* addr)

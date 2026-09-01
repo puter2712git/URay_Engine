@@ -17,7 +17,7 @@ void FogComponent::RegisterClass()
     Super::RegisterClass();
 
     StaticClass()->AddProperty(
-        { .type = PropertyType::Vector4,
+        { .type = PropertyType::Color,
           .name = "Fog Color",
           .offset = offsetof(FogComponent, fogColor),
           .size = sizeof(Color),
