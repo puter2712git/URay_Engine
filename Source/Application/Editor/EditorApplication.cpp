@@ -41,7 +41,7 @@ void EditorApplication::Run()
         engine->BeginRender();
         editor->PrepareRender();
 
-        engine->Render();
+        engine->Render(editor->BuildRenderRequest());
 
         analytics.EndFrame();
     }

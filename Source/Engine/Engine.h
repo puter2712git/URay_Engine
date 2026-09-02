@@ -19,6 +19,7 @@ class SceneSystem;
 namespace Render
 {
 class RenderSystem;
+struct RenderRequest;
 } // namespace Render
 
 class Engine
@@ -34,7 +35,7 @@ public:
     void Update();
 
     void BeginRender();
-    void Render();
+    void Render(const Render::RenderRequest& request);
 
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }

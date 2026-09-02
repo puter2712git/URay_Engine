@@ -65,24 +65,18 @@ void RenderPipeline::Reset()
     }
 }
 
-void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
+void RenderPipeline::Execute(const RenderRequest& request)
 {
-    ViewObject* view = FindView(scenes);
-    if (!view)
-        return;
-
-    FogObject* fog = FindFog(scenes);
+    FogObject* fog = FindFog(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
 
-    const Matrix& viewMatrix = view->GetViewMatrix();
-    const Matrix& projMatrix = view->GetProjMatrix();
-    renderer.SetFrameViewInfo(viewMatrix, projMatrix);
+    renderer.SetFrameViewInfo(request.view.viewMatrix, request.view.projMatrix);
 
     const Frustum frustum =
-        Frustum::FromViewProjection(viewMatrix * projMatrix);
+        Frustum::FromViewProjection(request.view.viewMatrix * request.view.projMatrix);
 
-    for (const RenderScene* scene : scenes)
+    for (const RenderScene* scene : request.scenes)
     {
         size_t objectCount = scene->GetObjectCount();
 
@@ -144,20 +138,6 @@ void RenderPipeline::Execute(const std::vector<RenderScene*>& scenes)
 void RenderPipeline::AddRenderPass(std::unique_ptr<RenderPass> pass)
 {
     passes.push_back(std::move(pass));
-}
-
-ViewObject* RenderPipeline::FindView(const std::vector<RenderScene*>& scenes) const
-{
-    for (const RenderScene* scene : scenes)
-    {
-        ViewObject* view = scene->GetView();
-        if (view)
-        {
-            return view;
-        }
-    }
-
-    return nullptr;
 }
 
 FogObject* RenderPipeline::FindFog(

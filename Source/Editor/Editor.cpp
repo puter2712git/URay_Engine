@@ -179,6 +179,24 @@ void Editor::PrepareRender()
     });
 }
 
+Render::RenderRequest Editor::BuildRenderRequest() const
+{
+    Render::RenderRequest request = {};
+
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    for (const auto& scene : sceneSystem.GetScenes())
+    {
+        request.scenes.push_back(scene->GetRenderScene());
+    }
+
+    request.view = {
+        .viewMatrix = editorCamera->GetViewMatrix(),
+        .projMatrix = editorCamera->GetProjMatrix()
+    };
+
+    return request;
+}
+
 CameraComponent& Editor::PrepareEditorScene()
 {
     std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor, "");

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/RenderPipeline.h"
+
 #include <memory>
 
 namespace URay
@@ -8,11 +10,6 @@ namespace URay
 class Engine;
 class CameraComponent;
 class Unit;
-
-namespace Render
-{
-class Renderer;
-}
 
 class Widget;
 class ViewportWidget;
@@ -33,6 +30,8 @@ public:
 
     void Update();
     void PrepareRender();
+
+    Render::RenderRequest BuildRenderRequest() const;
 
 private:
     CameraComponent& PrepareEditorScene();

@@ -25,6 +25,18 @@ class RenderScene;
 class ViewObject;
 class FogObject;
 
+struct RenderView
+{
+    Matrix viewMatrix = Matrix::Identity;
+    Matrix projMatrix = Matrix::Identity;
+};
+
+struct RenderRequest
+{
+    std::vector<RenderScene*> scenes;
+    RenderView view = {};
+};
+
 class RenderPipeline
 {
 public:
@@ -37,14 +49,13 @@ public:
 
     void Reset();
 
-    void Execute(const std::vector<RenderScene*>& scenes);
+    void Execute(const RenderRequest& request);
 
     void AddRenderPass(std::unique_ptr<RenderPass> pass);
 
     DrawCommandBuilder& GetBuilder() { return *builder; }
 
 private:
-    ViewObject* FindView(const std::vector<RenderScene*>& scenes) const;
     FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;
 
 private:

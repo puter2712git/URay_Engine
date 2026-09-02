@@ -126,24 +126,15 @@ void Engine::BeginRender()
     URAY_PROFILE_SCOPE("Engine::BeginRender");
 
     renderSystem->GetPipeline().Reset();
-
     renderSystem->BeginFrame();
 }
 
-void Engine::Render()
+void Engine::Render(const Render::RenderRequest& request)
 {
     URAY_PROFILE_SCOPE("Engine::Render");
 
-    std::vector<Render::RenderScene*> renderScenes;
-    for (const auto& scene : sceneSystem->GetScenes())
-    {
-        renderScenes.push_back(scene->GetRenderScene());
-    }
-
-    Render::Renderer& renderer = renderSystem->GetRenderer();
-
-    renderSystem->GetPipeline().Execute(renderScenes);
-    renderer.EndFrame();
+    renderSystem->GetPipeline().Execute(request);
+    renderSystem->EndFrame();
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
