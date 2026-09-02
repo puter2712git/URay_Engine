@@ -1,6 +1,6 @@
 #include "SceneTreeWidget.h"
 
-#include "Editor/SelectionSystem.h"
+#include "Editor/Selection/SelectionSystem.h"
 
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"

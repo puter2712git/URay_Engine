@@ -3,7 +3,7 @@
 #include "Editor/Editor.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
-#include "Editor/SelectionSystem.h"
+#include "Editor/Selection/SelectionSystem.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"

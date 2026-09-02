@@ -1,7 +1,7 @@
 #include "InspectorWidget.h"
 
 #include "Editor/PropertyDrawer.h"
-#include "Editor/SelectionSystem.h"
+#include "Editor/Selection/SelectionSystem.h"
 
 #include "Engine/Component/Component.h"
 #include "Engine/Scene/Unit.h"

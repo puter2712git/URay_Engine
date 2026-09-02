@@ -3,7 +3,7 @@
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
-#include "Editor/SelectionSystem.h"
+#include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
