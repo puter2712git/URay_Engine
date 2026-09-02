@@ -2,11 +2,11 @@
 
 #include "Render/DrawCommand/DrawCommandContext.h"
 #include "Render/GPUResourceManager.h"
-#include "Render/Renderer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
+#include "Render/Renderer.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
 
@@ -42,7 +42,7 @@ bool TextBatcher::Initialize()
     const DescriptorSetLayoutDesc* layoutDesc = shader->GetDescriptorSetLayoutDesc(1);
 
     DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
-    descriptorSet = device.CreateDescriptorSet(setLayout);
+    descriptorSet.reset(device.CreateDescriptorSet(setLayout));
 
     return true;
 }
@@ -101,7 +101,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         descriptorSet->WriteSampledImage(0, textureView);
         descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
 
-        cmd.descriptorSet = descriptorSet;
+        cmd.descriptorSet = descriptorSet.get();
 
         drawCmds.push_back(cmd);
     }

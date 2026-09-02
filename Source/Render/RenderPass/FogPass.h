@@ -49,7 +49,7 @@ private:
     PipelineState* pso = nullptr;
 
     DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::vector<DescriptorSet*> descriptorSets;
+    std::vector<std::unique_ptr<DescriptorSet>> descriptorSets;
     std::vector<std::unique_ptr<ConstantBuffer>> constantBuffers;
 
     VkSampler sampler = VK_NULL_HANDLE;

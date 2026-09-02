@@ -36,8 +36,8 @@ FogPass::FogPass(RenderSystem& renderSystem)
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        descriptorSets[i] = renderSystem.GetDevice()
-                                .CreateDescriptorSet(descriptorSetLayout);
+        descriptorSets[i].reset(
+            renderSystem.GetDevice().CreateDescriptorSet(descriptorSetLayout));
 
         if (!descriptorSets[i])
             throw std::runtime_error("Failed to initialize fog pass.");
@@ -150,7 +150,7 @@ void FogPass::Execute(
         &constants,
         sizeof(constants));
 
-    DescriptorSet* descriptorSet = descriptorSets[currentFrame];
+    DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
 
     descriptorSet->WriteSampledImage(
         0,

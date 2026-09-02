@@ -48,7 +48,7 @@ private:
 
     std::unordered_map<Font*, std::vector<Vertex>> vertices;
 
-    DescriptorSet* descriptorSet = nullptr;
+    std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
 
     std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;

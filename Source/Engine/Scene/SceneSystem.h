@@ -11,6 +11,10 @@ namespace URay
 class SceneSystem
 {
 public:
+    bool Initialize();
+    void Finalize();
+
+public:
     void Update(float deltaTime);
 
     void SwitchScene(std::unique_ptr<Scene> scene);

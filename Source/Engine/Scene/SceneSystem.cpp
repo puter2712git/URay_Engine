@@ -3,6 +3,15 @@
 namespace URay
 {
 
+bool SceneSystem::Initialize()
+{
+    return true;
+}
+
+void SceneSystem::Finalize()
+{
+}
+
 void SceneSystem::Update(float deltaTime)
 {
     for (const auto& scene : scenes)

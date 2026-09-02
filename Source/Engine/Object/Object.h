@@ -5,19 +5,19 @@
 
 #include <yaml-cpp/yaml.h>
 
-#define URAY_CLASS(self, parent)                                     \
-public:                                                              \
-    typedef parent Super;                                            \
-                                                                     \
-    static void RegisterClass();                                     \
-    inline static Class* StaticClass()                               \
-    {                                                                \
-        static Class* cls = new Class(#self, parent::StaticClass()); \
-        return cls;                                                  \
-    }                                                                \
-    virtual Class* GetClass() const override                         \
-    {                                                                \
-        return self::StaticClass();                                  \
+#define URAY_CLASS(self, parent)                        \
+public:                                                 \
+    typedef parent Super;                               \
+                                                        \
+    static void RegisterClass();                        \
+    inline static Class* StaticClass()                  \
+    {                                                   \
+        static Class cls(#self, parent::StaticClass()); \
+        return &cls;                                    \
+    }                                                   \
+    virtual Class* GetClass() const override            \
+    {                                                   \
+        return self::StaticClass();                     \
     }
 
 #define URAY_REGISTER_CLASS(self)            \
@@ -41,8 +41,8 @@ public:
 
     inline static Class* StaticClass()
     {
-        static Class* cls = new Class("Object", nullptr);
-        return cls;
+        static Class cls("Object", nullptr);
+        return &cls;
     }
 
     virtual Class* GetClass() const
