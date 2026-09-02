@@ -1,5 +1,6 @@
 #include "ViewportWidget.h"
 
+#include "Editor/Editor.h"
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/SelectionSystem.h"
@@ -22,13 +23,13 @@
 namespace URay
 {
 
-ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem)
-    : renderer(renderer), camera(camera), engine(engine), selectionSystem(selectionSystem)
+ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem, Editor& editor)
+    : renderer(renderer), camera(camera), engine(engine), selectionSystem(selectionSystem), editor(editor)
 {
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
     gizmo = std::make_unique<GizmoController>(engine.GetAssetSystem());
-    picker = std::make_unique<EditorPicker>(engine, gizmo.get());
+    picker = std::make_unique<EditorPicker>(engine, editor, gizmo.get());
 
     onSelectedRayHandle = selectionSystem.RegisterOnSelected([this](Unit* unit)
                                                              { gizmo->SetTarget(unit); });
@@ -170,6 +171,11 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
         }
     }
 
+    if (event.key == KeyCode::GraveAccent && editor.IsPlaying())
+    {
+        editor.SetUseEditorCamera(!editor.UsingEditorCamera());
+    }
+
     if (event.key == KeyCode::W)
     {
         cameraForward = true;
@@ -268,8 +274,26 @@ void ViewportWidget::OnDraw()
 
     ImGui::Begin("Viewport", nullptr, flags);
 
+    if (ImGui::Button("Play"))
+    {
+        editor.StartGame();
+    }
+    ImGui::SameLine();
+
+    if (ImGui::Button("Stop"))
+    {
+        editor.StopGame();
+    }
+    ImGui::Separator();
+
     const ImVec2 imagePosition = ImGui::GetCursorScreenPos();
     const ImVec2 logicalSize = ImGui::GetContentRegionAvail();
+
+    if (logicalSize.x <= 0.0f || logicalSize.y <= 0.0f)
+    {
+        ImGui::End();
+        return;
+    }
 
     const VkDescriptorSet descriptorSet = renderer.GetSceneImGuiTexture();
     if (descriptorSet)

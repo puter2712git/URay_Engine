@@ -2,13 +2,13 @@
 
 #include "Render/GPUResourceManager.h"
 #include "Render/LineBatcher.h"
-#include "Render/Renderer.h"
-#include "Render/RenderInfo.h"
-#include "Render/RenderSystem.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/RenderDevice.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderSystem.h"
+#include "Render/Renderer.h"
 #include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
 
@@ -75,6 +75,9 @@ void DrawCommandBuilder::FlushLines()
         return;
 
     DrawCommand cmd = lineBatcher->Flush();
+    if (cmd.vertexCount == 0)
+        return;
+
     drawCmds.push_back(cmd);
 }
 

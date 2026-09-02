@@ -1,5 +1,6 @@
 #include "EditorPicker.h"
 
+#include "Editor/Editor.h"
 #include "Editor/GizmoController.h"
 
 #include "Core/Math/Math.h"
@@ -20,10 +21,12 @@
 namespace URay
 {
 
-EditorPicker::EditorPicker(Engine& engine, GizmoController* gizmo)
-    : engine(engine), gizmo(gizmo)
+EditorPicker::EditorPicker(Engine& engine, Editor& editor, GizmoController* gizmo)
+    : engine(engine), editor(editor), gizmo(gizmo)
 {
 }
+
+EditorPicker::~EditorPicker() = default;
 
 PickResult EditorPicker::Pick(CameraComponent* camera, float screenX, float screenY) const
 {
@@ -52,7 +55,17 @@ PickResult EditorPicker::Pick(CameraComponent* camera, float screenX, float scre
     float minDist = std::numeric_limits<float>::max();
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    const Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+    Scene* scene = nullptr;
+
+    if (editor.IsPlaying())
+    {
+        scene = sceneSystem.GetSceneByType(SceneType::Play);
+    }
+    else
+    {
+        scene = sceneSystem.GetSceneByType(SceneType::Game);
+    }
+
     const std::vector<Unit*> units = scene->GetUnits();
 
     for (Unit* unit : units)

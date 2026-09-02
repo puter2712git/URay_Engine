@@ -13,6 +13,7 @@ namespace URay
 {
 
 URAY_REGISTER_CLASS(CameraComponent)
+URAY_REGISTER_COMPONENT(CameraComponent)
 
 void CameraComponent::RegisterClass()
 {

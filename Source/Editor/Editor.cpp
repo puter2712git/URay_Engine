@@ -67,7 +67,7 @@ bool Editor::Initialize()
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine, engine.GetAssetSystem().GetFilesystem());
     std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, *selectionSystem);
+    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, *selectionSystem, *this);
     viewportWidget = viewport.get();
 
     std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
@@ -179,20 +179,90 @@ void Editor::PrepareRender()
     });
 }
 
+void Editor::StartGame()
+{
+    if (isPlaying)
+        return;
+
+    isPlaying = true;
+    useEditorCamera = false;
+
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
+
+    YAML::Node gameSceneNode = gameScene->Serialize();
+
+    std::unique_ptr<Scene> playScene = std::make_unique<Scene>(SceneType::Play, "");
+    playScene->Deserialize(gameSceneNode);
+
+    sceneSystem.LoadScene(std::move(playScene));
+}
+
+void Editor::StopGame()
+{
+    if (!isPlaying)
+        return;
+
+    isPlaying = false;
+
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    sceneSystem.UnloadScene(SceneType::Play);
+}
+
 Render::RenderRequest Editor::BuildRenderRequest() const
 {
     Render::RenderRequest request = {};
-
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    for (const auto& scene : sceneSystem.GetScenes())
-    {
-        request.scenes.push_back(scene->GetRenderScene());
-    }
 
-    request.view = {
-        .viewMatrix = editorCamera->GetViewMatrix(),
-        .projMatrix = editorCamera->GetProjMatrix()
-    };
+    if (isPlaying)
+    {
+        CameraComponent* camera = nullptr;
+
+        for (const auto& scene : sceneSystem.GetScenes())
+        {
+            if (scene->GetType() == SceneType::Play)
+            {
+                request.scenes.push_back(scene->GetRenderScene());
+
+                for (Unit* unit : scene->GetUnits())
+                {
+                    for (Component* comp : unit->GetComponents())
+                    {
+                        if (CameraComponent* cameraComp = Cast<CameraComponent>(comp))
+                        {
+                            camera = cameraComp;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (useEditorCamera)
+        {
+            camera = editorCamera;
+        }
+
+        camera->SetViewportExtent(
+            { .width = viewportWidget->GetTargetExtent().width,
+              .height = viewportWidget->GetTargetExtent().height });
+
+        request.view = {
+            .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
+            .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity
+        };
+    }
+    else
+    {
+        for (const auto& scene : sceneSystem.GetScenes())
+        {
+            request.scenes.push_back(scene->GetRenderScene());
+        }
+
+        request.view = {
+            .viewMatrix = editorCamera->GetViewMatrix(),
+            .projMatrix = editorCamera->GetProjMatrix()
+        };
+    }
 
     return request;
 }

@@ -20,6 +20,7 @@ class Unit;
 class GizmoController;
 class EditorPicker;
 class SelectionSystem;
+class Editor;
 
 namespace Render
 {
@@ -29,7 +30,7 @@ class Renderer;
 class ViewportWidget : public Widget
 {
 public:
-    ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem);
+    ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem, Editor& editor);
     ~ViewportWidget() override;
 
 public:
@@ -39,6 +40,8 @@ public:
 
     EventReply OnKeyDown(const KeyEvent& event) override;
     EventReply OnKeyUp(const KeyEvent& event) override;
+
+    const Extent2D& GetTargetExtent() const { return targetExtent; }
 
 protected:
     void OnUpdate(float deltaTime) override;
@@ -55,6 +58,7 @@ private:
 
 private:
     Engine& engine;
+    Editor& editor;
     Render::Renderer& renderer;
 
     CameraComponent& camera;

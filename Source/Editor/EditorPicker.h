@@ -9,6 +9,7 @@ class CameraComponent;
 class MeshComponent;
 
 class GizmoController;
+class Editor;
 
 struct Ray;
 
@@ -23,7 +24,8 @@ struct PickResult
 class EditorPicker
 {
 public:
-    EditorPicker(Engine& engine, GizmoController* gizmo);
+    EditorPicker(Engine& engine, Editor& editor, GizmoController* gizmo);
+    ~EditorPicker();
 
 public:
     PickResult Pick(CameraComponent* camera, float screenX, float screenY) const;
@@ -34,6 +36,7 @@ private:
 
 private:
     Engine& engine;
+    Editor& editor;
     GizmoController* gizmo = nullptr;
 };
 

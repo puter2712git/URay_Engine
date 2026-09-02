@@ -31,6 +31,14 @@ public:
     void Update();
     void PrepareRender();
 
+    void StartGame();
+    void StopGame();
+
+    bool IsPlaying() const { return isPlaying; }
+
+    void SetUseEditorCamera(bool value) { useEditorCamera = value; }
+    bool UsingEditorCamera() const { return useEditorCamera; }
+
     Render::RenderRequest BuildRenderRequest() const;
 
 private:
@@ -52,6 +60,9 @@ private:
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
+
+    bool isPlaying = false;
+    bool useEditorCamera = false;
 };
 
 } // namespace URay

@@ -23,6 +23,7 @@ enum class SceneType
 {
     Game,
     Editor,
+    Play
 };
 
 struct UpdateGroup
