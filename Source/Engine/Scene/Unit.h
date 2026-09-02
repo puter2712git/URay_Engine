@@ -24,7 +24,7 @@ public:
 public:
     virtual void Update(float deltaTime);
 
-    virtual YAML::Node Serialize() override;
+    virtual YAML::Node Serialize() const override;
     virtual void Deserialize(const YAML::Node& node) override;
 
     void RegisterTransformUpdateCallback(const std::function<void()>& callback);

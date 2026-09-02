@@ -45,7 +45,7 @@ void Unit::Update(float deltaTime)
         comp->Update(deltaTime);
 }
 
-YAML::Node Unit::Serialize()
+YAML::Node Unit::Serialize() const
 {
     YAML::Node node;
 

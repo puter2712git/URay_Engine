@@ -20,7 +20,7 @@ struct Property
     std::function<void(Object* owner, const Property& property)> OnChangedCallback = nullptr;
 
     template <typename T>
-    T GetValue(void* address) const
+    T GetValue(const void* address) const
     {
         const void* valueAddress = reinterpret_cast<const char*>(address) + offset;
         T value = *static_cast<const T*>(valueAddress);

@@ -50,7 +50,7 @@ public:
         return Object::StaticClass();
     }
 
-    virtual YAML::Node Serialize();
+    virtual YAML::Node Serialize() const;
     virtual void Deserialize(const YAML::Node& node);
 
     bool IsA(Class* cls) const;

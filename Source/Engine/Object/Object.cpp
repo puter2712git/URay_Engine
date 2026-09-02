@@ -19,7 +19,7 @@ void Object::RegisterClass()
 {
 }
 
-YAML::Node Object::Serialize()
+YAML::Node Object::Serialize() const
 {
     YAML::Node node;
     const auto& properties = GetClass()->GetProperties();
