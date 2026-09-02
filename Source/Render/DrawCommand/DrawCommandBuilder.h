@@ -42,7 +42,7 @@ public:
     void BuildOBB(const AABB& localBounds, const Matrix& worldMatrix);
     void BuildText(const TextCommandContext& context);
 
-    void BuildFromGizmo(const GizmoCommandContext& context);
+    void BuildGizmo(const GizmoCommandContext& context);
 
     const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
 

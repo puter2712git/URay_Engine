@@ -28,7 +28,7 @@ ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& came
 {
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
-    gizmo = std::make_unique<GizmoController>(engine.GetAssetSystem());
+    gizmo = std::make_unique<GizmoController>(engine);
     picker = std::make_unique<EditorPicker>(engine, editor, gizmo.get());
 
     onSelectedRayHandle = selectionSystem.RegisterOnSelected([this](Unit* unit)
@@ -255,7 +255,7 @@ void ViewportWidget::OnUpdate(float deltaTime)
 
 void ViewportWidget::OnPrepareRender(Render::DrawCommandBuilder& builder)
 {
-    gizmo->Draw(builder);
+    // gizmo->Draw(builder);
 }
 
 void ViewportWidget::OnDraw()

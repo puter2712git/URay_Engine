@@ -27,6 +27,7 @@ public:
     const Matrix& GetProjMatrix() const { return projMatrix; }
 
 private:
+    Matrix worldMatrix = Matrix::Identity;
     Matrix viewMatrix = Matrix::Identity;
     Matrix projMatrix = Matrix::Identity;
 };

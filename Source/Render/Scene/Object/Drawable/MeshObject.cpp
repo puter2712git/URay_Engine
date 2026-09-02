@@ -9,12 +9,7 @@ namespace URay::Render
 
 MeshObject::MeshObject(const MeshObjectState& state)
 {
-    worldMatrix = state.worldMatrix;
-    mesh = state.mesh;
-    materials = state.materials;
-
-    if (mesh)
-        worldBounds = mesh->GetLocalBounds().Transform(worldMatrix);
+    Update(state);
 }
 
 MeshObject::~MeshObject() = default;
@@ -24,7 +19,6 @@ void MeshObject::Update(const MeshObjectState& state)
     worldMatrix = state.worldMatrix;
     mesh = state.mesh;
     materials = state.materials;
-
     worldBounds = mesh ? mesh->GetLocalBounds().Transform(worldMatrix) : AABB{};
 }
 

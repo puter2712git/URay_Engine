@@ -14,10 +14,12 @@ public:
     bool IsDirty() const { return isDirty; }
     void SetDirty(bool dirty) { isDirty = dirty; }
 
-protected:
-    Matrix worldMatrix = Matrix::Identity;
+    bool IsEnabled() const { return isEnabled; }
+    void SetEnabled(bool enabled) { isEnabled = enabled; }
 
+protected:
     bool isDirty = false;
+    bool isEnabled = true;
 };
 
 } // namespace URay::Render

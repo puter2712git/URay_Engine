@@ -38,6 +38,7 @@ public:
     const AABB& GetWorldBounds() const override { return worldBounds; }
 
 private:
+    Matrix worldMatrix = Matrix::Identity;
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
 

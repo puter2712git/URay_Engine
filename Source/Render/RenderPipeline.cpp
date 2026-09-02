@@ -83,6 +83,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
         for (size_t i = 0; i < objectCount; ++i)
         {
             RenderObject* robj = scene->GetObject(i);
+            if (!robj->IsEnabled())
+                continue;
 
             if (DrawableObject* drawableObj = dynamic_cast<DrawableObject*>(robj))
             {

@@ -11,17 +11,17 @@
 namespace URay
 {
 
+class Engine;
 class Unit;
 class Mesh;
 class Material;
-class AssetSystem;
 class TransformComponent;
 class CameraComponent;
 
 namespace Render
 {
-class DrawCommandBuilder;
-}
+class GizmoObject;
+} // namespace Render
 
 enum class Axis : uint8
 {
@@ -44,11 +44,10 @@ enum class GizmoMode : uint8
 class GizmoController
 {
 public:
-    GizmoController(AssetSystem& assetSystem);
+    GizmoController(Engine& engine);
 
 public:
     void Update(const Vector2& targetPosition, CameraComponent& camera);
-    void Draw(Render::DrawCommandBuilder& builder);
 
     void StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent& camera);
     void EndDragging();
@@ -80,6 +79,8 @@ private:
     void UpdateRotation(const Vector2& targetPosition, CameraComponent& camera);
     void UpdateScale(const Vector2& targetPosition, CameraComponent& camera);
 
+    void UpdateRenderObject();
+
     Vector3 GetCurrAxisDir();
     bool GetDragPlaneHitPoint(const Vector3& lineDir, Vector3& outHitPoint) const;
 
@@ -108,6 +109,8 @@ private:
     std::array<std::array<Matrix, static_cast<size_t>(Axis::Count)>, static_cast<size_t>(GizmoMode::Count)> matrices;
 
     Material* material = nullptr;
+
+    Render::GizmoObject* renderObject = nullptr;
 };
 
 } // namespace URay

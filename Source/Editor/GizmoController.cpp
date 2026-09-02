@@ -3,12 +3,17 @@
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Core/Math/Math.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/DrawCommand/DrawCommandContext.h"
+#include "Render/Scene/Object/Drawable/GizmoObject.h"
+#include "Render/Scene/RenderScene.h"
 
 #include <algorithm>
 
@@ -17,19 +22,45 @@ namespace URay
 
 using namespace Render;
 
-GizmoController::GizmoController(AssetSystem& assetSystem)
+GizmoController::GizmoController(Engine& engine)
 {
+    AssetSystem& assetSystem = engine.GetAssetSystem();
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+
     meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.FindMesh("Arrow");
     meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.FindMesh("RotationGizmo");
     meshes[static_cast<size_t>(GizmoMode::Scale)] = assetSystem.FindMesh("ScaleGizmo");
 
     material = assetSystem.FindMaterial("Mesh");
+
+    Scene* editorScene = sceneSystem.GetSceneByType(SceneType::Editor);
+    RenderScene* renderScene = editorScene->GetRenderScene();
+
+    GizmoObjectState objectState = {};
+    objectState.worldMatrices.push_back(GetWorldMatrix(0));
+    objectState.worldMatrices.push_back(GetWorldMatrix(1));
+    objectState.worldMatrices.push_back(GetWorldMatrix(2));
+    objectState.mesh = GetMesh();
+    objectState.material = material;
+    objectState.colorTints.push_back(Color::Red);
+    objectState.colorTints.push_back(Color::Green);
+    objectState.colorTints.push_back(Color::Blue);
+
+    std::unique_ptr<GizmoObject> gizmoObject = std::make_unique<GizmoObject>(objectState);
+    renderObject = gizmoObject.get();
+    renderScene->Add(std::move(gizmoObject));
 }
 
 void GizmoController::Update(const Vector2& targetPosition, CameraComponent& camera)
 {
     if (!targetUnit || !targetUnit->GetTransform())
+    {
+        if (renderObject)
+        {
+            renderObject->SetEnabled(false);
+        }
         return;
+    }
 
     UpdateGizmo(targetPosition, camera);
 
@@ -76,76 +107,8 @@ void GizmoController::Update(const Vector2& targetPosition, CameraComponent& cam
     matrices[1][2] = targetGizmoWorld;
 
     matrices[2] = matrices[0];
-}
 
-void GizmoController::Draw(DrawCommandBuilder& builder)
-{
-    if (!targetUnit || !targetUnit->GetTransform())
-        return;
-
-    Mesh* mesh = GetMesh();
-    std::array<Matrix, static_cast<size_t>(Axis::Count)>& gizmoMatrices = matrices[GetModeIndex()];
-
-    GizmoCommandContext xCoordContext = {};
-    xCoordContext.worldMatrix = gizmoMatrices[0];
-
-    if (IsDragging())
-    {
-        xCoordContext.colorTint = selectedAxis == static_cast<int>(Axis::X)
-                                      ? Color::Yellow
-                                      : Color::Red;
-    }
-    else
-    {
-        xCoordContext.colorTint = hoveredAxis == static_cast<int>(Axis::X)
-                                      ? Color::Yellow
-                                      : Color::Red;
-    }
-
-    xCoordContext.mesh = mesh;
-    xCoordContext.material = material;
-
-    GizmoCommandContext yCoordContext = {};
-    yCoordContext.worldMatrix = gizmoMatrices[1];
-
-    if (IsDragging())
-    {
-        yCoordContext.colorTint = selectedAxis == static_cast<int>(Axis::Y)
-                                      ? Color::Yellow
-                                      : Color::Green;
-    }
-    else
-    {
-        yCoordContext.colorTint = hoveredAxis == static_cast<int>(Axis::Y)
-                                      ? Color::Yellow
-                                      : Color::Green;
-    }
-
-    yCoordContext.mesh = mesh;
-    yCoordContext.material = material;
-
-    GizmoCommandContext zCoordContext = {};
-    zCoordContext.worldMatrix = gizmoMatrices[2];
-
-    if (IsDragging())
-    {
-        zCoordContext.colorTint = selectedAxis == static_cast<int>(Axis::Z)
-                                      ? Color::Yellow
-                                      : Color::Blue;
-    }
-    else
-    {
-        zCoordContext.colorTint = hoveredAxis == static_cast<int>(Axis::Z)
-                                      ? Color::Yellow
-                                      : Color::Blue;
-    }
-
-    zCoordContext.mesh = mesh;
-    zCoordContext.material = material;
-
-    builder.BuildFromGizmo(xCoordContext);
-    builder.BuildFromGizmo(yCoordContext);
-    builder.BuildFromGizmo(zCoordContext);
+    UpdateRenderObject();
 }
 
 void GizmoController::StartDragging(const Vector2& clickPos, int selectedAxis, CameraComponent& camera)
@@ -315,6 +278,40 @@ void GizmoController::UpdateScale(const Vector2& targetPosition, CameraComponent
     }
 
     targetUnit->GetTransform()->SetScale(scale);
+}
+
+void GizmoController::UpdateRenderObject()
+{
+    if (!renderObject)
+        return;
+
+    GizmoObjectState state = {};
+    state.worldMatrices.clear();
+    state.worldMatrices.push_back(GetWorldMatrix(0));
+    state.worldMatrices.push_back(GetWorldMatrix(1));
+    state.worldMatrices.push_back(GetWorldMatrix(2));
+    state.colorTints.clear();
+
+    int32 currAxis = selectedAxis;
+    if (currAxis == -1)
+    {
+        currAxis = hoveredAxis;
+    }
+
+    state.colorTints.push_back(Color::Red);
+    state.colorTints.push_back(Color::Green);
+    state.colorTints.push_back(Color::Blue);
+
+    if (currAxis != -1)
+    {
+        state.colorTints[currAxis] = Color::Yellow;
+    }
+
+    state.mesh = GetMesh();
+    state.material = material;
+
+    renderObject->SetEnabled(true);
+    renderObject->Update(state);
 }
 
 bool GizmoController::GetDragPlaneHitPoint(const Vector3& lineDir, Vector3& outHitPoint) const

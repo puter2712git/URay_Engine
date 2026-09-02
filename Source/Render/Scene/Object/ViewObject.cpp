@@ -4,9 +4,8 @@ namespace URay::Render
 {
 
 ViewObject::ViewObject(const Matrix& worldMatrix, const Matrix& viewMatrix, const Matrix& projMatrix)
-    : viewMatrix(viewMatrix), projMatrix(projMatrix)
+    : worldMatrix(worldMatrix), viewMatrix(viewMatrix), projMatrix(projMatrix)
 {
-    this->worldMatrix = worldMatrix;
 }
 
 ViewObject::~ViewObject() = default;

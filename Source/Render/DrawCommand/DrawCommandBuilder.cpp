@@ -221,7 +221,7 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
     }
 }
 
-void DrawCommandBuilder::BuildFromGizmo(const GizmoCommandContext& context)
+void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
