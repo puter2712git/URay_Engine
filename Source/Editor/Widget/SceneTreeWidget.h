@@ -8,6 +8,7 @@ namespace URay
 class SelectionSystem;
 
 class Engine;
+class Scene;
 class Unit;
 
 class SceneTreeWidget final : public Widget
@@ -23,6 +24,7 @@ protected:
     void OnDraw() override;
 
 private:
+    void DrawScene(Scene& scene, Unit* currSelectedUnit);
     void DrawUnit(Unit* unit, Unit* currSelectedUnit);
     void DrawUnitDragDrop(Unit* unit);
 

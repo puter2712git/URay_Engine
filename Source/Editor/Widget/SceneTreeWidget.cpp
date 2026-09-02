@@ -13,6 +13,26 @@
 namespace URay
 {
 
+namespace
+{
+
+const char* GetSceneLabel(SceneType type)
+{
+    switch (type)
+    {
+    case SceneType::Game:
+        return "Game Scene";
+    case SceneType::Editor:
+        return "Editor Scene";
+    case SceneType::Play:
+        return "Play Scene";
+    }
+
+    return "Unknown Scene";
+}
+
+} // namespace
+
 SceneTreeWidget::SceneTreeWidget(SelectionSystem& selectionSystem, Engine& engine)
     : selectionSystem(selectionSystem), engine(engine)
 {
@@ -35,8 +55,9 @@ void SceneTreeWidget::OnDraw()
     ImGui::Begin("Scene Tree", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
-    if (!scene)
+    const auto& scenes = sceneSystem.GetScenes();
+
+    if (scenes.empty())
     {
         ImGui::End();
         return;
@@ -47,32 +68,51 @@ void SceneTreeWidget::OnDraw()
     pendingDraggedUnit = nullptr;
     pendingParentUnit = nullptr;
 
-    std::vector<Unit*> rootUnits;
-    for (Unit* unit : scene->GetUnits())
+    for (const std::unique_ptr<Scene>& scene : scenes)
     {
-        if (unit && !unit->GetParent())
+        if (scene)
         {
-            rootUnits.push_back(unit);
+            DrawScene(*scene, currSelectedUnit);
         }
     }
 
-    for (Unit* unit : rootUnits)
-    {
-        DrawUnit(unit, currSelectedUnit);
-    }
-
-    if (pendingDraggedUnit && pendingParentUnit)
+    if (pendingDraggedUnit && pendingParentUnit &&
+        pendingDraggedUnit->GetOwner() == pendingParentUnit->GetOwner())
     {
         pendingDraggedUnit->SetParent(pendingParentUnit);
     }
 
-    if (ImGui::BeginPopupContextWindow())
+    ImGui::End();
+}
+
+void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
+{
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
+
+    bool hasRootUnit = false;
+    for (Unit* unit : scene.GetUnits())
+    {
+        if (unit && !unit->GetParent())
+        {
+            hasRootUnit = true;
+            break;
+        }
+    }
+
+    if (!hasRootUnit)
+    {
+        flags |= ImGuiTreeNodeFlags_Leaf;
+    }
+
+    const bool opened = ImGui::TreeNodeEx(&scene, flags, "%s", GetSceneLabel(scene.GetType()));
+
+    if (ImGui::BeginPopupContextItem())
     {
         if (ImGui::MenuItem("Create Empty"))
         {
             Unit* newUnit = new Unit();
             newUnit->SetName("New Unit");
-            scene->AddUnit(newUnit);
+            scene.AddUnit(newUnit);
         }
 
         if (ImGui::MenuItem("Create Empty (with Transform)"))
@@ -80,13 +120,24 @@ void SceneTreeWidget::OnDraw()
             Unit* newUnit = new Unit();
             newUnit->SetName("New Unit");
             newUnit->AddComponent(new TransformComponent());
-            scene->AddUnit(newUnit);
+            scene.AddUnit(newUnit);
         }
 
         ImGui::EndPopup();
     }
 
-    ImGui::End();
+    if (!opened)
+        return;
+
+    for (Unit* unit : scene.GetUnits())
+    {
+        if (unit && !unit->GetParent())
+        {
+            DrawUnit(unit, currSelectedUnit);
+        }
+    }
+
+    ImGui::TreePop();
 }
 
 void SceneTreeWidget::DrawUnit(Unit* unit, Unit* currSelectedUnit)
