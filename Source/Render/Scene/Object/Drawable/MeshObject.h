@@ -35,7 +35,7 @@ public:
     void Update(const MeshObjectState& state);
     void Submit(DrawCommandBuilder& builder) const override;
 
-    const AABB& GetWorldBounds() const { return worldBounds; }
+    const AABB& GetWorldBounds() const override { return worldBounds; }
 
 private:
     Mesh* mesh = nullptr;
