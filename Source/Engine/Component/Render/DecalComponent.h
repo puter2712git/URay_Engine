@@ -20,6 +20,8 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
+    const Vector3& GetExtent() const { return extent; }
+
 protected:
     void UpdateRenderObject() override;
 

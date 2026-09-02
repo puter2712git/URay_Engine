@@ -5,6 +5,8 @@
 
 #include "Render/Vertex.h"
 
+#include "Core/Math/AABB.h"
+
 #include <memory>
 #include <vector>
 
@@ -36,6 +38,8 @@ public:
 
     void BuildMesh(const MeshCommandContext& context);
     void BuildLine(const LineCommandContext& context);
+    void BuildAABB(const AABB& worldBounds);
+    void BuildOBB(const AABB& localBounds, const Matrix& worldMatrix);
     void BuildText(const TextCommandContext& context);
 
     void BuildFromGizmo(const GizmoCommandContext& context);

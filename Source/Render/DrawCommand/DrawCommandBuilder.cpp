@@ -129,6 +129,90 @@ void DrawCommandBuilder::BuildLine(const LineCommandContext& context)
     }
 }
 
+void DrawCommandBuilder::BuildAABB(const AABB& worldBounds)
+{
+    const Vector3& min = worldBounds.min;
+    const Vector3& max = worldBounds.max;
+
+    const Vector3 corners[8] = {
+        { min.x, min.y, min.z },
+        { max.x, min.y, min.z },
+        { max.x, max.y, min.z },
+        { min.x, max.y, min.z },
+        { min.x, min.y, max.z },
+        { max.x, min.y, max.z },
+        { max.x, max.y, max.z },
+        { min.x, max.y, max.z }
+    };
+
+    constexpr uint32 edges[12][2] = {
+        { 0, 1 },
+        { 1, 2 },
+        { 2, 3 },
+        { 3, 0 },
+        { 4, 5 },
+        { 5, 6 },
+        { 6, 7 },
+        { 7, 4 },
+        { 0, 4 },
+        { 1, 5 },
+        { 2, 6 },
+        { 3, 7 }
+    };
+
+    for (const auto& edge : edges)
+    {
+        BuildLine({ .start = corners[edge[0]],
+                    .end = corners[edge[1]],
+                    .color = Color::Yellow });
+    }
+}
+
+void DrawCommandBuilder::BuildOBB(const AABB& localBounds, const Matrix& worldMatrix)
+{
+    const Vector3& min = localBounds.min;
+    const Vector3& max = localBounds.max;
+
+    const Vector3 corners[8] = {
+        { min.x, min.y, min.z },
+        { max.x, min.y, min.z },
+        { max.x, max.y, min.z },
+        { min.x, max.y, min.z },
+        { min.x, min.y, max.z },
+        { max.x, min.y, max.z },
+        { max.x, max.y, max.z },
+        { min.x, max.y, max.z }
+    };
+
+    Vector3 worldCorners[8];
+    for (size_t i = 0; i < 8; ++i)
+    {
+        worldCorners[i] = worldMatrix.TransformPoint(corners[i]);
+    }
+
+    constexpr uint32 edges[12][2] = {
+        { 0, 1 },
+        { 1, 2 },
+        { 2, 3 },
+        { 3, 0 },
+        { 4, 5 },
+        { 5, 6 },
+        { 6, 7 },
+        { 7, 4 },
+        { 0, 4 },
+        { 1, 5 },
+        { 2, 6 },
+        { 3, 7 }
+    };
+
+    for (const auto& edge : edges)
+    {
+        BuildLine({ .start = worldCorners[edge[0]],
+                    .end = worldCorners[edge[1]],
+                    .color = Color::Yellow });
+    }
+}
+
 void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 {
     if (textBatcher)

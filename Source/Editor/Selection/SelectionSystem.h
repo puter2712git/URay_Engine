@@ -7,6 +7,11 @@ namespace URay
 
 class Unit;
 
+namespace Render
+{
+class DrawCommandBuilder;
+}
+
 class SelectionSystem
 {
 public:
@@ -14,6 +19,8 @@ public:
     ~SelectionSystem();
 
 public:
+    void PrepareRender(Render::DrawCommandBuilder& builder);
+
     void SelectUnit(Unit* unit);
 
     RayHandle RegisterOnSelected(EventRay<Unit*>::Callback callback);

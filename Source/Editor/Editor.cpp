@@ -170,6 +170,8 @@ void Editor::PrepareRender()
     Render::Renderer& renderer = engine.GetRenderSystem().GetRenderer();
     Render::DrawCommandBuilder& builder = engine.GetRenderSystem().GetPipeline().GetBuilder();
 
+    selectionSystem->PrepareRender(builder);
+
     rootWidget->PrepareRender(builder);
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();

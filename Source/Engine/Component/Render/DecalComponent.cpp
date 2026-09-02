@@ -20,6 +20,16 @@ void DecalComponent::RegisterClass()
     Super::RegisterClass();
 
     StaticClass()->AddProperty(
+        { .type = PropertyType::Vector3,
+          .name = "Extent",
+          .offset = offsetof(DecalComponent, extent),
+          .size = sizeof(Vector3),
+          .OnChangedCallback = [](Object* owner, const Property&)
+          {
+              DecalComponent* decalComp = static_cast<DecalComponent*>(owner);
+              decalComp->UpdateRenderObject();
+          } });
+    StaticClass()->AddProperty(
         { .type = PropertyType::Material,
           .name = "Material",
           .offset = offsetof(DecalComponent, material),
