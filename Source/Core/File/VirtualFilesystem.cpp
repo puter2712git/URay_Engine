@@ -98,7 +98,9 @@ std::vector<VirtualFileEntry> VirtualFilesystem::ListDirectory(
             continue;
 
         VirtualFileEntry fileEntry = {};
-        fileEntry.path = directory.Join(entry.path().filename().string());
+
+        const std::u8string filename = entry.path().filename().u8string();
+        fileEntry.path = directory.Join(std::string(filename.begin(), filename.end()));
 
         fileEntry.isDirectory = isDirectory;
 
