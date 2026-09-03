@@ -10,6 +10,7 @@ namespace URay::Render
 enum class RenderPassId : uint8
 {
     Opaque,
+    Decal,
     Overlay,
     Fog,
     UI,

@@ -1,8 +1,6 @@
 #include "Renderer.h"
 
 #include "Render/GPUResourceManager.h"
-#include "Render/RenderInfo.h"
-#include "Render/RenderPass/RenderPass.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
@@ -20,6 +18,8 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderPass/RenderPass.h"
 #include "Render/Scene/RenderScene.h"
 #include "Render/Shader/Shader.h"
 #include "Render/Shader/ShaderManager.h"
@@ -240,9 +240,16 @@ bool Renderer::BeginFrame()
 
     FrameConstants frameConstants = {};
     frameConstants.view = viewMatrix;
+    frameConstants.invView = viewMatrix.Inverse();
     frameConstants.proj = projMatrix;
+    frameConstants.invProj = projMatrix.Inverse();
+    frameConstants.viewProj = viewMatrix * projMatrix;
+    frameConstants.invViewProj = frameConstants.viewProj.Inverse();
     frameConstants.nearPlane = 0.1f;
     frameConstants.farPlane = 1000.0f;
+    frameConstants.renderTargetSize = Vector2(
+        sceneRenderTarget->GetExtent().width,
+        sceneRenderTarget->GetExtent().height);
 
     frameConstantBuffers[currentFrame]->UpdateData(
         &frameConstants,

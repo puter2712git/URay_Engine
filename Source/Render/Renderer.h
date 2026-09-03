@@ -7,10 +7,10 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Type/Types.h"
 
-#include <vulkan/vulkan.h>
 #include <memory>
 #include <optional>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace URay
 {
@@ -51,10 +51,14 @@ struct ObjectConstants
 struct FrameConstants
 {
     Matrix view = Matrix::Identity;
+    Matrix invView = Matrix::Identity;
     Matrix proj = Matrix::Identity;
-
+    Matrix invProj = Matrix::Identity;
+    Matrix viewProj = Matrix::Identity;
+    Matrix invViewProj = Matrix::Identity;
     float nearPlane = 0.1f;
     float farPlane = 1000.0f;
+    Vector2 renderTargetSize = Vector2::Zero;
 };
 
 class Renderer

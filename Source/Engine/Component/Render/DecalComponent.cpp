@@ -1,9 +1,13 @@
 #include "DecalComponent.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/DecalObject.h"
+#include "Render/Scene/Object/Drawable/DecalObject.h"
+
+#include <cassert>
 
 namespace URay
 {
@@ -11,7 +15,15 @@ namespace URay
 URAY_REGISTER_CLASS(DecalComponent)
 URAY_REGISTER_COMPONENT(DecalComponent)
 
-DecalComponent::DecalComponent() = default;
+DecalComponent::DecalComponent()
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+
+    boxMesh = assetSystem.FindMesh("Box");
+    assert(boxMesh != nullptr);
+
+    material = assetSystem.FindMaterial("Decal");
+}
 
 DecalComponent::~DecalComponent() = default;
 
@@ -55,6 +67,8 @@ Render::RenderObject* DecalComponent::CreateRenderObject()
         .min = Vector3(-extent.x, -extent.y, -extent.z),
         .max = Vector3(extent.x, extent.y, extent.z)
     };
+    state.boxMesh = boxMesh;
+    state.material = material;
 
     renderObject = new Render::DecalObject(state);
     return renderObject;
@@ -74,6 +88,7 @@ void DecalComponent::UpdateRenderObject()
         .min = Vector3(-extent.x, -extent.y, -extent.z),
         .max = Vector3(extent.x, extent.y, extent.z)
     };
+    state.boxMesh = boxMesh;
     state.material = material;
 
     Render::DecalObject* decalObject =

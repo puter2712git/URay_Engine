@@ -37,17 +37,14 @@ bool AssetSystem::InitializeRuntimeAssets(
     Render::ShaderManager& shaderManager)
 {
     textureManager = std::make_unique<TextureManager>(*filesystem);
-    Texture* defaultWhite = textureManager->LoadTexture(
-        "DefaultWhite", "RawAsset://Texture/white.png");
-    Texture* fontTexture = textureManager->LoadTexture(
-        "FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
+    Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
+    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
 
     materialManager = std::make_unique<MaterialManager>(
         &renderDevice, &resourceManager, defaultWhite);
-    Material* defaultMat = materialManager->GetOrCreate(
-        "Mesh", shaderManager.GetOrCreate("Mesh"));
-    materialManager->GetOrCreate(
-        "Sprite", shaderManager.GetOrCreate("Sprite"));
+    Material* defaultMat = materialManager->GetOrCreate("Mesh", shaderManager.GetOrCreate("Mesh"));
+    materialManager->GetOrCreate("Sprite", shaderManager.GetOrCreate("Sprite"));
+    materialManager->GetOrCreate("Decal", shaderManager.GetOrCreate("Decal"));
 
     meshManager = std::make_unique<MeshManager>();
     meshManager->CreateDefaultMeshes(defaultMat);
@@ -60,9 +57,6 @@ bool AssetSystem::InitializeRuntimeAssets(
         *materialManager, defaultMat->GetShader());
     objImporter->Import("RawAsset://Mesh/untitled.obj");
     objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
-    objImporter->Import("RawAsset://Mesh/apple_mid.obj");
-    objImporter->Import("RawAsset://Mesh/bitten_apple_mid.obj");
-    objImporter->Import("RawAsset://Mesh/Village/village.obj");
 
     return true;
 }

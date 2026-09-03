@@ -7,6 +7,7 @@
 namespace URay
 {
 
+class Mesh;
 class Material;
 
 class DecalComponent : public RenderComponent
@@ -27,6 +28,7 @@ protected:
 
 private:
     Vector3 extent = Vector3(0.5f, 0.5f, 0.5f);
+    Mesh* boxMesh = nullptr;
     Material* material = nullptr;
 };
 

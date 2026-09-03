@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Core/Math/AABB.h"
 #include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
 #include "Core/Type/Types.h"
@@ -41,6 +42,14 @@ struct TextCommandContext
     Matrix worldMatrix = Matrix::Identity;
     std::string text;
     Font* font = nullptr;
+};
+
+struct DecalCommandContext
+{
+    Matrix worldMatrix = Matrix::Identity;
+    AABB localBounds = {};
+    Mesh* boxMesh = nullptr;
+    Material* material = nullptr;
 };
 
 struct GizmoCommandContext

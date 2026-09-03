@@ -37,10 +37,13 @@ public:
     void FlushTexts();
 
     void BuildMesh(const MeshCommandContext& context);
+    void BuildText(const TextCommandContext& context);
+
+    void BuildDecal(const DecalCommandContext& context);
+
     void BuildLine(const LineCommandContext& context);
     void BuildAABB(const AABB& worldBounds);
     void BuildOBB(const AABB& localBounds, const Matrix& worldMatrix);
-    void BuildText(const TextCommandContext& context);
 
     void BuildGizmo(const GizmoCommandContext& context);
 

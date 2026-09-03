@@ -1,6 +1,7 @@
 #include "RenderPipeline.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/RenderPass/DecalPass.h"
 #include "Render/RenderPass/FogPass.h"
 #include "Render/RenderPass/OpaquePass.h"
 #include "Render/RenderPass/OverlayPass.h"
@@ -40,6 +41,7 @@ bool RenderPipeline::Initialize()
         return false;
 
     passes.push_back(std::make_unique<OpaquePass>());
+    passes.push_back(std::make_unique<DecalPass>());
     passes.push_back(std::make_unique<OverlayPass>());
     passes.push_back(std::make_unique<FogPass>(renderSystem));
 

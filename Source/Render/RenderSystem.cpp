@@ -43,6 +43,7 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
     shaderManager->GetOrCreate("Line", "Engine://Asset/Imported/Shader/Line.vert.spv", "Engine://Asset/Imported/Shader/Line.frag.spv");
     shaderManager->GetOrCreate("Mesh", "Engine://Asset/Imported/Shader/Mesh.vert.spv", "Engine://Asset/Imported/Shader/Mesh.frag.spv");
     shaderManager->GetOrCreate("Font", "Engine://Asset/Imported/Shader/Font.vert.spv", "Engine://Asset/Imported/Shader/Font.frag.spv");
+    shaderManager->GetOrCreate("Decal", "Engine://Asset/Imported/Shader/Decal.vert.spv", "Engine://Asset/Imported/Shader/Decal.frag.spv");
     shaderManager->GetOrCreate("Fog", "Engine://Asset/Imported/Shader/PostProcess/Fog.vert.spv", "Engine://Asset/Imported/Shader/PostProcess/Fog.frag.spv");
 
     pipeline = std::make_unique<RenderPipeline>(*this);

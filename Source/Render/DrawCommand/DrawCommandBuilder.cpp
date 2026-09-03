@@ -221,6 +221,39 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
     }
 }
 
+void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
+{
+    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.boxMesh);
+
+    DrawCommand cmd = {};
+    cmd.passId = RenderPassId::Decal;
+    cmd.worldMatrix = context.worldMatrix;
+    cmd.colorTint = Color::White;
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
+    cmd.vertexCount = static_cast<uint32_t>(context.boxMesh->GetVertices().size());
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer();
+    cmd.indexCount = static_cast<uint32_t>(context.boxMesh->GetIndices().size());
+
+    DepthStencilState depthStencil = {};
+    depthStencil.depthTestEnable = false;
+    depthStencil.depthWriteEnable = false;
+
+    RasterizerState rasterizer = {};
+    rasterizer.cullMode = CullMode::Back;
+
+    PipelineStateDesc state = {};
+    state.shader = context.material->GetShader();
+    state.topology = PrimitiveTopology::TriangleList;
+    state.vertexLayout = VertexLayout::PNT;
+    state.depthStencil = depthStencil;
+    state.rasterizer = rasterizer;
+
+    cmd.pipelineState = state;
+    cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
+
+    drawCmds.push_back(cmd);
+}
+
 void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
