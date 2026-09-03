@@ -17,6 +17,8 @@ ConsoleWidget::ConsoleWidget()
 
 ConsoleWidget::~ConsoleWidget()
 {
+    ClearLog();
+
     Logger::UnregisterSink(logSink);
     delete logSink;
 }
