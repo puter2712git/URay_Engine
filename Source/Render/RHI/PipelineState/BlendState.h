@@ -3,9 +3,15 @@
 namespace URay::Render
 {
 
+enum class BlendMode
+{
+    Opaque,
+    AlphaBlend
+};
+
 struct BlendState
 {
-    bool blendEnable = true;
+    BlendMode mode = BlendMode::Opaque;
 
     bool operator==(const BlendState&) const = default;
 };

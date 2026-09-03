@@ -46,10 +46,13 @@ struct TextCommandContext
 
 struct DecalCommandContext
 {
-    Matrix worldMatrix = Matrix::Identity;
-    AABB localBounds = {};
-    Mesh* boxMesh = nullptr;
-    Material* material = nullptr;
+    Matrix meshWorldMatrix = Matrix::Identity;
+    Mesh* receiverMesh = nullptr;
+    uint32 indexOffset = 0;
+    uint32 indexCount = 0;
+
+    Material* decalMaterial = nullptr;
+    DescriptorSet* decalDescriptorSet = nullptr;
 };
 
 struct GizmoCommandContext

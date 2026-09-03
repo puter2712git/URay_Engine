@@ -35,6 +35,8 @@ public:
     void Update(const MeshObjectState& state);
     void Submit(DrawCommandBuilder& builder) const override;
 
+    const Matrix& GetWorldMatrix() const { return worldMatrix; }
+    Mesh* GetMesh() const { return mesh; }
     const AABB& GetWorldBounds() const override { return worldBounds; }
 
 private:

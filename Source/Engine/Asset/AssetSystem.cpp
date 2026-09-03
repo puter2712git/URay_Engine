@@ -39,12 +39,14 @@ bool AssetSystem::InitializeRuntimeAssets(
     textureManager = std::make_unique<TextureManager>(*filesystem);
     Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
     Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
+    Texture* bulletHoleTexture = textureManager->LoadTexture("Bullet", "RawAsset://Texture/bullet_hole.png");
 
     materialManager = std::make_unique<MaterialManager>(
         &renderDevice, &resourceManager, defaultWhite);
     Material* defaultMat = materialManager->GetOrCreate("Mesh", shaderManager.GetOrCreate("Mesh"));
     materialManager->GetOrCreate("Sprite", shaderManager.GetOrCreate("Sprite"));
-    materialManager->GetOrCreate("Decal", shaderManager.GetOrCreate("Decal"));
+    Material* decalMat = materialManager->GetOrCreate("Decal", shaderManager.GetOrCreate("Decal"));
+    decalMat->SetTexture(bulletHoleTexture);
 
     meshManager = std::make_unique<MeshManager>();
     meshManager->CreateDefaultMeshes(defaultMat);

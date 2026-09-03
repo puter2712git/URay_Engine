@@ -48,11 +48,11 @@ void OverlayPass::Execute(
             context.frameDescriptorSet,
             0);
 
-        if (cmd.descriptorSet)
+        if (cmd.descriptorSets[1])
         {
             commandBuffer.BindDescriptorSet(
                 *pso->GetLayout(),
-                *cmd.descriptorSet,
+                *cmd.descriptorSets[1],
                 1);
         }
 

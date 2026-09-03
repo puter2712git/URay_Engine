@@ -1,8 +1,6 @@
 #include "RenderDevice.h"
 
 #include "Render/GPUResourceManager.h"
-#include "Render/Renderer.h"
-#include "Render/RenderInfo.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
@@ -26,6 +24,8 @@
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
+#include "Render/RenderInfo.h"
+#include "Render/Renderer.h"
 #include "Render/Shader/Shader.h"
 
 #include "Core/Type/Types.h"
@@ -476,13 +476,30 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
                                           VK_COLOR_COMPONENT_G_BIT |
                                           VK_COLOR_COMPONENT_B_BIT |
                                           VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = desc.blend.blendEnable ? VK_TRUE : VK_FALSE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+    switch (desc.blend.mode)
+    {
+    case BlendMode::Opaque:
+        colorBlendAttachment.blendEnable = VK_FALSE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        break;
+
+    case BlendMode::AlphaBlend:
+        colorBlendAttachment.blendEnable = VK_TRUE;
+
+        // RGB = src.rgb * src.a + dst.rgb * (1 - src.a)
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor =
+            VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        colorBlendAttachment.dstAlphaBlendFactor =
+            VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        break;
+    }
 
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

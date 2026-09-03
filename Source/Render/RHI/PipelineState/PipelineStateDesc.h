@@ -47,7 +47,7 @@ struct PipelineStateDescHash
         combine(desc.depthStencil.depthCompareOp);
         combine(desc.depthStencil.stencilTestEnable);
         combine(desc.rasterizer.cullMode);
-        combine(desc.blend.blendEnable);
+        combine(desc.blend.mode);
 
         return hash;
     }

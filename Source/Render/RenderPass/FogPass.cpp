@@ -102,7 +102,7 @@ void FogPass::Begin(const RenderPassContext& context)
             .cullMode = CullMode::None
         };
         psoDesc.blend = {
-            .blendEnable = false
+            .mode = BlendMode::Opaque
         };
 
         pso = context.resourceManager.GetOrCreatePSO(psoDesc, context.postProcessRenderPass);

@@ -5,7 +5,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/Drawable/DecalObject.h"
+#include "Render/Scene/Object/DecalObject.h"
 
 #include <cassert>
 
@@ -18,10 +18,6 @@ URAY_REGISTER_COMPONENT(DecalComponent)
 DecalComponent::DecalComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-
-    boxMesh = assetSystem.FindMesh("Box");
-    assert(boxMesh != nullptr);
-
     material = assetSystem.FindMaterial("Decal");
 }
 
@@ -63,14 +59,10 @@ Render::RenderObject* DecalComponent::CreateRenderObject()
 
     Render::DecalObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.localBounds = AABB{
-        .min = Vector3(-extent.x, -extent.y, -extent.z),
-        .max = Vector3(extent.x, extent.y, extent.z)
-    };
-    state.boxMesh = boxMesh;
+    state.extent = extent;
     state.material = material;
 
-    renderObject = new Render::DecalObject(state);
+    renderObject = new Render::DecalObject(gEngine->GetRenderSystem(), state); // TODO: Hmm...
     return renderObject;
 }
 
@@ -84,11 +76,7 @@ void DecalComponent::UpdateRenderObject()
 
     Render::DecalObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.localBounds = AABB{
-        .min = Vector3(-extent.x, -extent.y, -extent.z),
-        .max = Vector3(extent.x, extent.y, extent.z)
-    };
-    state.boxMesh = boxMesh;
+    state.extent = extent;
     state.material = material;
 
     Render::DecalObject* decalObject =

@@ -91,7 +91,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;
         psoDesc.rasterizer.cullMode = CullMode::None;
-        psoDesc.blend.blendEnable = true;
+        psoDesc.blend.mode = BlendMode::AlphaBlend;
 
         cmd.pipelineState = psoDesc;
 
@@ -101,7 +101,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         descriptorSet->WriteSampledImage(0, textureView);
         descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
 
-        cmd.descriptorSet = descriptorSet.get();
+        cmd.descriptorSets[1] = descriptorSet.get();
 
         drawCmds.push_back(cmd);
     }

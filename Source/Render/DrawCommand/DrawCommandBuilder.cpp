@@ -105,7 +105,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     stateDesc.topology = PrimitiveTopology::TriangleList;
     stateDesc.vertexLayout = VertexLayout::PNT;
     stateDesc.depthStencil = depthStencil;
-    stateDesc.blend.blendEnable = true;
+    stateDesc.blend.mode = BlendMode::Opaque;
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
@@ -116,7 +116,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
     cmd.pipelineState = stateDesc;
-    cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
+    cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
 
     drawCmds.push_back(cmd);
 }
@@ -223,33 +223,40 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 
 void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 {
-    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.boxMesh);
+    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.receiverMesh);
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Decal;
-    cmd.worldMatrix = context.worldMatrix;
+    cmd.worldMatrix = context.meshWorldMatrix;
     cmd.colorTint = Color::White;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
-    cmd.vertexCount = static_cast<uint32_t>(context.boxMesh->GetVertices().size());
+    cmd.vertexCount = static_cast<uint32_t>(context.receiverMesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();
-    cmd.indexCount = static_cast<uint32_t>(context.boxMesh->GetIndices().size());
+    cmd.indexOffset = context.indexOffset;
+    cmd.indexCount = context.indexCount;
 
     DepthStencilState depthStencil = {};
-    depthStencil.depthTestEnable = false;
+    depthStencil.depthTestEnable = true;
     depthStencil.depthWriteEnable = false;
+    depthStencil.depthCompareOp = CompareOp::Equal;
 
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::Back;
 
+    BlendState blend = {};
+    blend.mode = BlendMode::AlphaBlend;
+
     PipelineStateDesc state = {};
-    state.shader = context.material->GetShader();
+    state.shader = context.decalMaterial->GetShader();
     state.topology = PrimitiveTopology::TriangleList;
     state.vertexLayout = VertexLayout::PNT;
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
+    state.blend = blend;
 
     cmd.pipelineState = state;
-    cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
+    cmd.descriptorSets[1] = context.decalMaterial->GetDescriptorSet(currentFrame);
+    cmd.descriptorSets[2] = context.decalDescriptorSet;
 
     drawCmds.push_back(cmd);
 }
@@ -282,7 +289,7 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     state.rasterizer = rasterizer;
 
     cmd.pipelineState = state;
-    cmd.descriptorSet = context.material->GetDescriptorSet(currentFrame);
+    cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
 
     drawCmds.push_back(cmd);
 }

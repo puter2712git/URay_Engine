@@ -8,7 +8,9 @@
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Scene/Object/BoundedObject.h"
+#include "Render/Scene/Object/DecalObject.h"
 #include "Render/Scene/Object/Drawable/DrawableObject.h"
+#include "Render/Scene/Object/Drawable/MeshObject.h"
 #include "Render/Scene/Object/FogObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
@@ -82,15 +84,51 @@ void RenderPipeline::Execute(const RenderRequest& request)
     {
         size_t objectCount = scene->GetObjectCount();
 
+        std::vector<MeshObject*> meshReceivers;
+        std::vector<DecalObject*> decals;
+
         for (size_t i = 0; i < objectCount; ++i)
         {
             RenderObject* robj = scene->GetObject(i);
+
             if (!robj->IsEnabled())
                 continue;
+
+            if (MeshObject* mesh = dynamic_cast<MeshObject*>(robj))
+            {
+                meshReceivers.push_back(mesh);
+            }
+
+            if (DecalObject* decal = dynamic_cast<DecalObject*>(robj))
+            {
+                decals.push_back(decal);
+            }
 
             if (DrawableObject* drawableObj = dynamic_cast<DrawableObject*>(robj))
             {
                 drawableObj->Submit(*builder);
+            }
+        }
+
+        for (DecalObject* decal : decals)
+        {
+            for (MeshObject* mesh : meshReceivers)
+            {
+                if (!decal->GetWorldBounds().Intersects(mesh->GetWorldBounds()))
+                    continue;
+
+                Mesh* meshData = mesh->GetMesh();
+
+                for (const auto& section : meshData->GetSections())
+                {
+                    builder->BuildDecal(
+                        { .meshWorldMatrix = mesh->GetWorldMatrix(),
+                          .receiverMesh = mesh->GetMesh(),
+                          .indexOffset = section.indexOffset,
+                          .indexCount = section.indexCount,
+                          .decalMaterial = decal->GetMaterial(),
+                          .decalDescriptorSet = decal->GetDescriptorSet(currentFrame) });
+                }
             }
         }
     }

@@ -10,7 +10,7 @@ VertexPNTOut VSMain(VertexPNTIn input)
     
     float4 worldPosition = mul(obj.world, float4(input.inPosition, 1.0));
 
-    output.outPosition = mul(frame.proj, mul(frame.view, worldPosition));
+    output.outPosition = mul(frame.viewProj, worldPosition);
     output.outUV = input.inUV;
     output.outNormal = normalize(mul((float3x3) obj.world, input.inNormal));
 

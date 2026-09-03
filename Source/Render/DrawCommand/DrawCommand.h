@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/RenderPass/RenderPassId.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
+#include "Render/RenderPass/RenderPassId.h"
 
 #include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
@@ -34,7 +34,7 @@ struct DrawCommand
 
     PipelineStateDesc pipelineState = {};
 
-    DescriptorSet* descriptorSet = nullptr;
+    std::array<DescriptorSet*, 4> descriptorSets;
 };
 
 } // namespace URay::Render
