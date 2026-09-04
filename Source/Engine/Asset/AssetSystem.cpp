@@ -18,7 +18,10 @@
 namespace URay
 {
 
-AssetSystem::AssetSystem() = default;
+AssetSystem::AssetSystem(Engine& engine)
+    : engine(engine)
+{
+}
 
 AssetSystem::~AssetSystem() = default;
 
@@ -31,6 +34,9 @@ bool AssetSystem::Initialize(
     filesystem->Mount("Project", projectPath);
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
+
+    importers.push_back(std::make_unique<TextureImporter>(filesystem));
+    importers.push_back(std::make_unique<ObjImporter>(filesystem));
 
     return true;
 }
@@ -76,24 +82,11 @@ bool AssetSystem::InitializeRuntimeAssets(
     fontManager = std::make_unique<FontManager>();
     fontManager->LoadFont("Default", fontTexture);
 
-    textureImporter = std::make_unique<TextureImporter>(
-        *filesystem);
-
-    objImporter = std::make_unique<ObjImporter>(
-        *filesystem, *meshManager, *textureManager,
-        *materialManager, defaultMat->GetShader());
-    objImporter->Import("RawAsset://Mesh/untitled.obj");
-    objImporter->Import("RawAsset://Mesh/SilverWolf/SilverWolf.obj");
-
     return true;
 }
 
 void AssetSystem::Finalize()
 {
-    if (objImporter)
-    {
-        objImporter.reset();
-    }
     if (fontManager)
     {
         fontManager.reset();
@@ -121,15 +114,20 @@ void AssetSystem::Load(const VirtualPath& path)
 {
     const std::string extension = path.GetExtension();
 
-    if (extension == ".png")
-    {
-        std::vector<ImportResult> importResults =
-            textureImporter->Import(path);
+    ImportResult result = {};
 
-        for (const auto& result : importResults)
-        {
-            assets[result.metadata.uuid] = result.assetObject;
-        }
+    for (auto& importer : importers)
+    {
+        if (!importer->CanImport(extension))
+            continue;
+
+        result = importer->Import(path);
+        break;
+    }
+
+    for (AssetEntry& entry : result.entries)
+    {
+        assets.insert({ entry.metadata.uuid, entry.asset });
     }
 }
 

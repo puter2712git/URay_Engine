@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Engine/Object/Object.h"
+#include "Engine/Asset/Asset.h"
 
 #include "Core/Math/AABB.h"
 #include "Core/Type/Types.h"
 
 #include "Render/Vertex.h"
 
-#include <vulkan/vulkan.h>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace URay
 {
@@ -23,9 +23,9 @@ struct MeshSection
     size_t materialIndex = 0;
 };
 
-class Mesh : public Object
+class Mesh : public Asset
 {
-    URAY_CLASS(Mesh, Object)
+    URAY_CLASS(Mesh, Asset)
 
 public:
     Mesh(const std::string& name);

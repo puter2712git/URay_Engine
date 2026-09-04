@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Asset/Importer/Importer.h"
+
 #include "Core/File/VirtualPath.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
@@ -26,7 +28,7 @@ namespace Render
 class Shader;
 }
 
-class ObjImporter
+class ObjImporter : public Importer
 {
 public:
     ObjImporter(VirtualFilesystem& filesystem,
@@ -85,10 +87,14 @@ private:
     };
 
 public:
-    Mesh* Import(const VirtualPath& filePath);
+    ImportResult Import(const VirtualPath& path) override;
+
+    bool CanImport(const std::string& extension) override;
 
 private:
     void Reset();
+
+    Mesh* LoadMesh(const VirtualPath& path, const AssetMetadata& metadata);
 
     void ParseObj(const VirtualPath& objPath);
     Face ParseFace(const std::string& line);

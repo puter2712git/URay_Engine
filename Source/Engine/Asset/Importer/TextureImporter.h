@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Asset/Importer/ImportResult.h"
+#include "Engine/Asset/Importer/Importer.h"
 
 #include <vector>
 
@@ -12,14 +12,19 @@ class VirtualPath;
 
 class Texture;
 
-class TextureImporter
+class TextureImporter final : public Importer
 {
 public:
     TextureImporter(VirtualFilesystem& filesystem);
-    ~TextureImporter();
+    ~TextureImporter() override;
 
 public:
-    std::vector<ImportResult> Import(const VirtualPath& path);
+    ImportResult Import(const VirtualPath& path) override;
+
+    bool CanImport(const std::string& extension) override;
+
+private:
+    Texture* LoadTexture(const VirtualPath& path, const AssetMetadata& metadata);
 
 private:
     VirtualFilesystem& filesystem;

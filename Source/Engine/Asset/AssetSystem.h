@@ -17,13 +17,13 @@ class MaterialManager;
 class MeshManager;
 class TextureManager;
 class FontManager;
-class ObjImporter;
-class TextureImporter;
+class Importer;
 class Mesh;
 class Material;
 class Texture;
 class Font;
 class Object;
+class Engine;
 
 namespace Render
 {
@@ -35,7 +35,7 @@ class ShaderManager;
 class AssetSystem
 {
 public:
-    AssetSystem();
+    AssetSystem(Engine& engine);
     ~AssetSystem();
 
 public:
@@ -74,6 +74,8 @@ public:
     std::vector<Texture*> GetTextures() const;
 
 private:
+    Engine& engine;
+
     std::unique_ptr<VirtualFilesystem> filesystem = nullptr;
 
     std::unordered_map<UUID, Object*, UUIDHash> assets;
@@ -83,8 +85,7 @@ private:
     std::unique_ptr<TextureManager> textureManager = nullptr;
     std::unique_ptr<FontManager> fontManager = nullptr;
 
-    std::unique_ptr<TextureImporter> textureImporter = nullptr;
-    std::unique_ptr<ObjImporter> objImporter = nullptr;
+    std::vector<std::unique_ptr<Importer>> importers;
 };
 
 } // namespace URay

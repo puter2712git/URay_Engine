@@ -19,9 +19,9 @@ TextureImporter::TextureImporter(VirtualFilesystem& filesystem)
 
 TextureImporter::~TextureImporter() = default;
 
-std::vector<ImportResult> TextureImporter::Import(const VirtualPath& path)
+ImportResult TextureImporter::Import(const VirtualPath& path)
 {
-    std::vector<ImportResult> results;
+    ImportResult result = {};
 
     VirtualPath importMetaPath = VirtualPath(
         "Asset://" + path.GetRelativePath() + ".meta");
@@ -38,60 +38,68 @@ std::vector<ImportResult> TextureImporter::Import(const VirtualPath& path)
         metadata.sourcePath = path;
         metadata.importPath = importAssetPath;
 
-        YAML::Node metadataNode;
-        metadataNode["UUID"] = metadata.uuid.ToString();
-        metadataNode["Type"] = "Texture";
-        metadataNode["SourcePath"] = metadata.sourcePath.ToString();
-        metadataNode["ImportPath"] = metadata.importPath.ToString();
-
+        YAML::Node metadataNode = metadata.Serialize();
         filesystem.WriteText(importMetaPath, YAML::Dump(metadataNode));
     }
     else
     {
         std::string metadataNodeString = filesystem.ReadText(importMetaPath);
         YAML::Node metadataNode = YAML::Load(metadataNodeString);
-
-        metadata.uuid = UUID::FromString(metadataNode["UUID"].as<std::string>());
-        metadata.type = AssetType::Texture;
-        metadata.sourcePath = VirtualPath(metadataNode["SourcePath"].as<std::string>());
-        metadata.importPath = VirtualPath(metadataNode["ImportPath"].as<std::string>());
+        metadata.Deserialize(metadataNode);
     }
 
     if (!filesystem.Exists(importAssetPath))
     {
-        std::vector<uint8> fileBytes = filesystem.ReadBinary(path);
-
-        int width, height, channels;
-        stbi_uc* data = stbi_load_from_memory(
-            fileBytes.data(),
-            static_cast<int>(fileBytes.size()),
-            &width,
-            &height,
-            &channels,
-            STBI_rgb_alpha);
-
-        if (!data)
-            return {};
-
-        std::vector<uint8> pixels(data, data + width * height * 4);
-
-        texture = new Texture(
-            path.ToString(),
-            width,
-            height,
-            channels,
-            pixels);
-        texture->SetName(path.GetStem());
-        texture->SetUUID(metadata.uuid);
-
-        stbi_image_free(data);
+        texture = LoadTexture(path, metadata);
     }
 
-    results.push_back(ImportResult{
-        .assetObject = texture,
+    result.entries.push_back(AssetEntry{
+        .asset = texture,
         .metadata = metadata });
 
-    return results;
+    return result;
+}
+
+bool TextureImporter::CanImport(const std::string& extension)
+{
+    if (extension == ".png")
+    {
+        return true;
+    }
+
+    return false;
+}
+
+Texture* TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata)
+{
+    std::vector<uint8> fileBytes = filesystem.ReadBinary(path);
+
+    int width, height, channels;
+    stbi_uc* data = stbi_load_from_memory(
+        fileBytes.data(),
+        static_cast<int>(fileBytes.size()),
+        &width,
+        &height,
+        &channels,
+        STBI_rgb_alpha);
+
+    if (!data)
+        return nullptr;
+
+    std::vector<uint8> pixels(data, data + width * height * 4);
+
+    Texture* newTexture = new Texture(
+        path.ToString(),
+        width,
+        height,
+        channels,
+        pixels);
+    newTexture->SetName(path.GetStem());
+    newTexture->SetUUID(metadata.uuid);
+
+    stbi_image_free(data);
+
+    return newTexture;
 }
 
 } // namespace URay

@@ -30,18 +30,63 @@ ObjImporter::ObjImporter(VirtualFilesystem& filesystem,
 {
 }
 
-Mesh* ObjImporter::Import(const VirtualPath& filePath)
+ImportResult ObjImporter::Import(const VirtualPath& path)
 {
-    if (!filesystem.Exists(filePath))
+    if (!filesystem.Exists(path))
+        return ImportResult{};
+
+    std::vector<ImportResult> result;
+
+    VirtualPath importMetaPath = VirtualPath(
+        "Asset://" + path.GetRelativePath() + ".meta");
+    VirtualPath importAssetPath = VirtualPath(
+        "Asset://" + path.GetRelativePath() + ".asset");
+
+    AssetMetadata metadata = {};
+    Mesh* mesh = nullptr;
+
+    if (!filesystem.Exists(importMetaPath))
     {
-        return nullptr;
+        metadata.uuid = UUID::Generate();
+        metadata.type = AssetType::Mesh;
+        metadata.sourcePath = path;
+        metadata.importPath = importAssetPath;
+
+        YAML::Node metadataNode = metadata.Serialize();
+        filesystem.WriteText(importMetaPath, YAML::Dump(metadataNode));
+    }
+    else
+    {
+        std::string metadataNodeString = filesystem.ReadText(importMetaPath);
+        YAML::Node metadataNode = YAML::Load(metadataNodeString);
+
+        metadata.Deserialize(metadataNode);
     }
 
+    if (!filesystem.Exists(importAssetPath))
+    {
+        mesh = LoadMesh(path, metadata);
+    }
+}
+
+void ObjImporter::Reset()
+{
+    positions.clear();
+    uvs.clear();
+    normals.clear();
+    faces.clear();
+
+    mtllib.clear();
+    mtlInfos.clear();
+}
+
+Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metadata)
+{
     Reset();
 
-    ParseObj(filePath);
+    ParseObj(path);
 
-    VirtualPath mtlPath = filePath.GetDirectory().Join(mtllib);
+    VirtualPath mtlPath = path.GetDirectory().Join(mtllib);
     ParseMtl(mtlPath);
 
     std::vector<VertexPNT> vertices;
@@ -75,7 +120,7 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
         return newIndex;
     };
 
-    MaterialImportResult materialImportResult = CreateMaterials(filePath.ToString());
+    MaterialImportResult materialImportResult = CreateMaterials(path.ToString());
     std::vector<Material*>& materials = materialImportResult.materials;
     std::unordered_map<std::string, uint32>& materialSlots = materialImportResult.slots;
 
@@ -129,22 +174,10 @@ Mesh* ObjImporter::Import(const VirtualPath& filePath)
         sections.push_back(activeSection);
     }
 
-    Mesh* mesh = meshManager.CreateMesh(filePath.ToString(), vertices, indices);
+    Mesh* mesh = meshManager.CreateMesh(path.ToString(), vertices, indices);
     mesh->SetSections(sections);
     mesh->SetDefaultMaterials(materials);
-
-    return mesh;
-}
-
-void ObjImporter::Reset()
-{
-    positions.clear();
-    uvs.clear();
-    normals.clear();
-    faces.clear();
-
-    mtllib.clear();
-    mtlInfos.clear();
+    mesh->SetUUID(metadata.uuid);
 }
 
 void ObjImporter::ParseObj(const VirtualPath& objPath)
