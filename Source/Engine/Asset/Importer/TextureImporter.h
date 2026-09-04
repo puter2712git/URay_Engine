@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Engine/Asset/Importer/ImportResult.h"
+
+#include <vector>
+
 namespace URay
 {
 
@@ -15,7 +19,7 @@ public:
     ~TextureImporter();
 
 public:
-    Texture* Import(const VirtualPath& path);
+    std::vector<ImportResult> Import(const VirtualPath& path);
 
 private:
     VirtualFilesystem& filesystem;

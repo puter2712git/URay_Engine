@@ -6,12 +6,12 @@
 #include "Core/Type/Types.h"
 
 #include "Render/GPUResourceManager.h"
-#include "Render/RenderInfo.h"
-#include "Render/RenderSystem.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/RenderInfo.h"
+#include "Render/RenderSystem.h"
 #include "Render/Shader/Shader.h"
 
 namespace URay
@@ -74,6 +74,9 @@ void Material::SetTexture(Texture* textureAsset)
     Render::GPUResourceManager& resourceManager = renderSystem.GetResourceManager();
     Render::Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
     Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
+
+    if (!textureView)
+        return;
 
     for (Render::DescriptorSet* descriptorSet : descriptorSets)
     {

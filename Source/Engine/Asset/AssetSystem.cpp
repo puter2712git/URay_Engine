@@ -2,12 +2,16 @@
 
 #include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Asset/Importer/ObjImporter.h"
+#include "Engine/Asset/Importer/TextureImporter.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Object/Object.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Log/Log.h"
 
 #include "Render/Shader/ShaderManager.h"
 
@@ -31,6 +35,25 @@ bool AssetSystem::Initialize(
     return true;
 }
 
+bool AssetSystem::LoadAssets(const VirtualPath& path)
+{
+    std::vector<VirtualFileEntry> entries = filesystem->ListDirectory(path);
+
+    for (const auto& entry : entries)
+    {
+        if (entry.isDirectory)
+        {
+            LoadAssets(entry.path);
+            continue;
+        }
+
+        const VirtualPath& path = entry.path;
+        Load(path);
+    }
+
+    return true;
+}
+
 bool AssetSystem::InitializeRuntimeAssets(
     Render::RenderDevice& renderDevice,
     Render::GPUResourceManager& resourceManager,
@@ -39,20 +62,22 @@ bool AssetSystem::InitializeRuntimeAssets(
     textureManager = std::make_unique<TextureManager>(*filesystem);
     Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
     Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
-    Texture* bulletHoleTexture = textureManager->LoadTexture("Bullet", "RawAsset://Texture/bullet_hole.png");
 
     materialManager = std::make_unique<MaterialManager>(
         &renderDevice, &resourceManager, defaultWhite);
     Material* defaultMat = materialManager->GetOrCreate("Mesh", shaderManager.GetOrCreate("Mesh"));
     materialManager->GetOrCreate("Sprite", shaderManager.GetOrCreate("Sprite"));
     Material* decalMat = materialManager->GetOrCreate("Decal", shaderManager.GetOrCreate("Decal"));
-    decalMat->SetTexture(bulletHoleTexture);
+    decalMat->SetTexture(fontTexture);
 
     meshManager = std::make_unique<MeshManager>();
     meshManager->CreateDefaultMeshes(defaultMat);
 
     fontManager = std::make_unique<FontManager>();
     fontManager->LoadFont("Default", fontTexture);
+
+    textureImporter = std::make_unique<TextureImporter>(
+        *filesystem);
 
     objImporter = std::make_unique<ObjImporter>(
         *filesystem, *meshManager, *textureManager,
@@ -92,6 +117,22 @@ void AssetSystem::Finalize()
     }
 }
 
+void AssetSystem::Load(const VirtualPath& path)
+{
+    const std::string extension = path.GetExtension();
+
+    if (extension == ".png")
+    {
+        std::vector<ImportResult> importResults =
+            textureImporter->Import(path);
+
+        for (const auto& result : importResults)
+        {
+            assets[result.metadata.uuid] = result.assetObject;
+        }
+    }
+}
+
 Mesh* AssetSystem::FindMesh(const std::string& key) const
 {
     Mesh* mesh = meshManager->GetMesh(key);
@@ -126,9 +167,19 @@ const std::unordered_map<std::string, Material*>& AssetSystem::GetMaterials() co
     return materialManager->GetMaterials();
 }
 
-const std::unordered_map<std::string, Texture*>& AssetSystem::GetTextures() const
+std::vector<Texture*> AssetSystem::GetTextures() const
 {
-    return textureManager->GetTextures();
+    std::vector<Texture*> textures;
+
+    for (auto& [uuid, asset] : assets)
+    {
+        if (Texture* texture = Cast<Texture>(asset))
+        {
+            textures.push_back(texture);
+        }
+    }
+
+    return textures;
 }
 
 } // namespace URay

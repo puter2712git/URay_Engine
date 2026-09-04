@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Object/Object.h"
+#include "Engine/Asset/Asset.h"
 
 #include "Core/Type/Types.h"
 
@@ -10,9 +10,9 @@
 namespace URay
 {
 
-class Texture : public Object
+class Texture : public Asset
 {
-    URAY_CLASS(Texture, Object)
+    URAY_CLASS(Texture, Asset)
 
 public:
     Texture(const std::string& filePath,

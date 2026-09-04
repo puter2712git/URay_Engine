@@ -85,6 +85,9 @@ void GPUResourceManager::DestroyMeshBuffers()
 
 Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
 {
+    if (!texture)
+        return nullptr;
+
     auto it = textures.find(texture);
     if (it != textures.end())
         return it->second;

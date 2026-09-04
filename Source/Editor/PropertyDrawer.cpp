@@ -10,8 +10,8 @@
 #include "Engine/Engine.h"
 #include "Engine/Object/Property/Property.h"
 
-#include <imgui/imgui.h>
 #include <cstring>
+#include <imgui/imgui.h>
 
 namespace URay
 {
@@ -170,7 +170,7 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 {
     Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8*>(addr) + prop.offset);
 
-    const auto& textures = gEngine->GetAssetSystem().GetTextures();
+    std::vector<Texture*> textures = gEngine->GetAssetSystem().GetTextures();
 
     size_t textureCount = textures.size();
     std::vector<std::string> textureNames(textureCount);
@@ -178,9 +178,9 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 
     int selectedIndex = -1;
     int i = 0;
-    for (auto& [textureName, texture] : textures)
+    for (Texture* texture : textures)
     {
-        textureNames[i] = textureName;
+        textureNames[i] = texture->GetName();
         textureAssets[i] = texture;
 
         if (texture == *currTexture)

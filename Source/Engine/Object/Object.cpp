@@ -90,7 +90,7 @@ YAML::Node Object::Serialize() const
         case PropertyType::Texture:
         {
             Texture* texture = prop.GetValue<Texture*>(this);
-            node[prop.name] = texture ? texture->GetName() : "";
+            node[prop.name] = texture->GetUUID().ToString();
             break;
         }
         default:
@@ -170,10 +170,8 @@ void Object::Deserialize(const YAML::Node& node)
         }
         case PropertyType::Texture:
         {
-            const std::string assetName = valueNode.as<std::string>();
-            *static_cast<Texture**>(valueAddress) = assetName.empty()
-                                                        ? nullptr
-                                                        : gEngine->GetAssetSystem().FindTexture(assetName);
+            const UUID uuid = UUID::FromString(valueNode.as<std::string>());
+            *static_cast<Texture**>(valueAddress) = gEngine->GetAssetSystem().Find<Texture>(uuid);
             break;
         }
         default:
