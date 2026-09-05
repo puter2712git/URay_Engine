@@ -180,6 +180,16 @@ bool AssetSystem::LoadAssets(const VirtualPath& sourceDir)
 
 void AssetSystem::Finalize()
 {
+    for (auto& [uuid, asset] : assets)
+    {
+        if (asset)
+        {
+            delete asset;
+            asset = nullptr;
+        }
+    }
+    assets.clear();
+
     pipeline->Finalize();
     pipeline.reset();
 
@@ -202,6 +212,11 @@ UUID AssetSystem::Import(const VirtualPath& path)
 
         if (it != assets.end())
         {
+            if (asset)
+            {
+                delete asset;
+            }
+
             Logger::Log("Import Failed. UUID already exists: " + metadata.uuid.ToString());
             continue;
         }

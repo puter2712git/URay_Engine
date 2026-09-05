@@ -37,6 +37,9 @@ class Class;
 class Object
 {
 public:
+    virtual ~Object() = default;
+
+public:
     static void RegisterClass();
 
     inline static Class* StaticClass()

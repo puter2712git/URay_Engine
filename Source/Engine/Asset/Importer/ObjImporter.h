@@ -80,6 +80,7 @@ private:
     {
         std::vector<Material*> materials;
         std::unordered_map<std::string, uint32> slots;
+        std::vector<AssetMetadata> metadatas;
     };
 
 public:
@@ -90,7 +91,7 @@ public:
 private:
     void Reset();
 
-    Mesh* LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
+    std::vector<AssetEntry> LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
 
     void ParseObj(const VirtualPath& objPath);
     Face ParseFace(const std::string& line);

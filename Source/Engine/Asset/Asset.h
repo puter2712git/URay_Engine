@@ -12,6 +12,9 @@ class Asset : public Object
     URAY_CLASS(Asset, Object)
 
 public:
+    virtual ~Asset() override = default;
+
+public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& name) { this->name = name; }
 

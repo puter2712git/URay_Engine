@@ -41,7 +41,7 @@ ImportResult ObjImporter::Import(const VirtualPath& path, ImportContext& context
         "Asset://" + path.GetRelativePath() + ".asset");
 
     AssetMetadata metadata = {};
-    Mesh* mesh = nullptr;
+    std::vector<AssetEntry> entries;
 
     if (!filesystem.Exists(importMetaPath))
     {
@@ -63,12 +63,10 @@ ImportResult ObjImporter::Import(const VirtualPath& path, ImportContext& context
 
     if (!filesystem.Exists(importAssetPath))
     {
-        mesh = LoadMesh(path, metadata, context);
+        entries = LoadMesh(path, metadata, context);
     }
 
-    result.entries.push_back(
-        AssetEntry{ .asset = mesh,
-                    .metadata = metadata });
+    result.entries.insert(result.entries.end(), entries.begin(), entries.end());
 
     return result;
 }
@@ -94,7 +92,7 @@ void ObjImporter::Reset()
     mtlInfos.clear();
 }
 
-Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
+std::vector<AssetEntry> ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
 {
     Reset();
 
@@ -137,6 +135,7 @@ Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metada
     MaterialImportResult materialImportResult = CreateMaterials(path.ToString(), context);
     std::vector<Material*>& materials = materialImportResult.materials;
     std::unordered_map<std::string, uint32>& materialSlots = materialImportResult.slots;
+    std::vector<AssetMetadata>& metadatas = materialImportResult.metadatas;
 
     AssetSystem& assetSystem = context.GetAssetSystem();
     const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
@@ -195,7 +194,23 @@ Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metada
     Mesh* mesh = assetFactory.CreateMesh(
         metadata, vertices, indices, sections, materials);
 
-    return mesh;
+    std::vector<AssetEntry> entries;
+    entries.push_back(AssetEntry{
+        .asset = mesh,
+        .metadata = metadata });
+
+    size_t materialCount = materials.size();
+    size_t metadataCount = metadatas.size();
+    size_t count = std::min(materialCount, metadataCount);
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        entries.push_back(AssetEntry{
+            .asset = materials[i],
+            .metadata = metadatas[i] });
+    }
+
+    return entries;
 }
 
 void ObjImporter::ParseObj(const VirtualPath& objPath)
@@ -405,6 +420,7 @@ ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string
 
         result.materials.push_back(material);
         result.slots.insert({ info.mtlName, slot });
+        result.metadatas.push_back(metadata);
     }
 
     return result;
