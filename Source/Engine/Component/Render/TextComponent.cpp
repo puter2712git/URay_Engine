@@ -1,7 +1,6 @@
 #include "Engine/Component/Render/TextComponent.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"

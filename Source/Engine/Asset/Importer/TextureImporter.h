@@ -9,7 +9,6 @@ namespace URay
 
 class VirtualFilesystem;
 class VirtualPath;
-
 class Texture;
 
 class TextureImporter final : public Importer
