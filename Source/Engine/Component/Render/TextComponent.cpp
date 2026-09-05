@@ -1,9 +1,9 @@
 #include "Engine/Component/Render/TextComponent.h"
 
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Asset/Font/FontManager.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Scene/Object/Drawable/TextObject.h"
@@ -17,7 +17,7 @@ URAY_REGISTER_COMPONENT(TextComponent)
 TextComponent::TextComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    font = assetSystem.FindFont("Default");
+    font = assetSystem.GetDefaultAssets().font;
 }
 
 void TextComponent::RegisterClass()

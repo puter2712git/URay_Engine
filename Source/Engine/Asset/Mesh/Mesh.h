@@ -28,12 +28,10 @@ class Mesh : public Asset
     URAY_CLASS(Mesh, Asset)
 
 public:
-    Mesh(const std::string& name);
+    Mesh();
+    ~Mesh();
 
 public:
-    const std::string& GetName() const { return name; }
-    void SetName(const std::string& inName) { name = inName; }
-
     const std::vector<Render::VertexPNT>& GetVertices() const { return vertices; }
     void SetVertices(const std::vector<Render::VertexPNT>& newVertices);
 
@@ -50,7 +48,6 @@ public:
     const AABB& GetLocalBounds() const { return localBounds; }
 
 private:
-    std::string name;
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;
     std::vector<MeshSection> sections;

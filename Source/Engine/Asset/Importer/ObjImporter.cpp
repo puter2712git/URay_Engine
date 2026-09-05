@@ -1,7 +1,10 @@
 #include "ObjImporter.h"
 
+#include "Engine/Asset/AssetFactory.h"
+#include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/DefaultAssets.h"
+#include "Engine/Asset/Importer/ImportContext.h"
 #include "Engine/Asset/Material/Material.h"
-#include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Mesh/MeshManager.h"
 #include "Engine/Asset/Texture/Texture.h"
@@ -20,22 +23,17 @@ namespace URay
 
 using Render::VertexPNT;
 
-ObjImporter::ObjImporter(VirtualFilesystem& filesystem,
-                         MeshManager& meshManager,
-                         TextureManager& textureManager,
-                         MaterialManager& materialManager,
-                         Render::Shader* meshShader)
-    : filesystem(filesystem), meshManager(meshManager),
-      textureManager(textureManager), materialManager(materialManager), meshShader(meshShader)
+ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
+    : filesystem(filesystem)
 {
 }
 
-ImportResult ObjImporter::Import(const VirtualPath& path)
+ImportResult ObjImporter::Import(const VirtualPath& path, ImportContext& context)
 {
     if (!filesystem.Exists(path))
         return ImportResult{};
 
-    std::vector<ImportResult> result;
+    ImportResult result = {};
 
     VirtualPath importMetaPath = VirtualPath(
         "Asset://" + path.GetRelativePath() + ".meta");
@@ -65,8 +63,24 @@ ImportResult ObjImporter::Import(const VirtualPath& path)
 
     if (!filesystem.Exists(importAssetPath))
     {
-        mesh = LoadMesh(path, metadata);
+        mesh = LoadMesh(path, metadata, context);
     }
+
+    result.entries.push_back(
+        AssetEntry{ .asset = mesh,
+                    .metadata = metadata });
+
+    return result;
+}
+
+bool ObjImporter::CanImport(const std::string& extension)
+{
+    if (extension == ".obj")
+    {
+        return true;
+    }
+
+    return false;
 }
 
 void ObjImporter::Reset()
@@ -80,7 +94,7 @@ void ObjImporter::Reset()
     mtlInfos.clear();
 }
 
-Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metadata)
+Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
 {
     Reset();
 
@@ -120,14 +134,16 @@ Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metada
         return newIndex;
     };
 
-    MaterialImportResult materialImportResult = CreateMaterials(path.ToString());
+    MaterialImportResult materialImportResult = CreateMaterials(path.ToString(), context);
     std::vector<Material*>& materials = materialImportResult.materials;
     std::unordered_map<std::string, uint32>& materialSlots = materialImportResult.slots;
 
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
+
     if (materials.empty())
     {
-        Material* defaultMaterial = materialManager.GetOrCreate("Mesh", meshShader);
-        materials.push_back(defaultMaterial);
+        materials.push_back(defaultAssets.meshMaterial);
     }
 
     std::vector<MeshSection> sections;
@@ -174,10 +190,12 @@ Mesh* ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metada
         sections.push_back(activeSection);
     }
 
-    Mesh* mesh = meshManager.CreateMesh(path.ToString(), vertices, indices);
-    mesh->SetSections(sections);
-    mesh->SetDefaultMaterials(materials);
-    mesh->SetUUID(metadata.uuid);
+    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+
+    Mesh* mesh = assetFactory.CreateMesh(
+        metadata, vertices, indices, sections, materials);
+
+    return mesh;
 }
 
 void ObjImporter::ParseObj(const VirtualPath& objPath)
@@ -347,14 +365,22 @@ void ObjImporter::ParseMtl(const VirtualPath& mtlPath)
     }
 }
 
-ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string& meshKey)
+ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string& meshKey, ImportContext& context)
 {
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+    const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
+
     MaterialImportResult result = {};
 
     for (const MtlInfo& info : mtlInfos)
     {
+        AssetMetadata metadata = {};
+        metadata.type = AssetType::Material;
+        metadata.uuid = UUID::Generate();
+
         const std::string materialKey = meshKey + "::" + info.mtlName;
-        Material* material = materialManager.GetOrCreate(materialKey, meshShader);
+        Material* material = assetFactory.CreateMaterial(metadata, defaultAssets.meshMaterial->GetShader());
         material->SetBaseColor({
             info.diffuse.x,
             info.diffuse.y,
@@ -366,11 +392,8 @@ ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string
         {
             const std::string textureKey = info.diffuseTexturePath.ToString();
 
-            Texture* texture = textureManager.GetTexture(textureKey);
-            if (!texture)
-            {
-                texture = textureManager.LoadTexture(textureKey, info.diffuseTexturePath);
-            }
+            UUID textureUUID = assetSystem.Import(info.diffuseTexturePath);
+            Texture* texture = assetSystem.Find<Texture>(textureUUID);
 
             if (texture)
             {

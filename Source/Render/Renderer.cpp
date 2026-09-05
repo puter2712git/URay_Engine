@@ -28,7 +28,6 @@
 #include "Core/Type/Types.h"
 
 #include "Engine/Asset/Material/Material.h"
-#include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Scene/Scene.h"
 
 #include "Platform/Window/Window.h"

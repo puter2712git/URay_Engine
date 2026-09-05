@@ -18,7 +18,7 @@ URAY_REGISTER_COMPONENT(DecalComponent)
 DecalComponent::DecalComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    material = assetSystem.FindMaterial("Decal");
+    material = assetSystem.GetDefaultAssets().decalMaterial;
 }
 
 DecalComponent::~DecalComponent() = default;

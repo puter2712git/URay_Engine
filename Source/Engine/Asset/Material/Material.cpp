@@ -36,6 +36,11 @@ Material::~Material()
     descriptorSets.clear();
 }
 
+void Material::RegisterClass()
+{
+    Super::RegisterClass();
+}
+
 bool Material::Initialize(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite)
 {
     if (!renderDevice || !resourceManager || !shader)

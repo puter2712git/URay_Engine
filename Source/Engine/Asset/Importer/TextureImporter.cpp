@@ -1,6 +1,9 @@
 #include "TextureImporter.h"
 
+#include "Engine/Asset/AssetFactory.h"
 #include "Engine/Asset/AssetMetadata.h"
+#include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/Importer/ImportContext.h"
 #include "Engine/Asset/Texture/Texture.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -19,7 +22,7 @@ TextureImporter::TextureImporter(VirtualFilesystem& filesystem)
 
 TextureImporter::~TextureImporter() = default;
 
-ImportResult TextureImporter::Import(const VirtualPath& path)
+ImportResult TextureImporter::Import(const VirtualPath& path, ImportContext& context)
 {
     ImportResult result = {};
 
@@ -50,7 +53,7 @@ ImportResult TextureImporter::Import(const VirtualPath& path)
 
     if (!filesystem.Exists(importAssetPath))
     {
-        texture = LoadTexture(path, metadata);
+        texture = LoadTexture(path, metadata, context);
     }
 
     result.entries.push_back(AssetEntry{
@@ -62,7 +65,7 @@ ImportResult TextureImporter::Import(const VirtualPath& path)
 
 bool TextureImporter::CanImport(const std::string& extension)
 {
-    if (extension == ".png")
+    if (extension == ".png" || extension == ".jpg")
     {
         return true;
     }
@@ -70,7 +73,7 @@ bool TextureImporter::CanImport(const std::string& extension)
     return false;
 }
 
-Texture* TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata)
+Texture* TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
 {
     std::vector<uint8> fileBytes = filesystem.ReadBinary(path);
 
@@ -88,14 +91,10 @@ Texture* TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetada
 
     std::vector<uint8> pixels(data, data + width * height * 4);
 
-    Texture* newTexture = new Texture(
-        path.ToString(),
-        width,
-        height,
-        channels,
-        pixels);
-    newTexture->SetName(path.GetStem());
-    newTexture->SetUUID(metadata.uuid);
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+
+    Texture* newTexture = assetFactory.CreateTexture(metadata, width, height, channels, pixels);
 
     stbi_image_free(data);
 

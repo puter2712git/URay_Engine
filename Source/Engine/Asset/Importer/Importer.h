@@ -7,12 +7,13 @@
 namespace URay
 {
 
-class Object;
+class Asset;
 class VirtualPath;
+class ImportContext;
 
 struct AssetEntry
 {
-    Object* asset;
+    Asset* asset;
     AssetMetadata metadata = {};
 };
 
@@ -27,7 +28,7 @@ public:
     virtual ~Importer() = default;
 
 public:
-    virtual ImportResult Import(const VirtualPath& path) = 0;
+    virtual ImportResult Import(const VirtualPath& path, ImportContext& context) = 0;
 
     virtual bool CanImport(const std::string& extension) = 0;
 };

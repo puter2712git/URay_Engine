@@ -19,12 +19,12 @@ public:
     ~TextureImporter() override;
 
 public:
-    ImportResult Import(const VirtualPath& path) override;
+    ImportResult Import(const VirtualPath& path, ImportContext& context) override;
 
     bool CanImport(const std::string& extension) override;
 
 private:
-    Texture* LoadTexture(const VirtualPath& path, const AssetMetadata& metadata);
+    Texture* LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
 
 private:
     VirtualFilesystem& filesystem;

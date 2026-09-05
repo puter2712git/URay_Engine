@@ -31,11 +31,7 @@ class Shader;
 class ObjImporter : public Importer
 {
 public:
-    ObjImporter(VirtualFilesystem& filesystem,
-                MeshManager& meshManager,
-                TextureManager& textureManager,
-                MaterialManager& materialManager,
-                Render::Shader* meshShader);
+    ObjImporter(VirtualFilesystem& filesystem);
 
 private:
     struct ObjIndex
@@ -87,29 +83,24 @@ private:
     };
 
 public:
-    ImportResult Import(const VirtualPath& path) override;
+    ImportResult Import(const VirtualPath& path, ImportContext& context) override;
 
     bool CanImport(const std::string& extension) override;
 
 private:
     void Reset();
 
-    Mesh* LoadMesh(const VirtualPath& path, const AssetMetadata& metadata);
+    Mesh* LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
 
     void ParseObj(const VirtualPath& objPath);
     Face ParseFace(const std::string& line);
     ObjIndex ParseObjIndex(const std::string& token);
 
     void ParseMtl(const VirtualPath& mtlPath);
-    MaterialImportResult CreateMaterials(const std::string& meshKey);
+    MaterialImportResult CreateMaterials(const std::string& meshKey, ImportContext& context);
 
 private:
     VirtualFilesystem& filesystem;
-    MeshManager& meshManager;
-    TextureManager& textureManager;
-    MaterialManager& materialManager;
-
-    Render::Shader* meshShader = nullptr;
 
     std::vector<Vector3> positions;
     std::vector<Vector2> uvs;

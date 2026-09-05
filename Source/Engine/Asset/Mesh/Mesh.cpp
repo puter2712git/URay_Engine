@@ -7,13 +7,13 @@ namespace URay
 
 URAY_REGISTER_CLASS(Mesh)
 
+Mesh::Mesh() {}
+
+Mesh::~Mesh() {}
+
 void Mesh::RegisterClass()
 {
     Super::RegisterClass();
-}
-
-Mesh::Mesh(const std::string& name) : name(name)
-{
 }
 
 void Mesh::SetVertices(const std::vector<Render::VertexPNT>& newVertices)

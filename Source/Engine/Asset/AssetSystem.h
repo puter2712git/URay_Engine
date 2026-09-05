@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Asset/DefaultAssets.h"
+
 #include "Core/UUID.h"
 
 #include <filesystem>
@@ -13,16 +15,9 @@ namespace URay
 
 class VirtualFilesystem;
 class VirtualPath;
-class MaterialManager;
-class MeshManager;
-class TextureManager;
-class FontManager;
-class Importer;
-class Mesh;
-class Material;
-class Texture;
-class Font;
-class Object;
+class Asset;
+class AssetFactory;
+class AssetPipeline;
 class Engine;
 
 namespace Render
@@ -40,16 +35,12 @@ public:
 
 public:
     bool Initialize(const std::string& enginePath, const std::string& projectPath);
-    bool LoadAssets(const VirtualPath& path);
-
-    bool InitializeRuntimeAssets(
-        Render::RenderDevice& renderDevice,
-        Render::GPUResourceManager& resourceManager,
-        Render::ShaderManager& shaderManager);
+    bool CreateDefaultAssets();
+    bool LoadAssets(const VirtualPath& sourceDir);
 
     void Finalize();
 
-    void Load(const VirtualPath& path);
+    UUID Import(const VirtualPath& path);
 
     template <typename T>
     T* Find(const UUID& uuid) const
@@ -62,30 +53,38 @@ public:
         return Cast<T>(it->second);
     }
 
-    Mesh* FindMesh(const std::string& key) const;
-    Material* FindMaterial(const std::string& key) const;
-    Texture* FindTexture(const std::string& key) const;
-    Font* FindFont(const std::string& key) const;
+    template <typename T>
+    std::vector<T*> FindAssets() const
+    {
+        std::vector<T*> ret;
+
+        for (auto& [uuid, asset] : assets)
+        {
+            if (T* obj = Cast<T>(asset))
+            {
+                ret.push_back(obj);
+            }
+        }
+
+        return ret;
+    }
 
     VirtualFilesystem& GetFilesystem() const { return *filesystem; }
 
-    const std::unordered_map<std::string, Mesh*>& GetMeshes() const;
-    const std::unordered_map<std::string, Material*>& GetMaterials() const;
-    std::vector<Texture*> GetTextures() const;
+    AssetFactory& GetAssetFactory() const { return *factory; } // TODO: Remove this getter.
+
+    const DefaultAssets& GetDefaultAssets() const { return defaultAssets; }
 
 private:
     Engine& engine;
 
     std::unique_ptr<VirtualFilesystem> filesystem = nullptr;
 
-    std::unordered_map<UUID, Object*, UUIDHash> assets;
+    std::unique_ptr<AssetFactory> factory = nullptr;
+    std::unique_ptr<AssetPipeline> pipeline = nullptr;
 
-    std::unique_ptr<MaterialManager> materialManager = nullptr;
-    std::unique_ptr<MeshManager> meshManager = nullptr;
-    std::unique_ptr<TextureManager> textureManager = nullptr;
-    std::unique_ptr<FontManager> fontManager = nullptr;
-
-    std::vector<std::unique_ptr<Importer>> importers;
+    std::unordered_map<UUID, Asset*, UUIDHash> assets;
+    DefaultAssets defaultAssets = {};
 };
 
 } // namespace URay

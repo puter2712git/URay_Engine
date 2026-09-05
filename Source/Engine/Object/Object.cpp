@@ -84,13 +84,13 @@ YAML::Node Object::Serialize() const
         case PropertyType::Mesh:
         {
             Mesh* mesh = prop.GetValue<Mesh*>(this);
-            node[prop.name] = mesh ? mesh->GetName() : "";
+            node[prop.name] = mesh ? mesh->GetUUID().ToString() : "";
             break;
         }
         case PropertyType::Texture:
         {
             Texture* texture = prop.GetValue<Texture*>(this);
-            node[prop.name] = texture->GetUUID().ToString();
+            node[prop.name] = texture ? texture->GetUUID().ToString() : "";
             break;
         }
         default:
@@ -162,10 +162,8 @@ void Object::Deserialize(const YAML::Node& node)
             break;
         case PropertyType::Mesh:
         {
-            const std::string assetName = valueNode.as<std::string>();
-            *static_cast<Mesh**>(valueAddress) = assetName.empty()
-                                                     ? nullptr
-                                                     : gEngine->GetAssetSystem().FindMesh(assetName);
+            const UUID uuid = UUID::FromString(valueNode.as<std::string>());
+            *static_cast<Mesh**>(valueAddress) = gEngine->GetAssetSystem().Find<Mesh>(uuid);
             break;
         }
         case PropertyType::Texture:

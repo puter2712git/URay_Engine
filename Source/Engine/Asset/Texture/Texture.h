@@ -15,29 +15,20 @@ class Texture : public Asset
     URAY_CLASS(Texture, Asset)
 
 public:
-    Texture(const std::string& filePath,
-            int width, int height, int channels,
+    Texture(int32 width, int32 height, int32 channels,
             const std::vector<uint8>& pixels);
+    ~Texture();
 
 public:
-    void SetName(const std::string& inName) { name = inName; }
-    const std::string& GetName() const { return name; }
-
-    const std::string& GetFilePath() const { return filePath; }
-
-    int GetWidth() const { return width; }
-    int GetHeight() const { return height; }
-    int GetChannels() const { return channels; }
-
+    int32 GetWidth() const { return width; }
+    int32 GetHeight() const { return height; }
+    int32 GetChannels() const { return channels; }
     const std::vector<uint8>& GetPixels() const { return pixels; }
 
 private:
-    std::string name;
-    std::string filePath;
-
-    int width = 0;
-    int height = 0;
-    int channels = 0;
+    int32 width = 0;
+    int32 height = 0;
+    int32 channels = 0;
 
     std::vector<uint8> pixels;
 };

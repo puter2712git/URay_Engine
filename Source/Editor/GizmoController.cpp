@@ -27,11 +27,11 @@ GizmoController::GizmoController(Engine& engine)
     AssetSystem& assetSystem = engine.GetAssetSystem();
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
-    meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.FindMesh("Arrow");
-    meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.FindMesh("RotationGizmo");
-    meshes[static_cast<size_t>(GizmoMode::Scale)] = assetSystem.FindMesh("ScaleGizmo");
+    meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.GetDefaultAssets().arrowMesh;
+    meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.GetDefaultAssets().rotationGizmoMesh;
+    meshes[static_cast<size_t>(GizmoMode::Scale)] = assetSystem.GetDefaultAssets().scaleGizmoMesh;
 
-    material = assetSystem.FindMaterial("Mesh");
+    material = assetSystem.GetDefaultAssets().meshMaterial;
 
     Scene* editorScene = sceneSystem.GetSceneByType(SceneType::Editor);
     RenderScene* renderScene = editorScene->GetRenderScene();

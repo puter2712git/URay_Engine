@@ -1,7 +1,6 @@
 #include "Engine/Component/Render/MeshComponent.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/Material/MaterialManager.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -25,7 +24,7 @@ URAY_REGISTER_COMPONENT(MeshComponent)
 MeshComponent::MeshComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    Mesh* defaultMesh = assetSystem.FindMesh("Box");
+    Mesh* defaultMesh = assetSystem.GetDefaultAssets().cubeMesh;
     SetMesh(defaultMesh);
 }
 
@@ -33,21 +32,22 @@ void MeshComponent::RegisterClass()
 {
     Super::RegisterClass();
 
-    StaticClass()->AddProperty({ .type = PropertyType::Mesh,
-                                 .name = "Mesh",
-                                 .offset = offsetof(MeshComponent, mesh),
-                                 .size = sizeof(Mesh*),
-                                 .OnChangedCallback = [](Object* owner, const Property&)
-                                 {
-                                     MeshComponent* meshComp = static_cast<MeshComponent*>(owner);
-                                     meshComp->SetMesh(meshComp->GetMesh());
-                                 } });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Mesh,
+          .name = "Mesh",
+          .offset = offsetof(MeshComponent, mesh),
+          .size = sizeof(Mesh*),
+          .OnChangedCallback = [](Object* owner, const Property&)
+          {
+              MeshComponent* meshComp = static_cast<MeshComponent*>(owner);
+              meshComp->SetMesh(meshComp->GetMesh());
+          } });
 }
 
 Render::RenderObject* MeshComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
-    if (!owner || !mesh)
+    if (!owner)
         return nullptr;
 
     TransformComponent* transform = owner->GetTransform();

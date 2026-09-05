@@ -113,45 +113,25 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
     Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8*>(addr) + prop.offset);
 
-    const auto& meshes = gEngine->GetAssetSystem().GetMeshes();
-
-    size_t meshCount = meshes.size();
-    std::vector<std::string> meshNames(meshCount);
-    std::vector<Mesh*> meshArr(meshCount);
-
-    int selectedIndex = -1;
-    int i = 0;
-    for (auto [meshName, mesh] : meshes)
-    {
-        meshNames[i] = meshName;
-        meshArr[i] = mesh;
-
-        if (mesh == *currMesh)
-        {
-            selectedIndex = i;
-        }
-
-        ++i;
-    }
+    const std::vector<Mesh*> meshes = gEngine->GetAssetSystem().FindAssets<Mesh>();
 
     bool isChanged = false;
 
-    const char* preview = selectedIndex >= 0 ? meshNames[selectedIndex].c_str() : "None";
+    const char* preview = *currMesh ? (*currMesh)->GetName().c_str() : "None";
     if (ImGui::BeginCombo("Mesh", preview))
     {
-        for (int index = 0; index < meshCount; ++index)
+        for (Mesh* mesh : meshes)
         {
-            const bool isSelected = selectedIndex == index;
+            const bool isSelected = *currMesh == mesh;
 
-            if (ImGui::Selectable(meshNames[index].c_str(), isSelected))
+            if (ImGui::Selectable(mesh->GetName().c_str(), isSelected))
             {
-                if (selectedIndex != index)
+                if (*currMesh != mesh)
                 {
                     isChanged = true;
                 }
 
-                selectedIndex = index;
-                *currMesh = meshArr[index];
+                *currMesh = mesh;
             }
 
             if (isSelected)
@@ -170,45 +150,25 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 {
     Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8*>(addr) + prop.offset);
 
-    std::vector<Texture*> textures = gEngine->GetAssetSystem().GetTextures();
-
-    size_t textureCount = textures.size();
-    std::vector<std::string> textureNames(textureCount);
-    std::vector<Texture*> textureAssets(textureCount);
-
-    int selectedIndex = -1;
-    int i = 0;
-    for (Texture* texture : textures)
-    {
-        textureNames[i] = texture->GetName();
-        textureAssets[i] = texture;
-
-        if (texture == *currTexture)
-        {
-            selectedIndex = i;
-        }
-
-        ++i;
-    }
+    const std::vector<Texture*> textures = gEngine->GetAssetSystem().FindAssets<Texture>();
 
     bool isChanged = false;
 
-    const char* preview = selectedIndex >= 0 ? textureNames[selectedIndex].c_str() : "None";
+    const char* preview = *currTexture ? (*currTexture)->GetName().c_str() : "None";
     if (ImGui::BeginCombo("Texture", preview))
     {
-        for (size_t index = 0; index < textureCount; ++index)
+        for (Texture* texture : textures)
         {
-            const bool isSelected = selectedIndex == index;
+            const bool isSelected = *currTexture == texture;
 
-            if (ImGui::Selectable(textureNames[index].c_str(), isSelected))
+            if (ImGui::Selectable(texture->GetName().c_str(), isSelected))
             {
-                if (selectedIndex != index)
+                if (*currTexture != texture)
                 {
                     isChanged = true;
                 }
 
-                selectedIndex = index;
-                *currTexture = textureAssets[index];
+                *currTexture = texture;
             }
 
             if (isSelected)
@@ -227,45 +187,25 @@ bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
 {
     Material** currMaterial = reinterpret_cast<Material**>(static_cast<uint8*>(addr) + prop.offset);
 
-    const auto& materials = gEngine->GetAssetSystem().GetMaterials();
-
-    size_t materialCount = materials.size();
-    std::vector<std::string> materialNames(materialCount);
-    std::vector<Material*> materialAssets(materialCount);
-
-    int selectedIndex = -1;
-    int i = 0;
-    for (auto& [materialName, material] : materials)
-    {
-        materialNames[i] = materialName;
-        materialAssets[i] = material;
-
-        if (material == *currMaterial)
-        {
-            selectedIndex = i;
-        }
-
-        ++i;
-    }
+    const std::vector<Material*> materials = gEngine->GetAssetSystem().FindAssets<Material>();
 
     bool isChanged = false;
 
-    const char* preview = selectedIndex >= 0 ? materialNames[selectedIndex].c_str() : "None";
+    const char* preview = *currMaterial ? (*currMaterial)->GetName().c_str() : "None";
     if (ImGui::BeginCombo("Material", preview))
     {
-        for (size_t index = 0; index < materialCount; ++index)
+        for (Material* material : materials)
         {
-            const bool isSelected = selectedIndex == index;
+            const bool isSelected = *currMaterial == material;
 
-            if (ImGui::Selectable(materialNames[index].c_str(), isSelected))
+            if (ImGui::Selectable(material->GetName().c_str(), isSelected))
             {
-                if (selectedIndex != index)
+                if (*currMaterial != material)
                 {
                     isChanged = true;
                 }
 
-                selectedIndex = index;
-                *currMaterial = materialAssets[index];
+                *currMaterial = material;
             }
 
             if (isSelected)

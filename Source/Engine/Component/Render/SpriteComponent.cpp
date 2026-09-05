@@ -1,10 +1,10 @@
 #include "Engine/Component/Render/SpriteComponent.h"
 
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Component/TransformComponent.h"
-#include "Engine/Engine.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
+#include "Engine/Component/TransformComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Scene/Object/Drawable/MeshObject.h"
@@ -21,9 +21,9 @@ SpriteComponent::SpriteComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    texture = assetSystem.FindTexture("DefaultWhite");
-    quadMesh = assetSystem.FindMesh("Quad");
-    material = assetSystem.FindMaterial("Sprite");
+    texture = assetSystem.GetDefaultAssets().whiteTexture;
+    quadMesh = assetSystem.GetDefaultAssets().quadMesh;
+    material = assetSystem.GetDefaultAssets().spriteMaterial;
     material->SetTexture(texture);
 }
 

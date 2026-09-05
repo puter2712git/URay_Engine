@@ -1,18 +1,17 @@
 #include "AssetSystem.h"
 
-#include "Engine/Asset/Font/FontManager.h"
-#include "Engine/Asset/Importer/ObjImporter.h"
-#include "Engine/Asset/Importer/TextureImporter.h"
+#include "Engine/Asset/AssetFactory.h"
+#include "Engine/Asset/AssetPipeline.h"
 #include "Engine/Asset/Material/Material.h"
-#include "Engine/Asset/Material/MaterialManager.h"
-#include "Engine/Asset/Mesh/MeshManager.h"
+#include "Engine/Asset/Mesh/MeshGenerator.h"
 #include "Engine/Asset/Texture/Texture.h"
-#include "Engine/Asset/Texture/TextureManager.h"
+#include "Engine/Engine.h"
 #include "Engine/Object/Object.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Shader/ShaderManager.h"
 
 namespace URay
@@ -35,15 +34,134 @@ bool AssetSystem::Initialize(
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
 
-    importers.push_back(std::make_unique<TextureImporter>(filesystem));
-    importers.push_back(std::make_unique<ObjImporter>(filesystem));
+    factory = std::make_unique<AssetFactory>(engine);
+
+    pipeline = std::make_unique<AssetPipeline>(*this);
+    if (!pipeline->Initialize())
+        return false;
 
     return true;
 }
 
-bool AssetSystem::LoadAssets(const VirtualPath& path)
+bool AssetSystem::CreateDefaultAssets()
 {
-    std::vector<VirtualFileEntry> entries = filesystem->ListDirectory(path);
+    UUID whiteTextureUUID = Import("RawAsset://Texture/White.png");
+    defaultAssets.whiteTexture = Find<Texture>(whiteTextureUUID);
+
+    UUID fontTextureUUID = Import("RawAsset://Texture/DejaVu Sans Mono.png");
+    defaultAssets.fontTexture = Find<Texture>(fontTextureUUID);
+
+    UUID decalTextureUUID = Import("RawAsset://Texture/bullet_hole.png");
+    defaultAssets.decalTexture = Find<Texture>(decalTextureUUID);
+
+    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
+    Render::ShaderManager& shaderManager = renderSystem.GetShaderManager();
+
+    Render::Shader* spriteShader = shaderManager.GetOrCreate("Sprite");
+    Render::Shader* meshShader = shaderManager.GetOrCreate("Mesh");
+    Render::Shader* decalShader = shaderManager.GetOrCreate("Decal");
+
+    Material* spriteMaterial = factory->CreateMaterial(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Material,
+            .sourcePath = "Sprite Material" },
+        spriteShader);
+    Material* meshMaterial = factory->CreateMaterial(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Material,
+            .sourcePath = "Mesh Material" },
+        meshShader);
+    Material* decalMaterial = factory->CreateMaterial(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Material,
+            .sourcePath = "Decal Material" },
+        decalShader);
+    decalMaterial->SetTexture(defaultAssets.decalTexture);
+
+    assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
+    assets.insert({ meshMaterial->GetUUID(), meshMaterial });
+    assets.insert({ decalMaterial->GetUUID(), decalMaterial });
+
+    defaultAssets.spriteMaterial = spriteMaterial;
+    defaultAssets.meshMaterial = meshMaterial;
+    defaultAssets.decalMaterial = decalMaterial;
+
+    MeshGenerator meshGenerator;
+    MeshInfo quadMeshInfo = meshGenerator.CreateQuad();
+    MeshInfo cubeMeshInfo = meshGenerator.CreateCube();
+    MeshInfo arrowMeshInfo = meshGenerator.CreateArrow();
+    MeshInfo rotationGizmoMeshInfo = meshGenerator.CreateRotationGizmo();
+    MeshInfo scaleGizmoMeshInfo = meshGenerator.CreateScaleGizmo();
+
+    Mesh* quadMesh = factory->CreateMesh(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Mesh,
+            .sourcePath = "Quad" },
+        quadMeshInfo.vertices,
+        quadMeshInfo.indices,
+        quadMeshInfo.sections,
+        { defaultAssets.meshMaterial });
+    assets.insert({ quadMesh->GetUUID(), quadMesh });
+    defaultAssets.quadMesh = quadMesh;
+
+    Mesh* cubeMesh = factory->CreateMesh(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Mesh,
+            .sourcePath = "Cube" },
+        cubeMeshInfo.vertices,
+        cubeMeshInfo.indices,
+        cubeMeshInfo.sections,
+        { defaultAssets.meshMaterial });
+    assets.insert({ cubeMesh->GetUUID(), cubeMesh });
+    defaultAssets.cubeMesh = cubeMesh;
+
+    Mesh* arrowMesh = factory->CreateMesh(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Mesh,
+            .sourcePath = "Arrow" },
+        arrowMeshInfo.vertices,
+        arrowMeshInfo.indices,
+        arrowMeshInfo.sections,
+        { defaultAssets.meshMaterial });
+    assets.insert({ arrowMesh->GetUUID(), arrowMesh });
+    defaultAssets.arrowMesh = arrowMesh;
+
+    Mesh* rotationGizmoMesh = factory->CreateMesh(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Mesh,
+            .sourcePath = "RotationGizmo" },
+        rotationGizmoMeshInfo.vertices,
+        rotationGizmoMeshInfo.indices,
+        rotationGizmoMeshInfo.sections,
+        { defaultAssets.meshMaterial });
+    assets.insert({ rotationGizmoMesh->GetUUID(), rotationGizmoMesh });
+    defaultAssets.rotationGizmoMesh = rotationGizmoMesh;
+
+    Mesh* scaleGizmoMesh = factory->CreateMesh(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Mesh,
+            .sourcePath = "ScaleGizmo" },
+        scaleGizmoMeshInfo.vertices,
+        scaleGizmoMeshInfo.indices,
+        scaleGizmoMeshInfo.sections,
+        { defaultAssets.meshMaterial });
+    assets.insert({ scaleGizmoMesh->GetUUID(), scaleGizmoMesh });
+    defaultAssets.scaleGizmoMesh = scaleGizmoMesh;
+
+    return true;
+}
+
+bool AssetSystem::LoadAssets(const VirtualPath& sourceDir)
+{
+    std::vector<VirtualFileEntry> entries = filesystem->ListDirectory(sourceDir);
 
     for (const auto& entry : entries)
     {
@@ -54,130 +172,46 @@ bool AssetSystem::LoadAssets(const VirtualPath& path)
         }
 
         const VirtualPath& path = entry.path;
-        Load(path);
+        Import(path);
     }
-
-    return true;
-}
-
-bool AssetSystem::InitializeRuntimeAssets(
-    Render::RenderDevice& renderDevice,
-    Render::GPUResourceManager& resourceManager,
-    Render::ShaderManager& shaderManager)
-{
-    textureManager = std::make_unique<TextureManager>(*filesystem);
-    Texture* defaultWhite = textureManager->LoadTexture("DefaultWhite", "RawAsset://Texture/white.png");
-    Texture* fontTexture = textureManager->LoadTexture("FontTexture", "RawAsset://Texture/DejaVu Sans Mono.png");
-
-    materialManager = std::make_unique<MaterialManager>(
-        &renderDevice, &resourceManager, defaultWhite);
-    Material* defaultMat = materialManager->GetOrCreate("Mesh", shaderManager.GetOrCreate("Mesh"));
-    materialManager->GetOrCreate("Sprite", shaderManager.GetOrCreate("Sprite"));
-    Material* decalMat = materialManager->GetOrCreate("Decal", shaderManager.GetOrCreate("Decal"));
-    decalMat->SetTexture(fontTexture);
-
-    meshManager = std::make_unique<MeshManager>();
-    meshManager->CreateDefaultMeshes(defaultMat);
-
-    fontManager = std::make_unique<FontManager>();
-    fontManager->LoadFont("Default", fontTexture);
 
     return true;
 }
 
 void AssetSystem::Finalize()
 {
-    if (fontManager)
-    {
-        fontManager.reset();
-    }
-    if (meshManager)
-    {
-        meshManager.reset();
-    }
-    if (materialManager)
-    {
-        materialManager.reset();
-    }
-    if (textureManager)
-    {
-        textureManager.reset();
-    }
+    pipeline->Finalize();
+    pipeline.reset();
 
-    if (filesystem)
-    {
-        filesystem.reset();
-    }
+    filesystem.reset();
 }
 
-void AssetSystem::Load(const VirtualPath& path)
+UUID AssetSystem::Import(const VirtualPath& path)
 {
-    const std::string extension = path.GetExtension();
+    ImportResult importResult = pipeline->Import(path);
 
-    ImportResult result = {};
+    if (importResult.entries.empty())
+        return UUID{};
 
-    for (auto& importer : importers)
+    for (AssetEntry& entry : importResult.entries)
     {
-        if (!importer->CanImport(extension))
-            continue;
+        Asset* asset = entry.asset;
+        AssetMetadata& metadata = entry.metadata;
 
-        result = importer->Import(path);
-        break;
-    }
+        const auto it = assets.find(metadata.uuid);
 
-    for (AssetEntry& entry : result.entries)
-    {
-        assets.insert({ entry.metadata.uuid, entry.asset });
-    }
-}
-
-Mesh* AssetSystem::FindMesh(const std::string& key) const
-{
-    Mesh* mesh = meshManager->GetMesh(key);
-    return mesh;
-}
-
-Material* AssetSystem::FindMaterial(const std::string& key) const
-{
-    Material* material = materialManager->GetOrCreate(key);
-    return material;
-}
-
-Texture* AssetSystem::FindTexture(const std::string& key) const
-{
-    Texture* texture = textureManager->GetTexture(key);
-    return texture;
-}
-
-Font* AssetSystem::FindFont(const std::string& key) const
-{
-    Font* font = fontManager->GetFont(key);
-    return font;
-}
-
-const std::unordered_map<std::string, Mesh*>& AssetSystem::GetMeshes() const
-{
-    return meshManager->GetMeshes();
-}
-
-const std::unordered_map<std::string, Material*>& AssetSystem::GetMaterials() const
-{
-    return materialManager->GetMaterials();
-}
-
-std::vector<Texture*> AssetSystem::GetTextures() const
-{
-    std::vector<Texture*> textures;
-
-    for (auto& [uuid, asset] : assets)
-    {
-        if (Texture* texture = Cast<Texture>(asset))
+        if (it != assets.end())
         {
-            textures.push_back(texture);
+            Logger::Log("Import Failed. UUID already exists: " + metadata.uuid.ToString());
+            continue;
+        }
+        else
+        {
+            assets.insert({ asset->GetUUID(), asset });
         }
     }
 
-    return textures;
+    return importResult.entries[0].asset->GetUUID();
 }
 
 } // namespace URay

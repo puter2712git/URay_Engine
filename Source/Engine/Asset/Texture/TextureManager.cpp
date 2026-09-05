@@ -1,5 +1,5 @@
-#include "Texture.h"
 #include "TextureManager.h"
+#include "Texture.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Type/Types.h"
@@ -48,7 +48,7 @@ Texture* TextureManager::LoadTexture(const std::string& key, const VirtualPath& 
 
     std::vector<uint8> pixels(data, data + width * height * 4);
 
-    Texture* texture = new Texture(virtualPath.ToString(), width, height, channels, pixels);
+    Texture* texture = new Texture(width, height, channels, pixels);
     texture->SetName(key);
     textures.insert({ key, texture });
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Engine/Asset/Asset.h"
+
 #include "Core/Math/Color.h"
 #include "Core/Type/Types.h"
 
@@ -20,8 +22,10 @@ class RenderDevice;
 class GPUResourceManager;
 } // namespace Render
 
-class Material
+class Material : public Asset
 {
+    URAY_CLASS(Material, Asset)
+
 public:
     Material(Render::Shader* shader);
     ~Material();
