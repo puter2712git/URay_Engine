@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Asset/Importer/Importer.h"
+#include "Engine/Asset/Texture/TextureCookData.h"
+#include "Engine/Asset/Texture/TextureSerializer.h"
 
 #include <vector>
 
@@ -23,10 +25,12 @@ public:
     bool CanImport(const std::string& extension) override;
 
 private:
-    Texture* LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
+    TextureCookData LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
 
 private:
     VirtualFilesystem& filesystem;
+
+    TextureSerializer serializer;
 };
 
 } // namespace URay

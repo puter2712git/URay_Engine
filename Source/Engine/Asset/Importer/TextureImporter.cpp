@@ -34,6 +34,7 @@ ImportResult TextureImporter::Import(const VirtualPath& path, ImportContext& con
 
     AssetMetadata metadata = {};
     Texture* texture = nullptr;
+    TextureCookData textureCookData = {};
 
     if (!filesystem.Exists(importMetaPath))
     {
@@ -54,8 +55,26 @@ ImportResult TextureImporter::Import(const VirtualPath& path, ImportContext& con
 
     if (!filesystem.Exists(importAssetPath))
     {
-        texture = LoadTexture(path, metadata, context);
+        textureCookData = LoadTexture(path, metadata, context);
+
+        std::vector<uint8> serializedCookData = serializer.Serialize(textureCookData);
+        filesystem.WriteBinary(importAssetPath, serializedCookData);
     }
+    else
+    {
+        std::vector<uint8> bytes = filesystem.ReadBinary(importAssetPath);
+        textureCookData = serializer.Deserialize(bytes);
+    }
+
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+
+    texture = assetFactory.CreateTexture(
+        metadata,
+        textureCookData.width,
+        textureCookData.height,
+        textureCookData.channels,
+        textureCookData.pixels);
 
     result.entries.push_back(AssetEntry{
         .asset = texture,
@@ -74,7 +93,7 @@ bool TextureImporter::CanImport(const std::string& extension)
     return false;
 }
 
-Texture* TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
+TextureCookData TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
 {
     std::vector<uint8> fileBytes = filesystem.ReadBinary(path);
 
@@ -88,18 +107,17 @@ Texture* TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetada
         STBI_rgb_alpha);
 
     if (!data)
-        return nullptr;
+        return {};
 
-    std::vector<uint8> pixels(data, data + width * height * 4);
-
-    AssetSystem& assetSystem = context.GetAssetSystem();
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
-
-    Texture* newTexture = assetFactory.CreateTexture(metadata, width, height, channels, pixels);
+    TextureCookData cookData = {};
+    cookData.width = width;
+    cookData.height = height;
+    cookData.channels = channels;
+    cookData.pixels = std::vector<uint8>(data, data + width * height * 4);
 
     stbi_image_free(data);
 
-    return newTexture;
+    return cookData;
 }
 
 } // namespace URay
