@@ -30,6 +30,7 @@ public:
     std::vector<uint8> ReadBinary(const VirtualPath& virtualPath) const;
     std::string ReadText(const VirtualPath& path) const;
 
+    bool WriteBinary(const VirtualPath& path, const std::vector<uint8>& bin) const;
     bool WriteText(const VirtualPath& path, const std::string& text) const;
 
     std::vector<VirtualFileEntry> ListDirectory(const VirtualPath& directory) const;

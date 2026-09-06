@@ -55,6 +55,23 @@ std::string VirtualFilesystem::ReadText(const VirtualPath& virtualPath) const
         std::istreambuf_iterator<char>());
 }
 
+bool VirtualFilesystem::WriteBinary(const VirtualPath& path, const std::vector<uint8>& bin) const
+{
+    fs::path physicalPath = ResolveToPhysicalPath(path);
+
+    if (physicalPath.has_parent_path())
+    {
+        fs::create_directories(physicalPath.parent_path());
+    }
+
+    std::ofstream file(physicalPath, std::ios::binary);
+    if (!file || !file.is_open())
+        return false;
+
+    file.write(reinterpret_cast<const char*>(bin.data()), static_cast<std::streamsize>(bin.size()));
+    return file.good();
+}
+
 bool VirtualFilesystem::WriteText(const VirtualPath& virtualPath, const std::string& text) const
 {
     fs::path physicalPath = ResolveToPhysicalPath(virtualPath);
