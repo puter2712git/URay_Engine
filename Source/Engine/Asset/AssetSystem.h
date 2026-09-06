@@ -84,6 +84,7 @@ private:
     std::unique_ptr<AssetPipeline> pipeline = nullptr;
 
     std::unordered_map<UUID, Asset*, UUIDHash> assets;
+    std::unordered_map<std::string, UUID> sourceAssets;
     DefaultAssets defaultAssets = {};
 };
 

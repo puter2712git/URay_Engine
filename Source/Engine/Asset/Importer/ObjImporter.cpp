@@ -26,7 +26,9 @@ ObjImporter::ObjImporter(VirtualFilesystem& filesystem)
 {
 }
 
-ImportResult ObjImporter::Import(const VirtualPath& path, ImportContext& context)
+ImportResult ObjImporter::Import(
+    const VirtualPath& path,
+    ImportContext& context)
 {
     if (!filesystem.Exists(path))
         return ImportResult{};
@@ -39,7 +41,7 @@ ImportResult ObjImporter::Import(const VirtualPath& path, ImportContext& context
         "Asset://" + path.GetRelativePath() + ".asset");
 
     AssetMetadata metadata = {};
-    std::vector<AssetEntry> entries;
+    MeshCookData meshCookData = {};
 
     if (!filesystem.Exists(importMetaPath))
     {
@@ -59,12 +61,55 @@ ImportResult ObjImporter::Import(const VirtualPath& path, ImportContext& context
         metadata.Deserialize(metadataNode);
     }
 
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
+    MaterialImportResult materialImportResult = {};
+
     if (!filesystem.Exists(importAssetPath))
     {
-        entries = LoadMesh(path, metadata, context);
+        ParseSource(path);
+        materialImportResult = CreateMaterials(path, context);
+
+        meshCookData = BuildMeshCookData(materialImportResult.slots);
+        meshCookData.materials = materialImportResult.references;
+
+        std::vector<uint8> serializedCookData = serializer.Serialize(meshCookData);
+        filesystem.WriteBinary(importAssetPath, serializedCookData);
+    }
+    else
+    {
+        std::vector<uint8> bytes = filesystem.ReadBinary(importAssetPath);
+        if (!serializer.Deserialize(bytes, meshCookData))
+        {
+            ParseSource(path);
+            materialImportResult = CreateMaterials(path, context);
+            meshCookData = BuildMeshCookData(materialImportResult.slots);
+            meshCookData.materials = materialImportResult.references;
+            filesystem.WriteBinary(importAssetPath, serializer.Serialize(meshCookData));
+        }
+        else
+        {
+            materialImportResult = LoadCookedMaterials(meshCookData.materials, context);
+        }
     }
 
-    result.entries.insert(result.entries.end(), entries.begin(), entries.end());
+    if (materialImportResult.materials.empty())
+    {
+        materialImportResult.materials.push_back(defaultAssets.meshMaterial);
+    }
+
+    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+
+    Mesh* mesh = assetFactory.CreateMesh(
+        metadata,
+        meshCookData.vertices,
+        meshCookData.indices,
+        meshCookData.sections,
+        materialImportResult.materials);
+
+    result.entries.push_back(AssetEntry{
+        .asset = mesh,
+        .metadata = metadata });
 
     return result;
 }
@@ -90,14 +135,22 @@ void ObjImporter::Reset()
     mtlInfos.clear();
 }
 
-std::vector<AssetEntry> ObjImporter::LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
+void ObjImporter::ParseSource(const VirtualPath& path)
 {
     Reset();
 
     ParseObj(path);
 
-    VirtualPath mtlPath = path.GetDirectory().Join(mtllib);
-    ParseMtl(mtlPath);
+    if (!mtllib.empty())
+    {
+        VirtualPath mtlPath = path.GetDirectory().Join(mtllib);
+        ParseMtl(mtlPath);
+    }
+}
+
+MeshCookData ObjImporter::BuildMeshCookData(
+    const std::unordered_map<std::string, uint32>& materialSlots)
+{
 
     std::vector<VertexPNT> vertices;
     std::vector<uint32> indices;
@@ -129,19 +182,6 @@ std::vector<AssetEntry> ObjImporter::LoadMesh(const VirtualPath& path, const Ass
 
         return newIndex;
     };
-
-    MaterialImportResult materialImportResult = CreateMaterials(path.ToString(), context);
-    std::vector<Material*>& materials = materialImportResult.materials;
-    std::unordered_map<std::string, uint32>& materialSlots = materialImportResult.slots;
-    std::vector<AssetMetadata>& metadatas = materialImportResult.metadatas;
-
-    AssetSystem& assetSystem = context.GetAssetSystem();
-    const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
-
-    if (materials.empty())
-    {
-        materials.push_back(defaultAssets.meshMaterial);
-    }
 
     std::vector<MeshSection> sections;
 
@@ -187,28 +227,12 @@ std::vector<AssetEntry> ObjImporter::LoadMesh(const VirtualPath& path, const Ass
         sections.push_back(activeSection);
     }
 
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+    MeshCookData data = {};
+    data.vertices = vertices;
+    data.indices = indices;
+    data.sections = sections;
 
-    Mesh* mesh = assetFactory.CreateMesh(
-        metadata, vertices, indices, sections, materials);
-
-    std::vector<AssetEntry> entries;
-    entries.push_back(AssetEntry{
-        .asset = mesh,
-        .metadata = metadata });
-
-    size_t materialCount = materials.size();
-    size_t metadataCount = metadatas.size();
-    size_t count = std::min(materialCount, metadataCount);
-
-    for (size_t i = 0; i < count; ++i)
-    {
-        entries.push_back(AssetEntry{
-            .asset = materials[i],
-            .metadata = metadatas[i] });
-    }
-
-    return entries;
+    return data;
 }
 
 void ObjImporter::ParseObj(const VirtualPath& objPath)
@@ -378,47 +402,65 @@ void ObjImporter::ParseMtl(const VirtualPath& mtlPath)
     }
 }
 
-ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(const std::string& meshKey, ImportContext& context)
+ObjImporter::MaterialImportResult ObjImporter::LoadCookedMaterials(
+    const std::vector<MeshMaterialReference>& references,
+    ImportContext& context)
 {
     AssetSystem& assetSystem = context.GetAssetSystem();
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
-    const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
+    MaterialImportResult result = {};
+
+    for (const MeshMaterialReference& reference : references)
+    {
+        if (!reference.sourcePath.ToString().empty())
+            assetSystem.Import(reference.sourcePath);
+
+        if (Material* material = assetSystem.Find<Material>(reference.uuid))
+            result.materials.push_back(material);
+        else
+            result.materials.push_back(nullptr);
+    }
+
+    return result;
+}
+
+ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(
+    const VirtualPath& meshPath,
+    ImportContext& context)
+{
+    AssetSystem& assetSystem = context.GetAssetSystem();
 
     MaterialImportResult result = {};
 
     for (const MtlInfo& info : mtlInfos)
     {
-        AssetMetadata metadata = {};
-        metadata.type = AssetType::Material;
-        metadata.uuid = UUID::Generate();
+        const VirtualPath materialPath = meshPath.GetDirectory().Join(
+            meshPath.GetStem() + "_" + info.mtlName + ".mat");
 
-        const std::string materialKey = meshKey + "::" + info.mtlName;
-        Material* material = assetFactory.CreateMaterial(metadata, defaultAssets.meshMaterial->GetShader());
-        material->SetBaseColor({
-            info.diffuse.x,
-            info.diffuse.y,
-            info.diffuse.z,
-            1.0f,
-        });
-
-        if (!info.diffuseTexturePath.ToString().empty())
+        if (!filesystem.Exists(materialPath))
         {
-            const std::string textureKey = info.diffuseTexturePath.ToString();
+            YAML::Node materialNode;
+            materialNode["Type"] = "Material";
+            materialNode["Shader"] = "Mesh";
+            materialNode["BaseColor"] = YAML::Load("[0, 0, 0, 1]");
+            materialNode["BaseColor"][0] = info.diffuse.x;
+            materialNode["BaseColor"][1] = info.diffuse.y;
+            materialNode["BaseColor"][2] = info.diffuse.z;
+            if (!info.diffuseTexturePath.ToString().empty())
+                materialNode["BaseColorTexture"] = info.diffuseTexturePath.ToString();
 
-            UUID textureUUID = assetSystem.Import(info.diffuseTexturePath);
-            Texture* texture = assetSystem.Find<Texture>(textureUUID);
-
-            if (texture)
-            {
-                material->SetTexture(texture);
-            }
+            filesystem.WriteText(materialPath, YAML::Dump(materialNode));
         }
+
+        const UUID materialUUID = assetSystem.Import(materialPath);
+        Material* material = assetSystem.Find<Material>(materialUUID);
 
         uint32 slot = static_cast<uint32>(result.materials.size());
 
         result.materials.push_back(material);
         result.slots.insert({ info.mtlName, slot });
-        result.metadatas.push_back(metadata);
+        result.references.push_back({
+            .uuid = materialUUID,
+            .sourcePath = materialPath });
     }
 
     return result;

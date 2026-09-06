@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Engine/Asset/Importer/Importer.h"
+#include "Engine/Asset/Mesh/MeshCookData.h"
+#include "Engine/Asset/Mesh/MeshSerializer.h"
 
 #include "Core/File/VirtualPath.h"
 #include "Core/Math/Vector2.h"
@@ -80,7 +82,7 @@ private:
     {
         std::vector<Material*> materials;
         std::unordered_map<std::string, uint32> slots;
-        std::vector<AssetMetadata> metadatas;
+        std::vector<MeshMaterialReference> references;
     };
 
 public:
@@ -91,17 +93,24 @@ public:
 private:
     void Reset();
 
-    std::vector<AssetEntry> LoadMesh(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
+    void ParseSource(const VirtualPath& path);
+    MeshCookData BuildMeshCookData(
+        const std::unordered_map<std::string, uint32>& materialSlots);
+    MaterialImportResult LoadCookedMaterials(
+        const std::vector<MeshMaterialReference>& references,
+        ImportContext& context);
 
     void ParseObj(const VirtualPath& objPath);
     Face ParseFace(const std::string& line);
     ObjIndex ParseObjIndex(const std::string& token);
 
     void ParseMtl(const VirtualPath& mtlPath);
-    MaterialImportResult CreateMaterials(const std::string& meshKey, ImportContext& context);
+    MaterialImportResult CreateMaterials(const VirtualPath& meshPath, ImportContext& context);
 
 private:
     VirtualFilesystem& filesystem;
+
+    MeshSerializer serializer;
 
     std::vector<Vector3> positions;
     std::vector<Vector2> uvs;

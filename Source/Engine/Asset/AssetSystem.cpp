@@ -189,6 +189,7 @@ void AssetSystem::Finalize()
         }
     }
     assets.clear();
+    sourceAssets.clear();
 
     pipeline->Finalize();
     pipeline.reset();
@@ -198,10 +199,16 @@ void AssetSystem::Finalize()
 
 UUID AssetSystem::Import(const VirtualPath& path)
 {
+    const std::string& sourcePath = path.ToString();
+    if (const auto it = sourceAssets.find(sourcePath); it != sourceAssets.end())
+        return it->second;
+
     ImportResult importResult = pipeline->Import(path);
 
     if (importResult.entries.empty())
         return UUID{};
+
+    const UUID primaryUUID = importResult.entries.front().metadata.uuid;
 
     for (AssetEntry& entry : importResult.entries)
     {
@@ -223,10 +230,11 @@ UUID AssetSystem::Import(const VirtualPath& path)
         else
         {
             assets.insert({ asset->GetUUID(), asset });
+            sourceAssets.insert({ metadata.sourcePath.ToString(), metadata.uuid });
         }
     }
 
-    return importResult.entries[0].asset->GetUUID();
+    return primaryUUID;
 }
 
 } // namespace URay

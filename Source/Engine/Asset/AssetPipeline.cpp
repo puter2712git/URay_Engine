@@ -2,6 +2,7 @@
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Importer/ImportContext.h"
+#include "Engine/Asset/Importer/MaterialImporter.h"
 #include "Engine/Asset/Importer/ObjImporter.h"
 #include "Engine/Asset/Importer/TextureImporter.h"
 
@@ -18,6 +19,7 @@ AssetPipeline::~AssetPipeline()
 bool AssetPipeline::Initialize()
 {
     importers.push_back(std::make_unique<TextureImporter>(filesystem));
+    importers.push_back(std::make_unique<MaterialImporter>(filesystem));
     importers.push_back(std::make_unique<ObjImporter>(filesystem));
 
     return true;
