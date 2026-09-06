@@ -59,7 +59,6 @@ public:
     void SetOwner(Scene* scene) { this->scene = scene; }
 
 private:
-private:
     std::string name;
 
     Unit* parent = nullptr;
