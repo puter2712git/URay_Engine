@@ -22,8 +22,16 @@ FragOut PSMain(VertexPNTOut input)
     FragOut output;
 
     float4 baseColor = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV);
+    float3 normal = normalize(input.outNormal);
+    float3 lightToSurface = normalize(frame.lightDirection);
     
-    output.outColor = baseColor * obj.colorTint;
+    float nDotL = saturate(dot(normal, -lightToSurface));
+    
+    float3 ambient = 0.05.xxx;
+    float3 directLight = frame.lightColor.rgb * frame.lightIntensity * nDotL;
+    
+    output.outColor.rgb = baseColor.rgb * obj.colorTint.rgb * (ambient + directLight);
+    output.outColor.a = baseColor.a * obj.colorTint.a;
 
     return output;
 }

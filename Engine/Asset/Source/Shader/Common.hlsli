@@ -12,6 +12,9 @@ struct FrameConstants
     float nearPlane;
     float farPlane;
     float2 renderTargetSize;
+    float3 lightDirection;
+    float lightIntensity;
+    float4 lightColor;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
 
@@ -27,7 +30,6 @@ float LinearViewDepth(float depth, float nearPlane, float farPlane)
 {
     return (nearPlane * farPlane) /
         (farPlane - depth * (farPlane - nearPlane));
-
 }
 
 #endif

@@ -1,6 +1,9 @@
 #include "RenderPipeline.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
+#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/RenderTarget.h"
+#include "Render/RenderConstants.h"
 #include "Render/RenderPass/DecalPass.h"
 #include "Render/RenderPass/FogPass.h"
 #include "Render/RenderPass/OpaquePass.h"
@@ -12,6 +15,7 @@
 #include "Render/Scene/Object/Drawable/DrawableObject.h"
 #include "Render/Scene/Object/Drawable/MeshObject.h"
 #include "Render/Scene/Object/FogObject.h"
+#include "Render/Scene/Object/Light/DirectionalLightObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -72,13 +76,36 @@ void RenderPipeline::Reset()
 void RenderPipeline::Execute(const RenderRequest& request)
 {
     FogObject* fog = FindFog(request.scenes);
+    DirectionalLightObject* light = FindLight(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
 
-    renderer.SetFrameViewInfo(request.view.viewMatrix, request.view.projMatrix);
+    const RenderView& view = request.view;
+
+    FrameConstants frameConstants = {};
+    frameConstants.view = view.viewMatrix;
+    frameConstants.invView = view.viewMatrix.Inverse();
+    frameConstants.proj = view.projMatrix;
+    frameConstants.invProj = view.projMatrix.Inverse();
+    frameConstants.viewProj = view.viewMatrix * view.projMatrix;
+    frameConstants.invViewProj = frameConstants.viewProj.Inverse();
+    frameConstants.nearPlane = 0.1f;
+    frameConstants.farPlane = 1000.0f;
+    frameConstants.renderTargetSize = Vector2(
+        renderer.GetSceneRenderTarget().GetExtent().width,
+        renderer.GetSceneRenderTarget().GetExtent().height);
+
+    if (light)
+    {
+        frameConstants.lightDirection = light->GetDirection();
+        frameConstants.lightIntensity = light->GetIntensity();
+        frameConstants.lightColor = light->GetColor();
+    }
+
+    renderer.GetFrameConstantBuffer(currentFrame)->UpdateData(&frameConstants, sizeof(FrameConstants));
 
     const Frustum frustum =
-        Frustum::FromViewProjection(request.view.viewMatrix * request.view.projMatrix);
+        Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);
 
     for (const RenderScene* scene : request.scenes)
     {
@@ -196,6 +223,27 @@ FogObject* RenderPipeline::FindFog(
             if (FogObject* fog = dynamic_cast<FogObject*>(robj))
             {
                 return fog;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+DirectionalLightObject* RenderPipeline::FindLight(
+    const std::vector<RenderScene*>& scenes) const
+{
+    for (const RenderScene* scene : scenes)
+    {
+        size_t objCount = scene->GetObjectCount();
+
+        for (size_t i = 0; i < objCount; ++i)
+        {
+            RenderObject* robj = scene->GetObject(i);
+
+            if (DirectionalLightObject* light = dynamic_cast<DirectionalLightObject*>(robj))
+            {
+                return light;
             }
         }
     }

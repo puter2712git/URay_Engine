@@ -238,23 +238,6 @@ bool Renderer::BeginFrame()
     if (!commandBuffers[currentFrame]->Begin(CommandBufferUsage::None))
         return false;
 
-    FrameConstants frameConstants = {};
-    frameConstants.view = viewMatrix;
-    frameConstants.invView = viewMatrix.Inverse();
-    frameConstants.proj = projMatrix;
-    frameConstants.invProj = projMatrix.Inverse();
-    frameConstants.viewProj = viewMatrix * projMatrix;
-    frameConstants.invViewProj = frameConstants.viewProj.Inverse();
-    frameConstants.nearPlane = 0.1f;
-    frameConstants.farPlane = 1000.0f;
-    frameConstants.renderTargetSize = Vector2(
-        sceneRenderTarget->GetExtent().width,
-        sceneRenderTarget->GetExtent().height);
-
-    frameConstantBuffers[currentFrame]->UpdateData(
-        &frameConstants,
-        sizeof(FrameConstants));
-
     return true;
 }
 
@@ -312,12 +295,6 @@ void Renderer::EndFrame()
 void Renderer::WaitIdle()
 {
     vkDeviceWaitIdle(device.GetVKDevice());
-}
-
-void Renderer::SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix)
-{
-    viewMatrix = newViewMatrix;
-    projMatrix = newProjMatrix;
 }
 
 void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
@@ -855,7 +832,7 @@ bool Renderer::CreateFrameDescriptorSetLayout()
     binding.bindingIndex = 0;
     binding.arrayCount = 1;
     binding.resourceType = ResourceType::ConstantBuffer;
-    binding.stageFlags = ShaderStageFlags::Vertex;
+    binding.stageFlags = ShaderStageFlags::Vertex | ShaderStageFlags::Fragment;
 
     DescriptorSetLayoutDesc desc = {};
     desc.bindings.push_back(binding);

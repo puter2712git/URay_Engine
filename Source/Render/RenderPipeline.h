@@ -24,6 +24,7 @@ class RenderSystem;
 class RenderScene;
 class ViewObject;
 class FogObject;
+class DirectionalLightObject;
 
 struct RenderView
 {
@@ -57,6 +58,7 @@ public:
 
 private:
     FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;
+    DirectionalLightObject* FindLight(const std::vector<RenderScene*>& scenes) const;
 
 private:
     RenderSystem& renderSystem;

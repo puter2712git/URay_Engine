@@ -59,8 +59,6 @@ public:
 
     void WaitIdle();
 
-    void SetFrameViewInfo(const Matrix& newViewMatrix, const Matrix& newProjMatrix);
-
     void RequestSceneRenderTargetResize(const Extent2D& extent);
     Extent2D GetSceneRenderTargetExtent() const;
 
@@ -81,6 +79,8 @@ public:
     VkExtent2D GetSwapChainExtent() const;
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
+
+    ConstantBuffer* GetFrameConstantBuffer(uint32 frameIndex) const { return frameConstantBuffers[frameIndex].get(); }
 
 private:
     bool CreateSceneRenderPass();
@@ -169,9 +169,6 @@ private:
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
-
-    Matrix viewMatrix = Matrix::Identity;
-    Matrix projMatrix = Matrix::Identity;
 
     std::unique_ptr<Texture> depthTexture = nullptr;
     std::unique_ptr<TextureView> depthTextureView = nullptr;
