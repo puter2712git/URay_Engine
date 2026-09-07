@@ -16,15 +16,29 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(yaml-cpp)
 
+target_include_directories(URay_Engine SYSTEM PUBLIC
+    "${URAY_SOURCE_DIR}/ThirdParty/DXC/include"
+)
+
 target_link_libraries(URay_Engine PRIVATE
     URay_ThirdParty
     glfw
     Vulkan::Vulkan
     freetype
     yaml-cpp::yaml-cpp
+    "${URAY_SOURCE_DIR}/ThirdParty/DXC/lib/x64/dxcompiler.lib"
 )
 
 target_link_libraries(URay_ThirdParty PRIVATE
     glfw
     Vulkan::Vulkan
+)
+
+add_custom_command(TARGET URay_Engine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${URAY_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxcompiler.dll"
+        "$<TARGET_FILE_DIR:URay_Engine>/dxcompiler.dll"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${URAY_SOURCE_DIR}/ThirdParty/DXC/bin/x64/dxil.dll"
+        "$<TARGET_FILE_DIR:URay_Engine>/dxil.dll"
 )
