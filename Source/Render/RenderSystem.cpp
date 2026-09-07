@@ -39,6 +39,9 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
         return false;
 
     shaderManager = std::make_unique<ShaderManager>(filesystem);
+    if (!shaderManager->Initialize())
+        return false;
+
     shaderManager->GetOrCreate("Sprite", "Engine://Asset/Imported/Shader/Sprite.vert.spv", "Engine://Asset/Imported/Shader/Sprite.frag.spv");
     shaderManager->GetOrCreate("Line", "Engine://Asset/Imported/Shader/Line.vert.spv", "Engine://Asset/Imported/Shader/Line.frag.spv");
     shaderManager->GetOrCreate("Mesh", "Engine://Asset/Imported/Shader/Mesh.vert.spv", "Engine://Asset/Imported/Shader/Mesh.frag.spv");
@@ -61,6 +64,12 @@ void RenderSystem::Finalize()
     {
         pipeline->Finalize();
         pipeline.reset();
+    }
+
+    if (shaderManager)
+    {
+        shaderManager->Finalize();
+        shaderManager.reset();
     }
 
     if (renderer)
