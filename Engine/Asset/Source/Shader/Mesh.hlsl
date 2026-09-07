@@ -1,8 +1,30 @@
 #include "Common.hlsli"
 #include "VertexTypes.hlsli"
 
+#ifndef URAY_SHADING_MODEL
+#define URAY_SHADING_MODEL 1
+#endif
+
 [[vk::binding(0, 1)]] Texture2D<float4> diffuseColorTexture;
 [[vk::binding(1, 1)]] SamplerState diffuseColorSampler;
+
+float4 EvaluateSurfaceColor(VertexPNTOut input)
+{
+    return diffuseColorTexture.Sample(diffuseColorSampler, input.outUV) * obj.colorTint;
+}
+
+float3 EvaluateLighting(float3 albedo, float3 normal)
+{
+#if URAY_SHADING_MODEL == 1
+    float nDotL = saturate(dot(normalize(normal), -normalize(frame.lightDirection)));
+    float3 ambient = 0.05.xxx;
+    float3 directLight = frame.lightColor.rgb * frame.lightIntensity * nDotL;
+
+    return albedo * (ambient + directLight);
+#else
+    return albedo;
+#endif
+}
 
 VertexPNTOut VSMain(VertexPNTIn input)
 {
@@ -20,18 +42,11 @@ VertexPNTOut VSMain(VertexPNTIn input)
 FragOut PSMain(VertexPNTOut input)
 {
     FragOut output;
-
-    float4 baseColor = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV);
-    float3 normal = normalize(input.outNormal);
-    float3 lightToSurface = normalize(frame.lightDirection);
     
-    float nDotL = saturate(dot(normal, -lightToSurface));
+    float4 albedo = EvaluateSurfaceColor(input);
+    float3 finalColor = EvaluateLighting(albedo.rgb, input.outNormal);
     
-    float3 ambient = 0.05.xxx;
-    float3 directLight = frame.lightColor.rgb * frame.lightIntensity * nDotL;
-    
-    output.outColor.rgb = baseColor.rgb * obj.colorTint.rgb * (ambient + directLight);
-    output.outColor.a = baseColor.a * obj.colorTint.a;
+    output.outColor = float4(finalColor, albedo.a);
 
     return output;
 }
