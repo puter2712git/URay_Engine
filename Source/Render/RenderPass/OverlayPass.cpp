@@ -5,7 +5,7 @@
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderTarget.h"
-#include "Render/Renderer.h"
+#include "Render/RenderConstants.h"
 
 namespace URay::Render
 {

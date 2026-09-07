@@ -18,6 +18,7 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
+#include "Render/RenderConstants.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderPass/RenderPass.h"
 #include "Render/Scene/RenderScene.h"
