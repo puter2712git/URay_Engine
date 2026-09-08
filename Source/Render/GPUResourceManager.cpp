@@ -37,6 +37,7 @@ GPUResourceManager::~GPUResourceManager()
     DestroyPSOs();
     DestroyPipelineLayouts();
     DestroyDescriptorSetLayouts();
+    DestroyShaders();
     DestroyTextureSamplers();
     DestroyTextureViews();
     DestroyTextures();
@@ -266,6 +267,19 @@ Render::Shader* GPUResourceManager::GetOrCreateShader(URay::Shader* shader)
     shaders.insert({ shader, newShader });
 
     return newShader;
+}
+
+void GPUResourceManager::DestroyShaders()
+{
+    for (auto& [asset, shader] : shaders)
+    {
+        if (shader)
+        {
+            delete shader;
+            shader = nullptr;
+        }
+    }
+    shaders.clear();
 }
 
 DescriptorSetLayout* GPUResourceManager::GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
