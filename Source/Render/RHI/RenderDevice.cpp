@@ -354,8 +354,8 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
 
 PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout, VkRenderPass renderPass)
 {
-    VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexStage().code);
-    VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentStage().code);
+    VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexShaderCode());
+    VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentShaderCode());
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

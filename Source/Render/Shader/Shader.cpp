@@ -8,13 +8,11 @@
 namespace URay::Render
 {
 
-Shader::Shader(uint32 id,
-               const ShaderStage& vertexStage,
-               const ShaderStage& fragmentStage,
+Shader::Shader(const std::vector<uint8>& vertexShaderCode,
+               const std::vector<uint8>& fragmentShaderCode,
                const ShaderReflection& vertexReflection,
                const ShaderReflection& fragmentReflection)
-    : id(id),
-      vertexStage(vertexStage), fragmentStage(fragmentStage),
+    : vertexShaderCode(vertexShaderCode), fragmentShaderCode(fragmentShaderCode),
       vertexReflection(vertexReflection), fragmentReflection(fragmentReflection)
 {
     std::map<std::pair<uint32, uint32>, ResourceBinding> mergedBindings;
@@ -26,7 +24,7 @@ Shader::Shader(uint32 id,
             for (const auto& binding : desc.bindings)
             {
                 std::pair<uint32, uint32> key = { binding.set,
-                                                      binding.bindingIndex };
+                                                  binding.bindingIndex };
 
                 auto [it, inserted] = mergedBindings.insert({ key, binding });
 

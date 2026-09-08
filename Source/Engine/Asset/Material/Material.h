@@ -11,11 +11,11 @@
 namespace URay
 {
 
+class Shader;
 class Texture;
 
 namespace Render
 {
-class Shader;
 class DescriptorSetLayout;
 class DescriptorSet;
 class RenderDevice;
@@ -27,14 +27,14 @@ class Material : public Asset
     URAY_CLASS(Material, Asset)
 
 public:
-    Material(Render::Shader* shader);
+    Material(Shader* shader);
     ~Material();
 
 public:
     bool Initialize(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite);
 
-    Render::Shader* GetShader() const { return shader; }
-    void SetShader(Render::Shader* inShader) { shader = inShader; }
+    Shader* GetShader() const { return shader; }
+    void SetShader(Shader* inShader) { shader = inShader; }
 
     Texture* GetTexture() const { return texture; }
     void SetTexture(Texture* texture);
@@ -51,7 +51,7 @@ public:
     }
 
 protected:
-    Render::Shader* shader = nullptr;
+    Shader* shader = nullptr;
     Texture* texture = nullptr;
     Color baseColor = Color::White;
 

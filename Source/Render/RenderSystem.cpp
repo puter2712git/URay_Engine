@@ -12,7 +12,7 @@
 namespace URay::Render
 {
 
-RenderSystem::RenderSystem() = default;
+RenderSystem::RenderSystem(Engine& engine) : engine(engine) {}
 
 RenderSystem::~RenderSystem() = default;
 
@@ -32,24 +32,13 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
     if (!device->Initialize())
         return false;
 
-    resourceManager = std::make_unique<GPUResourceManager>(device.get());
+    resourceManager = std::make_unique<GPUResourceManager>(*device, filesystem);
 
     renderer = std::make_unique<Renderer>(window, *vulkanContext, *device, *resourceManager);
     if (!renderer->Initialize(filesystem))
         return false;
 
-    shaderManager = std::make_unique<ShaderManager>(filesystem);
-    if (!shaderManager->Initialize())
-        return false;
-
-    shaderManager->GetOrCreate("Sprite", "Engine://Asset/Imported/Shader/Sprite.vert.spv", "Engine://Asset/Imported/Shader/Sprite.frag.spv");
-    shaderManager->GetOrCreate("Line", "Engine://Asset/Imported/Shader/Line.vert.spv", "Engine://Asset/Imported/Shader/Line.frag.spv");
-    shaderManager->GetOrCreate("Mesh", "Engine://Asset/Imported/Shader/Mesh.vert.spv", "Engine://Asset/Imported/Shader/Mesh.frag.spv");
-    shaderManager->GetOrCreate("Font", "Engine://Asset/Imported/Shader/Font.vert.spv", "Engine://Asset/Imported/Shader/Font.frag.spv");
-    shaderManager->GetOrCreate("Decal", "Engine://Asset/Imported/Shader/Decal.vert.spv", "Engine://Asset/Imported/Shader/Decal.frag.spv");
-    shaderManager->GetOrCreate("Fog", "Engine://Asset/Imported/Shader/PostProcess/Fog.vert.spv", "Engine://Asset/Imported/Shader/PostProcess/Fog.frag.spv");
-
-    pipeline = std::make_unique<RenderPipeline>(*this);
+    pipeline = std::make_unique<RenderPipeline>(engine.GetAssetSystem(), *this);
     if (!pipeline->Initialize())
         return false;
 
@@ -66,21 +55,10 @@ void RenderSystem::Finalize()
         pipeline.reset();
     }
 
-    if (shaderManager)
-    {
-        shaderManager->Finalize();
-        shaderManager.reset();
-    }
-
     if (renderer)
     {
         renderer->Finalize();
         renderer.reset();
-    }
-
-    if (shaderManager)
-    {
-        shaderManager.reset();
     }
 
     if (resourceManager)

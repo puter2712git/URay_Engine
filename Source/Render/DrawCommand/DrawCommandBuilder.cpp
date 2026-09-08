@@ -14,19 +14,21 @@
 
 #include "Core/Type/Types.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
+#include "Engine/Asset/Shader/Shader.h"
 
 #include <cstring>
 
 namespace URay::Render
 {
 
-DrawCommandBuilder::DrawCommandBuilder(RenderSystem& renderSystem)
-    : device(renderSystem.GetDevice()),
+DrawCommandBuilder::DrawCommandBuilder(AssetSystem& assetSystem, RenderSystem& renderSystem)
+    : assetSystem(assetSystem),
+      device(renderSystem.GetDevice()),
       renderer(renderSystem.GetRenderer()),
-      resourceManager(renderSystem.GetResourceManager()),
-      shaderManager(renderSystem.GetShaderManager())
+      resourceManager(renderSystem.GetResourceManager())
 {
 }
 
@@ -36,13 +38,29 @@ DrawCommandBuilder::~DrawCommandBuilder()
 
 bool DrawCommandBuilder::Initialize()
 {
-    lineBatcher = std::make_unique<LineBatcher>(
-        device, resourceManager, shaderManager);
+    std::vector<URay::Shader*> shaders = assetSystem.FindAssets<URay::Shader>();
+
+    URay::Shader* lineShader = nullptr;
+    URay::Shader* fontShader = nullptr;
+
+    for (URay::Shader* shader : shaders)
+    {
+        if (shader->GetName() == "Line")
+        {
+            lineShader = shader;
+        }
+
+        if (shader->GetName() == "Font")
+        {
+            fontShader = shader;
+        }
+    }
+
+    lineBatcher = std::make_unique<LineBatcher>(device, resourceManager, lineShader);
     if (!lineBatcher->Initialize())
         return false;
 
-    textBatcher = std::make_unique<TextBatcher>(
-        device, resourceManager, shaderManager);
+    textBatcher = std::make_unique<TextBatcher>(device, resourceManager, fontShader);
     if (!textBatcher->Initialize())
         return false;
 
@@ -93,6 +111,7 @@ void DrawCommandBuilder::FlushTexts()
 void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
+    Render::Shader* shader = resourceManager.GetOrCreateShader(context.material->GetShader());
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
@@ -101,7 +120,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     depthStencil.stencilTestEnable = false;
 
     PipelineStateDesc stateDesc = {};
-    stateDesc.shader = context.material->GetShader();
+    stateDesc.shader = shader;
     stateDesc.topology = PrimitiveTopology::TriangleList;
     stateDesc.vertexLayout = VertexLayout::PNT;
     stateDesc.depthStencil = depthStencil;
@@ -224,6 +243,7 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.receiverMesh);
+    Render::Shader* shader = resourceManager.GetOrCreateShader(context.decalMaterial->GetShader());
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Decal;
@@ -247,7 +267,7 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
     blend.mode = BlendMode::AlphaBlend;
 
     PipelineStateDesc state = {};
-    state.shader = context.decalMaterial->GetShader();
+    state.shader = shader;
     state.topology = PrimitiveTopology::TriangleList;
     state.vertexLayout = VertexLayout::PNT;
     state.depthStencil = depthStencil;
@@ -264,6 +284,7 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
+    Render::Shader* shader = resourceManager.GetOrCreateShader(context.material->GetShader());
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Overlay;
@@ -282,7 +303,7 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     rasterizer.cullMode = CullMode::None;
 
     PipelineStateDesc state = {};
-    state.shader = context.material->GetShader();
+    state.shader = shader;
     state.topology = PrimitiveTopology::TriangleList;
     state.vertexLayout = VertexLayout::PNT;
     state.depthStencil = depthStencil;

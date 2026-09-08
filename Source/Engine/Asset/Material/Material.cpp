@@ -1,5 +1,6 @@
 #include "Material.h"
 
+#include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
@@ -17,10 +18,7 @@
 namespace URay
 {
 
-Material::Material(Render::Shader* shader)
-    : shader(shader)
-{
-}
+Material::Material(Shader* shader) : shader(shader) {}
 
 Material::~Material()
 {
@@ -46,7 +44,9 @@ bool Material::Initialize(Render::RenderDevice* renderDevice, Render::GPUResourc
     if (!renderDevice || !resourceManager || !shader)
         return false;
 
-    const Render::DescriptorSetLayoutDesc* setLayoutDesc = shader->GetDescriptorSetLayoutDesc(1);
+    Render::Shader* renderShader = resourceManager->GetOrCreateShader(shader);
+
+    const Render::DescriptorSetLayoutDesc* setLayoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
     if (!setLayoutDesc)
     {
         // No needing material descriptor. This case, just return true.

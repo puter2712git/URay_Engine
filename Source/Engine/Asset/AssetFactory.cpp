@@ -3,6 +3,7 @@
 #include "Engine/Asset/AssetMetadata.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
@@ -36,7 +37,7 @@ Mesh* AssetFactory::CreateMesh(const AssetMetadata& metadata,
 }
 
 Material* AssetFactory::CreateMaterial(const AssetMetadata& metadata,
-                                       Render::Shader* shader)
+                                       Shader* shader)
 {
     AssetSystem& assetSystem = engine.GetAssetSystem();
     Render::RenderSystem& renderSystem = engine.GetRenderSystem();
@@ -69,6 +70,15 @@ Texture* AssetFactory::CreateTexture(const AssetMetadata& metadata,
     newTexture->SetUUID(metadata.uuid);
 
     return newTexture;
+}
+
+Shader* AssetFactory::CreateShader(const VirtualPath& filePath)
+{
+    Shader* newShader = new Shader(filePath);
+    newShader->SetName(filePath.GetStem());
+    newShader->SetUUID(UUID::Generate());
+
+    return newShader;
 }
 
 } // namespace URay

@@ -112,22 +112,9 @@ Shader* ShaderManager::GetOrCreate(const std::string& key,
     if (!ShaderReflector::ReflectSPIRV(fragmentShaderCode, fragmentReflection))
         return nullptr;
 
-    ShaderStage vertexStage = {};
-    vertexStage.filePath = vertexFilePath.ToString();
-    vertexStage.code = vertexShaderCode;
-    vertexStage.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    vertexStage.entry = "VSMain";
-
-    ShaderStage fragmentStage = {};
-    fragmentStage.filePath = fragmentFilePath.ToString();
-    fragmentStage.code = fragmentShaderCode;
-    fragmentStage.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragmentStage.entry = "PSMain";
-
     Shader* newShader = new Shader(
-        shaderIdCounter++,
-        vertexStage,
-        fragmentStage,
+        vertexShaderCode,
+        fragmentShaderCode,
         vertexReflection,
         fragmentReflection);
     shaders.insert({ key, newShader });

@@ -8,6 +8,11 @@
 #include <memory>
 #include <vector>
 
+namespace URay
+{
+class Shader;
+}
+
 namespace URay::Render
 {
 
@@ -23,7 +28,7 @@ struct LineCommandContext;
 class LineBatcher
 {
 public:
-    LineBatcher(RenderDevice& device, GPUResourceManager& resourceManager, ShaderManager& shaderManager);
+    LineBatcher(RenderDevice& device, GPUResourceManager& resourceManager, URay::Shader* shader);
     ~LineBatcher();
 
 public:
@@ -38,9 +43,11 @@ public:
 private:
     RenderDevice& device;
     GPUResourceManager& resourceManager;
-    ShaderManager& shaderManager;
 
     std::vector<Vertex> vertices;
+
+    URay::Shader* shader = nullptr;
+    Shader* renderShader = nullptr;
 
     std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;

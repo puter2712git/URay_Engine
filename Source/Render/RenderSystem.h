@@ -5,6 +5,7 @@
 namespace URay
 {
 
+class Engine;
 class Window;
 class VirtualFilesystem;
 
@@ -21,7 +22,7 @@ class RenderPipeline;
 class RenderSystem
 {
 public:
-    RenderSystem();
+    RenderSystem(Engine& engine);
     ~RenderSystem();
 
 public:
@@ -39,17 +40,17 @@ public:
     Renderer& GetRenderer() const { return *renderer; }
     RenderDevice& GetDevice() const { return *device; }
     GPUResourceManager& GetResourceManager() const { return *resourceManager; }
-    ShaderManager& GetShaderManager() const { return *shaderManager; }
 
     RenderPipeline& GetPipeline() const { return *pipeline; }
 
 private:
+    Engine& engine;
+
     std::unique_ptr<VulkanContext> vulkanContext = nullptr;
     std::unique_ptr<Renderer> renderer = nullptr;
     std::unique_ptr<RenderDevice> device = nullptr;
 
     std::unique_ptr<GPUResourceManager> resourceManager = nullptr;
-    std::unique_ptr<ShaderManager> shaderManager = nullptr;
 
     std::unique_ptr<RenderPipeline> pipeline = nullptr;
 };

@@ -4,13 +4,11 @@
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Importer/ImportContext.h"
 #include "Engine/Asset/Material/Material.h"
+#include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
 #include "Core/File/VirtualFilesystem.h"
-
-#include "Render/RenderSystem.h"
-#include "Render/Shader/ShaderManager.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -56,8 +54,18 @@ ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& co
     }
 
     AssetSystem& assetSystem = context.GetAssetSystem();
-    Render::Shader* shader = gEngine->GetRenderSystem().GetShaderManager().GetOrCreate(cookData.shaderName);
-    Material* material = assetSystem.GetAssetFactory().CreateMaterial(metadata, shader);
+    std::vector<Shader*> shaders = assetSystem.FindAssets<Shader>();
+    Shader* meshShader = nullptr;
+
+    for (Shader* shader : shaders)
+    {
+        if (shader->GetName() == "Mesh")
+        {
+            meshShader = shader;
+        }
+    }
+
+    Material* material = assetSystem.GetAssetFactory().CreateMaterial(metadata, meshShader);
     material->SetBaseColor(cookData.baseColor);
 
     if (!cookData.baseColorTexturePath.ToString().empty())
@@ -83,7 +91,7 @@ bool MaterialImporter::LoadSource(const VirtualPath& path, MaterialCookData& dat
 
     data = {};
     if (node["Shader"])
-        data.shaderName = node["Shader"].as<std::string>();
+        data.shaderUUID = UUID::FromString(node["Shader"].as<std::string>());
 
     if (const YAML::Node color = node["BaseColor"])
     {

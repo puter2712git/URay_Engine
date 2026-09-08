@@ -19,9 +19,10 @@
 namespace URay::Render
 {
 
-FogPass::FogPass(RenderSystem& renderSystem)
+FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
+    : fogShaderAsset(shader)
 {
-    fogShader = renderSystem.GetShaderManager().GetOrCreate("Fog");
+    fogShader = renderSystem.GetResourceManager().GetOrCreateShader(fogShaderAsset);
 
     const DescriptorSetLayoutDesc* layoutDesc = fogShader->GetDescriptorSetLayoutDesc(2);
     if (!layoutDesc)

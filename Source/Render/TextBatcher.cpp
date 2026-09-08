@@ -19,8 +19,8 @@
 namespace URay::Render
 {
 
-TextBatcher::TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, ShaderManager& shaderManager)
-    : device(device), resourceManager(resourceManager), shaderManager(shaderManager)
+TextBatcher::TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, URay::Shader* shader)
+    : device(device), resourceManager(resourceManager), shader(shader)
 {
 }
 
@@ -37,9 +37,9 @@ bool TextBatcher::Initialize()
 
     mappedVertexBufferData = vertexBuffer->Map();
 
-    Shader* shader = shaderManager.GetOrCreate("Font");
+    renderShader = resourceManager.GetOrCreateShader(shader);
 
-    const DescriptorSetLayoutDesc* layoutDesc = shader->GetDescriptorSetLayoutDesc(1);
+    const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
 
     DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
     descriptorSet.reset(device.CreateDescriptorSet(setLayout));
@@ -86,7 +86,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         cmd.vertexCount = static_cast<uint32>(verts.size());
 
         PipelineStateDesc psoDesc = {};
-        psoDesc.shader = shaderManager.GetOrCreate("Font");
+        psoDesc.shader = renderShader;
         psoDesc.topology = PrimitiveTopology::TriangleList;
         psoDesc.depthStencil.depthTestEnable = true;
         psoDesc.depthStencil.depthWriteEnable = true;

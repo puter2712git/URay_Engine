@@ -9,6 +9,11 @@
 #include <memory>
 #include <vector>
 
+namespace URay
+{
+class Shader;
+}
+
 namespace URay::Render
 {
 
@@ -31,7 +36,7 @@ struct FogConstants
 class FogPass final : public RenderPass
 {
 public:
-    FogPass(RenderSystem& renderSystem);
+    FogPass(RenderSystem& renderSystem, URay::Shader* shader);
     ~FogPass() override;
 
 public:
@@ -45,6 +50,7 @@ public:
     RenderPassId GetPassId() const override { return RenderPassId::Fog; }
 
 private:
+    URay::Shader* fogShaderAsset = nullptr;
     Shader* fogShader = nullptr;
     PipelineState* pso = nullptr;
 

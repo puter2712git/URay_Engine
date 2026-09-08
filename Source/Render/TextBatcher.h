@@ -12,7 +12,8 @@
 namespace URay
 {
 class Font;
-}
+class Shader;
+} // namespace URay
 
 namespace URay::Render
 {
@@ -29,7 +30,7 @@ struct TextCommandContext;
 class TextBatcher
 {
 public:
-    TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, ShaderManager& shaderManager);
+    TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, URay::Shader* shader);
     ~TextBatcher();
 
 public:
@@ -44,9 +45,11 @@ public:
 private:
     RenderDevice& device;
     GPUResourceManager& resourceManager;
-    ShaderManager& shaderManager;
 
     std::unordered_map<Font*, std::vector<Vertex>> vertices;
+
+    URay::Shader* shader = nullptr;
+    Shader* renderShader = nullptr;
 
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
 

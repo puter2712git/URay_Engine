@@ -1,6 +1,8 @@
 #pragma once
 
+#define NOMINMAX
 #include <Windows.h>
+#undef RegisterClass
 
 #include <dxcapi.h>
 #include <wrl/client.h>

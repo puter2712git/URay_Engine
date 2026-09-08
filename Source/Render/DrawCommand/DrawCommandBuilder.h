@@ -10,6 +10,11 @@
 #include <memory>
 #include <vector>
 
+namespace URay
+{
+class AssetSystem;
+}
+
 namespace URay::Render
 {
 
@@ -24,7 +29,7 @@ class TextBatcher;
 class DrawCommandBuilder
 {
 public:
-    DrawCommandBuilder(RenderSystem& renderSystem);
+    DrawCommandBuilder(AssetSystem& assetSystem, RenderSystem& renderSystem);
     ~DrawCommandBuilder();
 
 public:
@@ -50,10 +55,10 @@ public:
     const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
 
 private:
+    AssetSystem& assetSystem;
     RenderDevice& device;
     Renderer& renderer;
     GPUResourceManager& resourceManager;
-    ShaderManager& shaderManager;
 
     std::vector<DrawCommand> drawCmds;
 

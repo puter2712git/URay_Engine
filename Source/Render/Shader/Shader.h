@@ -5,10 +5,10 @@
 
 #include "Core/Type/Types.h"
 
-#include <vulkan/vulkan.h>
 #include <map>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
@@ -30,9 +30,8 @@ struct ShaderReflection
 class Shader
 {
 public:
-    Shader(uint32 id,
-           const ShaderStage& vertexStage,
-           const ShaderStage& fragmentStage,
+    Shader(const std::vector<uint8>& vertexShaderCode,
+           const std::vector<uint8>& fragmentShaderCode,
            const ShaderReflection& vertexReflection,
            const ShaderReflection& fragmentReflection);
     ~Shader() = default;
@@ -43,19 +42,15 @@ public:
 
     const std::vector<PushConstantRange>& GetPushConstantRanges() const { return pushConstantRanges; }
 
-    uint64 GetId() const { return id; }
-
-    const ShaderStage& GetVertexStage() const { return vertexStage; }
-    const ShaderStage& GetFragmentStage() const { return fragmentStage; }
+    const std::vector<uint8>& GetVertexShaderCode() const { return vertexShaderCode; }
+    const std::vector<uint8>& GetFragmentShaderCode() const { return fragmentShaderCode; }
 
     const ShaderReflection& GetVertexReflection() const { return vertexReflection; }
     const ShaderReflection& GetFragmentReflection() const { return fragmentReflection; }
 
 private:
-    uint64 id = 0;
-
-    ShaderStage vertexStage = {};
-    ShaderStage fragmentStage = {};
+    std::vector<uint8> vertexShaderCode;
+    std::vector<uint8> fragmentShaderCode;
 
     ShaderReflection vertexReflection = {};
     ShaderReflection fragmentReflection = {};

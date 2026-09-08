@@ -9,7 +9,7 @@ namespace
 {
 constexpr uint32 MaterialCookMagic = 0x4C54414D; // MATL
 constexpr uint32 MaterialCookVersion = 1;
-}
+} // namespace
 
 std::vector<uint8> MaterialSerializer::Serialize(const MaterialCookData& data) const
 {
@@ -20,7 +20,7 @@ std::vector<uint8> MaterialSerializer::Serialize(const MaterialCookData& data) c
     WriteFloat(bytes, data.baseColor.g);
     WriteFloat(bytes, data.baseColor.b);
     WriteFloat(bytes, data.baseColor.a);
-    WriteString(bytes, data.shaderName);
+    WriteString(bytes, data.shaderUUID.ToString());
     WriteString(bytes, data.baseColorTexturePath.ToString());
     return bytes;
 }
@@ -39,10 +39,14 @@ bool MaterialSerializer::Deserialize(
 
     size_t offset = sizeof(uint32) * 2;
     data = {};
-    data.baseColor.r = ReadFloat(bytes, offset); offset += sizeof(float);
-    data.baseColor.g = ReadFloat(bytes, offset); offset += sizeof(float);
-    data.baseColor.b = ReadFloat(bytes, offset); offset += sizeof(float);
-    data.baseColor.a = ReadFloat(bytes, offset); offset += sizeof(float);
+    data.baseColor.r = ReadFloat(bytes, offset);
+    offset += sizeof(float);
+    data.baseColor.g = ReadFloat(bytes, offset);
+    offset += sizeof(float);
+    data.baseColor.b = ReadFloat(bytes, offset);
+    offset += sizeof(float);
+    data.baseColor.a = ReadFloat(bytes, offset);
+    offset += sizeof(float);
 
     const auto ReadString = [&bytes, &offset](std::string& value)
     {
@@ -62,10 +66,12 @@ bool MaterialSerializer::Deserialize(
         return true;
     };
 
+    std::string shaderUUIDString;
     std::string texturePath;
-    if (!ReadString(data.shaderName) || !ReadString(texturePath))
+    if (!ReadString(shaderUUIDString) || !ReadString(texturePath))
         return false;
 
+    data.shaderUUID = UUID::FromString(shaderUUIDString);
     data.baseColorTexturePath = VirtualPath(texturePath);
     return true;
 }

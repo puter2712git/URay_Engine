@@ -22,6 +22,8 @@
 
 #include "Core/Math/Frustum.h"
 
+#include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
@@ -33,8 +35,8 @@
 namespace URay::Render
 {
 
-RenderPipeline::RenderPipeline(RenderSystem& renderSystem)
-    : renderSystem(renderSystem)
+RenderPipeline::RenderPipeline(AssetSystem& assetSystem, RenderSystem& renderSystem)
+    : assetSystem(assetSystem), renderSystem(renderSystem)
 {
 }
 
@@ -42,14 +44,27 @@ RenderPipeline::~RenderPipeline() = default;
 
 bool RenderPipeline::Initialize()
 {
-    builder = std::make_unique<DrawCommandBuilder>(renderSystem);
+    builder = std::make_unique<DrawCommandBuilder>(assetSystem, renderSystem);
     if (!builder->Initialize())
         return false;
+
+    std::vector<URay::Shader*> shaders = assetSystem.FindAssets<URay::Shader>();
+
+    URay::Shader* fogShader = nullptr;
+
+    for (URay::Shader* shader : shaders)
+    {
+        if (shader->GetName() == "Fog")
+        {
+            fogShader = shader;
+            break;
+        }
+    }
 
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<DecalPass>());
     passes.push_back(std::make_unique<OverlayPass>());
-    passes.push_back(std::make_unique<FogPass>(renderSystem));
+    passes.push_back(std::make_unique<FogPass>(renderSystem, fogShader));
 
     return true;
 }

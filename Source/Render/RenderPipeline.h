@@ -12,6 +12,7 @@
 
 namespace URay
 {
+class AssetSystem;
 class CameraComponent;
 class Scene;
 } // namespace URay
@@ -41,7 +42,7 @@ struct RenderRequest
 class RenderPipeline
 {
 public:
-    RenderPipeline(RenderSystem& renderSystem);
+    RenderPipeline(AssetSystem& assetSystem, RenderSystem& renderSystem);
     ~RenderPipeline();
 
 public:
@@ -61,6 +62,7 @@ private:
     DirectionalLightObject* FindLight(const std::vector<RenderScene*>& scenes) const;
 
 private:
+    AssetSystem& assetSystem;
     RenderSystem& renderSystem;
 
     std::unique_ptr<DrawCommandBuilder> builder = nullptr;

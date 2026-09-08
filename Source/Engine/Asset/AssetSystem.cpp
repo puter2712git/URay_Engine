@@ -4,15 +4,13 @@
 #include "Engine/Asset/AssetPipeline.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/MeshGenerator.h"
+#include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 #include "Engine/Object/Object.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"
-
-#include "Render/RenderSystem.h"
-#include "Render/Shader/ShaderManager.h"
 
 namespace URay
 {
@@ -40,6 +38,20 @@ bool AssetSystem::Initialize(
     if (!pipeline->Initialize())
         return false;
 
+    Shader* spriteShader = factory->CreateShader("Engine://Asset/Source/Shader/Sprite.hlsl");
+    Shader* meshShader = factory->CreateShader("Engine://Asset/Source/Shader/Mesh.hlsl");
+    Shader* fontShader = factory->CreateShader("Engine://Asset/Source/Shader/Font.hlsl");
+    Shader* decalShader = factory->CreateShader("Engine://Asset/Source/Shader/Decal.hlsl");
+    Shader* lineShader = factory->CreateShader("Engine://Asset/Source/Shader/Line.hlsl");
+    Shader* fogShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/Fog.hlsl");
+
+    assets.insert({ spriteShader->GetUUID(), spriteShader });
+    assets.insert({ meshShader->GetUUID(), meshShader });
+    assets.insert({ fontShader->GetUUID(), fontShader });
+    assets.insert({ decalShader->GetUUID(), decalShader });
+    assets.insert({ lineShader->GetUUID(), lineShader });
+    assets.insert({ fogShader->GetUUID(), fogShader });
+
     return true;
 }
 
@@ -54,12 +66,26 @@ bool AssetSystem::CreateDefaultAssets()
     UUID decalTextureUUID = Import("RawAsset://Texture/bullet_hole.png");
     defaultAssets.decalTexture = Find<Texture>(decalTextureUUID);
 
-    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
-    Render::ShaderManager& shaderManager = renderSystem.GetShaderManager();
+    std::vector<Shader*> shaders = FindAssets<Shader>();
+    Shader* spriteShader = nullptr;
+    Shader* meshShader = nullptr;
+    Shader* decalShader = nullptr;
 
-    Render::Shader* spriteShader = shaderManager.GetOrCreate("Sprite");
-    Render::Shader* meshShader = shaderManager.GetOrCreate("Mesh");
-    Render::Shader* decalShader = shaderManager.GetOrCreate("Decal");
+    for (Shader* shader : shaders)
+    {
+        if (shader->GetName() == "Sprite")
+        {
+            spriteShader = shader;
+        }
+        if (shader->GetName() == "Mesh")
+        {
+            meshShader = shader;
+        }
+        if (shader->GetName() == "Decal")
+        {
+            decalShader = shader;
+        }
+    }
 
     Material* spriteMaterial = factory->CreateMaterial(
         AssetMetadata{

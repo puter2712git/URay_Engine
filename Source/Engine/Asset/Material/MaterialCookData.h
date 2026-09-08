@@ -2,15 +2,14 @@
 
 #include "Core/File/VirtualPath.h"
 #include "Core/Math/Color.h"
-
-#include <string>
+#include "Core/UUID.h"
 
 namespace URay
 {
 
 struct MaterialCookData
 {
-    std::string shaderName = "Mesh";
+    UUID shaderUUID = {};
     Color baseColor = Color::White;
     VirtualPath baseColorTexturePath;
 };

@@ -12,9 +12,11 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/Shader/Shader.h"
 
+#include "Core/File/VirtualFilesystem.h"
 #include "Core/Type/Types.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
+#include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 
 #include <vulkan/vulkan.h>
@@ -22,9 +24,12 @@
 namespace URay::Render
 {
 
-GPUResourceManager::GPUResourceManager(RenderDevice* renderDevice)
-    : renderDevice(renderDevice)
+GPUResourceManager::GPUResourceManager(
+    RenderDevice& device,
+    VirtualFilesystem& filesystem)
+    : device(device), filesystem(filesystem), shaderCompiler(ShaderCompiler(filesystem))
 {
+    shaderCompiler.Initialize();
 }
 
 GPUResourceManager::~GPUResourceManager()
@@ -45,19 +50,19 @@ MeshBuffer* GPUResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
         return it->second;
 
     const std::vector<VertexPNT>& vertices = asset->GetVertices();
-    VertexBuffer* vertexBuffer = renderDevice->CreateVertexBuffer(vertices);
+    VertexBuffer* vertexBuffer = device.CreateVertexBuffer(vertices);
     if (!vertexBuffer)
         return nullptr;
 
     const std::vector<uint32>& indices = asset->GetIndices();
-    IndexBuffer* indexBuffer = renderDevice->CreateIndexBuffer(indices);
+    IndexBuffer* indexBuffer = device.CreateIndexBuffer(indices);
     if (!indexBuffer)
     {
         delete vertexBuffer;
         return nullptr;
     }
 
-    MeshBuffer* newMeshBuffer = renderDevice->CreateMeshBuffer(vertexBuffer, indexBuffer);
+    MeshBuffer* newMeshBuffer = device.CreateMeshBuffer(vertexBuffer, indexBuffer);
     if (!newMeshBuffer)
     {
         delete vertexBuffer;
@@ -99,12 +104,12 @@ Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
         .usage = TextureUsage::TransferDst | TextureUsage::Sampled,
     };
 
-    Texture* newTexture = renderDevice->CreateTexture(textureDesc);
+    Texture* newTexture = device.CreateTexture(textureDesc);
     if (!newTexture)
         return nullptr;
 
     std::span<const uint8> pixelData = texture->GetPixels();
-    if (!renderDevice->UploadTextureData(newTexture, pixelData))
+    if (!device.UploadTextureData(newTexture, pixelData))
     {
         delete newTexture;
         newTexture = nullptr;
@@ -135,7 +140,7 @@ TextureView* GPUResourceManager::GetOrCreateTextureView(Texture* texture)
     if (it != textureViews.end())
         return it->second;
 
-    TextureView* textureView = renderDevice->CreateTextureView(texture);
+    TextureView* textureView = device.CreateTextureView(texture);
     if (!textureView)
         return nullptr;
 
@@ -163,7 +168,7 @@ VkSampler GPUResourceManager::GetOrCreateTextureSampler(const TextureSamplerDesc
     if (it != textureSamplers.end())
         return it->second;
 
-    VkSampler sampler = renderDevice->CreateTextureSampler(samplerDesc);
+    VkSampler sampler = device.CreateTextureSampler(samplerDesc);
     if (sampler == VK_NULL_HANDLE)
         return VK_NULL_HANDLE;
 
@@ -178,12 +183,89 @@ void GPUResourceManager::DestroyTextureSamplers()
     {
         if (sampler)
         {
-            vkDestroySampler(renderDevice->GetVKDevice(), sampler, nullptr);
+            vkDestroySampler(device.GetVKDevice(), sampler, nullptr);
             sampler = VK_NULL_HANDLE;
         }
     }
 
     textureSamplers.clear();
+}
+
+Render::Shader* GPUResourceManager::GetOrCreateShader(URay::Shader* shader)
+{
+    auto it = shaders.find(shader);
+    if (it != shaders.end())
+    {
+        return it->second;
+    }
+
+    // TODO: Fix for shader permutation
+    VirtualPath shaderPath = shader->GetFilePath();
+    VirtualPath vertexShaderPath = shader->GetVertexShaderPath();
+    VirtualPath fragmentShaderPath = shader->GetFragmentShaderPath();
+
+    const std::wstring includeDirectory =
+        filesystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
+    const std::vector<std::wstring> defines;
+
+    if (vertexShaderPath.ToString().empty())
+    {
+        VirtualPath importAssetPath = VirtualPath(
+            "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".vs.spv");
+
+        shaderCompiler.Compile(
+            shader->GetFilePath(),
+            importAssetPath,
+            L"vs_6_0",
+            L"VSMain",
+            includeDirectory,
+            defines);
+
+        shader->SetVertexShaderPath(importAssetPath);
+        vertexShaderPath = importAssetPath;
+    }
+
+    if (fragmentShaderPath.ToString().empty())
+    {
+        VirtualPath importAssetPath = VirtualPath(
+            "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".fs.spv");
+
+        shaderCompiler.Compile(
+            shader->GetFilePath(),
+            importAssetPath,
+            L"ps_6_0",
+            L"PSMain",
+            includeDirectory,
+            defines);
+
+        shader->SetFragmentShaderPath(importAssetPath);
+        fragmentShaderPath = importAssetPath;
+    }
+
+    std::vector<uint8> vertexShaderCode = filesystem.ReadBinary(vertexShaderPath);
+    if (vertexShaderCode.empty())
+        return nullptr;
+
+    std::vector<uint8> fragmentShaderCode = filesystem.ReadBinary(fragmentShaderPath);
+    if (fragmentShaderCode.empty())
+        return nullptr;
+
+    ShaderReflection vertexShaderReflection = {};
+    if (!ShaderReflector::ReflectSPIRV(vertexShaderCode, vertexShaderReflection))
+        return nullptr;
+
+    ShaderReflection fragmentShaderReflection = {};
+    if (!ShaderReflector::ReflectSPIRV(fragmentShaderCode, fragmentShaderReflection))
+        return nullptr;
+
+    Shader* newShader = new Shader(
+        vertexShaderCode,
+        fragmentShaderCode,
+        vertexShaderReflection,
+        fragmentShaderReflection);
+    shaders.insert({ shader, newShader });
+
+    return newShader;
 }
 
 DescriptorSetLayout* GPUResourceManager::GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
@@ -192,7 +274,7 @@ DescriptorSetLayout* GPUResourceManager::GetOrCreateDescriptorSetLayout(const De
     if (it != descriptorSetLayouts.end())
         return it->second;
 
-    DescriptorSetLayout* layout = renderDevice->CreateDescriptorSetLayout(desc);
+    DescriptorSetLayout* layout = device.CreateDescriptorSetLayout(desc);
     if (!layout)
         return nullptr;
 
@@ -223,7 +305,7 @@ PipelineLayout* GPUResourceManager::GetOrCreatePipelineLayout(const PipelineLayo
         return it->second;
     }
 
-    PipelineLayout* layout = renderDevice->CreatePipelineLayout(desc);
+    PipelineLayout* layout = device.CreatePipelineLayout(desc);
     pipelineLayouts.insert({ desc, layout });
 
     return layout;
@@ -257,7 +339,7 @@ PipelineState* GPUResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDe
 
     PipelineLayout* layout = GetOrCreatePipelineLayout(layoutDesc);
 
-    PipelineState* pso = renderDevice->CreatePSO(psoDesc, *layout, renderPass);
+    PipelineState* pso = device.CreatePSO(psoDesc, *layout, renderPass);
     if (!pso)
         return nullptr;
 

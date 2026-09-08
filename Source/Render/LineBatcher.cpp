@@ -15,10 +15,10 @@ namespace URay::Render
 
 LineBatcher::LineBatcher(RenderDevice& device,
                          GPUResourceManager& resourceManager,
-                         ShaderManager& shaderManager)
+                         URay::Shader* shader)
     : device(device),
       resourceManager(resourceManager),
-      shaderManager(shaderManager)
+      shader(shader)
 {
 }
 
@@ -35,7 +35,7 @@ bool LineBatcher::Initialize()
 
     mappedVertexBufferData = vertexBuffer->Map();
 
-    Shader* shader = shaderManager.GetOrCreate("Line");
+    renderShader = resourceManager.GetOrCreateShader(shader);
 
     return true;
 }
@@ -72,7 +72,7 @@ DrawCommand LineBatcher::Flush()
     cmd.vertexCount = static_cast<uint32>(vertices.size());
 
     PipelineStateDesc psoDesc = {};
-    psoDesc.shader = shaderManager.GetOrCreate("Line");
+    psoDesc.shader = renderShader;
     psoDesc.topology = PrimitiveTopology::LineList;
     psoDesc.depthStencil.depthTestEnable = true;
     psoDesc.depthStencil.depthWriteEnable = false;

@@ -19,7 +19,8 @@ namespace URay::Render
 
 DecalObject::DecalObject(RenderSystem& renderSystem, const DecalObjectState& state)
 {
-    Shader* decalShader = state.material->GetShader();
+    URay::Shader* shaderAsset = state.material->GetShader();
+    Shader* decalShader = renderSystem.GetResourceManager().GetOrCreateShader(shaderAsset);
 
     const DescriptorSetLayoutDesc* layoutDesc =
         decalShader->GetDescriptorSetLayoutDesc(2);
