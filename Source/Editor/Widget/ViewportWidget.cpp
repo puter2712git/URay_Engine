@@ -279,6 +279,36 @@ void ViewportWidget::OnDraw()
     {
         editor.StopGame();
     }
+    ImGui::SameLine();
+
+    const char* viewModeNames[] = {
+        "Lit",
+        "Unlit",
+        "Wireframe"
+    };
+
+    const int32 currViewMode = static_cast<int32>(viewMode);
+
+    if (ImGui::BeginCombo("##ViewMode", viewModeNames[currViewMode]))
+    {
+        for (int32 i = 0; i < std::size(viewModeNames); ++i)
+        {
+            const bool selected = i == currViewMode;
+
+            if (ImGui::Selectable(viewModeNames[i], selected))
+            {
+                viewMode = static_cast<Render::ViewMode>(i);
+            }
+
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+
+        ImGui::EndCombo();
+    }
+
     ImGui::Separator();
 
     const ImVec2 imagePosition = ImGui::GetCursorScreenPos();

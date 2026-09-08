@@ -3,6 +3,7 @@
 #include "Render/DrawCommand/DrawCommand.h"
 #include "Render/RenderPass/RenderPass.h"
 #include "Render/RenderPass/RenderPassId.h"
+#include "Render/View/RenderView.h"
 
 #include "Core/Type/Types.h"
 
@@ -26,12 +27,6 @@ class RenderScene;
 class ViewObject;
 class FogObject;
 class DirectionalLightObject;
-
-struct RenderView
-{
-    Matrix viewMatrix = Matrix::Identity;
-    Matrix projMatrix = Matrix::Identity;
-};
 
 struct RenderRequest
 {

@@ -6,6 +6,8 @@
 
 #include "Core/Math/Extent2D.h"
 
+#include "Render/View/ViewMode.h"
+
 #include <functional>
 #include <memory>
 #include <optional>
@@ -82,6 +84,8 @@ private:
 
     bool isCameraRotating = false;
     Vector2 pendingCameraLookDelta = Vector2::Zero;
+
+    Render::ViewMode viewMode = Render::ViewMode::Lit;
 };
 
 } // namespace URay
