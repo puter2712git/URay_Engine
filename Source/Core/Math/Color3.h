@@ -12,6 +12,7 @@ struct Color3
     float b = 0.0f;
 
     Color3(float inR = 0.0f, float inG = 0.0f, float inB = 0.0f);
+    Color3(const Color& color);
 
     operator Color() const;
 

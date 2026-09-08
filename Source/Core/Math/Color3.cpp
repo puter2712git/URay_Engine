@@ -19,6 +19,11 @@ Color3::Color3(float inR, float inG, float inB)
 {
 }
 
+Color3::Color3(const Color& color)
+    : Color3(color.r, color.g, color.b)
+{
+}
+
 Color3::operator Color() const
 {
     return Color(r, g, b, 1.0f);

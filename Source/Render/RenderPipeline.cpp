@@ -15,6 +15,7 @@
 #include "Render/Scene/Object/Drawable/DrawableObject.h"
 #include "Render/Scene/Object/Drawable/MeshObject.h"
 #include "Render/Scene/Object/FogObject.h"
+#include "Render/Scene/Object/Light/AmbientLightObject.h"
 #include "Render/Scene/Object/Light/DirectionalLightObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
@@ -91,6 +92,7 @@ void RenderPipeline::Reset()
 void RenderPipeline::Execute(const RenderRequest& request)
 {
     FogObject* fog = FindFog(request.scenes);
+    AmbientLightObject* ambientLight = FindAmbientLight(request.scenes);
     DirectionalLightObject* light = FindLight(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
@@ -111,6 +113,12 @@ void RenderPipeline::Execute(const RenderRequest& request)
     frameConstants.renderTargetSize = Vector2(
         renderer.GetSceneRenderTarget().GetExtent().width,
         renderer.GetSceneRenderTarget().GetExtent().height);
+
+    if (ambientLight)
+    {
+        frameConstants.ambientLight.intensity = ambientLight->GetIntensity();
+        frameConstants.ambientLight.color = Color3(ambientLight->GetColor());
+    }
 
     if (light)
     {
@@ -240,6 +248,27 @@ FogObject* RenderPipeline::FindFog(
             if (FogObject* fog = dynamic_cast<FogObject*>(robj))
             {
                 return fog;
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+AmbientLightObject* RenderPipeline::FindAmbientLight(
+    const std::vector<RenderScene*>& scenes) const
+{
+    for (const RenderScene* scene : scenes)
+    {
+        size_t objCount = scene->GetObjectCount();
+
+        for (size_t i = 0; i < objCount; ++i)
+        {
+            RenderObject* robj = scene->GetObject(i);
+
+            if (AmbientLightObject* light = dynamic_cast<AmbientLightObject*>(robj))
+            {
+                return light;
             }
         }
     }
