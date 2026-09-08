@@ -18,6 +18,8 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
+    const Color& GetColor() const { return color; }
+
 protected:
     void UpdateRenderObject() override;
 

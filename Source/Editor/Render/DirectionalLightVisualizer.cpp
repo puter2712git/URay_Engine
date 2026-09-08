@@ -1,8 +1,10 @@
 #include "DirectionalLightVisualizer.h"
 
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Component/Render/Light/DirectionalLightComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Object/Property/Property.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Scene/Object/Drawable/MeshObject.h"
@@ -18,17 +20,20 @@ Render::MeshObjectState DirectionalLightVisualizer::MakeArrowState(EditorVisualC
 
     return {
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+        .colorTint = Color::Green,
         .mesh = context.engine.GetAssetSystem().GetDefaultAssets().arrowMesh,
         .materials = { context.engine.GetAssetSystem().GetDefaultAssets().meshMaterial }
     };
 }
 
-Render::BillboardObjectState DirectionalLightVisualizer::MakeBillboardState(EditorVisualContext& context, Unit& unit)
+Render::BillboardObjectState DirectionalLightVisualizer::MakeBillboardState(EditorVisualContext& context, Unit& unit, Component& component)
 {
     TransformComponent* transform = unit.GetTransform();
+    DirectionalLightComponent& directionalLight = static_cast<DirectionalLightComponent&>(component);
 
     return {
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+        .colorTint = directionalLight.GetColor(),
         .mesh = context.engine.GetAssetSystem().GetDefaultAssets().quadMesh,
         .materials = { context.engine.GetAssetSystem().GetDefaultAssets().billboardMaterial }
     };
@@ -40,7 +45,7 @@ void DirectionalLightVisualizer::OnAdded(EditorVisualContext& context, Scene&, U
         return;
 
     std::unique_ptr<Render::MeshObject> arrow = std::make_unique<Render::MeshObject>(MakeArrowState(context, unit));
-    std::unique_ptr<Render::BillboardObject> billboard = std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit));
+    std::unique_ptr<Render::BillboardObject> billboard = std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
 
     DirectionalLightVisual visual = {};
     visual.arrow = arrow.get();
@@ -80,7 +85,19 @@ void DirectionalLightVisualizer::OnUnitWorldTransformUpdated(EditorVisualContext
         visual.arrow->Update(MakeArrowState(context, unit));
 
     if (visual.billboard)
-        visual.billboard->Update(MakeBillboardState(context, unit));
+        visual.billboard->Update(MakeBillboardState(context, unit, component));
+}
+
+void DirectionalLightVisualizer::OnPropertyChanged(EditorVisualContext& context, Scene&, Unit& unit, Component& component, const Property& property)
+{
+    if (property.name != "Color")
+        return;
+
+    const auto it = visuals.find(&component);
+    if (it == visuals.end() || !it->second.billboard)
+        return;
+
+    it->second.billboard->Update(MakeBillboardState(context, unit, component));
 }
 
 } // namespace URay

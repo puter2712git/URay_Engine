@@ -30,6 +30,11 @@ bool EditorSceneRenderer::Initialize()
                                                               { OnUnitRemoved(scene, unit); });
     unitTransformUpdateHandle = sceneSystem.RegisterUnitWorldTransformUpdateCallback([this](Scene* scene, Unit* unit)
                                                                                      { OnUnitTransformUpdated(scene, unit); });
+    componentPropertyChangedHandle = sceneSystem.RegisterComponentPropertyChangedCallback(
+        [this](Scene* scene, Unit* unit, Component* component, const Property& property)
+        {
+            OnComponentPropertyChanged(scene, unit, component, property);
+        });
 
     return true;
 }
@@ -38,6 +43,7 @@ void EditorSceneRenderer::Finalize()
 {
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
+    sceneSystem.UnregisterComponentPropertyChangedCallback(componentPropertyChangedHandle);
     sceneSystem.UnregisterUnitWorldTransformUpdateCallback(unitTransformUpdateHandle);
     sceneSystem.UnregisterUnitRemoveCallback(unitRemoveHandle);
     sceneSystem.UnregisterUnitAddCallback(unitAddHandle);
@@ -54,7 +60,7 @@ void EditorSceneRenderer::OnUnitAdded(Scene* scene, Unit* unit)
 
     for (Component* component : unit->GetComponents())
     {
-        IEditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
+        EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
         if (visualizer)
         {
             visualizer->OnAdded(context, *scene, *unit, *component);
@@ -73,7 +79,7 @@ void EditorSceneRenderer::OnUnitRemoved(Scene* scene, Unit* unit)
 
     for (Component* component : unit->GetComponents())
     {
-        IEditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
+        EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
         if (visualizer)
         {
             visualizer->OnRemoved(context, *scene, *unit, *component);
@@ -92,11 +98,27 @@ void EditorSceneRenderer::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 
     for (Component* component : unit->GetComponents())
     {
-        IEditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
+        EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
         if (visualizer)
         {
             visualizer->OnUnitWorldTransformUpdated(context, *scene, *unit, *component);
         }
+    }
+}
+
+void EditorSceneRenderer::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property)
+{
+    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
+
+    EditorVisualContext context = {
+        .engine = engine,
+        .renderScene = *editorScene->GetRenderScene()
+    };
+
+    EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
+    if (visualizer)
+    {
+        visualizer->OnPropertyChanged(context, *scene, *unit, *component, property);
     }
 }
 

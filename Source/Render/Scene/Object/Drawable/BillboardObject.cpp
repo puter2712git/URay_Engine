@@ -17,6 +17,7 @@ BillboardObject::~BillboardObject() = default;
 void BillboardObject::Update(const BillboardObjectState& state)
 {
     worldMatrix = state.worldMatrix;
+    colorTint = state.colorTint;
     mesh = state.mesh;
     materials = state.materials;
     worldBounds = mesh ? mesh->GetLocalBounds().Transform(worldMatrix) : AABB{};
@@ -33,9 +34,17 @@ void BillboardObject::Submit(DrawCommandBuilder& builder) const
             !materials[section.materialIndex])
             continue;
 
+        const Color& materialColor = materials[section.materialIndex]->GetBaseColor();
+        const Color finalColor = {
+            materialColor.r * colorTint.r,
+            materialColor.g * colorTint.g,
+            materialColor.b * colorTint.b,
+            materialColor.a * colorTint.a
+        };
+
         builder.BuildBillboard({
             .worldMatrix = worldMatrix,
-            .colorTint = materials[section.materialIndex]->GetBaseColor(),
+            .colorTint = finalColor,
             .mesh = mesh,
             .material = materials[section.materialIndex],
             .indexOffset = section.indexOffset,

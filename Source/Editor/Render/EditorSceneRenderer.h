@@ -7,6 +7,8 @@ namespace URay
 {
 
 class Engine;
+class Component;
+class Property;
 class Unit;
 class Scene;
 
@@ -24,6 +26,7 @@ private:
     void OnUnitAdded(Scene* scene, Unit* unit);
     void OnUnitRemoved(Scene* scene, Unit* unit);
     void OnUnitTransformUpdated(Scene* scene, Unit* unit);
+    void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
 
 private:
     Engine& engine;
@@ -33,6 +36,7 @@ private:
     RayHandle unitAddHandle = 0;
     RayHandle unitRemoveHandle = 0;
     RayHandle unitTransformUpdateHandle = 0;
+    RayHandle componentPropertyChangedHandle = 0;
 };
 
 } // namespace URay

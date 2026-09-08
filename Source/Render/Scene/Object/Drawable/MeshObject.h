@@ -7,6 +7,7 @@
 #include "Engine/Asset/Mesh/Mesh.h"
 
 #include "Core/Math/AABB.h"
+#include "Core/Math/Color.h"
 
 #include <vector>
 
@@ -21,6 +22,7 @@ namespace Render
 struct MeshObjectState
 {
     Matrix worldMatrix = Matrix::Identity;
+    Color colorTint = Color::White;
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
 };
@@ -41,6 +43,7 @@ public:
 
 private:
     Matrix worldMatrix = Matrix::Identity;
+    Color colorTint = Color::White;
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
 

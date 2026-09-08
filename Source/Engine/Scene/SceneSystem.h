@@ -10,6 +10,7 @@ namespace URay
 {
 
 class Component;
+class Property;
 
 class SceneSystem
 {
@@ -40,9 +41,13 @@ public:
     RayHandle RegisterUnitWorldTransformUpdateCallback(EventRay<Scene*, Unit*>::Callback callback) { return unitWorldTransformUpdateRay.Register(callback); }
     void UnregisterUnitWorldTransformUpdateCallback(RayHandle handle) { unitWorldTransformUpdateRay.Unregister(handle); }
 
+    RayHandle RegisterComponentPropertyChangedCallback(EventRay<Scene*, Unit*, Component*, const Property&>::Callback callback) { return componentPropertyChangedRay.Register(callback); }
+    void UnregisterComponentPropertyChangedCallback(RayHandle handle) { componentPropertyChangedRay.Unregister(handle); }
+
     void EmitUnitAddRay(Scene* scene, Unit* unit) { unitAddRay.Emit(scene, unit); }
     void EmitUnitRemoveRay(Scene* scene, Unit* unit) { unitRemoveRay.Emit(scene, unit); }
     void EmitUnitWorldTransformUpdateRay(Scene* scene, Unit* unit) { unitWorldTransformUpdateRay.Emit(scene, unit); }
+    void EmitComponentPropertyChangedRay(Scene* scene, Unit* unit, Component* component, const Property& property) { componentPropertyChangedRay.Emit(scene, unit, component, property); }
 
 private:
     std::vector<std::unique_ptr<Scene>> scenes;
@@ -50,6 +55,7 @@ private:
     EventRay<Scene*, Unit*> unitAddRay;
     EventRay<Scene*, Unit*> unitRemoveRay;
     EventRay<Scene*, Unit*> unitWorldTransformUpdateRay;
+    EventRay<Scene*, Unit*, Component*, const Property&> componentPropertyChangedRay;
 };
 
 } // namespace URay
