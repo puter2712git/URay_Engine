@@ -1,9 +1,7 @@
 #pragma once
 
+#include "Editor/Render/EditorVisualizerRegistry.h"
 #include "Engine/Ray/EventRay.h"
-
-#include <unordered_map>
-#include <vector>
 
 namespace URay
 {
@@ -11,11 +9,6 @@ namespace URay
 class Engine;
 class Unit;
 class Scene;
-
-namespace Render
-{
-class RenderObject;
-}
 
 class EditorSceneRenderer
 {
@@ -35,7 +28,7 @@ private:
 private:
     Engine& engine;
 
-    std::unordered_map<Unit*, std::vector<Render::RenderObject*>> renderObjects;
+    EditorVisualizerRegistry visualizerRegistry;
 
     RayHandle unitAddHandle = 0;
     RayHandle unitRemoveHandle = 0;
