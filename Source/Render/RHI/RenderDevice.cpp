@@ -1,6 +1,5 @@
 #include "RenderDevice.h"
 
-#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
@@ -26,6 +25,7 @@
 #include "Render/RHI/Vulkan/VulkanUtils.h"
 #include "Render/RenderInfo.h"
 #include "Render/Renderer.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 #include "Core/Type/Types.h"
@@ -422,8 +422,13 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rasterizer.depthClampEnable = VK_FALSE;
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterizer.depthBiasEnable = VK_FALSE;
+    rasterizer.depthBiasConstantFactor = 0.0f;
+    rasterizer.depthBiasClamp = 0.0f;
+    rasterizer.depthBiasSlopeFactor = 0.0f;
+
     switch (desc.rasterizer.cullMode)
     {
     case CullMode::Front:
@@ -436,11 +441,19 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
         rasterizer.cullMode = VK_CULL_MODE_NONE;
         break;
     }
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    rasterizer.depthBiasEnable = VK_FALSE;
-    rasterizer.depthBiasConstantFactor = 0.0f;
-    rasterizer.depthBiasClamp = 0.0f;
-    rasterizer.depthBiasSlopeFactor = 0.0f;
+
+    switch (desc.rasterizer.polygonMode)
+    {
+    case PolygonMode::Fill:
+        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+        break;
+    case PolygonMode::Line:
+        rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+        break;
+    case PolygonMode::Point:
+        rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
+        break;
+    }
 
     VkPipelineMultisampleStateCreateInfo multisampling = {};
     multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;

@@ -248,7 +248,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
         request.view = {
             .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
-            .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity
+            .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity,
+            .viewMode = viewportWidget->GetViewMode()
         };
     }
     else
@@ -260,7 +261,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
         request.view = {
             .viewMatrix = editorCamera->GetViewMatrix(),
-            .projMatrix = editorCamera->GetProjMatrix()
+            .projMatrix = editorCamera->GetProjMatrix(),
+            .viewMode = viewportWidget->GetViewMode()
         };
     }
 

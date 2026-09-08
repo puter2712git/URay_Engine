@@ -6,13 +6,13 @@
 
 #include "Core/Type/Types.h"
 
-#include "Render/ResourceManager.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderSystem.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 namespace URay
@@ -44,7 +44,7 @@ bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceMa
     if (!renderDevice || !resourceManager || !shader)
         return false;
 
-    Render::Shader* renderShader = resourceManager->GetOrCreateShader(shader);
+    Render::Shader* renderShader = resourceManager->GetOrCreateShader(shader, {});
 
     const Render::DescriptorSetLayoutDesc* setLayoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
     if (!setLayoutDesc)

@@ -10,9 +10,17 @@ enum class CullMode
     None
 };
 
+enum class PolygonMode
+{
+    Fill,
+    Line,
+    Point
+};
+
 struct RasterizerState
 {
     CullMode cullMode = CullMode::Back;
+    PolygonMode polygonMode = PolygonMode::Fill;
 
     bool operator==(const RasterizerState&) const = default;
 };

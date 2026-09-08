@@ -5,6 +5,8 @@
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
 #include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/Shader/ShaderCompiler.h"
+#include "Render/Shader/ShaderDefine.h"
+#include "Render/Shader/ShaderPermutationKey.h"
 #include "Render/Shader/ShaderReflector.h"
 
 #include <vulkan/vulkan.h>
@@ -51,7 +53,7 @@ public:
     VkSampler GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc);
     void DestroyTextureSamplers();
 
-    Shader* GetOrCreateShader(URay::Shader* shader);
+    Render::Shader* GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
     void DestroyShaders();
 
     DescriptorSetLayout* GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
@@ -75,7 +77,7 @@ private:
     std::unordered_map<Texture*, TextureView*> textureViews;
     std::unordered_map<TextureSamplerDesc, VkSampler, TextureSamplerDescHash> textureSamplers;
 
-    std::unordered_map<URay::Shader*, Render::Shader*> shaders;
+    std::unordered_map<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 
     std::unordered_map<DescriptorSetLayoutDesc, DescriptorSetLayout*, DescriptorSetLayoutDescHash> descriptorSetLayouts;
 

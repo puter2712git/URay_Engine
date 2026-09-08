@@ -192,9 +192,14 @@ void ResourceManager::DestroyTextureSamplers()
     textureSamplers.clear();
 }
 
-Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader)
+Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines)
 {
-    auto it = shaders.find(shader);
+    const ShaderPermutationKey key = {
+        .shader = shader,
+        .defines = defines
+    };
+
+    auto it = shaders.find(key);
     if (it != shaders.end())
     {
         return it->second;
@@ -207,41 +212,42 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader)
 
     const std::wstring includeDirectory =
         filesystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
-    const std::vector<std::wstring> defines;
 
-    if (vertexShaderPath.ToString().empty())
+    std::vector<std::wstring> compilerDefines;
+    compilerDefines.reserve(defines.size());
+
+    for (const ShaderDefine& define : defines)
     {
-        VirtualPath importAssetPath = VirtualPath(
-            "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".vs.spv");
-
-        shaderCompiler.Compile(
-            shader->GetFilePath(),
-            importAssetPath,
-            L"vs_6_0",
-            L"VSMain",
-            includeDirectory,
-            defines);
-
-        shader->SetVertexShaderPath(importAssetPath);
-        vertexShaderPath = importAssetPath;
+        compilerDefines.push_back(define.name + L"=" + define.value);
     }
 
-    if (fragmentShaderPath.ToString().empty())
-    {
-        VirtualPath importAssetPath = VirtualPath(
-            "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".fs.spv");
+    VirtualPath importAssetPath = VirtualPath(
+        "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".vs.spv");
 
-        shaderCompiler.Compile(
-            shader->GetFilePath(),
-            importAssetPath,
-            L"ps_6_0",
-            L"PSMain",
-            includeDirectory,
-            defines);
+    shaderCompiler.Compile(
+        shader->GetFilePath(),
+        importAssetPath,
+        L"vs_6_0",
+        L"VSMain",
+        includeDirectory,
+        compilerDefines);
 
-        shader->SetFragmentShaderPath(importAssetPath);
-        fragmentShaderPath = importAssetPath;
-    }
+    shader->SetVertexShaderPath(importAssetPath);
+    vertexShaderPath = importAssetPath;
+
+    importAssetPath = VirtualPath(
+        "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".fs.spv");
+
+    shaderCompiler.Compile(
+        shader->GetFilePath(),
+        importAssetPath,
+        L"ps_6_0",
+        L"PSMain",
+        includeDirectory,
+        compilerDefines);
+
+    shader->SetFragmentShaderPath(importAssetPath);
+    fragmentShaderPath = importAssetPath;
 
     std::vector<uint8> vertexShaderCode = filesystem.ReadBinary(vertexShaderPath);
     if (vertexShaderCode.empty())
@@ -264,7 +270,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader)
         fragmentShaderCode,
         vertexShaderReflection,
         fragmentShaderReflection);
-    shaders.insert({ shader, newShader });
+    shaders.insert({ key, newShader });
 
     return newShader;
 }

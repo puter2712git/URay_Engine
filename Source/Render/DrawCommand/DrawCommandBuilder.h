@@ -4,6 +4,7 @@
 #include "DrawCommandContext.h"
 
 #include "Render/Vertex.h"
+#include "Render/View/ViewMode.h"
 
 #include "Core/Math/AABB.h"
 
@@ -54,6 +55,8 @@ public:
 
     const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
 
+    void SetViewMode(ViewMode newViewMode) { viewMode = newViewMode; }
+
 private:
     AssetSystem& assetSystem;
     RenderDevice& device;
@@ -64,6 +67,8 @@ private:
 
     std::unique_ptr<LineBatcher> lineBatcher = nullptr;
     std::unique_ptr<TextBatcher> textBatcher = nullptr;
+
+    ViewMode viewMode = ViewMode::Lit;
 };
 
 } // namespace URay::Render

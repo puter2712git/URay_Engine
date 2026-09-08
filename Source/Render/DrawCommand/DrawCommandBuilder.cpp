@@ -1,6 +1,5 @@
 #include "DrawCommandBuilder.h"
 
-#include "Render/ResourceManager.h"
 #include "Render/LineBatcher.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
@@ -9,6 +8,7 @@
 #include "Render/RenderInfo.h"
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
+#include "Render/ResourceManager.h"
 #include "Render/TextBatcher.h"
 
 #include "Core/Type/Types.h"
@@ -110,7 +110,23 @@ void DrawCommandBuilder::FlushTexts()
 void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
-    Render::Shader* shader = resourceManager.GetOrCreateShader(context.material->GetShader());
+
+    std::vector<ShaderDefine> defines;
+
+    switch (viewMode)
+    {
+    case ViewMode::Lit:
+    case ViewMode::Wireframe:
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"1" } });
+        break;
+    case ViewMode::Unlit:
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
+        break;
+    }
+
+    Render::Shader* shader = resourceManager.GetOrCreateShader(
+        context.material->GetShader(),
+        defines);
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
@@ -124,6 +140,11 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     stateDesc.vertexLayout = VertexLayout::PNT;
     stateDesc.depthStencil = depthStencil;
     stateDesc.blend.mode = BlendMode::Opaque;
+
+    stateDesc.rasterizer.polygonMode =
+        viewMode == ViewMode::Wireframe
+            ? PolygonMode::Line
+            : PolygonMode::Fill;
 
     DrawCommand cmd = {};
     cmd.worldMatrix = context.worldMatrix;
@@ -242,7 +263,7 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.receiverMesh);
-    Render::Shader* shader = resourceManager.GetOrCreateShader(context.decalMaterial->GetShader());
+    Render::Shader* shader = resourceManager.GetOrCreateShader(context.decalMaterial->GetShader(), {});
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Decal;
@@ -283,7 +304,9 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
-    Render::Shader* shader = resourceManager.GetOrCreateShader(context.material->GetShader());
+    Render::Shader* shader = resourceManager.GetOrCreateShader(
+        context.material->GetShader(),
+        { ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Overlay;

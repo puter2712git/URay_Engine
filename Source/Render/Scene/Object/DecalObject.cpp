@@ -1,13 +1,13 @@
 #include "DecalObject.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RenderSystem.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 #include "Engine/Asset/Material/Material.h"
@@ -20,7 +20,7 @@ namespace URay::Render
 DecalObject::DecalObject(RenderSystem& renderSystem, const DecalObjectState& state)
 {
     URay::Shader* shaderAsset = state.material->GetShader();
-    Shader* decalShader = renderSystem.GetResourceManager().GetOrCreateShader(shaderAsset);
+    Shader* decalShader = renderSystem.GetResourceManager().GetOrCreateShader(shaderAsset, {});
 
     const DescriptorSetLayoutDesc* layoutDesc =
         decalShader->GetDescriptorSetLayoutDesc(2);

@@ -1,6 +1,5 @@
 #include "FogPass.h"
 
-#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
@@ -10,6 +9,7 @@
 #include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderSystem.h"
+#include "Render/ResourceManager.h"
 #include "Render/Scene/Object/FogObject.h"
 #include "Render/Shader/Shader.h"
 
@@ -21,7 +21,7 @@ namespace URay::Render
 FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
     : fogShaderAsset(shader)
 {
-    fogShader = renderSystem.GetResourceManager().GetOrCreateShader(fogShaderAsset);
+    fogShader = renderSystem.GetResourceManager().GetOrCreateShader(fogShaderAsset, {});
 
     const DescriptorSetLayoutDesc* layoutDesc = fogShader->GetDescriptorSetLayoutDesc(2);
     if (!layoutDesc)

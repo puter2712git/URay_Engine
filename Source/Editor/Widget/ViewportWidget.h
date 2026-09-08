@@ -45,6 +45,8 @@ public:
 
     const Extent2D& GetTargetExtent() const { return targetExtent; }
 
+    Render::ViewMode GetViewMode() const { return viewMode; }
+
 protected:
     void OnUpdate(float deltaTime) override;
     void OnDraw() override;

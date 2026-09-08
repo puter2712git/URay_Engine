@@ -1,10 +1,10 @@
 #include "LineBatcher.h"
 
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/RenderDevice.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 #include "Core/Type/Types.h"
@@ -34,7 +34,7 @@ bool LineBatcher::Initialize()
 
     mappedVertexBufferData = vertexBuffer->Map();
 
-    renderShader = resourceManager.GetOrCreateShader(shader);
+    renderShader = resourceManager.GetOrCreateShader(shader, {});
 
     return true;
 }

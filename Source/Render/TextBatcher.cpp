@@ -1,12 +1,12 @@
 #include "TextBatcher.h"
 
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/Renderer.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 #include "Core/Type/Types.h"
@@ -36,7 +36,7 @@ bool TextBatcher::Initialize()
 
     mappedVertexBufferData = vertexBuffer->Map();
 
-    renderShader = resourceManager.GetOrCreateShader(shader);
+    renderShader = resourceManager.GetOrCreateShader(shader, {});
 
     const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
 

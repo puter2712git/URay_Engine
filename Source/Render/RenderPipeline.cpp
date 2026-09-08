@@ -97,6 +97,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     const RenderView& view = request.view;
 
+    builder->SetViewMode(view.viewMode);
+
     FrameConstants frameConstants = {};
     frameConstants.view = view.viewMatrix;
     frameConstants.invView = view.viewMatrix.Inverse();
