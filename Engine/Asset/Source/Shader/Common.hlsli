@@ -1,6 +1,8 @@
 #ifndef __COMMON__
 #define __COMMON__
 
+#include "Light.hlsli"
+
 struct FrameConstants
 {
     float4x4 view;
@@ -12,9 +14,8 @@ struct FrameConstants
     float nearPlane;
     float farPlane;
     float2 renderTargetSize;
-    float3 lightDirection;
-    float lightIntensity;
-    float4 lightColor;
+    
+    DirectionalLightConstants directionalLight;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
 

@@ -114,9 +114,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     if (light)
     {
-        frameConstants.lightDirection = light->GetDirection();
-        frameConstants.lightIntensity = light->GetIntensity();
-        frameConstants.lightColor = light->GetColor();
+        frameConstants.directionalLight.direction = light->GetDirection();
+        frameConstants.directionalLight.intensity = light->GetIntensity();
+        frameConstants.directionalLight.color = light->GetColor();
     }
 
     renderer.GetFrameConstantBuffer(currentFrame)->UpdateData(&frameConstants, sizeof(FrameConstants));

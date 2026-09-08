@@ -16,6 +16,13 @@ struct ObjectConstants
     uint32 objectId = 0;
 };
 
+struct DirectionalLightConstants
+{
+    Vector3 direction = Vector3::Forward;
+    float intensity = 0.0f;
+    Color color = Color::White;
+};
+
 struct FrameConstants
 {
     Matrix view = Matrix::Identity;
@@ -28,9 +35,7 @@ struct FrameConstants
     float farPlane = 1000.0f;
     Vector2 renderTargetSize = Vector2::Zero;
 
-    Vector3 lightDirection = Vector3::Forward;
-    float lightIntensity = 0.0f;
-    Color lightColor = Color::White;
+    DirectionalLightConstants directionalLight = {};
 };
 
 } // namespace URay::Render
