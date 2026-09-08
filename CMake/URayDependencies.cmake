@@ -1,7 +1,7 @@
 find_package(Vulkan REQUIRED)
 
-add_subdirectory("${URAY_SOURCE_DIR}/thirdparty/glfw")
-add_subdirectory("${URAY_SOURCE_DIR}/thirdparty/freetype-2.14.3")
+add_subdirectory("${URAY_SOURCE_DIR}/Thirdparty/glfw")
+add_subdirectory("${URAY_SOURCE_DIR}/Thirdparty/freetype-2.14.3")
 
 include(FetchContent)
 
