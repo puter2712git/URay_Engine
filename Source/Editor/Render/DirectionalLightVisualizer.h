@@ -9,7 +9,10 @@ namespace URay
 
 namespace Render
 {
+class BillboardObject;
+struct BillboardObjectState;
 class MeshObject;
+struct MeshObjectState;
 }
 
 class DirectionalLightVisualizer final : public IEditorComponentVisualizer
@@ -20,7 +23,17 @@ public:
     void OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) override;
 
 private:
-    std::unordered_map<Component*, Render::MeshObject*> meshObjects;
+    struct DirectionalLightVisual
+    {
+        Render::MeshObject* arrow = nullptr;
+        Render::BillboardObject* billboard = nullptr;
+    };
+
+    static Render::MeshObjectState MakeArrowState(EditorVisualContext& context, Unit& unit);
+    static Render::BillboardObjectState MakeBillboardState(EditorVisualContext& context, Unit& unit);
+
+private:
+    std::unordered_map<Component*, DirectionalLightVisual> visuals;
 };
 
 } // namespace URay

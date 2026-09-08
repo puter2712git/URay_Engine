@@ -68,6 +68,9 @@ bool AssetSystem::CreateDefaultAssets()
     UUID decalTextureUUID = Import("RawAsset://Texture/bullet_hole.png");
     defaultAssets.decalTexture = Find<Texture>(decalTextureUUID);
 
+    UUID directionalLightTextureUUID = Import("Engine://Asset/Source/Texture/DirectionalLightIcon.png");
+    defaultAssets.directionalLightBillboardTexture = Find<Texture>(directionalLightTextureUUID);
+
     std::vector<Shader*> shaders = FindAssets<Shader>();
     Shader* spriteShader = nullptr;
     Shader* billboardShader = nullptr;
@@ -106,6 +109,7 @@ bool AssetSystem::CreateDefaultAssets()
             .type = AssetType::Material,
             .sourcePath = "Billboard Material" },
         billboardShader);
+    billboardMaterial->SetTexture(defaultAssets.directionalLightBillboardTexture);
     Material* meshMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),

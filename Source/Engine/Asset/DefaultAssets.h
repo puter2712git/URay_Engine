@@ -23,6 +23,7 @@ struct DefaultAssets
     Texture* whiteTexture = nullptr;
     Texture* fontTexture = nullptr;
     Texture* decalTexture = nullptr;
+    Texture* directionalLightBillboardTexture = nullptr;
 };
 
 } // namespace URay
