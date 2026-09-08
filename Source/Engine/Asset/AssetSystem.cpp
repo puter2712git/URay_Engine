@@ -43,6 +43,7 @@ bool AssetSystem::Initialize(
     Shader* fontShader = factory->CreateShader("Engine://Asset/Source/Shader/Font.hlsl");
     Shader* decalShader = factory->CreateShader("Engine://Asset/Source/Shader/Decal.hlsl");
     Shader* lineShader = factory->CreateShader("Engine://Asset/Source/Shader/Line.hlsl");
+    Shader* billboardShader = factory->CreateShader("Engine://Asset/Source/Shader/Billboard.hlsl");
     Shader* fogShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/Fog.hlsl");
 
     assets.insert({ spriteShader->GetUUID(), spriteShader });
@@ -50,6 +51,7 @@ bool AssetSystem::Initialize(
     assets.insert({ fontShader->GetUUID(), fontShader });
     assets.insert({ decalShader->GetUUID(), decalShader });
     assets.insert({ lineShader->GetUUID(), lineShader });
+    assets.insert({ billboardShader->GetUUID(), billboardShader });
     assets.insert({ fogShader->GetUUID(), fogShader });
 
     return true;
@@ -68,6 +70,7 @@ bool AssetSystem::CreateDefaultAssets()
 
     std::vector<Shader*> shaders = FindAssets<Shader>();
     Shader* spriteShader = nullptr;
+    Shader* billboardShader = nullptr;
     Shader* meshShader = nullptr;
     Shader* decalShader = nullptr;
 
@@ -76,6 +79,10 @@ bool AssetSystem::CreateDefaultAssets()
         if (shader->GetName() == "Sprite")
         {
             spriteShader = shader;
+        }
+        if (shader->GetName() == "Billboard")
+        {
+            billboardShader = shader;
         }
         if (shader->GetName() == "Mesh")
         {
@@ -93,6 +100,12 @@ bool AssetSystem::CreateDefaultAssets()
             .type = AssetType::Material,
             .sourcePath = "Sprite Material" },
         spriteShader);
+    Material* billboardMaterial = factory->CreateMaterial(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Material,
+            .sourcePath = "Billboard Material" },
+        billboardShader);
     Material* meshMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),
@@ -108,10 +121,12 @@ bool AssetSystem::CreateDefaultAssets()
     decalMaterial->SetTexture(defaultAssets.decalTexture);
 
     assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
+    assets.insert({ billboardMaterial->GetUUID(), billboardMaterial });
     assets.insert({ meshMaterial->GetUUID(), meshMaterial });
     assets.insert({ decalMaterial->GetUUID(), decalMaterial });
 
     defaultAssets.spriteMaterial = spriteMaterial;
+    defaultAssets.billboardMaterial = billboardMaterial;
     defaultAssets.meshMaterial = meshMaterial;
     defaultAssets.decalMaterial = decalMaterial;
 

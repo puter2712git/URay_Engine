@@ -17,6 +17,7 @@ struct DefaultAssets
     Mesh* rotationGizmoMesh = nullptr;
     Mesh* scaleGizmoMesh = nullptr;
     Material* spriteMaterial = nullptr;
+    Material* billboardMaterial = nullptr;
     Material* meshMaterial = nullptr;
     Material* decalMaterial = nullptr;
     Texture* whiteTexture = nullptr;
