@@ -1,6 +1,6 @@
 #include "FogPass.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"

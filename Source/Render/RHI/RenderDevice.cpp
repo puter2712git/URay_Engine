@@ -1,6 +1,6 @@
 #include "RenderDevice.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"

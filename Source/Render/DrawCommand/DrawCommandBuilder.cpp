@@ -1,6 +1,6 @@
 #include "DrawCommandBuilder.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/LineBatcher.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"

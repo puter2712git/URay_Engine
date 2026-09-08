@@ -13,7 +13,7 @@ namespace URay::Render
 {
 
 class CommandBuffer;
-class GPUResourceManager;
+class ResourceManager;
 class DescriptorSet;
 class RenderTarget;
 class Framebuffer;
@@ -24,7 +24,7 @@ struct RenderPassContext
 {
     CommandBuffer& commandBuffer;
 
-    GPUResourceManager& resourceManager;
+    ResourceManager& resourceManager;
 
     DescriptorSet& frameDescriptorSet;
 

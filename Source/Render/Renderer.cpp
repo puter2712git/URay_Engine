@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
@@ -56,7 +56,7 @@ static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
     renderer->framebufferResized = true;
 }
 
-Renderer::Renderer(Window& window, VulkanContext& context, RenderDevice& device, GPUResourceManager& resourceManager)
+Renderer::Renderer(Window& window, VulkanContext& context, RenderDevice& device, ResourceManager& resourceManager)
     : window(window), context(context), device(device), resourceManager(resourceManager)
 {
 }

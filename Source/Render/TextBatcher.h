@@ -19,7 +19,7 @@ namespace URay::Render
 {
 
 class RenderDevice;
-class GPUResourceManager;
+class ResourceManager;
 class ShaderManager;
 class DrawCommandBuilder;
 class DescriptorSet;
@@ -30,7 +30,7 @@ struct TextCommandContext;
 class TextBatcher
 {
 public:
-    TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, URay::Shader* shader);
+    TextBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader);
     ~TextBatcher();
 
 public:
@@ -44,7 +44,7 @@ public:
 
 private:
     RenderDevice& device;
-    GPUResourceManager& resourceManager;
+    ResourceManager& resourceManager;
 
     std::unordered_map<Font*, std::vector<Vertex>> vertices;
 

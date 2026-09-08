@@ -1,7 +1,7 @@
 #include "TextBatcher.h"
 
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
@@ -18,7 +18,7 @@
 namespace URay::Render
 {
 
-TextBatcher::TextBatcher(RenderDevice& device, GPUResourceManager& resourceManager, URay::Shader* shader)
+TextBatcher::TextBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader)
     : device(device), resourceManager(resourceManager), shader(shader)
 {
 }

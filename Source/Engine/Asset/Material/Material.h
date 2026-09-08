@@ -19,7 +19,7 @@ namespace Render
 class DescriptorSetLayout;
 class DescriptorSet;
 class RenderDevice;
-class GPUResourceManager;
+class ResourceManager;
 } // namespace Render
 
 class Material : public Asset
@@ -31,7 +31,7 @@ public:
     ~Material();
 
 public:
-    bool Initialize(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite);
+    bool Initialize(Render::RenderDevice* renderDevice, Render::ResourceManager* resourceManager, Texture* defaultWhite);
 
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* inShader) { shader = inShader; }

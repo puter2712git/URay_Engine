@@ -1,4 +1,4 @@
-#include "GPUResourceManager.h"
+#include "ResourceManager.h"
 
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
@@ -24,7 +24,7 @@
 namespace URay::Render
 {
 
-GPUResourceManager::GPUResourceManager(
+ResourceManager::ResourceManager(
     RenderDevice& device,
     VirtualFilesystem& filesystem)
     : device(device), filesystem(filesystem), shaderCompiler(ShaderCompiler(filesystem))
@@ -32,7 +32,7 @@ GPUResourceManager::GPUResourceManager(
     shaderCompiler.Initialize();
 }
 
-GPUResourceManager::~GPUResourceManager()
+ResourceManager::~ResourceManager()
 {
     DestroyPSOs();
     DestroyPipelineLayouts();
@@ -44,7 +44,7 @@ GPUResourceManager::~GPUResourceManager()
     DestroyMeshBuffers();
 }
 
-MeshBuffer* GPUResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
+MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
 {
     auto it = meshBuffers.find(asset);
     if (it != meshBuffers.end())
@@ -75,7 +75,7 @@ MeshBuffer* GPUResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
     return newMeshBuffer;
 }
 
-void GPUResourceManager::DestroyMeshBuffers()
+void ResourceManager::DestroyMeshBuffers()
 {
     for (auto& [asset, meshBuffer] : meshBuffers)
     {
@@ -89,7 +89,7 @@ void GPUResourceManager::DestroyMeshBuffers()
     meshBuffers.clear();
 }
 
-Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
+Texture* ResourceManager::GetOrCreateTexture(::URay::Texture* texture)
 {
     if (!texture)
         return nullptr;
@@ -121,7 +121,7 @@ Texture* GPUResourceManager::GetOrCreateTexture(::URay::Texture* texture)
     return newTexture;
 }
 
-void GPUResourceManager::DestroyTextures()
+void ResourceManager::DestroyTextures()
 {
     for (auto& [filePath, texture] : textures)
     {
@@ -135,7 +135,7 @@ void GPUResourceManager::DestroyTextures()
     textures.clear();
 }
 
-TextureView* GPUResourceManager::GetOrCreateTextureView(Texture* texture)
+TextureView* ResourceManager::GetOrCreateTextureView(Texture* texture)
 {
     auto it = textureViews.find(texture);
     if (it != textureViews.end())
@@ -149,7 +149,7 @@ TextureView* GPUResourceManager::GetOrCreateTextureView(Texture* texture)
     return textureView;
 }
 
-void GPUResourceManager::DestroyTextureViews()
+void ResourceManager::DestroyTextureViews()
 {
     for (auto& [texture, textureView] : textureViews)
     {
@@ -163,7 +163,7 @@ void GPUResourceManager::DestroyTextureViews()
     textureViews.clear();
 }
 
-VkSampler GPUResourceManager::GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc)
+VkSampler ResourceManager::GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc)
 {
     auto it = textureSamplers.find(samplerDesc);
     if (it != textureSamplers.end())
@@ -178,7 +178,7 @@ VkSampler GPUResourceManager::GetOrCreateTextureSampler(const TextureSamplerDesc
     return sampler;
 }
 
-void GPUResourceManager::DestroyTextureSamplers()
+void ResourceManager::DestroyTextureSamplers()
 {
     for (auto& [desc, sampler] : textureSamplers)
     {
@@ -192,7 +192,7 @@ void GPUResourceManager::DestroyTextureSamplers()
     textureSamplers.clear();
 }
 
-Render::Shader* GPUResourceManager::GetOrCreateShader(URay::Shader* shader)
+Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader)
 {
     auto it = shaders.find(shader);
     if (it != shaders.end())
@@ -269,7 +269,7 @@ Render::Shader* GPUResourceManager::GetOrCreateShader(URay::Shader* shader)
     return newShader;
 }
 
-void GPUResourceManager::DestroyShaders()
+void ResourceManager::DestroyShaders()
 {
     for (auto& [asset, shader] : shaders)
     {
@@ -282,7 +282,7 @@ void GPUResourceManager::DestroyShaders()
     shaders.clear();
 }
 
-DescriptorSetLayout* GPUResourceManager::GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
+DescriptorSetLayout* ResourceManager::GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
 {
     auto it = descriptorSetLayouts.find(desc);
     if (it != descriptorSetLayouts.end())
@@ -297,7 +297,7 @@ DescriptorSetLayout* GPUResourceManager::GetOrCreateDescriptorSetLayout(const De
     return layout;
 }
 
-void GPUResourceManager::DestroyDescriptorSetLayouts()
+void ResourceManager::DestroyDescriptorSetLayouts()
 {
     for (auto& [desc, layout] : descriptorSetLayouts)
     {
@@ -311,7 +311,7 @@ void GPUResourceManager::DestroyDescriptorSetLayouts()
     descriptorSetLayouts.clear();
 }
 
-PipelineLayout* GPUResourceManager::GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc)
+PipelineLayout* ResourceManager::GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc)
 {
     auto it = pipelineLayouts.find(desc);
     if (it != pipelineLayouts.end())
@@ -325,7 +325,7 @@ PipelineLayout* GPUResourceManager::GetOrCreatePipelineLayout(const PipelineLayo
     return layout;
 }
 
-void GPUResourceManager::DestroyPipelineLayouts()
+void ResourceManager::DestroyPipelineLayouts()
 {
     for (auto& [desc, layout] : pipelineLayouts)
     {
@@ -337,7 +337,7 @@ void GPUResourceManager::DestroyPipelineLayouts()
     }
 }
 
-PipelineState* GPUResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc, VkRenderPass renderPass)
+PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc, VkRenderPass renderPass)
 {
     auto it = pipelines.find(psoDesc);
     if (it != pipelines.end())
@@ -361,7 +361,7 @@ PipelineState* GPUResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDe
     return pso;
 }
 
-void GPUResourceManager::DestroyPSOs()
+void ResourceManager::DestroyPSOs()
 {
     for (auto& [key, pso] : pipelines)
     {

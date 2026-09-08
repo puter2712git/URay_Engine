@@ -17,7 +17,7 @@ namespace URay::Render
 {
 
 class RenderDevice;
-class GPUResourceManager;
+class ResourceManager;
 class ShaderManager;
 class DrawCommandBuilder;
 class DescriptorSet;
@@ -28,7 +28,7 @@ struct LineCommandContext;
 class LineBatcher
 {
 public:
-    LineBatcher(RenderDevice& device, GPUResourceManager& resourceManager, URay::Shader* shader);
+    LineBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader);
     ~LineBatcher();
 
 public:
@@ -42,7 +42,7 @@ public:
 
 private:
     RenderDevice& device;
-    GPUResourceManager& resourceManager;
+    ResourceManager& resourceManager;
 
     std::vector<Vertex> vertices;
 

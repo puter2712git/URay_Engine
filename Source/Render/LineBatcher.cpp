@@ -1,7 +1,7 @@
 #include "LineBatcher.h"
 
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/RenderDevice.h"
@@ -13,7 +13,7 @@ namespace URay::Render
 {
 
 LineBatcher::LineBatcher(RenderDevice& device,
-                         GPUResourceManager& resourceManager,
+                         ResourceManager& resourceManager,
                          URay::Shader* shader)
     : device(device),
       resourceManager(resourceManager),

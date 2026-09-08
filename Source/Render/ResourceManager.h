@@ -32,11 +32,11 @@ class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
 
-class GPUResourceManager
+class ResourceManager
 {
 public:
-    GPUResourceManager(RenderDevice& device, VirtualFilesystem& filesystem);
-    ~GPUResourceManager();
+    ResourceManager(RenderDevice& device, VirtualFilesystem& filesystem);
+    ~ResourceManager();
 
 public:
     MeshBuffer* GetOrCreateMeshBuffer(URay::Mesh* asset);

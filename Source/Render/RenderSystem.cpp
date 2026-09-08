@@ -1,6 +1,6 @@
 #include "RenderSystem.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RenderPipeline.h"
@@ -31,7 +31,7 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
     if (!device->Initialize())
         return false;
 
-    resourceManager = std::make_unique<GPUResourceManager>(*device, filesystem);
+    resourceManager = std::make_unique<ResourceManager>(*device, filesystem);
 
     renderer = std::make_unique<Renderer>(window, *vulkanContext, *device, *resourceManager);
     if (!renderer->Initialize(filesystem))

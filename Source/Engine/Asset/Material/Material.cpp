@@ -6,7 +6,7 @@
 
 #include "Core/Type/Types.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
@@ -39,7 +39,7 @@ void Material::RegisterClass()
     Super::RegisterClass();
 }
 
-bool Material::Initialize(Render::RenderDevice* renderDevice, Render::GPUResourceManager* resourceManager, Texture* defaultWhite)
+bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceManager* resourceManager, Texture* defaultWhite)
 {
     if (!renderDevice || !resourceManager || !shader)
         return false;
@@ -76,7 +76,7 @@ void Material::SetTexture(Texture* textureAsset)
     texture = textureAsset;
 
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    Render::GPUResourceManager& resourceManager = renderSystem.GetResourceManager();
+    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
     Render::Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
     Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
 

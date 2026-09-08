@@ -1,7 +1,7 @@
 #include "DecalObject.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/Buffer/ConstantBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"

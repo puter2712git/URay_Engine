@@ -1,6 +1,6 @@
 #include "OpaquePass.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
@@ -59,7 +59,7 @@ void OpaquePass::Execute(
     const std::vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
-    GPUResourceManager& resourceManager = context.resourceManager;
+    ResourceManager& resourceManager = context.resourceManager;
 
     for (const DrawCommand& cmd : drawCmds)
     {

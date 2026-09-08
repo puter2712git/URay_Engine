@@ -23,7 +23,7 @@ class Engine;
 namespace Render
 {
 class RenderDevice;
-class GPUResourceManager;
+class ResourceManager;
 class ShaderManager;
 } // namespace Render
 

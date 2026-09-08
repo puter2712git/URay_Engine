@@ -31,7 +31,7 @@ class PipelineLayout;
 class DescriptorSetLayout;
 class DescriptorSet;
 class RenderTarget;
-class GPUResourceManager;
+class ResourceManager;
 class ShaderManager;
 class RenderScene;
 class Framebuffer;
@@ -44,7 +44,7 @@ class TextureView;
 class Renderer
 {
 public:
-    Renderer(Window& window, VulkanContext& context, RenderDevice& device, GPUResourceManager& resourceManager);
+    Renderer(Window& window, VulkanContext& context, RenderDevice& device, ResourceManager& resourceManager);
     ~Renderer();
 
 public:
@@ -145,7 +145,7 @@ private:
     Window& window;
     VulkanContext& context;
     RenderDevice& device;
-    GPUResourceManager& resourceManager;
+    ResourceManager& resourceManager;
 
     std::unique_ptr<SwapChain> swapChain = nullptr;
     std::vector<std::unique_ptr<Framebuffer>> swapChainFramebuffers;

@@ -21,7 +21,7 @@ namespace URay::Render
 class RenderSystem;
 class RenderDevice;
 class Renderer;
-class GPUResourceManager;
+class ResourceManager;
 class ShaderManager;
 class LineBatcher;
 class TextBatcher;
@@ -58,7 +58,7 @@ private:
     AssetSystem& assetSystem;
     RenderDevice& device;
     Renderer& renderer;
-    GPUResourceManager& resourceManager;
+    ResourceManager& resourceManager;
 
     std::vector<DrawCommand> drawCmds;
 

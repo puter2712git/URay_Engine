@@ -1,6 +1,6 @@
 #include "OverlayPass.h"
 
-#include "Render/GPUResourceManager.h"
+#include "Render/ResourceManager.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
@@ -33,7 +33,7 @@ void OverlayPass::Execute(
     const std::vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
-    GPUResourceManager& resourceManager = context.resourceManager;
+    ResourceManager& resourceManager = context.resourceManager;
 
     for (const DrawCommand& cmd : drawCmds)
     {

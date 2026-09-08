@@ -15,7 +15,7 @@ namespace Render
 class VulkanContext;
 class Renderer;
 class RenderDevice;
-class GPUResourceManager;
+class ResourceManager;
 class ShaderManager;
 class RenderPipeline;
 
@@ -39,7 +39,7 @@ public:
 
     Renderer& GetRenderer() const { return *renderer; }
     RenderDevice& GetDevice() const { return *device; }
-    GPUResourceManager& GetResourceManager() const { return *resourceManager; }
+    ResourceManager& GetResourceManager() const { return *resourceManager; }
 
     RenderPipeline& GetPipeline() const { return *pipeline; }
 
@@ -50,7 +50,7 @@ private:
     std::unique_ptr<Renderer> renderer = nullptr;
     std::unique_ptr<RenderDevice> device = nullptr;
 
-    std::unique_ptr<GPUResourceManager> resourceManager = nullptr;
+    std::unique_ptr<ResourceManager> resourceManager = nullptr;
 
     std::unique_ptr<RenderPipeline> pipeline = nullptr;
 };
