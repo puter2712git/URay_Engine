@@ -9,7 +9,6 @@
 #include "Render/RenderInfo.h"
 #include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
-#include "Render/Shader/ShaderManager.h"
 #include "Render/TextBatcher.h"
 
 #include "Core/Type/Types.h"

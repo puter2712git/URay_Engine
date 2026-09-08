@@ -5,7 +5,6 @@
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
-#include "Render/Shader/ShaderManager.h"
 
 #include "Engine/Engine.h"
 

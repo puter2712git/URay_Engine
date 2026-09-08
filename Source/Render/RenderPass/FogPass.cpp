@@ -12,7 +12,6 @@
 #include "Render/RenderSystem.h"
 #include "Render/Scene/Object/FogObject.h"
 #include "Render/Shader/Shader.h"
-#include "Render/Shader/ShaderManager.h"
 
 #include <stdexcept>
 

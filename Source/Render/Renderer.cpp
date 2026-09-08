@@ -23,7 +23,6 @@
 #include "Render/RenderPass/RenderPass.h"
 #include "Render/Scene/RenderScene.h"
 #include "Render/Shader/Shader.h"
-#include "Render/Shader/ShaderManager.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Type/Types.h"
