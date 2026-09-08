@@ -22,8 +22,10 @@ MaterialImporter::MaterialImporter(VirtualFilesystem& filesystem)
 
 ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& context)
 {
-    const VirtualPath metaPath("Asset://" + path.GetRelativePath() + ".meta");
-    const VirtualPath assetPath("Asset://" + path.GetRelativePath() + ".asset");
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(path);
+    const VirtualPath metaPath(importPath.ToString() + ".meta");
+    const VirtualPath assetPath(importPath.ToString() + ".asset");
 
     AssetMetadata metadata = {};
     if (!filesystem.Exists(metaPath))
@@ -53,7 +55,6 @@ ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& co
         filesystem.WriteBinary(assetPath, serializer.Serialize(cookData));
     }
 
-    AssetSystem& assetSystem = context.GetAssetSystem();
     std::vector<Shader*> shaders = assetSystem.FindAssets<Shader>();
     Shader* meshShader = nullptr;
 

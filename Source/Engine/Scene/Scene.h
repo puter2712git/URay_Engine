@@ -13,6 +13,7 @@ namespace URay
 {
 
 class Unit;
+class SceneSystem;
 
 namespace Render
 {
@@ -35,7 +36,7 @@ struct UpdateGroup
 class Scene : public Object
 {
 public:
-    Scene(SceneType type, const VirtualPath& filePath);
+    Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath);
     ~Scene();
 
 public:
@@ -47,6 +48,8 @@ public:
     void AddUnit(Unit* unit);
     void DestroyUnit(Unit* unit);
 
+    SceneSystem& GetSceneSystem() { return sceneSystem; }
+
     const VirtualPath& GetFilePath() const { return filePath; }
     void SetFilePath(const VirtualPath& filePath) { this->filePath = filePath; }
 
@@ -55,7 +58,8 @@ public:
     const std::vector<Unit*>& GetUnits() const { return units; }
 
 private:
-    VirtualPath filePath = {};
+    SceneSystem& sceneSystem;
+    VirtualPath filePath;
 
     std::unique_ptr<Render::RenderScene> renderScene = nullptr;
 

@@ -20,6 +20,12 @@ void SceneSystem::Update(float deltaTime)
     }
 }
 
+std::unique_ptr<Scene> SceneSystem::CreateScene(SceneType type, const VirtualPath& filePath)
+{
+    std::unique_ptr<Scene> newScene = std::make_unique<Scene>(*this, type, filePath);
+    return newScene;
+}
+
 void SceneSystem::SwitchScene(std::unique_ptr<Scene> scene)
 {
     if (!scene)

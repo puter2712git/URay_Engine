@@ -3,6 +3,7 @@
 #include "Engine/Component/ComponentFactory.h"
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Core/Log/Log.h"
@@ -14,8 +15,8 @@
 namespace URay
 {
 
-Scene::Scene(SceneType type, const VirtualPath& filePath)
-    : type(type), filePath(filePath)
+Scene::Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath)
+    : sceneSystem(sceneSystem), type(type), filePath(filePath)
 {
     renderScene = std::make_unique<Render::RenderScene>();
 }
@@ -221,8 +222,10 @@ void Scene::AddUnit(Unit* unit)
     unit->SetOwner(this);
     units.push_back(unit);
 
+    sceneSystem.EmitUnitAddRay(this, unit);
+
     const auto& components = unit->GetComponents();
-    for (const auto& comp : components)
+    for (Component* comp : components)
     {
         if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
         {
@@ -236,6 +239,8 @@ void Scene::DestroyUnit(Unit* unit)
 {
     if (!unit)
         return;
+
+    sceneSystem.EmitUnitRemoveRay(this, unit);
 
     auto it = std::find(units.begin(), units.end(), unit);
     if (it != units.end())

@@ -27,10 +27,10 @@ ImportResult TextureImporter::Import(const VirtualPath& path, ImportContext& con
 {
     ImportResult result = {};
 
-    VirtualPath importMetaPath = VirtualPath(
-        "Asset://" + path.GetRelativePath() + ".meta");
-    VirtualPath importAssetPath = VirtualPath(
-        "Asset://" + path.GetRelativePath() + ".asset");
+    VirtualPath importSourcePath = context.GetAssetSystem().GetImportAssetPath(path);
+
+    VirtualPath importMetaPath = VirtualPath(importSourcePath.ToString() + ".meta");
+    VirtualPath importAssetPath = VirtualPath(importSourcePath.ToString() + ".asset");
 
     AssetMetadata metadata = {};
     Texture* texture = nullptr;

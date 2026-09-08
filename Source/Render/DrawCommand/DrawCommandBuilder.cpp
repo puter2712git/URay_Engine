@@ -139,7 +139,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     stateDesc.topology = PrimitiveTopology::TriangleList;
     stateDesc.vertexLayout = VertexLayout::PNT;
     stateDesc.depthStencil = depthStencil;
-    stateDesc.blend.mode = BlendMode::Opaque;
+    stateDesc.blend.mode = BlendMode::AlphaBlend;
 
     stateDesc.rasterizer.polygonMode =
         viewMode == ViewMode::Wireframe

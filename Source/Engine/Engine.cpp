@@ -57,6 +57,7 @@ bool Engine::Initialize(
         return false;
 
     assetSystem->CreateDefaultAssets();
+    assetSystem->LoadAssets("Engine://Asset/Source");
     assetSystem->LoadAssets("RawAsset://");
 
     sceneSystem = std::make_unique<SceneSystem>();

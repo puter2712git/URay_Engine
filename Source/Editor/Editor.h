@@ -17,6 +17,7 @@ class UIInputRouter;
 class EditorSettings;
 class SelectionSystem;
 class WidgetDrawer;
+class EditorSceneRenderer;
 
 class Editor
 {
@@ -60,6 +61,8 @@ private:
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
+
+    std::unique_ptr<EditorSceneRenderer> sceneRenderer = nullptr;
 
     bool isPlaying = false;
     bool useEditorCamera = false;

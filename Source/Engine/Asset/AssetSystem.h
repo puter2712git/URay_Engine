@@ -42,6 +42,8 @@ public:
 
     UUID Import(const VirtualPath& path);
 
+    VirtualPath GetImportAssetPath(const VirtualPath& sourcePath) const;
+
     template <typename T>
     T* Find(const UUID& uuid) const
     {

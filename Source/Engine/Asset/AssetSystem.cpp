@@ -263,4 +263,26 @@ UUID AssetSystem::Import(const VirtualPath& path)
     return primaryUUID;
 }
 
+VirtualPath AssetSystem::GetImportAssetPath(const VirtualPath& sourcePath) const
+{
+    if (sourcePath.GetMountName() == "RawAsset")
+        return VirtualPath("Asset://" + sourcePath.GetRelativePath());
+
+    constexpr const char* sourceDirectory = "/Source/";
+    constexpr const char* importDirectory = "/Imported/";
+
+    std::string importPath = sourcePath.ToString();
+    const size_t sourceDirectoryPos = importPath.find(sourceDirectory);
+
+    if (sourceDirectoryPos == std::string::npos)
+        return sourcePath;
+
+    importPath.replace(
+        sourceDirectoryPos,
+        std::char_traits<char>::length(sourceDirectory),
+        importDirectory);
+
+    return VirtualPath(importPath);
+}
+
 } // namespace URay

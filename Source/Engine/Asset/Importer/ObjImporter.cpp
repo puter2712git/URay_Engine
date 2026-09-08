@@ -35,10 +35,10 @@ ImportResult ObjImporter::Import(
 
     ImportResult result = {};
 
-    VirtualPath importMetaPath = VirtualPath(
-        "Asset://" + path.GetRelativePath() + ".meta");
-    VirtualPath importAssetPath = VirtualPath(
-        "Asset://" + path.GetRelativePath() + ".asset");
+    AssetSystem& assetSystem = context.GetAssetSystem();
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(path);
+    const VirtualPath importMetaPath(importPath.ToString() + ".meta");
+    const VirtualPath importAssetPath(importPath.ToString() + ".asset");
 
     AssetMetadata metadata = {};
     MeshCookData meshCookData = {};
@@ -61,7 +61,6 @@ ImportResult ObjImporter::Import(
         metadata.Deserialize(metadataNode);
     }
 
-    AssetSystem& assetSystem = context.GetAssetSystem();
     const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
     MaterialImportResult materialImportResult = {};
 

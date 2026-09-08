@@ -3,6 +3,7 @@
 #include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
+#include "Editor/Render/EditorSceneRenderer.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
@@ -88,6 +89,10 @@ bool Editor::Initialize()
     std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>(*widgetDrawer);
     pipeline.AddRenderPass(std::move(uiPass));
 
+    sceneRenderer = std::make_unique<EditorSceneRenderer>(engine);
+    if (!sceneRenderer->Initialize())
+        return false;
+
     EditorSettingsContext settingsContext = {
         .rootWidget = *rootWidget
     };
@@ -104,7 +109,7 @@ bool Editor::Initialize()
         const std::string sceneText = filesystem.ReadText(settingsContext.startScenePath);
         YAML::Node sceneNode = YAML::Load(sceneText);
 
-        std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, settingsContext.startScenePath);
+        std::unique_ptr<Scene> loadedScene = engine.GetSceneSystem().CreateScene(SceneType::Game, settingsContext.startScenePath);
         loadedScene->Deserialize(sceneNode);
 
         SceneSystem& sceneSystem = engine.GetSceneSystem();
@@ -112,7 +117,7 @@ bool Editor::Initialize()
     }
     else
     {
-        std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, "");
+        std::unique_ptr<Scene> loadedScene = engine.GetSceneSystem().CreateScene(SceneType::Game, "");
 
         SceneSystem& sceneSystem = engine.GetSceneSystem();
         sceneSystem.SwitchScene(std::move(loadedScene));
@@ -137,6 +142,12 @@ void Editor::Finalize()
     };
 
     editorSettings->Save(settingsContext);
+
+    if (sceneRenderer)
+    {
+        sceneRenderer->Finalize();
+        sceneRenderer.reset();
+    }
 
     if (widgetDrawer)
     {
@@ -192,7 +203,7 @@ void Editor::StartGame()
 
     YAML::Node gameSceneNode = gameScene->Serialize();
 
-    std::unique_ptr<Scene> playScene = std::make_unique<Scene>(SceneType::Play, "");
+    std::unique_ptr<Scene> playScene = engine.GetSceneSystem().CreateScene(SceneType::Play, "");
     playScene->Deserialize(gameSceneNode);
 
     sceneSystem.LoadScene(std::move(playScene));
@@ -271,7 +282,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
 CameraComponent& Editor::PrepareEditorScene()
 {
-    std::unique_ptr<Scene> editorScene = std::make_unique<Scene>(SceneType::Editor, "");
+    std::unique_ptr<Scene> editorScene = engine.GetSceneSystem().CreateScene(SceneType::Editor, "");
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");

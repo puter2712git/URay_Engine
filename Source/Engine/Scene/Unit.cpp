@@ -4,6 +4,7 @@
 #include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -70,6 +71,13 @@ void Unit::InvokeCallbacks()
     {
         callback();
     }
+
+    Scene* scene = GetOwner();
+    if (!scene)
+        return;
+
+    SceneSystem& sceneSystem = scene->GetSceneSystem();
+    sceneSystem.EmitUnitWorldTransformUpdateRay(scene, this);
 }
 
 bool Unit::SetParent(Unit* unit)

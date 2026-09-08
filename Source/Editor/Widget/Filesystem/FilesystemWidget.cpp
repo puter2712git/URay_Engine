@@ -123,7 +123,7 @@ void FilesystemWidget::OnFileDoubleClicked(const VirtualPath& path)
         const std::string sceneText = filesystem.ReadText(path);
         YAML::Node sceneNode = YAML::Load(sceneText);
 
-        std::unique_ptr<Scene> loadedScene = std::make_unique<Scene>(SceneType::Game, path);
+        std::unique_ptr<Scene> loadedScene = engine.GetSceneSystem().CreateScene(SceneType::Game, path);
         loadedScene->Deserialize(sceneNode);
 
         SceneSystem& sceneSystem = engine.GetSceneSystem();
