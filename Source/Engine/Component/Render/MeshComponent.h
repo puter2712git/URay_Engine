@@ -31,7 +31,7 @@ public:
     Mesh* GetMesh() const { return mesh; }
     void SetMesh(Mesh* newMesh);
 
-    Material* GetMaterial(size_t index = 0) { return materials.size() > index ? materials[index] : nullptr; }
+    Material* GetMaterial(size_t index = 0) const { return materials.size() > index ? materials[index] : nullptr; }
     const std::vector<Material*>& GetMaterials() const { return materials; }
 
     void SetMaterial(Material* newMaterial, size_t index = 0);

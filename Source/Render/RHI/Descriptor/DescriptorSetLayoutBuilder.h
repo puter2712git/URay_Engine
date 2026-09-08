@@ -16,7 +16,7 @@ class DescriptorSetLayoutBuilder
 public:
     DescriptorSetLayoutBuilder& AddBinding(const ResourceBinding& binding);
 
-    DescriptorSetLayout* Build(VkDevice device);
+    DescriptorSetLayout* Build(VkDevice device) const;
 
 private:
     std::vector<VkDescriptorSetLayoutBinding> bindings;

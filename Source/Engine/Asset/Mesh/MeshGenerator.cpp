@@ -20,7 +20,7 @@ Render::VertexPNT TransformVertex(const Render::VertexPNT& source, const Matrix&
 }
 } // namespace
 
-MeshInfo MeshGenerator::CreateCube()
+MeshInfo MeshGenerator::CreateCube() const
 {
     // clang-format off
     std::vector<Render::VertexPNT> vertices = {
@@ -80,7 +80,7 @@ MeshInfo MeshGenerator::CreateCube()
     return info;
 }
 
-MeshInfo MeshGenerator::CreateQuad()
+MeshInfo MeshGenerator::CreateQuad() const
 {
     // clang-format off
     std::vector<Render::VertexPNT> vertices = {
@@ -110,7 +110,7 @@ MeshInfo MeshGenerator::CreateQuad()
     return info;
 }
 
-MeshInfo MeshGenerator::CreateCylinder()
+MeshInfo MeshGenerator::CreateCylinder() const
 {
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;
@@ -190,7 +190,7 @@ MeshInfo MeshGenerator::CreateCylinder()
     return info;
 }
 
-MeshInfo MeshGenerator::CreateCone()
+MeshInfo MeshGenerator::CreateCone() const
 {
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;
@@ -248,7 +248,7 @@ MeshInfo MeshGenerator::CreateCone()
     return info;
 }
 
-MeshInfo MeshGenerator::CreateArrow()
+MeshInfo MeshGenerator::CreateArrow() const
 {
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;
@@ -291,7 +291,7 @@ MeshInfo MeshGenerator::CreateArrow()
     return info;
 }
 
-MeshInfo MeshGenerator::CreateRotationGizmo()
+MeshInfo MeshGenerator::CreateRotationGizmo() const
 {
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;
@@ -341,7 +341,7 @@ MeshInfo MeshGenerator::CreateRotationGizmo()
     return info;
 }
 
-MeshInfo MeshGenerator::CreateScaleGizmo()
+MeshInfo MeshGenerator::CreateScaleGizmo() const
 {
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;

@@ -78,7 +78,7 @@ ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& co
     return ImportResult{ .entries = { AssetEntry{ .asset = material, .metadata = metadata } } };
 }
 
-bool MaterialImporter::CanImport(const std::string& extension)
+bool MaterialImporter::CanImport(const std::string& extension) const
 {
     return extension == ".mat";
 }

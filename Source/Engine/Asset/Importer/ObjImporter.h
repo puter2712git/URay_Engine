@@ -88,21 +88,21 @@ private:
 public:
     ImportResult Import(const VirtualPath& path, ImportContext& context) override;
 
-    bool CanImport(const std::string& extension) override;
+    bool CanImport(const std::string& extension) const override;
 
 private:
     void Reset();
 
     void ParseSource(const VirtualPath& path);
     MeshCookData BuildMeshCookData(
-        const std::unordered_map<std::string, uint32>& materialSlots);
+        const std::unordered_map<std::string, uint32>& materialSlots) const;
     MaterialImportResult LoadCookedMaterials(
         const std::vector<MeshMaterialReference>& references,
         ImportContext& context);
 
     void ParseObj(const VirtualPath& objPath);
-    Face ParseFace(const std::string& line);
-    ObjIndex ParseObjIndex(const std::string& token);
+    Face ParseFace(const std::string& line) const;
+    ObjIndex ParseObjIndex(const std::string& token) const;
 
     void ParseMtl(const VirtualPath& mtlPath);
     MaterialImportResult CreateMaterials(const VirtualPath& meshPath, ImportContext& context);

@@ -114,7 +114,7 @@ ImportResult ObjImporter::Import(
     return result;
 }
 
-bool ObjImporter::CanImport(const std::string& extension)
+bool ObjImporter::CanImport(const std::string& extension) const
 {
     if (extension == ".obj")
     {
@@ -149,7 +149,7 @@ void ObjImporter::ParseSource(const VirtualPath& path)
 }
 
 MeshCookData ObjImporter::BuildMeshCookData(
-    const std::unordered_map<std::string, uint32>& materialSlots)
+    const std::unordered_map<std::string, uint32>& materialSlots) const
 {
 
     std::vector<VertexPNT> vertices;
@@ -287,7 +287,7 @@ void ObjImporter::ParseObj(const VirtualPath& objPath)
     }
 }
 
-ObjImporter::Face ObjImporter::ParseFace(const std::string& line)
+ObjImporter::Face ObjImporter::ParseFace(const std::string& line) const
 {
     Face face;
 
@@ -304,7 +304,7 @@ ObjImporter::Face ObjImporter::ParseFace(const std::string& line)
     return face;
 }
 
-ObjImporter::ObjIndex ObjImporter::ParseObjIndex(const std::string& token)
+ObjImporter::ObjIndex ObjImporter::ParseObjIndex(const std::string& token) const
 {
     ObjIndex objIndex = {};
 

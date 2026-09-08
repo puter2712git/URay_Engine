@@ -21,13 +21,13 @@ struct MeshInfo
 class MeshGenerator
 {
 public:
-    MeshInfo CreateQuad();
-    MeshInfo CreateCube();
-    MeshInfo CreateCylinder();
-    MeshInfo CreateCone();
-    MeshInfo CreateArrow();
-    MeshInfo CreateRotationGizmo();
-    MeshInfo CreateScaleGizmo();
+    MeshInfo CreateQuad() const;
+    MeshInfo CreateCube() const;
+    MeshInfo CreateCylinder() const;
+    MeshInfo CreateCone() const;
+    MeshInfo CreateArrow() const;
+    MeshInfo CreateRotationGizmo() const;
+    MeshInfo CreateScaleGizmo() const;
 };
 
 } // namespace URay

@@ -30,7 +30,7 @@ public:
 public:
     virtual ImportResult Import(const VirtualPath& path, ImportContext& context) = 0;
 
-    virtual bool CanImport(const std::string& extension) = 0;
+    virtual bool CanImport(const std::string& extension) const = 0;
 };
 
 } // namespace URay

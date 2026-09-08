@@ -16,7 +16,7 @@ public:
     explicit MaterialImporter(VirtualFilesystem& filesystem);
 
     ImportResult Import(const VirtualPath& path, ImportContext& context) override;
-    bool CanImport(const std::string& extension) override;
+    bool CanImport(const std::string& extension) const override;
 
 private:
     bool LoadSource(const VirtualPath& path, MaterialCookData& data) const;

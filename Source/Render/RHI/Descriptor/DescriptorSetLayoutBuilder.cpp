@@ -35,7 +35,7 @@ DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::AddBinding(
     return *this;
 }
 
-DescriptorSetLayout* DescriptorSetLayoutBuilder::Build(VkDevice device)
+DescriptorSetLayout* DescriptorSetLayoutBuilder::Build(VkDevice device) const
 {
     VkDescriptorSetLayoutCreateInfo layoutInfo = {};
     layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

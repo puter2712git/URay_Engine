@@ -22,10 +22,10 @@ public:
 public:
     ImportResult Import(const VirtualPath& path, ImportContext& context) override;
 
-    bool CanImport(const std::string& extension) override;
+    bool CanImport(const std::string& extension) const override;
 
 private:
-    TextureCookData LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context);
+    TextureCookData LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context) const;
 
 private:
     VirtualFilesystem& filesystem;

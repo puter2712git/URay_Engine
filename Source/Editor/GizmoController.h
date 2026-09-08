@@ -66,7 +66,7 @@ public:
     int GetModeIndex() const { return static_cast<int>(mode); }
     void SetMode(GizmoMode mode) { this->mode = mode; }
 
-    Mesh* GetMesh() { return meshes[static_cast<size_t>(mode)]; }
+    Mesh* GetMesh() const { return meshes[static_cast<size_t>(mode)]; }
 
     const Matrix& GetWorldMatrix(size_t axis) const { return matrices[GetModeIndex()][axis]; }
 
@@ -81,7 +81,7 @@ private:
 
     void UpdateRenderObject();
 
-    Vector3 GetCurrAxisDir();
+    Vector3 GetCurrAxisDir() const;
     bool GetDragPlaneHitPoint(const Vector3& lineDir, Vector3& outHitPoint) const;
 
 private:

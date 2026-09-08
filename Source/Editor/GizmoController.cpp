@@ -319,7 +319,7 @@ bool GizmoController::GetDragPlaneHitPoint(const Vector3& lineDir, Vector3& outH
     return Math::IntersectLinePlane(dragStartWorldPos, lineDir, targetInitPosition, dragAxisDir, outHitPoint);
 }
 
-Vector3 GizmoController::GetCurrAxisDir()
+Vector3 GizmoController::GetCurrAxisDir() const
 {
     if (selectedAxis == -1)
         return Vector3::Zero;

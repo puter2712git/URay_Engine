@@ -55,7 +55,7 @@ public:
 
     void AddRenderPass(std::unique_ptr<RenderPass> pass);
 
-    DrawCommandBuilder& GetBuilder() { return *builder; }
+    DrawCommandBuilder& GetBuilder() const { return *builder; }
 
 private:
     FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;

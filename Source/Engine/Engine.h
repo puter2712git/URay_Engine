@@ -39,7 +39,7 @@ public:
 
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }
-    InputManager& GetInputManager() { return *inputManager; }
+    InputManager& GetInputManager() const { return *inputManager; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
     AssetSystem& GetAssetSystem() const { return *assetSystem; }

@@ -83,7 +83,7 @@ ImportResult TextureImporter::Import(const VirtualPath& path, ImportContext& con
     return result;
 }
 
-bool TextureImporter::CanImport(const std::string& extension)
+bool TextureImporter::CanImport(const std::string& extension) const
 {
     if (extension == ".png" || extension == ".jpg")
     {
@@ -93,7 +93,7 @@ bool TextureImporter::CanImport(const std::string& extension)
     return false;
 }
 
-TextureCookData TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context)
+TextureCookData TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context) const
 {
     std::vector<uint8> fileBytes = filesystem.ReadBinary(path);
 
