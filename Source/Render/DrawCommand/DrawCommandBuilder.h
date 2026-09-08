@@ -43,6 +43,7 @@ public:
     void FlushTexts();
 
     void BuildMesh(const MeshCommandContext& context);
+    void BuildBillboard(const BillboardCommandContext& context);
     void BuildText(const TextCommandContext& context);
 
     void BuildDecal(const DecalCommandContext& context);

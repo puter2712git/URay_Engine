@@ -30,6 +30,18 @@ struct MeshCommandContext
     uint32 indexCount = 0;
 };
 
+struct BillboardCommandContext
+{
+    Matrix worldMatrix = Matrix::Identity;
+    Color colorTint = Color::White;
+
+    Mesh* mesh = nullptr;
+    Material* material = nullptr;
+
+    uint32 indexOffset = 0;
+    uint32 indexCount = 0;
+};
+
 struct LineCommandContext
 {
     Vector3 start = Vector3::Zero;

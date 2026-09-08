@@ -33,7 +33,7 @@ void BillboardObject::Submit(DrawCommandBuilder& builder) const
             !materials[section.materialIndex])
             continue;
 
-        builder.BuildMesh({
+        builder.BuildBillboard({
             .worldMatrix = worldMatrix,
             .colorTint = materials[section.materialIndex]->GetBaseColor(),
             .mesh = mesh,

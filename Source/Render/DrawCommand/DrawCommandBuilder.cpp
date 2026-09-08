@@ -160,6 +160,47 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     drawCmds.push_back(cmd);
 }
 
+void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
+{
+    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
+    Render::Shader* shader = resourceManager.GetOrCreateShader(
+        context.material->GetShader(),
+        {});
+
+    DrawCommand cmd = {};
+    cmd.passId = RenderPassId::Overlay;
+    cmd.worldMatrix = context.worldMatrix;
+    cmd.colorTint = context.colorTint;
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
+    cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer();
+    cmd.indexOffset = context.indexOffset;
+    cmd.indexCount = context.indexCount;
+
+    DepthStencilState depthStencil = {};
+    depthStencil.depthTestEnable = false;
+    depthStencil.depthWriteEnable = false;
+
+    RasterizerState rasterizer = {};
+    rasterizer.cullMode = CullMode::None;
+
+    BlendState blend = {};
+    blend.mode = BlendMode::AlphaBlend;
+
+    PipelineStateDesc state = {};
+    state.shader = shader;
+    state.topology = PrimitiveTopology::TriangleList;
+    state.vertexLayout = VertexLayout::PNT;
+    state.depthStencil = depthStencil;
+    state.rasterizer = rasterizer;
+    state.blend = blend;
+
+    cmd.pipelineState = state;
+    cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+
+    drawCmds.push_back(cmd);
+}
+
 void DrawCommandBuilder::BuildLine(const LineCommandContext& context)
 {
     if (lineBatcher)
