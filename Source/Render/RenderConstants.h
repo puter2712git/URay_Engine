@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/Color.h"
+#include "Core/Math/Color3.h"
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
@@ -14,6 +15,12 @@ struct ObjectConstants
     Matrix world = Matrix::Identity;
     Color colorTint = Color::White;
     uint32 objectId = 0;
+};
+
+struct AmbientLightConstants
+{
+    float intensity = 0.0f;
+    Color3 color = Color3::White;
 };
 
 struct DirectionalLightConstants
@@ -35,6 +42,7 @@ struct FrameConstants
     float farPlane = 1000.0f;
     Vector2 renderTargetSize = Vector2::Zero;
 
+    AmbientLightConstants ambientLight = {};
     DirectionalLightConstants directionalLight = {};
 };
 

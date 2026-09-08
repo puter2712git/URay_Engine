@@ -15,6 +15,7 @@ struct FrameConstants
     float farPlane;
     float2 renderTargetSize;
     
+    AmbientLightConstants ambientLight;
     DirectionalLightConstants directionalLight;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;

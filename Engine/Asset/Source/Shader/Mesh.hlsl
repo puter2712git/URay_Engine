@@ -17,7 +17,7 @@ float3 EvaluateLighting(float3 albedo, float3 normal)
 {
 #if URAY_SHADING_MODEL == 1
     float nDotL = saturate(dot(normalize(normal), -normalize(frame.directionalLight.direction)));
-    float3 ambient = 0.05.xxx;
+    float3 ambient = frame.ambientLight.color * frame.ambientLight.intensity;
     float3 directLight = frame.directionalLight.color.rgb * frame.directionalLight.intensity * nDotL;
 
     return albedo * (ambient + directLight);
