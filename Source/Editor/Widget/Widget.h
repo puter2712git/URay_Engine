@@ -11,11 +11,6 @@
 namespace URay
 {
 
-namespace Render
-{
-class DrawCommandBuilder;
-}
-
 class Widget
 {
     friend class UIInputRouter;
@@ -25,7 +20,6 @@ public:
 
 public:
     void Update(float deltaTime);
-    void PrepareRender(Render::DrawCommandBuilder& builder);
     void Draw();
 
     void AddChild(std::unique_ptr<Widget> child);
@@ -53,7 +47,6 @@ protected:
     void ApplyRect() const;
 
     virtual void OnUpdate(float) {}
-    virtual void OnPrepareRender(Render::DrawCommandBuilder& builder) {}
     virtual void OnDraw() {}
 
 protected:

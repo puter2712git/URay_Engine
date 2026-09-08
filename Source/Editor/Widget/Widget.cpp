@@ -15,16 +15,6 @@ void Widget::Update(float deltaTime)
     }
 }
 
-void Widget::PrepareRender(Render::DrawCommandBuilder& builder)
-{
-    OnPrepareRender(builder);
-
-    for (const auto& child : children)
-    {
-        child->PrepareRender(builder);
-    }
-}
-
 void Widget::Draw()
 {
     OnDraw();

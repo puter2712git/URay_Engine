@@ -253,11 +253,6 @@ void ViewportWidget::OnUpdate(float deltaTime)
     UpdateCameraRotation();
 }
 
-void ViewportWidget::OnPrepareRender(Render::DrawCommandBuilder& builder)
-{
-    // gizmo->Draw(builder);
-}
-
 void ViewportWidget::OnDraw()
 {
     ApplyRect();

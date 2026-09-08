@@ -172,8 +172,6 @@ void Editor::PrepareRender()
 
     selectionSystem->PrepareRender(builder);
 
-    rootWidget->PrepareRender(builder);
-
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     rootWidget->Arrange({
         Vector2(viewport->WorkPos.x, viewport->WorkPos.y),

@@ -45,7 +45,6 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
-    void OnPrepareRender(Render::DrawCommandBuilder& builder) override;
     void OnDraw() override;
 
 private:
