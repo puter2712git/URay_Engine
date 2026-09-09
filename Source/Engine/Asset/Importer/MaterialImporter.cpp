@@ -67,13 +67,13 @@ ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& co
     }
 
     Material* material = assetSystem.GetAssetFactory().CreateMaterial(metadata, meshShader);
-    material->SetBaseColor(cookData.baseColor);
+    // material->SetBaseColor(cookData.baseColor);
 
     if (!cookData.baseColorTexturePath.ToString().empty())
     {
         const UUID textureUUID = assetSystem.Import(cookData.baseColorTexturePath);
         if (Texture* texture = assetSystem.Find<Texture>(textureUUID))
-            material->SetTexture(texture);
+            material->SetParameter("DiffuseColorTexture", { .type = MaterialParameterType::Texture2D, .value = texture });
     }
 
     return ImportResult{ .entries = { AssetEntry{ .asset = material, .metadata = metadata } } };

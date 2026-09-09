@@ -24,7 +24,7 @@ SpriteComponent::SpriteComponent()
     texture = assetSystem.GetDefaultAssets().whiteTexture;
     quadMesh = assetSystem.GetDefaultAssets().quadMesh;
     material = assetSystem.GetDefaultAssets().spriteMaterial;
-    material->SetTexture(texture);
+    material->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = texture });
 }
 
 void SpriteComponent::RegisterClass()
@@ -38,7 +38,9 @@ void SpriteComponent::RegisterClass()
                                  .OnChangedCallback = [](Object* owner, const Property& property)
                                  {
                                      SpriteComponent* spriteComp = static_cast<SpriteComponent*>(owner);
-                                     spriteComp->material->SetTexture(spriteComp->texture);
+                                     spriteComp->material->SetParameter(
+                                         "textureImage",
+                                         { .type = MaterialParameterType::Texture2D, .value = spriteComp->texture });
                                  } });
 }
 

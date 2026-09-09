@@ -13,17 +13,31 @@
 namespace URay::Render
 {
 
-struct ShaderStage
+struct ReflectedBlockMember
 {
-    std::string filePath;
-    std::vector<uint8> code;
-    VkShaderStageFlags stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    std::string entry;
+    std::string name;
+    uint32 offset = 0;
+    uint32 size = 0;
+};
+
+struct ReflectedBinding
+{
+    std::string name;
+    uint32 set = 0;
+    uint32 binding = 0;
+    ResourceType resourceType = ResourceType::ConstantBuffer;
+    uint32 arrayCount = 1;
+    ShaderStageFlags flags = ShaderStageFlags::All;
+
+    // For constant buffer
+    uint32 blockSize = 0;
+    std::vector<ReflectedBlockMember> members;
 };
 
 struct ShaderReflection
 {
     std::map<uint32, DescriptorSetLayoutDesc> setLayoutDescs = {};
+    std::vector<ReflectedBinding> bindings;
     PushConstantRange pushConstantRange = {};
 };
 

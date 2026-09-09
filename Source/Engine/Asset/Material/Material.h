@@ -1,11 +1,13 @@
 #pragma once
 
 #include "Engine/Asset/Asset.h"
+#include "Engine/Asset/Material/MaterialParameter.h"
 
 #include "Core/Math/Color.h"
 #include "Core/Type/Types.h"
 
 #include <cstdint>
+#include <unordered_map>
 #include <vector>
 
 namespace URay
@@ -33,14 +35,11 @@ public:
 public:
     bool Initialize(Render::RenderDevice* renderDevice, Render::ResourceManager* resourceManager, Texture* defaultWhite);
 
+    void SetParameter(const std::string& name, MaterialParameterValue value);
+    const MaterialParameterValue* GetParameter(const std::string& name) const;
+
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* inShader) { shader = inShader; }
-
-    Texture* GetTexture() const { return texture; }
-    void SetTexture(Texture* texture);
-
-    const Color& GetBaseColor() const { return baseColor; }
-    void SetBaseColor(const Color& inBaseColor) { baseColor = inBaseColor; }
 
     Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const
     {
@@ -52,8 +51,8 @@ public:
 
 protected:
     Shader* shader = nullptr;
-    Texture* texture = nullptr;
-    Color baseColor = Color::White;
+
+    std::unordered_map<std::string, MaterialParameterValue> parameters;
 
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<Render::DescriptorSet*> descriptorSets;

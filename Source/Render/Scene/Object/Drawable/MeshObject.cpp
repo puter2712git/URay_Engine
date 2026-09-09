@@ -34,17 +34,9 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
             !materials[section.materialIndex])
             continue;
 
-        const Color& materialColor = materials[section.materialIndex]->GetBaseColor();
-        const Color finalColor = {
-            materialColor.r * colorTint.r,
-            materialColor.g * colorTint.g,
-            materialColor.b * colorTint.b,
-            materialColor.a * colorTint.a
-        };
-
         builder.BuildMesh({
             .worldMatrix = worldMatrix,
-            .colorTint = finalColor,
+            .colorTint = colorTint,
             .mesh = mesh,
             .material = materials[section.materialIndex],
             .indexOffset = section.indexOffset,

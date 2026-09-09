@@ -66,28 +66,47 @@ bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceMa
         descriptorSets.push_back(set);
     }
 
-    SetTexture(texture ? texture : defaultWhite);
-
     return true;
 }
 
-void Material::SetTexture(Texture* textureAsset)
+void Material::SetParameter(const std::string& name, MaterialParameterValue value)
 {
-    texture = textureAsset;
-
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-    Render::Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
-    Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
-
-    if (!textureView)
-        return;
-
-    for (Render::DescriptorSet* descriptorSet : descriptorSets)
+    const auto it = parameters.find(name);
+    if (it != parameters.end())
     {
-        descriptorSet->WriteSampledImage(0, textureView);
-        descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
+        it->second = value;
+        return;
     }
+
+    parameters.insert({ name, value });
 }
+
+const MaterialParameterValue* Material::GetParameter(const std::string& name) const
+{
+    const auto it = parameters.find(name);
+    if (it == parameters.end())
+        return nullptr;
+
+    return &it->second;
+}
+
+// void Material::SetTexture(Texture* textureAsset)
+//{
+//     texture = textureAsset;
+//
+//     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+//     Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
+//     Render::Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
+//     Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
+//
+//     if (!textureView)
+//         return;
+//
+//     for (Render::DescriptorSet* descriptorSet : descriptorSets)
+//     {
+//         descriptorSet->WriteSampledImage(0, textureView);
+//         descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
+//     }
+// }
 
 } // namespace URay

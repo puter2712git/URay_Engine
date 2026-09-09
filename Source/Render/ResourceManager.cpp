@@ -207,8 +207,6 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
 
     // TODO: Fix for shader permutation
     VirtualPath shaderPath = shader->GetFilePath();
-    VirtualPath vertexShaderPath = shader->GetVertexShaderPath();
-    VirtualPath fragmentShaderPath = shader->GetFragmentShaderPath();
 
     const std::wstring includeDirectory =
         filesystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
@@ -232,8 +230,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
         includeDirectory,
         compilerDefines);
 
-    shader->SetVertexShaderPath(importAssetPath);
-    vertexShaderPath = importAssetPath;
+    const VirtualPath vertexShaderPath = importAssetPath;
 
     importAssetPath = VirtualPath(
         "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".fs.spv");
@@ -246,8 +243,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
         includeDirectory,
         compilerDefines);
 
-    shader->SetFragmentShaderPath(importAssetPath);
-    fragmentShaderPath = importAssetPath;
+    const VirtualPath fragmentShaderPath = importAssetPath;
 
     std::vector<uint8> vertexShaderCode = filesystem.ReadBinary(vertexShaderPath);
     if (vertexShaderCode.empty())
