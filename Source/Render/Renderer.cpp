@@ -830,7 +830,7 @@ bool Renderer::CreateFrameDescriptorSetLayout()
     binding.set = 0;
     binding.bindingIndex = 0;
     binding.arrayCount = 1;
-    binding.resourceType = ResourceType::ConstantBuffer;
+    binding.resourceType = ResourceType::UniformBuffer;
     binding.stageFlags = ShaderStageFlags::Vertex | ShaderStageFlags::Fragment;
 
     DescriptorSetLayoutDesc desc = {};

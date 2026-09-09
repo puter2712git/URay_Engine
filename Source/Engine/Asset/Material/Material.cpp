@@ -9,11 +9,14 @@
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
+#include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderSystem.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
+
+#include <utility>
 
 namespace URay
 {
@@ -45,12 +48,52 @@ bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceMa
         return false;
 
     Render::Shader* renderShader = resourceManager->GetOrCreateShader(shader, {});
+    if (!renderShader)
+        return false;
 
     const Render::DescriptorSetLayoutDesc* setLayoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
     if (!setLayoutDesc)
     {
         // No needing material descriptor. This case, just return true.
         return true;
+    }
+
+    std::vector<uint32> samplerBindings;
+    parameterDescs.clear();
+
+    for (const Render::ReflectedDescriptorBinding& binding
+         : renderShader->GetPipelineReflection().descriptorBindings)
+    {
+        if (binding.set != 1)
+            continue;
+
+        if (binding.isRuntimeArray || binding.arrayCount != 1)
+            return false;
+
+        switch (binding.resourceType)
+        {
+        case Render::ShaderResourceType::SampledImage:
+        {
+            if (binding.name.empty() || parameterDescs.contains(binding.name))
+                return false;
+
+            parameterDescs.insert({
+                binding.name,
+                MaterialParameterDesc {
+                    .name = binding.name,
+                    .type = MaterialParameterType::Texture2D,
+                    .set = binding.set,
+                    .binding = binding.binding,
+                },
+            });
+            break;
+        }
+        case Render::ShaderResourceType::Sampler:
+            samplerBindings.push_back(binding.binding);
+            break;
+        default:
+            return false;
+        }
     }
 
     descriptorSetLayout = resourceManager->GetOrCreateDescriptorSetLayout(*setLayoutDesc);
@@ -66,19 +109,45 @@ bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceMa
         descriptorSets.push_back(set);
     }
 
+    this->resourceManager = resourceManager;
+
+    if (!samplerBindings.empty())
+    {
+        const VkSampler sampler = resourceManager->GetOrCreateTextureSampler({});
+        if (sampler == VK_NULL_HANDLE)
+            return false;
+
+        for (Render::DescriptorSet* descriptorSet : descriptorSets)
+        {
+            for (uint32 binding : samplerBindings)
+                descriptorSet->WriteSampler(binding, sampler);
+        }
+    }
+
+    for (const auto& [name, desc] : parameterDescs)
+    {
+        parameters.try_emplace(name, MaterialParameterValue {
+            .type = MaterialParameterType::Texture2D,
+            .value = defaultWhite,
+        });
+
+        if (!ApplyParameter(desc, parameters.at(name)))
+            return false;
+    }
+
     return true;
 }
 
 void Material::SetParameter(const std::string& name, MaterialParameterValue value)
 {
-    const auto it = parameters.find(name);
-    if (it != parameters.end())
+    const auto descIt = parameterDescs.find(name);
+    if (resourceManager && descIt != parameterDescs.end())
     {
-        it->second = value;
-        return;
+        if (!ApplyParameter(descIt->second, value))
+            return;
     }
 
-    parameters.insert({ name, value });
+    parameters.insert_or_assign(name, std::move(value));
 }
 
 const MaterialParameterValue* Material::GetParameter(const std::string& name) const
@@ -88,6 +157,48 @@ const MaterialParameterValue* Material::GetParameter(const std::string& name) co
         return nullptr;
 
     return &it->second;
+}
+
+const MaterialParameterDesc* Material::GetParameterDesc(const std::string& name) const
+{
+    const auto it = parameterDescs.find(name);
+    if (it == parameterDescs.end())
+        return nullptr;
+
+    return &it->second;
+}
+
+bool Material::ApplyParameter(
+    const MaterialParameterDesc& desc,
+    const MaterialParameterValue& value)
+{
+    if (!resourceManager || desc.type != value.type)
+        return false;
+
+    switch (desc.type)
+    {
+    case MaterialParameterType::Texture2D:
+    {
+        Texture* const* textureAsset = std::get_if<Texture*>(&value.value);
+        if (!textureAsset || !*textureAsset)
+            return false;
+
+        Render::Texture* texture = resourceManager->GetOrCreateTexture(*textureAsset);
+        if (!texture)
+            return false;
+
+        Render::TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
+        if (!textureView)
+            return false;
+
+        for (Render::DescriptorSet* descriptorSet : descriptorSets)
+            descriptorSet->WriteSampledImage(desc.binding, textureView);
+
+        return true;
+    }
+    default:
+        return false;
+    }
 }
 
 // void Material::SetTexture(Texture* textureAsset)

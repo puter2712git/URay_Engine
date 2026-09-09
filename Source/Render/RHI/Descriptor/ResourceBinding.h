@@ -11,16 +11,19 @@ namespace URay::Render
 
 enum class ResourceType
 {
-    ConstantBuffer,
+    Sampler,
+    CombinedImageSampler,
     SampledImage,
-    Sampler
+    StorageImage,
+    UniformBuffer,
+    StorageBuffer,
 };
 
 struct ResourceBinding
 {
     uint32 set = 0;
     uint32 bindingIndex = 0;
-    ResourceType resourceType = ResourceType::ConstantBuffer;
+    ResourceType resourceType = ResourceType::Sampler;
     uint32 arrayCount = 1;
     ShaderStageFlags stageFlags = ShaderStageFlags::Vertex;
 

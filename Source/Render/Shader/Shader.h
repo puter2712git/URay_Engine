@@ -1,45 +1,16 @@
 #pragma once
 
+#include "Render/Shader/Reflection/ShaderReflection.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/PushConstantRange.h"
 
 #include "Core/Type/Types.h"
 
 #include <map>
-#include <string>
 #include <vector>
-#include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
-
-struct ReflectedBlockMember
-{
-    std::string name;
-    uint32 offset = 0;
-    uint32 size = 0;
-};
-
-struct ReflectedBinding
-{
-    std::string name;
-    uint32 set = 0;
-    uint32 binding = 0;
-    ResourceType resourceType = ResourceType::ConstantBuffer;
-    uint32 arrayCount = 1;
-    ShaderStageFlags flags = ShaderStageFlags::All;
-
-    // For constant buffer
-    uint32 blockSize = 0;
-    std::vector<ReflectedBlockMember> members;
-};
-
-struct ShaderReflection
-{
-    std::map<uint32, DescriptorSetLayoutDesc> setLayoutDescs = {};
-    std::vector<ReflectedBinding> bindings;
-    PushConstantRange pushConstantRange = {};
-};
 
 class Shader
 {
@@ -61,6 +32,7 @@ public:
 
     const ShaderReflection& GetVertexReflection() const { return vertexReflection; }
     const ShaderReflection& GetFragmentReflection() const { return fragmentReflection; }
+    const ShaderPipelineReflection& GetPipelineReflection() const { return pipelineReflection; }
 
 private:
     std::vector<uint8> vertexShaderCode;
@@ -68,6 +40,7 @@ private:
 
     ShaderReflection vertexReflection = {};
     ShaderReflection fragmentReflection = {};
+    ShaderPipelineReflection pipelineReflection = {};
 
     std::map<uint32, DescriptorSetLayoutDesc> setLayoutDescs;
     std::vector<PushConstantRange> pushConstantRanges;

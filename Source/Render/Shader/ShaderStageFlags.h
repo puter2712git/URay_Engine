@@ -2,14 +2,15 @@
 
 #include "Core/Type/Types.h"
 
-#include <vulkan/vulkan.h>
 #include <cstdint>
+#include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
 
 enum class ShaderStageFlags : uint32
 {
+    None = 0,
     Vertex = 1 << 0,
     Fragment = 1 << 1,
     All = (1 << 0) | (1 << 1)

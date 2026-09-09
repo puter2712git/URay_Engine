@@ -7,7 +7,7 @@
 #include "Render/Shader/ShaderCompiler.h"
 #include "Render/Shader/ShaderDefine.h"
 #include "Render/Shader/ShaderPermutationKey.h"
-#include "Render/Shader/ShaderReflector.h"
+#include "Render/Shader/Reflection/ShaderReflector.h"
 
 #include <vulkan/vulkan.h>
 

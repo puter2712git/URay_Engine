@@ -122,7 +122,7 @@ bool AssetSystem::CreateDefaultAssets()
             .type = AssetType::Material,
             .sourcePath = "Decal Material" },
         decalShader);
-    decalMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.decalTexture });
+    decalMaterial->SetParameter("decalTexture", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.decalTexture });
 
     assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
     assets.insert({ billboardMaterial->GetUUID(), billboardMaterial });

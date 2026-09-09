@@ -73,7 +73,7 @@ ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& co
     {
         const UUID textureUUID = assetSystem.Import(cookData.baseColorTexturePath);
         if (Texture* texture = assetSystem.Find<Texture>(textureUUID))
-            material->SetParameter("DiffuseColorTexture", { .type = MaterialParameterType::Texture2D, .value = texture });
+            material->SetParameter("diffuseColorTexture", { .type = MaterialParameterType::Texture2D, .value = texture });
     }
 
     return ImportResult{ .entries = { AssetEntry{ .asset = material, .metadata = metadata } } };

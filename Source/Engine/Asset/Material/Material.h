@@ -37,6 +37,7 @@ public:
 
     void SetParameter(const std::string& name, MaterialParameterValue value);
     const MaterialParameterValue* GetParameter(const std::string& name) const;
+    const MaterialParameterDesc* GetParameterDesc(const std::string& name) const;
 
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* inShader) { shader = inShader; }
@@ -50,10 +51,17 @@ public:
     }
 
 protected:
+    bool ApplyParameter(
+        const MaterialParameterDesc& desc,
+        const MaterialParameterValue& value);
+
+protected:
     Shader* shader = nullptr;
 
     std::unordered_map<std::string, MaterialParameterValue> parameters;
+    std::unordered_map<std::string, MaterialParameterDesc> parameterDescs;
 
+    Render::ResourceManager* resourceManager = nullptr;
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<Render::DescriptorSet*> descriptorSets;
 };

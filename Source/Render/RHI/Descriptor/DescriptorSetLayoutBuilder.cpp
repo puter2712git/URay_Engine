@@ -15,14 +15,23 @@ DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::AddBinding(
 
     switch (binding.resourceType)
     {
-    case ResourceType::ConstantBuffer:
-        layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        break;
     case ResourceType::Sampler:
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
         break;
+    case ResourceType::CombinedImageSampler:
+        layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        break;
     case ResourceType::SampledImage:
         layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+        break;
+    case ResourceType::StorageImage:
+        layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+        break;
+    case ResourceType::UniformBuffer:
+        layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        break;
+    case ResourceType::StorageBuffer:
+        layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
         break;
     }
 
