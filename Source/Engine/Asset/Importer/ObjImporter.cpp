@@ -150,7 +150,6 @@ void ObjImporter::ParseSource(const VirtualPath& path)
 MeshCookData ObjImporter::BuildMeshCookData(
     const std::unordered_map<std::string, uint32>& materialSlots) const
 {
-
     std::vector<VertexPNT> vertices;
     std::vector<uint32> indices;
     std::unordered_map<ObjIndex, uint32, ObjIndexHash> vertexMap;
@@ -457,9 +456,8 @@ ObjImporter::MaterialImportResult ObjImporter::CreateMaterials(
 
         result.materials.push_back(material);
         result.slots.insert({ info.mtlName, slot });
-        result.references.push_back({
-            .uuid = materialUUID,
-            .sourcePath = materialPath });
+        result.references.push_back({ .uuid = materialUUID,
+                                      .sourcePath = materialPath });
     }
 
     return result;

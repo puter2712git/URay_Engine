@@ -18,10 +18,11 @@ public:
 
 private:
     void WriteUInt32(std::vector<uint8>& bytes, uint32 value) const;
-    uint32 ReadUInt32(const std::vector<uint8>& bytes, size_t offset) const;
+    bool ReadUInt32(const std::vector<uint8>& bytes, size_t& offset, uint32& value) const;
     void WriteFloat(std::vector<uint8>& bytes, float value) const;
-    float ReadFloat(const std::vector<uint8>& bytes, size_t offset) const;
+    bool ReadFloat(const std::vector<uint8>& bytes, size_t& offset, float& value) const;
     void WriteString(std::vector<uint8>& bytes, const std::string& value) const;
+    bool ReadString(const std::vector<uint8>& bytes, size_t& offset, std::string& value) const;
 };
 
 } // namespace URay
