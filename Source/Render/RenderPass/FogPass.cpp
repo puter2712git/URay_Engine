@@ -1,6 +1,6 @@
 #include "FogPass.h"
 
-#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
@@ -43,31 +43,21 @@ FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
             throw std::runtime_error("Failed to initialize fog pass.");
     }
 
-    constantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
+    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        VkBuffer bufferHandle = VK_NULL_HANDLE;
-        VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
+        UniformBufferDesc desc = {};
+        desc.size = sizeof(FogConstants);
+        desc.initialData = nullptr;
+        desc.initialDataSize = 0;
 
-        renderSystem.GetDevice().CreateBuffer(
-            sizeof(FogConstants),
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            bufferHandle,
-            bufferMemory);
-
-        if (bufferHandle == VK_NULL_HANDLE ||
-            bufferMemory == VK_NULL_HANDLE)
+        Buffer* uniformBuffer = renderSystem.GetDevice().CreateUniformBuffer(desc);
+        if (!uniformBuffer)
         {
             throw std::runtime_error("Failed to initialize fog pass.");
         }
 
-        constantBuffers[i] = std::make_unique<ConstantBuffer>(
-            renderSystem.GetDevice().GetVKDevice(),
-            bufferHandle,
-            bufferMemory,
-            sizeof(FogConstants));
+        uniformBuffers[i].reset(uniformBuffer);
     }
 
     TextureSamplerDesc samplerDesc = {};
@@ -146,9 +136,7 @@ void FogPass::Execute(
         constants.enabled = 1;
     }
 
-    constantBuffers[currentFrame]->UpdateData(
-        &constants,
-        sizeof(constants));
+    uniformBuffers[currentFrame]->Update(&constants, sizeof(constants));
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
 
@@ -164,7 +152,7 @@ void FogPass::Execute(
         sampler);
     descriptorSet->WriteUniformBuffer(
         3,
-        constantBuffers[currentFrame].get());
+        uniformBuffers[currentFrame].get());
 
     CommandBuffer& commandBuffer = context.commandBuffer;
 

@@ -47,6 +47,47 @@ Format FromVkFormat(VkFormat format)
     }
 }
 
+VkBufferUsageFlags ToVkBufferUsage(BufferBindFlags flags)
+{
+    VkBufferUsageFlags usage = 0;
+
+    if ((flags & BufferBindFlags::Vertex) != BufferBindFlags::None)
+        usage |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+
+    if ((flags & BufferBindFlags::Index) != BufferBindFlags::None)
+        usage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+
+    if ((flags & BufferBindFlags::Uniform) != BufferBindFlags::None)
+        usage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+
+    if ((flags & BufferBindFlags::Storage) != BufferBindFlags::None)
+        usage |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+
+    if ((flags & BufferBindFlags::CopySrc) != BufferBindFlags::None)
+        usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+    if ((flags & BufferBindFlags::CopyDst) != BufferBindFlags::None)
+        usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    return usage;
+}
+
+VkMemoryPropertyFlags ToVkMemoryProperties(MemoryUsage usage)
+{
+    switch (usage)
+    {
+    case MemoryUsage::GpuOnly:
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    case MemoryUsage::CpuToGpu:
+    case MemoryUsage::GpuToCpu:
+        return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    }
+
+    return 0;
+}
+
 VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage)
 {
     VkImageUsageFlags result = 0;

@@ -1,6 +1,6 @@
 #include "RenderDevice.h"
 
-#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Buffer/VertexBuffer.h"
@@ -39,9 +39,7 @@ namespace URay::Render
 {
 
 RenderDevice::RenderDevice(VulkanContext& context)
-    : context(context)
-{
-}
+    : context(context) {}
 
 RenderDevice::~RenderDevice() = default;
 
@@ -77,6 +75,124 @@ void RenderDevice::Finalize()
         vkDestroyDevice(device, nullptr);
         device = VK_NULL_HANDLE;
     }
+}
+
+Buffer* RenderDevice::CreateVertexBuffer(const VertexBufferDesc& desc)
+{
+    BufferDesc bufferDesc = {};
+    bufferDesc.size = static_cast<uint64>(desc.vertexCount) * desc.vertexStride;
+    bufferDesc.bindFlags = BufferBindFlags::Vertex | BufferBindFlags::CopyDst;
+    bufferDesc.memoryUsage = desc.memoryUsage;
+    bufferDesc.stride = desc.vertexStride;
+    bufferDesc.initialData = desc.initialData;
+    bufferDesc.initialDataSize = desc.initialDataSize;
+
+    Buffer* newBuffer = CreateBuffer(bufferDesc);
+    return newBuffer;
+}
+
+Buffer* RenderDevice::CreateIndexBuffer(const IndexBufferDesc& desc)
+{
+    const uint32 indexStride =
+        desc.indexType == IndexType::UInt16 ? 2 : 4;
+
+    BufferDesc bufferDesc = {};
+    bufferDesc.size = static_cast<uint64>(desc.indexCount) * indexStride;
+    bufferDesc.bindFlags = BufferBindFlags::Index | BufferBindFlags::CopyDst;
+    bufferDesc.memoryUsage = desc.memoryUsage;
+    bufferDesc.stride = indexStride;
+    bufferDesc.initialData = desc.initialData;
+    bufferDesc.initialDataSize = desc.initialDataSize;
+
+    Buffer* newBuffer = CreateBuffer(bufferDesc);
+    return newBuffer;
+}
+
+Buffer* RenderDevice::CreateUniformBuffer(const UniformBufferDesc& desc)
+{
+    BufferDesc bufferDesc = {};
+    bufferDesc.size = desc.size;
+    bufferDesc.bindFlags = BufferBindFlags::Uniform | BufferBindFlags::CopyDst;
+    bufferDesc.memoryUsage = desc.memoryUsage;
+    bufferDesc.initialData = desc.initialData;
+    bufferDesc.initialDataSize = desc.initialDataSize;
+
+    Buffer* newBuffer = CreateBuffer(bufferDesc);
+    return newBuffer;
+}
+
+bool RenderDevice::UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSize, uint64 offset)
+{
+    if (buffer.GetMemoryUsage() == MemoryUsage::CpuToGpu)
+    {
+        void* mappedData = nullptr;
+
+        const VkResult result = vkMapMemory(
+            device,
+            buffer.GetMemory(),
+            static_cast<VkDeviceSize>(offset),
+            static_cast<VkDeviceSize>(dataSize),
+            0,
+            &mappedData);
+
+        if (result != VK_SUCCESS)
+            return false;
+
+        std::memcpy(mappedData, data, static_cast<size_t>(dataSize));
+        vkUnmapMemory(device, buffer.GetMemory());
+
+        return true;
+    }
+
+    // If buffer is GPU only, update will fail.
+    if (buffer.GetMemoryUsage() == MemoryUsage::GpuToCpu)
+        return false;
+
+    if ((buffer.GetBindFlags() & BufferBindFlags::CopyDst) == BufferBindFlags::None)
+        return false;
+
+    VkBuffer stagingHandle = VK_NULL_HANDLE;
+    VkDeviceMemory stagingMemory = VK_NULL_HANDLE;
+
+    CreateBuffer(
+        static_cast<VkDeviceSize>(dataSize),
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingHandle,
+        stagingMemory);
+
+    if (stagingHandle == VK_NULL_HANDLE || stagingMemory == VK_NULL_HANDLE)
+        return false;
+
+    void* mappedData = nullptr;
+    const VkResult result = vkMapMemory(
+        device,
+        stagingMemory,
+        0,
+        static_cast<VkDeviceSize>(dataSize),
+        0,
+        &mappedData);
+
+    if (result != VK_SUCCESS)
+    {
+        vkFreeMemory(device, stagingMemory, nullptr);
+        vkDestroyBuffer(device, stagingHandle, nullptr);
+        return false;
+    }
+
+    std::memcpy(mappedData, data, static_cast<size_t>(dataSize));
+    vkUnmapMemory(device, stagingMemory);
+
+    CopyBuffer(
+        stagingHandle,
+        buffer.GetHandle(),
+        static_cast<VkDeviceSize>(dataSize));
+
+    vkFreeMemory(device, stagingMemory, nullptr);
+    vkDestroyBuffer(device, stagingHandle, nullptr);
+
+    return true;
 }
 
 VertexBuffer* RenderDevice::CreateVertexBuffer(
@@ -815,6 +931,107 @@ VkImageView RenderDevice::CreateImageView(VkImage image, VkFormat format, VkImag
         return VK_NULL_HANDLE;
 
     return imageView;
+}
+
+Buffer* RenderDevice::CreateBuffer(const BufferDesc& desc)
+{
+    if (desc.size == 0)
+        return nullptr;
+
+    if (desc.initialDataSize > desc.size)
+        return nullptr;
+
+    if (desc.initialDataSize > 0 && desc.initialData == nullptr)
+        return nullptr;
+
+    const VkBufferUsageFlags usage = Vulkan::ToVkBufferUsage(desc.bindFlags);
+    if (usage == 0)
+        return nullptr;
+
+    VkBuffer handle = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+
+    CreateBuffer(
+        static_cast<VkDeviceSize>(desc.size),
+        usage,
+        Vulkan::ToVkMemoryProperties(desc.memoryUsage),
+        handle,
+        memory);
+
+    if (handle == VK_NULL_HANDLE || memory == VK_NULL_HANDLE)
+        return nullptr;
+
+    Buffer* buffer = new Buffer(*this, handle, memory, desc);
+
+    if (desc.initialDataSize == 0)
+    {
+        return buffer;
+    }
+
+    // If there is initial data, map it!
+
+    // If the memory is Host-visible, initialize in CPU.
+    if (desc.memoryUsage != MemoryUsage::GpuOnly)
+    {
+        void* mappedData = nullptr;
+        const VkResult result = vkMapMemory(
+            device, memory, 0,
+            static_cast<VkDeviceSize>(desc.initialDataSize),
+            0, &mappedData);
+
+        if (result != VK_SUCCESS)
+        {
+            delete buffer;
+            return nullptr;
+        }
+
+        std::memcpy(mappedData, desc.initialData, static_cast<size_t>(desc.initialDataSize));
+
+        vkUnmapMemory(device, memory);
+        return buffer;
+    }
+
+    // If the memory is Device-local, use staging buffer.
+    VkBuffer stagingHandle = VK_NULL_HANDLE;
+    VkDeviceMemory stagingMemory = VK_NULL_HANDLE;
+
+    CreateBuffer(
+        static_cast<VkDeviceSize>(desc.initialDataSize),
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+            VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingHandle,
+        stagingMemory);
+
+    if (stagingHandle == VK_NULL_HANDLE || stagingMemory == VK_NULL_HANDLE)
+    {
+        delete buffer;
+        return nullptr;
+    }
+
+    void* mappedData = nullptr;
+    const VkResult result = vkMapMemory(
+        device, stagingMemory, 0,
+        static_cast<VkDeviceSize>(desc.initialDataSize),
+        0, &mappedData);
+
+    if (result != VK_SUCCESS)
+    {
+        vkFreeMemory(device, stagingMemory, nullptr);
+        vkDestroyBuffer(device, stagingHandle, nullptr);
+        delete buffer;
+        return nullptr;
+    }
+
+    std::memcpy(mappedData, desc.initialData, static_cast<size_t>(desc.initialDataSize));
+    vkUnmapMemory(device, stagingMemory);
+
+    CopyBuffer(stagingHandle, handle, static_cast<VkDeviceSize>(desc.initialDataSize));
+
+    vkFreeMemory(device, stagingMemory, nullptr);
+    vkDestroyBuffer(device, stagingHandle, nullptr);
+
+    return buffer;
 }
 
 bool RenderDevice::PickPhysicalDevice()

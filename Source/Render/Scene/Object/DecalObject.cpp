@@ -1,7 +1,7 @@
 #include "DecalObject.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
@@ -42,16 +42,16 @@ DecalObject::DecalObject(RenderSystem& renderSystem, const DecalObjectState& sta
         assert(bufferHandle != VK_NULL_HANDLE &&
                bufferMemory != VK_NULL_HANDLE);
 
-        constantBuffers[i] = std::make_unique<ConstantBuffer>(
-            renderSystem.GetDevice().GetVKDevice(),
-            bufferHandle,
-            bufferMemory,
-            sizeof(DecalConstants));
+        UniformBufferDesc desc = {};
+        desc.size = sizeof(DecalConstants);
 
-        descriptorSets[i].reset(
-            renderSystem.GetDevice().CreateDescriptorSet(descriptorSetLayout));
-        descriptorSets[i]->WriteUniformBuffer(
-            0, constantBuffers[i].get());
+        Buffer* buffer = renderSystem.GetDevice().CreateUniformBuffer(desc);
+        assert(buffer != nullptr);
+
+        uniformBuffers[i].reset(buffer);
+
+        descriptorSets[i].reset(renderSystem.GetDevice().CreateDescriptorSet(descriptorSetLayout));
+        descriptorSets[i]->WriteUniformBuffer(0, uniformBuffers[i].get());
     }
 
     Update(state);
@@ -80,9 +80,7 @@ DescriptorSet* DecalObject::GetDescriptorSet(uint32 frameIndex)
 {
     if (uploadedVersions[frameIndex] != constantsVersion)
     {
-        constantBuffers[frameIndex]->UpdateData(
-            &constants, sizeof(constants));
-
+        uniformBuffers[frameIndex]->Update(&constants, sizeof(constants));
         uploadedVersions[frameIndex] = constantsVersion;
     }
 

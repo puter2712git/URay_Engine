@@ -1,7 +1,7 @@
 #include "RenderPipeline.h"
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RenderConstants.h"
 #include "Render/RenderPass/DecalPass.h"
@@ -127,7 +127,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
         frameConstants.directionalLight.color = light->GetColor();
     }
 
-    renderer.GetFrameConstantBuffer(currentFrame)->UpdateData(&frameConstants, sizeof(FrameConstants));
+    renderer.GetFrameUniformBuffer(currentFrame)->Update(&frameConstants, sizeof(FrameConstants));
 
     const Frustum frustum =
         Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);

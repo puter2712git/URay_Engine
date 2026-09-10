@@ -1,7 +1,6 @@
 #include "Renderer.h"
 
-#include "Render/ResourceManager.h"
-#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
@@ -21,6 +20,7 @@
 #include "Render/RenderConstants.h"
 #include "Render/RenderInfo.h"
 #include "Render/RenderPass/RenderPass.h"
+#include "Render/ResourceManager.h"
 #include "Render/Scene/RenderScene.h"
 #include "Render/Shader/Shader.h"
 
@@ -109,7 +109,7 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
     if (!CreateSyncObjects())
         return false;
 
-    if (!CreateFrameConstantBuffer())
+    if (!CreateFrameUniformBuffer())
         return false;
     if (!CreateFrameDescriptorSetLayout())
         return false;
@@ -127,7 +127,7 @@ void Renderer::Finalize()
 
     DestroyFrameDescriptorSet();
     DestroyFrameDescriptorSetLayout();
-    DestroyFrameConstantBuffer();
+    DestroyFrameUniformBuffer();
 
     DestroyDepthResources();
 
@@ -864,7 +864,7 @@ bool Renderer::CreateFrameDescriptorSet()
 
         frameDescriptorSets.push_back(descriptorSet);
 
-        descriptorSet->WriteUniformBuffer(0, frameConstantBuffers[i].get());
+        descriptorSet->WriteUniformBuffer(0, frameUniformBuffers[i].get());
     }
 
     return true;
@@ -884,35 +884,31 @@ void Renderer::DestroyFrameDescriptorSet()
     frameDescriptorSets.clear();
 }
 
-bool Renderer::CreateFrameConstantBuffer()
+bool Renderer::CreateFrameUniformBuffer()
 {
-    frameConstantBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+    frameUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 
-    VkDeviceSize frameConstantSize = sizeof(FrameConstants);
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        VkBuffer handle = VK_NULL_HANDLE;
-        VkDeviceMemory memory = VK_NULL_HANDLE;
+        UniformBufferDesc desc = {};
+        desc.size = sizeof(FrameConstants);
+        desc.initialData = nullptr;
 
-        device.CreateBuffer(
-            frameConstantSize,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            handle,
-            memory);
+        Buffer* buffer = device.CreateUniformBuffer(desc);
+        if (!buffer)
+            return false;
 
-        frameConstantBuffers[i] = std::make_unique<ConstantBuffer>(
-            device.GetVKDevice(), handle, memory, frameConstantSize);
+        frameUniformBuffers[i].reset(buffer);
     }
 
     return true;
 }
 
-void Renderer::DestroyFrameConstantBuffer()
+void Renderer::DestroyFrameUniformBuffer()
 {
-    for (auto& frameConstantBuffer : frameConstantBuffers)
+    for (auto& buffer : frameUniformBuffers)
     {
-        frameConstantBuffer.reset();
+        buffer.reset();
     }
 }
 

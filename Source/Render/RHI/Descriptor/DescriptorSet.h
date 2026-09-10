@@ -7,8 +7,8 @@
 namespace URay::Render
 {
 
+class Buffer;
 class DescriptorSetLayout;
-class ConstantBuffer;
 class TextureView;
 
 class DescriptorSet
@@ -20,7 +20,7 @@ public:
 public:
     void WriteUniformBuffer(
         uint32 binding,
-        const ConstantBuffer* buffer,
+        const Buffer* buffer,
         VkDeviceSize offset = 0,
         VkDeviceSize range = VK_WHOLE_SIZE);
 

@@ -1,18 +1,19 @@
 #pragma once
 
+#include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/CommandBuffer/CommandPoolFlags.h"
 #include "Render/RHI/Queue/QueueType.h"
 #include "Render/Vertex.h"
 
 #include "Core/Type/Types.h"
 
-#include <spirv/spirv_reflect.h>
-#include <vulkan/vulkan.h>
 #include <memory>
 #include <optional>
 #include <span>
+#include <spirv/spirv_reflect.h>
 #include <string>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace URay
 {
@@ -24,10 +25,10 @@ namespace URay::Render
 
 class VulkanContext;
 class Renderer;
+class Buffer;
 class VertexBuffer;
 class IndexBuffer;
 class MeshBuffer;
-class ConstantBuffer;
 class Texture;
 class TextureView;
 class DescriptorSetLayout;
@@ -69,10 +70,17 @@ public:
     void Finalize();
 
 public:
+    Buffer* CreateVertexBuffer(const VertexBufferDesc& desc);
+    Buffer* CreateIndexBuffer(const IndexBufferDesc& desc);
+    Buffer* CreateUniformBuffer(const UniformBufferDesc& desc);
+
+    bool UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSize, uint64 offset);
+
     VertexBuffer* CreateVertexBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
     VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
 
     IndexBuffer* CreateIndexBuffer(const std::vector<uint32>& indices);
+
     MeshBuffer* CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
 
     Texture* CreateTexture(const TextureDesc& desc);
@@ -115,6 +123,8 @@ public:
     VkQueue GetPresentQueue() const { return presentQueue; }
 
 private:
+    Buffer* CreateBuffer(const BufferDesc& desc);
+
     bool PickPhysicalDevice();
     bool CreateLogicalDevice();
 

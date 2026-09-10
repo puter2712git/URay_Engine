@@ -1,6 +1,6 @@
 #include "DescriptorSet.h"
 
-#include "Render/RHI/Buffer/ConstantBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Texture/TextureView.h"
 
 #include "Core/Type/Types.h"
@@ -19,7 +19,7 @@ DescriptorSet::~DescriptorSet()
 
 void DescriptorSet::WriteUniformBuffer(
     uint32 binding,
-    const ConstantBuffer* buffer,
+    const Buffer* buffer,
     VkDeviceSize offset,
     VkDeviceSize range)
 {

@@ -22,7 +22,7 @@ class Shader;
 class PipelineState;
 class DescriptorSetLayout;
 class DescriptorSet;
-class ConstantBuffer;
+class Buffer;
 
 struct FogConstants
 {
@@ -56,7 +56,7 @@ private:
 
     DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<std::unique_ptr<DescriptorSet>> descriptorSets;
-    std::vector<std::unique_ptr<ConstantBuffer>> constantBuffers;
+    std::vector<std::unique_ptr<Buffer>> uniformBuffers;
 
     VkSampler sampler = VK_NULL_HANDLE;
 };
