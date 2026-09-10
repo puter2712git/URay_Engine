@@ -14,4 +14,15 @@ struct DirectionalLightConstants
     float4 color;
 };
 
+struct PointLight
+{
+    float3 position;
+    float radius;
+    float intensity;
+    float3 color;
+};
+
+[[vk::binding(1, 0)]]
+StructuredBuffer<PointLight> pointLights;
+
 #endif
