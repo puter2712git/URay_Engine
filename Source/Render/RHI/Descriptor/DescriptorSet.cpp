@@ -19,12 +19,12 @@ DescriptorSet::~DescriptorSet()
 
 void DescriptorSet::WriteUniformBuffer(
     uint32 binding,
-    const Buffer* buffer,
+    const Buffer& buffer,
     VkDeviceSize offset,
     VkDeviceSize range)
 {
     VkDescriptorBufferInfo bufferInfo = {};
-    bufferInfo.buffer = buffer->GetHandle();
+    bufferInfo.buffer = buffer.GetHandle();
     bufferInfo.offset = offset;
     bufferInfo.range = range;
 

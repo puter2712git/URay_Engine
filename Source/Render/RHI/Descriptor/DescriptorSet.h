@@ -20,7 +20,7 @@ public:
 public:
     void WriteUniformBuffer(
         uint32 binding,
-        const Buffer* buffer,
+        const Buffer& buffer,
         VkDeviceSize offset = 0,
         VkDeviceSize range = VK_WHOLE_SIZE);
 
