@@ -15,6 +15,8 @@ public:
     ~Class();
 
 public:
+    std::vector<Property> GetAllProperties() const;
+
     void AddProperty(Property prop) { properties.push_back(prop); }
     const std::vector<Property>& GetProperties() const { return properties; }
 

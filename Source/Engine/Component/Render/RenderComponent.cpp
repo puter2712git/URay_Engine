@@ -25,7 +25,6 @@ RenderComponent::~RenderComponent()
 
 void RenderComponent::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 void RenderComponent::Update(float deltaTime)

@@ -11,8 +11,6 @@ URAY_REGISTER_COMPONENT(TransformComponent)
 
 void TransformComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty({ .type = PropertyType::Vector3,
                                  .name = "Position",
                                  .offset = offsetof(TransformComponent, position),

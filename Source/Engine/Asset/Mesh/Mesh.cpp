@@ -13,7 +13,6 @@ Mesh::~Mesh() {}
 
 void Mesh::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 void Mesh::SetVertices(const std::vector<Render::VertexPNT>& newVertices)

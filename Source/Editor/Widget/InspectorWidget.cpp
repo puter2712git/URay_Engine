@@ -42,7 +42,7 @@ void InspectorWidget::OnDraw()
     std::vector<Property> properties;
 
     cls = selectedUnit->GetClass();
-    properties = cls->GetProperties();
+    properties = cls->GetAllProperties();
 
     for (Property& prop : properties)
     {
@@ -57,7 +57,7 @@ void InspectorWidget::OnDraw()
     for (Component* comp : components)
     {
         cls = comp->GetClass();
-        properties = cls->GetProperties();
+        properties = cls->GetAllProperties();
 
         ImGui::PushID(comp);
 

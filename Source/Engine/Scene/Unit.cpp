@@ -32,8 +32,6 @@ Unit::~Unit()
 
 void Unit::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty({ .type = PropertyType::String,
                                  .name = "Name",
                                  .offset = offsetof(Unit, name),

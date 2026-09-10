@@ -30,8 +30,6 @@ MeshComponent::MeshComponent()
 
 void MeshComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty(
         { .type = PropertyType::Mesh,
           .name = "Mesh",

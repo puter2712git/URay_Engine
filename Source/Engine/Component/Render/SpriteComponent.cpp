@@ -29,7 +29,6 @@ SpriteComponent::SpriteComponent()
 
 void SpriteComponent::RegisterClass()
 {
-    Super::RegisterClass();
 
     StaticClass()->AddProperty({ .type = PropertyType::Texture,
                                  .name = "Texture",

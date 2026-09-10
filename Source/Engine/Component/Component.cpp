@@ -9,8 +9,6 @@ URAY_REGISTER_CLASS(Component)
 
 void Component::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty({ .type = PropertyType::Bool,
                                  .name = "Enable",
                                  .offset = offsetof(Component, enabled),

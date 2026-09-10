@@ -13,7 +13,6 @@ URAY_REGISTER_COMPONENT(DirectionalLightComponent)
 
 void DirectionalLightComponent::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 DirectionalLightComponent::DirectionalLightComponent() = default;

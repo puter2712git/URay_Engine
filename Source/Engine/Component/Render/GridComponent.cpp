@@ -13,7 +13,6 @@ URAY_REGISTER_CLASS(GridComponent)
 
 void GridComponent::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 Render::RenderObject* GridComponent::CreateRenderObject()

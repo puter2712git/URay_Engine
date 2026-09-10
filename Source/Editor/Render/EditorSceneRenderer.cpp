@@ -1,9 +1,11 @@
 #include "EditorSceneRenderer.h"
 
 #include "Editor/Render/DirectionalLightVisualizer.h"
+#include "Editor/Render/PointLightVisualizer.h"
 
 #include "Engine/Component/Component.h"
 #include "Engine/Component/Render/Light/DirectionalLightComponent.h"
+#include "Engine/Component/Render/Light/PointLightComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
@@ -22,6 +24,7 @@ EditorSceneRenderer::~EditorSceneRenderer() = default;
 bool EditorSceneRenderer::Initialize()
 {
     visualizerRegistry.Register<DirectionalLightComponent>(std::make_unique<DirectionalLightVisualizer>());
+    visualizerRegistry.Register<PointLightComponent>(std::make_unique<PointLightVisualizer>());
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     unitAddHandle = sceneSystem.RegisterUnitAddCallback([this](Scene* scene, Unit* unit)

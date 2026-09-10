@@ -10,7 +10,6 @@ URAY_REGISTER_COMPONENT(AmbientLightComponent)
 
 void AmbientLightComponent::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 AmbientLightComponent::AmbientLightComponent() = default;

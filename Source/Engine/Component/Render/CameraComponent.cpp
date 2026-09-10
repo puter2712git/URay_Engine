@@ -17,7 +17,6 @@ URAY_REGISTER_COMPONENT(CameraComponent)
 
 void CameraComponent::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 void CameraComponent::Update(float deltaTime)

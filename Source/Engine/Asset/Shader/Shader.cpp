@@ -7,7 +7,6 @@ URAY_REGISTER_CLASS(Shader)
 
 void Shader::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 Shader::Shader(const VirtualPath& filePath)

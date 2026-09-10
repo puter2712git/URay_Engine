@@ -39,7 +39,6 @@ Material::~Material()
 
 void Material::RegisterClass()
 {
-    Super::RegisterClass();
 }
 
 bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceManager* resourceManager, Texture* defaultWhite)

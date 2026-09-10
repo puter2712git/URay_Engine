@@ -14,8 +14,6 @@ FogComponent::~FogComponent() = default;
 
 void FogComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty(
         { .type = PropertyType::Color,
           .name = "Fog Color",

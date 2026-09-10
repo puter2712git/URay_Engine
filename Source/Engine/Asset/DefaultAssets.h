@@ -18,12 +18,14 @@ struct DefaultAssets
     Mesh* scaleGizmoMesh = nullptr;
     Material* spriteMaterial = nullptr;
     Material* billboardMaterial = nullptr;
+    Material* pointLightBillboardMaterial = nullptr;
     Material* meshMaterial = nullptr;
     Material* decalMaterial = nullptr;
     Texture* whiteTexture = nullptr;
     Texture* fontTexture = nullptr;
     Texture* decalTexture = nullptr;
     Texture* directionalLightBillboardTexture = nullptr;
+    Texture* pointLightBillboardTexture = nullptr;
 };
 
 } // namespace URay

@@ -25,8 +25,6 @@ DecalComponent::~DecalComponent() = default;
 
 void DecalComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty(
         { .type = PropertyType::Vector3,
           .name = "Extent",

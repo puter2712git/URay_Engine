@@ -16,8 +16,6 @@ Texture::~Texture() {}
 
 void Texture::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty({ .type = PropertyType::Int,
                                  .name = "Width",
                                  .offset = offsetof(Texture, width),

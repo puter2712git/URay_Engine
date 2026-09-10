@@ -12,8 +12,6 @@ URAY_REGISTER_CLASS(LightComponent)
 
 void LightComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     const auto onPropertyChanged = [](Object* owner, const Property& property)
     {
         LightComponent* comp = static_cast<LightComponent*>(owner);

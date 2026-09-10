@@ -13,8 +13,6 @@ URAY_REGISTER_COMPONENT(PointLightComponent)
 
 void PointLightComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty(
         {
             .type = PropertyType::Float,

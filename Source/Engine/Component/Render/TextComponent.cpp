@@ -21,8 +21,6 @@ TextComponent::TextComponent()
 
 void TextComponent::RegisterClass()
 {
-    Super::RegisterClass();
-
     StaticClass()->AddProperty({ .type = PropertyType::String,
                                  .name = "Text",
                                  .offset = offsetof(TextComponent, text),

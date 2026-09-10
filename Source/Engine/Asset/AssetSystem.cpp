@@ -71,6 +71,9 @@ bool AssetSystem::CreateDefaultAssets()
     UUID directionalLightTextureUUID = Import("Engine://Asset/Source/Texture/DirectionalLightIcon.png");
     defaultAssets.directionalLightBillboardTexture = Find<Texture>(directionalLightTextureUUID);
 
+    UUID pointLightTextureUUID = Import("Engine://Asset/Source/Texture/PointLightIcon.png");
+    defaultAssets.pointLightBillboardTexture = Find<Texture>(pointLightTextureUUID);
+
     std::vector<Shader*> shaders = FindAssets<Shader>();
     Shader* spriteShader = nullptr;
     Shader* billboardShader = nullptr;
@@ -110,6 +113,13 @@ bool AssetSystem::CreateDefaultAssets()
             .sourcePath = "Billboard Material" },
         billboardShader);
     billboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.directionalLightBillboardTexture });
+    Material* pointLightBillboardMaterial = factory->CreateMaterial(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Material,
+            .sourcePath = "PointLight Billboard Material" },
+        billboardShader);
+    pointLightBillboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.pointLightBillboardTexture });
     Material* meshMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),
@@ -126,11 +136,13 @@ bool AssetSystem::CreateDefaultAssets()
 
     assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
     assets.insert({ billboardMaterial->GetUUID(), billboardMaterial });
+    assets.insert({ pointLightBillboardMaterial->GetUUID(), pointLightBillboardMaterial });
     assets.insert({ meshMaterial->GetUUID(), meshMaterial });
     assets.insert({ decalMaterial->GetUUID(), decalMaterial });
 
     defaultAssets.spriteMaterial = spriteMaterial;
     defaultAssets.billboardMaterial = billboardMaterial;
+    defaultAssets.pointLightBillboardMaterial = pointLightBillboardMaterial;
     defaultAssets.meshMaterial = meshMaterial;
     defaultAssets.decalMaterial = decalMaterial;
 
