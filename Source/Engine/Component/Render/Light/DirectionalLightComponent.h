@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/Render/Light/LightComponent.h"
 
 #include "Core/Math/Color.h"
 
 namespace URay
 {
 
-class DirectionalLightComponent : public RenderComponent
+class DirectionalLightComponent : public LightComponent
 {
-    URAY_CLASS(DirectionalLightComponent, RenderComponent)
+    URAY_CLASS(DirectionalLightComponent, LightComponent)
 
 public:
     DirectionalLightComponent();
@@ -18,14 +18,8 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
-    const Color& GetColor() const { return color; }
-
 protected:
     void UpdateRenderObject() override;
-
-private:
-    float intensity = 1.0f;
-    Color color = Color::White;
 };
 
 } // namespace URay

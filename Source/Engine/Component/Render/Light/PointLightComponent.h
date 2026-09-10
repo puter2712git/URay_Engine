@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Component/Render/Light/LightComponent.h"
 
 #include "Core/Math/Color.h"
 
 namespace URay
 {
 
-class PointLightComponent : public RenderComponent
+class PointLightComponent : public LightComponent
 {
-    URAY_CLASS(PointLightComponent, RenderComponent)
+    URAY_CLASS(PointLightComponent, LightComponent)
 
 public:
     PointLightComponent();
@@ -23,8 +23,6 @@ protected:
 
 private:
     float radius = 3.0f;
-    float intensity = 1.0f;
-    Color color = Color::White;
 };
 
 } // namespace URay
