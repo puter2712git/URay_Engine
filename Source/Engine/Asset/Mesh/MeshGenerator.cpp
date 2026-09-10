@@ -84,10 +84,10 @@ MeshInfo MeshGenerator::CreateQuad() const
 {
     // clang-format off
     std::vector<Render::VertexPNT> vertices = {
-        MakeVertex({ -0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }),
-        MakeVertex({  0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }),
-        MakeVertex({  0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }),
-        MakeVertex({ -0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }),
+        MakeVertex({ -0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }),
+        MakeVertex({  0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }),
+        MakeVertex({  0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }),
+        MakeVertex({ -0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }),
     };
     std::vector<uint32> indices = {
         0, 1, 2,
