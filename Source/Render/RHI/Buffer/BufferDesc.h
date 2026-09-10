@@ -57,4 +57,15 @@ struct UniformBufferDesc
     MemoryUsage memoryUsage = MemoryUsage::CpuToGpu;
 };
 
+struct StorageBufferDesc
+{
+    uint32 elementCapacity = 0;
+    uint32 elementStride = 0;
+
+    const void* initialData = nullptr;
+    uint64 initialDataSize = 0;
+
+    MemoryUsage memoryUsage = MemoryUsage::GpuOnly;
+};
+
 } // namespace URay::Render

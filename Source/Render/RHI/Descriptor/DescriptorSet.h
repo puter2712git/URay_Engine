@@ -24,6 +24,12 @@ public:
         VkDeviceSize offset = 0,
         VkDeviceSize range = VK_WHOLE_SIZE);
 
+    void WriteStorageBuffer(
+        uint32 binding,
+        const Buffer& buffer,
+        VkDeviceSize offset = 0,
+        VkDeviceSize range = VK_WHOLE_SIZE);
+
     void WriteSampledImage(
         uint32 binding,
         const TextureView* textureView,

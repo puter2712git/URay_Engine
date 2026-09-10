@@ -2,6 +2,7 @@
 
 #include "Render/DrawCommand/DrawCommandBuilder.h"
 #include "Render/RHI/Buffer/Buffer.h"
+#include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"

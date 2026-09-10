@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/CommandBuffer/CommandPoolFlags.h"
 #include "Render/RHI/Queue/QueueType.h"
 #include "Render/Vertex.h"
@@ -26,8 +25,6 @@ namespace URay::Render
 class VulkanContext;
 class Renderer;
 class Buffer;
-class VertexBuffer;
-class IndexBuffer;
 class MeshBuffer;
 class Texture;
 class TextureView;
@@ -40,6 +37,11 @@ class SwapChain;
 class CommandPool;
 class CommandBuffer;
 
+struct VertexBufferDesc;
+struct IndexBufferDesc;
+struct UniformBufferDesc;
+struct StorageBufferDesc;
+struct BufferDesc;
 struct TextureDesc;
 struct TextureSamplerDesc;
 struct DescriptorSetLayoutDesc;
@@ -73,6 +75,7 @@ public:
     Buffer* CreateVertexBuffer(const VertexBufferDesc& desc);
     Buffer* CreateIndexBuffer(const IndexBufferDesc& desc);
     Buffer* CreateUniformBuffer(const UniformBufferDesc& desc);
+    Buffer* CreateStorageBuffer(const StorageBufferDesc& desc);
 
     bool UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSize, uint64 offset);
 

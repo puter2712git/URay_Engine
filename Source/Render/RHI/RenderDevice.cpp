@@ -1,6 +1,7 @@
 #include "RenderDevice.h"
 
 #include "Render/RHI/Buffer/Buffer.h"
+#include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
@@ -111,6 +112,20 @@ Buffer* RenderDevice::CreateUniformBuffer(const UniformBufferDesc& desc)
     BufferDesc bufferDesc = {};
     bufferDesc.size = desc.size;
     bufferDesc.bindFlags = BufferBindFlags::Uniform | BufferBindFlags::CopyDst;
+    bufferDesc.memoryUsage = desc.memoryUsage;
+    bufferDesc.initialData = desc.initialData;
+    bufferDesc.initialDataSize = desc.initialDataSize;
+
+    Buffer* newBuffer = CreateBuffer(bufferDesc);
+    return newBuffer;
+}
+
+Buffer* RenderDevice::CreateStorageBuffer(const StorageBufferDesc& desc)
+{
+    BufferDesc bufferDesc = {};
+    bufferDesc.size = static_cast<uint64>(desc.elementCapacity) * desc.elementStride;
+    bufferDesc.stride = desc.elementStride;
+    bufferDesc.bindFlags = BufferBindFlags::Storage | BufferBindFlags::CopyDst;
     bufferDesc.memoryUsage = desc.memoryUsage;
     bufferDesc.initialData = desc.initialData;
     bufferDesc.initialDataSize = desc.initialDataSize;

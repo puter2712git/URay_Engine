@@ -1,5 +1,6 @@
 #include "ResourceManager.h"
 
+#include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"

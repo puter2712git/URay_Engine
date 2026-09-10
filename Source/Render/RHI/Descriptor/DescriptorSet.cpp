@@ -39,6 +39,28 @@ void DescriptorSet::WriteUniformBuffer(
     vkUpdateDescriptorSets(device, 1, &write, 0, nullptr);
 }
 
+void DescriptorSet::WriteStorageBuffer(
+    uint32 binding,
+    const Buffer& buffer,
+    VkDeviceSize offset,
+    VkDeviceSize range)
+{
+    VkDescriptorBufferInfo bufferInfo = {};
+    bufferInfo.buffer = buffer.GetHandle();
+    bufferInfo.offset = offset;
+    bufferInfo.range = range;
+
+    VkWriteDescriptorSet write = {};
+    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write.dstSet = handle;
+    write.dstBinding = binding;
+    write.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    write.descriptorCount = 1;
+    write.pBufferInfo = &bufferInfo;
+
+    vkUpdateDescriptorSets(device, 1, &write, 0, nullptr);
+}
+
 void DescriptorSet::WriteSampledImage(
     uint32 binding,
     const TextureView* textureView,
