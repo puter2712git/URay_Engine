@@ -1,7 +1,7 @@
 #include "LineBatcher.h"
 
 #include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/ResourceManager.h"
@@ -25,12 +25,11 @@ LineBatcher::~LineBatcher() = default;
 
 bool LineBatcher::Initialize()
 {
-    VkDeviceSize bufferSize = 1024 * 1024 * 4;
-
-    vertexBuffer.reset(device.CreateVertexBuffer(
-        bufferSize,
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT));
+    const VertexBufferDesc desc = {
+        .size = 1024 * 1024 * 4,
+        .memoryUsage = MemoryUsage::CpuToGpu
+    };
+    vertexBuffer.reset(device.CreateVertexBuffer(desc));
 
     mappedVertexBufferData = vertexBuffer->Map();
 

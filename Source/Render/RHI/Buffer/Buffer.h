@@ -19,6 +19,9 @@ public:
 public:
     bool Update(const void* data, uint64 dataSize, uint64 offset = 0);
 
+    void* Map();
+    void Unmap();
+
     VkBuffer GetHandle() const { return handle; }
     VkDeviceMemory GetMemory() const { return memory; }
 
@@ -34,6 +37,8 @@ private:
     VkDeviceSize size = 0;
     BufferBindFlags bindFlags = BufferBindFlags::None;
     MemoryUsage memoryUsage = MemoryUsage::GpuOnly;
+
+    void* mappedData = nullptr;
 };
 
 } // namespace URay::Render

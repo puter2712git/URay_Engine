@@ -1,9 +1,7 @@
 #include "RenderDevice.h"
 
 #include "Render/RHI/Buffer/Buffer.h"
-#include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
@@ -80,7 +78,7 @@ void RenderDevice::Finalize()
 Buffer* RenderDevice::CreateVertexBuffer(const VertexBufferDesc& desc)
 {
     BufferDesc bufferDesc = {};
-    bufferDesc.size = static_cast<uint64>(desc.vertexCount) * desc.vertexStride;
+    bufferDesc.size = desc.size;
     bufferDesc.bindFlags = BufferBindFlags::Vertex | BufferBindFlags::CopyDst;
     bufferDesc.memoryUsage = desc.memoryUsage;
     bufferDesc.stride = desc.vertexStride;
@@ -97,7 +95,7 @@ Buffer* RenderDevice::CreateIndexBuffer(const IndexBufferDesc& desc)
         desc.indexType == IndexType::UInt16 ? 2 : 4;
 
     BufferDesc bufferDesc = {};
-    bufferDesc.size = static_cast<uint64>(desc.indexCount) * indexStride;
+    bufferDesc.size = desc.size;
     bufferDesc.bindFlags = BufferBindFlags::Index | BufferBindFlags::CopyDst;
     bufferDesc.memoryUsage = desc.memoryUsage;
     bufferDesc.stride = indexStride;
@@ -195,84 +193,9 @@ bool RenderDevice::UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSiz
     return true;
 }
 
-VertexBuffer* RenderDevice::CreateVertexBuffer(
-    VkDeviceSize size,
-    VkBufferUsageFlags usage,
-    VkMemoryPropertyFlags properties)
+MeshBuffer* RenderDevice::CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer)
 {
-    VkBuffer handle = VK_NULL_HANDLE;
-    VkDeviceMemory memory = VK_NULL_HANDLE;
-
-    CreateBuffer(size, usage, properties, handle, memory);
-
-    VertexBuffer* vertexBuffer = new VertexBuffer(device, size, handle, memory);
-    return vertexBuffer;
-}
-
-VertexBuffer* RenderDevice::CreateVertexBuffer(const std::vector<VertexPNT>& vertices)
-{
-    VkDeviceSize bufferSize = sizeof(VertexPNT) * vertices.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    std::memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    VertexBuffer* vertexBuffer = CreateVertexBuffer(
-        bufferSize,
-        VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    CopyBuffer(stagingBuffer, vertexBuffer->GetHandle(), bufferSize);
-
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    return vertexBuffer;
-}
-
-IndexBuffer* RenderDevice::CreateIndexBuffer(const std::vector<uint32>& indices)
-{
-    VkDeviceSize bufferSize = sizeof(uint32) * indices.size();
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                 stagingBuffer, stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
-    std::memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    VkBuffer handle = VK_NULL_HANDLE;
-    VkDeviceMemory memory = VK_NULL_HANDLE;
-
-    CreateBuffer(bufferSize,
-                 VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                 handle, memory);
-
-    CopyBuffer(stagingBuffer, handle, bufferSize);
-
-    IndexBuffer* indexBuffer = new IndexBuffer(device, bufferSize, handle, memory);
-
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    return indexBuffer;
-}
-
-MeshBuffer* RenderDevice::CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
-{
-    return new MeshBuffer(device, inVertexBuffer, inIndexBuffer);
+    return new MeshBuffer(vertexBuffer, indexBuffer);
 }
 
 Texture* RenderDevice::CreateTexture(const TextureDesc& desc)

@@ -1,8 +1,6 @@
 #include "ResourceManager.h"
 
-#include "Render/RHI/Buffer/IndexBuffer.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
@@ -51,12 +49,28 @@ MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
         return it->second;
 
     const std::vector<VertexPNT>& vertices = asset->GetVertices();
-    VertexBuffer* vertexBuffer = device.CreateVertexBuffer(vertices);
+    const VertexBufferDesc vertexBufferDesc = {
+        .size = sizeof(VertexPNT) * vertices.size(),
+        .vertexCount = static_cast<uint32>(vertices.size()),
+        .vertexStride = sizeof(VertexPNT),
+        .initialData = vertices.data(),
+        .initialDataSize = sizeof(VertexPNT) * vertices.size()
+    };
+
+    Buffer* vertexBuffer = device.CreateVertexBuffer(vertexBufferDesc);
     if (!vertexBuffer)
         return nullptr;
 
     const std::vector<uint32>& indices = asset->GetIndices();
-    IndexBuffer* indexBuffer = device.CreateIndexBuffer(indices);
+    const IndexBufferDesc indexBufferDesc = {
+        .size = sizeof(uint32) * indices.size(),
+        .indexCount = static_cast<uint32>(indices.size()),
+        .indexType = IndexType::UInt32,
+        .initialData = indices.data(),
+        .initialDataSize = sizeof(uint32) * indices.size()
+    };
+
+    Buffer* indexBuffer = device.CreateIndexBuffer(indexBufferDesc);
     if (!indexBuffer)
     {
         delete vertexBuffer;

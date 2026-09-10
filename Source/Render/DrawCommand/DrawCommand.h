@@ -12,8 +12,7 @@
 namespace URay::Render
 {
 
-class VertexBuffer;
-class IndexBuffer;
+class Buffer;
 struct PipelineStateDesc;
 class DescriptorSet;
 
@@ -25,10 +24,10 @@ struct DrawCommand
     Color colorTint = Color::White;
     uint32 objectId = 0;
 
-    VertexBuffer* vertexBuffer = nullptr;
+    Buffer* vertexBuffer = nullptr;
     uint32 vertexCount = 0;
 
-    IndexBuffer* indexBuffer = nullptr;
+    Buffer* indexBuffer = nullptr;
     uint32 indexOffset = 0;
     uint32 indexCount = 0;
 

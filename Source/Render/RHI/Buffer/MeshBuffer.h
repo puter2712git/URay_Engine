@@ -2,27 +2,27 @@
 
 #include <vulkan/vulkan.h>
 
+#include <memory>
+
 namespace URay::Render
 {
 
-class VertexBuffer;
-class IndexBuffer;
+class RenderDevice;
+class Buffer;
 
 class MeshBuffer
 {
 public:
-    MeshBuffer(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
+    MeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer);
     ~MeshBuffer();
 
 public:
-    VertexBuffer* GetVertexBuffer() const { return vertexBuffer; }
-    IndexBuffer* GetIndexBuffer() const { return indexBuffer; }
+    Buffer* GetVertexBuffer() const { return vertexBuffer.get(); }
+    Buffer* GetIndexBuffer() const { return indexBuffer.get(); }
 
 private:
-    VkDevice device = VK_NULL_HANDLE;
-
-    VertexBuffer* vertexBuffer = nullptr;
-    IndexBuffer* indexBuffer = nullptr;
+    std::unique_ptr<Buffer> vertexBuffer = nullptr;
+    std::unique_ptr<Buffer> indexBuffer = nullptr;
 };
 
 } // namespace URay::Render

@@ -36,4 +36,35 @@ bool Buffer::Update(const void* data, uint64 dataSize, uint64 offset)
     return device.UpdateBuffer(*this, data, dataSize, offset);
 }
 
+void* Buffer::Map()
+{
+    if (memoryUsage != MemoryUsage::CpuToGpu)
+        return nullptr;
+
+    if (mappedData != nullptr)
+        return mappedData;
+
+    if (vkMapMemory(
+            device.GetVKDevice(),
+            memory,
+            0,
+            VK_WHOLE_SIZE,
+            0,
+            &mappedData) != VK_SUCCESS)
+    {
+        mappedData = nullptr;
+    }
+
+    return mappedData;
+}
+
+void Buffer::Unmap()
+{
+    if (!mappedData)
+        return;
+
+    vkUnmapMemory(device.GetVKDevice(), memory);
+    mappedData = nullptr;
+}
+
 } // namespace URay::Render

@@ -4,16 +4,15 @@
 
 #include "Core/Type/Types.h"
 
-#include <vulkan/vulkan.h>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
 
 class CommandPool;
+class Buffer;
 class PipelineState;
-class VertexBuffer;
-class IndexBuffer;
 class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
@@ -37,8 +36,8 @@ public:
     void EndRenderPass();
 
     void BindPipeline(const PipelineState& pso);
-    void BindVertexBuffer(const VertexBuffer& buffer);
-    void BindIndexBuffer(const IndexBuffer& buffer);
+    void BindVertexBuffer(const Buffer& buffer);
+    void BindIndexBuffer(const Buffer& buffer);
 
     void BindDescriptorSet(
         const PipelineLayout& layout,

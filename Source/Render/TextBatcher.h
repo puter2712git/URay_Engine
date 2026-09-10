@@ -53,7 +53,7 @@ private:
 
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
 
-    std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
+    std::unique_ptr<Buffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;
 };
 

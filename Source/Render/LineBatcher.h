@@ -21,7 +21,7 @@ class ResourceManager;
 class ShaderManager;
 class DrawCommandBuilder;
 class DescriptorSet;
-class VertexBuffer;
+class Buffer;
 
 struct LineCommandContext;
 
@@ -49,7 +49,7 @@ private:
     URay::Shader* shader = nullptr;
     Shader* renderShader = nullptr;
 
-    std::unique_ptr<VertexBuffer> vertexBuffer = nullptr;
+    std::unique_ptr<Buffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;
 };
 

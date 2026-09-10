@@ -20,6 +20,8 @@ struct BufferDesc
 
 struct VertexBufferDesc
 {
+    uint64 size = 0;
+
     uint32 vertexCount = 0;
     uint32 vertexStride = 0;
     const void* initialData = nullptr;
@@ -36,6 +38,8 @@ enum class IndexType
 
 struct IndexBufferDesc
 {
+    uint64 size = 0;
+
     uint32 indexCount = 0;
     IndexType indexType = IndexType::UInt32;
     const void* initialData = nullptr;

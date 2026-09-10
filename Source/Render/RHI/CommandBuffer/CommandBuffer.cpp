@@ -1,7 +1,6 @@
 #include "CommandBuffer.h"
 
-#include "Render/RHI/Buffer/IndexBuffer.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Framebuffer.h"
@@ -88,14 +87,14 @@ void CommandBuffer::BindPipeline(const PipelineState& pso)
     vkCmdBindPipeline(handle, VK_PIPELINE_BIND_POINT_GRAPHICS, pso.GetHandle());
 }
 
-void CommandBuffer::BindVertexBuffer(const VertexBuffer& buffer)
+void CommandBuffer::BindVertexBuffer(const Buffer& buffer)
 {
     VkBuffer buffers[] = { buffer.GetHandle() };
     VkDeviceSize offsets[] = { 0 };
     vkCmdBindVertexBuffers(handle, 0, 1, buffers, offsets);
 }
 
-void CommandBuffer::BindIndexBuffer(const IndexBuffer& buffer)
+void CommandBuffer::BindIndexBuffer(const Buffer& buffer)
 {
     vkCmdBindIndexBuffer(handle, buffer.GetHandle(), 0, VK_INDEX_TYPE_UINT32);
 }

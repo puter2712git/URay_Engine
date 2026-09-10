@@ -1,28 +1,26 @@
 #include "MeshBuffer.h"
 
-#include "Render/RHI/Buffer/IndexBuffer.h"
-#include "Render/RHI/Buffer/VertexBuffer.h"
+#include "Render/RHI/Buffer/Buffer.h"
 
 namespace URay::Render
 {
 
-MeshBuffer::MeshBuffer(VkDevice device, VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer)
-    : device(device), vertexBuffer(inVertexBuffer), indexBuffer(inIndexBuffer)
+MeshBuffer::MeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer)
 {
+    this->vertexBuffer.reset(vertexBuffer);
+    this->indexBuffer.reset(indexBuffer);
 }
 
 MeshBuffer::~MeshBuffer()
 {
     if (vertexBuffer)
     {
-        delete vertexBuffer;
-        vertexBuffer = nullptr;
+        vertexBuffer.reset();
     }
 
     if (indexBuffer)
     {
-        delete indexBuffer;
-        indexBuffer = nullptr;
+        indexBuffer.reset();
     }
 }
 

@@ -76,12 +76,7 @@ public:
 
     bool UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSize, uint64 offset);
 
-    VertexBuffer* CreateVertexBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-    VertexBuffer* CreateVertexBuffer(const std::vector<VertexPNT>& vertices);
-
-    IndexBuffer* CreateIndexBuffer(const std::vector<uint32>& indices);
-
-    MeshBuffer* CreateMeshBuffer(VertexBuffer* inVertexBuffer, IndexBuffer* inIndexBuffer);
+    MeshBuffer* CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer);
 
     Texture* CreateTexture(const TextureDesc& desc);
     bool UploadTextureData(Texture* texture, std::span<const uint8> pixelData);
