@@ -10,7 +10,6 @@ namespace URay
 
 namespace Render
 {
-class ViewObject;
 }
 
 class CameraComponent : public RenderComponent

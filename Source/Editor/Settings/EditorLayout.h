@@ -7,8 +7,6 @@ namespace URay
 
 class Widget;
 
-class VirtualPath;
-class VirtualFilesystem;
 
 class EditorLayout
 {

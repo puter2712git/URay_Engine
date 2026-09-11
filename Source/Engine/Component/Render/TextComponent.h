@@ -7,13 +7,10 @@
 namespace URay
 {
 
-class Mesh;
-class Material;
 class Font;
 
 namespace Render
 {
-class TextObject;
 }
 
 class TextComponent : public RenderComponent

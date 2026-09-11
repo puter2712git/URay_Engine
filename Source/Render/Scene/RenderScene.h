@@ -5,7 +5,6 @@
 
 namespace URay
 {
-class Octree;
 }
 
 namespace URay::Render

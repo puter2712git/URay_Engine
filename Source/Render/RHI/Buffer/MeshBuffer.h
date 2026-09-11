@@ -7,7 +7,6 @@
 namespace URay::Render
 {
 
-class RenderDevice;
 class Buffer;
 
 class MeshBuffer

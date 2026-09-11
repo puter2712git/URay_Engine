@@ -16,7 +16,6 @@ class VulkanContext;
 class Renderer;
 class RenderDevice;
 class ResourceManager;
-class ShaderManager;
 class RenderPipeline;
 
 class RenderSystem

@@ -16,18 +16,12 @@
 namespace URay
 {
 
-class Mesh;
 class Material;
-class Texture;
-class MeshManager;
-class MaterialManager;
-class TextureManager;
 
 class VirtualFilesystem;
 
 namespace Render
 {
-class Shader;
 }
 
 class ObjImporter : public Importer

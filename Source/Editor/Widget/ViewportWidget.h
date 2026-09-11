@@ -17,7 +17,6 @@ namespace URay
 
 class CameraComponent;
 class Engine;
-class Unit;
 
 class GizmoController;
 class EditorPicker;

@@ -9,7 +9,6 @@ namespace URay
 
 class Engine;
 class CameraComponent;
-class Unit;
 
 class Widget;
 class ViewportWidget;

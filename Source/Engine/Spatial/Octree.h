@@ -13,7 +13,6 @@ namespace URay
 namespace Render
 {
 class BoundedObject;
-class DrawCommandBuilder;
 } // namespace Render
 
 class Octree

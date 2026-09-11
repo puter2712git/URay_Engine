@@ -7,7 +7,6 @@ namespace URay
 
 namespace Render
 {
-class LineObject;
 }
 
 class GridComponent : public RenderComponent

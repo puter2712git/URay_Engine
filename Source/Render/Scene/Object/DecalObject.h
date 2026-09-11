@@ -13,7 +13,6 @@
 
 namespace URay
 {
-class Mesh;
 class Material;
 } // namespace URay
 

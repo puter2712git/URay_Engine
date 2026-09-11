@@ -6,7 +6,6 @@ namespace URay
 {
 
 class AssetSystem;
-class VirtualPath;
 
 class ImportContext
 {

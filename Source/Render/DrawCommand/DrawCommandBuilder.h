@@ -23,7 +23,6 @@ class RenderSystem;
 class RenderDevice;
 class Renderer;
 class ResourceManager;
-class ShaderManager;
 class LineBatcher;
 class TextBatcher;
 

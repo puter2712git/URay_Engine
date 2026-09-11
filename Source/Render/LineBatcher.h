@@ -18,9 +18,6 @@ namespace URay::Render
 
 class RenderDevice;
 class ResourceManager;
-class ShaderManager;
-class DrawCommandBuilder;
-class DescriptorSet;
 class Buffer;
 
 struct LineCommandContext;

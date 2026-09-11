@@ -14,7 +14,6 @@ class Material;
 
 namespace Render
 {
-class MeshObject;
 }
 
 class MeshComponent : public RenderComponent

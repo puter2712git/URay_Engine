@@ -18,7 +18,6 @@ namespace URay
 {
 class Window;
 class VirtualFilesystem;
-class Scene;
 } // namespace URay
 
 namespace URay::Render
@@ -26,20 +25,12 @@ namespace URay::Render
 
 class VulkanContext;
 class RenderDevice;
-class Buffer;
-class VertexBuffer;
-class IndexBuffer;
-class PipelineLayout;
 class DescriptorSetLayout;
-class DescriptorSet;
 class RenderTarget;
 class ResourceManager;
-class ShaderManager;
-class RenderScene;
 class Framebuffer;
 class SwapChain;
 class CommandPool;
-class CommandBuffer;
 class Texture;
 class TextureView;
 

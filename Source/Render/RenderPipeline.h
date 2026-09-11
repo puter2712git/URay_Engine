@@ -14,8 +14,6 @@
 namespace URay
 {
 class AssetSystem;
-class CameraComponent;
-class Scene;
 } // namespace URay
 
 namespace URay::Render
@@ -24,7 +22,6 @@ namespace URay::Render
 class DrawCommandBuilder;
 class RenderSystem;
 class RenderScene;
-class ViewObject;
 class FogObject;
 class AmbientLightObject;
 class DirectionalLightObject;

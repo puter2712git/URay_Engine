@@ -11,8 +11,6 @@ namespace URay
 {
 
 class VirtualFilesystem;
-class CameraComponent;
-class Scene;
 
 struct EditorCameraSettings
 {

@@ -22,9 +22,6 @@ class Engine;
 
 namespace Render
 {
-class RenderDevice;
-class ResourceManager;
-class ShaderManager;
 } // namespace Render
 
 class AssetSystem
