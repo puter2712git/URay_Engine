@@ -46,4 +46,12 @@ struct FrameConstants
     DirectionalLightConstants directionalLight = {};
 };
 
+struct PointLightConstants
+{
+    Vector3 position = Vector3::Zero;
+    float radius = 0.0f;
+    float intensity = 0.0f;
+    Color3 color = Color3::White;
+};
+
 } // namespace URay::Render

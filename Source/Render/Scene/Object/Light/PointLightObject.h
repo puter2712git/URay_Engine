@@ -25,6 +25,11 @@ public:
 public:
     void Update(const PointLightObjectState& state);
 
+    const Vector3& GetPosition() const { return position; }
+    float GetRadius() const { return radius; }
+    float GetIntensity() const { return intensity; }
+    const Color& GetColor() const { return color; }
+
 private:
     Vector3 position = Vector3::Zero;
     float radius = 0.0f;

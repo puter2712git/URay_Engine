@@ -52,7 +52,7 @@ DecalObject::DecalObject(RenderSystem& renderSystem, const DecalObjectState& sta
         uniformBuffers[i].reset(buffer);
 
         descriptorSets[i].reset(renderSystem.GetDevice().CreateDescriptorSet(descriptorSetLayout));
-        descriptorSets[i]->WriteUniformBuffer(0, uniformBuffers[i].get());
+        descriptorSets[i]->WriteUniformBuffer(0, *uniformBuffers[i]);
     }
 
     Update(state);

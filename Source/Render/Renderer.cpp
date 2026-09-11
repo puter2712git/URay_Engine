@@ -111,6 +111,9 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
 
     if (!CreateFrameUniformBuffer())
         return false;
+    if (!CreatePointLightStorageBuffer())
+        return false;
+
     if (!CreateFrameDescriptorSetLayout())
         return false;
     if (!CreateFrameDescriptorSet())
@@ -127,6 +130,8 @@ void Renderer::Finalize()
 
     DestroyFrameDescriptorSet();
     DestroyFrameDescriptorSetLayout();
+
+    DestroyPointLightStorageBuffer();
     DestroyFrameUniformBuffer();
 
     DestroyDepthResources();
@@ -833,8 +838,16 @@ bool Renderer::CreateFrameDescriptorSetLayout()
     binding.resourceType = ResourceType::UniformBuffer;
     binding.stageFlags = ShaderStageFlags::Vertex | ShaderStageFlags::Fragment;
 
+    ResourceBinding binding2 = {};
+    binding2.set = 0;
+    binding2.bindingIndex = 1;
+    binding2.arrayCount = 1;
+    binding2.resourceType = ResourceType::StorageBuffer;
+    binding2.stageFlags = ShaderStageFlags::Vertex | ShaderStageFlags::Fragment;
+
     DescriptorSetLayoutDesc desc = {};
     desc.bindings.push_back(binding);
+    desc.bindings.push_back(binding2);
 
     frameDescriptorSetLayout = device.CreateDescriptorSetLayout(desc);
 
@@ -864,7 +877,8 @@ bool Renderer::CreateFrameDescriptorSet()
 
         frameDescriptorSets.push_back(descriptorSet);
 
-        descriptorSet->WriteUniformBuffer(0, frameUniformBuffers[i].get());
+        descriptorSet->WriteUniformBuffer(0, *frameUniformBuffers[i]);
+        descriptorSet->WriteStorageBuffer(1, *pointLightStorageBuffers[i]);
     }
 
     return true;
@@ -909,6 +923,37 @@ void Renderer::DestroyFrameUniformBuffer()
     for (auto& buffer : frameUniformBuffers)
     {
         buffer.reset();
+    }
+}
+
+bool Renderer::CreatePointLightStorageBuffer()
+{
+    constexpr uint32 MAX_POINT_LIGHTS = 256;
+
+    pointLightStorageBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        StorageBufferDesc desc = {};
+        desc.elementCapacity = MAX_POINT_LIGHTS;
+        desc.elementStride = sizeof(PointLightConstants);
+        desc.memoryUsage = MemoryUsage::CpuToGpu;
+
+        pointLightStorageBuffers[i].reset(
+            device.CreateStorageBuffer(desc));
+    }
+
+    return true;
+}
+
+void Renderer::DestroyPointLightStorageBuffer()
+{
+    for (auto& buffer : pointLightStorageBuffers)
+    {
+        if (buffer)
+        {
+            buffer.reset();
+        }
     }
 }
 

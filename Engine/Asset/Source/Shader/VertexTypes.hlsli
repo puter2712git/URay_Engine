@@ -43,8 +43,9 @@ struct VertexPNTOut
 {
     float4 outPosition : SV_Position;
     
-    [[vk::location(0)]] float2 outUV : TEXCOORD0;
-    [[vk::location(1)]] float3 outNormal : TEXCOORD1;
+    [[vk::location(0)]] float3 outWorldPosition : TEXCOORD0;
+    [[vk::location(1)]] float2 outUV : TEXCOORD1;
+    [[vk::location(2)]] float3 outNormal : TEXCOORD2;
 };
 
 #endif

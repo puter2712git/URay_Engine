@@ -81,6 +81,7 @@ public:
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
 
     Buffer* GetFrameUniformBuffer(uint32 frameIndex) const { return frameUniformBuffers[frameIndex].get(); }
+    Buffer* GetPointLightStorageBuffer(uint32 frameIndex) const { return pointLightStorageBuffers[frameIndex].get(); }
 
 private:
     bool CreateSceneRenderPass();
@@ -129,6 +130,9 @@ private:
 
     bool CreateFrameDescriptorSet();
     void DestroyFrameDescriptorSet();
+
+    bool CreatePointLightStorageBuffer();
+    void DestroyPointLightStorageBuffer();
 
     void ProcessPendingSceneRenderTargetResize();
 
@@ -179,6 +183,7 @@ private:
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
 
     std::vector<std::unique_ptr<Buffer>> frameUniformBuffers;
+    std::vector<std::unique_ptr<Buffer>> pointLightStorageBuffers;
 };
 
 } // namespace URay::Render

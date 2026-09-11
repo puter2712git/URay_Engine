@@ -17,6 +17,7 @@
 #include "Render/Scene/Object/FogObject.h"
 #include "Render/Scene/Object/Light/AmbientLightObject.h"
 #include "Render/Scene/Object/Light/DirectionalLightObject.h"
+#include "Render/Scene/Object/Light/PointLightObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -94,6 +95,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
     FogObject* fog = FindFog(request.scenes);
     AmbientLightObject* ambientLight = FindAmbientLight(request.scenes);
     DirectionalLightObject* light = FindLight(request.scenes);
+    std::vector<PointLightObject*> pointLights = FindPointLights(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
 
@@ -127,7 +129,18 @@ void RenderPipeline::Execute(const RenderRequest& request)
         frameConstants.directionalLight.color = light->GetColor();
     }
 
+    std::vector<PointLightConstants> pointLightConstants;
+    for (size_t i = 0; i < pointLights.size(); ++i)
+    {
+        pointLightConstants.push_back(PointLightConstants{
+            .position = pointLights[i]->GetPosition(),
+            .radius = pointLights[i]->GetRadius(),
+            .intensity = pointLights[i]->GetIntensity(),
+            .color = Color3(pointLights[i]->GetColor()) });
+    }
+
     renderer.GetFrameUniformBuffer(currentFrame)->Update(&frameConstants, sizeof(FrameConstants));
+    renderer.GetPointLightStorageBuffer(currentFrame)->Update(pointLightConstants.data(), sizeof(PointLightConstants) * pointLightConstants.size());
 
     const Frustum frustum =
         Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);
@@ -295,6 +308,29 @@ DirectionalLightObject* RenderPipeline::FindLight(
     }
 
     return nullptr;
+}
+
+std::vector<PointLightObject*> RenderPipeline::FindPointLights(
+    const std::vector<RenderScene*>& scenes) const
+{
+    std::vector<PointLightObject*> pointLights;
+
+    for (const RenderScene* scene : scenes)
+    {
+        size_t objCount = scene->GetObjectCount();
+
+        for (size_t i = 0; i < objCount; ++i)
+        {
+            RenderObject* robj = scene->GetObject(i);
+
+            if (PointLightObject* light = dynamic_cast<PointLightObject*>(robj))
+            {
+                pointLights.push_back(light);
+            }
+        }
+    }
+
+    return pointLights;
 }
 
 } // namespace URay::Render

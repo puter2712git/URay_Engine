@@ -141,19 +141,10 @@ void FogPass::Execute(
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
 
-    descriptorSet->WriteSampledImage(
-        0,
-        context.sceneRenderTarget.GetColorView());
-    descriptorSet->WriteSampledImage(
-        1,
-        context.sceneRenderTarget.GetDepthView(),
-        VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
-    descriptorSet->WriteSampler(
-        2,
-        sampler);
-    descriptorSet->WriteUniformBuffer(
-        3,
-        uniformBuffers[currentFrame].get());
+    descriptorSet->WriteSampledImage(0, context.sceneRenderTarget.GetColorView());
+    descriptorSet->WriteSampledImage(1, context.sceneRenderTarget.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+    descriptorSet->WriteSampler(2, sampler);
+    descriptorSet->WriteUniformBuffer(3, *uniformBuffers[currentFrame]);
 
     CommandBuffer& commandBuffer = context.commandBuffer;
 

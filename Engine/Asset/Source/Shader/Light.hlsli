@@ -25,4 +25,6 @@ struct PointLight
 [[vk::binding(1, 0)]]
 StructuredBuffer<PointLight> pointLights;
 
+
+
 #endif
