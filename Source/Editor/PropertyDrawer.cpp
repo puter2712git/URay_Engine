@@ -53,9 +53,15 @@ void PropertyDrawer::Draw(Property& prop, void* addr)
         break;
     }
 
-    if (isChanged && prop.OnChangedCallback)
+    if (isChanged)
     {
-        prop.OnChangedCallback(static_cast<Object*>(addr), prop);
+        Object* obj = static_cast<Object*>(addr);
+        obj->NotifyPropertyChanged(prop);
+
+        if (prop.OnChangedCallback)
+        {
+            prop.OnChangedCallback(*obj, prop);
+        }
     }
 }
 

@@ -18,45 +18,25 @@ void FogComponent::RegisterClass()
         { .type = PropertyType::Color,
           .name = "Fog Color",
           .offset = offsetof(FogComponent, fogColor),
-          .size = sizeof(Color),
-          .OnChangedCallback = [](Object* owner, const Property&)
-          {
-              FogComponent* fogComp = static_cast<FogComponent*>(owner);
-              fogComp->UpdateRenderObject();
-          } });
+          .size = sizeof(Color) });
 
     StaticClass()->AddProperty(
         { .type = PropertyType::Float,
           .name = "Fog Start Distance",
           .offset = offsetof(FogComponent, fogStart),
-          .size = sizeof(float),
-          .OnChangedCallback = [](Object* owner, const Property&)
-          {
-              FogComponent* fogComp = static_cast<FogComponent*>(owner);
-              fogComp->UpdateRenderObject();
-          } });
+          .size = sizeof(float) });
 
     StaticClass()->AddProperty(
         { .type = PropertyType::Float,
           .name = "Fog End Distance",
           .offset = offsetof(FogComponent, fogEnd),
-          .size = sizeof(float),
-          .OnChangedCallback = [](Object* owner, const Property&)
-          {
-              FogComponent* fogComp = static_cast<FogComponent*>(owner);
-              fogComp->UpdateRenderObject();
-          } });
+          .size = sizeof(float) });
 
     StaticClass()->AddProperty(
         { .type = PropertyType::Float,
           .name = "Density",
           .offset = offsetof(FogComponent, density),
-          .size = sizeof(float),
-          .OnChangedCallback = [](Object* owner, const Property&)
-          {
-              FogComponent* fogComp = static_cast<FogComponent*>(owner);
-              fogComp->UpdateRenderObject();
-          } });
+          .size = sizeof(float) });
 }
 
 Render::RenderObject* FogComponent::CreateRenderObject()

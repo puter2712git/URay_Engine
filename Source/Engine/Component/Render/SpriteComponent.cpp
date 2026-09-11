@@ -29,18 +29,11 @@ SpriteComponent::SpriteComponent()
 
 void SpriteComponent::RegisterClass()
 {
-
-    StaticClass()->AddProperty({ .type = PropertyType::Texture,
-                                 .name = "Texture",
-                                 .offset = offsetof(SpriteComponent, texture),
-                                 .size = sizeof(Texture*),
-                                 .OnChangedCallback = [](Object* owner, const Property& property)
-                                 {
-                                     SpriteComponent* spriteComp = static_cast<SpriteComponent*>(owner);
-                                     spriteComp->material->SetParameter(
-                                         "textureImage",
-                                         { .type = MaterialParameterType::Texture2D, .value = spriteComp->texture });
-                                 } });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Texture,
+          .name = "Texture",
+          .offset = offsetof(SpriteComponent, texture),
+          .size = sizeof(Texture*) });
 }
 
 Render::RenderObject* SpriteComponent::CreateRenderObject()

@@ -29,22 +29,12 @@ void DecalComponent::RegisterClass()
         { .type = PropertyType::Vector3,
           .name = "Extent",
           .offset = offsetof(DecalComponent, extent),
-          .size = sizeof(Vector3),
-          .OnChangedCallback = [](Object* owner, const Property&)
-          {
-              DecalComponent* decalComp = static_cast<DecalComponent*>(owner);
-              decalComp->UpdateRenderObject();
-          } });
+          .size = sizeof(Vector3) });
     StaticClass()->AddProperty(
         { .type = PropertyType::Material,
           .name = "Material",
           .offset = offsetof(DecalComponent, material),
-          .size = sizeof(Material*),
-          .OnChangedCallback = [](Object* owner, const Property&)
-          {
-              DecalComponent* decalComp = static_cast<DecalComponent*>(owner);
-              decalComp->UpdateRenderObject();
-          } });
+          .size = sizeof(Material*) });
 }
 
 Render::RenderObject* DecalComponent::CreateRenderObject()

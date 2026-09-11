@@ -17,7 +17,7 @@ struct Property
     std::string name;
     size_t offset = 0;
     size_t size = 0;
-    std::function<void(Object* owner, const Property& property)> OnChangedCallback = nullptr;
+    std::function<void(Object& owner, const Property& property)> OnChangedCallback = nullptr;
 
     template <typename T>
     T GetValue(const void* address) const

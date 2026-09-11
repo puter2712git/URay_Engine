@@ -56,6 +56,8 @@ public:
     virtual YAML::Node Serialize() const;
     virtual void Deserialize(const YAML::Node& node);
 
+    virtual void NotifyPropertyChanged(const Property& property) {}
+
     bool IsA(Class* cls) const;
 
     template <typename T>

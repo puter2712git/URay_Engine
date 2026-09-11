@@ -35,9 +35,9 @@ void MeshComponent::RegisterClass()
           .name = "Mesh",
           .offset = offsetof(MeshComponent, mesh),
           .size = sizeof(Mesh*),
-          .OnChangedCallback = [](Object* owner, const Property&)
+          .OnChangedCallback = [&](Object& owner, const Property& prop)
           {
-              MeshComponent* meshComp = static_cast<MeshComponent*>(owner);
+              MeshComponent* meshComp = static_cast<MeshComponent*>(&owner);
               meshComp->SetMesh(meshComp->GetMesh());
           } });
 }

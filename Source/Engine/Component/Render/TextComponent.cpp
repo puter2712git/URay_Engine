@@ -21,18 +21,11 @@ TextComponent::TextComponent()
 
 void TextComponent::RegisterClass()
 {
-    StaticClass()->AddProperty({ .type = PropertyType::String,
-                                 .name = "Text",
-                                 .offset = offsetof(TextComponent, text),
-                                 .size = sizeof(std::string),
-                                 .OnChangedCallback = [](Object* owner, const Property&)
-                                 {
-                                     TextComponent* textComp = static_cast<TextComponent*>(owner);
-                                     if (textComp->renderObject)
-                                     {
-                                         textComp->renderObject->SetDirty(true);
-                                     }
-                                 } });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::String,
+          .name = "Text",
+          .offset = offsetof(TextComponent, text),
+          .size = sizeof(std::string) });
 }
 
 Render::RenderObject* TextComponent::CreateRenderObject()

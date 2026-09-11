@@ -17,6 +17,8 @@ class TransformComponent : public Component
 public:
     void Update(float deltaTime) override;
 
+    void NotifyPropertyChanged(const Property& property) override;
+
     void UpdateWorldMatrix();
 
     Vector3 TransformPoint(const Vector3& point) const;

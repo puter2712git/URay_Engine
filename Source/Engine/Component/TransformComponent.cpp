@@ -1,6 +1,9 @@
 #include "TransformComponent.h"
 
+#include "Engine/Component/Render/RenderComponent.h"
 #include "Engine/Object/Class/Class.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 namespace URay
@@ -11,33 +14,21 @@ URAY_REGISTER_COMPONENT(TransformComponent)
 
 void TransformComponent::RegisterClass()
 {
-    StaticClass()->AddProperty({ .type = PropertyType::Vector3,
-                                 .name = "Position",
-                                 .offset = offsetof(TransformComponent, position),
-                                 .size = sizeof(Vector3),
-                                 .OnChangedCallback = [](Object* owner, const Property&)
-                                 {
-                                     TransformComponent* transform = static_cast<TransformComponent*>(owner);
-                                     transform->SetPosition(transform->GetPosition());
-                                 } });
-    StaticClass()->AddProperty({ .type = PropertyType::Vector3,
-                                 .name = "Rotation",
-                                 .offset = offsetof(TransformComponent, rotation),
-                                 .size = sizeof(Vector3),
-                                 .OnChangedCallback = [](Object* owner, const Property&)
-                                 {
-                                     TransformComponent* transform = static_cast<TransformComponent*>(owner);
-                                     transform->SetRotation(transform->GetRotation());
-                                 } });
-    StaticClass()->AddProperty({ .type = PropertyType::Vector3,
-                                 .name = "Scale",
-                                 .offset = offsetof(TransformComponent, scale),
-                                 .size = sizeof(Vector3),
-                                 .OnChangedCallback = [](Object* owner, const Property&)
-                                 {
-                                     TransformComponent* transform = static_cast<TransformComponent*>(owner);
-                                     transform->SetScale(transform->GetScale());
-                                 } });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Vector3,
+          .name = "Position",
+          .offset = offsetof(TransformComponent, position),
+          .size = sizeof(Vector3) });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Vector3,
+          .name = "Rotation",
+          .offset = offsetof(TransformComponent, rotation),
+          .size = sizeof(Vector3) });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Vector3,
+          .name = "Scale",
+          .offset = offsetof(TransformComponent, scale),
+          .size = sizeof(Vector3) });
 }
 
 void TransformComponent::Update(float deltaTime)
@@ -49,6 +40,13 @@ void TransformComponent::Update(float deltaTime)
         UpdateWorldMatrix();
         isDirty = false;
     }
+}
+
+void TransformComponent::NotifyPropertyChanged(const Property& property)
+{
+    Super::NotifyPropertyChanged(property);
+
+    SetDirty(true);
 }
 
 void TransformComponent::UpdateWorldMatrix()
@@ -70,7 +68,21 @@ void TransformComponent::UpdateWorldMatrix()
         worldMatrix = worldMatrix * relativeTransform->GetWorldMatrix();
     }
 
-    GetOwner()->InvokeCallbacks();
+    Scene* scene = owner->GetOwner();
+    if (!scene)
+        return;
+
+    SceneSystem& sceneSystem = scene->GetSceneSystem();
+    sceneSystem.EmitUnitWorldTransformUpdateRay(scene, owner);
+
+    // TODO: Move these logics.
+    for (Component* comp : GetOwner()->GetComponents())
+    {
+        if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
+        {
+            renderComp->MarkDirty();
+        }
+    }
 }
 
 Vector3 TransformComponent::TransformPoint(const Vector3& point) const

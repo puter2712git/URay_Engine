@@ -176,8 +176,10 @@ void Object::Deserialize(const YAML::Node& node)
             break;
         }
 
+        NotifyPropertyChanged(prop);
+
         if (prop.OnChangedCallback)
-            prop.OnChangedCallback(this, prop);
+            prop.OnChangedCallback(*this, prop);
     }
 }
 

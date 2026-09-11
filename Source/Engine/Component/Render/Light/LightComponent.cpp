@@ -12,36 +12,16 @@ URAY_REGISTER_CLASS(LightComponent)
 
 void LightComponent::RegisterClass()
 {
-    const auto onPropertyChanged = [](Object* owner, const Property& property)
-    {
-        LightComponent* comp = static_cast<LightComponent*>(owner);
-        comp->UpdateRenderObject();
-
-        Unit* unit = comp->GetOwner();
-        Scene* scene = unit ? unit->GetOwner() : nullptr;
-
-        if (scene)
-        {
-            scene->GetSceneSystem().EmitComponentPropertyChangedRay(
-                scene,
-                unit,
-                comp,
-                property);
-        }
-    };
-
     StaticClass()->AddProperty(
         { .type = PropertyType::Float,
           .name = "Intensity",
           .offset = offsetof(LightComponent, intensity),
-          .size = sizeof(float),
-          .OnChangedCallback = onPropertyChanged });
+          .size = sizeof(float) });
     StaticClass()->AddProperty(
         { .type = PropertyType::Color,
           .name = "Color",
           .offset = offsetof(LightComponent, color),
-          .size = sizeof(Color),
-          .OnChangedCallback = onPropertyChanged });
+          .size = sizeof(Color) });
 }
 
 } // namespace URay

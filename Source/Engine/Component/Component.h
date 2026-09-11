@@ -31,8 +31,7 @@ public:
 public:
     virtual void Update(float deltaTime);
 
-    virtual void OnAttached() {}
-    virtual void OnDetached() {}
+    virtual void NotifyPropertyChanged(const Property& property);
 
     Unit* GetOwner() const { return owner; }
     void SetOwner(Unit* unit) { owner = unit; }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Engine/Object/Object.h"
+#include "Engine/Ray/EventRay.h"
 
 #include <functional>
 #include <string>
@@ -26,9 +27,6 @@ public:
 
     virtual YAML::Node Serialize() const override;
     virtual void Deserialize(const YAML::Node& node) override;
-
-    void RegisterTransformUpdateCallback(const std::function<void()>& callback);
-    void InvokeCallbacks();
 
     Component* AddComponent(Component* comp);
 
@@ -58,6 +56,11 @@ public:
     Scene* GetOwner() const { return scene; }
     void SetOwner(Scene* scene) { this->scene = scene; }
 
+    RayHandle RegisterTransformUpdateCallback(EventRay<Component*>::Callback callback) { return transformUpdateRay.Register(callback); }
+    void UnregisterTransformUpdateCallback(RayHandle handle) { transformUpdateRay.Unregister(handle); }
+
+    void EmitTransformUpdateRay(Component* comp) { transformUpdateRay.Emit(comp); }
+
 private:
     std::string name;
 
@@ -69,7 +72,7 @@ private:
 
     Scene* scene = nullptr;
 
-    std::vector<std::function<void()>> transformUpdateCallbacks;
+    EventRay<Component*> transformUpdateRay;
 };
 
 } // namespace URay

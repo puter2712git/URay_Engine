@@ -58,26 +58,6 @@ void Unit::Deserialize(const YAML::Node& node)
 {
 }
 
-void Unit::RegisterTransformUpdateCallback(const std::function<void()>& callback)
-{
-    transformUpdateCallbacks.push_back(callback);
-}
-
-void Unit::InvokeCallbacks()
-{
-    for (const auto& callback : transformUpdateCallbacks)
-    {
-        callback();
-    }
-
-    Scene* scene = GetOwner();
-    if (!scene)
-        return;
-
-    SceneSystem& sceneSystem = scene->GetSceneSystem();
-    sceneSystem.EmitUnitWorldTransformUpdateRay(scene, this);
-}
-
 bool Unit::SetParent(Unit* unit)
 {
     if (unit == this)
@@ -120,7 +100,6 @@ Component* Unit::AddComponent(Component* comp)
 
     comp->SetOwner(this);
     components.push_back(comp);
-    comp->OnAttached();
 
     if (scene)
     {

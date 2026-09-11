@@ -38,20 +38,11 @@ void RenderComponent::Update(float deltaTime)
     }
 }
 
-void RenderComponent::OnAttached()
+void RenderComponent::NotifyPropertyChanged(const Property& property)
 {
-    Super::OnAttached();
+    Super::NotifyPropertyChanged(property);
 
-    Unit* owner = GetOwner();
-    if (!owner)
-        return;
-
-    owner->RegisterTransformUpdateCallback([this]()
-                                           { MarkDirty(); });
-}
-
-void RenderComponent::OnDetached()
-{
+    MarkDirty();
 }
 
 void RenderComponent::MarkDirty()

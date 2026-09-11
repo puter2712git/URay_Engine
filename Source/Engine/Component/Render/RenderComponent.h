@@ -19,15 +19,15 @@ public:
 
 public:
     virtual void Update(float deltaTime) override;
-    virtual void OnAttached() override;
-    virtual void OnDetached() override;
+
+    virtual void NotifyPropertyChanged(const Property& property);
 
     virtual Render::RenderObject* CreateRenderObject() = 0;
 
+    void MarkDirty();
+
 protected:
     virtual void UpdateRenderObject() = 0;
-
-    void MarkDirty();
 
 protected:
     Render::RenderObject* renderObject = nullptr;

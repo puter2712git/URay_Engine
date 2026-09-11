@@ -183,6 +183,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
                     continue;
 
                 Mesh* meshData = mesh->GetMesh();
+                if (!meshData)
+                    continue;
 
                 for (const auto& section : meshData->GetSections())
                 {

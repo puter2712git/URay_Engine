@@ -1,6 +1,9 @@
 #include "Component.h"
 
 #include "Engine/Object/Class/Class.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
+#include "Engine/Scene/Unit.h"
 
 namespace URay
 {
@@ -17,6 +20,24 @@ void Component::RegisterClass()
 
 void Component::Update(float deltaTime)
 {
+}
+
+void Component::NotifyPropertyChanged(const Property& property)
+{
+    Unit* unit = GetOwner();
+    if (!unit)
+        return;
+
+    Scene* scene = unit->GetOwner();
+    if (!scene)
+        return;
+
+    SceneSystem& sceneSystem = scene->GetSceneSystem();
+    sceneSystem.EmitComponentPropertyChangedRay(
+        scene,
+        unit,
+        this,
+        property);
 }
 
 } // namespace URay
