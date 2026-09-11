@@ -88,4 +88,9 @@ struct Vector3
     }
 };
 
+inline Vector3 operator*(float lhs, const Vector3& rhs)
+{
+    return rhs * lhs;
+}
+
 } // namespace URay

@@ -18,6 +18,8 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
+    float GetRadius() const { return radius; }
+
 protected:
     void UpdateRenderObject() override;
 

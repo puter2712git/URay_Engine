@@ -1,6 +1,8 @@
 #include "PointLightComponent.h"
 
 #include "Engine/Component/TransformComponent.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Render/Scene/Object/Light/PointLightObject.h"
@@ -13,13 +15,29 @@ URAY_REGISTER_COMPONENT(PointLightComponent)
 
 void PointLightComponent::RegisterClass()
 {
-    StaticClass()->AddProperty(
+    const auto onPropertyChanged = [](Object* owner, const Property& property)
+    {
+        PointLightComponent* comp = static_cast<PointLightComponent*>(owner);
+        comp->UpdateRenderObject();
+
+        Unit* unit = comp->GetOwner();
+        Scene* scene = unit ? unit->GetOwner() : nullptr;
+
+        if (scene)
         {
-            .type = PropertyType::Float,
-            .name = "Radius",
-            .offset = offsetof(PointLightComponent, radius),
-            .size = sizeof(float),
-        });
+            scene->GetSceneSystem().EmitComponentPropertyChangedRay(
+                scene,
+                unit,
+                comp,
+                property);
+        }
+    };
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Float,
+          .name = "Radius",
+          .offset = offsetof(PointLightComponent, radius),
+          .size = sizeof(float),
+          .OnChangedCallback = onPropertyChanged });
 }
 
 PointLightComponent::PointLightComponent() = default;
