@@ -1,8 +1,8 @@
 #include "ViewportWidget.h"
 
 #include "Editor/Editor.h"
-#include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
+#include "Editor/Pick/EditorPicker.h"
 #include "Editor/Selection/SelectionSystem.h"
 
 #include "Core/File/VirtualFilesystem.h"

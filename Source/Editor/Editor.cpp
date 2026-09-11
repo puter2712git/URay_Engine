@@ -1,8 +1,8 @@
 #include "Editor.h"
 
-#include "Editor/EditorPicker.h"
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
+#include "Editor/Pick/EditorPicker.h"
 #include "Editor/Render/EditorSceneRenderer.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
