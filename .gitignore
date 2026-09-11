@@ -33,3 +33,5 @@ compile_commands.json
 Sandbox/
 Sandbox/Config/EditorLayout.ini
 Sandbox/Config/Editor.ini
+
+*.asset
