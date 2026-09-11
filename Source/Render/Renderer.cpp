@@ -104,19 +104,7 @@ bool Renderer::Initialize(VirtualFilesystem& filesystem)
     if (!CreateSwapChainFramebuffer())
         return false;
 
-    if (!CreateCommandBuffer())
-        return false;
-    if (!CreateSyncObjects())
-        return false;
-
-    if (!CreateFrameUniformBuffer())
-        return false;
-    if (!CreatePointLightStorageBuffer())
-        return false;
-
-    if (!CreateFrameDescriptorSetLayout())
-        return false;
-    if (!CreateFrameDescriptorSet())
+    if (!CreateFrameResources())
         return false;
 
     return true;
@@ -128,11 +116,7 @@ void Renderer::Finalize()
 
     CleanupSwapChain();
 
-    DestroyFrameDescriptorSet();
-    DestroyFrameDescriptorSetLayout();
-
-    DestroyPointLightStorageBuffer();
-    DestroyFrameUniformBuffer();
+    DestroyFrameResources();
 
     DestroyDepthResources();
 
@@ -145,8 +129,6 @@ void Renderer::Finalize()
 
     DestroyRenderPass();
     DestroySceneRenderPass();
-
-    DestroySyncObjects();
 
     DestroyCommandPool();
 }
@@ -218,11 +200,11 @@ void Renderer::FinalizeImGui()
 
 bool Renderer::BeginFrame()
 {
-    vkWaitForFences(device.GetVKDevice(), 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
 
     ProcessPendingSceneRenderTargetResize();
 
-    VkResult result = swapChain->AcquireNextImage(imageAvailableSemaphores[currentFrame], imageIndex);
+    VkResult result = swapChain->AcquireNextImage(frameResources[currentFrame].imageAvailableSemaphore, imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_NOT_READY)
     {
@@ -234,12 +216,12 @@ bool Renderer::BeginFrame()
         throw std::runtime_error("Failed to acquire swap chain image.");
     }
 
-    vkResetFences(device.GetVKDevice(), 1, &inFlightFences[currentFrame]);
+    vkResetFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence);
 
-    if (!commandBuffers[currentFrame]->Reset())
+    if (!frameResources[currentFrame].commandBuffer->Reset())
         return false;
 
-    if (!commandBuffers[currentFrame]->Begin(CommandBufferUsage::None))
+    if (!frameResources[currentFrame].commandBuffer->Begin(CommandBufferUsage::None))
         return false;
 
     return true;
@@ -247,15 +229,15 @@ bool Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
-    if (!commandBuffers[currentFrame]->End())
+    if (!frameResources[currentFrame].commandBuffer->End())
         return;
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkCommandBuffer vkCommandBuffer = commandBuffers[currentFrame]->GetHandle();
+    VkCommandBuffer vkCommandBuffer = frameResources[currentFrame].commandBuffer->GetHandle();
 
-    VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+    VkSemaphore waitSemaphores[] = { frameResources[currentFrame].imageAvailableSemaphore };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -263,11 +245,11 @@ void Renderer::EndFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &vkCommandBuffer;
 
-    VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
+    VkSemaphore signalSemaphores[] = { frameResources[currentFrame].renderFinishedSemaphore };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) != VK_SUCCESS)
+    if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, frameResources[currentFrame].inFlightFence) != VK_SUCCESS)
         return;
 
     VkPresentInfoKHR presentInfo = {};
@@ -320,16 +302,6 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
 Extent2D Renderer::GetSceneRenderTargetExtent() const
 {
     return sceneRenderTarget->GetExtent();
-}
-
-CommandBuffer& Renderer::GetCommandBuffer() const
-{
-    return *commandBuffers[currentFrame];
-}
-
-DescriptorSet& Renderer::GetFrameDescriptorSet() const
-{
-    return *frameDescriptorSets[currentFrame];
 }
 
 Framebuffer& Renderer::GetSwapChainFramebuffer() const
@@ -743,55 +715,7 @@ void Renderer::DestroyCommandPool()
 {
     if (commandPool)
     {
-        commandBuffers.clear();
         commandPool.reset();
-    }
-}
-
-bool Renderer::CreateCommandBuffer()
-{
-    commandBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        commandBuffers[i].reset(commandPool->Allocate());
-    }
-
-    return true;
-}
-
-bool Renderer::CreateSyncObjects()
-{
-    imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-    inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
-
-    VkSemaphoreCreateInfo semaphoreInfo = {};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fenceInfo = {};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        if (vkCreateSemaphore(device.GetVKDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(device.GetVKDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(device.GetVKDevice(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS)
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void Renderer::DestroySyncObjects()
-{
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        vkDestroySemaphore(device.GetVKDevice(), imageAvailableSemaphores[i], nullptr);
-        vkDestroySemaphore(device.GetVKDevice(), renderFinishedSemaphores[i], nullptr);
-        vkDestroyFence(device.GetVKDevice(), inFlightFences[i], nullptr);
     }
 }
 
@@ -829,132 +753,97 @@ void Renderer::DestroyDepthResources()
     }
 }
 
-bool Renderer::CreateFrameDescriptorSetLayout()
+bool Renderer::CreateFrameResources()
 {
-    ResourceBinding binding = {};
-    binding.set = 0;
-    binding.bindingIndex = 0;
-    binding.arrayCount = 1;
-    binding.resourceType = ResourceType::UniformBuffer;
-    binding.stageFlags = ShaderStageFlags::Vertex | ShaderStageFlags::Fragment;
+    DescriptorSetLayoutDesc setLayoutDesc = {};
+    setLayoutDesc.bindings.push_back(ResourceBinding{
+        .set = 0,
+        .bindingIndex = 0,
+        .resourceType = ResourceType::UniformBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+    setLayoutDesc.bindings.push_back(ResourceBinding{
+        .set = 0,
+        .bindingIndex = 1,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
 
-    ResourceBinding binding2 = {};
-    binding2.set = 0;
-    binding2.bindingIndex = 1;
-    binding2.arrayCount = 1;
-    binding2.resourceType = ResourceType::StorageBuffer;
-    binding2.stageFlags = ShaderStageFlags::Vertex | ShaderStageFlags::Fragment;
-
-    DescriptorSetLayoutDesc desc = {};
-    desc.bindings.push_back(binding);
-    desc.bindings.push_back(binding2);
-
-    frameDescriptorSetLayout = device.CreateDescriptorSetLayout(desc);
-
+    frameDescriptorSetLayout.reset(device.CreateDescriptorSetLayout(setLayoutDesc));
     if (!frameDescriptorSetLayout)
         return false;
 
-    return true;
-}
-
-void Renderer::DestroyFrameDescriptorSetLayout()
-{
-    if (frameDescriptorSetLayout)
-    {
-        delete frameDescriptorSetLayout;
-        frameDescriptorSetLayout = nullptr;
-    }
-}
-
-bool Renderer::CreateFrameDescriptorSet()
-{
-    for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        DescriptorSet* descriptorSet = device.CreateDescriptorSet(frameDescriptorSetLayout);
-
-        if (!descriptorSet)
-            return false;
-
-        frameDescriptorSets.push_back(descriptorSet);
-
-        descriptorSet->WriteUniformBuffer(0, *frameUniformBuffers[i]);
-        descriptorSet->WriteStorageBuffer(1, *pointLightStorageBuffers[i]);
-    }
-
-    return true;
-}
-
-void Renderer::DestroyFrameDescriptorSet()
-{
-    for (auto& descriptorSet : frameDescriptorSets)
-    {
-        if (descriptorSet)
-        {
-            delete descriptorSet;
-            descriptorSet = nullptr;
-        }
-    }
-
-    frameDescriptorSets.clear();
-}
-
-bool Renderer::CreateFrameUniformBuffer()
-{
-    frameUniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        UniformBufferDesc desc = {};
-        desc.size = sizeof(FrameConstants);
-        desc.initialData = nullptr;
+        VkSemaphoreCreateInfo semaphoreInfo = {};
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-        Buffer* buffer = device.CreateUniformBuffer(desc);
-        if (!buffer)
+        VkFenceCreateInfo fenceInfo = {};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+        if (vkCreateSemaphore(
+                device.GetVKDevice(), &semaphoreInfo, nullptr,
+                &frameResources[i].imageAvailableSemaphore) != VK_SUCCESS)
+        {
             return false;
+        }
+        if (vkCreateSemaphore(
+                device.GetVKDevice(), &semaphoreInfo, nullptr,
+                &frameResources[i].renderFinishedSemaphore) != VK_SUCCESS)
+        {
+            return false;
+        }
+        if (vkCreateFence(
+                device.GetVKDevice(), &fenceInfo, nullptr,
+                &frameResources[i].inFlightFence) != VK_SUCCESS)
+        {
+            return false;
+        }
 
-        frameUniformBuffers[i].reset(buffer);
+        frameResources[i].commandBuffer.reset(commandPool->Allocate());
+
+        UniformBufferDesc uniformBufferDesc = {};
+        uniformBufferDesc.size = sizeof(FrameConstants);
+
+        frameResources[i].uniformBuffer.reset(device.CreateUniformBuffer(uniformBufferDesc));
+
+        StorageBufferDesc storageBufferDesc = {};
+        storageBufferDesc.elementCapacity = 256;
+        storageBufferDesc.elementStride = sizeof(PointLightConstants);
+        storageBufferDesc.memoryUsage = MemoryUsage::CpuToGpu;
+
+        frameResources[i].pointLightStorageBuffer.reset(device.CreateStorageBuffer(storageBufferDesc));
+
+        frameResources[i].descriptorSet.reset(device.CreateDescriptorSet(frameDescriptorSetLayout.get()));
+        frameResources[i].descriptorSet->WriteUniformBuffer(0, *frameResources[i].uniformBuffer);
+        frameResources[i].descriptorSet->WriteStorageBuffer(1, *frameResources[i].pointLightStorageBuffer);
     }
-
-    return true;
 }
 
-void Renderer::DestroyFrameUniformBuffer()
+void Renderer::DestroyFrameResources()
 {
-    for (auto& buffer : frameUniformBuffers)
-    {
-        buffer.reset();
-    }
-}
-
-bool Renderer::CreatePointLightStorageBuffer()
-{
-    constexpr uint32 MAX_POINT_LIGHTS = 256;
-
-    pointLightStorageBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        StorageBufferDesc desc = {};
-        desc.elementCapacity = MAX_POINT_LIGHTS;
-        desc.elementStride = sizeof(PointLightConstants);
-        desc.memoryUsage = MemoryUsage::CpuToGpu;
+        frameResources[i].descriptorSet.reset();
 
-        pointLightStorageBuffers[i].reset(
-            device.CreateStorageBuffer(desc));
+        frameResources[i].pointLightStorageBuffer.reset();
+        frameResources[i].uniformBuffer.reset();
+
+        frameResources[i].commandBuffer.reset();
+
+        vkDestroyFence(
+            device.GetVKDevice(),
+            frameResources[i].inFlightFence, nullptr);
+        vkDestroySemaphore(
+            device.GetVKDevice(),
+            frameResources[i].renderFinishedSemaphore, nullptr);
+        vkDestroySemaphore(
+            device.GetVKDevice(),
+            frameResources[i].imageAvailableSemaphore, nullptr);
     }
 
-    return true;
-}
-
-void Renderer::DestroyPointLightStorageBuffer()
-{
-    for (auto& buffer : pointLightStorageBuffers)
-    {
-        if (buffer)
-        {
-            buffer.reset();
-        }
-    }
+    frameDescriptorSetLayout.reset();
 }
 
 void Renderer::ProcessPendingSceneRenderTargetResize()

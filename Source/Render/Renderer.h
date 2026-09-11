@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Render/DrawCommand/DrawCommand.h"
+#include "Render/FrameResource.h"
 #include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RenderInfo.h"
 
 #include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
@@ -62,9 +64,6 @@ public:
     void RequestSceneRenderTargetResize(const Extent2D& extent);
     Extent2D GetSceneRenderTargetExtent() const;
 
-    CommandBuffer& GetCommandBuffer() const;
-    DescriptorSet& GetFrameDescriptorSet() const;
-
     RenderTarget& GetSceneRenderTarget() const { return *sceneRenderTarget; }
     VkRenderPass GetSceneRenderPass() const { return sceneRenderPass; }
     Framebuffer& GetSceneFramebuffer() const { return *sceneFramebuffer; }
@@ -80,8 +79,7 @@ public:
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
 
-    Buffer* GetFrameUniformBuffer(uint32 frameIndex) const { return frameUniformBuffers[frameIndex].get(); }
-    Buffer* GetPointLightStorageBuffer(uint32 frameIndex) const { return pointLightStorageBuffers[frameIndex].get(); }
+    FrameResource& GetFrameResource() { return frameResources[currentFrame]; }
 
 private:
     bool CreateSceneRenderPass();
@@ -114,25 +112,11 @@ private:
     bool CreateCommandPool();
     void DestroyCommandPool();
 
-    bool CreateCommandBuffer();
-
-    bool CreateSyncObjects();
-    void DestroySyncObjects();
-
     bool CreateDepthResources();
     void DestroyDepthResources();
 
-    bool CreateFrameUniformBuffer();
-    void DestroyFrameUniformBuffer();
-
-    bool CreateFrameDescriptorSetLayout();
-    void DestroyFrameDescriptorSetLayout();
-
-    bool CreateFrameDescriptorSet();
-    void DestroyFrameDescriptorSet();
-
-    bool CreatePointLightStorageBuffer();
-    void DestroyPointLightStorageBuffer();
+    bool CreateFrameResources();
+    void DestroyFrameResources();
 
     void ProcessPendingSceneRenderTargetResize();
 
@@ -168,22 +152,14 @@ private:
     VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
 
     std::unique_ptr<CommandPool> commandPool = nullptr;
-    std::vector<std::unique_ptr<CommandBuffer>> commandBuffers;
-
-    std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VkFence> inFlightFences;
 
     std::unique_ptr<Texture> depthTexture = nullptr;
     std::unique_ptr<TextureView> depthTextureView = nullptr;
 
-    DescriptorSetLayout* frameDescriptorSetLayout = nullptr;
-    std::vector<DescriptorSet*> frameDescriptorSets;
-
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
 
-    std::vector<std::unique_ptr<Buffer>> frameUniformBuffers;
-    std::vector<std::unique_ptr<Buffer>> pointLightStorageBuffers;
+    std::unique_ptr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
+    std::array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;
 };
 
 } // namespace URay::Render

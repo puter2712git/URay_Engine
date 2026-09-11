@@ -139,8 +139,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .color = Color3(pointLights[i]->GetColor()) });
     }
 
-    renderer.GetFrameUniformBuffer(currentFrame)->Update(&frameConstants, sizeof(FrameConstants));
-    renderer.GetPointLightStorageBuffer(currentFrame)->Update(pointLightConstants.data(), sizeof(PointLightConstants) * pointLightConstants.size());
+    renderer.GetFrameResource().uniformBuffer->Update(&frameConstants, sizeof(FrameConstants));
+    renderer.GetFrameResource().pointLightStorageBuffer->Update(pointLightConstants.data(), sizeof(PointLightConstants) * pointLightConstants.size());
 
     const Frustum frustum =
         Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);
@@ -212,9 +212,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
     }
 
     const RenderPassContext passContext = {
-        .commandBuffer = renderer.GetCommandBuffer(),
+        .commandBuffer = *renderer.GetFrameResource().commandBuffer,
         .resourceManager = renderSystem.GetResourceManager(),
-        .frameDescriptorSet = renderer.GetFrameDescriptorSet(),
+        .frameDescriptorSet = *renderer.GetFrameResource().descriptorSet,
 
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
         .sceneRenderPass = renderer.GetSceneRenderPass(),
