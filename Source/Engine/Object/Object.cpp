@@ -22,7 +22,7 @@ void Object::RegisterClass()
 YAML::Node Object::Serialize() const
 {
     YAML::Node node;
-    const auto& properties = GetClass()->GetProperties();
+    const auto& properties = GetClass()->GetAllProperties();
 
     for (const Property& prop : properties)
     {
@@ -103,7 +103,7 @@ YAML::Node Object::Serialize() const
 
 void Object::Deserialize(const YAML::Node& node)
 {
-    const auto& properties = GetClass()->GetProperties();
+    const auto& properties = GetClass()->GetAllProperties();
 
     for (const Property& prop : properties)
     {
