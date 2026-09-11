@@ -162,6 +162,9 @@ VkSurfaceFormatKHR SwapChain::ChooseFormat(const std::vector<VkSurfaceFormatKHR>
 
 VkPresentModeKHR SwapChain::ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const
 {
+    // TODO: Choose optimal present mode by OS or device.
+    return VK_PRESENT_MODE_FIFO_KHR;
+
     for (const auto& mode : availablePresentModes)
     {
         if (mode == VK_PRESENT_MODE_IMMEDIATE_KHR)
@@ -173,8 +176,6 @@ VkPresentModeKHR SwapChain::ChoosePresentMode(const std::vector<VkPresentModeKHR
         if (mode == VK_PRESENT_MODE_MAILBOX_KHR)
             return mode;
     }
-
-    return VK_PRESENT_MODE_FIFO_KHR;
 }
 
 VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities, const VkExtent2D& requestedExtent) const
