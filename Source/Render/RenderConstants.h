@@ -30,6 +30,29 @@ struct DirectionalLightConstants
     Color color = Color::White;
 };
 
+struct PointLightConstants
+{
+    Vector3 position = Vector3::Zero;
+    float radius = 0.0f;
+    float intensity = 0.0f;
+    Color3 color = Color3::White;
+};
+
+struct SpotLightConstants
+{
+    Vector3 position = Vector3::Zero;
+    float range = 0.0f;
+
+    Vector3 direction = Vector3::Forward;
+    float intensity = 0.0f;
+
+    Color3 color = Color3::White;
+    float innerConeAngle = 0.0f;
+
+    float outerConeAngle = 0.0f;
+    float padding[3];
+};
+
 struct FrameConstants
 {
     Matrix view = Matrix::Identity;
@@ -44,14 +67,6 @@ struct FrameConstants
 
     AmbientLightConstants ambientLight = {};
     DirectionalLightConstants directionalLight = {};
-};
-
-struct PointLightConstants
-{
-    Vector3 position = Vector3::Zero;
-    float radius = 0.0f;
-    float intensity = 0.0f;
-    Color3 color = Color3::White;
 };
 
 } // namespace URay::Render

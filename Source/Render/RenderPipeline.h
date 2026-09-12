@@ -26,6 +26,7 @@ class FogObject;
 class AmbientLightObject;
 class DirectionalLightObject;
 class PointLightObject;
+class SpotLightObject;
 
 struct RenderRequest
 {
@@ -54,8 +55,9 @@ public:
 private:
     FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;
     AmbientLightObject* FindAmbientLight(const std::vector<RenderScene*>& scenes) const;
-    DirectionalLightObject* FindLight(const std::vector<RenderScene*>& scenes) const;
+    DirectionalLightObject* FindDirectionalLight(const std::vector<RenderScene*>& scenes) const;
     std::vector<PointLightObject*> FindPointLights(const std::vector<RenderScene*>& scenes) const;
+    std::vector<SpotLightObject*> FindSpotLights(const std::vector<RenderScene*>& scenes) const;
 
 private:
     AssetSystem& assetSystem;

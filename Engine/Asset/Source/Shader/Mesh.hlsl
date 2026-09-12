@@ -18,6 +18,11 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
     {
         lighting += EvaluatePoint(pointLights[i], worldPosition, normal);
     }
+   
+    for (uint i = 0; i < 256; ++i)
+    {
+        lighting += EvaluateSpot(spotLights[i], worldPosition, normal);
+    }
     
     return albedo * lighting;
 #else

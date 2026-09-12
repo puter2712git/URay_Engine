@@ -18,6 +18,7 @@
 #include "Render/Scene/Object/Light/AmbientLightObject.h"
 #include "Render/Scene/Object/Light/DirectionalLightObject.h"
 #include "Render/Scene/Object/Light/PointLightObject.h"
+#include "Render/Scene/Object/Light/SpotLightObject.h"
 #include "Render/Scene/Object/RenderObject.h"
 #include "Render/Scene/Object/ViewObject.h"
 #include "Render/Scene/RenderScene.h"
@@ -94,8 +95,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
 {
     FogObject* fog = FindFog(request.scenes);
     AmbientLightObject* ambientLight = FindAmbientLight(request.scenes);
-    DirectionalLightObject* light = FindLight(request.scenes);
+    DirectionalLightObject* light = FindDirectionalLight(request.scenes);
     std::vector<PointLightObject*> pointLights = FindPointLights(request.scenes);
+    std::vector<SpotLightObject*> spotLights = FindSpotLights(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
 
@@ -139,8 +141,22 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .color = Color3(pointLights[i]->GetColor()) });
     }
 
+    std::vector<SpotLightConstants> spotLightConstants;
+    for (size_t i = 0; i < spotLights.size(); ++i)
+    {
+        spotLightConstants.push_back(SpotLightConstants{
+            .position = spotLights[i]->GetPosition(),
+            .range = spotLights[i]->GetRange(),
+            .direction = spotLights[i]->GetDirection(),
+            .intensity = spotLights[i]->GetIntensity(),
+            .color = Color3(spotLights[i]->GetColor()),
+            .innerConeAngle = spotLights[i]->GetInnerConeAngle(),
+            .outerConeAngle = spotLights[i]->GetOuterConeAngle() });
+    }
+
     renderer.GetFrameResource().uniformBuffer->Update(&frameConstants, sizeof(FrameConstants));
     renderer.GetFrameResource().pointLightStorageBuffer->Update(pointLightConstants.data(), sizeof(PointLightConstants) * pointLightConstants.size());
+    renderer.GetFrameResource().spotLightStorageBuffer->Update(spotLightConstants.data(), sizeof(SpotLightConstants) * spotLightConstants.size());
 
     const Frustum frustum =
         Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);
@@ -291,7 +307,7 @@ AmbientLightObject* RenderPipeline::FindAmbientLight(
     return nullptr;
 }
 
-DirectionalLightObject* RenderPipeline::FindLight(
+DirectionalLightObject* RenderPipeline::FindDirectionalLight(
     const std::vector<RenderScene*>& scenes) const
 {
     for (const RenderScene* scene : scenes)
@@ -333,6 +349,29 @@ std::vector<PointLightObject*> RenderPipeline::FindPointLights(
     }
 
     return pointLights;
+}
+
+std::vector<SpotLightObject*> RenderPipeline::FindSpotLights(
+    const std::vector<RenderScene*>& scenes) const
+{
+    std::vector<SpotLightObject*> spotLights;
+
+    for (const RenderScene* scene : scenes)
+    {
+        size_t objCount = scene->GetObjectCount();
+
+        for (size_t i = 0; i < objCount; ++i)
+        {
+            RenderObject* robj = scene->GetObject(i);
+
+            if (SpotLightObject* light = dynamic_cast<SpotLightObject*>(robj))
+            {
+                spotLights.push_back(light);
+            }
+        }
+    }
+
+    return spotLights;
 }
 
 } // namespace URay::Render

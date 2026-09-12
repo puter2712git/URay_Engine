@@ -768,6 +768,12 @@ bool Renderer::CreateFrameResources()
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
         .stageFlags = ShaderStageFlags::All });
+    setLayoutDesc.bindings.push_back(ResourceBinding{
+        .set = 0,
+        .bindingIndex = 2,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
 
     frameDescriptorSetLayout.reset(device.CreateDescriptorSetLayout(setLayoutDesc));
     if (!frameDescriptorSetLayout)
@@ -808,17 +814,27 @@ bool Renderer::CreateFrameResources()
 
         frameResources[i].uniformBuffer.reset(device.CreateUniformBuffer(uniformBufferDesc));
 
-        StorageBufferDesc storageBufferDesc = {};
-        storageBufferDesc.elementCapacity = 256;
-        storageBufferDesc.elementStride = sizeof(PointLightConstants);
-        storageBufferDesc.memoryUsage = MemoryUsage::CpuToGpu;
+        StorageBufferDesc pointLightStorageBufferDesc = {
+            .elementCapacity = 256,
+            .elementStride = sizeof(PointLightConstants),
+            .memoryUsage = MemoryUsage::CpuToGpu
+        };
+        frameResources[i].pointLightStorageBuffer.reset(device.CreateStorageBuffer(pointLightStorageBufferDesc));
 
-        frameResources[i].pointLightStorageBuffer.reset(device.CreateStorageBuffer(storageBufferDesc));
+        StorageBufferDesc spotLightStorageBufferDesc = {
+            .elementCapacity = 256,
+            .elementStride = sizeof(SpotLightConstants),
+            .memoryUsage = MemoryUsage::CpuToGpu
+        };
+        frameResources[i].spotLightStorageBuffer.reset(device.CreateStorageBuffer(spotLightStorageBufferDesc));
 
         frameResources[i].descriptorSet.reset(device.CreateDescriptorSet(frameDescriptorSetLayout.get()));
         frameResources[i].descriptorSet->WriteUniformBuffer(0, *frameResources[i].uniformBuffer);
         frameResources[i].descriptorSet->WriteStorageBuffer(1, *frameResources[i].pointLightStorageBuffer);
+        frameResources[i].descriptorSet->WriteStorageBuffer(2, *frameResources[i].spotLightStorageBuffer);
     }
+
+    return true;
 }
 
 void Renderer::DestroyFrameResources()
@@ -827,6 +843,7 @@ void Renderer::DestroyFrameResources()
     {
         frameResources[i].descriptorSet.reset();
 
+        frameResources[i].spotLightStorageBuffer.reset();
         frameResources[i].pointLightStorageBuffer.reset();
         frameResources[i].uniformBuffer.reset();
 

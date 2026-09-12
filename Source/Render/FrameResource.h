@@ -20,6 +20,7 @@ struct FrameResource
     std::unique_ptr<CommandBuffer> commandBuffer = nullptr;
     std::unique_ptr<Buffer> uniformBuffer = nullptr;
     std::unique_ptr<Buffer> pointLightStorageBuffer = nullptr;
+    std::unique_ptr<Buffer> spotLightStorageBuffer = nullptr;
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
 };
 
