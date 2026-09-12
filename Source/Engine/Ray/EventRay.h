@@ -2,15 +2,11 @@
 
 #include "Core/Type/Types.h"
 
-#include <cstdint>
 #include <functional>
 #include <unordered_map>
-#include <utility>
 
 namespace URay
 {
-
-using RayHandle = uint32;
 
 template <typename... Args>
 class EventRay
@@ -19,14 +15,13 @@ public:
     using Callback = std::function<void(Args...)>;
 
 public:
-    RayHandle Register(Callback callback);
-    void Unregister(RayHandle handle);
+    void Register(const void* owner, Callback callback);
+    void UnregisterAll(const void* owner);
 
-    void Emit(Args... args);
+    void Emit(Args... args) const;
 
 private:
-    RayHandle nextHandle = 0;
-    std::unordered_map<RayHandle, Callback> callbacks;
+    std::unordered_map<const void*, std::vector<Callback>> callbacks;
 };
 
 } // namespace URay

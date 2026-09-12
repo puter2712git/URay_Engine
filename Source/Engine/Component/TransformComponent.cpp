@@ -73,7 +73,7 @@ void TransformComponent::UpdateWorldMatrix()
         return;
 
     SceneSystem& sceneSystem = scene->GetSceneSystem();
-    sceneSystem.EmitUnitWorldTransformUpdateRay(scene, owner);
+    sceneSystem.GetUnitWorldTransformUpdateRay().Emit(scene, owner);
 
     // TODO: Move these logics.
     for (Component* comp : GetOwner()->GetComponents())

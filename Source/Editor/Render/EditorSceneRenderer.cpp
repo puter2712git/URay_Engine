@@ -27,17 +27,14 @@ bool EditorSceneRenderer::Initialize()
     visualizerRegistry.Register<PointLightComponent>(std::make_unique<PointLightVisualizer>());
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    unitAddHandle = sceneSystem.RegisterUnitAddCallback([this](Scene* scene, Unit* unit)
-                                                        { OnUnitAdded(scene, unit); });
-    unitRemoveHandle = sceneSystem.RegisterUnitRemoveCallback([this](Scene* scene, Unit* unit)
-                                                              { OnUnitRemoved(scene, unit); });
-    unitTransformUpdateHandle = sceneSystem.RegisterUnitWorldTransformUpdateCallback([this](Scene* scene, Unit* unit)
-                                                                                     { OnUnitTransformUpdated(scene, unit); });
-    componentPropertyChangedHandle = sceneSystem.RegisterComponentPropertyChangedCallback(
-        [this](Scene* scene, Unit* unit, Component* component, const Property& property)
-        {
-            OnComponentPropertyChanged(scene, unit, component, property);
-        });
+    sceneSystem.GetUnitAddRay().Register(this, [this](Scene* scene, Unit* unit)
+                                         { OnUnitAdded(scene, unit); });
+    sceneSystem.GetUnitRemoveRay().Register(this, [this](Scene* scene, Unit* unit)
+                                            { OnUnitRemoved(scene, unit); });
+    sceneSystem.GetUnitWorldTransformUpdateRay().Register(this, [this](Scene* scene, Unit* unit)
+                                                          { OnUnitTransformUpdated(scene, unit); });
+    sceneSystem.GetComponentPropertyChangeRay().Register(this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
+                                                         { OnComponentPropertyChanged(scene, unit, component, property); });
 
     return true;
 }
@@ -46,10 +43,10 @@ void EditorSceneRenderer::Finalize()
 {
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
-    sceneSystem.UnregisterComponentPropertyChangedCallback(componentPropertyChangedHandle);
-    sceneSystem.UnregisterUnitWorldTransformUpdateCallback(unitTransformUpdateHandle);
-    sceneSystem.UnregisterUnitRemoveCallback(unitRemoveHandle);
-    sceneSystem.UnregisterUnitAddCallback(unitAddHandle);
+    sceneSystem.GetComponentPropertyChangeRay().UnregisterAll(this);
+    sceneSystem.GetUnitWorldTransformUpdateRay().UnregisterAll(this);
+    sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
+    sceneSystem.GetUnitAddRay().UnregisterAll(this);
 }
 
 void EditorSceneRenderer::OnUnitAdded(Scene* scene, Unit* unit)

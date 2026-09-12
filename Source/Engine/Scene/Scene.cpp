@@ -222,7 +222,7 @@ void Scene::AddUnit(Unit* unit)
     unit->SetOwner(this);
     units.push_back(unit);
 
-    sceneSystem.EmitUnitAddRay(this, unit);
+    sceneSystem.GetUnitAddRay().Emit(this, unit);
 
     const auto& components = unit->GetComponents();
     for (Component* comp : components)
@@ -240,7 +240,7 @@ void Scene::DestroyUnit(Unit* unit)
     if (!unit)
         return;
 
-    sceneSystem.EmitUnitRemoveRay(this, unit);
+    sceneSystem.GetUnitRemoveRay().Emit(this, unit);
 
     auto it = std::find(units.begin(), units.end(), unit);
     if (it != units.end())

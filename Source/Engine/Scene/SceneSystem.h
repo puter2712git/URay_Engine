@@ -32,22 +32,10 @@ public:
 
     const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
 
-    RayHandle RegisterUnitAddCallback(EventRay<Scene*, Unit*>::Callback callback) { return unitAddRay.Register(callback); }
-    void UnregisterUnitAddCallback(RayHandle handle) { unitAddRay.Unregister(handle); }
-
-    RayHandle RegisterUnitRemoveCallback(EventRay<Scene*, Unit*>::Callback callback) { return unitRemoveRay.Register(callback); }
-    void UnregisterUnitRemoveCallback(RayHandle handle) { unitRemoveRay.Unregister(handle); }
-
-    RayHandle RegisterUnitWorldTransformUpdateCallback(EventRay<Scene*, Unit*>::Callback callback) { return unitWorldTransformUpdateRay.Register(callback); }
-    void UnregisterUnitWorldTransformUpdateCallback(RayHandle handle) { unitWorldTransformUpdateRay.Unregister(handle); }
-
-    RayHandle RegisterComponentPropertyChangedCallback(EventRay<Scene*, Unit*, Component*, const Property&>::Callback callback) { return componentPropertyChangedRay.Register(callback); }
-    void UnregisterComponentPropertyChangedCallback(RayHandle handle) { componentPropertyChangedRay.Unregister(handle); }
-
-    void EmitUnitAddRay(Scene* scene, Unit* unit) { unitAddRay.Emit(scene, unit); }
-    void EmitUnitRemoveRay(Scene* scene, Unit* unit) { unitRemoveRay.Emit(scene, unit); }
-    void EmitUnitWorldTransformUpdateRay(Scene* scene, Unit* unit) { unitWorldTransformUpdateRay.Emit(scene, unit); }
-    void EmitComponentPropertyChangedRay(Scene* scene, Unit* unit, Component* component, const Property& property) { componentPropertyChangedRay.Emit(scene, unit, component, property); }
+    EventRay<Scene*, Unit*>& GetUnitAddRay() { return unitAddRay; }
+    EventRay<Scene*, Unit*>& GetUnitRemoveRay() { return unitRemoveRay; }
+    EventRay<Scene*, Unit*>& GetUnitWorldTransformUpdateRay() { return unitWorldTransformUpdateRay; }
+    EventRay<Scene*, Unit*, Component*, const Property&>& GetComponentPropertyChangeRay() { return componentPropertyChangedRay; }
 
 private:
     std::vector<std::unique_ptr<Scene>> scenes;

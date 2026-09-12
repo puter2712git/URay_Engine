@@ -23,9 +23,7 @@ public:
 
     void SelectUnit(Unit* unit);
 
-    RayHandle RegisterOnSelected(EventRay<Unit*>::Callback callback);
-    void UnregisterOnSelected(RayHandle handle);
-
+    EventRay<Unit*>& GetOnSelectRay() { return onSelectRay; }
     Unit* GetSelectedUnit() const { return selectedUnit; }
 
 private:

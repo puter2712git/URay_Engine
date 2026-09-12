@@ -2,25 +2,26 @@ namespace URay
 {
 
 template <typename... Args>
-RayHandle EventRay<Args...>::Register(Callback callback)
+void EventRay<Args...>::Register(const void* owner, Callback callback)
 {
-    const RayHandle newHandle = nextHandle++;
-    callbacks.insert({ newHandle, std::move(callback) });
-    return newHandle;
+    callbacks[owner].push_back(callback);
 }
 
 template <typename... Args>
-void EventRay<Args...>::Unregister(RayHandle handle)
+void EventRay<Args...>::UnregisterAll(const void* owner)
 {
-    callbacks.erase(handle);
+    callbacks.erase(owner);
 }
 
 template <typename... Args>
-void EventRay<Args...>::Emit(Args... args)
+void EventRay<Args...>::Emit(Args... args) const
 {
-    for (auto& [handle, callback] : callbacks)
+    for (auto& [owner, callbackArray] : callbacks)
     {
-        callback(args...);
+        for (auto& cb : callbackArray)
+        {
+            cb(args...);
+        }
     }
 }
 

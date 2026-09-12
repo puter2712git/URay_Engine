@@ -32,11 +32,6 @@ private:
     Engine& engine;
 
     EditorVisualizerRegistry visualizerRegistry;
-
-    RayHandle unitAddHandle = 0;
-    RayHandle unitRemoveHandle = 0;
-    RayHandle unitTransformUpdateHandle = 0;
-    RayHandle componentPropertyChangedHandle = 0;
 };
 
 } // namespace URay

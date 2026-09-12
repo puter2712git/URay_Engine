@@ -56,10 +56,7 @@ public:
     Scene* GetOwner() const { return scene; }
     void SetOwner(Scene* scene) { this->scene = scene; }
 
-    RayHandle RegisterTransformUpdateCallback(EventRay<Component*>::Callback callback) { return transformUpdateRay.Register(callback); }
-    void UnregisterTransformUpdateCallback(RayHandle handle) { transformUpdateRay.Unregister(handle); }
-
-    void EmitTransformUpdateRay(Component* comp) { transformUpdateRay.Emit(comp); }
+    const EventRay<Component*>& GetTransformUpdateRay() const { return transformUpdateRay; }
 
 private:
     std::string name;

@@ -31,13 +31,13 @@ ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& came
     gizmo = std::make_unique<GizmoController>(engine);
     picker = std::make_unique<EditorPicker>(engine, editor, gizmo.get());
 
-    onSelectedRayHandle = selectionSystem.RegisterOnSelected([this](Unit* unit)
-                                                             { gizmo->SetTarget(unit); });
+    selectionSystem.GetOnSelectRay().Register(this, [this](Unit* unit)
+                                              { gizmo->SetTarget(unit); });
 }
 
 ViewportWidget::~ViewportWidget()
 {
-    selectionSystem.UnregisterOnSelected(onSelectedRayHandle);
+    selectionSystem.GetOnSelectRay().UnregisterAll(this);
 
     if (picker)
     {

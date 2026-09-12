@@ -69,8 +69,6 @@ private:
 
     SelectionSystem& selectionSystem;
 
-    RayHandle onSelectedRayHandle;
-
     Rect imageRect = {};
     Extent2D targetExtent = {};
 
