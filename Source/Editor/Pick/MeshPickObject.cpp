@@ -71,4 +71,13 @@ bool MeshPickObject::Intersect(
     return hitResult;
 }
 
+void MeshPickObject::OnComponentPropertyChanged(Component* component, const Property& property)
+{
+    if (property.name != "Mesh")
+        return;
+
+    MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
+    mesh = meshComponent->GetMesh();
+}
+
 } // namespace URay

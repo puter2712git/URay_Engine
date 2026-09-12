@@ -2,12 +2,16 @@
 
 #include "Editor/Editor.h"
 #include "Editor/GizmoController.h"
+#include "Editor/Pick/MeshPickObject.h"
 #include "Editor/Pick/PickObject.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"
+#include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
+#include "Engine/Scene/Unit.h"
 
 #include "Core/Math/Math.h"
 #include "Core/Math/Ray.h"
@@ -16,17 +20,66 @@
 namespace URay
 {
 
-PickSystem::PickSystem(GizmoController& gizmo) : gizmo(gizmo) {}
+PickSystem::PickSystem(Engine& engine, GizmoController& gizmo)
+    : engine(engine), gizmo(gizmo) {}
 
 PickSystem::~PickSystem() = default;
 
 bool PickSystem::Initialize()
 {
+    pickRegistry.Register<MeshComponent>([](Component& component)
+                                         { return std::make_unique<MeshPickObject>(static_cast<MeshComponent&>(component)); });
+
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    sceneSystem.GetUnitAddRay().Register(
+        this, [this](Scene* scene, Unit* unit)
+        { OnUnitAdded(scene, unit); });
+    sceneSystem.GetUnitRemoveRay().Register(
+        this, [this](Scene* scene, Unit* unit)
+        { OnUnitRemoved(scene, unit); });
+    sceneSystem.GetComponentPropertyChangeRay().Register(
+        this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
+        { OnComponentPropertyChanged(scene, unit, component, property); });
+
     return true;
 }
 
 void PickSystem::Finalize()
 {
+    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
+    sceneSystem.GetUnitAddRay().UnregisterAll(this);
+
+    pickObjects.clear();
+}
+
+void PickSystem::OnUnitAdded(Scene*, Unit* unit)
+{
+    for (Component* component : unit->GetComponents())
+    {
+        const PickRegistry::Constructor* constructor = pickRegistry.Find(component->GetClass());
+        if (constructor)
+        {
+            pickObjects.insert_or_assign(component, (*constructor)(*component));
+        }
+    }
+}
+
+void PickSystem::OnUnitRemoved(Scene*, Unit* unit)
+{
+    for (Component* component : unit->GetComponents())
+    {
+        pickObjects.erase(component);
+    }
+}
+
+void PickSystem::OnComponentPropertyChanged(Scene*, Unit*, Component* component, const Property& property)
+{
+    const auto it = pickObjects.find(component);
+    if (it == pickObjects.end())
+        return;
+
+    it->second->OnComponentPropertyChanged(component, property);
 }
 
 PickResult PickSystem::Pick(

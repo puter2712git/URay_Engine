@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Type/Types.h"
+#include "Editor/Pick/PickRegistry.h"
 
 #include <memory>
 #include <unordered_map>
@@ -13,6 +14,8 @@ class CameraComponent;
 class PickObject;
 class Unit;
 class GizmoController;
+class Engine;
+class Scene;
 struct Ray;
 
 struct PickResult
@@ -25,7 +28,7 @@ struct PickResult
 class PickSystem
 {
 public:
-    explicit PickSystem(GizmoController& gizmo);
+    PickSystem(Engine& engine, GizmoController& gizmo);
     ~PickSystem();
 
 public:
@@ -37,9 +40,15 @@ public:
 private:
     bool PickGizmo(const Ray& worldRay, int32& outAxis) const;
 
+    void OnUnitAdded(Scene* scene, Unit* unit);
+    void OnUnitRemoved(Scene* scene, Unit* unit);
+    void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
+
 private:
+    Engine& engine;
     GizmoController& gizmo;
 
+    PickRegistry pickRegistry;
     std::unordered_map<Component*, std::unique_ptr<PickObject>> pickObjects;
 };
 

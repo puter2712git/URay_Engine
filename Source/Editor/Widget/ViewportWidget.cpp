@@ -29,7 +29,7 @@ ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& came
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
     gizmo = std::make_unique<GizmoController>(engine);
-    pickSystem = std::make_unique<PickSystem>(*gizmo);
+    pickSystem = std::make_unique<PickSystem>(engine, *gizmo);
     pickSystem->Initialize();
 
     selectionSystem.GetOnSelectRay().Register(this, [this](Unit* unit)

@@ -5,6 +5,7 @@
 namespace URay
 {
 
+class Component;
 class MeshComponent;
 class Mesh;
 
@@ -16,6 +17,8 @@ public:
 
 public:
     bool Intersect(const Ray& worldRay, float& nearestDistance) const override;
+
+    void OnComponentPropertyChanged(Component* component, const Property& property) override;
 
 private:
     Mesh* mesh = nullptr;
