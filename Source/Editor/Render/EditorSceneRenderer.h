@@ -11,11 +11,12 @@ class Component;
 class Property;
 class Unit;
 class Scene;
+class SelectionSystem;
 
 class EditorSceneRenderer
 {
 public:
-    EditorSceneRenderer(Engine& engine);
+    EditorSceneRenderer(Engine& engine, SelectionSystem& selectionSystem);
     ~EditorSceneRenderer();
 
 public:
@@ -30,6 +31,7 @@ private:
 
 private:
     Engine& engine;
+    SelectionSystem& selectionSystem;
 
     EditorVisualizerRegistry visualizerRegistry;
 };

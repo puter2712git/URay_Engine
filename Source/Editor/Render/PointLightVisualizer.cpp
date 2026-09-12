@@ -1,9 +1,13 @@
 #include "PointLightVisualizer.h"
 
+#include "Editor/Selection/SelectionSystem.h"
+
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/Light/PointLightComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Core/Math/Math.h"
@@ -14,6 +18,20 @@
 
 namespace URay
 {
+
+PointLightVisualizer::PointLightVisualizer(Engine& engine, SelectionSystem& selectionSystem)
+    : engine(engine), selectionSystem(selectionSystem)
+{
+    selectionSystem.GetOnSelectionChangedRay().Register(
+        this,
+        [this](Unit* previousUnit, Unit* selectedUnit)
+        { OnSelectionChanged(previousUnit, selectedUnit); });
+}
+
+PointLightVisualizer::~PointLightVisualizer()
+{
+    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+}
 
 Render::BillboardObjectState PointLightVisualizer::MakeBillboardState(
     EditorVisualContext& context,
@@ -106,16 +124,16 @@ void PointLightVisualizer::OnAdded(
 
     std::unique_ptr<Render::BillboardObject> billboard =
         std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
-    std::unique_ptr<Render::LineObject> lineObject =
-        std::make_unique<Render::LineObject>(MakeLineState(context, unit, component));
-
-    PointLightVisual visual = {};
-    visual.billboard = billboard.get();
-    visual.line = lineObject.get();
+    PointLightVisual visual = {
+        .unit = &unit,
+        .billboard = billboard.get()
+    };
 
     context.renderScene.Add(std::move(billboard));
-    context.renderScene.Add(std::move(lineObject));
-    visuals.emplace(&component, visual);
+    auto [it, added] = visuals.emplace(&component, visual);
+
+    if (added && selectionSystem.GetSelectedUnit() == &unit)
+        CreateLine(context, component, it->second);
 }
 
 void PointLightVisualizer::OnRemoved(
@@ -132,8 +150,7 @@ void PointLightVisualizer::OnRemoved(
 
     if (visual.billboard)
         context.renderScene.Destroy(visual.billboard);
-    if (visual.line)
-        context.renderScene.Destroy(visual.line);
+    DestroyLine(context, visual);
 
     visuals.erase(it);
 }
@@ -162,11 +179,57 @@ void PointLightVisualizer::OnPropertyChanged(EditorVisualContext& context, Scene
         return;
 
     const auto it = visuals.find(&component);
-    if (it == visuals.end() || !it->second.billboard)
+    if (it == visuals.end())
         return;
 
-    it->second.billboard->Update(MakeBillboardState(context, unit, component));
-    it->second.line->Update(MakeLineState(context, unit, component));
+    PointLightVisual& visual = it->second;
+    if (visual.billboard)
+        visual.billboard->Update(MakeBillboardState(context, unit, component));
+    if (visual.line)
+        visual.line->Update(MakeLineState(context, unit, component));
+}
+
+void PointLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit)
+{
+    if (previousUnit == selectedUnit)
+        return;
+
+    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
+    if (!editorScene)
+        return;
+
+    EditorVisualContext context = {
+        .engine = engine,
+        .renderScene = *editorScene->GetRenderScene()
+    };
+
+    for (auto& [component, visual] : visuals)
+    {
+        if (visual.unit == previousUnit)
+            DestroyLine(context, visual);
+        if (visual.unit == selectedUnit)
+            CreateLine(context, *component, visual);
+    }
+}
+
+void PointLightVisualizer::CreateLine(EditorVisualContext& context, Component& component, PointLightVisual& visual)
+{
+    if (visual.line)
+        return;
+
+    std::unique_ptr<Render::LineObject> line =
+        std::make_unique<Render::LineObject>(MakeLineState(context, *visual.unit, component));
+    visual.line = line.get();
+    context.renderScene.Add(std::move(line));
+}
+
+void PointLightVisualizer::DestroyLine(EditorVisualContext& context, PointLightVisual& visual)
+{
+    if (!visual.line)
+        return;
+
+    context.renderScene.Destroy(visual.line);
+    visual.line = nullptr;
 }
 
 } // namespace URay

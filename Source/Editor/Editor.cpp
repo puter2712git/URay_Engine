@@ -88,7 +88,7 @@ bool Editor::Initialize()
     std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>(*widgetDrawer);
     pipeline.AddRenderPass(std::move(uiPass));
 
-    sceneRenderer = std::make_unique<EditorSceneRenderer>(engine);
+    sceneRenderer = std::make_unique<EditorSceneRenderer>(engine, *selectionSystem);
     if (!sceneRenderer->Initialize())
         return false;
 
@@ -176,11 +176,6 @@ void Editor::Update()
 void Editor::PrepareRender()
 {
     URAY_PROFILE_SCOPE("Editor::PrepareRender")
-
-    Render::Renderer& renderer = engine.GetRenderSystem().GetRenderer();
-    Render::DrawCommandBuilder& builder = engine.GetRenderSystem().GetPipeline().GetBuilder();
-
-    selectionSystem->PrepareRender(builder);
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
     rootWidget->Arrange({

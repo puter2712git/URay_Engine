@@ -1,9 +1,12 @@
 #include "EditorSceneRenderer.h"
 
 #include "Editor/Render/DirectionalLightVisualizer.h"
+#include "Editor/Render/DecalVisualizer.h"
 #include "Editor/Render/PointLightVisualizer.h"
+#include "Editor/Selection/SelectionSystem.h"
 
 #include "Engine/Component/Component.h"
+#include "Engine/Component/Render/DecalComponent.h"
 #include "Engine/Component/Render/Light/DirectionalLightComponent.h"
 #include "Engine/Component/Render/Light/PointLightComponent.h"
 #include "Engine/Engine.h"
@@ -16,15 +19,16 @@
 namespace URay
 {
 
-EditorSceneRenderer::EditorSceneRenderer(Engine& engine)
-    : engine(engine) {}
+EditorSceneRenderer::EditorSceneRenderer(Engine& engine, SelectionSystem& selectionSystem)
+    : engine(engine), selectionSystem(selectionSystem) {}
 
 EditorSceneRenderer::~EditorSceneRenderer() = default;
 
 bool EditorSceneRenderer::Initialize()
 {
     visualizerRegistry.Register<DirectionalLightComponent>(std::make_unique<DirectionalLightVisualizer>());
-    visualizerRegistry.Register<PointLightComponent>(std::make_unique<PointLightVisualizer>());
+    visualizerRegistry.Register<PointLightComponent>(std::make_unique<PointLightVisualizer>(engine, selectionSystem));
+    visualizerRegistry.Register<DecalComponent>(std::make_unique<DecalVisualizer>(engine, selectionSystem));
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.GetUnitAddRay().Register(this, [this](Scene* scene, Unit* unit)

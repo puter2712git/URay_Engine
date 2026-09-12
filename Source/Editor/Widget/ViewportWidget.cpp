@@ -32,13 +32,13 @@ ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& came
     pickSystem = std::make_unique<PickSystem>(engine, *gizmo);
     pickSystem->Initialize();
 
-    selectionSystem.GetOnSelectRay().Register(this, [this](Unit* unit)
-                                              { gizmo->SetTarget(unit); });
+    selectionSystem.GetOnSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
+                                                        { gizmo->SetTarget(unit); });
 }
 
 ViewportWidget::~ViewportWidget()
 {
-    selectionSystem.GetOnSelectRay().UnregisterAll(this);
+    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
 
     if (pickSystem)
     {

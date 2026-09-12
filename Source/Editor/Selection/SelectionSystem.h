@@ -7,11 +7,6 @@ namespace URay
 
 class Unit;
 
-namespace Render
-{
-class DrawCommandBuilder;
-}
-
 class SelectionSystem
 {
 public:
@@ -19,15 +14,13 @@ public:
     ~SelectionSystem();
 
 public:
-    void PrepareRender(Render::DrawCommandBuilder& builder);
-
     void SelectUnit(Unit* unit);
 
-    EventRay<Unit*>& GetOnSelectRay() { return onSelectRay; }
+    EventRay<Unit*, Unit*>& GetOnSelectionChangedRay() { return onSelectionChangedRay; }
     Unit* GetSelectedUnit() const { return selectedUnit; }
 
 private:
-    EventRay<Unit*> onSelectRay;
+    EventRay<Unit*, Unit*> onSelectionChangedRay;
 
     Unit* selectedUnit = nullptr;
 };
