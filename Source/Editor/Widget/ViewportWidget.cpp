@@ -2,7 +2,7 @@
 
 #include "Editor/Editor.h"
 #include "Editor/GizmoController.h"
-#include "Editor/Pick/EditorPicker.h"
+#include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -29,7 +29,8 @@ ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& came
     camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
 
     gizmo = std::make_unique<GizmoController>(engine);
-    picker = std::make_unique<EditorPicker>(engine, editor, gizmo.get());
+    pickSystem = std::make_unique<PickSystem>(*gizmo);
+    pickSystem->Initialize();
 
     selectionSystem.GetOnSelectRay().Register(this, [this](Unit* unit)
                                               { gizmo->SetTarget(unit); });
@@ -39,10 +40,10 @@ ViewportWidget::~ViewportWidget()
 {
     selectionSystem.GetOnSelectRay().UnregisterAll(this);
 
-    if (picker)
+    if (pickSystem)
     {
-        picker.reset();
-        picker = nullptr;
+        pickSystem->Finalize();
+        pickSystem.reset();
     }
     if (gizmo)
     {
@@ -69,8 +70,8 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
         if (!targetPosition)
             return {};
 
-        const PickResult pickResult = picker->Pick(&camera, targetPosition->x, targetPosition->y);
-        if (!pickResult.hit)
+        const PickResult pickResult = pickSystem->Pick(&camera, targetPosition->x, targetPosition->y);
+        if (!pickResult.isHit)
         {
             selectionSystem.SelectUnit(nullptr);
         }
@@ -236,8 +237,8 @@ EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
 
 void ViewportWidget::OnUpdate(float deltaTime)
 {
-    PickResult pickResult = picker->Pick(&camera, cachedPosition.x, cachedPosition.y);
-    if (!pickResult.hit || pickResult.gizmoAxis == -1)
+    PickResult pickResult = pickSystem->Pick(&camera, cachedPosition.x, cachedPosition.y);
+    if (!pickResult.isHit || pickResult.gizmoAxis == -1)
     {
         gizmo->SetHoveredAxis(-1);
     }

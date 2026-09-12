@@ -19,7 +19,7 @@ class CameraComponent;
 class Engine;
 
 class GizmoController;
-class EditorPicker;
+class PickSystem;
 class SelectionSystem;
 class Editor;
 
@@ -65,7 +65,7 @@ private:
 
     CameraComponent& camera;
     std::unique_ptr<GizmoController> gizmo = nullptr;
-    std::unique_ptr<EditorPicker> picker = nullptr;
+    std::unique_ptr<PickSystem> pickSystem = nullptr;
 
     SelectionSystem& selectionSystem;
 
