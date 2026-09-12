@@ -24,6 +24,7 @@
 #include "Render/Scene/RenderScene.h"
 
 #include "Core/Math/Frustum.h"
+#include "Core/Math/Math.h"
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Shader/Shader.h"
@@ -150,8 +151,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .direction = spotLights[i]->GetDirection(),
             .intensity = spotLights[i]->GetIntensity(),
             .color = Color3(spotLights[i]->GetColor()),
-            .innerConeAngle = spotLights[i]->GetInnerConeAngle(),
-            .outerConeAngle = spotLights[i]->GetOuterConeAngle() });
+            .innerConeAngle = Math::DegToRad(spotLights[i]->GetInnerConeAngle() * 0.5f),
+            .outerConeAngle = Math::DegToRad(spotLights[i]->GetOuterConeAngle() * 0.5f) });
     }
 
     renderer.GetFrameResource().uniformBuffer->Update(&frameConstants, sizeof(FrameConstants));

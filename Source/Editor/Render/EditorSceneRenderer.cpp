@@ -3,12 +3,14 @@
 #include "Editor/Render/DirectionalLightVisualizer.h"
 #include "Editor/Render/DecalVisualizer.h"
 #include "Editor/Render/PointLightVisualizer.h"
+#include "Editor/Render/SpotLightVisualizer.h"
 #include "Editor/Selection/SelectionSystem.h"
 
 #include "Engine/Component/Component.h"
 #include "Engine/Component/Render/DecalComponent.h"
 #include "Engine/Component/Render/Light/DirectionalLightComponent.h"
 #include "Engine/Component/Render/Light/PointLightComponent.h"
+#include "Engine/Component/Render/Light/SpotLightComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
@@ -28,6 +30,7 @@ bool EditorSceneRenderer::Initialize()
 {
     visualizerRegistry.Register<DirectionalLightComponent>(std::make_unique<DirectionalLightVisualizer>());
     visualizerRegistry.Register<PointLightComponent>(std::make_unique<PointLightVisualizer>(engine, selectionSystem));
+    visualizerRegistry.Register<SpotLightComponent>(std::make_unique<SpotLightVisualizer>(engine, selectionSystem));
     visualizerRegistry.Register<DecalComponent>(std::make_unique<DecalVisualizer>(engine, selectionSystem));
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
