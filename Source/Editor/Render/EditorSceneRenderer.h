@@ -1,7 +1,10 @@
 #pragma once
 
-#include "Editor/Render/EditorVisualizerRegistry.h"
+#include "Editor/Render/Visualizer/EditorVisualizerRegistry.h"
 #include "Engine/Ray/EventRay.h"
+
+#include <memory>
+#include <unordered_map>
 
 namespace URay
 {
@@ -12,6 +15,7 @@ class Property;
 class Unit;
 class Scene;
 class SelectionSystem;
+class EditorComponentVisualizer;
 
 class EditorSceneRenderer
 {
@@ -34,6 +38,7 @@ private:
     SelectionSystem& selectionSystem;
 
     EditorVisualizerRegistry visualizerRegistry;
+    std::unordered_map<Component*, std::unique_ptr<EditorComponentVisualizer>> visualizers;
 };
 
 } // namespace URay

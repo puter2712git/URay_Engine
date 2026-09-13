@@ -19,18 +19,37 @@
 namespace URay
 {
 
-PointLightVisualizer::PointLightVisualizer(Engine& engine, SelectionSystem& selectionSystem)
-    : engine(engine), selectionSystem(selectionSystem)
+PointLightVisualizer::PointLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
+    : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
     selectionSystem.GetOnSelectionChangedRay().Register(
         this,
         [this](Unit* previousUnit, Unit* selectedUnit)
         { OnSelectionChanged(previousUnit, selectedUnit); });
+
+    std::unique_ptr<Render::BillboardObject> billboard =
+        std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
+    visual = {
+        .unit = &unit,
+        .component = &component,
+        .billboard = billboard.get()
+    };
+    renderScene.Add(std::move(billboard));
+
+    if (selectionSystem.GetSelectedUnit() == &unit)
+        CreateLine(context, component, visual);
 }
 
 PointLightVisualizer::~PointLightVisualizer()
 {
     selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+    EditorVisualContext context = {
+        .engine = engine,
+        .renderScene = renderScene
+    };
+    DestroyLine(context, visual);
+    if (visual.billboard)
+        renderScene.Destroy(visual.billboard);
 }
 
 Render::BillboardObjectState PointLightVisualizer::MakeBillboardState(
@@ -113,60 +132,12 @@ void PointLightVisualizer::AddCircle(
     }
 }
 
-void PointLightVisualizer::OnAdded(
-    EditorVisualContext& context,
-    Scene& scene,
-    Unit& unit,
-    Component& component)
-{
-    if (visuals.contains(&component))
-        return;
-
-    std::unique_ptr<Render::BillboardObject> billboard =
-        std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
-    PointLightVisual visual = {
-        .unit = &unit,
-        .billboard = billboard.get()
-    };
-
-    context.renderScene.Add(std::move(billboard));
-    auto [it, added] = visuals.emplace(&component, visual);
-
-    if (added && selectionSystem.GetSelectedUnit() == &unit)
-        CreateLine(context, component, it->second);
-}
-
-void PointLightVisualizer::OnRemoved(
-    EditorVisualContext& context,
-    Scene& scene,
-    Unit& unit,
-    Component& component)
-{
-    const auto it = visuals.find(&component);
-    if (it == visuals.end())
-        return;
-
-    PointLightVisual& visual = it->second;
-
-    if (visual.billboard)
-        context.renderScene.Destroy(visual.billboard);
-    DestroyLine(context, visual);
-
-    visuals.erase(it);
-}
-
 void PointLightVisualizer::OnUnitWorldTransformUpdated(
     EditorVisualContext& context,
     Scene& scene,
     Unit& unit,
     Component& component)
 {
-    const auto it = visuals.find(&component);
-    if (it == visuals.end())
-        return;
-
-    PointLightVisual& visual = it->second;
-
     if (visual.billboard)
         visual.billboard->Update(MakeBillboardState(context, unit, component));
     if (visual.line)
@@ -178,11 +149,6 @@ void PointLightVisualizer::OnPropertyChanged(EditorVisualContext& context, Scene
     if (property.name != "Color" && property.name != "Radius")
         return;
 
-    const auto it = visuals.find(&component);
-    if (it == visuals.end())
-        return;
-
-    PointLightVisual& visual = it->second;
     if (visual.billboard)
         visual.billboard->Update(MakeBillboardState(context, unit, component));
     if (visual.line)
@@ -203,13 +169,10 @@ void PointLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selected
         .renderScene = *editorScene->GetRenderScene()
     };
 
-    for (auto& [component, visual] : visuals)
-    {
-        if (visual.unit == previousUnit)
-            DestroyLine(context, visual);
-        if (visual.unit == selectedUnit)
-            CreateLine(context, *component, visual);
-    }
+    if (visual.unit == previousUnit)
+        DestroyLine(context, visual);
+    if (visual.unit && visual.unit == selectedUnit)
+        CreateLine(context, *visual.component, visual);
 }
 
 void PointLightVisualizer::CreateLine(EditorVisualContext& context, Component& component, PointLightVisual& visual)

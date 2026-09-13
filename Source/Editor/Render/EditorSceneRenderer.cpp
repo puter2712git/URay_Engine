@@ -1,9 +1,9 @@
 #include "EditorSceneRenderer.h"
 
-#include "Editor/Render/DirectionalLightVisualizer.h"
-#include "Editor/Render/DecalVisualizer.h"
-#include "Editor/Render/PointLightVisualizer.h"
-#include "Editor/Render/SpotLightVisualizer.h"
+#include "Editor/Render/Visualizer/DirectionalLightVisualizer.h"
+#include "Editor/Render/Visualizer/DecalVisualizer.h"
+#include "Editor/Render/Visualizer/PointLightVisualizer.h"
+#include "Editor/Render/Visualizer/SpotLightVisualizer.h"
 #include "Editor/Selection/SelectionSystem.h"
 
 #include "Engine/Component/Component.h"
@@ -28,10 +28,14 @@ EditorSceneRenderer::~EditorSceneRenderer() = default;
 
 bool EditorSceneRenderer::Initialize()
 {
-    visualizerRegistry.Register<DirectionalLightComponent>(std::make_unique<DirectionalLightVisualizer>());
-    visualizerRegistry.Register<PointLightComponent>(std::make_unique<PointLightVisualizer>(engine, selectionSystem));
-    visualizerRegistry.Register<SpotLightComponent>(std::make_unique<SpotLightVisualizer>(engine, selectionSystem));
-    visualizerRegistry.Register<DecalComponent>(std::make_unique<DecalVisualizer>(engine, selectionSystem));
+    visualizerRegistry.Register<DirectionalLightComponent>([](EditorVisualContext& context, Unit& unit, Component& component)
+                                                            { return std::make_unique<DirectionalLightVisualizer>(context, unit, component); });
+    visualizerRegistry.Register<PointLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
+                                                      { return std::make_unique<PointLightVisualizer>(context, unit, component, selectionSystem); });
+    visualizerRegistry.Register<SpotLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
+                                                     { return std::make_unique<SpotLightVisualizer>(context, unit, component, selectionSystem); });
+    visualizerRegistry.Register<DecalComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
+                                                 { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.GetUnitAddRay().Register(this, [this](Scene* scene, Unit* unit)
@@ -67,30 +71,23 @@ void EditorSceneRenderer::OnUnitAdded(Scene* scene, Unit* unit)
 
     for (Component* component : unit->GetComponents())
     {
-        EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
-        if (visualizer)
+        if (visualizers.contains(component))
+            continue;
+
+        const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(component->GetClass());
+        if (constructor)
         {
-            visualizer->OnAdded(context, *scene, *unit, *component);
+            std::unique_ptr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);
+            visualizers.insert_or_assign(component, std::move(visualizer));
         }
     }
 }
 
-void EditorSceneRenderer::OnUnitRemoved(Scene* scene, Unit* unit)
+void EditorSceneRenderer::OnUnitRemoved(Scene*, Unit* unit)
 {
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
-
-    EditorVisualContext context = {
-        .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
-    };
-
     for (Component* component : unit->GetComponents())
     {
-        EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
-        if (visualizer)
-        {
-            visualizer->OnRemoved(context, *scene, *unit, *component);
-        }
+        visualizers.erase(component);
     }
 }
 
@@ -105,10 +102,10 @@ void EditorSceneRenderer::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 
     for (Component* component : unit->GetComponents())
     {
-        EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
-        if (visualizer)
+        const auto it = visualizers.find(component);
+        if (it != visualizers.end())
         {
-            visualizer->OnUnitWorldTransformUpdated(context, *scene, *unit, *component);
+            it->second->OnUnitWorldTransformUpdated(context, *scene, *unit, *component);
         }
     }
 }
@@ -122,10 +119,10 @@ void EditorSceneRenderer::OnComponentPropertyChanged(Scene* scene, Unit* unit, C
         .renderScene = *editorScene->GetRenderScene()
     };
 
-    EditorComponentVisualizer* visualizer = visualizerRegistry.Find(component->GetClass());
-    if (visualizer)
+    const auto it = visualizers.find(component);
+    if (it != visualizers.end())
     {
-        visualizer->OnPropertyChanged(context, *scene, *unit, *component, property);
+        it->second->OnPropertyChanged(context, *scene, *unit, *component, property);
     }
 }
 

@@ -26,8 +26,6 @@ public:
     virtual ~EditorComponentVisualizer() = default;
 
 public:
-    virtual void OnAdded(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) = 0;
-    virtual void OnRemoved(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) = 0;
     virtual void OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) = 0;
     virtual void OnPropertyChanged(EditorVisualContext&, Scene&, Unit&, Component&, const Property&) {}
 };

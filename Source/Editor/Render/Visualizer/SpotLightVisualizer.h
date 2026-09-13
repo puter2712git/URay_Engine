@@ -1,10 +1,8 @@
 #pragma once
 
-#include "Editor/Render/EditorComponentVisualizer.h"
+#include "Editor/Render/Visualizer/EditorComponentVisualizer.h"
 
 #include "Render/Scene/Object/Drawable/LineObject.h"
-
-#include <unordered_map>
 
 namespace URay
 {
@@ -15,17 +13,16 @@ namespace Render
 {
 class LineObject;
 struct LineObjectState;
+class RenderScene;
 } // namespace Render
 
 class SpotLightVisualizer final : public EditorComponentVisualizer
 {
 public:
-    SpotLightVisualizer(Engine& engine, SelectionSystem& selectionSystem);
+    SpotLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem);
     ~SpotLightVisualizer() override;
 
 public:
-    void OnAdded(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) override;
-    void OnRemoved(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) override;
     void OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) override;
     void OnPropertyChanged(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component, const Property& property) override;
 
@@ -33,6 +30,7 @@ private:
     struct SpotLightVisual
     {
         Unit* unit = nullptr;
+        Component* component = nullptr;
         Render::LineObject* line = nullptr;
     };
 
@@ -53,8 +51,9 @@ private:
 
 private:
     Engine& engine;
+    Render::RenderScene& renderScene;
     SelectionSystem& selectionSystem;
-    std::unordered_map<Component*, SpotLightVisual> visuals;
+    SpotLightVisual visual;
 };
 
 } // namespace URay

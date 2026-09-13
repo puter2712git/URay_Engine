@@ -39,48 +39,30 @@ Render::BillboardObjectState DirectionalLightVisualizer::MakeBillboardState(Edit
     };
 }
 
-void DirectionalLightVisualizer::OnAdded(EditorVisualContext& context, Scene&, Unit& unit, Component& component)
+DirectionalLightVisualizer::DirectionalLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component)
+    : renderScene(context.renderScene)
 {
-    if (visuals.contains(&component))
-        return;
-
     std::unique_ptr<Render::MeshObject> arrow = std::make_unique<Render::MeshObject>(MakeArrowState(context, unit));
     std::unique_ptr<Render::BillboardObject> billboard = std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
 
-    DirectionalLightVisual visual = {};
     visual.arrow = arrow.get();
     visual.billboard = billboard.get();
 
-    context.renderScene.Add(std::move(arrow));
-    context.renderScene.Add(std::move(billboard));
-    visuals.emplace(&component, visual);
+    renderScene.Add(std::move(arrow));
+    renderScene.Add(std::move(billboard));
 }
 
-void DirectionalLightVisualizer::OnRemoved(EditorVisualContext& context, Scene&, Unit&, Component& component)
+DirectionalLightVisualizer::~DirectionalLightVisualizer()
 {
-    const auto it = visuals.find(&component);
-    if (it == visuals.end())
-        return;
-
-    DirectionalLightVisual& visual = it->second;
-
     if (visual.arrow)
-        context.renderScene.Destroy(visual.arrow);
+        renderScene.Destroy(visual.arrow);
 
     if (visual.billboard)
-        context.renderScene.Destroy(visual.billboard);
-
-    visuals.erase(it);
+        renderScene.Destroy(visual.billboard);
 }
 
 void DirectionalLightVisualizer::OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene&, Unit& unit, Component& component)
 {
-    const auto it = visuals.find(&component);
-    if (it == visuals.end())
-        return;
-
-    DirectionalLightVisual& visual = it->second;
-
     if (visual.arrow)
         visual.arrow->Update(MakeArrowState(context, unit));
 
@@ -93,11 +75,10 @@ void DirectionalLightVisualizer::OnPropertyChanged(EditorVisualContext& context,
     if (property.name != "Color")
         return;
 
-    const auto it = visuals.find(&component);
-    if (it == visuals.end() || !it->second.billboard)
+    if (!visual.billboard)
         return;
 
-    it->second.billboard->Update(MakeBillboardState(context, unit, component));
+    visual.billboard->Update(MakeBillboardState(context, unit, component));
 }
 
 } // namespace URay

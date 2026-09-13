@@ -20,18 +20,27 @@
 namespace URay
 {
 
-SpotLightVisualizer::SpotLightVisualizer(Engine& engine, SelectionSystem& selectionSystem)
-    : engine(engine), selectionSystem(selectionSystem)
+SpotLightVisualizer::SpotLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
+    : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
     selectionSystem.GetOnSelectionChangedRay().Register(
         this,
         [this](Unit* previousUnit, Unit* selectedUnit)
         { OnSelectionChanged(previousUnit, selectedUnit); });
+
+    visual = { .unit = &unit, .component = &component };
+    if (selectionSystem.GetSelectedUnit() == &unit)
+        CreateLine(context, component, visual);
 }
 
 SpotLightVisualizer::~SpotLightVisualizer()
 {
     selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+    EditorVisualContext context = {
+        .engine = engine,
+        .renderScene = renderScene
+    };
+    DestroyLine(context, visual);
 }
 
 Render::LineObjectState SpotLightVisualizer::MakeLineState(Unit& unit, Component& component)
@@ -108,32 +117,12 @@ void SpotLightVisualizer::AddCone(
     }
 }
 
-void SpotLightVisualizer::OnAdded(EditorVisualContext& context, Scene&, Unit& unit, Component& component)
-{
-    auto [it, added] = visuals.emplace(&component, SpotLightVisual{ .unit = &unit });
-    if (!added || selectionSystem.GetSelectedUnit() != &unit)
-        return;
-
-    CreateLine(context, component, it->second);
-}
-
-void SpotLightVisualizer::OnRemoved(EditorVisualContext& context, Scene&, Unit&, Component& component)
-{
-    const auto it = visuals.find(&component);
-    if (it == visuals.end())
-        return;
-
-    DestroyLine(context, it->second);
-    visuals.erase(it);
-}
-
 void SpotLightVisualizer::OnUnitWorldTransformUpdated(EditorVisualContext&, Scene&, Unit& unit, Component& component)
 {
-    const auto it = visuals.find(&component);
-    if (it == visuals.end() || !it->second.line)
+    if (!visual.line)
         return;
 
-    it->second.line->Update(MakeLineState(unit, component));
+    visual.line->Update(MakeLineState(unit, component));
 }
 
 void SpotLightVisualizer::OnPropertyChanged(EditorVisualContext&, Scene&, Unit& unit, Component& component, const Property& property)
@@ -141,11 +130,10 @@ void SpotLightVisualizer::OnPropertyChanged(EditorVisualContext&, Scene&, Unit& 
     if (property.name != "Range" && property.name != "Inner Cone Angle" && property.name != "Outer Cone Angle")
         return;
 
-    const auto it = visuals.find(&component);
-    if (it == visuals.end() || !it->second.line)
+    if (!visual.line)
         return;
 
-    it->second.line->Update(MakeLineState(unit, component));
+    visual.line->Update(MakeLineState(unit, component));
 }
 
 void SpotLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit)
@@ -162,13 +150,10 @@ void SpotLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selectedU
         .renderScene = *editorScene->GetRenderScene()
     };
 
-    for (auto& [component, visual] : visuals)
-    {
-        if (visual.unit == previousUnit)
-            DestroyLine(context, visual);
-        if (visual.unit == selectedUnit)
-            CreateLine(context, *component, visual);
-    }
+    if (visual.unit == previousUnit)
+        DestroyLine(context, visual);
+    if (visual.unit && visual.unit == selectedUnit)
+        CreateLine(context, *visual.component, visual);
 }
 
 void SpotLightVisualizer::CreateLine(EditorVisualContext& context, Component& component, SpotLightVisual& visual)
