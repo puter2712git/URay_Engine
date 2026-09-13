@@ -2,6 +2,7 @@
 
 #include "Editor/Selection/SelectionSystem.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/DecalComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -9,6 +10,7 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Scene.h"
 
+#include "Render/Scene/Object/Drawable/BillboardObject.h"
 #include "Render/Scene/Object/Drawable/LineObject.h"
 #include "Render/Scene/RenderScene.h"
 
@@ -23,7 +25,15 @@ DecalVisualizer::DecalVisualizer(EditorVisualContext& context, Unit& unit, Compo
         [this](Unit* previousUnit, Unit* selectedUnit)
         { OnSelectionChanged(previousUnit, selectedUnit); });
 
-    visual = { .unit = &unit, .component = &component };
+    std::unique_ptr<Render::BillboardObject> billboard =
+        std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit));
+    visual = {
+        .unit = &unit,
+        .component = &component,
+        .billboard = billboard.get()
+    };
+    renderScene.Add(std::move(billboard));
+
     if (selectionSystem.GetSelectedUnit() == &unit)
         CreateLine(context, component, visual);
 }
@@ -36,6 +46,20 @@ DecalVisualizer::~DecalVisualizer()
         .renderScene = renderScene
     };
     DestroyLine(context, visual);
+    if (visual.billboard)
+        renderScene.Destroy(visual.billboard);
+}
+
+Render::BillboardObjectState DecalVisualizer::MakeBillboardState(EditorVisualContext& context, Unit& unit)
+{
+    TransformComponent* transform = unit.GetTransform();
+
+    return {
+        .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
+        .colorTint = Color::White,
+        .mesh = context.engine.GetAssetSystem().GetDefaultAssets().quadMesh,
+        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().decalBillboardMaterial }
+    };
 }
 
 Render::LineObjectState DecalVisualizer::MakeLineState(Unit& unit, Component& component)
@@ -73,12 +97,13 @@ Render::LineObjectState DecalVisualizer::MakeLineState(Unit& unit, Component& co
     return state;
 }
 
-void DecalVisualizer::OnUnitWorldTransformUpdated(EditorVisualContext&, Scene&, Unit& unit, Component& component)
+void DecalVisualizer::OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene&, Unit& unit, Component& component)
 {
-    if (!visual.line)
-        return;
+    if (visual.billboard)
+        visual.billboard->Update(MakeBillboardState(context, unit));
 
-    visual.line->Update(MakeLineState(unit, component));
+    if (visual.line)
+        visual.line->Update(MakeLineState(unit, component));
 }
 
 void DecalVisualizer::OnPropertyChanged(EditorVisualContext&, Scene&, Unit& unit, Component& component, const Property& property)

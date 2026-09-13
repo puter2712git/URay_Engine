@@ -74,6 +74,9 @@ bool AssetSystem::CreateDefaultAssets()
     UUID pointLightTextureUUID = Import("Engine://Asset/Source/Texture/PointLightIcon.png");
     defaultAssets.pointLightBillboardTexture = Find<Texture>(pointLightTextureUUID);
 
+    UUID decalBillboardTextureUUID = Import("Engine://Asset/Source/Texture/DecalIcon.png");
+    defaultAssets.decalBillboardTexture = Find<Texture>(decalBillboardTextureUUID);
+
     std::vector<Shader*> shaders = FindAssets<Shader>();
     Shader* spriteShader = nullptr;
     Shader* billboardShader = nullptr;
@@ -120,6 +123,13 @@ bool AssetSystem::CreateDefaultAssets()
             .sourcePath = "PointLight Billboard Material" },
         billboardShader);
     pointLightBillboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.pointLightBillboardTexture });
+    Material* decalBillboardMaterial = factory->CreateMaterial(
+        AssetMetadata{
+            .uuid = UUID::Generate(),
+            .type = AssetType::Material,
+            .sourcePath = "Decal Billboard Material" },
+        billboardShader);
+    decalBillboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.decalBillboardTexture });
     Material* meshMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),
@@ -137,12 +147,14 @@ bool AssetSystem::CreateDefaultAssets()
     assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
     assets.insert({ billboardMaterial->GetUUID(), billboardMaterial });
     assets.insert({ pointLightBillboardMaterial->GetUUID(), pointLightBillboardMaterial });
+    assets.insert({ decalBillboardMaterial->GetUUID(), decalBillboardMaterial });
     assets.insert({ meshMaterial->GetUUID(), meshMaterial });
     assets.insert({ decalMaterial->GetUUID(), decalMaterial });
 
     defaultAssets.spriteMaterial = spriteMaterial;
     defaultAssets.billboardMaterial = billboardMaterial;
     defaultAssets.pointLightBillboardMaterial = pointLightBillboardMaterial;
+    defaultAssets.decalBillboardMaterial = decalBillboardMaterial;
     defaultAssets.meshMaterial = meshMaterial;
     defaultAssets.decalMaterial = decalMaterial;
 

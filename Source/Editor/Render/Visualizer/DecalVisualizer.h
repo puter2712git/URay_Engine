@@ -11,6 +11,8 @@ namespace Render
 {
 class LineObject;
 struct LineObjectState;
+class BillboardObject;
+struct BillboardObjectState;
 class RenderScene;
 } // namespace Render
 
@@ -29,9 +31,11 @@ private:
     {
         Unit* unit = nullptr;
         Component* component = nullptr;
+        Render::BillboardObject* billboard = nullptr;
         Render::LineObject* line = nullptr;
     };
 
+    static Render::BillboardObjectState MakeBillboardState(EditorVisualContext& context, Unit& unit);
     static Render::LineObjectState MakeLineState(Unit& unit, Component& component);
 
     void OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit);
