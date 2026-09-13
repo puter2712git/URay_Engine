@@ -176,7 +176,7 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
     cmd.indexCount = context.indexCount;
 
     DepthStencilState depthStencil = {};
-    depthStencil.depthTestEnable = false;
+    depthStencil.depthTestEnable = true;
     depthStencil.depthWriteEnable = false;
 
     RasterizerState rasterizer = {};

@@ -7,12 +7,14 @@ namespace URay
 
 class Component;
 class MeshComponent;
+class SpriteComponent;
 class Mesh;
 
 class MeshPickObject final : public PickObject
 {
 public:
     explicit MeshPickObject(MeshComponent& meshComponent);
+    explicit MeshPickObject(SpriteComponent& spriteComponent);
     ~MeshPickObject();
 
 public:

@@ -2,6 +2,7 @@
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/Render/SpriteComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Scene/Unit.h"
 
@@ -16,6 +17,12 @@ MeshPickObject::MeshPickObject(MeshComponent& meshComponent)
 {
     owner = meshComponent.GetOwner();
     mesh = meshComponent.GetMesh();
+}
+
+MeshPickObject::MeshPickObject(SpriteComponent& spriteComponent)
+{
+    owner = spriteComponent.GetOwner();
+    mesh = spriteComponent.GetQuadMesh();
 }
 
 MeshPickObject::~MeshPickObject() = default;

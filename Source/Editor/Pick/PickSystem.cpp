@@ -8,6 +8,7 @@
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/Render/MeshComponent.h"
+#include "Engine/Component/Render/SpriteComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
@@ -29,6 +30,8 @@ bool PickSystem::Initialize()
 {
     pickRegistry.Register<MeshComponent>([](Component& component)
                                          { return std::make_unique<MeshPickObject>(static_cast<MeshComponent&>(component)); });
+    pickRegistry.Register<SpriteComponent>([](Component& component)
+                                           { return std::make_unique<MeshPickObject>(static_cast<SpriteComponent&>(component)); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.GetUnitAddRay().Register(
