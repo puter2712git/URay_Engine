@@ -85,6 +85,8 @@ private:
     bool isCameraRotating = false;
     Vector2 pendingCameraLookDelta = Vector2::Zero;
 
+    bool isPerspective = true;
+
     Render::ViewMode viewMode = Render::ViewMode::Lit;
 };
 

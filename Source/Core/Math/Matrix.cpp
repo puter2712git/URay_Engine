@@ -218,6 +218,18 @@ Matrix Matrix::MakePerspective(float fov, float aspect, float near, float far)
     return ret;
 }
 
+Matrix Matrix::MakeOrthogonal(
+    float left, float right,
+    float bottom, float top,
+    float near, float far)
+{
+    return Matrix(
+        2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+        0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f / (near - far), 0.0f,
+        -(right + left) / (right - left), -(top + bottom) / (top - bottom), near / (near - far), 1.0f);
+}
+
 Vector4 operator*(const Vector4& lhs, const Matrix& rhs)
 {
     return Vector4(

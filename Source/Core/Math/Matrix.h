@@ -52,6 +52,10 @@ struct Matrix
     static Matrix MakeView(const Vector3& eye, const Vector3& target, const Vector3& up);
 
     static Matrix MakePerspective(float fov, float aspect, float near, float far);
+    static Matrix MakeOrthogonal(
+        float left, float right,
+        float bottom, float top,
+        float near, float far);
 
     Matrix operator*(const Matrix& rhs) const
     {

@@ -118,7 +118,20 @@ void CameraComponent::UpdateProjMatrix()
     float aspectRatio = static_cast<float>(width) / static_cast<float>(height);
     float fovRad = Math::DegToRad(fov);
 
-    projMatrix = Matrix::MakePerspective(fovRad, aspectRatio, near, far);
+    if (isPerspective)
+    {
+        projMatrix = Matrix::MakePerspective(fovRad, aspectRatio, near, far);
+    }
+    else
+    {
+        const float orthoHeight = orthoSize;
+        const float orthoWidth = orthoHeight * aspectRatio;
+
+        projMatrix = Matrix::MakeOrthogonal(
+            -orthoWidth * 0.5f, orthoWidth * 0.5f,
+            -orthoHeight * 0.5f, orthoHeight * 0.5f,
+            near, far);
+    }
 }
 
 } // namespace URay

@@ -25,11 +25,14 @@ public:
 
     void SetViewportExtent(const Extent2D& extent);
 
+    void SetIsPerspective(bool perspective) { isPerspective = perspective; }
+
     Matrix GetViewMatrix() const { return viewMatrix; }
     Matrix GetProjMatrix() const { return projMatrix; }
     float GetFOV() const { return fov; }
     float GetNearPlane() const { return near; }
     float GetFarPlane() const { return far; }
+    bool IsPerspective() const { return isPerspective; }
 
 protected:
     void UpdateRenderObject() override;
@@ -43,6 +46,9 @@ private:
 
     float near = 0.1f;
     float far = 1000.0f;
+
+    bool isPerspective = true;
+    float orthoSize = 10.0f;
 
     Extent2D viewportExtent = {};
 

@@ -316,6 +316,24 @@ void ViewportWidget::OnDraw()
 
         ImGui::EndCombo();
     }
+    ImGui::SameLine();
+
+    if (ImGui::Button("Camera"))
+    {
+        ImGui::OpenPopup("CameraModePopup");
+    }
+
+    if (ImGui::BeginPopup("CameraModePopup"))
+    {
+        if (ImGui::Checkbox("Perspective", &isPerspective))
+        {
+            camera->SetIsPerspective(isPerspective);
+        }
+
+        ImGui::Separator();
+
+        ImGui::EndPopup();
+    }
 
     ImGui::Separator();
 
