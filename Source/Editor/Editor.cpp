@@ -2,9 +2,9 @@
 
 #include "Editor/GizmoController.h"
 #include "Editor/Input/UIInputRouter.h"
-#include "Editor/Render/EditorSceneRenderer.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
+#include "Editor/Visual/VisualSystem.h"
 #include "Editor/Widget/Viewport/ViewportWidget.h"
 #include "Editor/Widget/WidgetSystem.h"
 
@@ -58,8 +58,8 @@ bool Editor::Initialize()
 
     selectionSystem = std::make_unique<SelectionSystem>();
 
-    sceneRenderer = std::make_unique<EditorSceneRenderer>(*gEngine, *selectionSystem);
-    if (!sceneRenderer->Initialize())
+    visualSystem = std::make_unique<VisualSystem>(*gEngine, *selectionSystem);
+    if (!visualSystem->Initialize())
         return false;
 
     widgetSystem = std::make_unique<WidgetSystem>();
@@ -116,8 +116,8 @@ void Editor::Finalize()
     widgetSystem->Finalize();
     widgetSystem.reset();
 
-    sceneRenderer->Finalize();
-    sceneRenderer.reset();
+    visualSystem->Finalize();
+    visualSystem.reset();
 
     renderSystem.FinalizeImGui();
 }

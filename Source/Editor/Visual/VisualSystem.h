@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Render/Visualizer/EditorVisualizerRegistry.h"
+#include "Editor/Visual/Visualizer/EditorVisualizerRegistry.h"
 #include "Engine/Ray/EventRay.h"
 
 #include <memory>
@@ -17,11 +17,11 @@ class Scene;
 class SelectionSystem;
 class EditorComponentVisualizer;
 
-class EditorSceneRenderer
+class VisualSystem
 {
 public:
-    EditorSceneRenderer(Engine& engine, SelectionSystem& selectionSystem);
-    ~EditorSceneRenderer();
+    VisualSystem(Engine& engine, SelectionSystem& selectionSystem);
+    ~VisualSystem();
 
 public:
     bool Initialize();

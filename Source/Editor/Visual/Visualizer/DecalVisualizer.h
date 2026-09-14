@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Editor/Render/Visualizer/EditorComponentVisualizer.h"
-
-#include "Render/Scene/Object/Drawable/LineObject.h"
+#include "Editor/Visual/Visualizer/EditorComponentVisualizer.h"
 
 namespace URay
 {
@@ -13,47 +11,42 @@ namespace Render
 {
 class LineObject;
 struct LineObjectState;
+class BillboardObject;
+struct BillboardObjectState;
 class RenderScene;
 } // namespace Render
 
-class SpotLightVisualizer final : public EditorComponentVisualizer
+class DecalVisualizer final : public EditorComponentVisualizer
 {
 public:
-    SpotLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem);
-    ~SpotLightVisualizer() override;
+    DecalVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem);
+    ~DecalVisualizer() override;
 
 public:
     void OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component) override;
     void OnPropertyChanged(EditorVisualContext& context, Scene& scene, Unit& unit, Component& component, const Property& property) override;
 
 private:
-    struct SpotLightVisual
+    struct DecalVisual
     {
         Unit* unit = nullptr;
         Component* component = nullptr;
+        Render::BillboardObject* billboard = nullptr;
         Render::LineObject* line = nullptr;
     };
 
+    static Render::BillboardObjectState MakeBillboardState(EditorVisualContext& context, Unit& unit);
     static Render::LineObjectState MakeLineState(Unit& unit, Component& component);
-    static void AddCone(
-        Render::LineObjectState& state,
-        const Vector3& origin,
-        const Vector3& direction,
-        const Vector3& right,
-        const Vector3& up,
-        float range,
-        float angleDegrees,
-        const Color& color);
 
     void OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit);
-    void CreateLine(EditorVisualContext& context, Component& component, SpotLightVisual& visual);
-    void DestroyLine(EditorVisualContext& context, SpotLightVisual& visual);
+    void CreateLine(EditorVisualContext& context, Component& component, DecalVisual& visual);
+    void DestroyLine(EditorVisualContext& context, DecalVisual& visual);
 
 private:
     Engine& engine;
     Render::RenderScene& renderScene;
     SelectionSystem& selectionSystem;
-    SpotLightVisual visual;
+    DecalVisual visual;
 };
 
 } // namespace URay

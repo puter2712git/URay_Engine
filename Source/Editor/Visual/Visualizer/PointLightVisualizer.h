@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Render/Visualizer/EditorComponentVisualizer.h"
+#include "Editor/Visual/Visualizer/EditorComponentVisualizer.h"
 
 #include "Render/Scene/Object/Drawable/LineObject.h"
 

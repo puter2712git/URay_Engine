@@ -13,7 +13,7 @@ class WidgetSystem;
 class UIInputRouter;
 class EditorSettings;
 class SelectionSystem;
-class EditorSceneRenderer;
+class VisualSystem;
 
 class Editor
 {
@@ -49,11 +49,10 @@ private:
 
     std::unique_ptr<WidgetSystem> widgetSystem = nullptr;
     std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
+    std::unique_ptr<VisualSystem> visualSystem = nullptr;
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
-
-    std::unique_ptr<EditorSceneRenderer> sceneRenderer = nullptr;
 
     bool isPlaying = false;
     bool useEditorCamera = false;

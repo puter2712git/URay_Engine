@@ -1,10 +1,10 @@
-#include "EditorSceneRenderer.h"
+#include "VisualSystem.h"
 
-#include "Editor/Render/Visualizer/DirectionalLightVisualizer.h"
-#include "Editor/Render/Visualizer/DecalVisualizer.h"
-#include "Editor/Render/Visualizer/PointLightVisualizer.h"
-#include "Editor/Render/Visualizer/SpotLightVisualizer.h"
 #include "Editor/Selection/SelectionSystem.h"
+#include "Editor/Visual/Visualizer/DecalVisualizer.h"
+#include "Editor/Visual/Visualizer/DirectionalLightVisualizer.h"
+#include "Editor/Visual/Visualizer/PointLightVisualizer.h"
+#include "Editor/Visual/Visualizer/SpotLightVisualizer.h"
 
 #include "Engine/Component/Component.h"
 #include "Engine/Component/Render/DecalComponent.h"
@@ -21,21 +21,21 @@
 namespace URay
 {
 
-EditorSceneRenderer::EditorSceneRenderer(Engine& engine, SelectionSystem& selectionSystem)
+VisualSystem::VisualSystem(Engine& engine, SelectionSystem& selectionSystem)
     : engine(engine), selectionSystem(selectionSystem) {}
 
-EditorSceneRenderer::~EditorSceneRenderer() = default;
+VisualSystem::~VisualSystem() = default;
 
-bool EditorSceneRenderer::Initialize()
+bool VisualSystem::Initialize()
 {
     visualizerRegistry.Register<DirectionalLightComponent>([](EditorVisualContext& context, Unit& unit, Component& component)
-                                                            { return std::make_unique<DirectionalLightVisualizer>(context, unit, component); });
+                                                           { return std::make_unique<DirectionalLightVisualizer>(context, unit, component); });
     visualizerRegistry.Register<PointLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                      { return std::make_unique<PointLightVisualizer>(context, unit, component, selectionSystem); });
+                                                     { return std::make_unique<PointLightVisualizer>(context, unit, component, selectionSystem); });
     visualizerRegistry.Register<SpotLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                     { return std::make_unique<SpotLightVisualizer>(context, unit, component, selectionSystem); });
+                                                    { return std::make_unique<SpotLightVisualizer>(context, unit, component, selectionSystem); });
     visualizerRegistry.Register<DecalComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                 { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
+                                                { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.GetUnitAddRay().Register(this, [this](Scene* scene, Unit* unit)
@@ -50,7 +50,7 @@ bool EditorSceneRenderer::Initialize()
     return true;
 }
 
-void EditorSceneRenderer::Finalize()
+void VisualSystem::Finalize()
 {
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
@@ -60,7 +60,7 @@ void EditorSceneRenderer::Finalize()
     sceneSystem.GetUnitAddRay().UnregisterAll(this);
 }
 
-void EditorSceneRenderer::OnUnitAdded(Scene* scene, Unit* unit)
+void VisualSystem::OnUnitAdded(Scene* scene, Unit* unit)
 {
     Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
 
@@ -83,7 +83,7 @@ void EditorSceneRenderer::OnUnitAdded(Scene* scene, Unit* unit)
     }
 }
 
-void EditorSceneRenderer::OnUnitRemoved(Scene*, Unit* unit)
+void VisualSystem::OnUnitRemoved(Scene*, Unit* unit)
 {
     for (Component* component : unit->GetComponents())
     {
@@ -91,7 +91,7 @@ void EditorSceneRenderer::OnUnitRemoved(Scene*, Unit* unit)
     }
 }
 
-void EditorSceneRenderer::OnUnitTransformUpdated(Scene* scene, Unit* unit)
+void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 {
     Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
 
@@ -110,7 +110,7 @@ void EditorSceneRenderer::OnUnitTransformUpdated(Scene* scene, Unit* unit)
     }
 }
 
-void EditorSceneRenderer::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property)
+void VisualSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property)
 {
     Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
 
