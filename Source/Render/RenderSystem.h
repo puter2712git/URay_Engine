@@ -21,11 +21,11 @@ class RenderPipeline;
 class RenderSystem
 {
 public:
-    RenderSystem(Engine& engine);
+    RenderSystem();
     ~RenderSystem();
 
 public:
-    bool Initialize(Window& window, VirtualFilesystem& filesystem);
+    bool Initialize();
     void Finalize();
 
     bool InitializeImGui();
@@ -43,8 +43,6 @@ public:
     RenderPipeline& GetPipeline() const { return *pipeline; }
 
 private:
-    Engine& engine;
-
     std::unique_ptr<VulkanContext> vulkanContext = nullptr;
     std::unique_ptr<Renderer> renderer = nullptr;
     std::unique_ptr<RenderDevice> device = nullptr;

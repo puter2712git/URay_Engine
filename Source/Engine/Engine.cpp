@@ -52,8 +52,8 @@ bool Engine::Initialize(
     if (!assetSystem->Initialize(enginePath, projectPath))
         return false;
 
-    renderSystem = std::make_unique<Render::RenderSystem>(*this);
-    if (!renderSystem->Initialize(*window, assetSystem->GetFilesystem()))
+    renderSystem = std::make_unique<Render::RenderSystem>();
+    if (!renderSystem->Initialize())
         return false;
 
     assetSystem->CreateDefaultAssets();

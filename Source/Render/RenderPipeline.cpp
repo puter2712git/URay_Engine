@@ -39,10 +39,8 @@
 namespace URay::Render
 {
 
-RenderPipeline::RenderPipeline(AssetSystem& assetSystem, RenderSystem& renderSystem)
-    : assetSystem(assetSystem), renderSystem(renderSystem)
-{
-}
+RenderPipeline::RenderPipeline(RenderSystem& renderSystem)
+    : assetSystem(gEngine->GetAssetSystem()), renderSystem(renderSystem) {}
 
 RenderPipeline::~RenderPipeline() = default;
 

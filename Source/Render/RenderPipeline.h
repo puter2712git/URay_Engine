@@ -37,7 +37,7 @@ struct RenderRequest
 class RenderPipeline
 {
 public:
-    RenderPipeline(AssetSystem& assetSystem, RenderSystem& renderSystem);
+    RenderPipeline(RenderSystem& renderSystem);
     ~RenderPipeline();
 
 public:

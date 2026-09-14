@@ -6,23 +6,28 @@
 #include "Render/Renderer.h"
 #include "Render/ResourceManager.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
 
 namespace URay::Render
 {
 
-RenderSystem::RenderSystem(Engine& engine) : engine(engine) {}
+RenderSystem::RenderSystem() {}
 
 RenderSystem::~RenderSystem() = default;
 
-bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
+bool RenderSystem::Initialize()
 {
+    Window& window = gEngine->GetWindow();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+
     VulkanContextDesc desc = {};
     desc.appName = "URay Editor";
     desc.engineName = "URay Engine";
 
     vulkanContext = std::make_unique<VulkanContext>();
-    if (!vulkanContext->Initialize(window, desc))
+    if (!vulkanContext->Initialize(gEngine->GetWindow(), desc))
     {
         return false;
     }
@@ -37,7 +42,7 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
     if (!renderer->Initialize())
         return false;
 
-    pipeline = std::make_unique<RenderPipeline>(engine.GetAssetSystem(), *this);
+    pipeline = std::make_unique<RenderPipeline>(*this);
     if (!pipeline->Initialize())
         return false;
 
