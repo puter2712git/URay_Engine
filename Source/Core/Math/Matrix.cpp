@@ -194,10 +194,10 @@ Matrix Matrix::MakeView(const Vector3& eye, const Vector3& target, const Vector3
     Vector3 cameraUp = Vector3::Cross(right, forward);
 
     Matrix ret = Matrix(
-        right.x, cameraUp.x, forward.x, 0.0f,
-        right.y, cameraUp.y, forward.y, 0.0f,
-        right.z, cameraUp.z, forward.z, 0.0f,
-        -Vector3::Dot(right, eye), -Vector3::Dot(cameraUp, eye), -Vector3::Dot(forward, eye), 1.0f);
+        right.x, cameraUp.x, -forward.x, 0.0f,
+        right.y, cameraUp.y, -forward.y, 0.0f,
+        right.z, cameraUp.z, -forward.z, 0.0f,
+        -Vector3::Dot(right, eye), -Vector3::Dot(cameraUp, eye), Vector3::Dot(forward, eye), 1.0f);
 
     return ret;
 }
@@ -206,13 +206,13 @@ Matrix Matrix::MakePerspective(float fov, float aspect, float near, float far)
 {
     const float tanHalfFov = std::tan(fov * 0.5f);
 
-    const float A = far / (far - near);
-    const float B = -(far * near) / (far - near);
+    const float A = far / (near - far);
+    const float B = near * far / (near - far);
 
     Matrix ret = Matrix(
         1 / (aspect * tanHalfFov), 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f / tanHalfFov, 0.0f, 0.0f,
-        0.0f, 0.0f, A, 1.0f,
+        0.0f, 0.0f, A, -1.0f,
         0.0f, 0.0f, B, 0.0f);
 
     return ret;
