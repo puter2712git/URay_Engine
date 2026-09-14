@@ -20,8 +20,8 @@
 #include "Render/Rendering/RenderConstants.h"
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/RenderPass/RenderPass.h"
-#include "Render/ResourceManager.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -144,26 +144,40 @@ bool Renderer::InitializeImGui()
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
-    const std::vector<uint8> fontBytes = filesystem.ReadBinary("RawAsset://Font/PretendardVariable.ttf");
-    if (fontBytes.empty())
-        return false;
-
-    void* fontData = IM_ALLOC(fontBytes.size());
-    std::memcpy(fontData, fontBytes.data(), fontBytes.size());
-
-    ImFontConfig fontConfig;
-    fontConfig.FontDataOwnedByAtlas = true;
-
-    if (!io.Fonts->AddFontFromMemoryTTF(
-            fontData,
-            static_cast<int>(fontBytes.size()),
-            18.0f,
-            &fontConfig,
-            io.Fonts->GetGlyphRangesKorean()))
+    auto addFont = [&](const char* path, bool merge)
     {
-        IM_FREE(fontData);
+        const std::vector<uint8> bytes = filesystem.ReadBinary(path);
+        if (bytes.empty())
+            return false;
+
+        void* data = IM_ALLOC(bytes.size());
+        std::memcpy(data, bytes.data(), bytes.size());
+
+        ImFontConfig config;
+        config.FontDataOwnedByAtlas = true;
+        config.MergeMode = merge;
+
+        if (!io.Fonts->AddFontFromMemoryTTF(
+                data,
+                static_cast<int>(bytes.size()),
+                18.0f,
+                &config))
+        {
+            IM_FREE(data);
+            return false;
+        }
+
+        return true;
+    };
+
+    if (!addFont("Engine://Asset/Source/Font/NotoSansKR-Regular.ttf", false))
         return false;
-    }
+
+    if (!addFont("Engine://Asset/Source/Font/NotoSansJP-Regular.ttf", true))
+        return false;
+
+    if (!addFont("Engine://Asset/Source/Font/NotoSansSC-Regular.ttf", true))
+        return false;
 
     ImGui::StyleColorsDark();
 
