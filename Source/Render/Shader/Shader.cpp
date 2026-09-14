@@ -8,139 +8,144 @@
 namespace URay::Render
 {
 
-namespace
-{
-
-ResourceType ToResourceType(ShaderResourceType type)
-{
-    switch (type)
-    {
-    case ShaderResourceType::Sampler:
-        return ResourceType::Sampler;
-    case ShaderResourceType::CombinedImageSampler:
-        return ResourceType::CombinedImageSampler;
-    case ShaderResourceType::SampledImage:
-        return ResourceType::SampledImage;
-    case ShaderResourceType::StorageImage:
-        return ResourceType::StorageImage;
-    case ShaderResourceType::UniformBuffer:
-        return ResourceType::UniformBuffer;
-    case ShaderResourceType::StorageBuffer:
-        return ResourceType::StorageBuffer;
-    }
-
-    return ResourceType::Sampler;
-}
-
-} // namespace
-
-Shader::Shader(const std::vector<uint8>& vertexShaderCode,
-               const std::vector<uint8>& fragmentShaderCode,
-               const ShaderReflection& vertexReflection,
-               const ShaderReflection& fragmentReflection)
+Shader::Shader(
+    const std::vector<uint8>& vertexShaderCode, const std::vector<uint8>& fragmentShaderCode,
+    const ShaderReflection& vertexReflection, const ShaderReflection& fragmentReflection)
     : vertexShaderCode(vertexShaderCode), fragmentShaderCode(fragmentShaderCode),
       vertexReflection(vertexReflection), fragmentReflection(fragmentReflection)
 {
-    std::map<std::pair<uint32, uint32>, ReflectedDescriptorBinding> mergedBindings;
-    std::map<std::pair<uint32, uint32>, MergedPushConstantBlock> mergedPushConstants;
+    MergeReflection();
+    CreateSetLayoutDescriptions();
 
-    auto MergeReflection = [&](const ShaderReflection& reflection)
+    pushConstantRanges.push_back(PushConstantRange{
+        .offset = mergedReflection.pushConstant.offset,
+        .size = mergedReflection.pushConstant.size,
+        .stages = ShaderStageFlags::All });
+}
+
+const DescriptorSetLayoutDesc* Shader::GetLayoutDescription(uint32 set) const
+{
+    const auto it = layoutDescriptions.find(set);
+    if (it == layoutDescriptions.end())
+        return nullptr;
+
+    return &it->second;
+}
+
+void Shader::MergeReflection()
+{
+    mergedReflection = {};
+
+    MergeDescriptorBindings();
+    MergeUniformBuffers();
+    MergePushConstant();
+}
+
+void Shader::MergeDescriptorBindings()
+{
+    std::vector<ShaderReflection*> reflections = { &vertexReflection,
+                                                   &fragmentReflection };
+
+    for (const ShaderReflection* reflection : reflections)
     {
-        assert(reflection.stage != ShaderStageFlags::None);
-
-        for (const ReflectedDescriptorBinding& reflected : reflection.descriptorBindings)
+        for (const ShaderDescriptorBinding& binding : reflection->descriptorBindings)
         {
-            assert(!reflected.isRuntimeArray);
-            assert(reflected.arrayCount > 0);
-
-            ReflectedDescriptorBinding binding = reflected;
-            binding.stages = reflection.stage;
-
-            const std::pair<uint32, uint32> key = {
-                binding.set,
-                binding.binding,
-            };
-            auto [it, inserted] = mergedBindings.insert({ key, binding });
-
-            if (!inserted)
+            ShaderDescriptorBinding* existing = FindBinding(binding.set, binding.binding);
+            if (!existing)
             {
-                assert(it->second.resourceType == binding.resourceType);
-                assert(it->second.arrayCount == binding.arrayCount);
-                assert(it->second.isRuntimeArray == binding.isRuntimeArray);
-                assert(it->second.sampledScalarType == binding.sampledScalarType);
-                assert(it->second.readOnly == binding.readOnly);
-                assert(it->second.writeOnly == binding.writeOnly);
-
-                it->second.stages = it->second.stages | binding.stages;
-            }
-        }
-    };
-
-    auto MergePushConstants = [&](const ShaderReflection& reflection)
-    {
-        for (const ReflectedPushConstantBlock& block : reflection.pushConstantBlocks)
-        {
-            if (block.size == 0)
+                mergedReflection.descriptorBindings.push_back(binding);
                 continue;
+            }
 
-            const std::pair<uint32, uint32> key = {
-                block.offset,
-                block.size,
-            };
-            auto [it, inserted] = mergedPushConstants.insert({
-                key,
-                MergedPushConstantBlock{
-                    .block = block,
-                    .stages = reflection.stage,
-                },
-            });
+            assert(existing->type == binding.type);
+            assert(existing->count == binding.count);
 
-            if (!inserted)
-                it->second.stages = it->second.stages | reflection.stage;
+            existing->stageFlags |= binding.stageFlags;
         }
-    };
-
-    MergeReflection(vertexReflection);
-    MergeReflection(fragmentReflection);
-
-    MergePushConstants(vertexReflection);
-    MergePushConstants(fragmentReflection);
-
-    for (const auto& [key, binding] : mergedBindings)
-    {
-        pipelineReflection.descriptorBindings.push_back(binding);
-
-        ResourceBinding rhiBinding = {};
-        rhiBinding.set = binding.set;
-        rhiBinding.bindingIndex = binding.binding;
-        rhiBinding.resourceType = ToResourceType(binding.resourceType);
-        rhiBinding.arrayCount = binding.arrayCount;
-        rhiBinding.stageFlags = binding.stages;
-
-        setLayoutDescs[key.first].bindings.push_back(rhiBinding);
-    }
-
-    for (const auto& [key, block] : mergedPushConstants)
-    {
-        pipelineReflection.pushConstantBlocks.push_back(block);
-
-        PushConstantRange range = {};
-        range.offset = block.block.offset;
-        range.size = block.block.size;
-        range.stages = block.stages;
-        pushConstantRanges.push_back(range);
     }
 }
 
-const DescriptorSetLayoutDesc* Shader::GetDescriptorSetLayoutDesc(uint32 set) const
+void Shader::MergeUniformBuffers()
 {
-    auto it = setLayoutDescs.find(set);
-    if (it != setLayoutDescs.end())
+    std::vector<ShaderReflection*> reflections = { &vertexReflection,
+                                                   &fragmentReflection };
+
+    for (const ShaderReflection* reflection : reflections)
     {
-        return &it->second;
+        for (const ShaderUniformBuffer& uniformBuffer : reflection->uniformBuffers)
+        {
+            ShaderUniformBuffer* existing = FindUniformBuffer(uniformBuffer.set, uniformBuffer.binding);
+            if (!existing)
+            {
+                mergedReflection.uniformBuffers.push_back(uniformBuffer);
+                continue;
+            }
+
+            existing->stageFlags |= uniformBuffer.stageFlags;
+        }
+    }
+}
+
+void Shader::MergePushConstant()
+{
+    mergedReflection.pushConstant = vertexReflection.pushConstant;
+}
+
+ShaderDescriptorBinding* Shader::FindBinding(uint32 set, uint32 binding)
+{
+    for (ShaderDescriptorBinding& descriptorBinding :
+         mergedReflection.descriptorBindings)
+    {
+        if (descriptorBinding.set == set &&
+            descriptorBinding.binding == binding)
+        {
+            return &descriptorBinding;
+        }
     }
 
     return nullptr;
+}
+
+ShaderUniformBuffer* Shader::FindUniformBuffer(uint32 set, uint32 binding)
+{
+    for (ShaderUniformBuffer& uniformBuffer :
+         mergedReflection.uniformBuffers)
+    {
+        if (uniformBuffer.set == set &&
+            uniformBuffer.binding == binding)
+        {
+            return &uniformBuffer;
+        }
+    }
+
+    return nullptr;
+}
+
+void Shader::CreateSetLayoutDescriptions()
+{
+    std::map<uint32, std::vector<ShaderDescriptorBinding*>> bindingsPerSet;
+
+    for (ShaderDescriptorBinding& binding : mergedReflection.descriptorBindings)
+    {
+        bindingsPerSet[binding.set].push_back(&binding);
+    }
+
+    for (auto& [set, bindings] : bindingsPerSet)
+    {
+        DescriptorSetLayoutDesc description = {};
+
+        for (ShaderDescriptorBinding* descriptorBinding : bindings)
+        {
+            description.bindings.push_back(ResourceBinding{
+                .name = descriptorBinding->name,
+                .binding = descriptorBinding->binding,
+                .resourceType = descriptorBinding->type,
+                .arrayCount = descriptorBinding->count,
+                .stageFlags = descriptorBinding->stageFlags });
+        }
+
+        layoutDescriptions.insert({ set, description });
+    }
 }
 
 } // namespace URay::Render

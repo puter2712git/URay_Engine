@@ -38,7 +38,7 @@ bool TextBatcher::Initialize()
 
     renderShader = resourceManager.GetOrCreateShader(shader, {});
 
-    const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
+    const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetLayoutDescription(1);
 
     DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
     descriptorSet.reset(device.CreateDescriptorSet(setLayout));

@@ -115,21 +115,21 @@ bool AssetSystem::CreateDefaultAssets()
             .type = AssetType::Material,
             .sourcePath = "Billboard Material" },
         billboardShader);
-    billboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.directionalLightBillboardTexture });
+    billboardMaterial->SetTexture("textureImage", defaultAssets.directionalLightBillboardTexture);
     Material* pointLightBillboardMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),
             .type = AssetType::Material,
             .sourcePath = "PointLight Billboard Material" },
         billboardShader);
-    pointLightBillboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.pointLightBillboardTexture });
+    pointLightBillboardMaterial->SetTexture("textureImage", defaultAssets.pointLightBillboardTexture);
     Material* decalBillboardMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),
             .type = AssetType::Material,
             .sourcePath = "Decal Billboard Material" },
         billboardShader);
-    decalBillboardMaterial->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.decalBillboardTexture });
+    decalBillboardMaterial->SetTexture("textureImage", defaultAssets.decalBillboardTexture);
     Material* meshMaterial = factory->CreateMaterial(
         AssetMetadata{
             .uuid = UUID::Generate(),
@@ -142,7 +142,7 @@ bool AssetSystem::CreateDefaultAssets()
             .type = AssetType::Material,
             .sourcePath = "Decal Material" },
         decalShader);
-    decalMaterial->SetParameter("decalTexture", { .type = MaterialParameterType::Texture2D, .value = defaultAssets.decalTexture });
+    decalMaterial->SetTexture("decalTexture", defaultAssets.decalTexture);
 
     assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
     assets.insert({ billboardMaterial->GetUUID(), billboardMaterial });

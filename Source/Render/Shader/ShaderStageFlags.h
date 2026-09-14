@@ -16,19 +16,34 @@ enum class ShaderStageFlags : uint32
     All = (1 << 0) | (1 << 1)
 };
 
-constexpr ShaderStageFlags operator|(ShaderStageFlags lhs, ShaderStageFlags rhs)
+inline ShaderStageFlags operator|(ShaderStageFlags lhs, ShaderStageFlags rhs)
 {
     return static_cast<ShaderStageFlags>(
         static_cast<uint32>(lhs) | static_cast<uint32>(rhs));
 }
 
-constexpr ShaderStageFlags operator&(ShaderStageFlags lhs, ShaderStageFlags rhs)
+inline ShaderStageFlags operator&(ShaderStageFlags lhs, ShaderStageFlags rhs)
 {
     return static_cast<ShaderStageFlags>(
         static_cast<uint32>(lhs) & static_cast<uint32>(rhs));
 }
 
-constexpr VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags)
+inline ShaderStageFlags& operator|=(ShaderStageFlags& lhs, ShaderStageFlags rhs)
+{
+    return lhs = lhs | rhs;
+}
+
+inline ShaderStageFlags& operator&=(ShaderStageFlags& lhs, ShaderStageFlags rhs)
+{
+    return lhs = lhs & rhs;
+}
+
+inline ShaderStageFlags operator~(ShaderStageFlags value)
+{
+    return static_cast<ShaderStageFlags>(~static_cast<uint32>(value));
+}
+
+inline VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags)
 {
     VkShaderStageFlags result = 0;
 

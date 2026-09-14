@@ -269,11 +269,11 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
         return nullptr;
 
     ShaderReflection vertexShaderReflection = {};
-    if (!ShaderReflector::ReflectSPIRV(vertexShaderCode, "VSMain", vertexShaderReflection))
+    if (!ShaderReflector::Reflect(vertexShaderCode, "VSMain", vertexShaderReflection))
         return nullptr;
 
     ShaderReflection fragmentShaderReflection = {};
-    if (!ShaderReflector::ReflectSPIRV(fragmentShaderCode, "PSMain", fragmentShaderReflection))
+    if (!ShaderReflector::Reflect(fragmentShaderCode, "PSMain", fragmentShaderReflection))
         return nullptr;
 
     Shader* newShader = new Shader(
@@ -362,7 +362,7 @@ PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc,
 
     PipelineLayoutDesc layoutDesc = {};
 
-    for (auto& [set, descriptorSetlayoutDesc] : psoDesc.shader->GetDescriptorSetLayoutDescs())
+    for (auto& [set, descriptorSetlayoutDesc] : psoDesc.shader->GetLayoutDescriptions())
     {
         layoutDesc.setLayouts[set] = GetOrCreateDescriptorSetLayout(descriptorSetlayoutDesc);
     }

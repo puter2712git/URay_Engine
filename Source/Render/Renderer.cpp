@@ -755,27 +755,24 @@ void Renderer::DestroyDepthResources()
 
 bool Renderer::CreateFrameResources()
 {
-    DescriptorSetLayoutDesc setLayoutDesc = {};
-    setLayoutDesc.bindings.push_back(ResourceBinding{
-        .set = 0,
-        .bindingIndex = 0,
+    DescriptorSetLayoutDesc layoutDescription = {};
+    layoutDescription.bindings.push_back(ResourceBinding{
+        .binding = 0,
         .resourceType = ResourceType::UniformBuffer,
         .arrayCount = 1,
         .stageFlags = ShaderStageFlags::All });
-    setLayoutDesc.bindings.push_back(ResourceBinding{
-        .set = 0,
-        .bindingIndex = 1,
+    layoutDescription.bindings.push_back(ResourceBinding{
+        .binding = 1,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
         .stageFlags = ShaderStageFlags::All });
-    setLayoutDesc.bindings.push_back(ResourceBinding{
-        .set = 0,
-        .bindingIndex = 2,
+    layoutDescription.bindings.push_back(ResourceBinding{
+        .binding = 2,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
         .stageFlags = ShaderStageFlags::All });
 
-    frameDescriptorSetLayout.reset(device.CreateDescriptorSetLayout(setLayoutDesc));
+    frameDescriptorSetLayout.reset(device.CreateDescriptorSetLayout(layoutDescription));
     if (!frameDescriptorSetLayout)
         return false;
 

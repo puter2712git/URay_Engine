@@ -24,7 +24,7 @@ SpriteComponent::SpriteComponent()
     texture = assetSystem.GetDefaultAssets().whiteTexture;
     quadMesh = assetSystem.GetDefaultAssets().quadMesh;
     material = assetSystem.GetDefaultAssets().spriteMaterial;
-    material->SetParameter("textureImage", { .type = MaterialParameterType::Texture2D, .value = texture });
+    material->SetTexture("textureImage", texture);
 }
 
 void SpriteComponent::RegisterClass()

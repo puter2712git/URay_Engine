@@ -14,24 +14,23 @@ namespace URay::Render
 class ShaderReflector
 {
 public:
-    static bool ReflectSPIRV(
-        const std::vector<uint8>& code,
+    static bool Reflect(
+        const std::vector<uint8>& shaderCode,
         const std::string& entryPoint,
         ShaderReflection& outReflection);
 
 private:
     static bool ReflectDescriptorBindings(
         const SpvReflectShaderModule& module,
-        const char* entryPoint,
         ShaderReflection& outReflection);
 
-    static bool ReflectPushConstantBlocks(
+    static bool ReflectUniformBuffers(
         const SpvReflectShaderModule& module,
-        const char* entryPoint,
         ShaderReflection& outReflection);
 
-    static ReflectedBlockMember ReflectBlockMember(
-        const SpvReflectBlockVariable& variable);
+    static bool ReflectPushConstants(
+        const SpvReflectShaderModule& module,
+        ShaderReflection& outReflection);
 };
 
 } // namespace URay::Render

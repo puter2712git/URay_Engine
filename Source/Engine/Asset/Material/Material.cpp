@@ -1,11 +1,13 @@
 #include "Material.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
 #include "Core/Type/Types.h"
 
+#include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
@@ -21,6 +23,8 @@
 namespace URay
 {
 
+void Material::RegisterClass() {}
+
 Material::Material(Shader* shader) : shader(shader) {}
 
 Material::~Material()
@@ -35,188 +39,135 @@ Material::~Material()
     }
 
     descriptorSets.clear();
+
+    if (descriptorSetLayout)
+    {
+        delete descriptorSetLayout;
+        descriptorSetLayout = nullptr;
+    }
 }
 
-void Material::RegisterClass()
+bool Material::Initialize()
 {
-}
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
+    Render::RenderDevice& device = renderSystem.GetDevice();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-bool Material::Initialize(Render::RenderDevice* renderDevice, Render::ResourceManager* resourceManager, Texture* defaultWhite)
-{
-    if (!renderDevice || !resourceManager || !shader)
-        return false;
-
-    Render::Shader* renderShader = resourceManager->GetOrCreateShader(shader, {});
+    Render::Shader* renderShader = resourceManager.GetOrCreateShader(shader, {});
     if (!renderShader)
         return false;
 
-    const Render::DescriptorSetLayoutDesc* setLayoutDesc = renderShader->GetDescriptorSetLayoutDesc(1);
-    if (!setLayoutDesc)
-    {
-        // No needing material descriptor. This case, just return true.
+    const Render::DescriptorSetLayoutDesc* layoutDescription = renderShader->GetLayoutDescription(1);
+    if (!layoutDescription)
         return true;
-    }
 
-    std::vector<uint32> samplerBindings;
-    parameterDescs.clear();
-
-    for (const Render::ReflectedDescriptorBinding& binding
-         : renderShader->GetPipelineReflection().descriptorBindings)
-    {
-        if (binding.set != 1)
-            continue;
-
-        if (binding.isRuntimeArray || binding.arrayCount != 1)
-            return false;
-
-        switch (binding.resourceType)
-        {
-        case Render::ShaderResourceType::SampledImage:
-        {
-            if (binding.name.empty() || parameterDescs.contains(binding.name))
-                return false;
-
-            parameterDescs.insert({
-                binding.name,
-                MaterialParameterDesc {
-                    .name = binding.name,
-                    .type = MaterialParameterType::Texture2D,
-                    .set = binding.set,
-                    .binding = binding.binding,
-                },
-            });
-            break;
-        }
-        case Render::ShaderResourceType::Sampler:
-            samplerBindings.push_back(binding.binding);
-            break;
-        default:
-            return false;
-        }
-    }
-
-    descriptorSetLayout = resourceManager->GetOrCreateDescriptorSetLayout(*setLayoutDesc);
+    descriptorSetLayout = device.CreateDescriptorSetLayout(*layoutDescription);
     if (!descriptorSetLayout)
         return false;
 
+    descriptorSets.resize(Render::MAX_FRAMES_IN_FLIGHT);
     for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        Render::DescriptorSet* set = renderDevice->CreateDescriptorSet(descriptorSetLayout);
-        if (!set)
+        descriptorSets[i] = device.CreateDescriptorSet(descriptorSetLayout);
+        if (!descriptorSets[i])
             return false;
-
-        descriptorSets.push_back(set);
     }
 
-    this->resourceManager = resourceManager;
-
-    if (!samplerBindings.empty())
+    for (const Render::ResourceBinding& binding : layoutDescription->bindings)
     {
-        const VkSampler sampler = resourceManager->GetOrCreateTextureSampler({});
-        if (sampler == VK_NULL_HANDLE)
-            return false;
-
-        for (Render::DescriptorSet* descriptorSet : descriptorSets)
+        switch (binding.resourceType)
         {
-            for (uint32 binding : samplerBindings)
-                descriptorSet->WriteSampler(binding, sampler);
+        case Render::ResourceType::Sampler:
+            for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
+            {
+                descriptorSets[i]->WriteSampler(binding.binding, resourceManager.GetOrCreateTextureSampler({}));
+            }
+            break;
+        case Render::ResourceType::SampledImage:
+        {
+            Texture* whiteTexture = assetSystem.GetDefaultAssets().whiteTexture;
+            Render::Texture* renderTexture =
+                resourceManager.GetOrCreateTexture(whiteTexture);
+            if (!renderTexture)
+                return false;
+
+            Render::TextureView* textureView =
+                resourceManager.GetOrCreateTextureView(renderTexture);
+            if (!textureView)
+                return false;
+
+            for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
+                descriptorSets[i]->WriteSampledImage(binding.binding, textureView);
+
+            parameters.insert({ binding.name,
+                                MaterialParameter{
+                                    .binding = binding.binding,
+                                    .type = MaterialParameterType::Texture2D,
+                                    .value = whiteTexture,
+                                } });
+            break;
+        }
+        default:
+            break;
         }
     }
 
-    for (const auto& [name, desc] : parameterDescs)
+    for (const Render::ShaderUniformBuffer& uniformBuffer : renderShader->GetMergedReflection().uniformBuffers)
     {
-        parameters.try_emplace(name, MaterialParameterValue {
-            .type = MaterialParameterType::Texture2D,
-            .value = defaultWhite,
-        });
+        if (uniformBuffer.set != 1)
+            continue;
 
-        if (!ApplyParameter(desc, parameters.at(name)))
-            return false;
+        for (const Render::ShaderParameter& shaderParameter : uniformBuffer.parameters)
+        {
+            MaterialParameter materialParameter = {};
+            materialParameter.binding = uniformBuffer.binding;
+
+            materialParameter.offset = shaderParameter.offset;
+            materialParameter.size = shaderParameter.size;
+
+            parameters.insert({ shaderParameter.name, materialParameter });
+        }
     }
 
     return true;
 }
 
-void Material::SetParameter(const std::string& name, MaterialParameterValue value)
+void Material::SetFloat(const std::string& name, float value)
 {
-    const auto descIt = parameterDescs.find(name);
-    if (resourceManager && descIt != parameterDescs.end())
-    {
-        if (!ApplyParameter(descIt->second, value))
-            return;
-    }
-
-    parameters.insert_or_assign(name, std::move(value));
-}
-
-const MaterialParameterValue* Material::GetParameter(const std::string& name) const
-{
-    const auto it = parameters.find(name);
+    auto it = parameters.find(name);
     if (it == parameters.end())
-        return nullptr;
+        return;
 
-    return &it->second;
-}
+    auto uniformBufferIt = uniformBuffers.find(it->second.binding);
+    if (uniformBufferIt == uniformBuffers.end())
+        return;
 
-const MaterialParameterDesc* Material::GetParameterDesc(const std::string& name) const
-{
-    const auto it = parameterDescs.find(name);
-    if (it == parameterDescs.end())
-        return nullptr;
+    if (it->second.type != MaterialParameterType::Float)
+        return;
 
-    return &it->second;
-}
-
-bool Material::ApplyParameter(
-    const MaterialParameterDesc& desc,
-    const MaterialParameterValue& value)
-{
-    if (!resourceManager || desc.type != value.type)
-        return false;
-
-    switch (desc.type)
+    for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
     {
-    case MaterialParameterType::Texture2D:
-    {
-        Texture* const* textureAsset = std::get_if<Texture*>(&value.value);
-        if (!textureAsset || !*textureAsset)
-            return false;
-
-        Render::Texture* texture = resourceManager->GetOrCreateTexture(*textureAsset);
-        if (!texture)
-            return false;
-
-        Render::TextureView* textureView = resourceManager->GetOrCreateTextureView(texture);
-        if (!textureView)
-            return false;
-
-        for (Render::DescriptorSet* descriptorSet : descriptorSets)
-            descriptorSet->WriteSampledImage(desc.binding, textureView);
-
-        return true;
-    }
-    default:
-        return false;
+        uniformBufferIt->second[i]->Update(&value, sizeof(float), it->second.offset);
     }
 }
 
-// void Material::SetTexture(Texture* textureAsset)
-//{
-//     texture = textureAsset;
-//
-//     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-//     Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-//     Render::Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
-//     Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
-//
-//     if (!textureView)
-//         return;
-//
-//     for (Render::DescriptorSet* descriptorSet : descriptorSets)
-//     {
-//         descriptorSet->WriteSampledImage(0, textureView);
-//         descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
-//     }
-// }
+void Material::SetTexture(const std::string& name, Texture* texture)
+{
+    auto it = parameters.find(name);
+    if (it == parameters.end())
+        return;
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+    Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(texture);
+    Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(renderTexture);
+
+    for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        descriptorSets[i]->WriteSampledImage(it->second.binding, textureView);
+    }
+}
 
 } // namespace URay

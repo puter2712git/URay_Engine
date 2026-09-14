@@ -9,13 +9,9 @@ namespace URay::Render
 {
 
 DescriptorSet::DescriptorSet(VkDevice device, VkDescriptorSet handle, DescriptorSetLayout* layout)
-    : device(device), handle(handle), layout(layout)
-{
-}
+    : device(device), handle(handle), layout(layout) {}
 
-DescriptorSet::~DescriptorSet()
-{
-}
+DescriptorSet::~DescriptorSet() = default;
 
 void DescriptorSet::WriteUniformBuffer(
     uint32 binding,

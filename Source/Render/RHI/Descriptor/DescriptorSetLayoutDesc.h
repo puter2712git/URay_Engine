@@ -28,7 +28,7 @@ struct DescriptorSetLayoutDescHash
 
         for (const auto& binding : desc.bindings)
         {
-            combine(binding.bindingIndex);
+            combine(binding.binding);
             combine(binding.resourceType);
             combine(binding.arrayCount);
             combine(binding.stageFlags);

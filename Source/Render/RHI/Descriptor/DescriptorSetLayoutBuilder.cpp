@@ -1,5 +1,5 @@
-#include "DescriptorSetLayout.h"
 #include "DescriptorSetLayoutBuilder.h"
+#include "DescriptorSetLayout.h"
 #include "ResourceBinding.h"
 
 #include "Core/Type/Types.h"
@@ -11,7 +11,7 @@ DescriptorSetLayoutBuilder& DescriptorSetLayoutBuilder::AddBinding(
     const ResourceBinding& binding)
 {
     VkDescriptorSetLayoutBinding layoutBinding = {};
-    layoutBinding.binding = binding.bindingIndex;
+    layoutBinding.binding = binding.binding;
 
     switch (binding.resourceType)
     {

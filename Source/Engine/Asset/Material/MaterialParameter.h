@@ -22,18 +22,15 @@ enum class MaterialParameterType
     Texture2D
 };
 
-struct MaterialParameterValue
+struct MaterialParameter
 {
+    uint32 binding = 0;
+
     MaterialParameterType type;
     std::variant<float, Vector2, Vector3, Color, Texture*> value;
-};
 
-struct MaterialParameterDesc
-{
-    std::string name;
-    MaterialParameterType type = MaterialParameterType::Float;
-    uint32 set = 0;
-    uint32 binding = 0;
+    uint32 offset = 0;
+    uint32 size = 0;
 };
 
 } // namespace URay

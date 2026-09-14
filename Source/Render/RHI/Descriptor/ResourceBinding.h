@@ -5,6 +5,7 @@
 #include "Core/Type/Types.h"
 
 #include <cstdint>
+#include <string>
 
 namespace URay::Render
 {
@@ -21,8 +22,8 @@ enum class ResourceType
 
 struct ResourceBinding
 {
-    uint32 set = 0;
-    uint32 bindingIndex = 0;
+    std::string name;
+    uint32 binding = 0;
     ResourceType resourceType = ResourceType::Sampler;
     uint32 arrayCount = 1;
     ShaderStageFlags stageFlags = ShaderStageFlags::Vertex;

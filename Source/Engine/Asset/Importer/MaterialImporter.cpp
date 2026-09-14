@@ -75,39 +75,16 @@ ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& co
         switch (parameter.type)
         {
         case MaterialCookParameterType::Float:
-            material->SetParameter(
-                parameter.name,
-                { .type = MaterialParameterType::Float,
-                  .value = std::get<float>(parameter.value) });
+            material->SetFloat(parameter.name, std::get<float>(parameter.value));
             break;
-        case MaterialCookParameterType::Float2:
-            material->SetParameter(
-                parameter.name,
-                { .type = MaterialParameterType::Float2,
-                  .value = std::get<Vector2>(parameter.value) });
-            break;
-        case MaterialCookParameterType::Float3:
-            material->SetParameter(
-                parameter.name,
-                { .type = MaterialParameterType::Float3,
-                  .value = std::get<Vector3>(parameter.value) });
-            break;
-        case MaterialCookParameterType::Float4:
-            material->SetParameter(
-                parameter.name,
-                { .type = MaterialParameterType::Float4,
-                  .value = std::get<Color>(parameter.value) });
-            break;
+
         case MaterialCookParameterType::Texture2D:
         {
             const VirtualPath& texturePath = std::get<VirtualPath>(parameter.value);
             const UUID textureUUID = assetSystem.Import(texturePath);
             if (Texture* texture = assetSystem.Find<Texture>(textureUUID))
             {
-                material->SetParameter(
-                    parameter.name,
-                    { .type = MaterialParameterType::Texture2D,
-                      .value = texture });
+                material->SetTexture(parameter.name, texture);
             }
             break;
         }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/Shader/Reflection/ShaderReflection.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/PushConstantRange.h"
+#include "Render/Shader/Reflection/ShaderReflection.h"
 
 #include "Core/Type/Types.h"
 
@@ -22,17 +22,31 @@ public:
     ~Shader() = default;
 
 public:
-    const std::map<uint32, DescriptorSetLayoutDesc>& GetDescriptorSetLayoutDescs() const { return setLayoutDescs; }
-    const DescriptorSetLayoutDesc* GetDescriptorSetLayoutDesc(uint32 set) const;
-
-    const std::vector<PushConstantRange>& GetPushConstantRanges() const { return pushConstantRanges; }
-
     const std::vector<uint8>& GetVertexShaderCode() const { return vertexShaderCode; }
     const std::vector<uint8>& GetFragmentShaderCode() const { return fragmentShaderCode; }
 
     const ShaderReflection& GetVertexReflection() const { return vertexReflection; }
     const ShaderReflection& GetFragmentReflection() const { return fragmentReflection; }
-    const ShaderPipelineReflection& GetPipelineReflection() const { return pipelineReflection; }
+    const ShaderReflection& GetMergedReflection() const { return mergedReflection; }
+
+    const std::map<uint32, DescriptorSetLayoutDesc>& GetLayoutDescriptions() const { return layoutDescriptions; }
+    const DescriptorSetLayoutDesc* GetLayoutDescription(uint32 set) const;
+
+    const std::vector<PushConstantRange>& GetPushConstantRanges() const { return pushConstantRanges; }
+
+private:
+    // Merge Reflections
+    void MergeReflection();
+
+    void MergeDescriptorBindings();
+    void MergeUniformBuffers();
+    void MergePushConstant();
+
+    ShaderDescriptorBinding* FindBinding(uint32 set, uint32 binding);
+    ShaderUniformBuffer* FindUniformBuffer(uint32 set, uint32 binding);
+
+    // Create Descriptor Set Layout Descriptions
+    void CreateSetLayoutDescriptions();
 
 private:
     std::vector<uint8> vertexShaderCode;
@@ -40,9 +54,9 @@ private:
 
     ShaderReflection vertexReflection = {};
     ShaderReflection fragmentReflection = {};
-    ShaderPipelineReflection pipelineReflection = {};
+    ShaderReflection mergedReflection = {};
 
-    std::map<uint32, DescriptorSetLayoutDesc> setLayoutDescs;
+    std::map<uint32, DescriptorSetLayoutDesc> layoutDescriptions;
     std::vector<PushConstantRange> pushConstantRanges;
 };
 

@@ -24,7 +24,7 @@ DecalObject::DecalObject(RenderSystem& renderSystem, const DecalObjectState& sta
     Shader* decalShader = renderSystem.GetResourceManager().GetOrCreateShader(shaderAsset, {});
 
     const DescriptorSetLayoutDesc* layoutDesc =
-        decalShader->GetDescriptorSetLayoutDesc(2);
+        decalShader->GetLayoutDescription(2);
     DescriptorSetLayout* descriptorSetLayout = renderSystem.GetResourceManager()
                                                    .GetOrCreateDescriptorSetLayout(*layoutDesc);
 

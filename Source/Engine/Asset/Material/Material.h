@@ -6,6 +6,8 @@
 #include "Core/Math/Color.h"
 #include "Core/Type/Types.h"
 
+#include "Render/RenderInfo.h"
+
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
@@ -20,7 +22,7 @@ namespace Render
 {
 class DescriptorSetLayout;
 class DescriptorSet;
-class RenderDevice;
+class Buffer;
 class ResourceManager;
 } // namespace Render
 
@@ -33,11 +35,10 @@ public:
     ~Material();
 
 public:
-    bool Initialize(Render::RenderDevice* renderDevice, Render::ResourceManager* resourceManager, Texture* defaultWhite);
+    bool Initialize();
 
-    void SetParameter(const std::string& name, MaterialParameterValue value);
-    const MaterialParameterValue* GetParameter(const std::string& name) const;
-    const MaterialParameterDesc* GetParameterDesc(const std::string& name) const;
+    void SetFloat(const std::string& name, float value);
+    void SetTexture(const std::string& name, Texture* texture);
 
     Shader* GetShader() const { return shader; }
     void SetShader(Shader* inShader) { shader = inShader; }
@@ -51,19 +52,14 @@ public:
     }
 
 protected:
-    bool ApplyParameter(
-        const MaterialParameterDesc& desc,
-        const MaterialParameterValue& value);
-
-protected:
     Shader* shader = nullptr;
 
-    std::unordered_map<std::string, MaterialParameterValue> parameters;
-    std::unordered_map<std::string, MaterialParameterDesc> parameterDescs;
-
-    Render::ResourceManager* resourceManager = nullptr;
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<Render::DescriptorSet*> descriptorSets;
+
+    std::map<uint32, std::array<std::unique_ptr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
+
+    std::unordered_map<std::string, MaterialParameter> parameters;
 };
 
 } // namespace URay

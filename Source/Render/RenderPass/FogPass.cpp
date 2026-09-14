@@ -24,7 +24,7 @@ FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
 {
     fogShader = renderSystem.GetResourceManager().GetOrCreateShader(fogShaderAsset, {});
 
-    const DescriptorSetLayoutDesc* layoutDesc = fogShader->GetDescriptorSetLayoutDesc(2);
+    const DescriptorSetLayoutDesc* layoutDesc = fogShader->GetLayoutDescription(2);
     if (!layoutDesc)
         throw std::runtime_error("Failed to initialize fog pass.");
 

@@ -44,11 +44,7 @@ Material* AssetFactory::CreateMaterial(const AssetMetadata& metadata,
     const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
 
     Material* newMaterial = new Material(shader);
-
-    if (!newMaterial->Initialize(
-            &renderSystem.GetDevice(),
-            &renderSystem.GetResourceManager(),
-            defaultAssets.whiteTexture))
+    if (!newMaterial->Initialize())
     {
         delete newMaterial;
         return nullptr;
