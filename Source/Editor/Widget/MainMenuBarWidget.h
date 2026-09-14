@@ -10,14 +10,11 @@ class Engine;
 class MainMenuBarWidget final : public Widget
 {
 public:
-    MainMenuBarWidget(Engine& engine);
+    MainMenuBarWidget();
     ~MainMenuBarWidget() override;
 
 protected:
     void OnDraw() override;
-
-private:
-    Engine& engine;
 };
 
 } // namespace URay

@@ -7,21 +7,18 @@
 namespace URay
 {
 
-class Engine;
 class CameraComponent;
 
-class Widget;
-class ViewportWidget;
+class WidgetSystem;
 class UIInputRouter;
 class EditorSettings;
 class SelectionSystem;
-class WidgetDrawer;
 class EditorSceneRenderer;
 
 class Editor
 {
 public:
-    Editor(Engine& engine);
+    Editor();
     ~Editor();
 
 public:
@@ -41,22 +38,17 @@ public:
 
     Render::RenderRequest BuildRenderRequest() const;
 
+    WidgetSystem& GetWidgetSystem() const { return *widgetSystem; }
+    SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
+
 private:
     CameraComponent& PrepareEditorScene();
 
 private:
-    Engine& engine;
-
     CameraComponent* editorCamera = nullptr;
 
+    std::unique_ptr<WidgetSystem> widgetSystem = nullptr;
     std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
-
-    std::unique_ptr<Widget> mainMenuBarWidget = nullptr;
-    std::unique_ptr<Widget> rootWidget = nullptr;
-
-    ViewportWidget* viewportWidget = nullptr;
-
-    std::unique_ptr<WidgetDrawer> widgetDrawer = nullptr;
 
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
@@ -66,5 +58,7 @@ private:
     bool isPlaying = false;
     bool useEditorCamera = false;
 };
+
+extern Editor* gEditor;
 
 } // namespace URay

@@ -44,7 +44,8 @@ enum class GizmoMode : uint8
 class GizmoController
 {
 public:
-    GizmoController(Engine& engine);
+    GizmoController();
+    ~GizmoController();
 
 public:
     void Update(const Vector2& targetPosition, CameraComponent& camera);

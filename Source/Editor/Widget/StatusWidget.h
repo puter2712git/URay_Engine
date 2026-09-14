@@ -10,14 +10,11 @@ class Engine;
 class StatusWidget final : public Widget
 {
 public:
-    StatusWidget(Engine& engine);
+    StatusWidget();
     ~StatusWidget() override;
 
 protected:
     void OnDraw() override;
-
-private:
-    Engine& engine;
 };
 
 } // namespace URay

@@ -27,7 +27,9 @@
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Type/Types.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
+#include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 
 #include "Platform/Window/Window.h"
@@ -63,7 +65,7 @@ Renderer::Renderer(Window& window, VulkanContext& context, RenderDevice& device,
 
 Renderer::~Renderer() = default;
 
-bool Renderer::Initialize(VirtualFilesystem& filesystem)
+bool Renderer::Initialize()
 {
     glfwSetWindowUserPointer(window.GetGLFWWindow(), this);
     glfwSetFramebufferSizeCallback(window.GetGLFWWindow(), FramebufferResizeCallback);
@@ -133,11 +135,14 @@ void Renderer::Finalize()
     DestroyCommandPool();
 }
 
-bool Renderer::InitializeImGui(const VirtualFilesystem& filesystem)
+bool Renderer::InitializeImGui()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
     const std::vector<uint8> fontBytes = filesystem.ReadBinary("RawAsset://Font/PretendardVariable.ttf");
     if (fontBytes.empty())

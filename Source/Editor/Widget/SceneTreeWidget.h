@@ -14,7 +14,7 @@ class Unit;
 class SceneTreeWidget final : public Widget
 {
 public:
-    SceneTreeWidget(SelectionSystem& selectionSystem, Engine& engine);
+    SceneTreeWidget();
     ~SceneTreeWidget() override;
 
 public:
@@ -30,7 +30,6 @@ private:
 
 private:
     SelectionSystem& selectionSystem;
-    Engine& engine;
 
     Unit* pendingDraggedUnit = nullptr;
     Unit* pendingParentUnit = nullptr;

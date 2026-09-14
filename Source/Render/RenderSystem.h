@@ -28,7 +28,7 @@ public:
     bool Initialize(Window& window, VirtualFilesystem& filesystem);
     void Finalize();
 
-    bool InitializeImGui(VirtualFilesystem& filesystem);
+    bool InitializeImGui();
     void FinalizeImGui();
 
     void WaitIdle();

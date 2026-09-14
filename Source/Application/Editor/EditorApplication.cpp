@@ -20,7 +20,7 @@ bool EditorApplication::Initialize(
     if (!engine->Initialize(enginePath, projectPath))
         return false;
 
-    editor = std::make_unique<Editor>(*engine);
+    editor = std::make_unique<Editor>();
     if (!editor->Initialize())
         return false;
 

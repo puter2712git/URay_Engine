@@ -16,6 +16,7 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -23,17 +24,16 @@
 namespace URay
 {
 
-ViewportWidget::ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem, Editor& editor)
-    : renderer(renderer), camera(camera), engine(engine), selectionSystem(selectionSystem), editor(editor)
+ViewportWidget::ViewportWidget()
+    : renderer(gEngine->GetRenderSystem().GetRenderer()),
+      selectionSystem(gEditor->GetSelectionSystem())
 {
-    camera.SetViewportExtent(renderer.GetSceneRenderTargetExtent());
-
-    gizmo = std::make_unique<GizmoController>(engine);
-    pickSystem = std::make_unique<PickSystem>(engine, *gizmo);
+    gizmo = std::make_unique<GizmoController>();
+    pickSystem = std::make_unique<PickSystem>(*gizmo);
     pickSystem->Initialize();
 
-    selectionSystem.GetOnSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
-                                                        { gizmo->SetTarget(unit); });
+    gEditor->GetSelectionSystem().GetOnSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
+                                                                      { gizmo->SetTarget(unit); });
 }
 
 ViewportWidget::~ViewportWidget()
@@ -70,7 +70,7 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
         if (!targetPosition)
             return {};
 
-        const PickResult pickResult = pickSystem->Pick(&camera, targetPosition->x, targetPosition->y);
+        const PickResult pickResult = pickSystem->Pick(camera, targetPosition->x, targetPosition->y);
         if (!pickResult.isHit)
         {
             selectionSystem.SelectUnit(nullptr);
@@ -79,7 +79,7 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
         {
             if (pickResult.gizmoAxis != -1)
             {
-                gizmo->StartDragging(*targetPosition, pickResult.gizmoAxis, camera);
+                gizmo->StartDragging(*targetPosition, pickResult.gizmoAxis, *camera);
             }
             else
             {
@@ -147,7 +147,7 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
 
     if (event.key == KeyCode::Delete)
     {
-        SceneSystem& sceneSystem = engine.GetSceneSystem();
+        SceneSystem& sceneSystem = gEngine->GetSceneSystem();
         Scene* currScene = sceneSystem.GetSceneByType(SceneType::Game);
 
         Unit* selectedUnit = selectionSystem.GetSelectedUnit();
@@ -172,9 +172,9 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
         }
     }
 
-    if (event.key == KeyCode::GraveAccent && editor.IsPlaying())
+    if (event.key == KeyCode::GraveAccent && gEditor->IsPlaying())
     {
-        editor.SetUseEditorCamera(!editor.UsingEditorCamera());
+        gEditor->SetUseEditorCamera(!gEditor->UsingEditorCamera());
     }
 
     if (event.key == KeyCode::W)
@@ -235,9 +235,16 @@ EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
     return {};
 }
 
+void ViewportWidget::SetCamera(CameraComponent* camera)
+{
+    this->camera = camera;
+
+    this->camera->SetViewportExtent(GetTargetExtent());
+}
+
 void ViewportWidget::OnUpdate(float deltaTime)
 {
-    PickResult pickResult = pickSystem->Pick(&camera, cachedPosition.x, cachedPosition.y);
+    PickResult pickResult = pickSystem->Pick(camera, cachedPosition.x, cachedPosition.y);
     if (!pickResult.isHit || pickResult.gizmoAxis == -1)
     {
         gizmo->SetHoveredAxis(-1);
@@ -248,7 +255,7 @@ void ViewportWidget::OnUpdate(float deltaTime)
         gizmo->SetHoveredAxis(pickResult.gizmoAxis);
     }
 
-    gizmo->Update(cachedPosition, camera);
+    gizmo->Update(cachedPosition, *camera);
 
     UpdateCameraMovement(deltaTime);
     UpdateCameraRotation();
@@ -272,13 +279,13 @@ void ViewportWidget::OnDraw()
 
     if (ImGui::Button("Play"))
     {
-        editor.StartGame();
+        gEditor->StartGame();
     }
     ImGui::SameLine();
 
     if (ImGui::Button("Stop"))
     {
-        editor.StopGame();
+        gEditor->StopGame();
     }
     ImGui::SameLine();
 
@@ -338,7 +345,7 @@ void ViewportWidget::OnDraw()
         };
 
         renderer.RequestSceneRenderTargetResize(requestedExtent);
-        camera.SetViewportExtent(targetExtent);
+        camera->SetViewportExtent(targetExtent);
 
         const ImTextureID textureId = static_cast<ImTextureID>(reinterpret_cast<uintptr_t>(descriptorSet));
         ImGui::Image(ImTextureRef(textureId), logicalSize);
@@ -368,7 +375,7 @@ void ViewportWidget::UpdateCameraMovement(float deltaTime)
         cameraMove.x -= 5.0f * deltaTime;
     }
 
-    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
+    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
     cameraMove = cameraTransform->TransformVectorNoScale(cameraMove);
 
     if (cameraUp)
@@ -389,7 +396,7 @@ void ViewportWidget::UpdateCameraRotation()
     if (!isCameraRotating)
         return;
 
-    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
+    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
 
     Vector3 rotation = cameraTransform->GetRotation();
     rotation.x -= pendingCameraLookDelta.y * 0.1f;
@@ -429,7 +436,7 @@ std::optional<Vector2> ViewportWidget::WindowToRenderTarget(const Vector2& windo
 
 bool ViewportWidget::SaveCurrScene()
 {
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
 
     if (!scene)
@@ -443,7 +450,7 @@ bool ViewportWidget::SaveCurrScene()
         return false;
     }
 
-    VirtualFilesystem& filesystem = engine.GetAssetSystem().GetFilesystem();
+    VirtualFilesystem& filesystem = gEngine->GetAssetSystem().GetFilesystem();
 
     const std::string sceneText = YAML::Dump(scene->Serialize());
 

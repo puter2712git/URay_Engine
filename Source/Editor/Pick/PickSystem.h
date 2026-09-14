@@ -28,7 +28,7 @@ struct PickResult
 class PickSystem
 {
 public:
-    PickSystem(Engine& engine, GizmoController& gizmo);
+    PickSystem(GizmoController& gizmo);
     ~PickSystem();
 
 public:
@@ -45,7 +45,6 @@ private:
     void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
 
 private:
-    Engine& engine;
     GizmoController& gizmo;
 
     PickRegistry pickRegistry;

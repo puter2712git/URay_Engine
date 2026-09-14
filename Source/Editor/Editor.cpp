@@ -5,16 +5,8 @@
 #include "Editor/Render/EditorSceneRenderer.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
-#include "Editor/Widget/Console/ConsoleWidget.h"
-#include "Editor/Widget/Filesystem/FilesystemWidget.h"
-#include "Editor/Widget/InspectorWidget.h"
-#include "Editor/Widget/MainMenuBarWidget.h"
-#include "Editor/Widget/SceneTreeWidget.h"
-#include "Editor/Widget/Splitter.h"
-#include "Editor/Widget/StatusWidget.h"
-#include "Editor/Widget/ViewportWidget.h"
-#include "Editor/Widget/Widget.h"
-#include "Editor/Widget/WidgetDrawer.h"
+#include "Editor/Widget/Viewport/ViewportWidget.h"
+#include "Editor/Widget/WidgetSystem.h"
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Component/Render/CameraComponent.h"
@@ -36,64 +28,47 @@
 
 #include <imgui/imgui.h>
 
+#include <memory>
+
 namespace URay
 {
 
-Editor::Editor(Engine& engine)
-    : engine(engine)
-{
-}
+Editor* gEditor;
+
+Editor::Editor() = default;
 
 Editor::~Editor() = default;
 
 bool Editor::Initialize()
 {
-    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
+    gEditor = this;
 
-    if (!renderSystem.InitializeImGui(engine.GetAssetSystem().GetFilesystem()))
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+
+    if (!renderSystem.InitializeImGui())
         return false;
 
-    inputRouter = std::make_unique<UIInputRouter>(engine.GetWindow());
-    editorSettings = std::make_unique<EditorSettings>(engine.GetAssetSystem().GetFilesystem());
+    inputRouter = std::make_unique<UIInputRouter>(gEngine->GetWindow());
+    editorSettings = std::make_unique<EditorSettings>(filesystem);
 
     editorCamera = &PrepareEditorScene();
 
     selectionSystem = std::make_unique<SelectionSystem>();
 
-    mainMenuBarWidget = std::make_unique<MainMenuBarWidget>(engine);
-
-    std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>(*selectionSystem, engine);
-    std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>(*selectionSystem);
-    std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
-    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>(engine, engine.GetAssetSystem().GetFilesystem());
-    std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>(engine);
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>(renderSystem.GetRenderer(), *editorCamera, engine, *selectionSystem, *this);
-    viewportWidget = viewport.get();
-
-    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
-    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
-    std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>("LeftPanel2", SplitAxis::Horizontal, std::move(console), std::move(filesystem));
-    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
-
-    rootWidget = std::make_unique<Splitter>(
-        "Root",
-        SplitAxis::Horizontal,
-        std::move(leftPanel),
-        std::move(rightPanel));
-
-    std::vector<Widget*> rootWidgets = { mainMenuBarWidget.get(), rootWidget.get() };
-    widgetDrawer = std::make_unique<WidgetDrawer>(rootWidgets);
-
-    Render::RenderPipeline& pipeline = renderSystem.GetPipeline();
-    std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>(*widgetDrawer);
-    pipeline.AddRenderPass(std::move(uiPass));
-
-    sceneRenderer = std::make_unique<EditorSceneRenderer>(engine, *selectionSystem);
+    sceneRenderer = std::make_unique<EditorSceneRenderer>(*gEngine, *selectionSystem);
     if (!sceneRenderer->Initialize())
         return false;
 
+    widgetSystem = std::make_unique<WidgetSystem>();
+    if (!widgetSystem->Initialize())
+        return false;
+    widgetSystem->GetViewport().SetCamera(editorCamera);
+
     EditorSettingsContext settingsContext = {
-        .rootWidget = *rootWidget
+        .rootWidget = widgetSystem->GetRootWidget()
     };
 
     if (editorSettings->Load(settingsContext))
@@ -102,23 +77,18 @@ bool Editor::Initialize()
         cameraTransform->SetPosition(settingsContext.cameraSettings.position);
         cameraTransform->SetRotation(settingsContext.cameraSettings.rotation);
 
-        AssetSystem& assetSystem = engine.GetAssetSystem();
-        VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
-
         const std::string sceneText = filesystem.ReadText(settingsContext.startScenePath);
         YAML::Node sceneNode = YAML::Load(sceneText);
 
-        std::unique_ptr<Scene> loadedScene = engine.GetSceneSystem().CreateScene(SceneType::Game, settingsContext.startScenePath);
+        std::unique_ptr<Scene> loadedScene = sceneSystem.CreateScene(SceneType::Game, settingsContext.startScenePath);
         loadedScene->Deserialize(sceneNode);
 
-        SceneSystem& sceneSystem = engine.GetSceneSystem();
         sceneSystem.SwitchScene(std::move(loadedScene));
     }
     else
     {
-        std::unique_ptr<Scene> loadedScene = engine.GetSceneSystem().CreateScene(SceneType::Game, "");
+        std::unique_ptr<Scene> loadedScene = sceneSystem.CreateScene(SceneType::Game, "");
 
-        SceneSystem& sceneSystem = engine.GetSceneSystem();
         sceneSystem.SwitchScene(std::move(loadedScene));
     }
 
@@ -127,12 +97,13 @@ bool Editor::Initialize()
 
 void Editor::Finalize()
 {
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
 
     TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
 
     EditorSettingsContext settingsContext = {
-        .rootWidget = *rootWidget,
+        .rootWidget = widgetSystem->GetRootWidget(),
         .startScenePath = sceneSystem.GetSceneByType(SceneType::Game)->GetFilePath().ToString(),
         .cameraSettings = {
             .position = cameraTransform->GetPosition(),
@@ -142,21 +113,12 @@ void Editor::Finalize()
 
     editorSettings->Save(settingsContext);
 
-    if (sceneRenderer)
-    {
-        sceneRenderer->Finalize();
-        sceneRenderer.reset();
-    }
+    widgetSystem->Finalize();
+    widgetSystem.reset();
 
-    if (widgetDrawer)
-    {
-        widgetDrawer.reset();
-    }
+    sceneRenderer->Finalize();
+    sceneRenderer.reset();
 
-    mainMenuBarWidget.reset();
-    rootWidget.reset();
-
-    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
     renderSystem.FinalizeImGui();
 }
 
@@ -164,24 +126,19 @@ void Editor::Update()
 {
     URAY_PROFILE_SCOPE("Editor::Update")
 
-    Timer& timer = engine.GetTimer();
+    Timer& timer = gEngine->GetTimer();
     float deltaTime = timer.GetDeltaTime();
 
-    inputRouter->Process(*rootWidget, engine.GetInputManager());
+    inputRouter->Process(widgetSystem->GetRootWidget(), gEngine->GetInputManager());
 
-    mainMenuBarWidget->Update(deltaTime);
-    rootWidget->Update(deltaTime);
+    widgetSystem->Update(deltaTime);
 }
 
 void Editor::PrepareRender()
 {
     URAY_PROFILE_SCOPE("Editor::PrepareRender")
 
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    rootWidget->Arrange({
-        Vector2(viewport->WorkPos.x, viewport->WorkPos.y),
-        Vector2(viewport->WorkSize.x, viewport->WorkSize.y),
-    });
+    widgetSystem->PrepareRender();
 }
 
 void Editor::StartGame()
@@ -192,12 +149,12 @@ void Editor::StartGame()
     isPlaying = true;
     useEditorCamera = false;
 
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
 
     YAML::Node gameSceneNode = gameScene->Serialize();
 
-    std::unique_ptr<Scene> playScene = engine.GetSceneSystem().CreateScene(SceneType::Play, "");
+    std::unique_ptr<Scene> playScene = sceneSystem.CreateScene(SceneType::Play, "");
     playScene->Deserialize(gameSceneNode);
 
     sceneSystem.LoadScene(std::move(playScene));
@@ -210,14 +167,16 @@ void Editor::StopGame()
 
     isPlaying = false;
 
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     sceneSystem.UnloadScene(SceneType::Play);
 }
 
 Render::RenderRequest Editor::BuildRenderRequest() const
 {
     Render::RenderRequest request = {};
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+
+    ViewportWidget& viewport = widgetSystem->GetViewport();
 
     if (isPlaying)
     {
@@ -248,13 +207,13 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         }
 
         camera->SetViewportExtent(
-            { .width = viewportWidget->GetTargetExtent().width,
-              .height = viewportWidget->GetTargetExtent().height });
+            { .width = viewport.GetTargetExtent().width,
+              .height = viewport.GetTargetExtent().height });
 
         request.view = {
             .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
             .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity,
-            .viewMode = viewportWidget->GetViewMode()
+            .viewMode = viewport.GetViewMode()
         };
     }
     else
@@ -267,7 +226,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         request.view = {
             .viewMatrix = editorCamera->GetViewMatrix(),
             .projMatrix = editorCamera->GetProjMatrix(),
-            .viewMode = viewportWidget->GetViewMode()
+            .viewMode = viewport.GetViewMode()
         };
     }
 
@@ -276,7 +235,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
 CameraComponent& Editor::PrepareEditorScene()
 {
-    std::unique_ptr<Scene> editorScene = engine.GetSceneSystem().CreateScene(SceneType::Editor, "");
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    std::unique_ptr<Scene> editorScene = sceneSystem.CreateScene(SceneType::Editor, "");
 
     Unit* cameraUnit = new Unit();
     cameraUnit->SetName("Editor Camera");
@@ -295,7 +255,6 @@ CameraComponent& Editor::PrepareEditorScene()
     editorScene->AddUnit(cameraUnit);
     editorScene->AddUnit(gridUnit);
 
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.LoadScene(std::move(editorScene));
 
     return *camera;

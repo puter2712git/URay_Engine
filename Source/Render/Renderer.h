@@ -41,10 +41,10 @@ public:
     ~Renderer();
 
 public:
-    bool Initialize(VirtualFilesystem& filesystem);
+    bool Initialize();
     void Finalize();
 
-    bool InitializeImGui(const VirtualFilesystem& filesystem);
+    bool InitializeImGui();
     void FinalizeImGui();
 
     bool BeginFrame();

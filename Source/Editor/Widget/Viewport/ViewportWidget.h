@@ -31,7 +31,7 @@ class Renderer;
 class ViewportWidget : public Widget
 {
 public:
-    ViewportWidget(Render::Renderer& renderer, CameraComponent& camera, Engine& engine, SelectionSystem& selectionSystem, Editor& editor);
+    ViewportWidget();
     ~ViewportWidget() override;
 
 public:
@@ -41,6 +41,8 @@ public:
 
     EventReply OnKeyDown(const KeyEvent& event) override;
     EventReply OnKeyUp(const KeyEvent& event) override;
+
+    void SetCamera(CameraComponent* camera);
 
     const Extent2D& GetTargetExtent() const { return targetExtent; }
 
@@ -59,11 +61,10 @@ private:
     bool SaveCurrScene();
 
 private:
-    Engine& engine;
-    Editor& editor;
     Render::Renderer& renderer;
 
-    CameraComponent& camera;
+    CameraComponent* camera;
+
     std::unique_ptr<GizmoController> gizmo = nullptr;
     std::unique_ptr<PickSystem> pickSystem = nullptr;
 

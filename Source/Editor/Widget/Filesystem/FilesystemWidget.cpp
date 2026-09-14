@@ -1,5 +1,6 @@
 #include "FilesystemWidget.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
@@ -12,8 +13,7 @@
 namespace URay
 {
 
-FilesystemWidget::FilesystemWidget(Engine& engine, VirtualFilesystem& filesystem)
-    : engine(engine), filesystem(filesystem)
+FilesystemWidget::FilesystemWidget() : filesystem(gEngine->GetAssetSystem().GetFilesystem())
 {
     rootPath = "Project://";
     currPath = rootPath;
@@ -116,6 +116,8 @@ void FilesystemWidget::NavigateTo(const VirtualPath& path)
 
 void FilesystemWidget::OnFileDoubleClicked(const VirtualPath& path)
 {
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+
     const std::string extension = path.GetExtension();
 
     if (extension == ".urscene")
@@ -123,10 +125,9 @@ void FilesystemWidget::OnFileDoubleClicked(const VirtualPath& path)
         const std::string sceneText = filesystem.ReadText(path);
         YAML::Node sceneNode = YAML::Load(sceneText);
 
-        std::unique_ptr<Scene> loadedScene = engine.GetSceneSystem().CreateScene(SceneType::Game, path);
+        std::unique_ptr<Scene> loadedScene = sceneSystem.CreateScene(SceneType::Game, path);
         loadedScene->Deserialize(sceneNode);
 
-        SceneSystem& sceneSystem = engine.GetSceneSystem();
         sceneSystem.SwitchScene(std::move(loadedScene));
     }
 }

@@ -10,7 +10,7 @@ class SelectionSystem;
 class InspectorWidget final : public Widget
 {
 public:
-    InspectorWidget(SelectionSystem& selectionSystem);
+    InspectorWidget();
     ~InspectorWidget() override;
 
 public:

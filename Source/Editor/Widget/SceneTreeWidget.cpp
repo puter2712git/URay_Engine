@@ -1,5 +1,6 @@
 #include "SceneTreeWidget.h"
 
+#include "Editor/Editor.h"
 #include "Editor/Selection/SelectionSystem.h"
 
 #include "Engine/Component/TransformComponent.h"
@@ -33,14 +34,9 @@ const char* GetSceneLabel(SceneType type)
 
 } // namespace
 
-SceneTreeWidget::SceneTreeWidget(SelectionSystem& selectionSystem, Engine& engine)
-    : selectionSystem(selectionSystem), engine(engine)
-{
-}
+SceneTreeWidget::SceneTreeWidget() : selectionSystem(gEditor->GetSelectionSystem()) {}
 
-SceneTreeWidget::~SceneTreeWidget()
-{
-}
+SceneTreeWidget::~SceneTreeWidget() = default;
 
 EventReply SceneTreeWidget::OnPointerDown(const PointerEvent& event)
 {
@@ -54,7 +50,7 @@ void SceneTreeWidget::OnDraw()
     ApplyRect();
     ImGui::Begin("Scene Tree", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     const auto& scenes = sceneSystem.GetScenes();
 
     if (scenes.empty())

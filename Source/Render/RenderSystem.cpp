@@ -1,10 +1,10 @@
 #include "RenderSystem.h"
 
-#include "Render/ResourceManager.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RenderPipeline.h"
 #include "Render/Renderer.h"
+#include "Render/ResourceManager.h"
 
 #include "Engine/Engine.h"
 
@@ -34,7 +34,7 @@ bool RenderSystem::Initialize(Window& window, VirtualFilesystem& filesystem)
     resourceManager = std::make_unique<ResourceManager>(*device, filesystem);
 
     renderer = std::make_unique<Renderer>(window, *vulkanContext, *device, *resourceManager);
-    if (!renderer->Initialize(filesystem))
+    if (!renderer->Initialize())
         return false;
 
     pipeline = std::make_unique<RenderPipeline>(engine.GetAssetSystem(), *this);
@@ -78,9 +78,9 @@ void RenderSystem::Finalize()
     }
 }
 
-bool RenderSystem::InitializeImGui(VirtualFilesystem& filesystem)
+bool RenderSystem::InitializeImGui()
 {
-    return renderer->InitializeImGui(filesystem);
+    return renderer->InitializeImGui();
 }
 
 void RenderSystem::FinalizeImGui()

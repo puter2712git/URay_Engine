@@ -1,5 +1,6 @@
 #include "InspectorWidget.h"
 
+#include "Editor/Editor.h"
 #include "Editor/PropertyDrawer.h"
 #include "Editor/Selection/SelectionSystem.h"
 
@@ -11,10 +12,7 @@
 namespace URay
 {
 
-InspectorWidget::InspectorWidget(SelectionSystem& selectionSystem)
-    : selectionSystem(selectionSystem)
-{
-}
+InspectorWidget::InspectorWidget() : selectionSystem(gEditor->GetSelectionSystem()) {}
 
 InspectorWidget::~InspectorWidget() = default;
 

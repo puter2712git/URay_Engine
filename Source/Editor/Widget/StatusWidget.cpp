@@ -10,10 +10,7 @@
 namespace URay
 {
 
-StatusWidget::StatusWidget(Engine& engine)
-    : engine(engine)
-{
-}
+StatusWidget::StatusWidget() = default;
 
 StatusWidget::~StatusWidget() = default;
 
@@ -23,10 +20,12 @@ void StatusWidget::OnDraw()
 
     ImGui::Begin("Status", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-    ImGui::Text("FPS: %d", engine.GetTimer().GetFPS());
-    ImGui::Text("%.4f ms", engine.GetTimer().GetDeltaTime() * 1000);
+    Timer& timer = gEngine->GetTimer();
 
-    const PerformanceAnalytics& analytics = engine.GetPerformanceAnalytics();
+    ImGui::Text("FPS: %d", timer.GetFPS());
+    ImGui::Text("%.4f ms", timer.GetDeltaTime() * 1000);
+
+    const PerformanceAnalytics& analytics = gEngine->GetPerformanceAnalytics();
     const auto& samples = analytics.GetCompletedSamples();
 
     if (!samples.empty())

@@ -22,10 +22,10 @@ namespace URay
 
 using namespace Render;
 
-GizmoController::GizmoController(Engine& engine)
+GizmoController::GizmoController()
 {
-    AssetSystem& assetSystem = engine.GetAssetSystem();
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
     meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.GetDefaultAssets().arrowMesh;
     meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.GetDefaultAssets().rotationGizmoMesh;
@@ -50,6 +50,8 @@ GizmoController::GizmoController(Engine& engine)
     renderObject = gizmoObject.get();
     renderScene->Add(std::move(gizmoObject));
 }
+
+GizmoController::~GizmoController() = default;
 
 void GizmoController::Update(const Vector2& targetPosition, CameraComponent& camera)
 {

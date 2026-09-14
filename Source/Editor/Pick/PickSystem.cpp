@@ -21,8 +21,7 @@
 namespace URay
 {
 
-PickSystem::PickSystem(Engine& engine, GizmoController& gizmo)
-    : engine(engine), gizmo(gizmo) {}
+PickSystem::PickSystem(GizmoController& gizmo) : gizmo(gizmo) {}
 
 PickSystem::~PickSystem() = default;
 
@@ -33,7 +32,7 @@ bool PickSystem::Initialize()
     pickRegistry.Register<SpriteComponent>([](Component& component)
                                            { return std::make_unique<MeshPickObject>(static_cast<SpriteComponent&>(component)); });
 
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     sceneSystem.GetUnitAddRay().Register(
         this, [this](Scene* scene, Unit* unit)
         { OnUnitAdded(scene, unit); });
@@ -49,7 +48,7 @@ bool PickSystem::Initialize()
 
 void PickSystem::Finalize()
 {
-    SceneSystem& sceneSystem = engine.GetSceneSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
     sceneSystem.GetUnitAddRay().UnregisterAll(this);
 

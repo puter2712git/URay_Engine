@@ -5,10 +5,7 @@
 namespace URay
 {
 
-MainMenuBarWidget::MainMenuBarWidget(Engine& engine)
-    : engine(engine)
-{
-}
+MainMenuBarWidget::MainMenuBarWidget() {}
 
 MainMenuBarWidget::~MainMenuBarWidget() = default;
 

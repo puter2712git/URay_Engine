@@ -21,7 +21,7 @@ struct FileEntry
 class FilesystemWidget final : public Widget
 {
 public:
-    FilesystemWidget(Engine& engine, VirtualFilesystem& filesystem);
+    FilesystemWidget();
     ~FilesystemWidget();
 
 public:
@@ -37,7 +37,6 @@ private:
     void OnFileDoubleClicked(const VirtualPath& path);
 
 private:
-    Engine& engine;
     VirtualFilesystem& filesystem;
 
     VirtualPath rootPath = {};
