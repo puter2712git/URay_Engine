@@ -27,6 +27,9 @@ public:
     ViewportWidget& GetViewport() const { return *viewport; }
 
 private:
+    void CreateDefaultWidgets();
+
+private:
     std::unique_ptr<Widget> mainMenuBar = nullptr;
     std::unique_ptr<Widget> root = nullptr;
 
