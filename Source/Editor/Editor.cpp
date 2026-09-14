@@ -1,6 +1,5 @@
 #include "Editor.h"
 
-#include "Editor/GizmoController.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Visual/VisualSystem.h"

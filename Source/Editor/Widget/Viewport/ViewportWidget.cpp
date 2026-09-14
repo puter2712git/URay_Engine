@@ -1,9 +1,9 @@
 #include "ViewportWidget.h"
 
 #include "Editor/Editor.h"
-#include "Editor/GizmoController.h"
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
+#include "Editor/Widget/Viewport/GizmoController.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"

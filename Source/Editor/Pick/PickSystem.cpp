@@ -1,9 +1,9 @@
 #include "PickSystem.h"
 
 #include "Editor/Editor.h"
-#include "Editor/GizmoController.h"
 #include "Editor/Pick/MeshPickObject.h"
 #include "Editor/Pick/PickObject.h"
+#include "Editor/Widget/Viewport/GizmoController.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"

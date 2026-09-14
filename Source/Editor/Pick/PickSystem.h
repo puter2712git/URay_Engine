@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Core/Type/Types.h"
 #include "Editor/Pick/PickRegistry.h"
+
+#include "Core/Type/Types.h"
 
 #include <memory>
 #include <unordered_map>
