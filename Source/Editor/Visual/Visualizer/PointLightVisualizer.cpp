@@ -12,9 +12,9 @@
 
 #include "Core/Math/Math.h"
 
-#include "Render/Scene/Object/Drawable/BillboardObject.h"
-#include "Render/Scene/Object/Drawable/LineObject.h"
-#include "Render/Scene/RenderScene.h"
+#include "Render/Rendering/Object/Drawable/BillboardObject.h"
+#include "Render/Rendering/Object/Drawable/LineObject.h"
+#include "Render/Rendering/Scene/RenderScene.h"
 
 namespace URay
 {

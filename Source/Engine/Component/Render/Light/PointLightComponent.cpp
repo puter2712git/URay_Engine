@@ -3,7 +3,7 @@
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/Light/PointLightObject.h"
+#include "Render/Rendering/Object/Light/PointLightObject.h"
 
 namespace URay
 {

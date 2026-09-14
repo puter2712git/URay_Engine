@@ -5,7 +5,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/Drawable/TextObject.h"
+#include "Render/Rendering/Object/Drawable/TextObject.h"
 
 namespace URay
 {

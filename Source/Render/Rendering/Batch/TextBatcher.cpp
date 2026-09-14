@@ -1,0 +1,155 @@
+#include "Render/Rendering/Batch/TextBatcher.h"
+
+#include "Render/Rendering/DrawCommand/DrawCommandContext.h"
+#include "Render/RHI/Buffer/Buffer.h"
+#include "Render/RHI/Buffer/BufferDesc.h"
+#include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
+#include "Render/RHI/RenderDevice.h"
+#include "Render/Rendering/Renderer.h"
+#include "Render/ResourceManager.h"
+#include "Render/Shader/Shader.h"
+
+#include "Core/Type/Types.h"
+
+#include "Engine/Asset/Font/Font.h"
+
+#include <cstring>
+
+namespace URay::Render
+{
+
+TextBatcher::TextBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader)
+    : device(device), resourceManager(resourceManager), shader(shader)
+{
+}
+
+TextBatcher::~TextBatcher() = default;
+
+bool TextBatcher::Initialize()
+{
+    const VertexBufferDesc desc = {
+        .size = 1024 * 1024 * 4,
+        .memoryUsage = MemoryUsage::CpuToGpu
+    };
+    vertexBuffer.reset(device.CreateVertexBuffer(desc));
+
+    mappedVertexBufferData = vertexBuffer->Map();
+
+    renderShader = resourceManager.GetOrCreateShader(shader, {});
+
+    const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetLayoutDescription(1);
+
+    DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
+    descriptorSet.reset(device.CreateDescriptorSet(setLayout));
+
+    return true;
+}
+
+void TextBatcher::Finalize()
+{
+    if (vertexBuffer)
+    {
+        if (mappedVertexBufferData)
+        {
+            vertexBuffer->Unmap();
+        }
+
+        vertexBuffer.reset();
+    }
+}
+
+void TextBatcher::Reset()
+{
+    for (auto& [font, verts] : vertices)
+    {
+        verts.clear();
+    }
+}
+
+std::vector<DrawCommand> TextBatcher::Flush()
+{
+    std::vector<DrawCommand> drawCmds;
+
+    for (auto& [font, verts] : vertices)
+    {
+        if (verts.empty())
+            continue;
+
+        VkDeviceSize size = sizeof(Vertex) * verts.size();
+        std::memcpy(mappedVertexBufferData, verts.data(), size);
+
+        DrawCommand cmd = {};
+        cmd.worldMatrix = Matrix::Identity;
+        cmd.vertexBuffer = vertexBuffer.get();
+        cmd.vertexCount = static_cast<uint32>(verts.size());
+
+        PipelineStateDesc psoDesc = {};
+        psoDesc.shader = renderShader;
+        psoDesc.topology = PrimitiveTopology::TriangleList;
+        psoDesc.depthStencil.depthTestEnable = true;
+        psoDesc.depthStencil.depthWriteEnable = true;
+        psoDesc.rasterizer.cullMode = CullMode::None;
+        psoDesc.blend.mode = BlendMode::AlphaBlend;
+
+        cmd.pipelineState = psoDesc;
+
+        Texture* texture = resourceManager.GetOrCreateTexture(font->GetBitmapTexture());
+        TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
+
+        descriptorSet->WriteSampledImage(0, textureView);
+        descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
+
+        cmd.descriptorSets[1] = descriptorSet.get();
+
+        drawCmds.push_back(cmd);
+    }
+
+    return drawCmds;
+}
+
+void TextBatcher::Collect(const TextCommandContext& context)
+{
+    if (!context.font)
+        return;
+
+    auto it = vertices.find(context.font);
+    if (it == vertices.end())
+    {
+        vertices.insert({ context.font, std::vector<Vertex>() });
+    }
+
+    std::vector<Vertex>& verts = vertices[context.font];
+
+    const float cellWidth = context.font->GetCellWidth() * 0.01f;
+    const float cellHeight = context.font->GetCellHeight() * 0.01f;
+    const float advance = context.font->GetCellWidth() * 0.01f;
+
+    for (size_t i = 0; i < context.text.length(); ++i)
+    {
+        const Vector3 p0 = context.worldMatrix.TransformPoint(Vector3(cellWidth * i, 0.0f, 0.0f));
+        const Vector3 p1 = context.worldMatrix.TransformPoint(Vector3(cellWidth * (i + 1), 0, 0));
+        const Vector3 p2 = context.worldMatrix.TransformPoint(Vector3(cellWidth * (i + 1), 0, cellHeight));
+        const Vector3 p3 = context.worldMatrix.TransformPoint(Vector3(cellWidth * i, 0, cellHeight));
+
+        const Vector2 startUV = context.font->GetUVFromChar(context.text[i]);
+
+        const float vTop = startUV.y;
+        const float vBottom = startUV.y + context.font->GetCellHeightUV();
+
+        const Vector2 uv0 = Vector2(startUV.x, vBottom);
+        const Vector2 uv1 = Vector2(startUV.x + context.font->GetCellWidthUV(), vBottom);
+        const Vector2 uv2 = Vector2(startUV.x + context.font->GetCellWidthUV(), vTop);
+        const Vector2 uv3 = Vector2(startUV.x, vTop);
+
+        verts.push_back({ p0, uv0, Color::White });
+        verts.push_back({ p1, uv1, Color::White });
+        verts.push_back({ p2, uv2, Color::White });
+
+        verts.push_back({ p0, uv0, Color::White });
+        verts.push_back({ p2, uv2, Color::White });
+        verts.push_back({ p3, uv3, Color::White });
+    }
+}
+
+} // namespace URay::Render

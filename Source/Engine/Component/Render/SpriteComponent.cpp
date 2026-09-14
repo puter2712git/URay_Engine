@@ -7,7 +7,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/Drawable/MeshObject.h"
+#include "Render/Rendering/Object/Drawable/MeshObject.h"
 
 namespace URay
 {

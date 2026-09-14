@@ -7,9 +7,9 @@
 #include "Engine/Object/Property/Property.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/Drawable/MeshObject.h"
-#include "Render/Scene/Object/Drawable/BillboardObject.h"
-#include "Render/Scene/RenderScene.h"
+#include "Render/Rendering/Object/Drawable/MeshObject.h"
+#include "Render/Rendering/Object/Drawable/BillboardObject.h"
+#include "Render/Rendering/Scene/RenderScene.h"
 
 namespace URay
 {

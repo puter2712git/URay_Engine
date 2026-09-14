@@ -5,7 +5,7 @@
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/DecalObject.h"
+#include "Render/Rendering/Object/DecalObject.h"
 
 #include <cassert>
 

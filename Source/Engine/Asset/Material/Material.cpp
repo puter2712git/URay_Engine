@@ -13,7 +13,7 @@
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/RHI/Texture/TextureView.h"
-#include "Render/RenderInfo.h"
+#include "Render/Rendering/RenderInfo.h"
 #include "Render/RenderSystem.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"

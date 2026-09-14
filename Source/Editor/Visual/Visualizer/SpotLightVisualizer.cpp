@@ -11,8 +11,8 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Scene/Object/Drawable/LineObject.h"
-#include "Render/Scene/RenderScene.h"
+#include "Render/Rendering/Object/Drawable/LineObject.h"
+#include "Render/Rendering/Scene/RenderScene.h"
 
 #include <cmath>
 #include <memory>

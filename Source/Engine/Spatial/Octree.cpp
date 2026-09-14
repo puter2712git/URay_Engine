@@ -2,7 +2,7 @@
 
 #include "Core/Type/Types.h"
 
-#include "Render/Scene/Object/BoundedObject.h"
+#include "Render/Rendering/Object/BoundedObject.h"
 
 namespace URay
 {

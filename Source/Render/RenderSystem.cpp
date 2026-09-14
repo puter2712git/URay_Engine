@@ -2,8 +2,8 @@
 
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
-#include "Render/RenderPipeline.h"
-#include "Render/Renderer.h"
+#include "Render/Rendering/RenderPipeline.h"
+#include "Render/Rendering/Renderer.h"
 #include "Render/ResourceManager.h"
 
 #include "Engine/Asset/AssetSystem.h"

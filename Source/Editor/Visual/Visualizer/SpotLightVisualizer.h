@@ -2,7 +2,7 @@
 
 #include "Editor/Visual/Visualizer/EditorComponentVisualizer.h"
 
-#include "Render/Scene/Object/Drawable/LineObject.h"
+#include "Render/Rendering/Object/Drawable/LineObject.h"
 
 namespace URay
 {

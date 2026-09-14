@@ -10,10 +10,10 @@
 
 #include "Core/Math/Math.h"
 
-#include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/Scene/Object/Drawable/GizmoObject.h"
-#include "Render/Scene/RenderScene.h"
+#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
+#include "Render/Rendering/DrawCommand/DrawCommandContext.h"
+#include "Render/Rendering/Object/Drawable/GizmoObject.h"
+#include "Render/Rendering/Scene/RenderScene.h"
 
 #include <algorithm>
 

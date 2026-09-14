@@ -6,7 +6,7 @@
 #include "Core/Math/Color.h"
 #include "Core/Type/Types.h"
 
-#include "Render/RenderInfo.h"
+#include "Render/Rendering/RenderInfo.h"
 
 #include <cstdint>
 #include <unordered_map>

@@ -13,8 +13,8 @@
 
 #include "Engine/Engine.h"
 
-#include "Render/RenderPass/UIPass.h"
-#include "Render/RenderPipeline.h"
+#include "Render/Rendering/RenderPass/UIPass.h"
+#include "Render/Rendering/RenderPipeline.h"
 #include "Render/RenderSystem.h"
 
 #include <imgui/imgui.h>

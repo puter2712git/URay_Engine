@@ -6,7 +6,7 @@
 
 #include "Core/Math/Extent2D.h"
 
-#include "Render/View/ViewMode.h"
+#include "Render/Rendering/View/ViewMode.h"
 
 #include <functional>
 #include <memory>

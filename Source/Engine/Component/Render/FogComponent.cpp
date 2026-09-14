@@ -1,6 +1,6 @@
 #include "FogComponent.h"
 
-#include "Render/Scene/Object/FogObject.h"
+#include "Render/Rendering/Object/FogObject.h"
 
 namespace URay
 {

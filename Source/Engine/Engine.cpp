@@ -9,9 +9,9 @@
 #include "Platform/Input/GLFWInputAdapter.h"
 #include "Platform/Window/Window.h"
 
-#include "Render/RenderPipeline.h"
+#include "Render/Rendering/RenderPipeline.h"
 #include "Render/RenderSystem.h"
-#include "Render/Renderer.h"
+#include "Render/Rendering/Renderer.h"
 
 #include <GLFW/glfw3.h>
 

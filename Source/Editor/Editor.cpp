@@ -19,10 +19,10 @@
 #include "Core/File/VirtualPath.h"
 #include "Core/Timer.h"
 
-#include "Render/RenderPass/UIPass.h"
-#include "Render/RenderPipeline.h"
+#include "Render/Rendering/RenderPass/UIPass.h"
+#include "Render/Rendering/RenderPipeline.h"
 #include "Render/RenderSystem.h"
-#include "Render/Renderer.h"
+#include "Render/Rendering/Renderer.h"
 
 #include <imgui/imgui.h>
 

@@ -7,9 +7,9 @@
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/Scene/Object/Drawable/MeshObject.h"
+#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
+#include "Render/Rendering/DrawCommand/DrawCommandContext.h"
+#include "Render/Rendering/Object/Drawable/MeshObject.h"
 
 #include <algorithm>
 

@@ -1,6 +1,6 @@
 #include "AmbientLightComponent.h"
 
-#include "Render/Scene/Object/Light/AmbientLightObject.h"
+#include "Render/Rendering/Object/Light/AmbientLightObject.h"
 
 namespace URay
 {

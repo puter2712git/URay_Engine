@@ -9,8 +9,8 @@
 #include "Core/Log/Log.h"
 #include "Core/Type/Types.h"
 
-#include "Render/Scene/Object/RenderObject.h"
-#include "Render/Scene/RenderScene.h"
+#include "Render/Rendering/Object/RenderObject.h"
+#include "Render/Rendering/Scene/RenderScene.h"
 
 namespace URay
 {

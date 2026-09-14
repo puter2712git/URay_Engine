@@ -1,8 +1,8 @@
 #include "Engine/Component/Render/GridComponent.h"
 
-#include "Render/DrawCommand/DrawCommandBuilder.h"
-#include "Render/DrawCommand/DrawCommandContext.h"
-#include "Render/Scene/Object/Drawable/LineObject.h"
+#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
+#include "Render/Rendering/DrawCommand/DrawCommandContext.h"
+#include "Render/Rendering/Object/Drawable/LineObject.h"
 
 namespace URay
 {

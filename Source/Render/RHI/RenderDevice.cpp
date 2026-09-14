@@ -22,8 +22,8 @@
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
-#include "Render/RenderInfo.h"
-#include "Render/Renderer.h"
+#include "Render/Rendering/RenderInfo.h"
+#include "Render/Rendering/Renderer.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 

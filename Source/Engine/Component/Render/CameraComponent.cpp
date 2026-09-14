@@ -7,7 +7,7 @@
 #include "Core/Math/Math.h"
 #include "Core/Type/Types.h"
 
-#include "Render/Scene/Object/ViewObject.h"
+#include "Render/Rendering/Object/ViewObject.h"
 
 namespace URay
 {
