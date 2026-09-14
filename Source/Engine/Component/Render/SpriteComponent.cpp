@@ -33,7 +33,12 @@ void SpriteComponent::RegisterClass()
         { .type = PropertyType::Texture,
           .name = "Texture",
           .offset = offsetof(SpriteComponent, texture),
-          .size = sizeof(Texture*) });
+          .size = sizeof(Texture*),
+          .OnChangedCallback = [&](Object& owner, const Property&)
+          {
+              SpriteComponent& component = static_cast<SpriteComponent&>(owner);
+              component.GetMaterial()->SetTexture("textureImage", component.GetTexture());
+          } });
 }
 
 Render::RenderObject* SpriteComponent::CreateRenderObject()

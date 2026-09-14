@@ -20,6 +20,7 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
+    Texture* GetTexture() const { return texture; }
     Mesh* GetQuadMesh() const { return quadMesh; }
     Material* GetMaterial() const { return material; }
 
