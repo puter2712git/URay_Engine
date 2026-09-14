@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Object/Object.h"
-#include "Engine/Ray/EventRay.h"
 
 #include <functional>
 #include <string>
@@ -56,8 +55,6 @@ public:
     Scene* GetOwner() const { return scene; }
     void SetOwner(Scene* scene) { this->scene = scene; }
 
-    const EventRay<Component*>& GetTransformUpdateRay() const { return transformUpdateRay; }
-
 private:
     std::string name;
 
@@ -68,8 +65,6 @@ private:
     TransformComponent* transform = nullptr;
 
     Scene* scene = nullptr;
-
-    EventRay<Component*> transformUpdateRay;
 };
 
 } // namespace URay
