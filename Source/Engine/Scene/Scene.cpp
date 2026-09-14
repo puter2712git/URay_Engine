@@ -23,15 +23,10 @@ Scene::Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePa
 
 Scene::~Scene()
 {
-    for (Unit* unit : units)
+    for (auto& unit : units)
     {
-        if (unit)
-        {
-            delete unit;
-            unit = nullptr;
-        }
+        sceneSystem.GetUnitRemoveRay().Emit(this, unit.get());
     }
-
     units.clear();
 }
 
@@ -39,7 +34,7 @@ void Scene::Update(float deltaTime)
 {
     updateGroups.clear();
 
-    for (Unit* unit : units)
+    for (const auto& unit : units)
     {
         auto& comps = unit->GetComponents();
 
@@ -85,21 +80,18 @@ YAML::Node Scene::Serialize() const
     std::unordered_map<const Unit*, uint64> ids;
     uint64 nextId = 1;
 
-    for (const Unit* unit : units)
+    for (const auto& unit : units)
     {
         if (unit)
         {
-            ids.emplace(unit, nextId++);
+            ids.emplace(unit.get(), nextId++);
         }
     }
 
-    for (const Unit* unit : units)
+    for (const auto& unit : units)
     {
-        if (!unit)
-            continue;
-
         YAML::Node unitNode;
-        unitNode["Id"] = ids.at(unit);
+        unitNode["Id"] = ids.at(unit.get());
 
         const Unit* parent = unit->GetParent();
         if (parent)
@@ -165,7 +157,7 @@ void Scene::Deserialize(const YAML::Node& node)
             continue;
         }
 
-        Unit* newUnit = new Unit();
+        std::unique_ptr<Unit> newUnit = std::make_unique<Unit>();
 
         if (const YAML::Node nameNode = unitNode["Name"])
             newUnit->SetName(nameNode.as<std::string>());
@@ -185,16 +177,16 @@ void Scene::Deserialize(const YAML::Node& node)
             }
         }
 
-        AddUnit(newUnit);
-        unitsById.emplace(id, newUnit);
-
         const YAML::Node parentIdNode = unitNode["ParentId"];
         if (parentIdNode && !parentIdNode.IsNull())
         {
             pendingParentLinks.push_back(ParentLink{
-                .child = newUnit,
+                .child = newUnit.get(),
                 .parentId = parentIdNode.as<uint64>() });
         }
+
+        unitsById.emplace(id, newUnit.get());
+        AddUnit(std::move(newUnit));
     }
 
     for (const ParentLink& link : pendingParentLinks)
@@ -214,17 +206,16 @@ void Scene::Deserialize(const YAML::Node& node)
     }
 }
 
-void Scene::AddUnit(Unit* unit)
+void Scene::AddUnit(std::unique_ptr<Unit> unit)
 {
-    if (!unit)
-        return;
+    Unit* unitPtr = unit.get();
 
-    unit->SetOwner(this);
-    units.push_back(unit);
+    units.push_back(std::move(unit));
+    unitPtr->SetOwner(this);
 
-    sceneSystem.GetUnitAddRay().Emit(this, unit);
+    sceneSystem.GetUnitAddRay().Emit(this, unitPtr);
 
-    const auto& components = unit->GetComponents();
+    const auto& components = unitPtr->GetComponents();
     for (Component* comp : components)
     {
         if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
@@ -242,10 +233,11 @@ void Scene::DestroyUnit(Unit* unit)
 
     sceneSystem.GetUnitRemoveRay().Emit(this, unit);
 
-    auto it = std::find(units.begin(), units.end(), unit);
+    auto it = std::find_if(units.begin(), units.end(),
+                           [unit](const std::unique_ptr<Unit>& candidate)
+                           { return candidate.get() == unit; });
     if (it != units.end())
     {
-        delete unit;
         units.erase(it);
     }
 }

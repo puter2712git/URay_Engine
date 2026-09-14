@@ -45,7 +45,7 @@ public:
     virtual YAML::Node Serialize() const override;
     virtual void Deserialize(const YAML::Node& node) override;
 
-    void AddUnit(Unit* unit);
+    void AddUnit(std::unique_ptr<Unit> unit);
     void DestroyUnit(Unit* unit);
 
     SceneSystem& GetSceneSystem() { return sceneSystem; }
@@ -55,7 +55,7 @@ public:
 
     Render::RenderScene* GetRenderScene() const { return renderScene.get(); }
     SceneType GetType() const { return type; }
-    const std::vector<Unit*>& GetUnits() const { return units; }
+    const std::vector<std::unique_ptr<Unit>>& GetUnits() const { return units; }
 
 private:
     SceneSystem& sceneSystem;
@@ -64,7 +64,7 @@ private:
     std::unique_ptr<Render::RenderScene> renderScene = nullptr;
 
     SceneType type = SceneType::Game;
-    std::vector<Unit*> units;
+    std::vector<std::unique_ptr<Unit>> units;
 
     std::map<int, UpdateGroup, std::greater<int>> updateGroups;
 };

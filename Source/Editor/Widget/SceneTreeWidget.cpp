@@ -86,7 +86,7 @@ void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
     bool hasRootUnit = false;
-    for (Unit* unit : scene.GetUnits())
+    for (const auto& unit : scene.GetUnits())
     {
         if (unit && !unit->GetParent())
         {
@@ -106,17 +106,17 @@ void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
     {
         if (ImGui::MenuItem("Create Empty"))
         {
-            Unit* newUnit = new Unit();
+            std::unique_ptr<Unit> newUnit = std::make_unique<Unit>();
             newUnit->SetName("New Unit");
-            scene.AddUnit(newUnit);
+            scene.AddUnit(std::move(newUnit));
         }
 
         if (ImGui::MenuItem("Create Empty (with Transform)"))
         {
-            Unit* newUnit = new Unit();
+            std::unique_ptr<Unit> newUnit = std::make_unique<Unit>();
             newUnit->SetName("New Unit");
             newUnit->AddComponent(new TransformComponent());
-            scene.AddUnit(newUnit);
+            scene.AddUnit(std::move(newUnit));
         }
 
         ImGui::EndPopup();
@@ -125,11 +125,11 @@ void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
     if (!opened)
         return;
 
-    for (Unit* unit : scene.GetUnits())
+    for (const auto& unit : scene.GetUnits())
     {
         if (unit && !unit->GetParent())
         {
-            DrawUnit(unit, currSelectedUnit);
+            DrawUnit(unit.get(), currSelectedUnit);
         }
     }
 

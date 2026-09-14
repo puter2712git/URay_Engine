@@ -183,7 +183,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             {
                 request.scenes.push_back(scene->GetRenderScene());
 
-                for (Unit* unit : scene->GetUnits())
+                for (const auto& unit : scene->GetUnits())
                 {
                     for (Component* comp : unit->GetComponents())
                     {
@@ -233,7 +233,7 @@ CameraComponent& Editor::PrepareEditorScene()
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     std::unique_ptr<Scene> editorScene = sceneSystem.CreateScene(SceneType::Editor, "");
 
-    Unit* cameraUnit = new Unit();
+    std::unique_ptr<Unit> cameraUnit = std::make_unique<Unit>();
     cameraUnit->SetName("Editor Camera");
 
     TransformComponent* cameraTransform = new TransformComponent();
@@ -242,13 +242,13 @@ CameraComponent& Editor::PrepareEditorScene()
     cameraUnit->AddComponent(cameraTransform);
     cameraUnit->AddComponent(camera);
 
-    Unit* gridUnit = new Unit();
+    std::unique_ptr<Unit> gridUnit = std::make_unique<Unit>();
     gridUnit->SetName("Grid");
     GridComponent* gridComponent = new GridComponent();
     gridUnit->AddComponent(gridComponent);
 
-    editorScene->AddUnit(cameraUnit);
-    editorScene->AddUnit(gridUnit);
+    editorScene->AddUnit(std::move(cameraUnit));
+    editorScene->AddUnit(std::move(gridUnit));
 
     sceneSystem.LoadScene(std::move(editorScene));
 
