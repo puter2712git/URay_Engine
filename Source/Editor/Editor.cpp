@@ -1,7 +1,6 @@
 #include "Editor.h"
 
 #include "Editor/GizmoController.h"
-#include "Editor/Input/UIInputRouter.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Visual/VisualSystem.h"
@@ -51,7 +50,6 @@ bool Editor::Initialize()
     if (!renderSystem.InitializeImGui())
         return false;
 
-    inputRouter = std::make_unique<UIInputRouter>(gEngine->GetWindow());
     editorSettings = std::make_unique<EditorSettings>(filesystem);
 
     editorCamera = &PrepareEditorScene();
@@ -128,8 +126,6 @@ void Editor::Update()
 
     Timer& timer = gEngine->GetTimer();
     float deltaTime = timer.GetDeltaTime();
-
-    inputRouter->Process(widgetSystem->GetRootWidget(), gEngine->GetInputManager());
 
     widgetSystem->Update(deltaTime);
 }

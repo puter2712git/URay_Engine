@@ -10,7 +10,6 @@ namespace URay
 class CameraComponent;
 
 class WidgetSystem;
-class UIInputRouter;
 class EditorSettings;
 class SelectionSystem;
 class VisualSystem;
@@ -51,7 +50,6 @@ private:
     std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
     std::unique_ptr<VisualSystem> visualSystem = nullptr;
 
-    std::unique_ptr<UIInputRouter> inputRouter = nullptr;
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
 
     bool isPlaying = false;

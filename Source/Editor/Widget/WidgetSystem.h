@@ -8,6 +8,7 @@ namespace URay
 class Widget;
 class ViewportWidget;
 class WidgetDrawer;
+class UIInputRouter;
 
 class WidgetSystem
 {
@@ -26,10 +27,11 @@ public:
     ViewportWidget& GetViewport() const { return *viewport; }
 
 private:
-    std::unique_ptr<WidgetDrawer> drawer = nullptr;
-
     std::unique_ptr<Widget> mainMenuBar = nullptr;
     std::unique_ptr<Widget> root = nullptr;
+
+    std::unique_ptr<WidgetDrawer> drawer = nullptr;
+    std::unique_ptr<UIInputRouter> inputRouter = nullptr;
 
     ViewportWidget* viewport = nullptr;
 };

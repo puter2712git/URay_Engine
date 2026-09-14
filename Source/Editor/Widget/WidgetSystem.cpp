@@ -1,5 +1,6 @@
 #include "WidgetSystem.h"
 
+#include "Editor/Widget/Input/UIInputRouter.h"
 #include "Editor/Widget/Console/ConsoleWidget.h"
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/InspectorWidget.h"
@@ -59,6 +60,8 @@ bool WidgetSystem::Initialize()
     std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>(*drawer);
     renderPipeline.AddRenderPass(std::move(uiPass));
 
+    inputRouter = std::make_unique<UIInputRouter>(gEngine->GetWindow());
+
     return true;
 }
 
@@ -72,6 +75,8 @@ void WidgetSystem::Finalize()
 
 void WidgetSystem::Update(float deltaTime)
 {
+    inputRouter->Process(*root, gEngine->GetInputManager());
+
     mainMenuBar->Update(deltaTime);
     root->Update(deltaTime);
 }
