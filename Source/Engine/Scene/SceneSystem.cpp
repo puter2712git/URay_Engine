@@ -3,6 +3,10 @@
 namespace URay
 {
 
+SceneSystem::SceneSystem() = default;
+
+SceneSystem::~SceneSystem() = default;
+
 bool SceneSystem::Initialize()
 {
     return true;
@@ -10,6 +14,7 @@ bool SceneSystem::Initialize()
 
 void SceneSystem::Finalize()
 {
+    scenes.clear();
 }
 
 void SceneSystem::Update(float deltaTime)

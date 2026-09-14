@@ -54,6 +54,8 @@ bool Editor::Initialize()
     editorCamera = &PrepareEditorScene();
 
     selectionSystem = std::make_unique<SelectionSystem>();
+    if (!selectionSystem->Initialize())
+        return false;
 
     visualSystem = std::make_unique<VisualSystem>(*gEngine, *selectionSystem);
     if (!visualSystem->Initialize())
@@ -115,6 +117,9 @@ void Editor::Finalize()
 
     visualSystem->Finalize();
     visualSystem.reset();
+
+    selectionSystem->Finalize();
+    selectionSystem.reset();
 
     renderSystem.FinalizeImGui();
 }

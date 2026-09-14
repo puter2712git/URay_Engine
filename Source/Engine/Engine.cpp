@@ -61,6 +61,8 @@ bool Engine::Initialize(
     assetSystem->LoadAssets("RawAsset://");
 
     sceneSystem = std::make_unique<SceneSystem>();
+    if (!sceneSystem->Initialize())
+        return false;
 
     return true;
 }
@@ -69,38 +71,21 @@ void Engine::Finalize()
 {
     renderSystem->WaitIdle();
 
-    if (sceneSystem)
-    {
-        sceneSystem.reset();
-    }
+    sceneSystem->Finalize();
+    sceneSystem.reset();
 
-    if (renderSystem)
-    {
-        renderSystem->Finalize();
-        renderSystem.reset();
-    }
+    renderSystem->Finalize();
+    renderSystem.reset();
 
-    if (assetSystem)
-    {
-        assetSystem->Finalize();
-        assetSystem.reset();
-    }
+    assetSystem->Finalize();
+    assetSystem.reset();
 
-    if (performanceAnalytics)
-    {
-        performanceAnalytics.reset();
-    }
+    performanceAnalytics.reset();
 
-    if (timer)
-    {
-        timer.reset();
-    }
+    timer.reset();
 
-    if (window)
-    {
-        window->Finalize();
-        window.reset();
-    }
+    window->Finalize();
+    window.reset();
 }
 
 void Engine::Update()

@@ -15,6 +15,10 @@ class Property;
 class SceneSystem
 {
 public:
+    SceneSystem();
+    ~SceneSystem();
+
+public:
     bool Initialize();
     void Finalize();
 
