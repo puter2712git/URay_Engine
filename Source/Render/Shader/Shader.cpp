@@ -24,6 +24,8 @@ Shader::Shader(
         .stages = ShaderStageFlags::All });
 }
 
+Shader::~Shader() = default;
+
 const DescriptorSetLayoutDesc* Shader::GetLayoutDescription(uint32 set) const
 {
     const auto it = layoutDescriptions.find(set);

@@ -19,7 +19,7 @@ public:
            const std::vector<uint8>& fragmentShaderCode,
            const ShaderReflection& vertexReflection,
            const ShaderReflection& fragmentReflection);
-    ~Shader() = default;
+    ~Shader();
 
 public:
     const std::vector<uint8>& GetVertexShaderCode() const { return vertexShaderCode; }
