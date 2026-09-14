@@ -17,6 +17,7 @@ Shader::Shader(
     MergeReflection();
     CreateSetLayoutDescriptions();
 
+    // TODO: Need fix (ShaderStageFlags)
     pushConstantRanges.push_back(PushConstantRange{
         .offset = mergedReflection.pushConstant.offset,
         .size = mergedReflection.pushConstant.size,
