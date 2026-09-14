@@ -76,9 +76,9 @@ void TransformComponent::UpdateWorldMatrix()
     sceneSystem.GetUnitWorldTransformUpdateRay().Emit(scene, owner);
 
     // TODO: Move these logics.
-    for (Component* comp : GetOwner()->GetComponents())
+    for (const auto& component : GetOwner()->GetComponents())
     {
-        if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
+        if (RenderComponent* renderComp = Cast<RenderComponent>(component.get()))
         {
             renderComp->MarkDirty();
         }

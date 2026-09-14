@@ -3,6 +3,7 @@
 #include "Engine/Component/Component.h"
 
 #include <functional>
+#include <memory>
 #include <string>
 
 namespace URay
@@ -13,26 +14,26 @@ class Component;
 class ComponentFactory
 {
 public:
-    using ConstructorFunc = std::function<Component*()>;
+    using ConstructorFunc = std::function<std::unique_ptr<Component>()>;
 
     template <typename T>
     static void RegisterComponent(const std::string& name)
     {
-        GetRegistry()[name] = []() -> Component*
+        GetRegistry()[name] = []() -> std::unique_ptr<Component>
         {
-            return new T();
+            return std::make_unique<T>();
         };
     }
 
-    static Component* Create(const std::string& name)
+    static std::unique_ptr<Component> Create(const std::string& name)
     {
         auto& registry = GetRegistry();
         auto it = registry.find(name);
 
-        if (it != registry.end())
-            return it->second();
+        if (it == registry.end())
+            return nullptr;
 
-        return nullptr;
+        return it->second();
     }
 
     static const std::unordered_map<std::string, ConstructorFunc>& GetRegisteredComponents()

@@ -3,6 +3,7 @@
 #include "Engine/Object/Object.h"
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -18,8 +19,8 @@ class Unit : public Object
     URAY_CLASS(Unit, Object)
 
 public:
-    Unit() = default;
-    virtual ~Unit();
+    Unit();
+    virtual ~Unit() override;
 
 public:
     virtual void Update(float deltaTime);
@@ -27,20 +28,20 @@ public:
     virtual YAML::Node Serialize() const override;
     virtual void Deserialize(const YAML::Node& node) override;
 
-    Component* AddComponent(Component* comp);
+    Component* AddComponent(std::unique_ptr<Component> component);
 
     template <typename T>
     T* GetComponent() const
     {
-        for (Component* comp : components)
+        for (const auto& comp : components)
         {
-            if (T* target = Cast<T>(comp))
+            if (T* target = Cast<T>(comp.get()))
                 return target;
         }
         return nullptr;
     }
 
-    const std::vector<Component*>& GetComponents() const { return components; }
+    const std::vector<std::unique_ptr<Component>>& GetComponents() const { return components; }
 
     TransformComponent* GetTransform() const { return transform; }
 
@@ -61,7 +62,7 @@ private:
     Unit* parent = nullptr;
     std::vector<Unit*> children;
 
-    std::vector<Component*> components;
+    std::vector<std::unique_ptr<Component>> components;
     TransformComponent* transform = nullptr;
 
     Scene* scene = nullptr;

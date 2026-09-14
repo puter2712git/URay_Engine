@@ -16,17 +16,10 @@ namespace URay
 
 URAY_REGISTER_CLASS(Unit)
 
+Unit::Unit() = default;
+
 Unit::~Unit()
 {
-    for (Component* comp : components)
-    {
-        if (comp)
-        {
-            delete comp;
-            comp = nullptr;
-        }
-    }
-
     components.clear();
 }
 
@@ -40,16 +33,20 @@ void Unit::RegisterClass()
 
 void Unit::Update(float deltaTime)
 {
-    for (auto comp : components)
+    for (const auto& comp : components)
+    {
         comp->Update(deltaTime);
+    }
 }
 
 YAML::Node Unit::Serialize() const
 {
     YAML::Node node;
 
-    for (auto comp : components)
-        node[comp->GetClass()->GetName()] = comp->Serialize();
+    for (const auto& component : components)
+    {
+        node[component->GetClass()->GetName()] = component->Serialize();
+    }
 
     return node;
 }
@@ -88,22 +85,21 @@ bool Unit::SetParent(Unit* unit)
     return true;
 }
 
-Component* Unit::AddComponent(Component* comp)
+Component* Unit::AddComponent(std::unique_ptr<Component> component)
 {
-    if (!comp)
-        return nullptr;
+    Component* componentPtr = component.get();
 
-    if (TransformComponent* transformComp = Cast<TransformComponent>(comp))
+    if (TransformComponent* transformComp = Cast<TransformComponent>(componentPtr))
     {
         transform = transformComp;
     }
 
-    comp->SetOwner(this);
-    components.push_back(comp);
+    component->SetOwner(this);
+    components.push_back(std::move(component));
 
     if (scene)
     {
-        if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
+        if (RenderComponent* renderComp = Cast<RenderComponent>(componentPtr))
         {
             std::unique_ptr<Render::RenderObject> robj(renderComp->CreateRenderObject());
             if (robj && scene->GetRenderScene())
@@ -113,7 +109,7 @@ Component* Unit::AddComponent(Component* comp)
         }
     }
 
-    return comp;
+    return componentPtr;
 }
 
 } // namespace URay

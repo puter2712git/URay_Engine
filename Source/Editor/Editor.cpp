@@ -190,9 +190,9 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
                 for (const auto& unit : scene->GetUnits())
                 {
-                    for (Component* comp : unit->GetComponents())
+                    for (const auto& comp : unit->GetComponents())
                     {
-                        if (CameraComponent* cameraComp = Cast<CameraComponent>(comp))
+                        if (CameraComponent* cameraComp = Cast<CameraComponent>(comp.get()))
                         {
                             camera = cameraComp;
                         }
@@ -241,23 +241,24 @@ CameraComponent& Editor::PrepareEditorScene()
     std::unique_ptr<Unit> cameraUnit = std::make_unique<Unit>();
     cameraUnit->SetName("Editor Camera");
 
-    TransformComponent* cameraTransform = new TransformComponent();
+    std::unique_ptr<TransformComponent> cameraTransform = std::make_unique<TransformComponent>();
     cameraTransform->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
-    CameraComponent* camera = new CameraComponent();
-    cameraUnit->AddComponent(cameraTransform);
-    cameraUnit->AddComponent(camera);
+    std::unique_ptr<CameraComponent> camera = std::make_unique<CameraComponent>();
+    CameraComponent* cameraPtr = camera.get();
+    cameraUnit->AddComponent(std::move(cameraTransform));
+    cameraUnit->AddComponent(std::move(camera));
 
     std::unique_ptr<Unit> gridUnit = std::make_unique<Unit>();
     gridUnit->SetName("Grid");
-    GridComponent* gridComponent = new GridComponent();
-    gridUnit->AddComponent(gridComponent);
+    std::unique_ptr<GridComponent> gridComponent = std::make_unique<GridComponent>();
+    gridUnit->AddComponent(std::move(gridComponent));
 
     editorScene->AddUnit(std::move(cameraUnit));
     editorScene->AddUnit(std::move(gridUnit));
 
     sceneSystem.LoadScene(std::move(editorScene));
 
-    return *camera;
+    return *cameraPtr;
 }
 
 } // namespace URay

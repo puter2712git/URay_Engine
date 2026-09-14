@@ -36,17 +36,15 @@ void Scene::Update(float deltaTime)
 
     for (const auto& unit : units)
     {
-        auto& comps = unit->GetComponents();
-
-        for (Component* comp : comps)
+        for (const auto& component : unit->GetComponents())
         {
-            if (TransformComponent* transform = Cast<TransformComponent>(comp))
+            if (TransformComponent* transform = Cast<TransformComponent>(component.get()))
             {
                 UpdateGroup& group = updateGroups[-100];
                 group.functions.emplace_back([transform](float dt)
                                              { transform->Update(dt); });
             }
-            else if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
+            else if (RenderComponent* renderComp = Cast<RenderComponent>(component.get()))
             {
                 UpdateGroup& group = updateGroups[-101];
                 group.functions.emplace_back([renderComp](float dt)
@@ -54,9 +52,10 @@ void Scene::Update(float deltaTime)
             }
             else
             {
+                Component* componentPtr = component.get();
                 UpdateGroup& group = updateGroups[0];
-                group.functions.emplace_back([comp](float dt)
-                                             { comp->Update(dt); });
+                group.functions.emplace_back([componentPtr](float dt)
+                                             { componentPtr->Update(dt); });
             }
         }
     }
@@ -167,13 +166,12 @@ void Scene::Deserialize(const YAML::Node& node)
         {
             for (const auto& compNode : componentsNode)
             {
-                Component* comp = ComponentFactory::Create(compNode.first.as<std::string>());
-
-                if (!comp)
+                std::unique_ptr<Component> component = ComponentFactory::Create(compNode.first.as<std::string>());
+                if (!component)
                     continue;
 
-                comp->Deserialize(compNode.second);
-                newUnit->AddComponent(comp);
+                component->Deserialize(compNode.second);
+                newUnit->AddComponent(std::move(component));
             }
         }
 
@@ -216,9 +214,9 @@ void Scene::AddUnit(std::unique_ptr<Unit> unit)
     sceneSystem.GetUnitAddRay().Emit(this, unitPtr);
 
     const auto& components = unitPtr->GetComponents();
-    for (Component* comp : components)
+    for (const auto& component : components)
     {
-        if (RenderComponent* renderComp = Cast<RenderComponent>(comp))
+        if (RenderComponent* renderComp = Cast<RenderComponent>(component.get()))
         {
             std::unique_ptr<Render::RenderObject> robject(renderComp->CreateRenderObject());
             renderScene->Add(std::move(robject));

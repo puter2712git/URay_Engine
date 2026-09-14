@@ -115,7 +115,9 @@ void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
         {
             std::unique_ptr<Unit> newUnit = std::make_unique<Unit>();
             newUnit->SetName("New Unit");
-            newUnit->AddComponent(new TransformComponent());
+
+            std::unique_ptr<TransformComponent> transform = std::make_unique<TransformComponent>();
+            newUnit->AddComponent(std::move(transform));
             scene.AddUnit(std::move(newUnit));
         }
 

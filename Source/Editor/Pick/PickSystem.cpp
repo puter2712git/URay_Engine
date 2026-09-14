@@ -57,21 +57,21 @@ void PickSystem::Finalize()
 
 void PickSystem::OnUnitAdded(Scene*, Unit* unit)
 {
-    for (Component* component : unit->GetComponents())
+    for (const auto& component : unit->GetComponents())
     {
         const PickRegistry::Constructor* constructor = pickRegistry.Find(component->GetClass());
         if (constructor)
         {
-            pickObjects.insert_or_assign(component, (*constructor)(*component));
+            pickObjects.insert_or_assign(component.get(), (*constructor)(*component));
         }
     }
 }
 
 void PickSystem::OnUnitRemoved(Scene*, Unit* unit)
 {
-    for (Component* component : unit->GetComponents())
+    for (const auto& component : unit->GetComponents())
     {
-        pickObjects.erase(component);
+        pickObjects.erase(component.get());
     }
 }
 

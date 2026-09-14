@@ -51,13 +51,13 @@ void InspectorWidget::OnDraw()
         ImGui::PopID();
     }
 
-    auto components = selectedUnit->GetComponents();
-    for (Component* comp : components)
+    const auto& components = selectedUnit->GetComponents();
+    for (const auto& comp : components)
     {
         cls = comp->GetClass();
         properties = cls->GetAllProperties();
 
-        ImGui::PushID(comp);
+        ImGui::PushID(comp.get());
 
         ImGui::Text("%s", cls->GetName().c_str());
 
@@ -65,7 +65,7 @@ void InspectorWidget::OnDraw()
         {
             ImGui::PushID(prop.name.c_str());
 
-            PropertyDrawer::Draw(prop, comp);
+            PropertyDrawer::Draw(prop, comp.get());
 
             ImGui::PopID();
         }
@@ -81,8 +81,8 @@ void InspectorWidget::OnDraw()
             std::string menuName = "Add " + name;
             if (ImGui::MenuItem(menuName.c_str()))
             {
-                Component* newComp = constructor();
-                selectedUnit->AddComponent(newComp);
+                std::unique_ptr<Component> newComp = constructor();
+                selectedUnit->AddComponent(std::move(newComp));
             }
         }
 
