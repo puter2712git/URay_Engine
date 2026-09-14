@@ -95,8 +95,23 @@ void GizmoController::Update(const Vector2& targetPosition, CameraComponent& cam
     noScaleWorld.m31 = targetWorldMatrix.m31;
     noScaleWorld.m32 = targetWorldMatrix.m32;
 
+    TransformComponent* cameraTransform = camera.GetOwner()->GetTransform();
+
+    const Vector3 gizmoPosition(
+        targetWorldMatrix.m30,
+        targetWorldMatrix.m31,
+        targetWorldMatrix.m32);
+
+    const float cameraDistance =
+        (cameraTransform->GetPosition() - gizmoPosition).GetLength();
+
+    const float gizmoScale = std::clamp(
+        cameraDistance * scaleFactor,
+        minScale,
+        maxScale);
+
     const Matrix gizmoScaleMatrix =
-        Matrix::MakeScale(Vector3(1.0f, 1.0f, 1.0f));
+        Matrix::MakeScale(Vector3(gizmoScale, gizmoScale, gizmoScale));
 
     const Matrix targetGizmoWorld = gizmoScaleMatrix * noScaleWorld;
 
