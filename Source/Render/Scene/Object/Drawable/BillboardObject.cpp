@@ -16,29 +16,26 @@ BillboardObject::~BillboardObject() = default;
 
 void BillboardObject::Update(const BillboardObjectState& state)
 {
-    worldMatrix = state.worldMatrix;
-    colorTint = state.colorTint;
-    mesh = state.mesh;
-    materials = state.materials;
-    worldBounds = mesh ? mesh->GetLocalBounds().Transform(worldMatrix) : AABB{};
+    this->state = state;
+    worldBounds = state.mesh ? state.mesh->GetLocalBounds().Transform(state.worldMatrix) : AABB{};
 }
 
 void BillboardObject::Submit(DrawCommandBuilder& builder) const
 {
-    if (!mesh)
+    if (!state.mesh)
         return;
 
-    for (const auto& section : mesh->GetSections())
+    for (const auto& section : state.mesh->GetSections())
     {
-        if (section.materialIndex >= materials.size() ||
-            !materials[section.materialIndex])
+        if (section.materialIndex >= state.materials.size() ||
+            !state.materials[section.materialIndex])
             continue;
 
         builder.BuildBillboard({
-            .worldMatrix = worldMatrix,
-            .colorTint = colorTint,
-            .mesh = mesh,
-            .material = materials[section.materialIndex],
+            .worldMatrix = state.worldMatrix,
+            .colorTint = state.colorTint,
+            .mesh = state.mesh,
+            .material = state.materials[section.materialIndex],
             .indexOffset = section.indexOffset,
             .indexCount = section.indexCount,
         });

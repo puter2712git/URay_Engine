@@ -12,9 +12,7 @@ DirectionalLightObject::~DirectionalLightObject() = default;
 
 void DirectionalLightObject::Update(const DirectionalLightObjectState& state)
 {
-    direction = state.direction;
-    intensity = state.intensity;
-    color = state.color;
+    this->state = state;
 }
 
 } // namespace URay::Render

@@ -6,20 +6,18 @@ namespace URay::Render
 {
 
 LineObject::LineObject(const LineObjectState& state)
-{
-    lines = state.lines;
-}
+    : state(state) {}
 
 LineObject::~LineObject() = default;
 
 void LineObject::Update(const LineObjectState& state)
 {
-    lines = state.lines;
+    this->state = state;
 }
 
 void LineObject::Submit(DrawCommandBuilder& builder) const
 {
-    for (const Line& line : lines)
+    for (const Line& line : state.lines)
     {
         LineCommandContext context = {};
         context.start = line.start;

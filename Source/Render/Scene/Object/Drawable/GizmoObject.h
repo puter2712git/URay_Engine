@@ -34,10 +34,7 @@ public:
     void Submit(DrawCommandBuilder& builder) const override;
 
 private:
-    std::vector<Matrix> worldMatrices;
-    Mesh* mesh = nullptr;
-    Material* material = nullptr;
-    std::vector<Color> colorTints;
+    GizmoObjectState state;
 };
 
 } // namespace URay::Render

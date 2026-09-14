@@ -22,12 +22,11 @@ public:
 public:
     void Update(const AmbientLightObjectState& state);
 
-    float GetIntensity() const { return intensity; }
-    const Color& GetColor() const { return color; }
+    float GetIntensity() const { return state.intensity; }
+    const Color& GetColor() const { return state.color; }
 
 private:
-    float intensity = 0.0f;
-    Color color = Color::White;
+    AmbientLightObjectState state;
 };
 
 } // namespace URay::Render

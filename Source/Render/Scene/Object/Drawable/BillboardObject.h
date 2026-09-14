@@ -37,16 +37,12 @@ public:
     void Update(const BillboardObjectState& state);
     void Submit(DrawCommandBuilder& builder) const override;
 
-    const Matrix& GetWorldMatrix() const { return worldMatrix; }
-    Mesh* GetMesh() const { return mesh; }
+    const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
+    Mesh* GetMesh() const { return state.mesh; }
     const AABB& GetWorldBounds() const override { return worldBounds; }
 
 private:
-    Matrix worldMatrix = Matrix::Identity;
-    Color colorTint = Color::White;
-    Mesh* mesh = nullptr;
-    std::vector<Material*> materials;
-
+    BillboardObjectState state;
     AABB worldBounds = {};
 };
 

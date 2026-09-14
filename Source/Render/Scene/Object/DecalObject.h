@@ -45,18 +45,16 @@ public:
 public:
     void Update(const DecalObjectState& state);
 
-    const Matrix& GetWorldMatrix() const { return worldMatrix; }
+    const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
     const AABB& GetWorldBounds() const override { return worldBounds; }
-    const Vector3& GetExtent() const { return extent; }
-    Material* GetMaterial() const { return material; }
+    const Vector3& GetExtent() const { return state.extent; }
+    Material* GetMaterial() const { return state.material; }
 
     DescriptorSet* GetDescriptorSet(uint32 frameIndex);
 
 private:
-    Matrix worldMatrix = Matrix::Identity;
-    Vector3 extent = Vector3::Zero;
+    DecalObjectState state;
     AABB worldBounds = {};
-    Material* material = nullptr;
 
     DecalConstants constants = {};
     uint64 constantsVersion = 0;

@@ -62,18 +62,16 @@ DecalObject::~DecalObject() = default;
 
 void DecalObject::Update(const DecalObjectState& state)
 {
-    worldMatrix = state.worldMatrix;
-    extent = state.extent;
-    material = state.material;
+    this->state = state;
 
     AABB localBounds = {
-        .min = Vector3(-extent.x, -extent.y, -extent.z),
-        .max = Vector3(extent.x, extent.y, extent.z)
+        .min = Vector3(-state.extent.x, -state.extent.y, -state.extent.z),
+        .max = Vector3(state.extent.x, state.extent.y, state.extent.z)
     };
-    worldBounds = localBounds.Transform(worldMatrix);
+    worldBounds = localBounds.Transform(state.worldMatrix);
 
-    constants.invDecalWorld = worldMatrix.Inverse();
-    constants.extent = extent;
+    constants.invDecalWorld = state.worldMatrix.Inverse();
+    constants.extent = state.extent;
     ++constantsVersion;
 }
 

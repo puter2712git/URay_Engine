@@ -12,10 +12,7 @@ PointLightObject::~PointLightObject() = default;
 
 void PointLightObject::Update(const PointLightObjectState& state)
 {
-    position = state.position;
-    radius = state.radius;
-    intensity = state.intensity;
-    color = state.color;
+    this->state = state;
 }
 
 } // namespace URay::Render

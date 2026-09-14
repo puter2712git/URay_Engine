@@ -17,19 +17,17 @@ struct ViewObjectState
 class ViewObject : public RenderObject
 {
 public:
-    ViewObject(const Matrix& worldMatrix, const Matrix& viewMatrix, const Matrix& projMatrix);
+    ViewObject(const ViewObjectState& state);
     ~ViewObject() override;
 
 public:
     void Update(const ViewObjectState& state);
 
-    const Matrix& GetViewMatrix() const { return viewMatrix; }
-    const Matrix& GetProjMatrix() const { return projMatrix; }
+    const Matrix& GetViewMatrix() const { return state.viewMatrix; }
+    const Matrix& GetProjMatrix() const { return state.projMatrix; }
 
 private:
-    Matrix worldMatrix = Matrix::Identity;
-    Matrix viewMatrix = Matrix::Identity;
-    Matrix projMatrix = Matrix::Identity;
+    ViewObjectState state;
 };
 
 } // namespace URay::Render

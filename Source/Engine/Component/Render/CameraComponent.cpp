@@ -34,9 +34,12 @@ Render::RenderObject* CameraComponent::CreateRenderObject()
         return nullptr;
 
     TransformComponent* transform = owner->GetTransform();
-    Matrix worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    Render::ViewObjectState state = {};
+    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    state.viewMatrix = viewMatrix;
+    state.projMatrix = projMatrix;
 
-    renderObject = new Render::ViewObject(worldMatrix, viewMatrix, projMatrix);
+    renderObject = new Render::ViewObject(state);
     return renderObject;
 }
 

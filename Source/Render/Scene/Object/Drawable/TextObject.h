@@ -30,9 +30,7 @@ public:
     void Submit(DrawCommandBuilder& builder) const override;
 
 private:
-    Matrix worldMatrix = Matrix::Identity;
-    Font* font = nullptr;
-    std::string text;
+    TextObjectState state;
 };
 
 } // namespace Render

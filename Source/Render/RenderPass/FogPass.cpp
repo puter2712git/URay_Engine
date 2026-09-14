@@ -130,10 +130,11 @@ void FogPass::Execute(
 
     if (context.fogObject)
     {
-        constants.fogColor = context.fogObject->fogColor;
-        constants.fogStart = context.fogObject->fogStart;
-        constants.fogEnd = context.fogObject->fogEnd;
-        constants.density = context.fogObject->density;
+        const FogObjectState& state = context.fogObject->GetState();
+        constants.fogColor = state.fogColor;
+        constants.fogStart = state.fogStart;
+        constants.fogEnd = state.fogEnd;
+        constants.density = state.density;
         constants.enabled = 1;
     }
 

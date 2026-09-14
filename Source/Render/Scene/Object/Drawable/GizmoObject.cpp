@@ -16,26 +16,23 @@ GizmoObject::~GizmoObject() = default;
 
 void GizmoObject::Update(const GizmoObjectState& state)
 {
-    worldMatrices = state.worldMatrices;
-    mesh = state.mesh;
-    material = state.material;
-    colorTints = state.colorTints;
+    this->state = state;
 }
 
 void GizmoObject::Submit(DrawCommandBuilder& builder) const
 {
-    if (!mesh)
+    if (!state.mesh)
         return;
 
-    size_t count = worldMatrices.size();
+    size_t count = state.worldMatrices.size();
 
     for (size_t i = 0; i < count; ++i)
     {
         builder.BuildGizmo(
-            { .worldMatrix = worldMatrices[i],
-              .colorTint = colorTints[i],
-              .mesh = mesh,
-              .material = material });
+            { .worldMatrix = state.worldMatrices[i],
+              .colorTint = state.colorTints[i],
+              .mesh = state.mesh,
+              .material = state.material });
     }
 }
 

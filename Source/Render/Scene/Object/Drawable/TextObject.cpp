@@ -6,11 +6,7 @@ namespace URay::Render
 {
 
 TextObject::TextObject(const TextObjectState& state)
-{
-    worldMatrix = state.worldMatrix;
-    font = state.font;
-    text = state.text;
-}
+    : state(state) {}
 
 TextObject::~TextObject()
 {
@@ -18,17 +14,15 @@ TextObject::~TextObject()
 
 void TextObject::Update(const TextObjectState& state)
 {
-    worldMatrix = state.worldMatrix;
-    font = state.font;
-    text = state.text;
+    this->state = state;
 }
 
 void TextObject::Submit(DrawCommandBuilder& builder) const
 {
     TextCommandContext context = {};
-    context.worldMatrix = worldMatrix;
-    context.font = font;
-    context.text = text;
+    context.worldMatrix = state.worldMatrix;
+    context.font = state.font;
+    context.text = state.text;
 
     builder.BuildText(context);
 }

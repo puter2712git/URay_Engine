@@ -25,16 +25,13 @@ public:
 public:
     void Update(const PointLightObjectState& state);
 
-    const Vector3& GetPosition() const { return position; }
-    float GetRadius() const { return radius; }
-    float GetIntensity() const { return intensity; }
-    const Color& GetColor() const { return color; }
+    const Vector3& GetPosition() const { return state.position; }
+    float GetRadius() const { return state.radius; }
+    float GetIntensity() const { return state.intensity; }
+    const Color& GetColor() const { return state.color; }
 
 private:
-    Vector3 position = Vector3::Zero;
-    float radius = 0.0f;
-    float intensity = 0.0f;
-    Color color = Color::White;
+    PointLightObjectState state;
 };
 
 } // namespace URay::Render

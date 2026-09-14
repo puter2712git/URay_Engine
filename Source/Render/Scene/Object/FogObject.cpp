@@ -4,21 +4,13 @@ namespace URay::Render
 {
 
 FogObject::FogObject(const FogObjectState& state)
-{
-    fogColor = state.fogColor;
-    fogStart = state.fogStart;
-    fogEnd = state.fogEnd;
-    density = state.density;
-}
+    : state(state) {}
 
 FogObject::~FogObject() = default;
 
 void FogObject::Update(const FogObjectState& state)
 {
-    fogColor = state.fogColor;
-    fogStart = state.fogStart;
-    fogEnd = state.fogEnd;
-    density = state.density;
+    this->state = state;
 }
 
 } // namespace URay::Render

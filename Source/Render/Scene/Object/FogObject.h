@@ -24,11 +24,10 @@ public:
 public:
     void Update(const FogObjectState& state);
 
-public:
-    Color fogColor = Color::White;
-    float fogStart = 0.0f;
-    float fogEnd = 0.0f;
-    float density = 0.0f;
+    const FogObjectState& GetState() const { return state; }
+
+private:
+    FogObjectState state;
 };
 
 } // namespace URay::Render

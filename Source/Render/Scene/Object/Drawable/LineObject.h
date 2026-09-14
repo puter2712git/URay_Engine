@@ -33,7 +33,7 @@ public:
     void Submit(DrawCommandBuilder& builder) const override;
 
 private:
-    std::vector<Line> lines;
+    LineObjectState state;
 };
 
 } // namespace URay::Render

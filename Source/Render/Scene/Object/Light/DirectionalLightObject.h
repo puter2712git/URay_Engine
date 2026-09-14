@@ -25,14 +25,12 @@ public:
     void Update(const DirectionalLightObjectState& state);
 
 public:
-    const Vector3& GetDirection() const { return direction; }
-    float GetIntensity() const { return intensity; }
-    const Color& GetColor() const { return color; }
+    const Vector3& GetDirection() const { return state.direction; }
+    float GetIntensity() const { return state.intensity; }
+    const Color& GetColor() const { return state.color; }
 
 private:
-    Vector3 direction = Vector3::Forward;
-    float intensity = 0.0f;
-    Color color = Color::White;
+    DirectionalLightObjectState state;
 };
 
 } // namespace URay::Render
