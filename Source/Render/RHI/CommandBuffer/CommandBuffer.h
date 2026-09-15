@@ -4,8 +4,10 @@
 
 #include "Core/Type/Types.h"
 
-#include <vector>
 #include <vulkan/vulkan.h>
+
+#include <span>
+#include <vector>
 
 namespace URay::Render
 {
@@ -17,6 +19,7 @@ class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
 struct RenderingInfo;
+struct ImageBarrierDesc;
 
 class CommandBuffer
 {
@@ -47,6 +50,8 @@ public:
         const PipelineLayout& layout,
         const DescriptorSet& descriptorSet,
         uint32 set);
+
+    void PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers);
 
     void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth);
     void SetScissor(int offsetX, int offsetY, uint32 width, uint32 height);

@@ -3,6 +3,7 @@
 #include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
+#include "Render/RHI/CommandBuffer/ImageBarrier.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
@@ -156,6 +157,41 @@ void CommandBuffer::BindDescriptorSet(
         &vkDescriptorSet,
         0,
         nullptr);
+}
+
+void CommandBuffer::PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers)
+{
+    if (imageBarriers.empty())
+        return;
+
+    std::vector<VkImageMemoryBarrier2> vkImageBarriers;
+    vkImageBarriers.reserve(imageBarriers.size());
+
+    for (const ImageBarrierDesc& desc : imageBarriers)
+    {
+        VkImageMemoryBarrier2 barrier = {};
+        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+
+        barrier.srcStageMask = desc.srcStage;
+        barrier.srcAccessMask = desc.srcAccess;
+        barrier.dstStageMask = desc.dstStage;
+        barrier.dstAccessMask = desc.dstAccess;
+
+        barrier.oldLayout = Vulkan::ToVkImageLayout(desc.oldLayout);
+        barrier.newLayout = Vulkan::ToVkImageLayout(desc.newLayout);
+
+        barrier.image = desc.image;
+        barrier.subresourceRange = desc.subresourceRange;
+
+        vkImageBarriers.push_back(barrier);
+    }
+
+    VkDependencyInfo dependencyInfo = {};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependencyInfo.imageMemoryBarrierCount = static_cast<uint32>(vkImageBarriers.size());
+    dependencyInfo.pImageMemoryBarriers = vkImageBarriers.data();
+
+    vkCmdPipelineBarrier2(handle, &dependencyInfo);
 }
 
 void CommandBuffer::SetViewport(
