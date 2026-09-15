@@ -1,5 +1,6 @@
 #include "CommandBuffer.h"
 
+#include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
@@ -7,6 +8,7 @@
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Vulkan/VulkanUtils.h"
 
 #include "Core/Type/Types.h"
 
@@ -80,6 +82,45 @@ void CommandBuffer::BeginRenderPass(
 void CommandBuffer::EndRenderPass()
 {
     vkCmdEndRenderPass(handle);
+}
+
+void CommandBuffer::BeginRendering(const RenderingInfo& info)
+{
+    std::vector<VkRenderingAttachmentInfo> colorAttachments;
+    colorAttachments.reserve(info.colorAttachments.size());
+
+    for (const RenderingAttachmentInfo& attachment : info.colorAttachments)
+    {
+        colorAttachments.push_back(Vulkan::ToVkAttachment(attachment));
+    }
+
+    VkRenderingAttachmentInfo depthAttachment = {};
+    if (info.depthAttachment)
+    {
+        depthAttachment = Vulkan::ToVkAttachment(*info.depthAttachment);
+    }
+
+    VkRenderingAttachmentInfo stencilAttachment = {};
+    if (info.stencilAttachment)
+    {
+        stencilAttachment = Vulkan::ToVkAttachment(*info.stencilAttachment);
+    }
+
+    VkRenderingInfo renderingInfo = {};
+    renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    renderingInfo.renderArea = info.renderArea;
+    renderingInfo.layerCount = info.layerCount;
+    renderingInfo.colorAttachmentCount = static_cast<uint32>(colorAttachments.size());
+    renderingInfo.pColorAttachments = colorAttachments.data();
+    renderingInfo.pDepthAttachment = info.depthAttachment ? &depthAttachment : VK_NULL_HANDLE;
+    renderingInfo.pStencilAttachment = info.stencilAttachment ? &stencilAttachment : VK_NULL_HANDLE;
+
+    vkCmdBeginRendering(handle, &renderingInfo);
+}
+
+void CommandBuffer::EndRendering()
+{
+    vkCmdEndRendering(handle);
 }
 
 void CommandBuffer::BindPipeline(const PipelineState& pso)

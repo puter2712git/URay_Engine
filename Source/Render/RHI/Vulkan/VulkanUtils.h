@@ -5,6 +5,11 @@
 
 #include <vulkan/vulkan.h>
 
+namespace URay::Render
+{
+struct RenderingAttachmentInfo;
+}
+
 namespace URay::Render::Vulkan
 {
 
@@ -16,5 +21,12 @@ VkMemoryPropertyFlags ToVkMemoryProperties(MemoryUsage usage);
 
 VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage);
 VkImageAspectFlags ToVkImageAspectFlags(Format format);
+
+VkImageLayout ToVkImageLayout(ImageLayout layout);
+
+VkAttachmentLoadOp ToVkLoadOp(LoadOp op);
+VkAttachmentStoreOp ToVkStoreOp(StoreOp op);
+
+VkRenderingAttachmentInfo ToVkAttachment(const RenderingAttachmentInfo& attachmentInfo);
 
 } // namespace URay::Render::Vulkan

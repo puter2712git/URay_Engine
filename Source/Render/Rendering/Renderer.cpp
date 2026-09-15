@@ -183,7 +183,7 @@ bool Renderer::InitializeImGui()
 
     ImGui_ImplGlfw_InitForVulkan(window.GetGLFWWindow(), true);
     ImGui_ImplVulkan_InitInfo initInfo = {};
-    initInfo.ApiVersion = VK_API_VERSION_1_1;
+    initInfo.ApiVersion = VK_API_VERSION_1_3;
     initInfo.Instance = context.GetInstance();
     initInfo.PhysicalDevice = device.GetPhysicalDevice();
     initInfo.Device = device.GetVKDevice();

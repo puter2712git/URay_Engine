@@ -16,6 +16,7 @@ class PipelineState;
 class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
+struct RenderingInfo;
 
 class CommandBuffer
 {
@@ -34,6 +35,9 @@ public:
         VkRect2D renderArea,
         const std::vector<VkClearValue>& clearValues);
     void EndRenderPass();
+
+    void BeginRendering(const RenderingInfo& info);
+    void EndRendering();
 
     void BindPipeline(const PipelineState& pso);
     void BindVertexBuffer(const Buffer& buffer);

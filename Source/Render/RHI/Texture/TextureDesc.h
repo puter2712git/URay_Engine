@@ -7,6 +7,32 @@
 namespace URay::Render
 {
 
+enum class ImageLayout : uint8
+{
+    Undefined,
+
+    ColorAttachment,
+    DepthAttachment,
+
+    ShaderReadOnly,
+    DepthReadOnly,
+
+    Present
+};
+
+enum class LoadOp : uint8
+{
+    Load,
+    Clear,
+    DontCare
+};
+
+enum class StoreOp : uint8
+{
+    Store,
+    DontCare
+};
+
 enum class Format
 {
     Unknown,

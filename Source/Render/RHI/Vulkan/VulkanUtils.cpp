@@ -1,5 +1,8 @@
 #include "VulkanUtils.h"
 
+#include "Render/RHI/Attachment/RenderingInfo.h"
+#include "Render/RHI/Texture/TextureView.h"
+
 #include <stdexcept>
 
 namespace URay::Render::Vulkan
@@ -118,6 +121,68 @@ VkImageAspectFlags ToVkImageAspectFlags(Format format)
     default:
         return VK_IMAGE_ASPECT_COLOR_BIT;
     }
+}
+
+VkImageLayout ToVkImageLayout(ImageLayout layout)
+{
+    switch (layout)
+    {
+    case ImageLayout::Undefined:
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    case ImageLayout::ColorAttachment:
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case ImageLayout::DepthAttachment:
+        return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+    case ImageLayout::ShaderReadOnly:
+        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    case ImageLayout::DepthReadOnly:
+        return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+    case ImageLayout::Present:
+        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    }
+}
+
+VkAttachmentLoadOp ToVkLoadOp(LoadOp op)
+{
+    switch (op)
+    {
+    case LoadOp::Load:
+        return VK_ATTACHMENT_LOAD_OP_LOAD;
+    case LoadOp::Clear:
+        return VK_ATTACHMENT_LOAD_OP_CLEAR;
+    case LoadOp::DontCare:
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    }
+}
+
+VkAttachmentStoreOp ToVkStoreOp(StoreOp op)
+{
+    switch (op)
+    {
+    case StoreOp::Store:
+        return VK_ATTACHMENT_STORE_OP_STORE;
+    case StoreOp::DontCare:
+        return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    }
+}
+
+VkRenderingAttachmentInfo ToVkAttachment(const RenderingAttachmentInfo& attachmentInfo)
+{
+    VkRenderingAttachmentInfo attachment = {};
+    attachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+    attachment.imageView = attachmentInfo.view->GetHandle();
+    attachment.imageLayout = ToVkImageLayout(attachmentInfo.layout);
+    attachment.loadOp = ToVkLoadOp(attachmentInfo.loadOp);
+    attachment.storeOp = ToVkStoreOp(attachmentInfo.storeOp);
+
+    attachment.clearValue.color.float32[0] = attachmentInfo.clearColor.r;
+    attachment.clearValue.color.float32[1] = attachmentInfo.clearColor.g;
+    attachment.clearValue.color.float32[2] = attachmentInfo.clearColor.b;
+    attachment.clearValue.color.float32[3] = attachmentInfo.clearColor.a;
+    attachment.clearValue.depthStencil.depth = attachmentInfo.clearDepth;
+    attachment.clearValue.depthStencil.stencil = attachmentInfo.clearStencil;
+
+    return attachment;
 }
 
 } // namespace URay::Render::Vulkan

@@ -1049,6 +1049,12 @@ bool RenderDevice::CreateLogicalDevice()
 
 bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
 {
+    VkPhysicalDeviceProperties properties = {};
+    vkGetPhysicalDeviceProperties(device, &properties);
+
+    if (properties.apiVersion < VK_API_VERSION_1_3)
+        return false;
+
     QueueFamilyIndices indices = FindQueueFamilyIndices(device);
 
     bool extensionsSupported = CheckDeviceExtensionSupport(device);
