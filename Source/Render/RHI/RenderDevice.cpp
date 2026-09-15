@@ -1022,6 +1022,10 @@ bool RenderDevice::CreateLogicalDevice()
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceFeatures.samplerAnisotropy = VK_TRUE;
 
+    VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
+    dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+    dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.queueCreateInfoCount = static_cast<uint32>(queueCreateInfos.size());
@@ -1031,6 +1035,8 @@ bool RenderDevice::CreateLogicalDevice()
     const auto& deviceExtensions = context.GetDeviceExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
+
+    createInfo.pNext = &dynamicRenderingFeatures;
 
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
         return false;
@@ -1054,10 +1060,18 @@ bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
-    VkPhysicalDeviceFeatures supportedFeatures;
-    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+    VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
+    dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
 
-    return indices.IsComplete() && extensionsSupported && swapChainAdequate && supportedFeatures.samplerAnisotropy;
+    VkPhysicalDeviceFeatures2 features = {};
+    features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features.pNext = &dynamicRenderingFeatures;
+
+    vkGetPhysicalDeviceFeatures2(device, &features);
+
+    const bool supportsDynamicRendering = dynamicRenderingFeatures.dynamicRendering == VK_TRUE;
+
+    return indices.IsComplete() && extensionsSupported && swapChainAdequate && features.features.samplerAnisotropy && supportsDynamicRendering;
 }
 
 QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device) const
