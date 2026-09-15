@@ -29,17 +29,10 @@ struct RenderPassContext
     DescriptorSet& frameDescriptorSet;
 
     RenderTarget& sceneRenderTarget;
-    VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
-    Framebuffer& sceneFramebuffer;
-
     RenderTarget& postProcessRenderTarget;
-    VkRenderPass postProcessRenderPass = VK_NULL_HANDLE;
-    Framebuffer& postProcessFramebuffer;
 
     VkImage swapChainImage = VK_NULL_HANDLE;
     VkImageView swapChainImageView = VK_NULL_HANDLE;
-    VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
-    Framebuffer& swapChainFramebuffer;
     VkExtent2D swapChainExtent = {};
 
     FogObject* fogObject = nullptr;

@@ -56,18 +56,10 @@ public:
     Extent2D GetSceneRenderTargetExtent() const;
 
     RenderTarget& GetSceneRenderTarget() const { return *sceneRenderTarget; }
-    VkRenderPass GetSceneRenderPass() const { return sceneRenderPass; }
-    Framebuffer& GetSceneFramebuffer() const { return *sceneFramebuffer; }
-
     RenderTarget& GetPostProcessRenderTarget() const { return *postProcessRenderTarget; }
-    VkRenderPass GetPostProcessRenderPass() const { return postProcessRenderPass; }
-    Framebuffer& GetPostProcessFramebuffer() const { return *postProcessFramebuffer; }
 
     VkImage GetSwapChainImage() const;
     VkImageView GetSwapChainImageView() const;
-    VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
-    Framebuffer& GetSwapChainFramebuffer() const;
-
     VkExtent2D GetSwapChainExtent() const;
 
     VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
@@ -75,38 +67,17 @@ public:
     FrameResource& GetFrameResource() { return frameResources[currentFrame]; }
 
 private:
-    bool CreateSceneRenderPass();
-    void DestroySceneRenderPass();
-
-    bool CreatePostProcessRenderPass();
-    void DestroyPostProcessRenderPass();
-
-    bool CreateRenderPass();
-    void DestroyRenderPass();
-
     bool CreateSceneRenderTarget();
     void DestroySceneRenderTarget();
 
     bool CreatePostProcessRenderTarget();
     void DestroyPostProcessRenderTarget();
 
-    bool CreateSceneFramebuffer();
-    void DestroySceneFramebuffer();
-
-    bool CreatePostProcessFramebuffer();
-    void DestroyPostProcessFramebuffer();
-
-    bool CreateSwapChainFramebuffer();
-    void DestroySwapChainFramebuffer();
-
     void CleanupSwapChain();
     void RecreateSwapChain();
 
     bool CreateCommandPool();
     void DestroyCommandPool();
-
-    bool CreateDepthResources();
-    void DestroyDepthResources();
 
     bool CreateFrameResources();
     void DestroyFrameResources();
@@ -129,25 +100,14 @@ private:
     ResourceManager& resourceManager;
 
     std::unique_ptr<SwapChain> swapChain = nullptr;
-    std::vector<std::unique_ptr<Framebuffer>> swapChainFramebuffers;
     uint32 imageIndex = 0;
 
     std::unique_ptr<RenderTarget> sceneRenderTarget = nullptr;
-    std::unique_ptr<Framebuffer> sceneFramebuffer = nullptr;
-
     std::unique_ptr<RenderTarget> postProcessRenderTarget = nullptr;
-    std::unique_ptr<Framebuffer> postProcessFramebuffer = nullptr;
 
     VkDescriptorSet sceneImGuiTexture = VK_NULL_HANDLE;
 
-    VkRenderPass sceneRenderPass = VK_NULL_HANDLE;
-    VkRenderPass postProcessRenderPass = VK_NULL_HANDLE;
-    VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
-
     std::unique_ptr<CommandPool> commandPool = nullptr;
-
-    std::unique_ptr<Texture> depthTexture = nullptr;
-    std::unique_ptr<TextureView> depthTextureView = nullptr;
 
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
 

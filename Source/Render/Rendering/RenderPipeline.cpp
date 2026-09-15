@@ -234,17 +234,10 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .frameDescriptorSet = *renderer.GetFrameResource().descriptorSet,
 
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
-        .sceneRenderPass = renderer.GetSceneRenderPass(),
-        .sceneFramebuffer = renderer.GetSceneFramebuffer(),
-
         .postProcessRenderTarget = renderer.GetPostProcessRenderTarget(),
-        .postProcessRenderPass = renderer.GetPostProcessRenderPass(),
-        .postProcessFramebuffer = renderer.GetPostProcessFramebuffer(),
 
         .swapChainImage = renderer.GetSwapChainImage(),
         .swapChainImageView = renderer.GetSwapChainImageView(),
-        .swapChainRenderPass = renderer.GetSwapChainRenderPass(),
-        .swapChainFramebuffer = renderer.GetSwapChainFramebuffer(),
         .swapChainExtent = renderer.GetSwapChainExtent(),
 
         .fogObject = fog
