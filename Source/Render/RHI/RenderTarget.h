@@ -20,7 +20,10 @@ public:
 public:
     bool Resize(const Extent2D& newExtent);
 
+    Texture* GetColorTexture() const { return colorTexture.get(); }
     TextureView* GetColorView() const { return colorTextureView.get(); }
+
+    Texture* GetDepthTexture() const { return depthTexture.get(); }
     TextureView* GetDepthView() const { return depthTextureView.get(); }
     const Extent2D& GetExtent() const { return extent; }
 

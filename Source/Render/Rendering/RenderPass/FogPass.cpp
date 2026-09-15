@@ -8,8 +8,8 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/RenderTarget.h"
-#include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Texture/TextureSampler.h"
+#include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/Object/FogObject.h"
 #include "Render/Rendering/RenderInfo.h"
@@ -153,7 +153,7 @@ void FogPass::Execute(
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
 
     descriptorSet->WriteSampledImage(0, context.sceneRenderTarget.GetColorView());
-    descriptorSet->WriteSampledImage(1, context.sceneRenderTarget.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL);
+    descriptorSet->WriteSampledImage(1, context.sceneRenderTarget.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
     descriptorSet->WriteSampler(2, sampler);
     descriptorSet->WriteUniformBuffer(3, *uniformBuffers[currentFrame]);
 
