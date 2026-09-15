@@ -11,11 +11,9 @@
 namespace URay::Render
 {
 
-class TextureView;
-
 struct RenderingAttachmentInfo
 {
-    TextureView* view = nullptr;
+    VkImageView imageView = VK_NULL_HANDLE;
     ImageLayout layout = ImageLayout::ColorAttachment;
 
     LoadOp loadOp = LoadOp::Load;

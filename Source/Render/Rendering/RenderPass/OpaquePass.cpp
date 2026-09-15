@@ -1,14 +1,18 @@
 #include "OpaquePass.h"
 
-#include "Render/ResourceManager.h"
+#include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderTarget.h"
+#include "Render/RHI/Texture/TextureView.h"
 #include "Render/Rendering/RenderConstants.h"
+#include "Render/ResourceManager.h"
 
 #include <vulkan/vulkan.h>
+
+#include <array>
 
 namespace URay::Render
 {
@@ -19,35 +23,50 @@ OpaquePass::~OpaquePass() = default;
 
 void OpaquePass::Begin(const RenderPassContext& context)
 {
-    std::vector<VkClearValue> clearValues(2);
-    clearValues[0].color = { .float32 = { 0.01f, 0.01f, 0.01f, 1.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    const Extent2D& extent = context.sceneRenderTarget.GetExtent();
 
-    VkRect2D renderArea = {};
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = {
-        context.sceneRenderTarget.GetExtent().width,
-        context.sceneRenderTarget.GetExtent().height
+    const std::array colorAttachments = {
+        RenderingAttachmentInfo{
+            .imageView = context.sceneRenderTarget.GetColorView()->GetHandle(),
+            .layout = ImageLayout::ColorAttachment,
+            .loadOp = LoadOp::Clear,
+            .storeOp = StoreOp::Store,
+            .clearColor = Color(0.01f, 0.01f, 0.01f, 1.0f) }
     };
 
-    context.commandBuffer.BeginRenderPass(
-        context.sceneRenderPass,
-        context.sceneFramebuffer,
-        renderArea,
-        clearValues);
+    const RenderingAttachmentInfo depthAttachment = {
+        .imageView = context.sceneRenderTarget.GetDepthView()->GetHandle(),
+        .layout = ImageLayout::DepthAttachment,
+        .loadOp = LoadOp::Clear,
+        .storeOp = StoreOp::Store,
+        .clearDepth = 1.0f,
+        .clearStencil = 0
+    };
+
+    const RenderingInfo renderingInfo = {
+        .renderArea = {
+            .offset = { 0, 0 },
+            .extent = { extent.width, extent.height } },
+        .layerCount = 1,
+        .colorAttachments = colorAttachments,
+        .depthAttachment = &depthAttachment
+    };
+
+    context.commandBuffer.BeginRendering(renderingInfo);
 
     context.commandBuffer.SetViewport(
         0.0f,
-        static_cast<float>(context.sceneRenderTarget.GetExtent().height),
-        static_cast<float>(context.sceneRenderTarget.GetExtent().width),
-        -static_cast<float>(context.sceneRenderTarget.GetExtent().height),
+        static_cast<float>(extent.height),
+        static_cast<float>(extent.width),
+        -static_cast<float>(extent.height),
         0.0f,
         1.0f);
+
     context.commandBuffer.SetScissor(
         0,
         0,
-        context.sceneRenderTarget.GetExtent().width,
-        context.sceneRenderTarget.GetExtent().height);
+        extent.width,
+        extent.height);
 }
 
 void OpaquePass::End(const RenderPassContext& context)
@@ -63,9 +82,14 @@ void OpaquePass::Execute(
 
     for (const DrawCommand& cmd : drawCmds)
     {
-        PipelineState* pso = resourceManager.GetOrCreatePSO(
-            cmd.pipelineState,
-            context.sceneRenderPass);
+        PipelineStateDesc psoDesc = cmd.pipelineState;
+        psoDesc.rendering = {
+            .colorAttachmentFormats = { Format::BGRA8_sRGB },
+            .depthAttachmentFormat = Format::D32_Float_S8_UInt,
+            .stencilAttachmentFormat = Format::Unknown
+        };
+
+        PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
         commandBuffer.BindPipeline(*pso);
 

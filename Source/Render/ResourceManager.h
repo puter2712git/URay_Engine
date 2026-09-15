@@ -4,10 +4,10 @@
 #include "Render/RHI/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
 #include "Render/RHI/Texture/TextureSampler.h"
+#include "Render/Shader/Reflection/ShaderReflector.h"
 #include "Render/Shader/ShaderCompiler.h"
 #include "Render/Shader/ShaderDefine.h"
 #include "Render/Shader/ShaderPermutationKey.h"
-#include "Render/Shader/Reflection/ShaderReflector.h"
 
 #include <vulkan/vulkan.h>
 
@@ -62,7 +62,7 @@ public:
     PipelineLayout* GetOrCreatePipelineLayout(const PipelineLayoutDesc& desc);
     void DestroyPipelineLayouts();
 
-    PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc, VkRenderPass renderPass);
+    PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc);
     void DestroyPSOs();
 
 private:

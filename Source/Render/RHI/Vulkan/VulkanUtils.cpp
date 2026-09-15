@@ -170,7 +170,7 @@ VkRenderingAttachmentInfo ToVkAttachment(const RenderingAttachmentInfo& attachme
 {
     VkRenderingAttachmentInfo attachment = {};
     attachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
-    attachment.imageView = attachmentInfo.view->GetHandle();
+    attachment.imageView = attachmentInfo.imageView;
     attachment.imageLayout = ToVkImageLayout(attachmentInfo.layout);
     attachment.loadOp = ToVkLoadOp(attachmentInfo.loadOp);
     attachment.storeOp = ToVkStoreOp(attachmentInfo.storeOp);

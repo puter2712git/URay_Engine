@@ -90,7 +90,7 @@ public:
     DescriptorSet* CreateDescriptorSet(DescriptorSetLayout* layout);
 
     PipelineLayout* CreatePipelineLayout(const PipelineLayoutDesc& desc);
-    PipelineState* CreatePSO(const PipelineStateDesc& pipelineState, PipelineLayout& layout, VkRenderPass renderPass);
+    PipelineState* CreatePSO(const PipelineStateDesc& pipelineState, PipelineLayout& layout);
 
     Framebuffer* CreateFramebuffer(const FramebufferDesc& desc);
     SwapChain* CreateSwapChain(const SwapChainDesc& desc);

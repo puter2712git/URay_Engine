@@ -406,7 +406,7 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
     return pipelineLayout;
 }
 
-PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout, VkRenderPass renderPass)
+PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout)
 {
     VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexShaderCode());
     VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentShaderCode());
@@ -568,11 +568,26 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
         break;
     }
 
+    std::vector<VkFormat> colorFormats;
+    colorFormats.reserve(desc.rendering.colorAttachmentFormats.size());
+
+    for (Format format : desc.rendering.colorAttachmentFormats)
+    {
+        colorFormats.push_back(Vulkan::ToVkFormat(format));
+    }
+
+    VkPipelineRenderingCreateInfo pipelineRenderingInfo = {};
+    pipelineRenderingInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    pipelineRenderingInfo.colorAttachmentCount = static_cast<uint32>(colorFormats.size());
+    pipelineRenderingInfo.pColorAttachmentFormats = colorFormats.data();
+    pipelineRenderingInfo.depthAttachmentFormat = Vulkan::ToVkFormat(desc.rendering.depthAttachmentFormat);
+    pipelineRenderingInfo.stencilAttachmentFormat = Vulkan::ToVkFormat(desc.rendering.stencilAttachmentFormat);
+
     VkPipelineColorBlendStateCreateInfo colorBlending = {};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = 1;
+    colorBlending.attachmentCount = static_cast<uint32>(colorFormats.size());
     colorBlending.pAttachments = &colorBlendAttachment;
     colorBlending.blendConstants[0] = 0.0f;
     colorBlending.blendConstants[1] = 0.0f;
@@ -592,10 +607,11 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
     pipelineInfo.pColorBlendState = &colorBlending;
     pipelineInfo.pDynamicState = &dynamicState;
     pipelineInfo.layout = layout.GetHandle();
-    pipelineInfo.renderPass = renderPass;
+    pipelineInfo.renderPass = VK_NULL_HANDLE;
     pipelineInfo.subpass = 0;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineInfo.basePipelineIndex = -1;
+    pipelineInfo.pNext = &pipelineRenderingInfo;
 
     VkPipeline pipeline;
     if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)

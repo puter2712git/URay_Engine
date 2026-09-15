@@ -1,11 +1,11 @@
 #include "OverlayPass.h"
 
-#include "Render/ResourceManager.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/Rendering/RenderConstants.h"
+#include "Render/ResourceManager.h"
 
 namespace URay::Render
 {
@@ -16,16 +16,11 @@ OverlayPass::~OverlayPass() = default;
 
 void OverlayPass::Begin(const RenderPassContext& context)
 {
-    // context.commandBuffer.ClearDepth(
-    //     0.0f,
-    //     0,
-    //     context.sceneRenderTarget.GetExtent().width,
-    //     context.sceneRenderTarget.GetExtent().height);
 }
 
 void OverlayPass::End(const RenderPassContext& context)
 {
-    context.commandBuffer.EndRenderPass();
+    context.commandBuffer.EndRendering();
 }
 
 void OverlayPass::Execute(
@@ -37,9 +32,14 @@ void OverlayPass::Execute(
 
     for (const DrawCommand& cmd : drawCmds)
     {
-        PipelineState* pso = resourceManager.GetOrCreatePSO(
-            cmd.pipelineState,
-            context.sceneRenderPass);
+        PipelineStateDesc psoDesc = cmd.pipelineState;
+        psoDesc.rendering = {
+            .colorAttachmentFormats = { Format::BGRA8_sRGB },
+            .depthAttachmentFormat = Format::D32_Float_S8_UInt,
+            .stencilAttachmentFormat = Format::Unknown
+        };
+
+        PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
         commandBuffer.BindPipeline(*pso);
 

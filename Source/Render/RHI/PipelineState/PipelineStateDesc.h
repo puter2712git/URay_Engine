@@ -4,14 +4,26 @@
 #include "DepthStencilState.h"
 #include "PrimitiveTopology.h"
 #include "RasterizerState.h"
+#include "Render/RHI/Texture/TextureDesc.h"
 #include "Render/Vertex.h"
 
 #include <functional>
+#include <vector>
 
 namespace URay::Render
 {
 
 class Shader;
+
+struct PipelineRenderingDesc
+{
+    std::vector<Format> colorAttachmentFormats;
+
+    Format depthAttachmentFormat = Format::Unknown;
+    Format stencilAttachmentFormat = Format::Unknown;
+
+    bool operator==(const PipelineRenderingDesc&) const = default;
+};
 
 struct PipelineStateDesc
 {
@@ -23,6 +35,8 @@ struct PipelineStateDesc
     DepthStencilState depthStencil = {};
     RasterizerState rasterizer = {};
     BlendState blend = {};
+
+    PipelineRenderingDesc rendering = {};
 
     bool operator==(const PipelineStateDesc&) const = default;
 };
@@ -49,6 +63,11 @@ struct PipelineStateDescHash
         combine(desc.rasterizer.cullMode);
         combine(desc.rasterizer.polygonMode);
         combine(desc.blend.mode);
+
+        for (Format colorAttachmentFormat : desc.rendering.colorAttachmentFormats)
+            combine(colorAttachmentFormat);
+        combine(desc.rendering.depthAttachmentFormat);
+        combine(desc.rendering.stencilAttachmentFormat);
 
         return hash;
     }

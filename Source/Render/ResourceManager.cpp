@@ -354,7 +354,7 @@ void ResourceManager::DestroyPipelineLayouts()
     }
 }
 
-PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc, VkRenderPass renderPass)
+PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc)
 {
     auto it = pipelines.find(psoDesc);
     if (it != pipelines.end())
@@ -370,7 +370,7 @@ PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc,
 
     PipelineLayout* layout = GetOrCreatePipelineLayout(layoutDesc);
 
-    PipelineState* pso = device.CreatePSO(psoDesc, *layout, renderPass);
+    PipelineState* pso = device.CreatePSO(psoDesc, *layout);
     if (!pso)
         return nullptr;
 

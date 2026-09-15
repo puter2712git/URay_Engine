@@ -1,5 +1,6 @@
 #include "FogPass.h"
 
+#include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
@@ -7,11 +8,12 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/RenderTarget.h"
+#include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Texture/TextureSampler.h"
-#include "Render/Rendering/RenderInfo.h"
 #include "Render/RenderSystem.h"
-#include "Render/ResourceManager.h"
 #include "Render/Rendering/Object/FogObject.h"
+#include "Render/Rendering/RenderInfo.h"
+#include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
 #include <stdexcept>
@@ -95,30 +97,38 @@ void FogPass::Begin(const RenderPassContext& context)
         psoDesc.blend = {
             .mode = BlendMode::Opaque
         };
+        psoDesc.rendering = {
+            .colorAttachmentFormats = { Format::BGRA8_sRGB }
+        };
 
-        pso = context.resourceManager.GetOrCreatePSO(psoDesc, context.postProcessRenderPass);
+        pso = context.resourceManager.GetOrCreatePSO(psoDesc);
     }
 
-    std::vector<VkClearValue> clearValues(1);
-    clearValues[0].color = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
+    const Extent2D& extent = context.postProcessRenderTarget.GetExtent();
 
-    VkRect2D renderArea = {};
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = {
-        context.postProcessRenderTarget.GetExtent().width,
-        context.postProcessRenderTarget.GetExtent().height
+    const std::array colorAttachments = {
+        RenderingAttachmentInfo{
+            .imageView = context.postProcessRenderTarget.GetColorView()->GetHandle(),
+            .layout = ImageLayout::ColorAttachment,
+            .loadOp = LoadOp::Clear,
+            .storeOp = StoreOp::Store,
+            .clearColor = Color(0.01f, 0.01f, 0.01f, 1.0f) }
     };
 
-    context.commandBuffer.BeginRenderPass(
-        context.postProcessRenderPass,
-        context.postProcessFramebuffer,
-        renderArea,
-        clearValues);
+    const RenderingInfo renderingInfo = {
+        .renderArea = {
+            .offset = { 0, 0 },
+            .extent = { extent.width, extent.height } },
+        .layerCount = 1,
+        .colorAttachments = colorAttachments
+    };
+
+    context.commandBuffer.BeginRendering(renderingInfo);
 }
 
 void FogPass::End(const RenderPassContext& context)
 {
-    context.commandBuffer.EndRenderPass();
+    context.commandBuffer.EndRendering();
 }
 
 void FogPass::Execute(
