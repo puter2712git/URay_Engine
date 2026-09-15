@@ -1,15 +1,9 @@
 #include "Render/Rendering/RenderPipeline.h"
 
-#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/RenderTarget.h"
-#include "Render/Rendering/RenderConstants.h"
-#include "Render/Rendering/RenderPass/DecalPass.h"
-#include "Render/Rendering/RenderPass/FogPass.h"
-#include "Render/Rendering/RenderPass/OpaquePass.h"
-#include "Render/Rendering/RenderPass/OverlayPass.h"
 #include "Render/RenderSystem.h"
-#include "Render/Rendering/Renderer.h"
+#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/Rendering/Object/BoundedObject.h"
 #include "Render/Rendering/Object/DecalObject.h"
 #include "Render/Rendering/Object/Drawable/DrawableObject.h"
@@ -21,6 +15,12 @@
 #include "Render/Rendering/Object/Light/SpotLightObject.h"
 #include "Render/Rendering/Object/RenderObject.h"
 #include "Render/Rendering/Object/ViewObject.h"
+#include "Render/Rendering/RenderConstants.h"
+#include "Render/Rendering/RenderPass/DecalPass.h"
+#include "Render/Rendering/RenderPass/FogPass.h"
+#include "Render/Rendering/RenderPass/OpaquePass.h"
+#include "Render/Rendering/RenderPass/OverlayPass.h"
+#include "Render/Rendering/Renderer.h"
 #include "Render/Rendering/Scene/RenderScene.h"
 
 #include "Core/Math/Frustum.h"
@@ -241,6 +241,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .postProcessRenderPass = renderer.GetPostProcessRenderPass(),
         .postProcessFramebuffer = renderer.GetPostProcessFramebuffer(),
 
+        .swapChainImage = renderer.GetSwapChainImage(),
+        .swapChainImageView = renderer.GetSwapChainImageView(),
         .swapChainRenderPass = renderer.GetSwapChainRenderPass(),
         .swapChainFramebuffer = renderer.GetSwapChainFramebuffer(),
         .swapChainExtent = renderer.GetSwapChainExtent(),

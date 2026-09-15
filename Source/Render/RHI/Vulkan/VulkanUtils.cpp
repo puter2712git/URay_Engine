@@ -175,12 +175,19 @@ VkRenderingAttachmentInfo ToVkAttachment(const RenderingAttachmentInfo& attachme
     attachment.loadOp = ToVkLoadOp(attachmentInfo.loadOp);
     attachment.storeOp = ToVkStoreOp(attachmentInfo.storeOp);
 
-    attachment.clearValue.color.float32[0] = attachmentInfo.clearColor.r;
-    attachment.clearValue.color.float32[1] = attachmentInfo.clearColor.g;
-    attachment.clearValue.color.float32[2] = attachmentInfo.clearColor.b;
-    attachment.clearValue.color.float32[3] = attachmentInfo.clearColor.a;
-    attachment.clearValue.depthStencil.depth = attachmentInfo.clearDepth;
-    attachment.clearValue.depthStencil.stencil = attachmentInfo.clearStencil;
+    if (attachmentInfo.layout == ImageLayout::DepthAttachment ||
+        attachmentInfo.layout == ImageLayout::DepthReadOnly)
+    {
+        attachment.clearValue.depthStencil.depth = attachmentInfo.clearDepth;
+        attachment.clearValue.depthStencil.stencil = attachmentInfo.clearStencil;
+    }
+    else
+    {
+        attachment.clearValue.color.float32[0] = attachmentInfo.clearColor.r;
+        attachment.clearValue.color.float32[1] = attachmentInfo.clearColor.g;
+        attachment.clearValue.color.float32[2] = attachmentInfo.clearColor.b;
+        attachment.clearValue.color.float32[3] = attachmentInfo.clearColor.a;
+    }
 
     return attachment;
 }

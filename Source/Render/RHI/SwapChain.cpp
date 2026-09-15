@@ -138,6 +138,14 @@ VkResult SwapChain::Present(uint32 imageIndex, VkSemaphore waitSemaphore)
     return vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
 }
 
+VkImage SwapChain::GetImage(uint32 index) const
+{
+    if (index >= images.size())
+        return VK_NULL_HANDLE;
+
+    return images[index];
+}
+
 VkImageView SwapChain::GetImageView(uint32 index) const
 {
     if (index >= imageViews.size())

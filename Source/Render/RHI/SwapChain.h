@@ -2,9 +2,9 @@
 
 #include "Core/Type/Types.h"
 
-#include <vulkan/vulkan.h>
 #include <memory>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
@@ -35,6 +35,7 @@ public:
 
     VkExtent2D GetExtent() const { return extent; }
     VkFormat GetFormat() const { return format; }
+    VkImage GetImage(uint32 index) const;
     VkImageView GetImageView(uint32 index) const;
     const std::vector<VkImageView>& GetImageViews() const { return imageViews; }
 

@@ -59,9 +59,7 @@ static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
 }
 
 Renderer::Renderer(Window& window, VulkanContext& context, RenderDevice& device, ResourceManager& resourceManager)
-    : window(window), context(context), device(device), resourceManager(resourceManager)
-{
-}
+    : window(window), context(context), device(device), resourceManager(resourceManager) {}
 
 Renderer::~Renderer() = default;
 
@@ -193,8 +191,15 @@ bool Renderer::InitializeImGui()
     initInfo.DescriptorPoolSize = 8;
     initInfo.MinImageCount = 2;
     initInfo.ImageCount = static_cast<uint32>(swapChain->GetImageViews().size());
-    initInfo.PipelineInfoMain.RenderPass = swapChainRenderPass;
-    initInfo.PipelineInfoMain.Subpass = 0;
+
+    const VkFormat colorFormat = swapChain->GetFormat();
+
+    initInfo.UseDynamicRendering = true;
+    initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+    initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+    initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+    initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &colorFormat;
+
     ImGui_ImplVulkan_Init(&initInfo);
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
@@ -321,6 +326,16 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
 Extent2D Renderer::GetSceneRenderTargetExtent() const
 {
     return sceneRenderTarget->GetExtent();
+}
+
+VkImage Renderer::GetSwapChainImage() const
+{
+    return swapChain->GetImage(imageIndex);
+}
+
+VkImageView Renderer::GetSwapChainImageView() const
+{
+    return swapChain->GetImageView(imageIndex);
 }
 
 Framebuffer& Renderer::GetSwapChainFramebuffer() const

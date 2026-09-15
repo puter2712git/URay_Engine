@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Render/RHI/Texture/TextureDesc.h"
 #include "Render/Rendering/DrawCommand/DrawCommand.h"
 #include "Render/Rendering/FrameResource.h"
-#include "Render/RHI/Texture/TextureDesc.h"
 #include "Render/Rendering/RenderInfo.h"
 
 #include "Core/Math/Extent2D.h"
@@ -63,6 +63,8 @@ public:
     VkRenderPass GetPostProcessRenderPass() const { return postProcessRenderPass; }
     Framebuffer& GetPostProcessFramebuffer() const { return *postProcessFramebuffer; }
 
+    VkImage GetSwapChainImage() const;
+    VkImageView GetSwapChainImageView() const;
     VkRenderPass GetSwapChainRenderPass() const { return swapChainRenderPass; }
     Framebuffer& GetSwapChainFramebuffer() const;
 

@@ -36,6 +36,8 @@ struct RenderPassContext
     VkRenderPass postProcessRenderPass = VK_NULL_HANDLE;
     Framebuffer& postProcessFramebuffer;
 
+    VkImage swapChainImage = VK_NULL_HANDLE;
+    VkImageView swapChainImageView = VK_NULL_HANDLE;
     VkRenderPass swapChainRenderPass = VK_NULL_HANDLE;
     Framebuffer& swapChainFramebuffer;
     VkExtent2D swapChainExtent = {};

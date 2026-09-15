@@ -1,6 +1,8 @@
 #include "UIPass.h"
 
+#include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
+#include "Render/RHI/CommandBuffer/ImageBarrier.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/Rendering/ImGui/ImGuiDrawable.h"
 #include "Render/Rendering/Renderer.h"
@@ -60,19 +62,41 @@ void UIPass::EndImGui(const RenderPassContext& context)
 
 void UIPass::BeginSwapChainPass(const RenderPassContext& context)
 {
-    std::vector<VkClearValue> clearValues(2);
-    clearValues[0].color = { .float32 = { 0.0f, 0.0f, 0.0f, 1.0f } };
-    clearValues[1].depthStencil = { 1.0f, 0 };
+    const VkImageSubresourceRange colorRange = {
+        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .baseMipLevel = 0,
+        .levelCount = 1,
+        .baseArrayLayer = 0,
+        .layerCount = 1,
+    };
 
-    VkRect2D renderArea = {};
-    renderArea.offset = { 0, 0 };
-    renderArea.extent = context.swapChainExtent;
+    const ImageBarrierDesc toColorAttachment = {
+        .image = context.swapChainImage,
+        .subresourceRange = colorRange,
+        .oldLayout = ImageLayout::Undefined,
+        .newLayout = ImageLayout::ColorAttachment,
+        .srcStage = VK_PIPELINE_STAGE_2_NONE,
+        .srcAccess = VK_ACCESS_2_NONE,
+        .dstStage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+        .dstAccess = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
+    };
+    context.commandBuffer.PipelineBarrier(
+        std::span(&toColorAttachment, 1));
 
-    context.commandBuffer.BeginRenderPass(
-        context.swapChainRenderPass,
-        context.swapChainFramebuffer,
-        renderArea,
-        clearValues);
+    RenderingAttachmentInfo colorAttachment = {};
+    colorAttachment.imageView = context.swapChainImageView;
+    colorAttachment.layout = ImageLayout::ColorAttachment;
+    colorAttachment.loadOp = LoadOp::Clear;
+    colorAttachment.storeOp = StoreOp::Store;
+    colorAttachment.clearColor = Color::Black;
+
+    const RenderingInfo renderingInfo = {
+        .renderArea = { .offset = { 0, 0 }, .extent = context.swapChainExtent },
+        .layerCount = 1,
+        .colorAttachments = std::span(&colorAttachment, 1)
+    };
+
+    context.commandBuffer.BeginRendering(renderingInfo);
 
     context.commandBuffer.SetViewport(
         0.0f,
@@ -90,7 +114,28 @@ void UIPass::BeginSwapChainPass(const RenderPassContext& context)
 
 void UIPass::EndSwapChainPass(const RenderPassContext& context)
 {
-    context.commandBuffer.EndRenderPass();
+    context.commandBuffer.EndRendering();
+
+    const VkImageSubresourceRange colorRange = {
+        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .baseMipLevel = 0,
+        .levelCount = 1,
+        .baseArrayLayer = 0,
+        .layerCount = 1,
+    };
+
+    const ImageBarrierDesc toPresent = {
+        .image = context.swapChainImage,
+        .subresourceRange = colorRange,
+        .oldLayout = ImageLayout::ColorAttachment,
+        .newLayout = ImageLayout::Present,
+        .srcStage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+        .srcAccess = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
+        .dstStage = VK_PIPELINE_STAGE_2_NONE,
+        .dstAccess = VK_ACCESS_2_NONE,
+    };
+    context.commandBuffer.PipelineBarrier(
+        std::span(&toPresent, 1));
 }
 
 } // namespace URay::Render
