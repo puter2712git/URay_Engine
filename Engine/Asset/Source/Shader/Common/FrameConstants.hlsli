@@ -1,7 +1,7 @@
-#ifndef __COMMON__
-#define __COMMON__
+#ifndef __FRAME_CONSTANTS__
+#define __FRAME_CONSTANTS__
 
-#include "Light.hlsli"
+#include "Common/Light.hlsli"
 
 struct FrameConstants
 {
@@ -19,19 +19,5 @@ struct FrameConstants
     DirectionalLightConstants directionalLight;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
-
-struct ObjectConstants
-{
-    float4x4 world;
-    float4 colorTint;
-    uint objectId;
-};
-[[vk::push_constant]] ObjectConstants obj;
-
-float LinearViewDepth(float depth, float nearPlane, float farPlane)
-{
-    return (nearPlane * farPlane) /
-        (farPlane - depth * (farPlane - nearPlane));
-}
 
 #endif

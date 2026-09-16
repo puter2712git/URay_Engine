@@ -1,5 +1,7 @@
-#include "Common.hlsli"
-#include "VertexTypes.hlsli"
+#include "Common/Common.hlsli"
+#include "Common/FrameConstants.hlsli"
+#include "Common/ObjectConstants.hlsli"
+#include "Common/VertexTypes.hlsli"
 
 VertexPCOut VSMain(VertexPCIn input)
 {

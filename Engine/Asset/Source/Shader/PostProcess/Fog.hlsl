@@ -1,4 +1,7 @@
-#include "Common.hlsli"
+#include "Common/Common.hlsli"
+#include "Common/FrameConstants.hlsli"
+#include "Common/ObjectConstants.hlsli"
+#include "Common/VertexTypes.hlsli"
 
 struct FogConstants
 {
