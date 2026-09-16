@@ -18,10 +18,13 @@ Shader::Shader(
     CreateSetLayoutDescriptions();
 
     // TODO: Need fix (ShaderStageFlags)
-    pushConstantRanges.push_back(PushConstantRange{
-        .offset = mergedReflection.pushConstant.offset,
-        .size = mergedReflection.pushConstant.size,
-        .stages = ShaderStageFlags::All });
+    if (mergedReflection.pushConstant.size > 0)
+    {
+        pushConstantRanges.push_back(PushConstantRange{
+            .offset = mergedReflection.pushConstant.offset,
+            .size = mergedReflection.pushConstant.size,
+            .stages = ShaderStageFlags::All });
+    }
 }
 
 Shader::~Shader() = default;
