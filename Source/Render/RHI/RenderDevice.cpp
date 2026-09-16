@@ -1042,6 +1042,11 @@ bool RenderDevice::CreateLogicalDevice()
     dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
     dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
 
+    VkPhysicalDeviceSynchronization2Features synchronizationFeatures = {};
+    synchronizationFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+    synchronizationFeatures.synchronization2 = VK_TRUE;
+    synchronizationFeatures.pNext = &dynamicRenderingFeatures;
+
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.queueCreateInfoCount = static_cast<uint32>(queueCreateInfos.size());
@@ -1052,7 +1057,7 @@ bool RenderDevice::CreateLogicalDevice()
     createInfo.enabledExtensionCount = static_cast<uint32>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    createInfo.pNext = &dynamicRenderingFeatures;
+    createInfo.pNext = &synchronizationFeatures;
 
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
         return false;
@@ -1085,15 +1090,21 @@ bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
     VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
     dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
 
+    VkPhysicalDeviceSynchronization2Features synchronizationFeatures = {};
+    synchronizationFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES;
+    synchronizationFeatures.pNext = &dynamicRenderingFeatures;
+
     VkPhysicalDeviceFeatures2 features = {};
     features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    features.pNext = &dynamicRenderingFeatures;
+    features.pNext = &synchronizationFeatures;
 
     vkGetPhysicalDeviceFeatures2(device, &features);
 
     const bool supportsDynamicRendering = dynamicRenderingFeatures.dynamicRendering == VK_TRUE;
+    const bool supportsSynchronization = synchronizationFeatures.synchronization2 == VK_TRUE;
 
-    return indices.IsComplete() && extensionsSupported && swapChainAdequate && features.features.samplerAnisotropy && supportsDynamicRendering;
+    return indices.IsComplete() && extensionsSupported && swapChainAdequate && features.features.samplerAnisotropy &&
+           supportsDynamicRendering && supportsSynchronization;
 }
 
 QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device) const
