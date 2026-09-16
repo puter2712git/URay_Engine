@@ -362,10 +362,19 @@ PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc)
 
     PipelineLayoutDesc layoutDesc = {};
 
-    for (auto& [set, descriptorSetlayoutDesc] : psoDesc.shader->GetLayoutDescriptions())
+    const auto& shaderLayouts = psoDesc.shader->GetLayoutDescriptions();
+    const uint32 maxSet = shaderLayouts.empty() ? 0 : shaderLayouts.rbegin()->first;
+
+    DescriptorSetLayoutDesc emptyLayoutDesc = {};
+
+    for (uint32 set = 0; set <= maxSet; ++set)
     {
-        layoutDesc.setLayouts[set] = GetOrCreateDescriptorSetLayout(descriptorSetlayoutDesc);
+        const auto it = shaderLayouts.find(set);
+        const DescriptorSetLayoutDesc& desc = it != shaderLayouts.end() ? it->second : emptyLayoutDesc;
+
+        layoutDesc.setLayouts[set] = GetOrCreateDescriptorSetLayout(desc);
     }
+
     layoutDesc.pushConstantRanges = psoDesc.shader->GetPushConstantRanges();
 
     PipelineLayout* layout = GetOrCreatePipelineLayout(layoutDesc);
