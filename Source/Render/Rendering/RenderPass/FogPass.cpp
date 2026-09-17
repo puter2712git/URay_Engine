@@ -123,6 +123,8 @@ void FogPass::Begin(const RenderPassContext& context)
         .colorAttachments = colorAttachments
     };
 
+    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ColorAttachment);
+
     context.commandBuffer.BeginRendering(renderingInfo);
 }
 

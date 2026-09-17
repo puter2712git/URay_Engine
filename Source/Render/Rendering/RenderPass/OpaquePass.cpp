@@ -52,6 +52,9 @@ void OpaquePass::Begin(const RenderPassContext& context)
         .depthAttachment = &depthAttachment
     };
 
+    context.sceneRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ColorAttachment);
+    context.sceneRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
+
     context.commandBuffer.BeginRendering(renderingInfo);
 
     context.commandBuffer.SetViewport(
