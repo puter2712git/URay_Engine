@@ -243,7 +243,7 @@ void Renderer::EndFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &vkCommandBuffer;
 
-    VkSemaphore signalSemaphores[] = { frameResources[currentFrame].renderFinishedSemaphore };
+    VkSemaphore signalSemaphores[] = { swapChain->GetRenderFinishedSemaphore(imageIndex) };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -428,12 +428,6 @@ bool Renderer::CreateFrameResources()
         {
             return false;
         }
-        if (vkCreateSemaphore(
-                device.GetVKDevice(), &semaphoreInfo, nullptr,
-                &frameResources[i].renderFinishedSemaphore) != VK_SUCCESS)
-        {
-            return false;
-        }
         if (vkCreateFence(
                 device.GetVKDevice(), &fenceInfo, nullptr,
                 &frameResources[i].inFlightFence) != VK_SUCCESS)
@@ -486,9 +480,6 @@ void Renderer::DestroyFrameResources()
         vkDestroyFence(
             device.GetVKDevice(),
             frameResources[i].inFlightFence, nullptr);
-        vkDestroySemaphore(
-            device.GetVKDevice(),
-            frameResources[i].renderFinishedSemaphore, nullptr);
         vkDestroySemaphore(
             device.GetVKDevice(),
             frameResources[i].imageAvailableSemaphore, nullptr);

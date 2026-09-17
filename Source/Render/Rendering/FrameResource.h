@@ -14,7 +14,6 @@ class DescriptorSet;
 struct FrameResource
 {
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
-    VkSemaphore renderFinishedSemaphore = VK_NULL_HANDLE;
     VkFence inFlightFence = VK_NULL_HANDLE;
 
     std::unique_ptr<CommandBuffer> commandBuffer = nullptr;

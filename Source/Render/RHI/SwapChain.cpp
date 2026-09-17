@@ -24,6 +24,12 @@ bool SwapChain::Initialize(const SwapChainDesc& desc)
 
 void SwapChain::Finalize()
 {
+    for (VkSemaphore semaphore : renderFinishedSemaphores)
+    {
+        vkDestroySemaphore(device.GetVKDevice(), semaphore, nullptr);
+    }
+    renderFinishedSemaphores.clear();
+
     for (VkImageView view : imageViews)
     {
         vkDestroyImageView(device.GetVKDevice(), view, nullptr);
@@ -109,6 +115,17 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
         imageViews[i] = device.CreateImageView(images[i], format, VK_IMAGE_ASPECT_COLOR_BIT);
     }
 
+    renderFinishedSemaphores.resize(images.size());
+
+    VkSemaphoreCreateInfo semaphoreInfo = {};
+    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    for (VkSemaphore& semaphore : renderFinishedSemaphores)
+    {
+        if (vkCreateSemaphore(device.GetVKDevice(), &semaphoreInfo, nullptr, &semaphore) != VK_SUCCESS)
+            return false;
+    }
+
     return true;
 }
 
@@ -136,6 +153,11 @@ VkResult SwapChain::Present(uint32 imageIndex, VkSemaphore waitSemaphore)
     presentInfo.pImageIndices = &imageIndex;
 
     return vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
+}
+
+VkSemaphore SwapChain::GetRenderFinishedSemaphore(uint32 imageIndex) const
+{
+    return renderFinishedSemaphores.at(imageIndex);
 }
 
 VkImage SwapChain::GetImage(uint32 index) const

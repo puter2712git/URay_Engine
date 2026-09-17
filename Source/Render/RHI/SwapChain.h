@@ -2,9 +2,10 @@
 
 #include "Core/Type/Types.h"
 
+#include <vulkan/vulkan.h>
+
 #include <memory>
 #include <vector>
-#include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
@@ -39,6 +40,8 @@ public:
     VkImageView GetImageView(uint32 index) const;
     const std::vector<VkImageView>& GetImageViews() const { return imageViews; }
 
+    VkSemaphore GetRenderFinishedSemaphore(uint32 imageInex) const;
+
 private:
     VkSurfaceFormatKHR ChooseFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
     VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
@@ -54,6 +57,8 @@ private:
 
     VkExtent2D extent = {};
     VkFormat format = VK_FORMAT_UNDEFINED;
+
+    std::vector<VkSemaphore> renderFinishedSemaphores;
 };
 
 } // namespace URay::Render
