@@ -162,6 +162,10 @@ void FogPass::Execute(
     commandBuffer.BindPipeline(*pso);
     commandBuffer.BindDescriptorSet(
         *pso->GetLayout(),
+        context.frameDescriptorSet,
+        0);
+    commandBuffer.BindDescriptorSet(
+        *pso->GetLayout(),
         *descriptorSets[currentFrame],
         2);
 
