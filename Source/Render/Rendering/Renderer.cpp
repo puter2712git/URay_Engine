@@ -407,24 +407,9 @@ void Renderer::DestroyCommandPool()
 
 bool Renderer::CreateFrameResources()
 {
-    DescriptorSetLayoutDesc layoutDescription = {};
-    layoutDescription.bindings.push_back(ResourceBinding{
-        .binding = 0,
-        .resourceType = ResourceType::UniformBuffer,
-        .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
-    layoutDescription.bindings.push_back(ResourceBinding{
-        .binding = 1,
-        .resourceType = ResourceType::StorageBuffer,
-        .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
-    layoutDescription.bindings.push_back(ResourceBinding{
-        .binding = 2,
-        .resourceType = ResourceType::StorageBuffer,
-        .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+    DescriptorSetLayoutDesc description = device.MakeFrameDescriptorSetLayoutDescription();
 
-    frameDescriptorSetLayout.reset(device.CreateDescriptorSetLayout(layoutDescription));
+    frameDescriptorSetLayout.reset(device.CreateDescriptorSetLayout(description));
     if (!frameDescriptorSetLayout)
         return false;
 

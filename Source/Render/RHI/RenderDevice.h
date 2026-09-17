@@ -114,6 +114,8 @@ public:
 
     QueueFamilyIndices FindQueueFamilyIndices(VkPhysicalDevice device) const;
 
+    DescriptorSetLayoutDesc MakeFrameDescriptorSetLayoutDescription() const;
+
     VkPhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
     VkDevice GetVKDevice() const { return device; }
 

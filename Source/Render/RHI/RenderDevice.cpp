@@ -1142,6 +1142,28 @@ QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device)
     return indices;
 }
 
+DescriptorSetLayoutDesc RenderDevice::MakeFrameDescriptorSetLayoutDescription() const
+{
+    DescriptorSetLayoutDesc description = {};
+    description.bindings.push_back(ResourceBinding{
+        .binding = 0,
+        .resourceType = ResourceType::UniformBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+    description.bindings.push_back(ResourceBinding{
+        .binding = 1,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+    description.bindings.push_back(ResourceBinding{
+        .binding = 2,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+
+    return description;
+}
+
 bool RenderDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
 {
     uint32 extensionCount = 0;

@@ -370,7 +370,12 @@ PipelineState* ResourceManager::GetOrCreatePSO(const PipelineStateDesc& psoDesc)
     for (uint32 set = 0; set <= maxSet; ++set)
     {
         const auto it = shaderLayouts.find(set);
-        const DescriptorSetLayoutDesc& desc = it != shaderLayouts.end() ? it->second : emptyLayoutDesc;
+        DescriptorSetLayoutDesc desc = it != shaderLayouts.end() ? it->second : emptyLayoutDesc;
+
+        if (set == 0)
+        {
+            desc = device.MakeFrameDescriptorSetLayoutDescription();
+        }
 
         layoutDesc.setLayouts[set] = GetOrCreateDescriptorSetLayout(desc);
     }
