@@ -131,6 +131,8 @@ void FogPass::Begin(const RenderPassContext& context)
 void FogPass::End(const RenderPassContext& context)
 {
     context.commandBuffer.EndRendering();
+
+    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ShaderReadOnly);
 }
 
 void FogPass::Execute(

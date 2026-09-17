@@ -132,11 +132,11 @@ VkImageLayout ToVkImageLayout(ImageLayout layout)
     case ImageLayout::ColorAttachment:
         return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     case ImageLayout::DepthAttachment:
-        return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     case ImageLayout::ShaderReadOnly:
         return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     case ImageLayout::DepthReadOnly:
-        return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL;
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
     case ImageLayout::Present:
         return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     }
