@@ -11,6 +11,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -33,6 +34,7 @@ class Shader;
 class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
+class ShadowSystem;
 
 class ResourceManager
 {
@@ -65,11 +67,15 @@ public:
     PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc);
     void DestroyPSOs();
 
+    ShadowSystem& GetShadowSystem() { return *shadowSystem; }
+
 private:
     RenderDevice& device;
     VirtualFilesystem& filesystem;
 
     ShaderCompiler shaderCompiler;
+
+    std::unique_ptr<ShadowSystem> shadowSystem = nullptr;
 
     std::unordered_map<::URay::Mesh*, MeshBuffer*> meshBuffers;
 

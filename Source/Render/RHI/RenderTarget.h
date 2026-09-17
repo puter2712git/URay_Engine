@@ -7,6 +7,7 @@
 #include <vulkan/vulkan.h>
 
 #include <memory>
+#include <optional>
 
 namespace URay::Render
 {
@@ -16,10 +17,23 @@ class CommandBuffer;
 class Texture;
 class TextureView;
 
+struct RenderTargetAttachmentDesc
+{
+    Format format = Format::Unknown;
+    TextureUsage usage = TextureUsage::None;
+};
+
+struct RenderTargetDesc
+{
+    Extent2D extent = {};
+    std::optional<RenderTargetAttachmentDesc> color;
+    std::optional<RenderTargetAttachmentDesc> depth;
+};
+
 class RenderTarget
 {
 public:
-    RenderTarget(RenderDevice& renderDevice, const Extent2D& extent);
+    RenderTarget(RenderDevice& renderDevice, const RenderTargetDesc& desc);
     ~RenderTarget();
 
 private:
@@ -30,33 +44,34 @@ private:
     };
 
 public:
-    bool Resize(const Extent2D& newExtent);
+    bool Recreate(const Extent2D& newExtent);
 
     void TransitionColor(CommandBuffer& commandBuffer, ImageLayout newLayout);
     void TransitionDepth(CommandBuffer& commandBuffer, ImageLayout newLayout);
 
     Texture* GetColorTexture() const { return colorTexture.get(); }
-    TextureView* GetColorView() const { return colorTextureView.get(); }
+    TextureView* GetColorView() const { return colorView.get(); }
 
     Texture* GetDepthTexture() const { return depthTexture.get(); }
-    TextureView* GetDepthView() const { return depthTextureView.get(); }
-    const Extent2D& GetExtent() const { return extent; }
+    TextureView* GetDepthView() const { return depthView.get(); }
+
+    const Extent2D& GetExtent() const { return desc.extent; }
 
 private:
     SyncInfo GetSyncInfo(ImageLayout layout);
 
 private:
-    RenderDevice& renderDevice;
+    RenderDevice& device;
+
+    RenderTargetDesc desc = {};
 
     std::unique_ptr<Texture> colorTexture = nullptr;
-    std::unique_ptr<TextureView> colorTextureView = nullptr;
+    std::unique_ptr<TextureView> colorView = nullptr;
     ImageLayout colorLayout = ImageLayout::Undefined;
 
     std::unique_ptr<Texture> depthTexture = nullptr;
-    std::unique_ptr<TextureView> depthTextureView = nullptr;
+    std::unique_ptr<TextureView> depthView = nullptr;
     ImageLayout depthLayout = ImageLayout::Undefined;
-
-    Extent2D extent = {};
 };
 
 } // namespace URay::Render

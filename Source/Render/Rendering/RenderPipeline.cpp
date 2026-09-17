@@ -157,9 +157,6 @@ void RenderPipeline::Execute(const RenderRequest& request)
     renderer.GetFrameResource().pointLightStorageBuffer->Update(pointLightConstants.data(), sizeof(PointLightConstants) * pointLightConstants.size());
     renderer.GetFrameResource().spotLightStorageBuffer->Update(spotLightConstants.data(), sizeof(SpotLightConstants) * spotLightConstants.size());
 
-    const Frustum frustum =
-        Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);
-
     for (const RenderScene* scene : request.scenes)
     {
         size_t objectCount = scene->GetObjectCount();

@@ -351,12 +351,16 @@ void Renderer::RecreateSwapChain()
 bool Renderer::CreateSceneRenderTarget()
 {
     const VkExtent2D swapChainExtent = swapChain->GetExtent();
-    const Extent2D extent = {
-        .width = swapChainExtent.width,
-        .height = swapChainExtent.height,
+
+    const RenderTargetDesc desc = {
+        .extent = { swapChainExtent.width, swapChainExtent.height },
+        .color = RenderTargetAttachmentDesc{
+            .format = Format::BGRA8_sRGB,
+            .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled },
+        .depth = RenderTargetAttachmentDesc{ .format = Format::D32_Float_S8_UInt, .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
     };
 
-    sceneRenderTarget = std::make_unique<RenderTarget>(device, extent);
+    sceneRenderTarget = std::make_unique<RenderTarget>(device, desc);
     return true;
 }
 
@@ -370,12 +374,17 @@ void Renderer::DestroySceneRenderTarget()
 
 bool Renderer::CreatePostProcessRenderTarget()
 {
-    const Extent2D extent = {
-        .width = swapChain->GetExtent().width,
-        .height = swapChain->GetExtent().height
+    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+
+    const RenderTargetDesc desc = {
+        .extent = { swapChainExtent.width, swapChainExtent.height },
+        .color = RenderTargetAttachmentDesc{
+            .format = Format::BGRA8_sRGB,
+            .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled },
+        .depth = RenderTargetAttachmentDesc{ .format = Format::D32_Float_S8_UInt, .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
     };
 
-    postProcessRenderTarget = std::make_unique<RenderTarget>(device, extent);
+    postProcessRenderTarget = std::make_unique<RenderTarget>(device, desc);
 
     return postProcessRenderTarget != nullptr;
 }
@@ -504,11 +513,11 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
         sceneImGuiTexture = VK_NULL_HANDLE;
     }
 
-    if (!sceneRenderTarget->Resize(extent))
+    if (!sceneRenderTarget->Recreate(extent))
     {
         throw std::runtime_error("Failed to resize scene render target.");
     }
-    if (!postProcessRenderTarget->Resize(extent))
+    if (!postProcessRenderTarget->Recreate(extent))
     {
         throw std::runtime_error("Failed to resize post process render target.");
     }

@@ -9,6 +9,7 @@
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/Rendering/Shadow/ShadowSystem.h"
 #include "Render/Shader/Shader.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -29,10 +30,16 @@ ResourceManager::ResourceManager(
     : device(device), filesystem(filesystem), shaderCompiler(ShaderCompiler(filesystem))
 {
     shaderCompiler.Initialize();
+
+    shadowSystem = std::make_unique<ShadowSystem>(device);
+    shadowSystem->Initialize();
 }
 
 ResourceManager::~ResourceManager()
 {
+    shadowSystem->Finalize();
+    shadowSystem.reset();
+
     DestroyPSOs();
     DestroyPipelineLayouts();
     DestroyDescriptorSetLayouts();

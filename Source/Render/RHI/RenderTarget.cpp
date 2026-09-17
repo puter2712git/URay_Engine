@@ -13,59 +13,60 @@
 namespace URay::Render
 {
 
-RenderTarget::RenderTarget(RenderDevice& renderDevice, const Extent2D& extent)
-    : renderDevice(renderDevice)
+RenderTarget::RenderTarget(RenderDevice& renderDevice, const RenderTargetDesc& desc)
+    : device(renderDevice), desc(desc)
 {
-    if (!Resize(extent))
+    if (!Recreate(desc.extent))
         throw std::runtime_error("Failed to create render target.");
 }
 
 RenderTarget::~RenderTarget() = default;
 
-bool RenderTarget::Resize(const Extent2D& newExtent)
+bool RenderTarget::Recreate(const Extent2D& newExtent)
 {
     if (newExtent.width == 0 || newExtent.height == 0)
         return false;
 
-    const TextureDesc colorDesc = {
-        .width = newExtent.width,
-        .height = newExtent.height,
-        .format = Format::BGRA8_sRGB,
-        .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled,
-    };
+    RenderTargetDesc newDesc = desc;
+    newDesc.extent = newExtent;
 
-    std::unique_ptr<Texture> newColorTexture(renderDevice.CreateTexture(colorDesc));
-    if (!newColorTexture)
-        return false;
+    if (newDesc.color)
+    {
+        TextureDesc colorDesc = {};
+        colorDesc.width = newExtent.width;
+        colorDesc.height = newExtent.height;
+        colorDesc.format = desc.color->format;
+        colorDesc.usage = desc.color->usage;
 
-    std::unique_ptr<TextureView> newColorView(renderDevice.CreateTextureView(newColorTexture.get()));
-    if (!newColorView)
-        return false;
+        colorTexture.reset(device.CreateTexture(colorDesc));
+        if (!colorTexture)
+            return false;
 
-    const TextureDesc depthDesc = {
-        .width = newExtent.width,
-        .height = newExtent.height,
-        .format = Format::D32_Float_S8_UInt,
-        .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled,
-    };
+        colorView.reset(device.CreateTextureView(colorTexture.get()));
+        if (!colorView)
+            return false;
+    }
 
-    std::unique_ptr<Texture> newDepthTexture(renderDevice.CreateTexture(depthDesc));
-    if (!newDepthTexture)
-        return false;
+    if (newDesc.depth)
+    {
+        TextureDesc depthDesc = {};
+        depthDesc.width = newExtent.width;
+        depthDesc.height = newExtent.height;
+        depthDesc.format = desc.depth->format;
+        depthDesc.usage = desc.depth->usage;
 
-    std::unique_ptr<TextureView> newDepthView(renderDevice.CreateTextureView(newDepthTexture.get()));
-    if (!newDepthView)
-        return false;
+        depthTexture.reset(device.CreateTexture(depthDesc));
+        if (!depthTexture)
+            return false;
 
-    colorTextureView = std::move(newColorView);
-    colorTexture = std::move(newColorTexture);
+        depthView.reset(device.CreateTextureView(depthTexture.get()));
+        if (!depthView)
+            return false;
+    }
+
+    desc = newDesc;
     colorLayout = ImageLayout::Undefined;
-
-    depthTextureView = std::move(newDepthView);
-    depthTexture = std::move(newDepthTexture);
     depthLayout = ImageLayout::Undefined;
-
-    extent = newExtent;
 
     return true;
 }
