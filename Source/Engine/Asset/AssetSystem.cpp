@@ -61,13 +61,13 @@ bool AssetSystem::Initialize(
 
 bool AssetSystem::CreateDefaultAssets()
 {
-    UUID whiteTextureUUID = Import("RawAsset://Texture/White.png");
+    UUID whiteTextureUUID = Import("Engine://Asset/Source/Texture/WhiteTexture.png");
     defaultAssets.whiteTexture = Find<Texture>(whiteTextureUUID);
 
-    UUID fontTextureUUID = Import("RawAsset://Texture/DejaVu Sans Mono.png");
+    UUID fontTextureUUID = Import("Engine://Asset/Source/Texture/DejaVu Sans Mono.png");
     defaultAssets.fontTexture = Find<Texture>(fontTextureUUID);
 
-    UUID decalTextureUUID = Import("RawAsset://Texture/bullet_hole.png");
+    UUID decalTextureUUID = Import("Engine://Asset/Source/Texture/BulletHole.png");
     defaultAssets.decalTexture = Find<Texture>(decalTextureUUID);
 
     UUID directionalLightTextureUUID = Import("Engine://Asset/Source/Texture/DirectionalLightIcon.png");
