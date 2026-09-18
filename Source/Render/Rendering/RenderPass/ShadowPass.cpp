@@ -47,7 +47,7 @@ ShadowPass::ShadowPass()
 
     shadowShader = resourceManager.GetOrCreateShader(shadowShaderAsset, {});
 
-    const DescriptorSetLayoutDesc* layoutDescription = shadowShader->GetLayoutDescription(2);
+    const DescriptorSetLayoutDesc* layoutDescription = shadowShader->GetLayoutDescription(0);
     if (!layoutDescription)
         throw std::runtime_error("Failed to initialize shadow pass.");
 
@@ -159,8 +159,8 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
 
     uniformBuffers[currentFrame]->Update(&constants, sizeof(constants));
 
-    DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
-    descriptorSet->WriteUniformBuffer(0, *uniformBuffers[currentFrame]);
+    DescriptorSet& descriptorSet = context.frameDescriptorSet;
+    descriptorSet.WriteUniformBuffer(2, *uniformBuffers[currentFrame]);
 
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;
@@ -181,8 +181,8 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
 
         commandBuffer.BindDescriptorSet(
             *pso->GetLayout(),
-            *descriptorSet,
-            2);
+            descriptorSet,
+            0);
 
         ObjectConstants objConstants = {};
         objConstants.world = cmd.worldMatrix;

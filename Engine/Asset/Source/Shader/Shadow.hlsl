@@ -4,7 +4,7 @@ struct ShadowConstants
 {
     float4x4 lightViewProj;
 };
-[[vk::binding(0, 2)]] ConstantBuffer<ShadowConstants> shadow;
+[[vk::binding(2, 0)]] ConstantBuffer<ShadowConstants> shadow;
 
 struct ShadowVertexIn
 {
