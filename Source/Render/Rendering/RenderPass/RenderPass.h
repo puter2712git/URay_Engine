@@ -30,6 +30,7 @@ struct RenderPassContext
     RenderView& renderView;
 
     DescriptorSet& frameDescriptorSet;
+    Buffer& shadowUniformBuffer;
 
     RenderTarget& sceneRenderTarget;
     RenderTarget& postProcessRenderTarget;

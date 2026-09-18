@@ -69,4 +69,9 @@ struct FrameConstants
     DirectionalLightConstants directionalLight = {};
 };
 
+struct ShadowConstants
+{
+    Matrix lightViewProj = Matrix::Identity;
+};
+
 } // namespace URay::Render

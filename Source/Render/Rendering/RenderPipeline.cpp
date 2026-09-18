@@ -228,7 +228,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .commandBuffer = *renderer.GetFrameResource().commandBuffer,
         .resourceManager = renderSystem.GetResourceManager(),
         .renderView = view,
+
         .frameDescriptorSet = *renderer.GetFrameResource().descriptorSet,
+        .shadowUniformBuffer = *renderer.GetFrameResource().shadowUniformBuffer,
 
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
         .postProcessRenderTarget = renderer.GetPostProcessRenderTarget(),

@@ -1,10 +1,6 @@
 #include "Common/ObjectConstants.hlsli"
-
-struct ShadowConstants
-{
-    float4x4 lightViewProj;
-};
-[[vk::binding(2, 0)]] ConstantBuffer<ShadowConstants> shadow;
+#include "Common/FrameConstants.hlsli"
+#include "Common/ShadowConstants.hlsli"
 
 struct ShadowVertexIn
 {

@@ -46,36 +46,6 @@ ShadowPass::ShadowPass()
     }
 
     shadowShader = resourceManager.GetOrCreateShader(shadowShaderAsset, {});
-
-    const DescriptorSetLayoutDesc* layoutDescription = shadowShader->GetLayoutDescription(0);
-    if (!layoutDescription)
-        throw std::runtime_error("Failed to initialize shadow pass.");
-
-    descriptorSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDescription);
-    if (!descriptorSetLayout)
-        throw std::runtime_error("Failed to initialize shadow pass.");
-
-    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        descriptorSets[i].reset(device.CreateDescriptorSet(descriptorSetLayout));
-
-        if (!descriptorSets[i])
-            throw std::runtime_error("Failed to initialize shadow pass.");
-    }
-
-    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        const UniformBufferDesc desc = {
-            .size = sizeof(ShadowConstants)
-        };
-
-        uniformBuffers[i].reset(device.CreateUniformBuffer(desc));
-
-        if (!uniformBuffers[i])
-            throw std::runtime_error("Failed to initialize shadow pass.");
-    }
 }
 
 ShadowPass::~ShadowPass() = default;
@@ -143,7 +113,7 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
 
     const Vector3& lightDirection = directionalLight->GetDirection();
 
-    const Vector3 focus = cameraPosition + cameraDirection * 50.0f;
+    const Vector3 focus = Vector3::Zero; // TODO: Set light position by adequate way
 
     const Vector3 lightEye = focus - lightDirection * 100.0f;
     const Vector3 target = lightEye + lightDirection;
@@ -157,10 +127,7 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
     ShadowConstants constants = {};
     constants.lightViewProj = lightView * lightProj;
 
-    uniformBuffers[currentFrame]->Update(&constants, sizeof(constants));
-
-    DescriptorSet& descriptorSet = context.frameDescriptorSet;
-    descriptorSet.WriteUniformBuffer(2, *uniformBuffers[currentFrame]);
+    context.shadowUniformBuffer.Update(&constants, sizeof(constants));
 
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;
@@ -181,7 +148,7 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
 
         commandBuffer.BindDescriptorSet(
             *pso->GetLayout(),
-            descriptorSet,
+            context.frameDescriptorSet,
             0);
 
         ObjectConstants objConstants = {};

@@ -21,6 +21,7 @@
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/RenderPass/RenderPass.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Shadow/ShadowSystem.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
@@ -465,10 +466,18 @@ bool Renderer::CreateFrameResources()
         };
         frameResources[i].spotLightStorageBuffer.reset(device.CreateStorageBuffer(spotLightStorageBufferDesc));
 
+        UniformBufferDesc shadowUniformBufferDesc = {};
+        shadowUniformBufferDesc.size = sizeof(ShadowConstants);
+
+        frameResources[i].shadowUniformBuffer.reset(device.CreateUniformBuffer(shadowUniformBufferDesc));
+
         frameResources[i].descriptorSet.reset(device.CreateDescriptorSet(frameDescriptorSetLayout.get()));
         frameResources[i].descriptorSet->WriteUniformBuffer(0, *frameResources[i].uniformBuffer);
         frameResources[i].descriptorSet->WriteStorageBuffer(1, *frameResources[i].pointLightStorageBuffer);
         frameResources[i].descriptorSet->WriteStorageBuffer(2, *frameResources[i].spotLightStorageBuffer);
+        frameResources[i].descriptorSet->WriteUniformBuffer(3, *frameResources[i].shadowUniformBuffer);
+        frameResources[i].descriptorSet->WriteSampledImage(4, resourceManager.GetShadowSystem().GetDirectionalTarget()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
+        frameResources[i].descriptorSet->WriteSampler(5, resourceManager.GetOrCreateTextureSampler({}));
     }
 
     return true;
@@ -480,6 +489,7 @@ void Renderer::DestroyFrameResources()
     {
         frameResources[i].descriptorSet.reset();
 
+        frameResources[i].shadowUniformBuffer.reset();
         frameResources[i].spotLightStorageBuffer.reset();
         frameResources[i].pointLightStorageBuffer.reset();
         frameResources[i].uniformBuffer.reset();

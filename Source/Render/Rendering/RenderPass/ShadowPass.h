@@ -18,11 +18,6 @@ class DescriptorSet;
 class DescriptorSetLayout;
 class Shader;
 
-struct ShadowConstants
-{
-    Matrix lightViewProj = Matrix::Identity;
-};
-
 class ShadowPass final : public RenderPass
 {
 public:
@@ -40,10 +35,6 @@ public:
 private:
     URay::Shader* shadowShaderAsset = nullptr;
     Shader* shadowShader = nullptr;
-
-    DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::vector<std::unique_ptr<DescriptorSet>> descriptorSets;
-    std::vector<std::unique_ptr<Buffer>> uniformBuffers;
 };
 
 } // namespace URay::Render
