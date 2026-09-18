@@ -17,10 +17,13 @@ public:
 public:
     float GetIntensity() const { return intensity; }
     const Color& GetColor() const { return color; }
+    float GetBias() const { return bias; }
 
 protected:
     float intensity = 1.0f;
     Color color = Color::White;
+
+    float bias = 0.0f;
 };
 
 } // namespace URay

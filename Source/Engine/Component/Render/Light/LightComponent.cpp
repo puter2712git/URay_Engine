@@ -22,6 +22,11 @@ void LightComponent::RegisterClass()
           .name = "Color",
           .offset = offsetof(LightComponent, color),
           .size = sizeof(Color) });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Float,
+          .name = "Shadow Bias",
+          .offset = offsetof(LightComponent, bias),
+          .size = sizeof(float) });
 }
 
 } // namespace URay

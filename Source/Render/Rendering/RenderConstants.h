@@ -72,6 +72,8 @@ struct FrameConstants
 struct ShadowConstants
 {
     Matrix lightViewProj = Matrix::Identity;
+    float bias = 0.0f;
+    float padding[3];
 };
 
 } // namespace URay::Render

@@ -24,16 +24,9 @@ float GetDirectionalShadowVisibility(float3 worldPosition, float3 normal)
         return 1.0;
     }
 
-    float storedDepth =
-        directionalShadowDepth.SampleLevel(directionalShadowSampler, shadowUV, 0);
+    float depth = directionalShadowDepth.SampleLevel(directionalShadowSampler, shadowUV, 0);
 
-    float nDotL = saturate(dot(
-        normalize(normal),
-        -normalize(frame.directionalLight.direction)));
-
-    float bias = max(0.0015 * (1.0 - nDotL), 0.00025);
-
-    return lightNdc.z > storedDepth + bias ? 0.0 : 1.0;
+    return lightNdc.z > depth + shadow.bias ? 0.0 : 1.0;
 }
 
 float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)

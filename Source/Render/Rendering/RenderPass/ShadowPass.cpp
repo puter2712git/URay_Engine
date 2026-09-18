@@ -126,6 +126,7 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
 
     ShadowConstants constants = {};
     constants.lightViewProj = lightView * lightProj;
+    constants.bias = directionalLight->GetBias();
 
     context.shadowUniformBuffer.Update(&constants, sizeof(constants));
 
