@@ -12,6 +12,15 @@
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"
 
+namespace URay::DefaultMeshUUIDs
+{
+inline constexpr UUID Quad{ .high = 0, .low = 1 };
+inline constexpr UUID Cube{ .high = 0, .low = 2 };
+inline constexpr UUID Arrow{ .high = 0, .low = 3 };
+inline constexpr UUID RotationGizmo{ .high = 0, .low = 4 };
+inline constexpr UUID ScaleGizmo{ .high = 0, .low = 5 };
+} // namespace URay::DefaultMeshUUIDs
+
 namespace URay
 {
 
@@ -169,7 +178,7 @@ bool AssetSystem::CreateDefaultAssets()
 
     Mesh* quadMesh = factory->CreateMesh(
         AssetMetadata{
-            .uuid = UUID::Generate(),
+            .uuid = DefaultMeshUUIDs::Quad,
             .type = AssetType::Mesh,
             .sourcePath = "Quad" },
         quadMeshInfo.vertices,
@@ -181,7 +190,7 @@ bool AssetSystem::CreateDefaultAssets()
 
     Mesh* cubeMesh = factory->CreateMesh(
         AssetMetadata{
-            .uuid = UUID::Generate(),
+            .uuid = DefaultMeshUUIDs::Cube,
             .type = AssetType::Mesh,
             .sourcePath = "Cube" },
         cubeMeshInfo.vertices,
@@ -193,7 +202,7 @@ bool AssetSystem::CreateDefaultAssets()
 
     Mesh* arrowMesh = factory->CreateMesh(
         AssetMetadata{
-            .uuid = UUID::Generate(),
+            .uuid = DefaultMeshUUIDs::Arrow,
             .type = AssetType::Mesh,
             .sourcePath = "Arrow" },
         arrowMeshInfo.vertices,
@@ -205,7 +214,7 @@ bool AssetSystem::CreateDefaultAssets()
 
     Mesh* rotationGizmoMesh = factory->CreateMesh(
         AssetMetadata{
-            .uuid = UUID::Generate(),
+            .uuid = DefaultMeshUUIDs::RotationGizmo,
             .type = AssetType::Mesh,
             .sourcePath = "RotationGizmo" },
         rotationGizmoMeshInfo.vertices,
@@ -217,7 +226,7 @@ bool AssetSystem::CreateDefaultAssets()
 
     Mesh* scaleGizmoMesh = factory->CreateMesh(
         AssetMetadata{
-            .uuid = UUID::Generate(),
+            .uuid = DefaultMeshUUIDs::ScaleGizmo,
             .type = AssetType::Mesh,
             .sourcePath = "ScaleGizmo" },
         scaleGizmoMeshInfo.vertices,
