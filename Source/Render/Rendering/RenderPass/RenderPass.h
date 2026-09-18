@@ -17,14 +17,17 @@ class ResourceManager;
 class DescriptorSet;
 class RenderTarget;
 class Framebuffer;
-
 class FogObject;
+class DirectionalLightObject;
+struct RenderView;
 
 struct RenderPassContext
 {
     CommandBuffer& commandBuffer;
 
     ResourceManager& resourceManager;
+
+    RenderView& renderView;
 
     DescriptorSet& frameDescriptorSet;
 
@@ -36,6 +39,7 @@ struct RenderPassContext
     VkExtent2D swapChainExtent = {};
 
     FogObject* fogObject = nullptr;
+    DirectionalLightObject* directionalLight = nullptr;
 };
 
 class RenderPass

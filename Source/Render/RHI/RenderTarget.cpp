@@ -108,8 +108,17 @@ void RenderTarget::TransitionDepth(CommandBuffer& commandBuffer, ImageLayout new
     if (depthLayout == newLayout)
         return;
 
+    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+
+    if (desc.depth &&
+        (desc.depth->format == Format::D32_Float_S8_UInt ||
+         desc.depth->format == Format::D24_UNorm_S8_UInt))
+    {
+        aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+
     const VkImageSubresourceRange range = {
-        .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT,
+        .aspectMask = aspectMask,
         .baseMipLevel = 0,
         .levelCount = 1,
         .baseArrayLayer = 0,

@@ -19,9 +19,9 @@
 #include "Core/File/VirtualPath.h"
 #include "Core/Timer.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/RenderPass/UIPass.h"
 #include "Render/Rendering/RenderPipeline.h"
-#include "Render/RenderSystem.h"
 #include "Render/Rendering/Renderer.h"
 
 #include <imgui/imgui.h>
@@ -206,11 +206,17 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             camera = editorCamera;
         }
 
+        TransformComponent* transform = camera->GetOwner()->GetTransform();
+
         camera->SetViewportExtent(
             { .width = viewport.GetTargetExtent().width,
               .height = viewport.GetTargetExtent().height });
 
         request.view = {
+            .cameraPosition = transform ? transform->GetPosition() : Vector3::Zero,
+            .cameraDirection = transform ? transform->GetForward() : Vector3::Forward,
+            .nearPlane = camera ? camera->GetNearPlane() : 0.1f,
+            .farPlane = camera ? camera->GetFarPlane() : 1000.0f,
             .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
             .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity,
             .viewMode = viewport.GetViewMode()
@@ -223,7 +229,13 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             request.scenes.push_back(scene->GetRenderScene());
         }
 
+        TransformComponent* transform = editorCamera->GetOwner()->GetTransform();
+
         request.view = {
+            .cameraPosition = transform ? transform->GetPosition() : Vector3::Zero,
+            .cameraDirection = transform ? transform->GetForward() : Vector3::Forward,
+            .nearPlane = editorCamera ? editorCamera->GetNearPlane() : 0.1f,
+            .farPlane = editorCamera ? editorCamera->GetFarPlane() : 1000.0f,
             .viewMatrix = editorCamera->GetViewMatrix(),
             .projMatrix = editorCamera->GetProjMatrix(),
             .viewMode = viewport.GetViewMode()

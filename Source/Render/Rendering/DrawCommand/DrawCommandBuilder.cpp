@@ -1,13 +1,13 @@
 #include "DrawCommandBuilder.h"
 
-#include "Render/Rendering/Batch/LineBatcher.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/RenderDevice.h"
-#include "Render/Rendering/RenderInfo.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/Batch/LineBatcher.h"
+#include "Render/Rendering/Batch/TextBatcher.h"
+#include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/ResourceManager.h"
-#include "Render/Rendering/Batch/TextBatcher.h"
 
 #include "Core/Type/Types.h"
 
@@ -25,13 +25,9 @@ DrawCommandBuilder::DrawCommandBuilder(AssetSystem& assetSystem, RenderSystem& r
     : assetSystem(assetSystem),
       device(renderSystem.GetDevice()),
       renderer(renderSystem.GetRenderer()),
-      resourceManager(renderSystem.GetResourceManager())
-{
-}
+      resourceManager(renderSystem.GetResourceManager()) {}
 
-DrawCommandBuilder::~DrawCommandBuilder()
-{
-}
+DrawCommandBuilder::~DrawCommandBuilder() = default;
 
 bool DrawCommandBuilder::Initialize()
 {
@@ -155,6 +151,9 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     cmd.pipelineState = stateDesc;
     cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
 
+    drawCmds.push_back(cmd);
+
+    cmd.passId = RenderPassId::Shadow;
     drawCmds.push_back(cmd);
 }
 

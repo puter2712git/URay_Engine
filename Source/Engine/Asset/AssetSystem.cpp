@@ -45,6 +45,7 @@ bool AssetSystem::Initialize(
     Shader* lineShader = factory->CreateShader("Engine://Asset/Source/Shader/Line.hlsl");
     Shader* billboardShader = factory->CreateShader("Engine://Asset/Source/Shader/Billboard.hlsl");
     Shader* fogShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/Fog.hlsl");
+    Shader* shadowShader = factory->CreateShader("Engine://Asset/Source/Shader/Shadow.hlsl");
 
     assets.insert({ spriteShader->GetUUID(), spriteShader });
     assets.insert({ meshShader->GetUUID(), meshShader });
@@ -53,6 +54,7 @@ bool AssetSystem::Initialize(
     assets.insert({ lineShader->GetUUID(), lineShader });
     assets.insert({ billboardShader->GetUUID(), billboardShader });
     assets.insert({ fogShader->GetUUID(), fogShader });
+    assets.insert({ shadowShader->GetUUID(), shadowShader });
 
     return true;
 }

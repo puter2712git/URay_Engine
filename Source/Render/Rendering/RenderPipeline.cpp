@@ -20,6 +20,7 @@
 #include "Render/Rendering/RenderPass/FogPass.h"
 #include "Render/Rendering/RenderPass/OpaquePass.h"
 #include "Render/Rendering/RenderPass/OverlayPass.h"
+#include "Render/Rendering/RenderPass/ShadowPass.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/Rendering/Scene/RenderScene.h"
 
@@ -63,6 +64,7 @@ bool RenderPipeline::Initialize()
         }
     }
 
+    passes.push_back(std::make_unique<ShadowPass>());
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<DecalPass>());
     passes.push_back(std::make_unique<OverlayPass>());
@@ -73,11 +75,8 @@ bool RenderPipeline::Initialize()
 
 void RenderPipeline::Finalize()
 {
-    if (builder)
-    {
-        builder->Finalize();
-        builder.reset();
-    }
+    builder->Finalize();
+    builder.reset();
 }
 
 void RenderPipeline::Reset()
@@ -94,13 +93,13 @@ void RenderPipeline::Execute(const RenderRequest& request)
 {
     FogObject* fog = FindFog(request.scenes);
     AmbientLightObject* ambientLight = FindAmbientLight(request.scenes);
-    DirectionalLightObject* light = FindDirectionalLight(request.scenes);
+    DirectionalLightObject* directionalLight = FindDirectionalLight(request.scenes);
     std::vector<PointLightObject*> pointLights = FindPointLights(request.scenes);
     std::vector<SpotLightObject*> spotLights = FindSpotLights(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
 
-    const RenderView& view = request.view;
+    RenderView view = request.view;
 
     builder->SetViewMode(view.viewMode);
 
@@ -111,8 +110,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
     frameConstants.invProj = view.projMatrix.Inverse();
     frameConstants.viewProj = view.viewMatrix * view.projMatrix;
     frameConstants.invViewProj = frameConstants.viewProj.Inverse();
-    frameConstants.nearPlane = 0.1f;
-    frameConstants.farPlane = 1000.0f;
+    frameConstants.nearPlane = view.nearPlane;
+    frameConstants.farPlane = view.farPlane;
     frameConstants.renderTargetSize = Vector2(
         renderer.GetSceneRenderTarget().GetExtent().width,
         renderer.GetSceneRenderTarget().GetExtent().height);
@@ -123,11 +122,11 @@ void RenderPipeline::Execute(const RenderRequest& request)
         frameConstants.ambientLight.color = Color3(ambientLight->GetColor());
     }
 
-    if (light)
+    if (directionalLight)
     {
-        frameConstants.directionalLight.direction = light->GetDirection();
-        frameConstants.directionalLight.intensity = light->GetIntensity();
-        frameConstants.directionalLight.color = light->GetColor();
+        frameConstants.directionalLight.direction = directionalLight->GetDirection();
+        frameConstants.directionalLight.intensity = directionalLight->GetIntensity();
+        frameConstants.directionalLight.color = directionalLight->GetColor();
     }
 
     std::vector<PointLightConstants> pointLightConstants;
@@ -228,6 +227,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
     const RenderPassContext passContext = {
         .commandBuffer = *renderer.GetFrameResource().commandBuffer,
         .resourceManager = renderSystem.GetResourceManager(),
+        .renderView = view,
         .frameDescriptorSet = *renderer.GetFrameResource().descriptorSet,
 
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
@@ -237,7 +237,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .swapChainImageView = renderer.GetSwapChainImageView(),
         .swapChainExtent = renderer.GetSwapChainExtent(),
 
-        .fogObject = fog
+        .fogObject = fog,
+        .directionalLight = directionalLight
     };
 
     for (auto& pass : passes)
