@@ -98,7 +98,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
 
         descriptorSet->WriteSampledImage(0, textureView);
-        descriptorSet->WriteSampler(1, resourceManager.GetOrCreateTextureSampler({}));
+        descriptorSet->WriteSampler(1, resourceManager.GetOrCreateSampler({}));
 
         cmd.descriptorSets[1] = descriptorSet.get();
 

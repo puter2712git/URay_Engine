@@ -123,6 +123,27 @@ VkImageAspectFlags ToVkImageAspectFlags(Format format)
     }
 }
 
+VkImageViewType ToVkImageViewType(TextureViewType type)
+{
+    switch (type)
+    {
+    case TextureViewType::Texture1D:
+        return VK_IMAGE_VIEW_TYPE_1D;
+    case TextureViewType::Texture2D:
+        return VK_IMAGE_VIEW_TYPE_2D;
+    case TextureViewType::Texture2DArray:
+        return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+    case TextureViewType::Texture3D:
+        return VK_IMAGE_VIEW_TYPE_3D;
+    case TextureViewType::TextureCube:
+        return VK_IMAGE_VIEW_TYPE_CUBE;
+    case TextureViewType::TextureCubeArray:
+        return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+    default:
+        return VK_IMAGE_VIEW_TYPE_2D;
+    }
+}
+
 VkImageLayout ToVkImageLayout(ImageLayout layout)
 {
     switch (layout)
@@ -139,6 +160,8 @@ VkImageLayout ToVkImageLayout(ImageLayout layout)
         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
     case ImageLayout::Present:
         return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    default:
+        return VK_IMAGE_LAYOUT_UNDEFINED;
     }
 }
 
@@ -152,6 +175,8 @@ VkAttachmentLoadOp ToVkLoadOp(LoadOp op)
         return VK_ATTACHMENT_LOAD_OP_CLEAR;
     case LoadOp::DontCare:
         return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    default:
+        return VK_ATTACHMENT_LOAD_OP_NONE;
     }
 }
 
@@ -163,6 +188,8 @@ VkAttachmentStoreOp ToVkStoreOp(StoreOp op)
         return VK_ATTACHMENT_STORE_OP_STORE;
     case StoreOp::DontCare:
         return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    default:
+        return VK_ATTACHMENT_STORE_OP_NONE;
     }
 }
 

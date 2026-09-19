@@ -44,7 +44,7 @@ ResourceManager::~ResourceManager()
     DestroyPipelineLayouts();
     DestroyDescriptorSetLayouts();
     DestroyShaders();
-    DestroyTextureSamplers();
+    DestroySamplers();
     DestroyTextureViews();
     DestroyTextures();
     DestroyMeshBuffers();
@@ -127,7 +127,7 @@ Texture* ResourceManager::GetOrCreateTexture(::URay::Texture* texture)
         .usage = TextureUsage::TransferDst | TextureUsage::Sampled,
     };
 
-    Texture* newTexture = device.CreateTexture(textureDesc);
+    Texture* newTexture = device.CreateTexture(textureDesc, TextureViewDesc{});
     if (!newTexture)
         return nullptr;
 
@@ -185,7 +185,7 @@ void ResourceManager::DestroyTextureViews()
     textureViews.clear();
 }
 
-VkSampler ResourceManager::GetOrCreateTextureSampler(const SamplerDesc& samplerDesc)
+VkSampler ResourceManager::GetOrCreateSampler(const SamplerDesc& samplerDesc)
 {
     auto it = textureSamplers.find(samplerDesc);
     if (it != textureSamplers.end())
@@ -200,7 +200,7 @@ VkSampler ResourceManager::GetOrCreateTextureSampler(const SamplerDesc& samplerD
     return sampler;
 }
 
-void ResourceManager::DestroyTextureSamplers()
+void ResourceManager::DestroySamplers()
 {
     for (auto& [desc, sampler] : textureSamplers)
     {

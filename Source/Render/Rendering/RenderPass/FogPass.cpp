@@ -72,7 +72,7 @@ FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
     samplerDesc.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
 
     sampler = renderSystem.GetResourceManager()
-                  .GetOrCreateTextureSampler(samplerDesc);
+                  .GetOrCreateSampler(samplerDesc);
 
     if (!sampler)
         throw std::runtime_error("Failed to initialize fog pass.");

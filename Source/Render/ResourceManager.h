@@ -52,8 +52,8 @@ public:
     TextureView* GetOrCreateTextureView(Texture* texture);
     void DestroyTextureViews();
 
-    VkSampler GetOrCreateTextureSampler(const SamplerDesc& samplerDesc);
-    void DestroyTextureSamplers();
+    VkSampler GetOrCreateSampler(const SamplerDesc& samplerDesc);
+    void DestroySamplers();
 
     Render::Shader* GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
     void DestroyShaders();

@@ -484,7 +484,7 @@ bool Renderer::CreateFrameResources()
         frameResources[i].descriptorSet->WriteStorageBuffer(2, *frameResources[i].spotLightStorageBuffer);
         frameResources[i].descriptorSet->WriteUniformBuffer(3, *frameResources[i].shadowUniformBuffer);
         frameResources[i].descriptorSet->WriteSampledImage(4, resourceManager.GetShadowSystem().GetDirectionalTarget()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
-        frameResources[i].descriptorSet->WriteSampler(5, resourceManager.GetOrCreateTextureSampler({}));
+        frameResources[i].descriptorSet->WriteSampler(5, resourceManager.GetOrCreateSampler({}));
         frameResources[i].descriptorSet->WriteSampledImage(6, resourceManager.GetShadowSystem().GetShadowAtlasRT()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
         frameResources[i].descriptorSet->WriteStorageBuffer(7, *frameResources[i].spotLightShadowStorageBuffer);
     }

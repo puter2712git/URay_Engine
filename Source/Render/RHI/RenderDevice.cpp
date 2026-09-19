@@ -15,9 +15,8 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
 #include "Render/RHI/SwapChain.h"
-#include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/Sampler.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
@@ -213,7 +212,7 @@ MeshBuffer* RenderDevice::CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBu
     return new MeshBuffer(vertexBuffer, indexBuffer);
 }
 
-Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
+Texture* RenderDevice::CreateTexture(const TextureDesc& desc, const TextureViewDesc& viewDesc)
 {
     if (desc.width == 0 || desc.height == 0)
         return nullptr;
@@ -222,22 +221,52 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
     if (desc.usage == TextureUsage::None)
         return nullptr;
 
-    VkImage image = VK_NULL_HANDLE;
-    VkDeviceMemory imageMemory = VK_NULL_HANDLE;
+    VkImageCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    createInfo.imageType = VK_IMAGE_TYPE_2D;
+    createInfo.extent.width = desc.width;
+    createInfo.extent.height = desc.height;
+    createInfo.extent.depth = desc.depth;
+    createInfo.mipLevels = desc.mipLevels;
+    createInfo.arrayLayers = desc.arrayLayers;
+    createInfo.format = Vulkan::ToVkFormat(desc.format);
+    createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    createInfo.usage = Vulkan::ToVkImageUsageFlags(desc.usage);
+    createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    createInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-    VkFormat format = Vulkan::ToVkFormat(desc.format);
-    VkImageUsageFlags usageFlags = Vulkan::ToVkImageUsageFlags(desc.usage);
+    if (desc.isCubeCompatible)
+        createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 
-    if (!CreateImage(desc.width, desc.height,
-                     format, VK_IMAGE_TILING_OPTIMAL,
-                     usageFlags,
-                     VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                     image, imageMemory))
+    VkImage handle = VK_NULL_HANDLE;
+    VkDeviceMemory memory = VK_NULL_HANDLE;
+
+    if (vkCreateImage(device, &createInfo, nullptr, &handle) != VK_SUCCESS)
+        return nullptr;
+
+    VkMemoryRequirements memoryRequirements = {};
+    vkGetImageMemoryRequirements(device, handle, &memoryRequirements);
+
+    VkMemoryAllocateInfo allocInfo = {};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memoryRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(memoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (vkAllocateMemory(device, &allocInfo, nullptr, &memory) != VK_SUCCESS)
     {
+        vkDestroyImage(device, handle, nullptr);
         return nullptr;
     }
 
-    Texture* newTexture = new Texture(device, image, imageMemory, desc);
+    if (vkBindImageMemory(device, handle, memory, 0) != VK_SUCCESS)
+    {
+        vkFreeMemory(device, memory, nullptr);
+        vkDestroyImage(device, handle, nullptr);
+        return nullptr;
+    }
+
+    Texture* newTexture = new Texture(device, handle, memory, desc, viewDesc);
     return newTexture;
 }
 
@@ -292,15 +321,24 @@ TextureView* RenderDevice::CreateTextureView(Texture* texture)
         return nullptr;
 
     const TextureDesc& textureDesc = texture->GetDesc();
-    VkFormat vkFormat = Vulkan::ToVkFormat(textureDesc.format);
-    VkImageAspectFlags vkAspectFlags = Vulkan::ToVkImageAspectFlags(textureDesc.format);
+    const TextureViewDesc& viewDesc = texture->GetViewDesc();
 
-    VkImageView imageView = CreateImageView(texture->GetHandle(), vkFormat, vkAspectFlags);
+    VkImageViewCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = texture->GetHandle();
+    createInfo.viewType = Vulkan::ToVkImageViewType(viewDesc.type);
+    createInfo.format = Vulkan::ToVkFormat(textureDesc.format);
+    createInfo.subresourceRange.aspectMask = Vulkan::ToVkImageAspectFlags(textureDesc.format);
+    createInfo.subresourceRange.baseMipLevel = viewDesc.baseMipLevel;
+    createInfo.subresourceRange.levelCount = viewDesc.mipLevelCount;
+    createInfo.subresourceRange.baseArrayLayer = viewDesc.baseArrayLayer;
+    createInfo.subresourceRange.layerCount = viewDesc.arrayLayerCount;
 
-    if (imageView == VK_NULL_HANDLE)
+    VkImageView handle = VK_NULL_HANDLE;
+    if (vkCreateImageView(device, &createInfo, nullptr, &handle) != VK_SUCCESS)
         return nullptr;
 
-    TextureView* textureView = new TextureView(device, imageView, texture);
+    TextureView* textureView = new TextureView(device, handle, texture);
     return textureView;
 }
 
@@ -726,56 +764,6 @@ void RenderDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
     vkCmdCopyBuffer(commandBuffer->GetHandle(), srcBuffer, dstBuffer, 1, &copyRegion);
 
     EndSingleTimeCommands(commandBuffer);
-}
-
-bool RenderDevice::CreateImage(uint32 width, uint32 height,
-                               VkFormat format, VkImageTiling tiling,
-                               VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                               VkImage& image, VkDeviceMemory& imageMemory) const
-{
-    VkImageCreateInfo imageInfo = {};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.format = format;
-    imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = usage;
-    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-
-    if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
-        return false;
-
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(device, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo = {};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
-
-    if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
-    {
-        vkDestroyImage(device, image, nullptr);
-        image = VK_NULL_HANDLE;
-        return false;
-    }
-
-    if (vkBindImageMemory(device, image, imageMemory, 0) != VK_SUCCESS)
-    {
-        vkFreeMemory(device, imageMemory, nullptr);
-        vkDestroyImage(device, image, nullptr);
-        imageMemory = VK_NULL_HANDLE;
-        image = VK_NULL_HANDLE;
-        return false;
-    }
-
-    return true;
 }
 
 void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,

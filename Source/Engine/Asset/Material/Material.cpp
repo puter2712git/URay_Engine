@@ -81,7 +81,7 @@ bool Material::Initialize()
         case Render::ResourceType::Sampler:
             for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
             {
-                descriptorSets[i]->WriteSampler(binding.binding, resourceManager.GetOrCreateTextureSampler({}));
+                descriptorSets[i]->WriteSampler(binding.binding, resourceManager.GetOrCreateSampler({}));
             }
             break;
         case Render::ResourceType::SampledImage:

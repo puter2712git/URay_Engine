@@ -10,10 +10,7 @@ TextureView::TextureView(VkDevice device, VkImageView handle, Texture* ref)
 
 TextureView::~TextureView()
 {
-    if (handle)
-    {
-        vkDestroyImageView(device, handle, nullptr);
-    }
+    vkDestroyImageView(device, handle, nullptr);
 }
 
 } // namespace URay::Render

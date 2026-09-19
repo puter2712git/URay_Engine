@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/RHI/Buffer/BufferUsage.h"
 #include "Render/RHI/Attachment/RenderingInfo.h"
+#include "Render/RHI/Buffer/BufferUsage.h"
 
 #include <vulkan/vulkan.h>
 
@@ -21,6 +21,7 @@ VkMemoryPropertyFlags ToVkMemoryProperties(MemoryUsage usage);
 
 VkImageUsageFlags ToVkImageUsageFlags(TextureUsage usage);
 VkImageAspectFlags ToVkImageAspectFlags(Format format);
+VkImageViewType ToVkImageViewType(TextureViewType type);
 
 VkImageLayout ToVkImageLayout(ImageLayout layout);
 

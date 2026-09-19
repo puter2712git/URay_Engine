@@ -56,25 +56,59 @@ constexpr TextureUsage operator&(TextureUsage lhs, TextureUsage rhs)
         static_cast<uint32>(lhs) & static_cast<uint32>(rhs));
 }
 
+enum class TextureDimension : uint8
+{
+    Texture1D,
+    Texture2D,
+    Texture3D
+};
+
+enum class TextureViewType : uint8
+{
+    Texture1D,
+    Texture2D,
+    Texture2DArray,
+    Texture3D,
+    TextureCube,
+    TextureCubeArray
+};
+
 struct TextureDesc
 {
     uint32 width = 0;
     uint32 height = 0;
+    uint32 depth = 1;
+
+    uint32 mipLevels = 1;
+    uint32 arrayLayers = 1;
+
+    TextureDimension dimension = TextureDimension::Texture2D;
+    bool isCubeCompatible = false;
 
     Format format = Format::Unknown;
     TextureUsage usage = TextureUsage::None;
 };
 
+struct TextureViewDesc
+{
+    TextureViewType type = TextureViewType::Texture2D;
+    uint32 baseMipLevel = 0;
+    uint32 mipLevelCount = 1;
+    uint32 baseArrayLayer = 0;
+    uint32 arrayLayerCount = 1;
+};
+
 class Texture
 {
 public:
-    Texture(VkDevice device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc);
+    Texture(VkDevice device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc, const TextureViewDesc& viewDesc);
     ~Texture();
 
 public:
     VkImage GetHandle() const { return handle; }
 
     const TextureDesc& GetDesc() const { return desc; }
+    const TextureViewDesc& GetViewDesc() const { return viewDesc; }
 
 private:
     VkDevice device = VK_NULL_HANDLE;
@@ -83,6 +117,7 @@ private:
     VkDeviceMemory memory = VK_NULL_HANDLE;
 
     TextureDesc desc = {};
+    TextureViewDesc viewDesc = {};
 };
 
 } // namespace URay::Render

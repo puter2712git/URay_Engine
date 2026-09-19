@@ -4,7 +4,6 @@
 #include "Render/RHI/CommandBuffer/ImageBarrier.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 
 #include <array>
@@ -38,7 +37,7 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
         colorDesc.format = desc.color->format;
         colorDesc.usage = desc.color->usage;
 
-        colorTexture.reset(device.CreateTexture(colorDesc));
+        colorTexture.reset(device.CreateTexture(colorDesc, TextureViewDesc{}));
         if (!colorTexture)
             return false;
 
@@ -55,7 +54,7 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
         depthDesc.format = desc.depth->format;
         depthDesc.usage = desc.depth->usage;
 
-        depthTexture.reset(device.CreateTexture(depthDesc));
+        depthTexture.reset(device.CreateTexture(depthDesc, TextureViewDesc{}));
         if (!depthTexture)
             return false;
 

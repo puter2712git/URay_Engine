@@ -43,6 +43,7 @@ struct UniformBufferDesc;
 struct StorageBufferDesc;
 struct BufferDesc;
 struct TextureDesc;
+struct TextureViewDesc;
 struct SamplerDesc;
 struct DescriptorSetLayoutDesc;
 struct PipelineLayoutDesc;
@@ -81,7 +82,7 @@ public:
 
     MeshBuffer* CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer);
 
-    Texture* CreateTexture(const TextureDesc& desc);
+    Texture* CreateTexture(const TextureDesc& desc, const TextureViewDesc& viewDesc);
     bool UploadTextureData(Texture* texture, std::span<const uint8> pixelData);
     TextureView* CreateTextureView(Texture* texture);
     VkSampler CreateTextureSampler(const SamplerDesc& samplerDesc);
@@ -102,10 +103,6 @@ public:
                       VkBuffer& buffer, VkDeviceMemory& bufferMemory) const;
     void CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const;
 
-    bool CreateImage(uint32 width, uint32 height,
-                     VkFormat format, VkImageTiling tiling,
-                     VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                     VkImage& image, VkDeviceMemory& imageMemory) const;
     void TransitionImageLayout(VkImage image, VkFormat format,
                                VkImageLayout oldLayout, VkImageLayout newLayout) const;
     void CopyBufferToImage(VkBuffer buffer, VkImage image,
