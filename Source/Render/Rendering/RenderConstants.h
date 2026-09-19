@@ -5,6 +5,7 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
+#include "Core/Math/Vector4.h"
 #include "Core/Type/Types.h"
 
 namespace URay::Render
@@ -50,6 +51,15 @@ struct SpotLightConstants
     float innerConeAngle = 0.0f;
 
     float outerConeAngle = 0.0f;
+
+    uint32 shadowIndex = UINT32_MAX;
+    float padding[2];
+};
+
+struct ShadowConstants
+{
+    Matrix lightViewProj = Matrix::Identity;
+    float bias = 0.0f;
     float padding[3];
 };
 
@@ -69,9 +79,16 @@ struct FrameConstants
     DirectionalLightConstants directionalLight = {};
 };
 
-struct ShadowConstants
+struct ShadowMapConstants
+{
+    Matrix world = Matrix::Identity;
+    Matrix lightViewProj = Matrix::Identity;
+};
+
+struct SpotLightShadowConstants
 {
     Matrix lightViewProj = Matrix::Identity;
+    Vector4 altasUVScaleBias = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
     float bias = 0.0f;
     float padding[3];
 };

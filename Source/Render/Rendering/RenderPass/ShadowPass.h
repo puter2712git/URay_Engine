@@ -33,6 +33,10 @@ public:
     RenderPassId GetPassId() const override { return RenderPassId::Shadow; }
 
 private:
+    void RecordDirectionalDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
+    void RecordSpotLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
+
+private:
     URay::Shader* shadowShaderAsset = nullptr;
     Shader* shadowShader = nullptr;
 };

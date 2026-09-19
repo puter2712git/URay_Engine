@@ -6,6 +6,7 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Texture/Texture.h"
+#include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/RenderConstants.h"
 #include "Render/ResourceManager.h"
 
@@ -54,7 +55,7 @@ void OverlayPass::Execute(
 
         commandBuffer.BindDescriptorSet(
             *pso->GetLayout(),
-            context.frameDescriptorSet,
+            *context.frameResource.descriptorSet,
             0);
 
         if (cmd.descriptorSets[1])

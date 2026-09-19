@@ -471,6 +471,13 @@ bool Renderer::CreateFrameResources()
 
         frameResources[i].shadowUniformBuffer.reset(device.CreateUniformBuffer(shadowUniformBufferDesc));
 
+        StorageBufferDesc spotLightShadowStorageBufferDesc = {
+            .elementCapacity = 256,
+            .elementStride = sizeof(SpotLightShadowConstants),
+            .memoryUsage = MemoryUsage::CpuToGpu
+        };
+        frameResources[i].spotLightShadowStorageBuffer.reset(device.CreateStorageBuffer(spotLightShadowStorageBufferDesc));
+
         frameResources[i].descriptorSet.reset(device.CreateDescriptorSet(frameDescriptorSetLayout.get()));
         frameResources[i].descriptorSet->WriteUniformBuffer(0, *frameResources[i].uniformBuffer);
         frameResources[i].descriptorSet->WriteStorageBuffer(1, *frameResources[i].pointLightStorageBuffer);
@@ -478,6 +485,8 @@ bool Renderer::CreateFrameResources()
         frameResources[i].descriptorSet->WriteUniformBuffer(3, *frameResources[i].shadowUniformBuffer);
         frameResources[i].descriptorSet->WriteSampledImage(4, resourceManager.GetShadowSystem().GetDirectionalTarget()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
         frameResources[i].descriptorSet->WriteSampler(5, resourceManager.GetOrCreateTextureSampler({}));
+        frameResources[i].descriptorSet->WriteSampledImage(6, resourceManager.GetShadowSystem().GetShadowAtlasRT()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
+        frameResources[i].descriptorSet->WriteStorageBuffer(7, *frameResources[i].spotLightShadowStorageBuffer);
     }
 
     return true;
@@ -489,6 +498,7 @@ void Renderer::DestroyFrameResources()
     {
         frameResources[i].descriptorSet.reset();
 
+        frameResources[i].spotLightShadowStorageBuffer.reset();
         frameResources[i].shadowUniformBuffer.reset();
         frameResources[i].spotLightStorageBuffer.reset();
         frameResources[i].pointLightStorageBuffer.reset();

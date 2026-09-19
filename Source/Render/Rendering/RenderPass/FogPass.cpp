@@ -11,6 +11,7 @@
 #include "Render/RHI/Texture/TextureSampler.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/Object/FogObject.h"
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/ResourceManager.h"
@@ -166,7 +167,7 @@ void FogPass::Execute(
     commandBuffer.BindPipeline(*pso);
     commandBuffer.BindDescriptorSet(
         *pso->GetLayout(),
-        context.frameDescriptorSet,
+        *context.frameResource.descriptorSet,
         0);
     commandBuffer.BindDescriptorSet(
         *pso->GetLayout(),

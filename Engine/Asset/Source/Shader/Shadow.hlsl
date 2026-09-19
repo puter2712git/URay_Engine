@@ -1,6 +1,11 @@
-#include "Common/ObjectConstants.hlsli"
 #include "Common/FrameConstants.hlsli"
-#include "Common/ShadowConstants.hlsli"
+
+struct ShadowMapConstants
+{
+    float4x4 world;
+    float4x4 lightViewProj;
+};
+[[vk::push_constant]] ShadowMapConstants shadowMap;
 
 struct ShadowVertexIn
 {
@@ -16,9 +21,9 @@ ShadowVertexOut VSMain(ShadowVertexIn input)
 {
     ShadowVertexOut output;
     
-    const float4 worldPosition = mul(obj.world, float4(input.inPosition, 1.0));
+    const float4 worldPosition = mul(shadowMap.world, float4(input.inPosition, 1.0));
 
-    output.outPosition = mul(shadow.lightViewProj, worldPosition);
+    output.outPosition = mul(shadowMap.lightViewProj, worldPosition);
     
     return output;
 }

@@ -13,7 +13,7 @@
 
 float GetDirectionalShadowVisibility(float3 worldPosition, float3 normal)
 {
-    float4 lightClip = mul(shadow.lightViewProj, float4(worldPosition, 1.0));
+    float4 lightClip = mul(directionalShadow.lightViewProj, float4(worldPosition, 1.0));
     float3 lightNdc = lightClip.xyz / max(lightClip.w, 1e-6);
 
     float2 shadowUV = float2(lightNdc.x * 0.5 + 0.5, 0.5 - lightNdc.y * 0.5);
@@ -26,7 +26,32 @@ float GetDirectionalShadowVisibility(float3 worldPosition, float3 normal)
 
     float depth = directionalShadowDepth.SampleLevel(directionalShadowSampler, shadowUV, 0);
 
-    return lightNdc.z > depth + shadow.bias ? 0.0 : 1.0;
+    return lightNdc.z > depth + directionalShadow.bias ? 0.0 : 1.0;
+}
+
+float GetSpotShadowVisibility(SpotLight light, float3 worldPosition)
+{
+    if (light.shadowIndex == 0xffffffffu)
+        return 1.0;
+        
+    SpotLightShadowConstants shadow = spotLightShadows[light.shadowIndex];
+    
+    float4 clip = mul(shadow.lightViewProj, float4(worldPosition, 1.0));
+    float3 ndc = clip.xyz / max(clip.w, 1e-6);
+    
+    float2 localUV = float2(ndc.x * 0.5 + 0.5, 0.5 - ndc.y * 0.5);
+    
+    if (any(localUV < 0.0) || any(localUV > 1.0) ||
+        ndc.z < 0.0 || ndc.z > 1.0)
+    {
+        return 1.0;
+    }
+    
+    float2 atlasUV = localUV * shadow.atlasUVScaleBias.xy + shadow.atlasUVScaleBias.zw;
+    
+    float depth = shadowAtlas.SampleLevel(directionalShadowSampler, atlasUV, 0);
+    
+    return ndc.z > depth + shadow.bias ? 0.0 : 1.0;
 }
 
 float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
@@ -44,7 +69,8 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
    
     for (uint i = 0; i < 256; ++i)
     {
-        lighting += EvaluateSpot(spotLights[i], worldPosition, normal);
+        float spotShadow = GetSpotShadowVisibility(spotLights[i], worldPosition);
+        lighting += EvaluateSpot(spotLights[i], worldPosition, normal) * spotShadow;
     }
     
     return albedo * lighting;

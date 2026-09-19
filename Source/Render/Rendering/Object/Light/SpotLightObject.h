@@ -17,6 +17,7 @@ struct SpotLightObjectState
     float outerConeAngle = 0.0f;
     float intensity = 0.0f;
     Color color = Color::White;
+    float bias = 0.0f;
 };
 
 class SpotLightObject : public RenderObject
@@ -35,6 +36,7 @@ public:
     float GetOuterConeAngle() const { return state.outerConeAngle; }
     float GetIntensity() const { return state.intensity; }
     const Color& GetColor() const { return state.color; }
+    float GetBias() const { return state.bias; }
 
 private:
     SpotLightObjectState state;

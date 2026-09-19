@@ -149,7 +149,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .intensity = spotLights[i]->GetIntensity(),
             .color = Color3(spotLights[i]->GetColor()),
             .innerConeAngle = Math::DegToRad(spotLights[i]->GetInnerConeAngle() * 0.5f),
-            .outerConeAngle = Math::DegToRad(spotLights[i]->GetOuterConeAngle() * 0.5f) });
+            .outerConeAngle = Math::DegToRad(spotLights[i]->GetOuterConeAngle() * 0.5f),
+            .shadowIndex = static_cast<uint32>(i) });
     }
 
     renderer.GetFrameResource().uniformBuffer->Update(&frameConstants, sizeof(FrameConstants));
@@ -229,8 +230,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .resourceManager = renderSystem.GetResourceManager(),
         .renderView = view,
 
-        .frameDescriptorSet = *renderer.GetFrameResource().descriptorSet,
-        .shadowUniformBuffer = *renderer.GetFrameResource().shadowUniformBuffer,
+        .frameResource = renderer.GetFrameResource(),
 
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
         .postProcessRenderTarget = renderer.GetPostProcessRenderTarget(),
@@ -240,7 +240,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .swapChainExtent = renderer.GetSwapChainExtent(),
 
         .fogObject = fog,
-        .directionalLight = directionalLight
+        .directionalLight = directionalLight,
+        .spotLights = spotLights
     };
 
     for (auto& pass : passes)

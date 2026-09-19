@@ -19,7 +19,9 @@ class RenderTarget;
 class Framebuffer;
 class FogObject;
 class DirectionalLightObject;
+class SpotLightObject;
 struct RenderView;
+struct FrameResource;
 
 struct RenderPassContext
 {
@@ -29,8 +31,7 @@ struct RenderPassContext
 
     RenderView& renderView;
 
-    DescriptorSet& frameDescriptorSet;
-    Buffer& shadowUniformBuffer;
+    FrameResource& frameResource;
 
     RenderTarget& sceneRenderTarget;
     RenderTarget& postProcessRenderTarget;
@@ -41,6 +42,7 @@ struct RenderPassContext
 
     FogObject* fogObject = nullptr;
     DirectionalLightObject* directionalLight = nullptr;
+    std::vector<SpotLightObject*>& spotLights;
 };
 
 class RenderPass

@@ -31,7 +31,8 @@ struct SpotLight
     float3 color;
     float innerConeAngle;
     float outerConeAngle;
-    float3 padding;
+    uint shadowIndex;
+    float2 padding;
 };
 
 [[vk::binding(1, 0)]]
