@@ -35,6 +35,7 @@ class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
 class ShadowSystem;
+struct TextureViewDesc;
 
 class ResourceManager
 {
@@ -49,7 +50,7 @@ public:
     Texture* GetOrCreateTexture(URay::Texture* texture);
     void DestroyTextures();
 
-    TextureView* GetOrCreateTextureView(Texture* texture);
+    TextureView* GetOrCreateTextureView(Texture* texture, const TextureViewDesc& desc);
     void DestroyTextureViews();
 
     VkSampler GetOrCreateSampler(const SamplerDesc& samplerDesc);

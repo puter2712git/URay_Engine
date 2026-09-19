@@ -127,7 +127,7 @@ Texture* ResourceManager::GetOrCreateTexture(::URay::Texture* texture)
         .usage = TextureUsage::TransferDst | TextureUsage::Sampled,
     };
 
-    Texture* newTexture = device.CreateTexture(textureDesc, TextureViewDesc{});
+    Texture* newTexture = device.CreateTexture(textureDesc);
     if (!newTexture)
         return nullptr;
 
@@ -157,13 +157,13 @@ void ResourceManager::DestroyTextures()
     textures.clear();
 }
 
-TextureView* ResourceManager::GetOrCreateTextureView(Texture* texture)
+TextureView* ResourceManager::GetOrCreateTextureView(Texture* texture, const TextureViewDesc& desc)
 {
     auto it = textureViews.find(texture);
     if (it != textureViews.end())
         return it->second;
 
-    TextureView* textureView = device.CreateTextureView(texture);
+    TextureView* textureView = device.CreateTextureView(texture, desc);
     if (!textureView)
         return nullptr;
 

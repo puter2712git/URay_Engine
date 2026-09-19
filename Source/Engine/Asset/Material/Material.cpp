@@ -10,11 +10,11 @@
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
-#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/Sampler.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
-#include "Render/Rendering/RenderInfo.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/RenderInfo.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
@@ -87,13 +87,11 @@ bool Material::Initialize()
         case Render::ResourceType::SampledImage:
         {
             Texture* whiteTexture = assetSystem.GetDefaultAssets().whiteTexture;
-            Render::Texture* renderTexture =
-                resourceManager.GetOrCreateTexture(whiteTexture);
+            Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(whiteTexture);
             if (!renderTexture)
                 return false;
 
-            Render::TextureView* textureView =
-                resourceManager.GetOrCreateTextureView(renderTexture);
+            Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(renderTexture, Render::TextureViewDesc{});
             if (!textureView)
                 return false;
 
@@ -162,7 +160,7 @@ void Material::SetTexture(const std::string& name, Texture* texture)
     Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
 
     Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(texture);
-    Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(renderTexture);
+    Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(renderTexture, Render::TextureViewDesc{});
 
     for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
     {

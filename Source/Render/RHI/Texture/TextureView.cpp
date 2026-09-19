@@ -3,8 +3,8 @@
 namespace URay::Render
 {
 
-TextureView::TextureView(VkDevice device, VkImageView handle, Texture* ref)
-    : device(device), handle(handle), refTexture(ref)
+TextureView::TextureView(VkDevice device, VkImageView handle, Texture* ref, const TextureViewDesc& viewDesc)
+    : device(device), handle(handle), refTexture(ref), desc(viewDesc)
 {
 }
 

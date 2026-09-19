@@ -2,6 +2,7 @@
 
 #include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/Buffer/BufferUsage.h"
+#include "Render/RHI/Texture/TextureView.h"
 
 #include <vulkan/vulkan.h>
 

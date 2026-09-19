@@ -37,11 +37,11 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
         colorDesc.format = desc.color->format;
         colorDesc.usage = desc.color->usage;
 
-        colorTexture.reset(device.CreateTexture(colorDesc, TextureViewDesc{}));
+        colorTexture.reset(device.CreateTexture(colorDesc));
         if (!colorTexture)
             return false;
 
-        colorView.reset(device.CreateTextureView(colorTexture.get()));
+        colorView.reset(device.CreateTextureView(colorTexture.get(), TextureViewDesc{}));
         if (!colorView)
             return false;
     }
@@ -54,11 +54,11 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
         depthDesc.format = desc.depth->format;
         depthDesc.usage = desc.depth->usage;
 
-        depthTexture.reset(device.CreateTexture(depthDesc, TextureViewDesc{}));
+        depthTexture.reset(device.CreateTexture(depthDesc));
         if (!depthTexture)
             return false;
 
-        depthView.reset(device.CreateTextureView(depthTexture.get()));
+        depthView.reset(device.CreateTextureView(depthTexture.get(), TextureViewDesc{}));
         if (!depthView)
             return false;
     }

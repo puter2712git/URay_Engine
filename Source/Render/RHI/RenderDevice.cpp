@@ -212,7 +212,7 @@ MeshBuffer* RenderDevice::CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBu
     return new MeshBuffer(vertexBuffer, indexBuffer);
 }
 
-Texture* RenderDevice::CreateTexture(const TextureDesc& desc, const TextureViewDesc& viewDesc)
+Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
 {
     if (desc.width == 0 || desc.height == 0)
         return nullptr;
@@ -266,7 +266,7 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc, const TextureViewD
         return nullptr;
     }
 
-    Texture* newTexture = new Texture(device, handle, memory, desc, viewDesc);
+    Texture* newTexture = new Texture(device, handle, memory, desc);
     return newTexture;
 }
 
@@ -315,13 +315,12 @@ bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pi
     return true;
 }
 
-TextureView* RenderDevice::CreateTextureView(Texture* texture)
+TextureView* RenderDevice::CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc)
 {
     if (!texture)
         return nullptr;
 
     const TextureDesc& textureDesc = texture->GetDesc();
-    const TextureViewDesc& viewDesc = texture->GetViewDesc();
 
     VkImageViewCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -338,7 +337,7 @@ TextureView* RenderDevice::CreateTextureView(Texture* texture)
     if (vkCreateImageView(device, &createInfo, nullptr, &handle) != VK_SUCCESS)
         return nullptr;
 
-    TextureView* textureView = new TextureView(device, handle, texture);
+    TextureView* textureView = new TextureView(device, handle, texture, viewDesc);
     return textureView;
 }
 

@@ -82,9 +82,9 @@ public:
 
     MeshBuffer* CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer);
 
-    Texture* CreateTexture(const TextureDesc& desc, const TextureViewDesc& viewDesc);
+    Texture* CreateTexture(const TextureDesc& desc);
     bool UploadTextureData(Texture* texture, std::span<const uint8> pixelData);
-    TextureView* CreateTextureView(Texture* texture);
+    TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc);
     VkSampler CreateTextureSampler(const SamplerDesc& samplerDesc);
 
     DescriptorSetLayout* CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);

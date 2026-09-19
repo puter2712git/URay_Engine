@@ -5,6 +5,9 @@
 			"name": "Sandbox-Debug",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/Build/Sandbox-Debug",
+			"environment": {
+				"VSLANG": "1033"
+			},
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Debug",
 				"CMAKE_EXPORT_COMPILER_COMMANDS": "ON"
@@ -14,6 +17,9 @@
 			"name": "Sandbox-Release",
 			"generator": "Ninja",
 			"binaryDir": "${sourceDir}/Build/Sandbox-Release",
+			"environment": {
+				"VSLANG": "1033"
+			},
 			"cacheVariables": {
 				"CMAKE_BUILD_TYPE": "Release",
 				"CMAKE_EXPORT_COMPILER_COMMANDS": "ON"

@@ -1,11 +1,12 @@
 #include "Render/Rendering/Batch/TextBatcher.h"
 
-#include "Render/Rendering/DrawCommand/DrawCommandContext.h"
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Texture/TextureView.h"
+#include "Render/Rendering/DrawCommand/DrawCommandContext.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
@@ -95,7 +96,7 @@ std::vector<DrawCommand> TextBatcher::Flush()
         cmd.pipelineState = psoDesc;
 
         Texture* texture = resourceManager.GetOrCreateTexture(font->GetBitmapTexture());
-        TextureView* textureView = resourceManager.GetOrCreateTextureView(texture);
+        TextureView* textureView = resourceManager.GetOrCreateTextureView(texture, TextureViewDesc{});
 
         descriptorSet->WriteSampledImage(0, textureView);
         descriptorSet->WriteSampler(1, resourceManager.GetOrCreateSampler({}));
