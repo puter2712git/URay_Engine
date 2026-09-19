@@ -159,7 +159,12 @@ void ResourceManager::DestroyTextures()
 
 TextureView* ResourceManager::GetOrCreateTextureView(Texture* texture, const TextureViewDesc& desc)
 {
-    auto it = textureViews.find(texture);
+    const TextureViewKey key = {
+        .texture = texture,
+        .desc = desc
+    };
+
+    auto it = textureViews.find(key);
     if (it != textureViews.end())
         return it->second;
 
@@ -167,7 +172,7 @@ TextureView* ResourceManager::GetOrCreateTextureView(Texture* texture, const Tex
     if (!textureView)
         return nullptr;
 
-    textureViews.insert({ texture, textureView });
+    textureViews.insert({ key, textureView });
     return textureView;
 }
 

@@ -4,6 +4,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <functional>
+
 namespace URay::Render
 {
 
@@ -26,6 +28,49 @@ struct TextureViewDesc
     uint32 mipLevelCount = 1;
     uint32 baseArrayLayer = 0;
     uint32 arrayLayerCount = 1;
+
+    bool operator==(const TextureViewDesc&) const = default;
+};
+
+struct TextureViewDescHash
+{
+    size_t operator()(const TextureViewDesc& desc) const noexcept
+    {
+        size_t hash = 0;
+
+        auto combine = [&hash](uint32 value)
+        {
+            const size_t valueHash = std::hash<uint32>{}(value);
+            hash ^= valueHash + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        };
+
+        combine(static_cast<uint32>(desc.type));
+        combine(desc.baseMipLevel);
+        combine(desc.mipLevelCount);
+        combine(desc.baseArrayLayer);
+        combine(desc.arrayLayerCount);
+        return hash;
+    }
+};
+
+struct TextureViewKey
+{
+    Texture* texture = nullptr;
+    TextureViewDesc desc = {};
+
+    bool operator==(const TextureViewKey&) const = default;
+};
+
+struct TextureViewKeyHash
+{
+    size_t operator()(const TextureViewKey& key) const noexcept
+    {
+        size_t hash = std::hash<Texture*>{}(key.texture);
+        const size_t descHash = TextureViewDescHash{}(key.desc);
+
+        hash ^= descHash + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        return hash;
+    }
 };
 
 class TextureView

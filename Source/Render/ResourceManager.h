@@ -4,6 +4,7 @@
 #include "Render/RHI/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
 #include "Render/RHI/Texture/Sampler.h"
+#include "Render/RHI/Texture/TextureView.h"
 #include "Render/Shader/Reflection/ShaderReflector.h"
 #include "Render/Shader/ShaderCompiler.h"
 #include "Render/Shader/ShaderDefine.h"
@@ -29,13 +30,11 @@ namespace URay::Render
 class RenderDevice;
 class MeshBuffer;
 class Texture;
-class TextureView;
 class Shader;
 class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
 class ShadowSystem;
-struct TextureViewDesc;
 
 class ResourceManager
 {
@@ -81,7 +80,7 @@ private:
     std::unordered_map<::URay::Mesh*, MeshBuffer*> meshBuffers;
 
     std::unordered_map<::URay::Texture*, Texture*> textures;
-    std::unordered_map<Texture*, TextureView*> textureViews;
+    std::unordered_map<TextureViewKey, TextureView*, TextureViewKeyHash> textureViews;
     std::unordered_map<SamplerDesc, VkSampler, SamplerDescHash> textureSamplers;
 
     std::unordered_map<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
