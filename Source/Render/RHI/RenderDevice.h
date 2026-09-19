@@ -43,7 +43,7 @@ struct UniformBufferDesc;
 struct StorageBufferDesc;
 struct BufferDesc;
 struct TextureDesc;
-struct TextureSamplerDesc;
+struct SamplerDesc;
 struct DescriptorSetLayoutDesc;
 struct PipelineLayoutDesc;
 struct PipelineStateDesc;
@@ -84,7 +84,7 @@ public:
     Texture* CreateTexture(const TextureDesc& desc);
     bool UploadTextureData(Texture* texture, std::span<const uint8> pixelData);
     TextureView* CreateTextureView(Texture* texture);
-    VkSampler CreateTextureSampler(const TextureSamplerDesc& samplerDesc);
+    VkSampler CreateTextureSampler(const SamplerDesc& samplerDesc);
 
     DescriptorSetLayout* CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
     DescriptorSet* CreateDescriptorSet(DescriptorSetLayout* layout);

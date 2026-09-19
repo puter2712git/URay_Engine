@@ -11,7 +11,7 @@
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/TextureSampler.h"
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/RenderSystem.h"

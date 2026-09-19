@@ -17,7 +17,7 @@
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureDesc.h"
-#include "Render/RHI/Texture/TextureSampler.h"
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
@@ -304,7 +304,7 @@ TextureView* RenderDevice::CreateTextureView(Texture* texture)
     return textureView;
 }
 
-VkSampler RenderDevice::CreateTextureSampler(const TextureSamplerDesc& samplerDesc)
+VkSampler RenderDevice::CreateTextureSampler(const SamplerDesc& samplerDesc)
 {
     VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;

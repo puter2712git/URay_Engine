@@ -8,7 +8,7 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/RenderTarget.h"
-#include "Render/RHI/Texture/TextureSampler.h"
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/FrameResource.h"
@@ -64,7 +64,7 @@ FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
         uniformBuffers[i].reset(uniformBuffer);
     }
 
-    TextureSamplerDesc samplerDesc = {};
+    SamplerDesc samplerDesc = {};
     samplerDesc.minFilter = VK_FILTER_LINEAR;
     samplerDesc.magFilter = VK_FILTER_LINEAR;
     samplerDesc.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;

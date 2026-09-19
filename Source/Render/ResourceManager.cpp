@@ -185,7 +185,7 @@ void ResourceManager::DestroyTextureViews()
     textureViews.clear();
 }
 
-VkSampler ResourceManager::GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc)
+VkSampler ResourceManager::GetOrCreateTextureSampler(const SamplerDesc& samplerDesc)
 {
     auto it = textureSamplers.find(samplerDesc);
     if (it != textureSamplers.end())

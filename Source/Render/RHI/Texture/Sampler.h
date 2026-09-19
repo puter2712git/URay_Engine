@@ -7,7 +7,7 @@
 namespace URay::Render
 {
 
-struct TextureSamplerDesc
+struct SamplerDesc
 {
     VkFilter magFilter = VK_FILTER_LINEAR;
     VkFilter minFilter = VK_FILTER_LINEAR;
@@ -16,12 +16,12 @@ struct TextureSamplerDesc
     VkSamplerAddressMode addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     VkSamplerAddressMode addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 
-    bool operator==(const TextureSamplerDesc&) const = default;
+    bool operator==(const SamplerDesc&) const = default;
 };
 
-struct TextureSamplerDescHash
+struct SamplerDescHash
 {
-    size_t operator()(const TextureSamplerDesc& desc) const
+    size_t operator()(const SamplerDesc& desc) const
     {
         size_t hash = std::hash<VkFilter>{}(desc.magFilter);
 

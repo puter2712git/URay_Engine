@@ -3,7 +3,7 @@
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/PipelineLayout/PipelineLayoutDesc.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
-#include "Render/RHI/Texture/TextureSampler.h"
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/Shader/Reflection/ShaderReflector.h"
 #include "Render/Shader/ShaderCompiler.h"
 #include "Render/Shader/ShaderDefine.h"
@@ -52,7 +52,7 @@ public:
     TextureView* GetOrCreateTextureView(Texture* texture);
     void DestroyTextureViews();
 
-    VkSampler GetOrCreateTextureSampler(const TextureSamplerDesc& samplerDesc);
+    VkSampler GetOrCreateTextureSampler(const SamplerDesc& samplerDesc);
     void DestroyTextureSamplers();
 
     Render::Shader* GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
@@ -81,7 +81,7 @@ private:
 
     std::unordered_map<::URay::Texture*, Texture*> textures;
     std::unordered_map<Texture*, TextureView*> textureViews;
-    std::unordered_map<TextureSamplerDesc, VkSampler, TextureSamplerDescHash> textureSamplers;
+    std::unordered_map<SamplerDesc, VkSampler, SamplerDescHash> textureSamplers;
 
     std::unordered_map<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 
