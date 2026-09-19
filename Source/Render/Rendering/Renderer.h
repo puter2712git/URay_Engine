@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/Rendering/DrawCommand/DrawCommand.h"
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/RenderInfo.h"

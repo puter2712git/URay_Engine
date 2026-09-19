@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/RHI/Buffer/BufferUsage.h"
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Attachment/RenderingInfo.h"
 
 #include <vulkan/vulkan.h>
 

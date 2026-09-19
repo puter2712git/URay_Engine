@@ -4,7 +4,7 @@
 #include "Render/RHI/CommandBuffer/ImageBarrier.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 
 #include <array>

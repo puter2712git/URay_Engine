@@ -4,7 +4,7 @@
 #include "DepthStencilState.h"
 #include "PrimitiveTopology.h"
 #include "RasterizerState.h"
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/Vertex.h"
 
 #include <functional>

@@ -13,7 +13,7 @@
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"

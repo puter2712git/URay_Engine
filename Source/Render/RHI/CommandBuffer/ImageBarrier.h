@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/Texture.h"
 
 #include <vulkan/vulkan.h>
 

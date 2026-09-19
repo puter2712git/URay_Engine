@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/RHI/Texture/TextureDesc.h"
+#include "Render/RHI/Texture/Texture.h"
 
 #include "Core/Math/Color.h"
 
@@ -10,6 +10,19 @@
 
 namespace URay::Render
 {
+
+enum class LoadOp : uint8
+{
+    Load,
+    Clear,
+    DontCare
+};
+
+enum class StoreOp : uint8
+{
+    Store,
+    DontCare
+};
 
 struct RenderingAttachmentInfo
 {
