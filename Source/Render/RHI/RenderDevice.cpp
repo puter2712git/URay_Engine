@@ -1025,6 +1025,7 @@ bool RenderDevice::CreateLogicalDevice()
 
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceFeatures.samplerAnisotropy = VK_TRUE;
+    deviceFeatures.imageCubeArray = VK_TRUE;
 
     VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
     dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
@@ -1091,7 +1092,8 @@ bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
     const bool supportsDynamicRendering = dynamicRenderingFeatures.dynamicRendering == VK_TRUE;
     const bool supportsSynchronization = synchronizationFeatures.synchronization2 == VK_TRUE;
 
-    return indices.IsComplete() && extensionsSupported && swapChainAdequate && features.features.samplerAnisotropy &&
+    return indices.IsComplete() && extensionsSupported && swapChainAdequate &&
+           features.features.samplerAnisotropy && features.features.imageCubeArray &&
            supportsDynamicRendering && supportsSynchronization;
 }
 
