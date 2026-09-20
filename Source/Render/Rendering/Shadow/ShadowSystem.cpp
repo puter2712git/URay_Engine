@@ -2,6 +2,8 @@
 
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/RenderTarget.h"
+#include "Render/RHI/Texture/Texture.h"
+#include "Render/RHI/Texture/TextureView.h"
 
 namespace URay::Render
 {
@@ -34,6 +36,52 @@ bool ShadowSystem::Initialize()
     if (!shadowAtlasRT)
         return false;
 
+    constexpr uint32 maxPointLightCount = 16; // TODO: Fix later
+
+    const TextureDesc textureCubeDesc = {
+        .width = 1024,
+        .height = 1024,
+        .arrayLayers = maxPointLightCount * 6,
+        .isCubeCompatible = true,
+        .format = Format::D32_Float,
+        .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
+    };
+
+    depthTextureCubeArray.reset(device.CreateTexture(textureCubeDesc));
+    if (!depthTextureCubeArray)
+        return false;
+
+    const TextureViewDesc samplingDesc = {
+        .type = TextureViewType::TextureCubeArray,
+        .baseMipLevel = 0,
+        .mipLevelCount = 1,
+        .baseArrayLayer = 0,
+        .arrayLayerCount = maxPointLightCount * 6
+    };
+
+    pointShadowSamplingView.reset(device.CreateTextureView(depthTextureCubeArray.get(), samplingDesc));
+    if (!pointShadowSamplingView)
+        return false;
+
+    pointShadowFaceViews.reserve(maxPointLightCount * 6);
+    for (uint32 lightIndex = 0; lightIndex < maxPointLightCount; ++lightIndex)
+    {
+        for (uint32 faceIndex = 0; faceIndex < 6; ++faceIndex)
+        {
+            const TextureViewDesc faceViewDesc = {
+                .type = TextureViewType::Texture2D,
+                .baseMipLevel = 0,
+                .mipLevelCount = 1,
+                .baseArrayLayer = lightIndex * 6 + faceIndex,
+                .arrayLayerCount = 1
+            };
+
+            pointShadowFaceViews.push_back(
+                std::unique_ptr<TextureView>(
+                    device.CreateTextureView(depthTextureCubeArray.get(), faceViewDesc)));
+        }
+    }
+
     return true;
 }
 
@@ -41,6 +89,9 @@ void ShadowSystem::Finalize()
 {
     ClearEntries();
 
+    pointShadowFaceViews.clear();
+    pointShadowSamplingView.reset();
+    depthTextureCubeArray.reset();
     shadowAtlasRT.reset();
     directionalRenderTarget.reset();
 }
@@ -95,6 +146,41 @@ void ShadowSystem::ReleaseEntry(SpotLightObject* object)
 void ShadowSystem::ClearEntries()
 {
     allocatedSpotLights.clear();
+}
+
+std::optional<uint32> ShadowSystem::GetOrAllocatePointShadowIndex(PointLightObject* object)
+{
+    for (uint32 i = 0; i < allocatedPointLights.size(); ++i)
+    {
+        if (object != allocatedPointLights[i])
+            continue;
+
+        return i;
+    }
+
+    if (allocatedPointLights.size() >= 16)
+        return std::nullopt;
+
+    uint32 newIndex = allocatedPointLights.size();
+    allocatedPointLights.push_back(object);
+
+    return newIndex;
+}
+
+void ShadowSystem::ReleasePointLightEntry(PointLightObject* object)
+{
+    allocatedPointLights.erase(
+        std::remove_if(allocatedPointLights.begin(), allocatedPointLights.end(),
+                       [&](PointLightObject* obj)
+                       {
+                           return object == obj;
+                       }),
+        allocatedPointLights.end());
+}
+
+void ShadowSystem::ClearPointLightEntries()
+{
+    allocatedPointLights.clear();
 }
 
 } // namespace URay::Render

@@ -13,6 +13,7 @@
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/Object/Light/DirectionalLightObject.h"
+#include "Render/Rendering/Object/Light/PointLightObject.h"
 #include "Render/Rendering/Object/Light/SpotLightObject.h"
 #include "Render/Rendering/RenderConstants.h"
 #include "Render/Rendering/RenderInfo.h"
@@ -65,6 +66,7 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
 {
     RecordDirectionalDepth(context, drawCmds);
     RecordSpotLightsDepth(context, drawCmds);
+    RecordPointLightsDepth(context, drawCmds);
 }
 
 void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
@@ -316,6 +318,39 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
     {
         context.commandBuffer.EndRendering();
         renderTarget->TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
+    }
+}
+
+void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+{
+    ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
+
+    std::vector<PointLightShadowConstants> shadowConstants;
+
+    for (PointLightObject* light : context.pointLights)
+    {
+        const auto shadowIndex = shadowSystem.GetOrAllocatePointShadowIndex(light);
+        if (!shadowIndex.has_value())
+            continue;
+
+        shadowConstants.push_back(PointLightShadowConstants{
+            .range = light->GetRadius(),
+            .bias = light->GetBias() });
+
+        for (uint32 face = 0; face < 6; ++face)
+        {
+            Texture* textureCube = shadowSystem.GetDepthTextureCubeArray();
+            TextureView* faceView = shadowSystem.GetPointShadowFaceView(*shadowIndex, face);
+
+            const RenderingAttachmentInfo depthAttachment = {
+                .imageView = faceView->GetHandle(),
+                .layout = ImageLayout::DepthAttachment,
+                .loadOp = LoadOp::Clear,
+                .storeOp = StoreOp::Store,
+                .clearDepth = 1.0f,
+                .clearStencil = 0
+            };
+        }
     }
 }
 

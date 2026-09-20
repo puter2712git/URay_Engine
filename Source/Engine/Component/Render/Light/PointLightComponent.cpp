@@ -37,6 +37,7 @@ Render::RenderObject* PointLightComponent::CreateRenderObject()
     state.radius = radius;
     state.intensity = intensity;
     state.color = color;
+    state.bias = bias;
 
     renderObject = new Render::PointLightObject(state);
     return renderObject;
@@ -55,6 +56,7 @@ void PointLightComponent::UpdateRenderObject()
     state.radius = radius;
     state.intensity = intensity;
     state.color = color;
+    state.bias = bias;
 
     Render::PointLightObject* object =
         static_cast<Render::PointLightObject*>(renderObject);

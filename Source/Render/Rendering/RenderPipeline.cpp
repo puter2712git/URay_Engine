@@ -136,7 +136,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .position = pointLights[i]->GetPosition(),
             .radius = pointLights[i]->GetRadius(),
             .intensity = pointLights[i]->GetIntensity(),
-            .color = Color3(pointLights[i]->GetColor()) });
+            .color = Color3(pointLights[i]->GetColor()),
+            .shadowIndex = static_cast<uint32>(i) });
     }
 
     std::vector<SpotLightConstants> spotLightConstants;
@@ -241,7 +242,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
         .fogObject = fog,
         .directionalLight = directionalLight,
-        .spotLights = spotLights
+        .spotLights = spotLights,
+        .pointLights = pointLights
     };
 
     for (auto& pass : passes)

@@ -23,10 +23,23 @@ struct SpotLightShadowConstants
     float4x4 lightViewProj;
     float4 atlasUVScaleBias;
     float bias;
-    float3 padding2;
+    float3 padding;
 };
 
 [[vk::binding(7, 0)]]
 StructuredBuffer<SpotLightShadowConstants> spotLightShadows;
+
+[[vk::binding(8, 0)]]
+TextureCubeArray<float> shadowTextureCubeArray;
+
+struct PointLightShadowConstants
+{
+    float range;
+    float bias;
+    float2 padding;
+};
+
+[[vk::binding(9, 0)]]
+StructuredBuffer<PointLightShadowConstants> pointLightShadows;
 
 #endif

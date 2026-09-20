@@ -35,6 +35,7 @@ public:
 private:
     void RecordDirectionalDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
     void RecordSpotLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
+    void RecordPointLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
 
 private:
     URay::Shader* shadowShaderAsset = nullptr;

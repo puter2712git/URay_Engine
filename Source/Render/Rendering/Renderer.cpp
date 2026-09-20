@@ -13,7 +13,6 @@
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
@@ -478,6 +477,13 @@ bool Renderer::CreateFrameResources()
         };
         frameResources[i].spotLightShadowStorageBuffer.reset(device.CreateStorageBuffer(spotLightShadowStorageBufferDesc));
 
+        StorageBufferDesc pointLightShadowStorageBufferDesc = {
+            .elementCapacity = 16,
+            .elementStride = sizeof(PointLightShadowConstants),
+            .memoryUsage = MemoryUsage::CpuToGpu
+        };
+        frameResources[i].pointLightShadowStorageBuffer.reset(device.CreateStorageBuffer(pointLightShadowStorageBufferDesc));
+
         frameResources[i].descriptorSet.reset(device.CreateDescriptorSet(frameDescriptorSetLayout.get()));
         frameResources[i].descriptorSet->WriteUniformBuffer(0, *frameResources[i].uniformBuffer);
         frameResources[i].descriptorSet->WriteStorageBuffer(1, *frameResources[i].pointLightStorageBuffer);
@@ -487,6 +493,8 @@ bool Renderer::CreateFrameResources()
         frameResources[i].descriptorSet->WriteSampler(5, resourceManager.GetOrCreateSampler({}));
         frameResources[i].descriptorSet->WriteSampledImage(6, resourceManager.GetShadowSystem().GetShadowAtlasRT()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
         frameResources[i].descriptorSet->WriteStorageBuffer(7, *frameResources[i].spotLightShadowStorageBuffer);
+        frameResources[i].descriptorSet->WriteSampledImage(8, resourceManager.GetShadowSystem().GetPointShadowSamplingView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
+        frameResources[i].descriptorSet->WriteStorageBuffer(9, *frameResources[i].pointLightShadowStorageBuffer);
     }
 
     return true;

@@ -43,6 +43,7 @@ struct RenderPassContext
     FogObject* fogObject = nullptr;
     DirectionalLightObject* directionalLight = nullptr;
     std::vector<SpotLightObject*>& spotLights;
+    std::vector<PointLightObject*>& pointLights;
 };
 
 class RenderPass

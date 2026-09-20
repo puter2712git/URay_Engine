@@ -37,6 +37,8 @@ struct PointLightConstants
     float radius = 0.0f;
     float intensity = 0.0f;
     Color3 color = Color3::White;
+    uint32 shadowIndex = UINT32_MAX;
+    float padding[3];
 };
 
 struct SpotLightConstants
@@ -91,6 +93,13 @@ struct SpotLightShadowConstants
     Vector4 altasUVScaleBias = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
     float bias = 0.0f;
     float padding[3];
+};
+
+struct PointLightShadowConstants
+{
+    float range = 0.0f;
+    float bias = 0.0f;
+    float padding[2];
 };
 
 } // namespace URay::Render

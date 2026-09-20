@@ -20,6 +20,8 @@ struct PointLight
     float radius;
     float intensity;
     float3 color;
+    uint shadowIndex;
+    float3 padding;
 };
 
 struct SpotLight

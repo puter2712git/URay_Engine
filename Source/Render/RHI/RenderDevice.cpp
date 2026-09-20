@@ -1174,6 +1174,16 @@ DescriptorSetLayoutDesc RenderDevice::MakeFrameDescriptorSetLayoutDescription() 
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
         .stageFlags = ShaderStageFlags::All });
+    description.bindings.push_back(ResourceBinding{
+        .binding = 8,
+        .resourceType = ResourceType::SampledImage,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+    description.bindings.push_back(ResourceBinding{
+        .binding = 9,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
 
     return description;
 }
