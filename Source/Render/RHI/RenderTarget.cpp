@@ -64,121 +64,18 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
     }
 
     desc = newDesc;
-    colorLayout = ImageLayout::Undefined;
-    depthLayout = ImageLayout::Undefined;
 
     return true;
 }
 
 void RenderTarget::TransitionColor(CommandBuffer& commandBuffer, ImageLayout newLayout)
 {
-    if (colorLayout == newLayout)
-        return;
-
-    const VkImageSubresourceRange range = {
-        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-        .baseMipLevel = 0,
-        .levelCount = 1,
-        .baseArrayLayer = 0,
-        .layerCount = 1,
-    };
-
-    const SyncInfo src = GetSyncInfo(colorLayout);
-    const SyncInfo dst = GetSyncInfo(newLayout);
-
-    const std::array<ImageBarrierDesc, 1> barriers = {
-        ImageBarrierDesc{
-            .image = colorTexture->GetHandle(),
-            .subresourceRange = range,
-            .oldLayout = colorLayout,
-            .newLayout = newLayout,
-            .srcStage = src.stage,
-            .srcAccess = src.access,
-            .dstStage = dst.stage,
-            .dstAccess = dst.access }
-    };
-
-    commandBuffer.PipelineBarrier(barriers);
-    colorLayout = newLayout;
+    colorTexture->Transition(commandBuffer, newLayout);
 }
 
 void RenderTarget::TransitionDepth(CommandBuffer& commandBuffer, ImageLayout newLayout)
 {
-    if (depthLayout == newLayout)
-        return;
-
-    VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-
-    if (desc.depth &&
-        (desc.depth->format == Format::D32_Float_S8_UInt ||
-         desc.depth->format == Format::D24_UNorm_S8_UInt))
-    {
-        aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-    }
-
-    const VkImageSubresourceRange range = {
-        .aspectMask = aspectMask,
-        .baseMipLevel = 0,
-        .levelCount = 1,
-        .baseArrayLayer = 0,
-        .layerCount = 1,
-    };
-
-    const SyncInfo src = GetSyncInfo(depthLayout);
-    const SyncInfo dst = GetSyncInfo(newLayout);
-
-    const std::array<ImageBarrierDesc, 1> barriers = {
-        ImageBarrierDesc{
-            .image = depthTexture->GetHandle(),
-            .subresourceRange = range,
-            .oldLayout = depthLayout,
-            .newLayout = newLayout,
-            .srcStage = src.stage,
-            .srcAccess = src.access,
-            .dstStage = dst.stage,
-            .dstAccess = dst.access }
-    };
-
-    commandBuffer.PipelineBarrier(barriers);
-    depthLayout = newLayout;
-}
-
-RenderTarget::SyncInfo RenderTarget::GetSyncInfo(ImageLayout layout)
-{
-    switch (layout)
-    {
-    case ImageLayout::Undefined:
-        return SyncInfo{
-            .stage = VK_PIPELINE_STAGE_2_NONE,
-            .access = VK_ACCESS_2_NONE
-        };
-
-    case ImageLayout::ColorAttachment:
-        return SyncInfo{
-            .stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
-            .access = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT
-        };
-
-    case ImageLayout::DepthAttachment:
-        return SyncInfo{
-            .stage = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT |
-                     VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
-            .access = VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT
-        };
-
-    case ImageLayout::ShaderReadOnly:
-    case ImageLayout::DepthReadOnly:
-        return SyncInfo{
-            .stage = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
-            .access = VK_ACCESS_2_SHADER_SAMPLED_READ_BIT
-        };
-
-    default:
-        return SyncInfo{
-            .stage = VK_PIPELINE_STAGE_2_NONE,
-            .access = VK_ACCESS_2_NONE
-        };
-    }
+    depthTexture->Transition(commandBuffer, newLayout);
 }
 
 } // namespace URay::Render

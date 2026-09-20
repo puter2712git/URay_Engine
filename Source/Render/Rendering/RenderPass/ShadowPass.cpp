@@ -9,6 +9,7 @@
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/RenderTarget.h"
+#include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/FrameResource.h"
@@ -324,8 +325,15 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
 void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
 {
     ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
+    Texture* textureCube = shadowSystem.GetDepthTextureCubeArray();
+
+    const TextureDesc& textureDesc = textureCube->GetDesc();
+    const uint32 width = textureDesc.width;
+    const uint32 height = textureDesc.height;
 
     std::vector<PointLightShadowConstants> shadowConstants;
+
+    textureCube->Transition(context.commandBuffer, ImageLayout::DepthAttachment);
 
     for (PointLightObject* light : context.pointLights)
     {
@@ -337,9 +345,35 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
             .range = light->GetRadius(),
             .bias = light->GetBias() });
 
+        const Vector3 eye = light->GetPosition();
+        const Matrix lightProj = Matrix::MakePerspective(
+            Math::DegToRad(90.0f), 1.0f, 0.1f, light->GetRadius());
+
+        const Vector3 lightDirections[6] = {
+            Vector3::Right,
+            Vector3::Right * -1.0f,
+            Vector3::Forward,
+            Vector3::Forward * -1.0f,
+            Vector3::Up,
+            Vector3::Up * -1.0f
+        };
+
+        const Vector3 lightUps[6] = {
+            Vector3::Forward * -1.0f,
+            Vector3::Forward * -1.0f,
+            Vector3::Up,
+            Vector3::Up * -1.0f,
+            Vector3::Forward * -1.0f,
+            Vector3::Forward * -1.0f
+        };
+
         for (uint32 face = 0; face < 6; ++face)
         {
-            Texture* textureCube = shadowSystem.GetDepthTextureCubeArray();
+            const Vector3 lightDirection = lightDirections[face];
+            const Vector3 up = lightUps[face];
+
+            const Matrix lightView = Matrix::MakeView(eye, eye + lightDirection, up);
+
             TextureView* faceView = shadowSystem.GetPointShadowFaceView(*shadowIndex, face);
 
             const RenderingAttachmentInfo depthAttachment = {
@@ -350,8 +384,72 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
                 .clearDepth = 1.0f,
                 .clearStencil = 0
             };
+
+            const RenderingInfo renderingInfo = {
+                .renderArea = {
+                    .offset = { 0, 0 },
+                    .extent = { width, height } },
+                .layerCount = 1,
+                .colorAttachments = {},
+                .depthAttachment = &depthAttachment
+            };
+
+            context.commandBuffer.BeginRendering(renderingInfo);
+            context.commandBuffer.SetViewport(
+                0.0f, 0.0f,
+                static_cast<float>(width), static_cast<float>(height),
+                0.0f, 1.0f);
+            context.commandBuffer.SetScissor(0, 0, width, height);
+
+            for (const DrawCommand& cmd : drawCmds)
+            {
+                PipelineStateDesc psoDesc = cmd.pipelineState;
+                psoDesc.shader = shadowShader;
+                psoDesc.rendering = PipelineRenderingDesc{
+                    .colorAttachmentFormats = {},
+                    .depthAttachmentFormat = Format::D32_Float,
+                    .stencilAttachmentFormat = Format::Unknown
+                };
+
+                PipelineState* pso = context.resourceManager.GetOrCreatePSO(psoDesc);
+
+                context.commandBuffer.BindPipeline(*pso);
+
+                ShadowMapConstants shadowMapConstants = {};
+                shadowMapConstants.world = cmd.worldMatrix;
+                shadowMapConstants.lightViewProj = lightView * lightProj;
+
+                if (pso->GetLayout()->SupportsPushConstants())
+                {
+                    vkCmdPushConstants(
+                        context.commandBuffer.GetHandle(),
+                        pso->GetLayout()->GetHandle(),
+                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                        0,
+                        sizeof(shadowMapConstants),
+                        &shadowMapConstants);
+                }
+
+                context.commandBuffer.BindVertexBuffer(*cmd.vertexBuffer);
+
+                if (cmd.indexBuffer)
+                {
+                    context.commandBuffer.BindIndexBuffer(*cmd.indexBuffer);
+                    context.commandBuffer.DrawIndexed(cmd.indexCount, cmd.indexOffset);
+                }
+                else
+                {
+                    context.commandBuffer.Draw(cmd.vertexCount);
+                }
+            }
+
+            context.commandBuffer.EndRendering();
         }
     }
+
+    textureCube->Transition(context.commandBuffer, ImageLayout::DepthReadOnly);
+
+    context.frameResource.pointLightShadowStorageBuffer->Update(shadowConstants.data(), sizeof(PointLightShadowConstants) * shadowConstants.size());
 }
 
 } // namespace URay::Render

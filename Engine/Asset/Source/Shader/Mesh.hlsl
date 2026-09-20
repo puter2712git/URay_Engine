@@ -54,6 +54,28 @@ float GetSpotShadowVisibility(SpotLight light, float3 worldPosition)
     return ndc.z > depth + shadow.bias ? 0.0 : 1.0;
 }
 
+float GetPointShadowVisibility(PointLight light, float3 worldPosition)
+{
+    if (light.shadowIndex == 0xffffffffu)
+        return 1.0;
+        
+    PointLightShadowConstants shadow = pointLightShadows[light.shadowIndex];
+    
+    float3 toFragment = worldPosition - light.position;
+    float faceDepth = max(abs(toFragment.x), max(abs(toFragment.y), abs(toFragment.z)));
+    
+    if (faceDepth <= 0.1 || faceDepth >= shadow.range)
+        return 1.0;
+    
+    float receiverDepth = shadow.range / (shadow.range - 0.1) * (1.0 - 0.1 / faceDepth);
+    float storedDepth = shadowTextureCubeArray.SampleLevel(
+        directionalShadowSampler,
+        float4(normalize(toFragment), light.shadowIndex),
+        0.0);
+    
+    return receiverDepth <= storedDepth + shadow.bias ? 1.0 : 0.0;
+}
+
 float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
 {
 #if URAY_SHADING_MODEL == 1
@@ -64,7 +86,8 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
         
     for (uint i = 0; i < 256; ++i)
     {
-        lighting += EvaluatePoint(pointLights[i], worldPosition, normal);
+        float pointShadow = GetPointShadowVisibility(pointLights[i], worldPosition);
+        lighting += EvaluatePoint(pointLights[i], worldPosition, normal) * pointShadow;
     }
    
     for (uint i = 0; i < 256; ++i)

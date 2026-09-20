@@ -266,7 +266,7 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
         return nullptr;
     }
 
-    Texture* newTexture = new Texture(device, handle, memory, desc);
+    Texture* newTexture = new Texture(*this, handle, memory, desc);
     return newTexture;
 }
 

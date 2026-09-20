@@ -7,6 +7,9 @@
 namespace URay::Render
 {
 
+class RenderDevice;
+class CommandBuffer;
+
 enum class ImageLayout : uint8
 {
     Undefined,
@@ -82,21 +85,34 @@ struct TextureDesc
 class Texture
 {
 public:
-    Texture(VkDevice device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc);
+    Texture(RenderDevice& device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc);
     ~Texture();
 
+private:
+    struct SyncInfo
+    {
+        VkPipelineStageFlags2 stage;
+        VkAccessFlags2 access;
+    };
+
 public:
+    void Transition(CommandBuffer& commandBuffer, ImageLayout newLayout);
+
     VkImage GetHandle() const { return handle; }
 
     const TextureDesc& GetDesc() const { return desc; }
 
 private:
-    VkDevice device = VK_NULL_HANDLE;
+    SyncInfo GetSyncInfo(ImageLayout layout);
+
+private:
+    RenderDevice& device;
 
     VkImage handle = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
 
     TextureDesc desc = {};
+    ImageLayout imageLayout = ImageLayout::Undefined;
 };
 
 } // namespace URay::Render

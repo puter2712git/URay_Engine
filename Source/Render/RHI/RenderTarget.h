@@ -36,13 +36,6 @@ public:
     RenderTarget(RenderDevice& renderDevice, const RenderTargetDesc& desc);
     ~RenderTarget();
 
-private:
-    struct SyncInfo
-    {
-        VkPipelineStageFlags2 stage;
-        VkAccessFlags2 access;
-    };
-
 public:
     bool Recreate(const Extent2D& newExtent);
 
@@ -58,20 +51,15 @@ public:
     const Extent2D& GetExtent() const { return desc.extent; }
 
 private:
-    SyncInfo GetSyncInfo(ImageLayout layout);
-
-private:
     RenderDevice& device;
 
     RenderTargetDesc desc = {};
 
     std::unique_ptr<Texture> colorTexture = nullptr;
     std::unique_ptr<TextureView> colorView = nullptr;
-    ImageLayout colorLayout = ImageLayout::Undefined;
 
     std::unique_ptr<Texture> depthTexture = nullptr;
     std::unique_ptr<TextureView> depthView = nullptr;
-    ImageLayout depthLayout = ImageLayout::Undefined;
 };
 
 } // namespace URay::Render

@@ -20,6 +20,7 @@ class Framebuffer;
 class FogObject;
 class DirectionalLightObject;
 class SpotLightObject;
+class PointLightObject;
 struct RenderView;
 struct FrameResource;
 
