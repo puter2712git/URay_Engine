@@ -17,6 +17,7 @@ struct SpotLightObjectState
     float outerConeAngle = 0.0f;
     float intensity = 0.0f;
     Color color = Color::White;
+    bool castsShadow = true;
     float bias = 0.0f;
 };
 
@@ -36,6 +37,7 @@ public:
     float GetOuterConeAngle() const { return state.outerConeAngle; }
     float GetIntensity() const { return state.intensity; }
     const Color& GetColor() const { return state.color; }
+    bool CastsShadow() const { return state.castsShadow; }
     float GetBias() const { return state.bias; }
 
 private:

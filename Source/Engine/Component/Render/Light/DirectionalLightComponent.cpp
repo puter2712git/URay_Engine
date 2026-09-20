@@ -31,6 +31,7 @@ Render::RenderObject* DirectionalLightComponent::CreateRenderObject()
     state.direction = transform ? transform->GetForward() : Vector3::Forward;
     state.intensity = intensity;
     state.color = color;
+    state.castsShadow = castsShadow;
     state.bias = bias;
 
     renderObject = new Render::DirectionalLightObject(state);
@@ -49,6 +50,7 @@ void DirectionalLightComponent::UpdateRenderObject()
     state.direction = transform ? transform->GetForward() : Vector3::Forward;
     state.intensity = intensity;
     state.color = color;
+    state.castsShadow = castsShadow;
     state.bias = bias;
 
     Render::DirectionalLightObject* object =

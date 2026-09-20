@@ -12,6 +12,8 @@ struct DirectionalLightConstants
     float3 direction;
     float intensity;
     float4 color;
+    uint castsShadow;
+    float3 padding;
 };
 
 struct PointLight

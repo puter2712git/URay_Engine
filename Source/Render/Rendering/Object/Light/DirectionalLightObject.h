@@ -13,6 +13,7 @@ struct DirectionalLightObjectState
     Vector3 direction = Vector3::Forward;
     float intensity = 0.0f;
     Color color = Color::White;
+    bool castsShadow = true;
     float bias = 0.0f;
 };
 
@@ -29,6 +30,7 @@ public:
     const Vector3& GetDirection() const { return state.direction; }
     float GetIntensity() const { return state.intensity; }
     const Color& GetColor() const { return state.color; }
+    bool CastsShadow() const { return state.castsShadow; }
     float GetBias() const { return state.bias; }
 
 private:

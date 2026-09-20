@@ -76,6 +76,9 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
     if (!directionalLight)
         return;
 
+    if (!directionalLight->CastsShadow())
+        return;
+
     ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
 
     RenderTarget* renderTarget = shadowSystem.GetDirectionalTarget();
@@ -197,6 +200,9 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
 
     for (SpotLightObject* spotLight : context.spotLights)
     {
+        if (!spotLight->CastsShadow())
+            continue;
+
         std::optional<ShadowAtlasEntry> entry = shadowSystem.GetOrAllocateEntry(spotLight);
         if (!entry.has_value())
             continue;
@@ -337,6 +343,9 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
 
     for (PointLightObject* light : context.pointLights)
     {
+        if (!light->CastsShadow())
+            continue;
+
         const auto shadowIndex = shadowSystem.GetOrAllocatePointShadowIndex(light);
         if (!shadowIndex.has_value())
             continue;

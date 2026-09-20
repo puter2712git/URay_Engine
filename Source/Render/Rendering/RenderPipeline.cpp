@@ -127,9 +127,11 @@ void RenderPipeline::Execute(const RenderRequest& request)
         frameConstants.directionalLight.direction = directionalLight->GetDirection();
         frameConstants.directionalLight.intensity = directionalLight->GetIntensity();
         frameConstants.directionalLight.color = directionalLight->GetColor();
+        frameConstants.directionalLight.castShadow = directionalLight->CastsShadow();
     }
 
     std::vector<PointLightConstants> pointLightConstants;
+    uint32 shadowIndex = 0;
     for (size_t i = 0; i < pointLights.size(); ++i)
     {
         pointLightConstants.push_back(PointLightConstants{
@@ -137,10 +139,11 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .radius = pointLights[i]->GetRadius(),
             .intensity = pointLights[i]->GetIntensity(),
             .color = Color3(pointLights[i]->GetColor()),
-            .shadowIndex = static_cast<uint32>(i) });
+            .shadowIndex = pointLights[i]->CastsShadow() ? shadowIndex++ : UINT_MAX });
     }
 
     std::vector<SpotLightConstants> spotLightConstants;
+    shadowIndex = 0;
     for (size_t i = 0; i < spotLights.size(); ++i)
     {
         spotLightConstants.push_back(SpotLightConstants{
@@ -151,7 +154,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
             .color = Color3(spotLights[i]->GetColor()),
             .innerConeAngle = Math::DegToRad(spotLights[i]->GetInnerConeAngle() * 0.5f),
             .outerConeAngle = Math::DegToRad(spotLights[i]->GetOuterConeAngle() * 0.5f),
-            .shadowIndex = static_cast<uint32>(i) });
+            .shadowIndex = spotLights[i]->CastsShadow() ? shadowIndex++ : UINT_MAX });
     }
 
     renderer.GetFrameResource().uniformBuffer->Update(&frameConstants, sizeof(FrameConstants));

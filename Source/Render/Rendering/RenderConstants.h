@@ -29,6 +29,8 @@ struct DirectionalLightConstants
     Vector3 direction = Vector3::Forward;
     float intensity = 0.0f;
     Color color = Color::White;
+    uint32 castShadow = 0;
+    float padding[3];
 };
 
 struct PointLightConstants

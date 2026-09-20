@@ -50,6 +50,7 @@ Render::RenderObject* SpotLightComponent::CreateRenderObject()
     state.outerConeAngle = outerConeAngle;
     state.intensity = intensity;
     state.color = color;
+    state.castsShadow = castsShadow;
     state.bias = bias;
 
     renderObject = new Render::SpotLightObject(state);
@@ -72,6 +73,7 @@ void SpotLightComponent::UpdateRenderObject()
     state.outerConeAngle = outerConeAngle;
     state.intensity = intensity;
     state.color = color;
+    state.castsShadow = castsShadow;
     state.bias = bias;
 
     Render::SpotLightObject* object =

@@ -23,6 +23,11 @@ void LightComponent::RegisterClass()
           .offset = offsetof(LightComponent, color),
           .size = sizeof(Color) });
     StaticClass()->AddProperty(
+        { .type = PropertyType::Bool,
+          .name = "Casts Shadow",
+          .offset = offsetof(LightComponent, castsShadow),
+          .size = sizeof(bool) });
+    StaticClass()->AddProperty(
         { .type = PropertyType::Float,
           .name = "Shadow Bias",
           .offset = offsetof(LightComponent, bias),

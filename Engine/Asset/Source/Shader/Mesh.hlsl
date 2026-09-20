@@ -81,7 +81,9 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
 #if URAY_SHADING_MODEL == 1
     float3 lighting = EvaluateAmbient(frame.ambientLight);
     
-    float shadowVisibility = GetDirectionalShadowVisibility(worldPosition, normal);
+    float shadowVisibility = frame.directionalLight.castsShadow != 0
+        ? GetDirectionalShadowVisibility(worldPosition, normal)
+        : 1.0;
     lighting += EvaluateDirectional(frame.directionalLight, normal) * shadowVisibility;
         
     for (uint i = 0; i < 256; ++i)
