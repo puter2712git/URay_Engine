@@ -2,6 +2,7 @@
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Scene/SceneSystem.h"
+#include "Engine/Script/ScriptSystem.h"
 
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
@@ -9,8 +10,8 @@
 #include "Platform/Input/GLFWInputAdapter.h"
 #include "Platform/Window/Window.h"
 
-#include "Render/Rendering/RenderPipeline.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/RenderPipeline.h"
 #include "Render/Rendering/Renderer.h"
 
 #include <GLFW/glfw3.h>
@@ -64,12 +65,19 @@ bool Engine::Initialize(
     if (!sceneSystem->Initialize())
         return false;
 
+    scriptSystem = std::make_unique<ScriptSystem>();
+    if (!scriptSystem->Initialize(projectPath))
+        return false;
+
     return true;
 }
 
 void Engine::Finalize()
 {
     renderSystem->WaitIdle();
+
+    scriptSystem->Finalize();
+    scriptSystem.reset();
 
     sceneSystem->Finalize();
     sceneSystem.reset();
