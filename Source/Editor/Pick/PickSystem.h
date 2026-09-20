@@ -41,8 +41,8 @@ public:
 private:
     bool PickGizmo(const Ray& worldRay, int32& outAxis) const;
 
-    void OnUnitAdded(Scene* scene, Unit* unit);
-    void OnUnitRemoved(Scene* scene, Unit* unit);
+    void OnComponentAdded(Scene* scene, Unit* unit, Component* component);
+    void OnComponentDestroyed(Scene* scene, Unit* unit, Component* component);
     void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
 
 private:

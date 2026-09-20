@@ -33,12 +33,12 @@ bool PickSystem::Initialize()
                                            { return std::make_unique<MeshPickObject>(static_cast<SpriteComponent&>(component)); });
 
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetUnitAddRay().Register(
-        this, [this](Scene* scene, Unit* unit)
-        { OnUnitAdded(scene, unit); });
-    sceneSystem.GetUnitRemoveRay().Register(
-        this, [this](Scene* scene, Unit* unit)
-        { OnUnitRemoved(scene, unit); });
+    sceneSystem.GetComponentAddRay().Register(
+        this, [this](Scene* scene, Unit* unit, Component* component)
+        { OnComponentAdded(scene, unit, component); });
+    sceneSystem.GetComponentDestroyRay().Register(
+        this, [this](Scene* scene, Unit* unit, Component* component)
+        { OnComponentDestroyed(scene, unit, component); });
     sceneSystem.GetComponentPropertyChangeRay().Register(
         this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
         { OnComponentPropertyChanged(scene, unit, component, property); });
@@ -55,24 +55,18 @@ void PickSystem::Finalize()
     pickObjects.clear();
 }
 
-void PickSystem::OnUnitAdded(Scene*, Unit* unit)
+void PickSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* component)
 {
-    for (const auto& component : unit->GetComponents())
+    const PickRegistry::Constructor* constructor = pickRegistry.Find(component->GetClass());
+    if (constructor)
     {
-        const PickRegistry::Constructor* constructor = pickRegistry.Find(component->GetClass());
-        if (constructor)
-        {
-            pickObjects.insert_or_assign(component.get(), (*constructor)(*component));
-        }
+        pickObjects.insert_or_assign(component, (*constructor)(*component));
     }
 }
 
-void PickSystem::OnUnitRemoved(Scene*, Unit* unit)
+void PickSystem::OnComponentDestroyed(Scene* scene, Unit* unit, Component* component)
 {
-    for (const auto& component : unit->GetComponents())
-    {
-        pickObjects.erase(component.get());
-    }
+    pickObjects.erase(component);
 }
 
 void PickSystem::OnComponentPropertyChanged(Scene*, Unit*, Component* component, const Property& property)

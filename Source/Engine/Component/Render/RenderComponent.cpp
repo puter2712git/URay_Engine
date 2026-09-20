@@ -11,17 +11,7 @@ namespace URay
 
 URAY_REGISTER_CLASS(RenderComponent)
 
-RenderComponent::~RenderComponent()
-{
-    Unit* unit = GetOwner();
-    if (unit)
-    {
-        Scene* scene = unit->GetOwner();
-        Render::RenderScene* renderScene = scene->GetRenderScene();
-
-        renderScene->Destroy(renderObject);
-    }
-}
+RenderComponent::~RenderComponent() = default;
 
 void RenderComponent::RegisterClass()
 {

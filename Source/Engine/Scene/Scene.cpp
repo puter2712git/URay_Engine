@@ -16,10 +16,7 @@ namespace URay
 {
 
 Scene::Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath)
-    : sceneSystem(sceneSystem), type(type), filePath(filePath)
-{
-    renderScene = std::make_unique<Render::RenderScene>();
-}
+    : sceneSystem(sceneSystem), type(type), filePath(filePath) {}
 
 Scene::~Scene()
 {
@@ -216,11 +213,7 @@ void Scene::AddUnit(std::unique_ptr<Unit> unit)
     const auto& components = unitPtr->GetComponents();
     for (const auto& component : components)
     {
-        if (RenderComponent* renderComp = Cast<RenderComponent>(component.get()))
-        {
-            std::unique_ptr<Render::RenderObject> robject(renderComp->CreateRenderObject());
-            renderScene->Add(std::move(robject));
-        }
+        sceneSystem.GetComponentAddRay().Emit(this, unitPtr, component.get());
     }
 }
 
@@ -228,6 +221,12 @@ void Scene::DestroyUnit(Unit* unit)
 {
     if (!unit)
         return;
+
+    const auto& components = unit->GetComponents();
+    for (const auto& component : components)
+    {
+        sceneSystem.GetComponentDestroyRay().Emit(this, unit, component.get());
+    }
 
     sceneSystem.GetUnitRemoveRay().Emit(this, unit);
 

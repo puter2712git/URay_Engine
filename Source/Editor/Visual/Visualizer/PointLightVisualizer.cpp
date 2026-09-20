@@ -12,9 +12,11 @@
 
 #include "Core/Math/Math.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/Object/Drawable/BillboardObject.h"
 #include "Render/Rendering/Object/Drawable/LineObject.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 namespace URay
 {
@@ -160,13 +162,14 @@ void PointLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selected
     if (previousUnit == selectedUnit)
         return;
 
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
-    if (!editorScene)
-        return;
+    Scene* scene = selectedUnit->GetOwner();
+
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 
     EditorVisualContext context = {
         .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
+        .renderScene = *renderScene
     };
 
     if (visual.unit == previousUnit)

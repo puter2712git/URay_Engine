@@ -99,14 +99,8 @@ Component* Unit::AddComponent(std::unique_ptr<Component> component)
 
     if (scene)
     {
-        if (RenderComponent* renderComp = Cast<RenderComponent>(componentPtr))
-        {
-            std::unique_ptr<Render::RenderObject> robj(renderComp->CreateRenderObject());
-            if (robj && scene->GetRenderScene())
-            {
-                scene->GetRenderScene()->Add(std::move(robj));
-            }
-        }
+        SceneSystem& sceneSystem = scene->GetSceneSystem();
+        sceneSystem.GetComponentAddRay().Emit(scene, this, componentPtr);
     }
 
     return componentPtr;

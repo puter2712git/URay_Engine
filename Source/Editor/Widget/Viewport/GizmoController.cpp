@@ -10,22 +10,24 @@
 
 #include "Core/Math/Math.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/Rendering/DrawCommand/DrawCommandContext.h"
 #include "Render/Rendering/Object/Drawable/GizmoObject.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 #include <algorithm>
 
 namespace URay
 {
 
-using namespace Render;
-
 GizmoController::GizmoController()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
 
     meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.GetDefaultAssets().arrowMesh;
     meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.GetDefaultAssets().rotationGizmoMesh;
@@ -34,9 +36,9 @@ GizmoController::GizmoController()
     material = assetSystem.GetDefaultAssets().meshMaterial;
 
     Scene* editorScene = sceneSystem.GetSceneByType(SceneType::Editor);
-    RenderScene* renderScene = editorScene->GetRenderScene();
+    Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(editorScene);
 
-    GizmoObjectState objectState = {};
+    Render::GizmoObjectState objectState = {};
     objectState.worldMatrices.push_back(GetWorldMatrix(0));
     objectState.worldMatrices.push_back(GetWorldMatrix(1));
     objectState.worldMatrices.push_back(GetWorldMatrix(2));
@@ -46,7 +48,7 @@ GizmoController::GizmoController()
     objectState.colorTints.push_back(Color::Green);
     objectState.colorTints.push_back(Color::Blue);
 
-    std::unique_ptr<GizmoObject> gizmoObject = std::make_unique<GizmoObject>(objectState);
+    std::unique_ptr<Render::GizmoObject> gizmoObject = std::make_unique<Render::GizmoObject>(objectState);
     renderObject = gizmoObject.get();
     renderScene->Add(std::move(gizmoObject));
 }
@@ -302,7 +304,7 @@ void GizmoController::UpdateRenderObject()
     if (!renderObject)
         return;
 
-    GizmoObjectState state = {};
+    Render::GizmoObjectState state = {};
     state.worldMatrices.clear();
     state.worldMatrices.push_back(GetWorldMatrix(0));
     state.worldMatrices.push_back(GetWorldMatrix(1));

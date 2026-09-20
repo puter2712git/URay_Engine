@@ -6,13 +6,15 @@
 #include "Engine/Component/Render/DecalComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
-#include "Engine/Scene/Unit.h"
-#include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
+#include "Engine/Scene/Unit.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/Object/Drawable/BillboardObject.h"
 #include "Render/Rendering/Object/Drawable/LineObject.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 namespace URay
 {
@@ -80,18 +82,15 @@ Render::LineObjectState DecalVisualizer::MakeLineState(Unit& unit, Component& co
         { -extent.x, extent.y, extent.z }
     };
     constexpr uint32 edges[12][2] = {
-        { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 },
-        { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 },
-        { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 }
+        { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 }, { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 }
     };
 
     Render::LineObjectState state = {};
     for (const auto& edge : edges)
     {
-        state.lines.push_back({
-            .start = worldMatrix.TransformPoint(corners[edge[0]]),
-            .end = worldMatrix.TransformPoint(corners[edge[1]]),
-            .color = Color::Yellow });
+        state.lines.push_back({ .start = worldMatrix.TransformPoint(corners[edge[0]]),
+                                .end = worldMatrix.TransformPoint(corners[edge[1]]),
+                                .color = Color::Yellow });
     }
 
     return state;
@@ -122,13 +121,14 @@ void DecalVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit)
     if (previousUnit == selectedUnit)
         return;
 
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
-    if (!editorScene)
-        return;
+    Scene* scene = selectedUnit->GetOwner();
+
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 
     EditorVisualContext context = {
         .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
+        .renderScene = *renderScene
     };
 
     if (visual.unit == previousUnit)

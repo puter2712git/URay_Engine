@@ -53,6 +53,10 @@ bool Engine::Initialize(
     if (!assetSystem->Initialize(enginePath, projectPath))
         return false;
 
+    sceneSystem = std::make_unique<SceneSystem>();
+    if (!sceneSystem->Initialize())
+        return false;
+
     renderSystem = std::make_unique<Render::RenderSystem>();
     if (!renderSystem->Initialize())
         return false;
@@ -60,10 +64,6 @@ bool Engine::Initialize(
     assetSystem->CreateDefaultAssets();
     assetSystem->LoadAssets("Engine://Asset/Source");
     assetSystem->LoadAssets("RawAsset://");
-
-    sceneSystem = std::make_unique<SceneSystem>();
-    if (!sceneSystem->Initialize())
-        return false;
 
     scriptSystem = std::make_unique<ScriptSystem>();
     if (!scriptSystem->Initialize(projectPath))
@@ -79,11 +79,11 @@ void Engine::Finalize()
     scriptSystem->Finalize();
     scriptSystem.reset();
 
-    sceneSystem->Finalize();
-    sceneSystem.reset();
-
     renderSystem->Finalize();
     renderSystem.reset();
+
+    sceneSystem->Finalize();
+    sceneSystem.reset();
 
     assetSystem->Finalize();
     assetSystem.reset();

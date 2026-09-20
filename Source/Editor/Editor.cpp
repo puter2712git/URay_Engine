@@ -23,6 +23,7 @@
 #include "Render/Rendering/RenderPass/UIPass.h"
 #include "Render/Rendering/RenderPipeline.h"
 #include "Render/Rendering/Renderer.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 #include <imgui/imgui.h>
 
@@ -175,6 +176,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 {
     Render::RenderRequest request = {};
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
 
     ViewportWidget& viewport = widgetSystem->GetViewport();
 
@@ -186,7 +189,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         {
             if (scene->GetType() == SceneType::Play)
             {
-                request.scenes.push_back(scene->GetRenderScene());
+                Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(scene.get());
+                request.scenes.push_back(renderScene);
 
                 for (const auto& unit : scene->GetUnits())
                 {
@@ -226,7 +230,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     {
         for (const auto& scene : sceneSystem.GetScenes())
         {
-            request.scenes.push_back(scene->GetRenderScene());
+            Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(scene.get());
+            request.scenes.push_back(renderScene);
         }
 
         TransformComponent* transform = editorCamera->GetOwner()->GetTransform();

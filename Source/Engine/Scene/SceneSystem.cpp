@@ -1,5 +1,7 @@
 #include "SceneSystem.h"
 
+#include "Engine/Scene/Unit.h"
+
 namespace URay
 {
 
@@ -45,14 +47,29 @@ void SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
     if (!scene)
         return;
 
+    Scene* scenePtr = scene.get();
+
     scenes.push_back(std::move(scene));
+    sceneAddRay.Emit(scenePtr);
+
+    for (auto& unit : scenePtr->GetUnits())
+    {
+        unitAddRay.Emit(scenePtr, unit.get());
+
+        for (auto& component : unit->GetComponents())
+        {
+            componentAddRay.Emit(scenePtr, unit.get(), component.get());
+        }
+    }
 }
 
 void SceneSystem::UnloadScene(SceneType type)
 {
     Scene* targetScene = GetSceneByType(type);
+
     if (targetScene)
     {
+        sceneDestroyRay.Emit(targetScene);
         scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
                                     [targetScene](const std::unique_ptr<Scene>& scene)
                                     {

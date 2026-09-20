@@ -17,6 +17,7 @@ class Renderer;
 class RenderDevice;
 class ResourceManager;
 class RenderPipeline;
+class SceneSystem;
 
 class RenderSystem
 {
@@ -42,6 +43,8 @@ public:
 
     RenderPipeline& GetPipeline() const { return *pipeline; }
 
+    SceneSystem& GetSceneSystem() const { return *sceneSystem; }
+
 private:
     std::unique_ptr<VulkanContext> vulkanContext = nullptr;
     std::unique_ptr<Renderer> renderer = nullptr;
@@ -50,6 +53,8 @@ private:
     std::unique_ptr<ResourceManager> resourceManager = nullptr;
 
     std::unique_ptr<RenderPipeline> pipeline = nullptr;
+
+    std::unique_ptr<SceneSystem> sceneSystem = nullptr;
 };
 
 } // namespace Render

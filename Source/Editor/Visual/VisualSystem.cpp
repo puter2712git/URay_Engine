@@ -16,7 +16,9 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 namespace URay
 {
@@ -62,11 +64,15 @@ void VisualSystem::Finalize()
 
 void VisualSystem::OnUnitAdded(Scene* scene, Unit* unit)
 {
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
+
+    if (!renderScene)
+        return;
 
     EditorVisualContext context = {
         .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
+        .renderScene = *renderScene
     };
 
     for (const auto& component : unit->GetComponents())
@@ -93,11 +99,12 @@ void VisualSystem::OnUnitRemoved(Scene*, Unit* unit)
 
 void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 {
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 
     EditorVisualContext context = {
         .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
+        .renderScene = *renderScene
     };
 
     for (const auto& component : unit->GetComponents())
@@ -112,11 +119,12 @@ void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 
 void VisualSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property)
 {
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 
     EditorVisualContext context = {
         .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
+        .renderScene = *renderScene
     };
 
     const auto it = visualizers.find(component);

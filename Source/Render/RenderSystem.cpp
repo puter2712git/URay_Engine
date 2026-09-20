@@ -4,6 +4,7 @@
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/Rendering/RenderPipeline.h"
 #include "Render/Rendering/Renderer.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 #include "Render/ResourceManager.h"
 
 #include "Engine/Asset/AssetSystem.h"
@@ -46,12 +47,19 @@ bool RenderSystem::Initialize()
     if (!pipeline->Initialize())
         return false;
 
+    sceneSystem = std::make_unique<SceneSystem>();
+    if (!sceneSystem->Initialize())
+        return false;
+
     return true;
 }
 
 void RenderSystem::Finalize()
 {
     WaitIdle();
+
+    sceneSystem->Finalize();
+    sceneSystem.reset();
 
     if (pipeline)
     {

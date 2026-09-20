@@ -11,8 +11,10 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/Object/Drawable/LineObject.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 #include <cmath>
 #include <memory>
@@ -101,19 +103,17 @@ void SpotLightVisualizer::AddCone(
 
     for (uint32 i = 0; i < segments; ++i)
     {
-        state.lines.push_back({
-            .start = points[i],
-            .end = points[(i + 1) % segments],
-            .color = color });
+        state.lines.push_back({ .start = points[i],
+                                .end = points[(i + 1) % segments],
+                                .color = color });
     }
 
     for (uint32 i = 0; i < sideCount; ++i)
     {
         const uint32 pointIndex = i * segments / sideCount;
-        state.lines.push_back({
-            .start = origin,
-            .end = points[pointIndex],
-            .color = color });
+        state.lines.push_back({ .start = origin,
+                                .end = points[pointIndex],
+                                .color = color });
     }
 }
 
@@ -141,13 +141,14 @@ void SpotLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selectedU
     if (previousUnit == selectedUnit)
         return;
 
-    Scene* editorScene = engine.GetSceneSystem().GetSceneByType(SceneType::Editor);
-    if (!editorScene)
-        return;
+    Scene* scene = selectedUnit->GetOwner();
+
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 
     EditorVisualContext context = {
         .engine = engine,
-        .renderScene = *editorScene->GetRenderScene()
+        .renderScene = *renderScene
     };
 
     if (visual.unit == previousUnit)

@@ -26,6 +26,8 @@ public:
 
     void MarkDirty();
 
+    Render::RenderObject* GetRenderObject() const { return renderObject; }
+
 protected:
     virtual void UpdateRenderObject() = 0;
 
