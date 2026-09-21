@@ -153,8 +153,11 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
 
     drawCmds.push_back(cmd);
 
-    cmd.passId = RenderPassId::Shadow;
-    drawCmds.push_back(cmd);
+    if (context.castsShadow)
+    {
+        cmd.passId = RenderPassId::Shadow;
+        drawCmds.push_back(cmd);
+    }
 }
 
 void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)

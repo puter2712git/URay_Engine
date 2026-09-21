@@ -31,14 +31,14 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
             !state.materials[section.materialIndex])
             continue;
 
-        builder.BuildMesh({
-            .worldMatrix = state.worldMatrix,
-            .colorTint = state.colorTint,
-            .mesh = state.mesh,
-            .material = state.materials[section.materialIndex],
-            .indexOffset = section.indexOffset,
-            .indexCount = section.indexCount,
-        });
+        builder.BuildMesh(
+            { .worldMatrix = state.worldMatrix,
+              .colorTint = state.colorTint,
+              .mesh = state.mesh,
+              .material = state.materials[section.materialIndex],
+              .indexOffset = section.indexOffset,
+              .indexCount = section.indexCount,
+              .castsShadow = state.castsShadow });
     }
 }
 

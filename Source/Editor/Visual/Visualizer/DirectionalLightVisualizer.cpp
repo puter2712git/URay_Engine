@@ -7,8 +7,8 @@
 #include "Engine/Object/Property/Property.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Render/Rendering/Object/Drawable/MeshObject.h"
 #include "Render/Rendering/Object/Drawable/BillboardObject.h"
+#include "Render/Rendering/Object/Drawable/MeshObject.h"
 #include "Render/Rendering/Scene/RenderScene.h"
 
 namespace URay
@@ -18,11 +18,12 @@ Render::MeshObjectState DirectionalLightVisualizer::MakeArrowState(EditorVisualC
 {
     TransformComponent* transform = unit.GetTransform();
 
-    return {
+    return Render::MeshObjectState{
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
         .colorTint = Color::Green,
         .mesh = context.engine.GetAssetSystem().GetDefaultAssets().arrowMesh,
-        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().meshMaterial }
+        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().meshMaterial },
+        .castsShadow = false
     };
 }
 

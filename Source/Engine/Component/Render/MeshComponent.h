@@ -42,6 +42,8 @@ protected:
 private:
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
+
+    bool castsShadow = true;
 };
 
 } // namespace URay

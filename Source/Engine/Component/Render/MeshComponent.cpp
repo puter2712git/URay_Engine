@@ -40,6 +40,11 @@ void MeshComponent::RegisterClass()
               MeshComponent* meshComp = static_cast<MeshComponent*>(&owner);
               meshComp->SetMesh(meshComp->GetMesh());
           } });
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Bool,
+          .name = "Casts Shadow",
+          .offset = offsetof(MeshComponent, castsShadow),
+          .size = sizeof(bool) });
 }
 
 Render::RenderObject* MeshComponent::CreateRenderObject()
@@ -54,6 +59,7 @@ Render::RenderObject* MeshComponent::CreateRenderObject()
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     objectState.mesh = mesh;
     objectState.materials = materials;
+    objectState.castsShadow = castsShadow;
 
     renderObject = new Render::MeshObject(objectState);
     return renderObject;
@@ -95,6 +101,7 @@ void MeshComponent::UpdateRenderObject()
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     state.mesh = mesh;
     state.materials = materials;
+    state.castsShadow = castsShadow;
 
     MeshObject* meshObject = static_cast<MeshObject*>(renderObject);
     meshObject->Update(state);

@@ -28,6 +28,8 @@ struct MeshCommandContext
 
     uint32 indexOffset = 0;
     uint32 indexCount = 0;
+
+    bool castsShadow = true;
 };
 
 struct BillboardCommandContext

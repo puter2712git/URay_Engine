@@ -25,6 +25,7 @@ struct MeshObjectState
     Color colorTint = Color::White;
     Mesh* mesh = nullptr;
     std::vector<Material*> materials;
+    bool castsShadow = true;
 };
 
 class MeshObject : public DrawableObject, public BoundedObject
@@ -39,6 +40,7 @@ public:
 
     const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
     Mesh* GetMesh() const { return state.mesh; }
+    bool CastsShadow() const { return state.castsShadow; }
     const AABB& GetWorldBounds() const override { return worldBounds; }
 
 private:
