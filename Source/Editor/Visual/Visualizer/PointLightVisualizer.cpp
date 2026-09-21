@@ -162,7 +162,7 @@ void PointLightVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selected
     if (previousUnit == selectedUnit)
         return;
 
-    Scene* scene = selectedUnit->GetOwner();
+    Scene* scene = visual.unit->GetOwner();
 
     Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
     Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);

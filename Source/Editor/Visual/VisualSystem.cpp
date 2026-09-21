@@ -40,12 +40,12 @@ bool VisualSystem::Initialize()
                                                 { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    sceneSystem.GetUnitAddRay().Register(this, [this](Scene* scene, Unit* unit)
-                                         { OnUnitAdded(scene, unit); });
-    sceneSystem.GetUnitRemoveRay().Register(this, [this](Scene* scene, Unit* unit)
-                                            { OnUnitRemoved(scene, unit); });
     sceneSystem.GetUnitWorldTransformUpdateRay().Register(this, [this](Scene* scene, Unit* unit)
                                                           { OnUnitTransformUpdated(scene, unit); });
+    sceneSystem.GetComponentAddRay().Register(this, [this](Scene* scene, Unit* unit, Component* component)
+                                              { OnComponentAdded(scene, unit, component); });
+    sceneSystem.GetComponentDestroyRay().Register(this, [this](Scene* scene, Unit* unit, Component* component)
+                                                  { OnComponentDestroyed(scene, unit, component); });
     sceneSystem.GetComponentPropertyChangeRay().Register(this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
                                                          { OnComponentPropertyChanged(scene, unit, component, property); });
 
@@ -57,44 +57,9 @@ void VisualSystem::Finalize()
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
     sceneSystem.GetComponentPropertyChangeRay().UnregisterAll(this);
+    sceneSystem.GetComponentDestroyRay().UnregisterAll(this);
+    sceneSystem.GetComponentAddRay().UnregisterAll(this);
     sceneSystem.GetUnitWorldTransformUpdateRay().UnregisterAll(this);
-    sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
-    sceneSystem.GetUnitAddRay().UnregisterAll(this);
-}
-
-void VisualSystem::OnUnitAdded(Scene* scene, Unit* unit)
-{
-    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
-    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
-
-    if (!renderScene)
-        return;
-
-    EditorVisualContext context = {
-        .engine = engine,
-        .renderScene = *renderScene
-    };
-
-    for (const auto& component : unit->GetComponents())
-    {
-        if (visualizers.contains(component.get()))
-            continue;
-
-        const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(component->GetClass());
-        if (constructor)
-        {
-            std::unique_ptr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);
-            visualizers.insert_or_assign(component.get(), std::move(visualizer));
-        }
-    }
-}
-
-void VisualSystem::OnUnitRemoved(Scene*, Unit* unit)
-{
-    for (const auto& component : unit->GetComponents())
-    {
-        visualizers.erase(component.get());
-    }
 }
 
 void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
@@ -115,6 +80,35 @@ void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
             it->second->OnUnitWorldTransformUpdated(context, *scene, *unit, *component);
         }
     }
+}
+
+void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* component)
+{
+    Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
+    Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
+
+    if (!renderScene)
+        return;
+
+    EditorVisualContext context = {
+        .engine = engine,
+        .renderScene = *renderScene
+    };
+
+    if (visualizers.contains(component))
+        return;
+
+    const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(component->GetClass());
+    if (constructor)
+    {
+        std::unique_ptr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);
+        visualizers.insert_or_assign(component, std::move(visualizer));
+    }
+}
+
+void VisualSystem::OnComponentDestroyed(Scene* scene, Unit* unit, Component* component)
+{
+    visualizers.erase(component);
 }
 
 void VisualSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property)

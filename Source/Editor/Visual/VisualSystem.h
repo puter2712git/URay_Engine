@@ -28,9 +28,9 @@ public:
     void Finalize();
 
 private:
-    void OnUnitAdded(Scene* scene, Unit* unit);
-    void OnUnitRemoved(Scene* scene, Unit* unit);
     void OnUnitTransformUpdated(Scene* scene, Unit* unit);
+    void OnComponentAdded(Scene* scene, Unit* unit, Component* component);
+    void OnComponentDestroyed(Scene* scene, Unit* unit, Component* component);
     void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
 
 private:
