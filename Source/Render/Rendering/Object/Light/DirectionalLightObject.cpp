@@ -13,6 +13,7 @@ DirectionalLightObject::~DirectionalLightObject() = default;
 void DirectionalLightObject::Update(const DirectionalLightObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 } // namespace URay::Render

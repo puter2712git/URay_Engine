@@ -49,8 +49,8 @@ DirectionalLightVisualizer::DirectionalLightVisualizer(EditorVisualContext& cont
     visual.arrow = arrow.get();
     visual.billboard = billboard.get();
 
-    renderScene.Add(std::move(arrow));
-    renderScene.Add(std::move(billboard));
+    renderScene.Add(std::move(arrow), &component);
+    renderScene.Add(std::move(billboard), &component);
 }
 
 DirectionalLightVisualizer::~DirectionalLightVisualizer()

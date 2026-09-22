@@ -11,6 +11,7 @@ FogObject::~FogObject() = default;
 void FogObject::Update(const FogObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 } // namespace URay::Render

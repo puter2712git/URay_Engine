@@ -15,6 +15,7 @@ TextObject::~TextObject()
 void TextObject::Update(const TextObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 void TextObject::Submit(DrawCommandBuilder& builder) const

@@ -18,6 +18,7 @@ void MeshObject::Update(const MeshObjectState& state)
 {
     this->state = state;
     worldBounds = state.mesh ? state.mesh->GetLocalBounds().Transform(state.worldMatrix) : AABB{};
+    NotifyUpdated();
 }
 
 void MeshObject::Submit(DrawCommandBuilder& builder) const

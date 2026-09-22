@@ -13,6 +13,7 @@ AmbientLightObject::~AmbientLightObject() = default;
 void AmbientLightObject::Update(const AmbientLightObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 } // namespace URay::Render

@@ -56,7 +56,7 @@ void SceneSystem::OnEngineSceneAdded(Scene* scene)
     const auto it = scenes.find(scene);
     assert(it == scenes.end());
 
-    std::unique_ptr<RenderScene> newRenderScene = std::make_unique<RenderScene>();
+    std::unique_ptr<RenderScene> newRenderScene = std::make_unique<RenderScene>(*this);
     scenes.insert({ scene, std::move(newRenderScene) });
 }
 
@@ -80,7 +80,7 @@ void SceneSystem::OnEngineSceneComponentAdded(Scene* scene, Unit* unit, Componen
     std::unique_ptr<RenderObject> newRenderObject = nullptr;
     newRenderObject.reset(renderComponent->CreateRenderObject());
 
-    renderScene->Add(std::move(newRenderObject));
+    renderScene->Add(std::move(newRenderObject), component);
 }
 
 void SceneSystem::OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Component* component)

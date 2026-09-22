@@ -17,6 +17,7 @@ GizmoObject::~GizmoObject() = default;
 void GizmoObject::Update(const GizmoObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 void GizmoObject::Submit(DrawCommandBuilder& builder) const

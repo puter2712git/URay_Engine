@@ -36,7 +36,7 @@ PointLightVisualizer::PointLightVisualizer(EditorVisualContext& context, Unit& u
         .component = &component,
         .billboard = billboard.get()
     };
-    renderScene.Add(std::move(billboard));
+    renderScene.Add(std::move(billboard), &component);
 
     if (selectionSystem.GetSelectedUnit() == &unit)
         CreateLine(context, component, visual);
@@ -186,7 +186,7 @@ void PointLightVisualizer::CreateLine(EditorVisualContext& context, Component& c
     std::unique_ptr<Render::LineObject> line =
         std::make_unique<Render::LineObject>(MakeLineState(context, *visual.unit, component));
     visual.line = line.get();
-    context.renderScene.Add(std::move(line));
+    context.renderScene.Add(std::move(line), &component);
 }
 
 void PointLightVisualizer::DestroyLine(EditorVisualContext& context, PointLightVisual& visual)

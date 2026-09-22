@@ -7,12 +7,14 @@
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"
-#include "Engine/Component/Render/MeshComponent.h"
-#include "Engine/Component/Render/SpriteComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Scene.h"
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
+
+#include "Render/RenderSystem.h"
+#include "Render/Rendering/Object/Drawable/MeshObject.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 #include "Core/Math/Math.h"
 #include "Core/Math/Ray.h"
@@ -27,55 +29,59 @@ PickSystem::~PickSystem() = default;
 
 bool PickSystem::Initialize()
 {
-    pickRegistry.Register<MeshComponent>([](Component& component)
-                                         { return std::make_unique<MeshPickObject>(static_cast<MeshComponent&>(component)); });
-    pickRegistry.Register<SpriteComponent>([](Component& component)
-                                           { return std::make_unique<MeshPickObject>(static_cast<SpriteComponent&>(component)); });
+    pickRegistry.Register<Render::MeshObject>(
+        [](Render::RenderObject& object, Unit& unit)
+        {
+            return std::make_unique<MeshPickObject>(
+                static_cast<Render::MeshObject&>(object), unit);
+        });
 
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetComponentAddRay().Register(
-        this, [this](Scene* scene, Unit* unit, Component* component)
-        { OnComponentAdded(scene, unit, component); });
-    sceneSystem.GetComponentDestroyRay().Register(
-        this, [this](Scene* scene, Unit* unit, Component* component)
-        { OnComponentDestroyed(scene, unit, component); });
-    sceneSystem.GetComponentPropertyChangeRay().Register(
-        this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
-        { OnComponentPropertyChanged(scene, unit, component, property); });
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::SceneSystem& sceneSystem = renderSystem.GetSceneSystem();
+
+    sceneSystem.GetObjectAddRay().Register(this, [this](Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component)
+                                           { OnRenderObjectAdded(scene, object, unit, component); });
+    sceneSystem.GetObjectDestroyRay().Register(this, [this](Render::RenderScene* scene, Render::RenderObject* object)
+                                               { OnRenderObjectDestroyed(scene, object); });
+    sceneSystem.GetObjectUpdateRay().Register(this, [this](Render::RenderScene* scene, Render::RenderObject* object)
+                                              { OnRenderObjectUpdated(scene, object); });
 
     return true;
 }
 
 void PickSystem::Finalize()
 {
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
-    sceneSystem.GetUnitAddRay().UnregisterAll(this);
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::SceneSystem& sceneSystem = renderSystem.GetSceneSystem();
+
+    sceneSystem.GetObjectUpdateRay().UnregisterAll(this);
+    sceneSystem.GetObjectDestroyRay().UnregisterAll(this);
+    sceneSystem.GetObjectAddRay().UnregisterAll(this);
 
     pickObjects.clear();
 }
 
-void PickSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* component)
+void PickSystem::OnRenderObjectAdded(Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component)
 {
-    const PickRegistry::Constructor* constructor = pickRegistry.Find(component->GetClass());
+    const PickRegistry::Constructor* constructor = pickRegistry.Find(object);
     if (constructor)
     {
-        pickObjects.insert_or_assign(component, (*constructor)(*component));
+        pickObjects.insert_or_assign(object, (*constructor)(*object, *unit));
     }
 }
 
-void PickSystem::OnComponentDestroyed(Scene* scene, Unit* unit, Component* component)
+void PickSystem::OnRenderObjectDestroyed(Render::RenderScene* scene, Render::RenderObject* object)
 {
-    pickObjects.erase(component);
+    pickObjects.erase(object);
 }
 
-void PickSystem::OnComponentPropertyChanged(Scene*, Unit*, Component* component, const Property& property)
+void PickSystem::OnRenderObjectUpdated(Render::RenderScene* scene, Render::RenderObject* object)
 {
-    const auto it = pickObjects.find(component);
+    const auto it = pickObjects.find(object);
     if (it == pickObjects.end())
         return;
 
-    it->second->OnComponentPropertyChanged(component, property);
+    it->second->Update(object);
 }
 
 PickResult PickSystem::Pick(

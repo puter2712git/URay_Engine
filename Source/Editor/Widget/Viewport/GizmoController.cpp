@@ -50,7 +50,7 @@ GizmoController::GizmoController()
 
     std::unique_ptr<Render::GizmoObject> gizmoObject = std::make_unique<Render::GizmoObject>(objectState);
     renderObject = gizmoObject.get();
-    renderScene->Add(std::move(gizmoObject));
+    renderScene->Add(std::move(gizmoObject), nullptr);
 }
 
 GizmoController::~GizmoController() = default;

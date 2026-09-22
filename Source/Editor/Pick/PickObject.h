@@ -4,6 +4,11 @@
 
 #include "Core/Math/Ray.h"
 
+namespace URay::Render
+{
+class RenderObject;
+}
+
 namespace URay
 {
 
@@ -18,7 +23,7 @@ public:
 public:
     virtual bool Intersect(const Ray& worldRay, float& nearestDistance) const = 0;
 
-    virtual void OnComponentPropertyChanged(Component* component, const Property& property) = 0;
+    virtual void Update(Render::RenderObject* object) = 0;
 
     Unit* GetOwner() const { return owner; }
 

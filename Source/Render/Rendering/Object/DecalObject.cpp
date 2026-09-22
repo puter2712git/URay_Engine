@@ -1,6 +1,5 @@
 #include "DecalObject.h"
 
-#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
@@ -8,6 +7,7 @@
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
@@ -73,6 +73,8 @@ void DecalObject::Update(const DecalObjectState& state)
     constants.invDecalWorld = state.worldMatrix.Inverse();
     constants.extent = state.extent;
     ++constantsVersion;
+
+    NotifyUpdated();
 }
 
 DescriptorSet* DecalObject::GetDescriptorSet(uint32 frameIndex)

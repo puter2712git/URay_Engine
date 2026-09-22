@@ -1,28 +1,21 @@
 #include "MeshPickObject.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
-#include "Engine/Component/Render/MeshComponent.h"
-#include "Engine/Component/Render/SpriteComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Scene/Unit.h"
 
 #include "Core/Math/Math.h"
 
+#include "Render/Rendering/Object/Drawable/MeshObject.h"
 #include "Render/Vertex.h"
 
 namespace URay
 {
 
-MeshPickObject::MeshPickObject(MeshComponent& meshComponent)
+MeshPickObject::MeshPickObject(Render::MeshObject& object, Unit& unit)
 {
-    owner = meshComponent.GetOwner();
-    mesh = meshComponent.GetMesh();
-}
-
-MeshPickObject::MeshPickObject(SpriteComponent& spriteComponent)
-{
-    owner = spriteComponent.GetOwner();
-    mesh = spriteComponent.GetQuadMesh();
+    owner = &unit;
+    mesh = object.GetMesh();
 }
 
 MeshPickObject::~MeshPickObject() = default;
@@ -78,13 +71,10 @@ bool MeshPickObject::Intersect(
     return hitResult;
 }
 
-void MeshPickObject::OnComponentPropertyChanged(Component* component, const Property& property)
+void MeshPickObject::Update(Render::RenderObject* object)
 {
-    if (property.name != "Mesh")
-        return;
-
-    MeshComponent* meshComponent = static_cast<MeshComponent*>(component);
-    mesh = meshComponent->GetMesh();
+    Render::MeshObject* meshObject = static_cast<Render::MeshObject*>(object);
+    mesh = meshObject->GetMesh();
 }
 
 } // namespace URay

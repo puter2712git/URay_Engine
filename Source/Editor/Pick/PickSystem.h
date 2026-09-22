@@ -7,6 +7,12 @@
 #include <memory>
 #include <unordered_map>
 
+namespace URay::Render
+{
+class RenderObject;
+class RenderScene;
+} // namespace URay::Render
+
 namespace URay
 {
 
@@ -41,15 +47,15 @@ public:
 private:
     bool PickGizmo(const Ray& worldRay, int32& outAxis) const;
 
-    void OnComponentAdded(Scene* scene, Unit* unit, Component* component);
-    void OnComponentDestroyed(Scene* scene, Unit* unit, Component* component);
-    void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
+    void OnRenderObjectAdded(Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component);
+    void OnRenderObjectDestroyed(Render::RenderScene* scene, Render::RenderObject* object);
+    void OnRenderObjectUpdated(Render::RenderScene* scene, Render::RenderObject* object);
 
 private:
     GizmoController& gizmo;
 
     PickRegistry pickRegistry;
-    std::unordered_map<Component*, std::unique_ptr<PickObject>> pickObjects;
+    std::unordered_map<Render::RenderObject*, std::unique_ptr<PickObject>> pickObjects;
 };
 
 } // namespace URay

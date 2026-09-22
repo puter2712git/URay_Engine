@@ -18,6 +18,7 @@ void BillboardObject::Update(const BillboardObjectState& state)
 {
     this->state = state;
     worldBounds = state.mesh ? state.mesh->GetLocalBounds().Transform(state.worldMatrix) : AABB{};
+    NotifyUpdated();
 }
 
 void BillboardObject::Submit(DrawCommandBuilder& builder) const

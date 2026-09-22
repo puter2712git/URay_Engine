@@ -11,6 +11,7 @@ ViewObject::~ViewObject() = default;
 void ViewObject::Update(const ViewObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 } // namespace URay::Render

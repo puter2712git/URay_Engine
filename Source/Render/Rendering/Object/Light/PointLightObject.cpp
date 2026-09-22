@@ -13,6 +13,7 @@ PointLightObject::~PointLightObject() = default;
 void PointLightObject::Update(const PointLightObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 } // namespace URay::Render

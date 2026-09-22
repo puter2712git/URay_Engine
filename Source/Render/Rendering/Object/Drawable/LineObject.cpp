@@ -13,6 +13,7 @@ LineObject::~LineObject() = default;
 void LineObject::Update(const LineObjectState& state)
 {
     this->state = state;
+    NotifyUpdated();
 }
 
 void LineObject::Submit(DrawCommandBuilder& builder) const
