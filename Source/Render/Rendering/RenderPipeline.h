@@ -14,6 +14,7 @@
 namespace URay
 {
 class AssetSystem;
+class Unit;
 } // namespace URay
 
 namespace URay::Render
@@ -32,6 +33,8 @@ struct RenderRequest
 {
     std::vector<RenderScene*> scenes;
     RenderView view = {};
+
+    Unit* selectedUnit = nullptr;
 };
 
 class RenderPipeline

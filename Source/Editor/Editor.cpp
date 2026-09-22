@@ -225,6 +225,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity,
             .viewMode = viewport.GetViewMode()
         };
+
+        request.selectedUnit = nullptr;
     }
     else
     {
@@ -245,6 +247,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .projMatrix = editorCamera->GetProjMatrix(),
             .viewMode = viewport.GetViewMode()
         };
+
+        request.selectedUnit = selectionSystem->GetSelectedUnit();
     }
 
     return request;

@@ -8,6 +8,10 @@
 #define URAY_SHADING_MODEL 1
 #endif
 
+#ifndef URAY_SELECTION_MASK
+#define URAY_SELECTION_MASK 0
+#endif
+
 [[vk::binding(0, 1)]] Texture2D<float4> diffuseColorTexture;
 [[vk::binding(1, 1)]] SamplerState diffuseColorSampler;
 
@@ -122,10 +126,14 @@ FragOut PSMain(VertexPNTOut input)
 {
     FragOut output;
     
+#if URAY_SELECTION_MASK
+    output.outColor = float4(1, 1, 1, 1);
+#else
     float4 albedo = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV) * obj.colorTint;
     float3 finalColor = EvaluateLighting(albedo.rgb, input.outWorldPosition, input.outNormal);
     
     output.outColor = float4(finalColor, albedo.a);
+#endif
 
     return output;
 }

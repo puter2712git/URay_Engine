@@ -86,6 +86,8 @@ bool Renderer::Initialize()
         return false;
     if (!CreatePostProcessRenderTarget())
         return false;
+    if (!CreateSelectionMaskRenderTarget())
+        return false;
 
     if (!CreateFrameResources())
         return false;
@@ -101,8 +103,9 @@ void Renderer::Finalize()
 
     DestroyFrameResources();
 
-    DestroySceneRenderTarget();
+    DestroySelectionMaskRenderTarget();
     DestroyPostProcessRenderTarget();
+    DestroySceneRenderTarget();
 
     DestroyCommandPool();
 }
@@ -397,6 +400,28 @@ void Renderer::DestroyPostProcessRenderTarget()
     }
 }
 
+bool Renderer::CreateSelectionMaskRenderTarget()
+{
+    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+
+    const RenderTargetDesc desc = {
+        .extent = { swapChainExtent.width, swapChainExtent.height },
+        .color = RenderTargetAttachmentDesc{
+            .format = Format::BGRA8_sRGB,
+            .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled },
+        .depth = RenderTargetAttachmentDesc{ .format = Format::D32_Float_S8_UInt, .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
+    };
+
+    selectionMaskRenderTarget = std::make_unique<RenderTarget>(device, desc);
+
+    return selectionMaskRenderTarget != nullptr;
+}
+
+void Renderer::DestroySelectionMaskRenderTarget()
+{
+    selectionMaskRenderTarget.reset();
+}
+
 bool Renderer::CreateCommandPool()
 {
     commandPool.reset(device.CreateCommandPool(QueueType::Graphics, CommandPoolFlags::ResetCommandBuffer));
@@ -548,6 +573,10 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     if (!postProcessRenderTarget->Recreate(extent))
     {
         throw std::runtime_error("Failed to resize post process render target.");
+    }
+    if (!selectionMaskRenderTarget->Recreate(extent))
+    {
+        throw std::runtime_error("Failed to resize selection mask render target.");
     }
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(

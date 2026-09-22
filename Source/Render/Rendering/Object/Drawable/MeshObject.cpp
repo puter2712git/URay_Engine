@@ -38,8 +38,42 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
               .mesh = state.mesh,
               .material = state.materials[section.materialIndex],
               .indexOffset = section.indexOffset,
-              .indexCount = section.indexCount,
-              .castsShadow = state.castsShadow });
+              .indexCount = section.indexCount },
+            RenderPassId::Opaque);
+
+        if (state.castsShadow)
+        {
+            builder.BuildMesh(
+                { .worldMatrix = state.worldMatrix,
+                  .colorTint = state.colorTint,
+                  .mesh = state.mesh,
+                  .material = state.materials[section.materialIndex],
+                  .indexOffset = section.indexOffset,
+                  .indexCount = section.indexCount },
+                RenderPassId::Shadow);
+        }
+    }
+}
+
+void MeshObject::SubmitSelectionMask(DrawCommandBuilder& builder) const
+{
+    if (!state.mesh)
+        return;
+
+    for (const auto& section : state.mesh->GetSections())
+    {
+        if (section.materialIndex >= state.materials.size() ||
+            !state.materials[section.materialIndex])
+            continue;
+
+        builder.BuildMesh(
+            { .worldMatrix = state.worldMatrix,
+              .colorTint = state.colorTint,
+              .mesh = state.mesh,
+              .material = state.materials[section.materialIndex],
+              .indexOffset = section.indexOffset,
+              .indexCount = section.indexCount },
+            RenderPassId::SelectionMask);
     }
 }
 

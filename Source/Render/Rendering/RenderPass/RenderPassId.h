@@ -11,9 +11,11 @@ enum class RenderPassId : uint8
 {
     Shadow,
     Opaque,
+    SelectionMask,
     Decal,
     Overlay,
     Fog,
+    SelectionOutline,
     UI,
     Count,
 };

@@ -37,6 +37,7 @@ public:
 public:
     void Update(const MeshObjectState& state);
     void Submit(DrawCommandBuilder& builder) const override;
+    void SubmitSelectionMask(DrawCommandBuilder& builder) const override;
 
     const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
     Mesh* GetMesh() const { return state.mesh; }

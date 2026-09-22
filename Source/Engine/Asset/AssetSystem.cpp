@@ -55,6 +55,7 @@ bool AssetSystem::Initialize(
     Shader* billboardShader = factory->CreateShader("Engine://Asset/Source/Shader/Billboard.hlsl");
     Shader* fogShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/Fog.hlsl");
     Shader* shadowShader = factory->CreateShader("Engine://Asset/Source/Shader/Shadow.hlsl");
+    Shader* selectionOutlineShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/SelectionOutline.hlsl");
 
     assets.insert({ spriteShader->GetUUID(), spriteShader });
     assets.insert({ meshShader->GetUUID(), meshShader });
@@ -64,6 +65,7 @@ bool AssetSystem::Initialize(
     assets.insert({ billboardShader->GetUUID(), billboardShader });
     assets.insert({ fogShader->GetUUID(), fogShader });
     assets.insert({ shadowShader->GetUUID(), shadowShader });
+    assets.insert({ selectionOutlineShader->GetUUID(), selectionOutlineShader });
 
     return true;
 }

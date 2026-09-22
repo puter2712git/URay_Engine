@@ -36,6 +36,7 @@ struct RenderPassContext
 
     RenderTarget& sceneRenderTarget;
     RenderTarget& postProcessRenderTarget;
+    RenderTarget& selectionMaskRenderTarget;
 
     VkImage swapChainImage = VK_NULL_HANDLE;
     VkImageView swapChainImageView = VK_NULL_HANDLE;

@@ -20,6 +20,8 @@
 #include "Render/Rendering/RenderPass/FogPass.h"
 #include "Render/Rendering/RenderPass/OpaquePass.h"
 #include "Render/Rendering/RenderPass/OverlayPass.h"
+#include "Render/Rendering/RenderPass/SelectionMaskPass.h"
+#include "Render/Rendering/RenderPass/SelectionOutlinePass.h"
 #include "Render/Rendering/RenderPass/ShadowPass.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/Rendering/Scene/RenderScene.h"
@@ -68,7 +70,9 @@ bool RenderPipeline::Initialize()
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<DecalPass>());
     passes.push_back(std::make_unique<OverlayPass>());
+    passes.push_back(std::make_unique<SelectionMaskPass>());
     passes.push_back(std::make_unique<FogPass>(renderSystem, fogShader));
+    passes.push_back(std::make_unique<SelectionOutlinePass>());
 
     return true;
 }
@@ -219,6 +223,21 @@ void RenderPipeline::Execute(const RenderRequest& request)
     builder->FlushLines();
     builder->FlushTexts();
 
+    if (request.selectedUnit)
+    {
+        for (const auto& component : request.selectedUnit->GetComponents())
+        {
+            if (RenderComponent* renderComponent = Cast<RenderComponent>(component.get()))
+            {
+                RenderObject* renderObject = renderComponent->GetRenderObject();
+                if (DrawableObject* drawableObject = dynamic_cast<DrawableObject*>(renderObject))
+                {
+                    drawableObject->SubmitSelectionMask(*builder);
+                }
+            }
+        }
+    }
+
     const std::vector<DrawCommand>& cmds = builder->GetCommands();
 
     for (const DrawCommand& cmd : cmds)
@@ -238,6 +257,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
         .sceneRenderTarget = renderer.GetSceneRenderTarget(),
         .postProcessRenderTarget = renderer.GetPostProcessRenderTarget(),
+        .selectionMaskRenderTarget = renderer.GetSelectionMaskRenderTarget(),
 
         .swapChainImage = renderer.GetSwapChainImage(),
         .swapChainImageView = renderer.GetSwapChainImageView(),

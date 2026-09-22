@@ -101,7 +101,7 @@ void DrawCommandBuilder::FlushTexts()
     drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 
-void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
+void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPassId passId)
 {
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
@@ -116,6 +116,11 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     case ViewMode::Unlit:
         defines.push_back({ ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
         break;
+    }
+
+    if (passId == RenderPassId::SelectionMask)
+    {
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SELECTION_MASK", .value = L"1" } });
     }
 
     Render::Shader* shader = resourceManager.GetOrCreateShader(
@@ -141,6 +146,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
             : PolygonMode::Fill;
 
     DrawCommand cmd = {};
+    cmd.passId = passId;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
@@ -149,15 +155,13 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context)
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
     cmd.pipelineState = stateDesc;
-    cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+
+    if (passId != RenderPassId::SelectionMask)
+    {
+        cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+    }
 
     drawCmds.push_back(cmd);
-
-    if (context.castsShadow)
-    {
-        cmd.passId = RenderPassId::Shadow;
-        drawCmds.push_back(cmd);
-    }
 }
 
 void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)

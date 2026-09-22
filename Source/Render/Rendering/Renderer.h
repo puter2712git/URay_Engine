@@ -57,6 +57,7 @@ public:
 
     RenderTarget& GetSceneRenderTarget() const { return *sceneRenderTarget; }
     RenderTarget& GetPostProcessRenderTarget() const { return *postProcessRenderTarget; }
+    RenderTarget& GetSelectionMaskRenderTarget() const { return *selectionMaskRenderTarget; }
 
     VkImage GetSwapChainImage() const;
     VkImageView GetSwapChainImageView() const;
@@ -72,6 +73,9 @@ private:
 
     bool CreatePostProcessRenderTarget();
     void DestroyPostProcessRenderTarget();
+
+    bool CreateSelectionMaskRenderTarget();
+    void DestroySelectionMaskRenderTarget();
 
     void CleanupSwapChain();
     void RecreateSwapChain();
@@ -104,6 +108,7 @@ private:
 
     std::unique_ptr<RenderTarget> sceneRenderTarget = nullptr;
     std::unique_ptr<RenderTarget> postProcessRenderTarget = nullptr;
+    std::unique_ptr<RenderTarget> selectionMaskRenderTarget = nullptr;
 
     VkDescriptorSet sceneImGuiTexture = VK_NULL_HANDLE;
 

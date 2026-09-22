@@ -14,6 +14,7 @@ public:
 
 public:
     virtual void Submit(DrawCommandBuilder& builder) const = 0;
+    virtual void SubmitSelectionMask(DrawCommandBuilder& builder) const {}
 };
 
 } // namespace URay::Render

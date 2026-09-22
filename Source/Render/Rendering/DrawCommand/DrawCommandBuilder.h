@@ -3,8 +3,9 @@
 #include "DrawCommand.h"
 #include "DrawCommandContext.h"
 
-#include "Render/Vertex.h"
+#include "Render/Rendering/RenderPass/RenderPassId.h"
 #include "Render/Rendering/View/ViewMode.h"
+#include "Render/Vertex.h"
 
 #include "Core/Math/AABB.h"
 
@@ -41,7 +42,7 @@ public:
     void FlushLines();
     void FlushTexts();
 
-    void BuildMesh(const MeshCommandContext& context);
+    void BuildMesh(const MeshCommandContext& context, RenderPassId passId);
     void BuildBillboard(const BillboardCommandContext& context);
     void BuildText(const TextCommandContext& context);
 
