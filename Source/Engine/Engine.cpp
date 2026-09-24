@@ -49,7 +49,7 @@ bool Engine::Initialize(
     inputManager = std::make_unique<InputManager>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
-    assetSystem = std::make_unique<AssetSystem>(*this);
+    assetSystem = std::make_unique<AssetSystem>();
     if (!assetSystem->Initialize(enginePath, projectPath))
         return false;
 
@@ -61,8 +61,8 @@ bool Engine::Initialize(
     if (!renderSystem->Initialize())
         return false;
 
-    assetSystem->CreateDefaultAssets();
     assetSystem->LoadAssets("Engine://Asset/Source");
+    assetSystem->CreateDefaultAssets();
     assetSystem->LoadAssets("RawAsset://");
 
     scriptSystem = std::make_unique<ScriptSystem>();

@@ -8,11 +8,11 @@ namespace URay
 class VirtualFilesystem;
 class VirtualPath;
 
-class MaterialImporter final : public Importer
+class ShaderImporter final : public Importer
 {
 public:
-    MaterialImporter();
-    ~MaterialImporter() override;
+    ShaderImporter();
+    ~ShaderImporter() override;
 
 public:
     Asset* Import(const VirtualPath& sourcePath) override;
@@ -20,9 +20,6 @@ public:
     std::vector<UUID> CollectDependencies(const VirtualPath& sourcePath) const override;
 
     bool CanImport(const std::string& extension) const override;
-
-private:
-    bool LoadSource(const VirtualPath& path) const;
 };
 
 } // namespace URay

@@ -26,7 +26,8 @@ YAML::Node AssetMetadata::Serialize() const
     }
 
     node["SourcePath"] = sourcePath.ToString();
-    node["ImportPath"] = importPath.ToString();
+    node["MetadataPath"] = metadataPath.ToString();
+    node["AssetPath"] = assetPath.ToString();
 
     return node;
 }
@@ -55,7 +56,8 @@ void AssetMetadata::Deserialize(const YAML::Node& node)
     }
 
     sourcePath = VirtualPath(node["SourcePath"].as<std::string>());
-    importPath = VirtualPath(node["ImportPath"].as<std::string>());
+    metadataPath = VirtualPath(node["MetadataPath"].as<std::string>());
+    assetPath = VirtualPath(node["AssetPath"].as<std::string>());
 }
 
 } // namespace URay

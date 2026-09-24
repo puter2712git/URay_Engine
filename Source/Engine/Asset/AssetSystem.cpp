@@ -1,7 +1,10 @@
 #include "AssetSystem.h"
 
 #include "Engine/Asset/AssetFactory.h"
-#include "Engine/Asset/AssetPipeline.h"
+#include "Engine/Asset/Importer/MaterialImporter.h"
+#include "Engine/Asset/Importer/OBJImporter.h"
+#include "Engine/Asset/Importer/ShaderImporter.h"
+#include "Engine/Asset/Importer/TextureImporter.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/MeshGenerator.h"
 #include "Engine/Asset/Shader/Shader.h"
@@ -11,6 +14,9 @@
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"
+
+#include <iostream>
+#include <string>
 
 namespace URay::DefaultMeshUUIDs
 {
@@ -24,10 +30,7 @@ inline constexpr UUID ScaleGizmo{ .high = 0, .low = 5 };
 namespace URay
 {
 
-AssetSystem::AssetSystem(Engine& engine)
-    : engine(engine)
-{
-}
+AssetSystem::AssetSystem() = default;
 
 AssetSystem::~AssetSystem() = default;
 
@@ -41,136 +44,29 @@ bool AssetSystem::Initialize(
     filesystem->Mount("RawAsset", fs::path(projectPath) / "Asset/Source");
     filesystem->Mount("Asset", fs::path(projectPath) / "Asset/Imported");
 
-    factory = std::make_unique<AssetFactory>(engine);
+    factory = std::make_unique<AssetFactory>();
 
-    pipeline = std::make_unique<AssetPipeline>(*this);
-    if (!pipeline->Initialize())
-        return false;
+    importers.push_back(std::make_unique<TextureImporter>());
+    importers.push_back(std::make_unique<MaterialImporter>());
+    importers.push_back(std::make_unique<OBJImporter>());
+    importers.push_back(std::make_unique<ShaderImporter>());
 
-    Shader* spriteShader = factory->CreateShader("Engine://Asset/Source/Shader/Sprite.hlsl");
-    Shader* meshShader = factory->CreateShader("Engine://Asset/Source/Shader/Mesh.hlsl");
-    Shader* fontShader = factory->CreateShader("Engine://Asset/Source/Shader/Font.hlsl");
-    Shader* decalShader = factory->CreateShader("Engine://Asset/Source/Shader/Decal.hlsl");
-    Shader* lineShader = factory->CreateShader("Engine://Asset/Source/Shader/Line.hlsl");
-    Shader* billboardShader = factory->CreateShader("Engine://Asset/Source/Shader/Billboard.hlsl");
-    Shader* fogShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/Fog.hlsl");
-    Shader* shadowShader = factory->CreateShader("Engine://Asset/Source/Shader/Shadow.hlsl");
-    Shader* selectionOutlineShader = factory->CreateShader("Engine://Asset/Source/Shader/PostProcess/SelectionOutline.hlsl");
+    /* === Asset Pipeline === */
 
-    assets.insert({ spriteShader->GetUUID(), spriteShader });
-    assets.insert({ meshShader->GetUUID(), meshShader });
-    assets.insert({ fontShader->GetUUID(), fontShader });
-    assets.insert({ decalShader->GetUUID(), decalShader });
-    assets.insert({ lineShader->GetUUID(), lineShader });
-    assets.insert({ billboardShader->GetUUID(), billboardShader });
-    assets.insert({ fogShader->GetUUID(), fogShader });
-    assets.insert({ shadowShader->GetUUID(), shadowShader });
-    assets.insert({ selectionOutlineShader->GetUUID(), selectionOutlineShader });
+    // 0. Collect metadatas.
+    std::vector<AssetMetadata> collectedMetadatas = ScanAssets();
+
+    // 1. Sort metadatas by dependency.
+    std::vector<AssetMetadata> sortedMetadatas = SortByDependency(collectedMetadatas);
+
+    // 2. Import assets in order.
+    ImportAll(sortedMetadatas);
 
     return true;
 }
 
 bool AssetSystem::CreateDefaultAssets()
 {
-    UUID whiteTextureUUID = Import("Engine://Asset/Source/Texture/WhiteTexture.png");
-    defaultAssets.whiteTexture = Find<Texture>(whiteTextureUUID);
-
-    UUID fontTextureUUID = Import("Engine://Asset/Source/Texture/DejaVu Sans Mono.png");
-    defaultAssets.fontTexture = Find<Texture>(fontTextureUUID);
-
-    UUID decalTextureUUID = Import("Engine://Asset/Source/Texture/BulletHole.png");
-    defaultAssets.decalTexture = Find<Texture>(decalTextureUUID);
-
-    UUID directionalLightTextureUUID = Import("Engine://Asset/Source/Texture/DirectionalLightIcon.png");
-    defaultAssets.directionalLightBillboardTexture = Find<Texture>(directionalLightTextureUUID);
-
-    UUID pointLightTextureUUID = Import("Engine://Asset/Source/Texture/PointLightIcon.png");
-    defaultAssets.pointLightBillboardTexture = Find<Texture>(pointLightTextureUUID);
-
-    UUID decalBillboardTextureUUID = Import("Engine://Asset/Source/Texture/DecalIcon.png");
-    defaultAssets.decalBillboardTexture = Find<Texture>(decalBillboardTextureUUID);
-
-    std::vector<Shader*> shaders = FindAssets<Shader>();
-    Shader* spriteShader = nullptr;
-    Shader* billboardShader = nullptr;
-    Shader* meshShader = nullptr;
-    Shader* decalShader = nullptr;
-
-    for (Shader* shader : shaders)
-    {
-        if (shader->GetName() == "Sprite")
-        {
-            spriteShader = shader;
-        }
-        if (shader->GetName() == "Billboard")
-        {
-            billboardShader = shader;
-        }
-        if (shader->GetName() == "Mesh")
-        {
-            meshShader = shader;
-        }
-        if (shader->GetName() == "Decal")
-        {
-            decalShader = shader;
-        }
-    }
-
-    Material* spriteMaterial = factory->CreateMaterial(
-        AssetMetadata{
-            .uuid = UUID::Generate(),
-            .type = AssetType::Material,
-            .sourcePath = "Sprite Material" },
-        spriteShader);
-    Material* billboardMaterial = factory->CreateMaterial(
-        AssetMetadata{
-            .uuid = UUID::Generate(),
-            .type = AssetType::Material,
-            .sourcePath = "Billboard Material" },
-        billboardShader);
-    billboardMaterial->SetTexture("textureImage", defaultAssets.directionalLightBillboardTexture);
-    Material* pointLightBillboardMaterial = factory->CreateMaterial(
-        AssetMetadata{
-            .uuid = UUID::Generate(),
-            .type = AssetType::Material,
-            .sourcePath = "PointLight Billboard Material" },
-        billboardShader);
-    pointLightBillboardMaterial->SetTexture("textureImage", defaultAssets.pointLightBillboardTexture);
-    Material* decalBillboardMaterial = factory->CreateMaterial(
-        AssetMetadata{
-            .uuid = UUID::Generate(),
-            .type = AssetType::Material,
-            .sourcePath = "Decal Billboard Material" },
-        billboardShader);
-    decalBillboardMaterial->SetTexture("textureImage", defaultAssets.decalBillboardTexture);
-    Material* meshMaterial = factory->CreateMaterial(
-        AssetMetadata{
-            .uuid = UUID::Generate(),
-            .type = AssetType::Material,
-            .sourcePath = "Mesh Material" },
-        meshShader);
-    Material* decalMaterial = factory->CreateMaterial(
-        AssetMetadata{
-            .uuid = UUID::Generate(),
-            .type = AssetType::Material,
-            .sourcePath = "Decal Material" },
-        decalShader);
-    decalMaterial->SetTexture("decalTexture", defaultAssets.decalTexture);
-
-    assets.insert({ spriteMaterial->GetUUID(), spriteMaterial });
-    assets.insert({ billboardMaterial->GetUUID(), billboardMaterial });
-    assets.insert({ pointLightBillboardMaterial->GetUUID(), pointLightBillboardMaterial });
-    assets.insert({ decalBillboardMaterial->GetUUID(), decalBillboardMaterial });
-    assets.insert({ meshMaterial->GetUUID(), meshMaterial });
-    assets.insert({ decalMaterial->GetUUID(), decalMaterial });
-
-    defaultAssets.spriteMaterial = spriteMaterial;
-    defaultAssets.billboardMaterial = billboardMaterial;
-    defaultAssets.pointLightBillboardMaterial = pointLightBillboardMaterial;
-    defaultAssets.decalBillboardMaterial = decalBillboardMaterial;
-    defaultAssets.meshMaterial = meshMaterial;
-    defaultAssets.decalMaterial = decalMaterial;
-
     MeshGenerator meshGenerator;
     MeshInfo quadMeshInfo = meshGenerator.CreateQuad();
     MeshInfo cubeMeshInfo = meshGenerator.CreateCube();
@@ -273,50 +169,21 @@ void AssetSystem::Finalize()
     assets.clear();
     sourceAssets.clear();
 
-    pipeline->Finalize();
-    pipeline.reset();
-
     filesystem.reset();
 }
 
-UUID AssetSystem::Import(const VirtualPath& path)
+Asset* AssetSystem::Import(const VirtualPath& path)
 {
-    const std::string& sourcePath = path.ToString();
-    if (const auto it = sourceAssets.find(sourcePath); it != sourceAssets.end())
-        return it->second;
+    const std::string extension = path.GetExtension();
+    Importer* importer = GetImporterByExtension(extension);
+    if (!importer)
+        return nullptr;
 
-    ImportResult importResult = pipeline->Import(path);
+    Asset* asset = importer->Import(path);
+    if (!asset)
+        return nullptr;
 
-    if (importResult.entries.empty())
-        return UUID{};
-
-    const UUID primaryUUID = importResult.entries.front().metadata.uuid;
-
-    for (AssetEntry& entry : importResult.entries)
-    {
-        Asset* asset = entry.asset;
-        AssetMetadata& metadata = entry.metadata;
-
-        const auto it = assets.find(metadata.uuid);
-
-        if (it != assets.end())
-        {
-            if (asset)
-            {
-                delete asset;
-            }
-
-            Logger::Log("Import Failed. UUID already exists: " + metadata.uuid.ToString());
-            continue;
-        }
-        else
-        {
-            assets.insert({ asset->GetUUID(), asset });
-            sourceAssets.insert({ metadata.sourcePath.ToString(), metadata.uuid });
-        }
-    }
-
-    return primaryUUID;
+    return asset;
 }
 
 VirtualPath AssetSystem::GetImportAssetPath(const VirtualPath& sourcePath) const
@@ -339,6 +206,100 @@ VirtualPath AssetSystem::GetImportAssetPath(const VirtualPath& sourcePath) const
         importDirectory);
 
     return VirtualPath(importPath);
+}
+
+std::optional<AssetMetadata> AssetSystem::FindAssetMetadataByUUID(const UUID& uuid) const
+{
+    std::optional<AssetMetadata> ret = std::nullopt;
+
+    const auto it = assetMetadatas.find(uuid);
+    if (it == assetMetadatas.end())
+        return std::nullopt;
+
+    ret = it->second;
+
+    return ret;
+}
+
+std::optional<UUID> AssetSystem::FindUUIDBySourcePath(const std::string& sourcePath) const
+{
+    std::optional<UUID> ret = std::nullopt;
+
+    const auto it = sourceAssets.find(sourcePath);
+    if (it == sourceAssets.end())
+        return std::nullopt;
+
+    ret = it->second;
+
+    return ret;
+}
+
+std::vector<AssetMetadata> AssetSystem::ScanAssets()
+{
+    std::vector<AssetMetadata> ret;
+
+    std::vector<AssetMetadata> engineAssetMetadatas = ScanAssetsRecursive("Engine://Asset/Soruce");
+    std::vector<AssetMetadata> projectAssetMetadatas = ScanAssetsRecursive("RawAsset://");
+
+    ret.insert(ret.end(), engineAssetMetadatas.begin(), engineAssetMetadatas.end());
+    ret.insert(ret.end(), projectAssetMetadatas.begin(), projectAssetMetadatas.end());
+
+    return ret;
+}
+
+std::vector<AssetMetadata> AssetSystem::ScanAssetsRecursive(const VirtualPath& path)
+{
+    std::vector<AssetMetadata> ret;
+
+    std::vector<VirtualFileEntry> entries = filesystem->ListDirectory(path);
+
+    for (const auto& entry : entries)
+    {
+        if (entry.isDirectory)
+        {
+            std::vector<AssetMetadata> metadatas = ScanAssetsRecursive(entry.path);
+            ret.insert(ret.end(), metadatas.begin(), metadatas.end());
+            continue;
+        }
+
+        AssetMetadata metadata = LoadAssetMetadata(entry.path);
+        ret.push_back(metadata);
+    }
+
+    return ret;
+}
+
+AssetMetadata AssetSystem::LoadAssetMetadata(const VirtualPath& path)
+{
+    AssetMetadata ret = {};
+
+    const VirtualPath importPath = GetImportAssetPath(path);
+    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+
+    if (!filesystem->Exists(metadataPath))
+    {
+        const std::string fileText = filesystem->ReadText(metadataPath);
+        const YAML::Node node = YAML::Load(fileText);
+        ret.Deserialize(node);
+    }
+    else
+    {
+        const std::string extension = path.GetExtension();
+        Importer* importer = GetImporterByExtension(extension);
+
+        if (!importer)
+            return {};
+
+        ret = importer->CreateMetadata(path);
+    }
+
+    return ret;
+}
+
+std::vector<AssetMetadata> AssetSystem::SortByDependency(
+    const std::vector<AssetMetadata>& metadatas) const
+{
+    return {};
 }
 
 } // namespace URay

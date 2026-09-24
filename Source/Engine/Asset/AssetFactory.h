@@ -20,23 +20,25 @@ struct AssetMetadata;
 class AssetFactory
 {
 public:
-    AssetFactory(Engine& engine);
+    AssetFactory();
     ~AssetFactory();
 
 public:
-    Mesh* CreateMesh(const AssetMetadata& metadata,
-                     const std::vector<Render::VertexPNT>& vertices,
-                     const std::vector<uint32>& indices,
-                     const std::vector<MeshSection>& sections,
-                     const std::vector<Material*>& materials);
-    Material* CreateMaterial(const AssetMetadata& metadata, Shader* shader);
-    Texture* CreateTexture(const AssetMetadata& metadata,
-                           int32 width, int32 height, int32 channels,
-                           const std::vector<uint8>& pixels);
-    Shader* CreateShader(const VirtualPath& filePath);
+    Mesh* CreateMesh(
+        const AssetMetadata& metadata,
+        const std::vector<Render::VertexPNT>& vertices,
+        const std::vector<uint32>& indices,
+        const std::vector<MeshSection>& sections,
+        const std::vector<Material*>& materials);
 
-private:
-    Engine& engine;
+    Material* CreateMaterial(const AssetMetadata& metadata);
+
+    Texture* CreateTexture(
+        const AssetMetadata& metadata,
+        int32 width, int32 height, int32 channels,
+        const std::vector<uint8>& pixels);
+
+    Shader* CreateShader(const AssetMetadata& metadata);
 };
 
 } // namespace URay

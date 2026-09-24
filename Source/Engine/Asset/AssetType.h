@@ -8,7 +8,8 @@ enum class AssetType
     Unknown,
     Texture,
     Mesh,
-    Material
+    Material,
+    Shader
 };
 
 }

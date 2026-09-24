@@ -25,6 +25,16 @@ void Widget::Draw()
     }
 }
 
+void Widget::Paint(Render::UIDrawList& drawList)
+{
+    OnPaint(drawList);
+
+    for (const auto& child : children)
+    {
+        child->Paint(drawList);
+    }
+}
+
 void Widget::AddChild(std::unique_ptr<Widget> child)
 {
     children.push_back(std::move(child));

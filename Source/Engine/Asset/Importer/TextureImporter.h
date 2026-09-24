@@ -1,35 +1,30 @@
 #pragma once
 
 #include "Engine/Asset/Importer/Importer.h"
-#include "Engine/Asset/Texture/TextureCookData.h"
-#include "Engine/Asset/Texture/TextureSerializer.h"
 
 #include <vector>
 
 namespace URay
 {
 
-class VirtualFilesystem;
 class VirtualPath;
+class Texture;
 
 class TextureImporter final : public Importer
 {
 public:
-    TextureImporter(VirtualFilesystem& filesystem);
+    TextureImporter();
     ~TextureImporter() override;
 
 public:
-    ImportResult Import(const VirtualPath& path, ImportContext& context) override;
+    Asset* Import(const VirtualPath& sourcePath) override;
+    AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const;
+    std::vector<UUID> CollectDependencies(const VirtualPath& sourcePath) const override;
 
     bool CanImport(const std::string& extension) const override;
 
 private:
-    TextureCookData LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context) const;
-
-private:
-    VirtualFilesystem& filesystem;
-
-    TextureSerializer serializer;
+    Texture* LoadTexture(const VirtualPath& sourcePath, const AssetMetadata& metadata) const;
 };
 
 } // namespace URay

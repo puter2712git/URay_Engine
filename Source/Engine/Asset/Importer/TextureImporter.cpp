@@ -3,8 +3,8 @@
 #include "Engine/Asset/AssetFactory.h"
 #include "Engine/Asset/AssetMetadata.h"
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/Importer/ImportContext.h"
 #include "Engine/Asset/Texture/Texture.h"
+#include "Engine/Engine.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/Log.h"
@@ -16,86 +16,78 @@
 namespace URay
 {
 
-TextureImporter::TextureImporter(VirtualFilesystem& filesystem)
-    : filesystem(filesystem)
-{
-}
+TextureImporter::TextureImporter() = default;
 
 TextureImporter::~TextureImporter() = default;
 
-ImportResult TextureImporter::Import(const VirtualPath& path, ImportContext& context)
+Asset* TextureImporter::Import(const VirtualPath& sourcePath)
 {
-    ImportResult result = {};
+    Asset* ret = nullptr;
 
-    VirtualPath importSourcePath = context.GetAssetSystem().GetImportAssetPath(path);
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
-    VirtualPath importMetaPath = VirtualPath(importSourcePath.ToString() + ".meta");
-    VirtualPath importAssetPath = VirtualPath(importSourcePath.ToString() + ".asset");
+    VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
+    VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
 
     AssetMetadata metadata = {};
-    Texture* texture = nullptr;
-    TextureCookData textureCookData = {};
 
-    if (!filesystem.Exists(importMetaPath))
+    if (!filesystem.Exists(metadataPath))
     {
-        metadata.uuid = UUID::Generate();
-        metadata.type = AssetType::Texture;
-        metadata.sourcePath = path;
-        metadata.importPath = importAssetPath;
+        metadata = CreateMetadata(sourcePath);
 
         YAML::Node metadataNode = metadata.Serialize();
-        filesystem.WriteText(importMetaPath, YAML::Dump(metadataNode));
+        filesystem.WriteText(metadataPath, YAML::Dump(metadataNode));
     }
     else
     {
-        std::string metadataNodeString = filesystem.ReadText(importMetaPath);
+        std::string metadataNodeString = filesystem.ReadText(metadataPath);
         YAML::Node metadataNode = YAML::Load(metadataNodeString);
         metadata.Deserialize(metadataNode);
     }
 
-    if (!filesystem.Exists(importAssetPath))
-    {
-        textureCookData = LoadTexture(path, metadata, context);
+    ret = LoadTexture(sourcePath, metadata);
 
-        std::vector<uint8> serializedCookData = serializer.Serialize(textureCookData);
-        filesystem.WriteBinary(importAssetPath, serializedCookData);
-    }
-    else
-    {
-        std::vector<uint8> bytes = filesystem.ReadBinary(importAssetPath);
-        textureCookData = serializer.Deserialize(bytes);
-    }
+    return ret;
+}
 
-    AssetSystem& assetSystem = context.GetAssetSystem();
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
+AssetMetadata TextureImporter::CreateMetadata(const VirtualPath& sourcePath) const
+{
+    AssetMetadata ret = {};
 
-    texture = assetFactory.CreateTexture(
-        metadata,
-        textureCookData.width,
-        textureCookData.height,
-        textureCookData.channels,
-        textureCookData.pixels);
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    result.entries.push_back(AssetEntry{
-        .asset = texture,
-        .metadata = metadata });
+    ret.uuid = UUID::Generate();
+    ret.type = AssetType::Texture;
+    ret.sourcePath = sourcePath;
 
-    return result;
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
+    ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
+
+    return ret;
+}
+
+std::vector<UUID> TextureImporter::CollectDependencies(const VirtualPath& sourcePath) const
+{
+    return {};
 }
 
 bool TextureImporter::CanImport(const std::string& extension) const
 {
-    if (extension == ".png" || extension == ".jpg")
-    {
-        return true;
-    }
-
-    return false;
+    return extension == ".png" || extension == ".jpg";
 }
 
-TextureCookData TextureImporter::LoadTexture(const VirtualPath& path, const AssetMetadata& metadata, ImportContext& context) const
+Texture* TextureImporter::LoadTexture(const VirtualPath& sourcePath, const AssetMetadata& metadata) const
 {
-    std::vector<uint8> fileBytes = filesystem.ReadBinary(path);
+    Texture* ret = nullptr;
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetFactory& factory = assetSystem.GetAssetFactory();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+
+    std::vector<uint8> fileBytes = filesystem.ReadBinary(sourcePath);
 
     int width, height, channels;
     stbi_uc* data = stbi_load_from_memory(
@@ -107,17 +99,14 @@ TextureCookData TextureImporter::LoadTexture(const VirtualPath& path, const Asse
         STBI_rgb_alpha);
 
     if (!data)
-        return {};
+        return nullptr;
 
-    TextureCookData cookData = {};
-    cookData.width = width;
-    cookData.height = height;
-    cookData.channels = channels;
-    cookData.pixels = std::vector<uint8>(data, data + width * height * 4);
+    std::vector<uint8> pixels = std::vector<uint8>(data, data + width * height * 4);
+    ret = factory.CreateTexture(metadata, width, height, channels, pixels);
 
     stbi_image_free(data);
 
-    return cookData;
+    return ret;
 }
 
 } // namespace URay

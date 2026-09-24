@@ -13,10 +13,9 @@
 namespace URay
 {
 
-AssetFactory::AssetFactory(Engine& engine)
-    : engine(engine) {}
+AssetFactory::AssetFactory() = default;
 
-AssetFactory::~AssetFactory() {}
+AssetFactory::~AssetFactory() = default;
 
 Mesh* AssetFactory::CreateMesh(const AssetMetadata& metadata,
                                const std::vector<Render::VertexPNT>& vertices,
@@ -36,45 +35,48 @@ Mesh* AssetFactory::CreateMesh(const AssetMetadata& metadata,
     return newMesh;
 }
 
-Material* AssetFactory::CreateMaterial(const AssetMetadata& metadata,
-                                       Shader* shader)
+Material* AssetFactory::CreateMaterial(const AssetMetadata& metadata)
 {
-    AssetSystem& assetSystem = engine.GetAssetSystem();
-    Render::RenderSystem& renderSystem = engine.GetRenderSystem();
-    const DefaultAssets& defaultAssets = assetSystem.GetDefaultAssets();
+    Material* ret = nullptr;
 
-    Material* newMaterial = new Material(shader);
-    if (!newMaterial->Initialize())
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+
+    Shader* shader = assetSystem.Find<Shader>(metadata.dependencies[0]);
+
+    ret = new Material(shader);
+    if (!ret->Initialize())
     {
-        delete newMaterial;
+        delete ret;
         return nullptr;
     }
 
-    newMaterial->SetName(metadata.sourcePath.GetStem());
-    newMaterial->SetUUID(metadata.uuid);
+    ret->SetName(metadata.sourcePath.GetStem());
+    ret->SetUUID(metadata.uuid);
 
-    return newMaterial;
+    return ret;
 }
 
 Texture* AssetFactory::CreateTexture(const AssetMetadata& metadata,
                                      int32 width, int32 height, int32 channels,
                                      const std::vector<uint8>& pixels)
 {
-    Texture* newTexture = new Texture(width, height, channels,
-                                      pixels);
-    newTexture->SetName(metadata.sourcePath.GetStem());
-    newTexture->SetUUID(metadata.uuid);
+    Texture* ret = new Texture(width, height, channels, pixels);
 
-    return newTexture;
+    ret->SetName(metadata.sourcePath.GetStem());
+    ret->SetUUID(metadata.uuid);
+
+    return ret;
 }
 
-Shader* AssetFactory::CreateShader(const VirtualPath& filePath)
+Shader* AssetFactory::CreateShader(const AssetMetadata& metadata)
 {
-    Shader* newShader = new Shader(filePath);
-    newShader->SetName(filePath.GetStem());
-    newShader->SetUUID(UUID::Generate());
+    Shader* ret = new Shader(metadata.sourcePath);
 
-    return newShader;
+    ret->SetName(metadata.sourcePath.GetStem());
+    ret->SetUUID(metadata.uuid);
+
+    return ret;
 }
 
 } // namespace URay

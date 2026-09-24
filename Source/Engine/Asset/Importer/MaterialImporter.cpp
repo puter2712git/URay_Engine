@@ -2,200 +2,106 @@
 
 #include "Engine/Asset/AssetFactory.h"
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/Importer/ImportContext.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/File/VirtualPath.h"
 
 #include <yaml-cpp/yaml.h>
 
 namespace URay
 {
 
-MaterialImporter::MaterialImporter(VirtualFilesystem& filesystem)
-    : filesystem(filesystem)
-{
-}
+MaterialImporter::MaterialImporter() = default;
 
-ImportResult MaterialImporter::Import(const VirtualPath& path, ImportContext& context)
+MaterialImporter::~MaterialImporter() = default;
+
+Asset* MaterialImporter::Import(const VirtualPath& sourcePath)
 {
-    AssetSystem& assetSystem = context.GetAssetSystem();
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(path);
-    const VirtualPath metaPath(importPath.ToString() + ".meta");
-    const VirtualPath assetPath(importPath.ToString() + ".asset");
+    Asset* ret = nullptr;
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetFactory& factory = assetSystem.GetAssetFactory();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
+    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
 
     AssetMetadata metadata = {};
-    if (!filesystem.Exists(metaPath))
+    if (!filesystem.Exists(metadataPath))
     {
-        metadata.uuid = UUID::Generate();
-        metadata.type = AssetType::Material;
-        metadata.sourcePath = path;
-        metadata.importPath = assetPath;
-        filesystem.WriteText(metaPath, YAML::Dump(metadata.Serialize()));
+        metadata = CreateMetadata(sourcePath);
+
+        const YAML::Node node = metadata.Serialize();
+        filesystem.WriteText(metadataPath, YAML::Dump(node));
     }
     else
     {
-        metadata.Deserialize(YAML::Load(filesystem.ReadText(metaPath)));
+        const std::string fileText = filesystem.ReadText(metadataPath);
+        const YAML::Node node = YAML::Load(fileText);
+        metadata.Deserialize(node);
     }
 
-    MaterialCookData cookData = {};
-    if (!filesystem.Exists(assetPath))
-    {
-        if (!LoadSource(path, cookData))
-            return {};
-        filesystem.WriteBinary(assetPath, serializer.Serialize(cookData));
-    }
-    else if (!serializer.Deserialize(filesystem.ReadBinary(assetPath), cookData))
-    {
-        if (!LoadSource(path, cookData))
-            return {};
-        filesystem.WriteBinary(assetPath, serializer.Serialize(cookData));
-    }
+    ret = factory.CreateMaterial(metadata);
 
-    std::vector<Shader*> shaders = assetSystem.FindAssets<Shader>();
-    Shader* meshShader = nullptr;
+    return ret;
+}
 
-    for (Shader* shader : shaders)
+AssetMetadata MaterialImporter::CreateMetadata(const VirtualPath& sourcePath) const
+{
+    AssetMetadata ret = {};
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+
+    ret.uuid = UUID::Generate();
+    ret.type = AssetType::Material;
+    ret.sourcePath = sourcePath;
+
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
+    ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
+
+    return ret;
+}
+
+std::vector<UUID> MaterialImporter::CollectDependencies(
+    const VirtualPath& sourcePath) const
+{
+    std::vector<UUID> ret;
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+
+    const std::string fileText = filesystem.ReadText(sourcePath);
+    const YAML::Node node = YAML::Load(fileText);
+
+    const UUID shaderUUID = UUID::FromString(node["Shader"].as<std::string>());
+    ret.push_back(shaderUUID);
+
+    const YAML::Node parameters = node["Parameters"];
+    for (const auto& entry : parameters)
     {
-        if (shader->GetName() == "Mesh")
+        const std::string type = entry.second["Type"].as<std::string>();
+        const YAML::Node value = entry.second["Value"];
+
+        if (type == "Texture2D")
         {
-            meshShader = shader;
+            const std::string textureSourcePath = value.as<std::string>();
+            std::optional<UUID> uuid = assetSystem.FindUUIDBySourcePath(textureSourcePath);
+
+            ret.push_back(uuid.value());
         }
     }
 
-    Material* material = assetSystem.GetAssetFactory().CreateMaterial(metadata, meshShader);
-    if (!material)
-        return {};
-
-    for (const MaterialCookParameter& parameter : cookData.parameters)
-    {
-        switch (parameter.type)
-        {
-        case MaterialCookParameterType::Float:
-            material->SetFloat(parameter.name, std::get<float>(parameter.value));
-            break;
-
-        case MaterialCookParameterType::Texture2D:
-        {
-            const VirtualPath& texturePath = std::get<VirtualPath>(parameter.value);
-            const UUID textureUUID = assetSystem.Import(texturePath);
-            if (Texture* texture = assetSystem.Find<Texture>(textureUUID))
-            {
-                material->SetTexture(parameter.name, texture);
-            }
-            break;
-        }
-        }
-    }
-
-    return ImportResult{ .entries = { AssetEntry{ .asset = material, .metadata = metadata } } };
+    return ret;
 }
 
 bool MaterialImporter::CanImport(const std::string& extension) const
 {
-    return extension == ".mat";
-}
-
-bool MaterialImporter::LoadSource(const VirtualPath& path, MaterialCookData& data) const
-{
-    const YAML::Node node = YAML::Load(filesystem.ReadText(path));
-    if (!node || !node["Type"] || node["Type"].as<std::string>() != "Material")
-        return false;
-
-    data = {};
-    if (node["Shader"])
-        data.shaderUUID = UUID::FromString(node["Shader"].as<std::string>());
-
-    if (const YAML::Node parameters = node["Parameters"])
-    {
-        if (!parameters.IsMap())
-            return false;
-
-        for (const auto& entry : parameters)
-        {
-            if (!entry.first.IsScalar() || !entry.second.IsMap() ||
-                !entry.second["Type"] || !entry.second["Value"])
-            {
-                return false;
-            }
-
-            MaterialCookParameter parameter = {};
-            parameter.name = entry.first.as<std::string>();
-            const std::string type = entry.second["Type"].as<std::string>();
-            const YAML::Node value = entry.second["Value"];
-
-            if (type == "Float")
-            {
-                parameter.type = MaterialCookParameterType::Float;
-                parameter.value = value.as<float>();
-            }
-            else if (type == "Float2")
-            {
-                if (!value.IsSequence() || value.size() != 2)
-                    return false;
-
-                parameter.type = MaterialCookParameterType::Float2;
-                parameter.value = Vector2(value[0].as<float>(), value[1].as<float>());
-            }
-            else if (type == "Float3")
-            {
-                if (!value.IsSequence() || value.size() != 3)
-                    return false;
-
-                parameter.type = MaterialCookParameterType::Float3;
-                parameter.value = Vector3(value[0].as<float>(), value[1].as<float>(), value[2].as<float>());
-            }
-            else if (type == "Float4")
-            {
-                if (!value.IsSequence() || value.size() != 4)
-                    return false;
-
-                parameter.type = MaterialCookParameterType::Float4;
-                parameter.value = Color(value[0].as<float>(), value[1].as<float>(),
-                                        value[2].as<float>(), value[3].as<float>());
-            }
-            else if (type == "Texture2D")
-            {
-                parameter.type = MaterialCookParameterType::Texture2D;
-                parameter.value = VirtualPath(value.as<std::string>());
-            }
-            else
-            {
-                return false;
-            }
-
-            data.parameters.push_back(std::move(parameter));
-        }
-
-        return true;
-    }
-
-    if (const YAML::Node color = node["BaseColor"])
-    {
-        if (!color.IsSequence() || color.size() != 4)
-            return false;
-
-        data.parameters.push_back({
-            .name = "baseColor",
-            .type = MaterialCookParameterType::Float4,
-            .value = Color(color[0].as<float>(), color[1].as<float>(),
-                           color[2].as<float>(), color[3].as<float>()),
-        });
-    }
-
-    if (node["BaseColorTexture"])
-    {
-        data.parameters.push_back({
-            .name = "diffuseColorTexture",
-            .type = MaterialCookParameterType::Texture2D,
-            .value = VirtualPath(node["BaseColorTexture"].as<std::string>()),
-        });
-    }
-
-    return true;
+    return extension == ".urmat";
 }
 
 } // namespace URay

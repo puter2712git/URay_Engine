@@ -1,14 +1,17 @@
 #pragma once
 
+#include "Engine/Asset/AssetMetadata.h"
 #include "Engine/Asset/DefaultAssets.h"
 
 #include "Core/UUID.h"
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <vector>
 
 namespace URay
 {
@@ -17,17 +20,13 @@ class VirtualFilesystem;
 class VirtualPath;
 class Asset;
 class AssetFactory;
-class AssetPipeline;
+class Importer;
 class Engine;
-
-namespace Render
-{
-} // namespace Render
 
 class AssetSystem
 {
 public:
-    AssetSystem(Engine& engine);
+    AssetSystem();
     ~AssetSystem();
 
 public:
@@ -37,9 +36,12 @@ public:
 
     void Finalize();
 
-    UUID Import(const VirtualPath& path);
+    Asset* Import(const VirtualPath& path);
 
     VirtualPath GetImportAssetPath(const VirtualPath& sourcePath) const;
+
+    std::optional<AssetMetadata> FindAssetMetadataByUUID(const UUID& uuid) const;
+    std::optional<UUID> FindUUIDBySourcePath(const std::string& sourcePath) const;
 
     template <typename T>
     T* Find(const UUID& uuid) const
@@ -75,15 +77,28 @@ public:
     const DefaultAssets& GetDefaultAssets() const { return defaultAssets; }
 
 private:
-    Engine& engine;
+    std::vector<AssetMetadata> ScanAssets();
+    std::vector<AssetMetadata> ScanAssetsRecursive(const VirtualPath& path);
+    AssetMetadata LoadAssetMetadata(const VirtualPath& path);
 
+    std::vector<AssetMetadata> SortByDependency(const std::vector<AssetMetadata>& metadatas) const;
+
+    void ImportAll(const std::vector<AssetMetadata>& sortedMetadatas);
+
+    Importer* GetImporterByExtension(const std::string& extension) const;
+
+private:
     std::unique_ptr<VirtualFilesystem> filesystem = nullptr;
 
+    std::vector<std::unique_ptr<Importer>> importers;
+
     std::unique_ptr<AssetFactory> factory = nullptr;
-    std::unique_ptr<AssetPipeline> pipeline = nullptr;
 
     std::unordered_map<UUID, Asset*, UUIDHash> assets;
+    std::unordered_map<UUID, AssetMetadata, UUIDHash> assetMetadatas;
+
     std::unordered_map<std::string, UUID> sourceAssets;
+
     DefaultAssets defaultAssets = {};
 };
 
