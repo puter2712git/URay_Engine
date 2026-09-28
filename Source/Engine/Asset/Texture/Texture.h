@@ -17,7 +17,7 @@ class Texture : public Asset
 public:
     Texture(int32 width, int32 height, int32 channels,
             const std::vector<uint8>& pixels);
-    ~Texture();
+    ~Texture() override;
 
 public:
     int32 GetWidth() const { return width; }

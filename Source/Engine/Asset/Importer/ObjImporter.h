@@ -16,11 +16,7 @@ namespace URay
 
 class Material;
 
-class VirtualFilesystem;
-
-namespace Render
-{
-}
+class VirtualFileSystem;
 
 class OBJImporter : public Importer
 {
@@ -29,9 +25,9 @@ public:
     ~OBJImporter();
 
 public:
-    Asset* Import(const VirtualPath& sourcePath) override;
+    void Import(const VirtualPath& sourcePath) override;
+
     AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const override;
-    std::vector<UUID> CollectDependencies(const VirtualPath& sourcePath) const override;
 
     bool CanImport(const std::string& extension) const override;
 };

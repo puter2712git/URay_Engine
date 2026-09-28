@@ -3,6 +3,7 @@
 #include "Core/Math/Vector3.h"
 #include "Core/Type/Types.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
@@ -117,27 +118,31 @@ bool PropertyDrawer::DrawString(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
-    Mesh** currMesh = reinterpret_cast<Mesh**>(static_cast<uint8*>(addr) + prop.offset);
+    UUID* currMeshUUID = reinterpret_cast<UUID*>(static_cast<uint8*>(addr) + prop.offset);
 
-    const std::vector<Mesh*> meshes = gEngine->GetAssetSystem().FindAssets<Mesh>();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    const std::vector<Mesh*> meshes = assetDatabase.GetAssets<Mesh>();
 
     bool isChanged = false;
 
-    const char* preview = *currMesh ? (*currMesh)->GetName().c_str() : "None";
+    Mesh* currMesh = assetDatabase.Find<Mesh>(*currMeshUUID);
+
+    const char* preview = currMesh ? currMesh->GetName().c_str() : "None";
     if (ImGui::BeginCombo("Mesh", preview))
     {
         for (Mesh* mesh : meshes)
         {
-            const bool isSelected = *currMesh == mesh;
+            const bool isSelected = currMesh == mesh;
 
             if (ImGui::Selectable(mesh->GetName().c_str(), isSelected))
             {
-                if (*currMesh != mesh)
+                if (currMesh != mesh)
                 {
                     isChanged = true;
                 }
 
-                *currMesh = mesh;
+                *currMeshUUID = mesh->GetUUID();
             }
 
             if (isSelected)
@@ -156,7 +161,9 @@ bool PropertyDrawer::DrawTexture(Property& prop, void* addr)
 {
     Texture** currTexture = reinterpret_cast<Texture**>(static_cast<uint8*>(addr) + prop.offset);
 
-    const std::vector<Texture*> textures = gEngine->GetAssetSystem().FindAssets<Texture>();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    const std::vector<Texture*> textures = assetDatabase.GetAssets<Texture>();
 
     bool isChanged = false;
 
@@ -193,7 +200,9 @@ bool PropertyDrawer::DrawMaterial(Property& prop, void* addr)
 {
     Material** currMaterial = reinterpret_cast<Material**>(static_cast<uint8*>(addr) + prop.offset);
 
-    const std::vector<Material*> materials = gEngine->GetAssetSystem().FindAssets<Material>();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    const std::vector<Material*> materials = assetDatabase.GetAssets<Material>();
 
     bool isChanged = false;
 

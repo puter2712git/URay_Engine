@@ -29,6 +29,7 @@
 #include "Core/Math/Frustum.h"
 #include "Core/Math/Math.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Component/Render/CameraComponent.h"
@@ -53,25 +54,12 @@ bool RenderPipeline::Initialize()
     if (!builder->Initialize())
         return false;
 
-    std::vector<URay::Shader*> shaders = assetSystem.FindAssets<URay::Shader>();
-
-    URay::Shader* fogShader = nullptr;
-
-    for (URay::Shader* shader : shaders)
-    {
-        if (shader->GetName() == "Fog")
-        {
-            fogShader = shader;
-            break;
-        }
-    }
-
     passes.push_back(std::make_unique<ShadowPass>());
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<DecalPass>());
     passes.push_back(std::make_unique<OverlayPass>());
     passes.push_back(std::make_unique<SelectionMaskPass>());
-    passes.push_back(std::make_unique<FogPass>(renderSystem, fogShader));
+    passes.push_back(std::make_unique<FogPass>());
     passes.push_back(std::make_unique<SelectionOutlinePass>());
 
     return true;

@@ -1,4 +1,5 @@
-UUID: d033644d-fb67-4153-baf2-71ceecd9cdaa
+UUID: 00000000-0000-0000-0001-000000000005
 Type: Texture
 SourcePath: Engine://Asset/Source/Texture/DirectionalLightIcon.png
-ImportPath: Engine://Asset/Imported/Texture/DirectionalLightIcon.png.asset
+MetadataPath: Engine://Asset/Imported/Texture/DirectionalLightIcon.png.meta
+AssetPath: Engine://Asset/Imported/Texture/DirectionalLightIcon.png.asset

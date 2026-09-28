@@ -23,7 +23,9 @@
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Engine.h"
 
@@ -32,31 +34,22 @@
 namespace URay::Render
 {
 
-ShadowPass::ShadowPass()
-{
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    RenderSystem& renderSystem = gEngine->GetRenderSystem();
-
-    RenderDevice& device = renderSystem.GetDevice();
-    ResourceManager& resourceManager = renderSystem.GetResourceManager();
-
-    std::vector<URay::Shader*> shaders = assetSystem.FindAssets<URay::Shader>();
-    for (URay::Shader* shader : shaders)
-    {
-        if (shader->GetName() == "Shadow")
-        {
-            shadowShaderAsset = shader;
-            break;
-        }
-    }
-
-    shadowShader = resourceManager.GetOrCreateShader(shadowShaderAsset, {});
-}
+ShadowPass::ShadowPass() = default;
 
 ShadowPass::~ShadowPass() = default;
 
 void ShadowPass::Begin(const RenderPassContext& context)
 {
+    if (!shadowShader)
+    {
+        AssetSystem& assetSystem = gEngine->GetAssetSystem();
+        AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+        RenderSystem& renderSystem = gEngine->GetRenderSystem();
+        ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+        URay::Shader* shaderAsset = assetDatabase.Find<URay::Shader>(EngineAsset::ShadowShader);
+        shadowShader = resourceManager.GetOrCreateShader(shaderAsset, {});
+    }
 }
 
 void ShadowPass::End(const RenderPassContext& context)

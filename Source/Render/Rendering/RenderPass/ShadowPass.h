@@ -38,7 +38,6 @@ private:
     void RecordPointLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
 
 private:
-    URay::Shader* shadowShaderAsset = nullptr;
     Shader* shadowShader = nullptr;
 };
 

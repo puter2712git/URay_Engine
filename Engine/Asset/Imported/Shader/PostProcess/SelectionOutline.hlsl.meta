@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000009
+Type: Shader
+SourcePath: Engine://Asset/Source/Shader/PostProcess/SelectionOutline.hlsl
+MetadataPath: Engine://Asset/Imported/Shader/PostProcess/SelectionOutline.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/PostProcess/SelectionOutline.hlsl.asset

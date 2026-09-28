@@ -71,10 +71,8 @@ struct GizmoCommandContext
 {
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
-
-    ::URay::Mesh* mesh = nullptr;
-
-    ::URay::Material* material = nullptr;
+    Mesh* mesh = nullptr;
+    Material* material = nullptr;
 };
 
 } // namespace URay::Render

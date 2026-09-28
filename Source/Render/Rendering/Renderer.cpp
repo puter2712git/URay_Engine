@@ -117,7 +117,7 @@ bool Renderer::InitializeImGui()
     ImGuiIO& io = ImGui::GetIO();
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+    VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
 
     auto addFont = [&](const char* path, bool merge)
     {

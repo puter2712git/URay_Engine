@@ -17,14 +17,11 @@ public:
     ~TextureImporter() override;
 
 public:
-    Asset* Import(const VirtualPath& sourcePath) override;
+    void Import(const VirtualPath& sourcePath) override;
+
     AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const;
-    std::vector<UUID> CollectDependencies(const VirtualPath& sourcePath) const override;
 
     bool CanImport(const std::string& extension) const override;
-
-private:
-    Texture* LoadTexture(const VirtualPath& sourcePath, const AssetMetadata& metadata) const;
 };
 
 } // namespace URay

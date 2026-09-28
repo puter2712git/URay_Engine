@@ -1,5 +1,6 @@
 #include "Object.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Texture/Texture.h"
@@ -103,6 +104,9 @@ YAML::Node Object::Serialize() const
 
 void Object::Deserialize(const YAML::Node& node)
 {
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     const auto& properties = GetClass()->GetAllProperties();
 
     for (const Property& prop : properties)
@@ -163,13 +167,13 @@ void Object::Deserialize(const YAML::Node& node)
         case PropertyType::Mesh:
         {
             const UUID uuid = UUID::FromString(valueNode.as<std::string>());
-            *static_cast<Mesh**>(valueAddress) = gEngine->GetAssetSystem().Find<Mesh>(uuid);
+            *static_cast<Mesh**>(valueAddress) = assetDatabase.Find<Mesh>(uuid);
             break;
         }
         case PropertyType::Texture:
         {
             const UUID uuid = UUID::FromString(valueNode.as<std::string>());
-            *static_cast<Texture**>(valueAddress) = gEngine->GetAssetSystem().Find<Texture>(uuid);
+            *static_cast<Texture**>(valueAddress) = assetDatabase.Find<Texture>(uuid);
             break;
         }
         default:

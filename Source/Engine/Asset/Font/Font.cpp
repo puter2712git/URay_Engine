@@ -3,9 +3,19 @@
 namespace URay
 {
 
-Font::Font(Texture* textureAsset)
-    : bitmapTexture(textureAsset)
+URAY_REGISTER_CLASS(Font)
+
+Font::Font(const UUID& bitmapTextureUUID) : bitmapTextureUUID(bitmapTextureUUID) {}
+
+Font::~Font() = default;
+
+void Font::RegisterClass()
 {
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Texture,
+          .name = "Bitmap Texture",
+          .offset = offsetof(Font, bitmapTextureUUID),
+          .size = sizeof(UUID) });
 }
 
 Vector2 Font::GetUVFromChar(const char letter) const

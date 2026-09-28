@@ -2,7 +2,9 @@
 
 #include "Editor/Selection/SelectionSystem.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Component/Render/DecalComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -54,13 +56,16 @@ DecalVisualizer::~DecalVisualizer()
 
 Render::BillboardObjectState DecalVisualizer::MakeBillboardState(EditorVisualContext& context, Unit& unit)
 {
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = unit.GetTransform();
 
     return {
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
         .colorTint = Color::White,
-        .mesh = context.engine.GetAssetSystem().GetDefaultAssets().quadMesh,
-        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().decalBillboardMaterial }
+        .mesh = assetDatabase.Find<Mesh>(EngineAsset::QuadMesh),
+        .materials = { assetDatabase.Find<Material>(EngineAsset::DecalBillboardMaterial) }
     };
 }
 

@@ -2,6 +2,8 @@
 
 #include "Engine/Component/Render/RenderComponent.h"
 
+#include "Core/UUID.h"
+
 #include <string>
 
 namespace URay
@@ -28,7 +30,7 @@ protected:
     void UpdateRenderObject() override;
 
 private:
-    Font* font = nullptr;
+    UUID fontUUID = {};
     std::string text;
 };
 

@@ -17,7 +17,9 @@
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Engine.h"
 
@@ -28,86 +30,13 @@
 namespace URay::Render
 {
 
-SelectionOutlinePass::SelectionOutlinePass()
-{
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    RenderSystem& renderSystem = gEngine->GetRenderSystem();
-
-    RenderDevice& device = renderSystem.GetDevice();
-    ResourceManager& resourceManager = renderSystem.GetResourceManager();
-
-    std::vector<URay::Shader*> shaders = assetSystem.FindAssets<URay::Shader>();
-    for (URay::Shader* asset : shaders)
-    {
-        if (asset->GetName() == "SelectionOutline")
-            shaderAsset = asset;
-    }
-    if (!shaderAsset)
-        throw std::runtime_error("Failed to initialize selection outline pass.");
-
-    shader = resourceManager.GetOrCreateShader(shaderAsset, {});
-    if (!shader)
-        throw std::runtime_error("Failed to initialize selection outline pass.");
-
-    const DescriptorSetLayoutDesc* layoutDescription = shader->GetLayoutDescription(2);
-    if (!layoutDescription)
-        throw std::runtime_error("Failed to initialize selection outline pass.");
-
-    descriptorSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDescription);
-    if (!descriptorSetLayout)
-        throw std::runtime_error("Failed to initialize selection outline pass.");
-
-    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        descriptorSets[i].reset(
-            device.CreateDescriptorSet(descriptorSetLayout));
-
-        if (!descriptorSets[i])
-            throw std::runtime_error("Failed to initialize selection outline pass.");
-    }
-
-    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        UniformBufferDesc desc = {};
-        desc.size = sizeof(SelectionOutlineConstants);
-
-        uniformBuffers[i].reset(
-            device.CreateUniformBuffer(desc));
-
-        if (!uniformBuffers[i])
-            throw std::runtime_error("Failed to initialize selection outline pass.");
-    }
-
-    SamplerDesc samplerDesc = {
-        .magFilter = VK_FILTER_LINEAR,
-        .minFilter = VK_FILTER_LINEAR,
-        .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
-    };
-    sampler = resourceManager.GetOrCreateSampler(samplerDesc);
-}
+SelectionOutlinePass::SelectionOutlinePass() = default;
 
 SelectionOutlinePass::~SelectionOutlinePass() = default;
 
 void SelectionOutlinePass::Begin(const RenderPassContext& context)
 {
-    if (!pso)
-    {
-        PipelineStateDesc psoDesc = {
-            .shader = shader,
-            .topology = PrimitiveTopology::TriangleList,
-            .vertexLayout = VertexLayout::PTC,
-            .depthStencil = { .depthTestEnable = false, .depthWriteEnable = false },
-            .rasterizer = { .cullMode = CullMode::None },
-            .blend = { .mode = BlendMode::AlphaBlend },
-            .rendering = { .colorAttachmentFormats = { Format::BGRA8_sRGB } }
-        };
-
-        pso = context.resourceManager.GetOrCreatePSO(psoDesc);
-    }
+    EnsureResources(context);
 
     const Extent2D& extent = context.selectionMaskRenderTarget.GetExtent();
 
@@ -172,6 +101,86 @@ void SelectionOutlinePass::Execute(
     commandBuffer.BindDescriptorSet(*pso->GetLayout(), *descriptorSet, 2);
 
     commandBuffer.Draw(3);
+}
+
+void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    RenderDevice& device = renderSystem.GetDevice();
+    ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+    if (!shader)
+    {
+        URay::Shader* shaderAsset = assetDatabase.Find<URay::Shader>(EngineAsset::SelectionOutlineShader);
+        shader = resourceManager.GetOrCreateShader(shaderAsset, {});
+    }
+
+    if (!descriptorSetLayout)
+    {
+        const DescriptorSetLayoutDesc* layoutDescription = shader->GetLayoutDescription(2);
+        if (!layoutDescription)
+            throw std::runtime_error("Failed to initialize selection outline pass.");
+
+        descriptorSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDescription);
+        if (!descriptorSetLayout)
+            throw std::runtime_error("Failed to initialize selection outline pass.");
+    }
+
+    if (descriptorSets.empty())
+    {
+        descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            descriptorSets[i].reset(device.CreateDescriptorSet(descriptorSetLayout));
+
+            if (!descriptorSets[i])
+                throw std::runtime_error("Failed to initialize selection outline pass.");
+        }
+    }
+
+    if (uniformBuffers.empty())
+    {
+        uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            UniformBufferDesc desc = {};
+            desc.size = sizeof(SelectionOutlineConstants);
+
+            uniformBuffers[i].reset(device.CreateUniformBuffer(desc));
+
+            if (!uniformBuffers[i])
+                throw std::runtime_error("Failed to initialize selection outline pass.");
+        }
+    }
+
+    if (sampler == VK_NULL_HANDLE)
+    {
+        SamplerDesc samplerDesc = {
+            .magFilter = VK_FILTER_LINEAR,
+            .minFilter = VK_FILTER_LINEAR,
+            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
+        };
+        sampler = resourceManager.GetOrCreateSampler(samplerDesc);
+    }
+
+    if (!pso)
+    {
+        PipelineStateDesc psoDesc = {
+            .shader = shader,
+            .topology = PrimitiveTopology::TriangleList,
+            .vertexLayout = VertexLayout::PTC,
+            .depthStencil = { .depthTestEnable = false, .depthWriteEnable = false },
+            .rasterizer = { .cullMode = CullMode::None },
+            .blend = { .mode = BlendMode::AlphaBlend },
+            .rendering = { .colorAttachmentFormats = { Format::BGRA8_sRGB } }
+        };
+
+        pso = context.resourceManager.GetOrCreatePSO(psoDesc);
+    }
 }
 
 } // namespace URay::Render

@@ -18,7 +18,7 @@
 
 namespace URay
 {
-class VirtualFilesystem;
+class VirtualFileSystem;
 class Mesh;
 class Texture;
 class Shader;
@@ -39,7 +39,7 @@ class ShadowSystem;
 class ResourceManager
 {
 public:
-    ResourceManager(RenderDevice& device, VirtualFilesystem& filesystem);
+    ResourceManager(RenderDevice& device);
     ~ResourceManager();
 
 public:
@@ -71,7 +71,6 @@ public:
 
 private:
     RenderDevice& device;
-    VirtualFilesystem& filesystem;
 
     ShaderCompiler shaderCompiler;
 

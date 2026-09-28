@@ -1,4 +1,5 @@
-UUID: 59f56cfd-293c-4b9d-91e0-5354adf49cd9
+UUID: 00000000-0000-0000-0001-000000000006
 Type: Texture
 SourcePath: Engine://Asset/Source/Texture/PointLightIcon.png
-ImportPath: Engine://Asset/Imported/Texture/PointLightIcon.png.asset
+MetadataPath: Engine://Asset/Imported/Texture/PointLightIcon.png.meta
+AssetPath: Engine://Asset/Imported/Texture/PointLightIcon.png.asset

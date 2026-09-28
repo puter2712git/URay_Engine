@@ -1,6 +1,6 @@
 #include "MaterialImporter.h"
 
-#include "Engine/Asset/AssetFactory.h"
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Shader/Shader.h"
@@ -19,35 +19,58 @@ MaterialImporter::MaterialImporter() = default;
 
 MaterialImporter::~MaterialImporter() = default;
 
-Asset* MaterialImporter::Import(const VirtualPath& sourcePath)
+void MaterialImporter::Import(const VirtualPath& sourcePath)
 {
-    Asset* ret = nullptr;
-
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetFactory& factory = assetSystem.GetAssetFactory();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+
+    AssetMetadata metadata = {};
 
     const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
     const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
 
-    AssetMetadata metadata = {};
-    if (!filesystem.Exists(metadataPath))
+    if (fileSystem.Exists(metadataPath))
     {
-        metadata = CreateMetadata(sourcePath);
-
-        const YAML::Node node = metadata.Serialize();
-        filesystem.WriteText(metadataPath, YAML::Dump(node));
-    }
-    else
-    {
-        const std::string fileText = filesystem.ReadText(metadataPath);
+        const std::string fileText = fileSystem.ReadText(metadataPath);
         const YAML::Node node = YAML::Load(fileText);
         metadata.Deserialize(node);
     }
+    else
+    {
+        metadata = CreateMetadata(sourcePath);
+        const YAML::Node node = metadata.Serialize();
+        fileSystem.WriteText(metadataPath, YAML::Dump(node));
+    }
 
-    ret = factory.CreateMaterial(metadata);
+    const std::string materialText = fileSystem.ReadText(metadata.sourcePath);
+    const YAML::Node materialNode = YAML::Load(materialText);
 
-    return ret;
+    const UUID shaderUUID = UUID::FromString(materialNode["Shader"].as<std::string>());
+
+    std::unique_ptr<Material> material = std::make_unique<Material>(shaderUUID);
+    material->SetName(metadata.sourcePath.GetStem());
+    material->SetUUID(metadata.uuid);
+
+    const YAML::Node parametersNode = materialNode["Parameters"];
+    if (parametersNode)
+    {
+        for (const auto& parameterNode : parametersNode)
+        {
+            const std::string name = parameterNode.first.as<std::string>();
+            const YAML::Node parameter = parameterNode.second;
+
+            const std::string typeName = parameter["Type"].as<std::string>();
+
+            if (typeName == "Texture2D")
+            {
+                const UUID textureUUID = UUID::FromString(parameter["Value"].as<std::string>());
+                material->AddParameter(name, MaterialParameterType::Texture2D, textureUUID);
+            }
+        }
+    }
+
+    assetDatabase.Add(std::move(material));
 }
 
 AssetMetadata MaterialImporter::CreateMetadata(const VirtualPath& sourcePath) const
@@ -63,38 +86,6 @@ AssetMetadata MaterialImporter::CreateMetadata(const VirtualPath& sourcePath) co
     const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
     ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
     ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
-
-    return ret;
-}
-
-std::vector<UUID> MaterialImporter::CollectDependencies(
-    const VirtualPath& sourcePath) const
-{
-    std::vector<UUID> ret;
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
-
-    const std::string fileText = filesystem.ReadText(sourcePath);
-    const YAML::Node node = YAML::Load(fileText);
-
-    const UUID shaderUUID = UUID::FromString(node["Shader"].as<std::string>());
-    ret.push_back(shaderUUID);
-
-    const YAML::Node parameters = node["Parameters"];
-    for (const auto& entry : parameters)
-    {
-        const std::string type = entry.second["Type"].as<std::string>();
-        const YAML::Node value = entry.second["Value"];
-
-        if (type == "Texture2D")
-        {
-            const std::string textureSourcePath = value.as<std::string>();
-            std::optional<UUID> uuid = assetSystem.FindUUIDBySourcePath(textureSourcePath);
-
-            ret.push_back(uuid.value());
-        }
-    }
 
     return ret;
 }

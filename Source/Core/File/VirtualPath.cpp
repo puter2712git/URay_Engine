@@ -27,19 +27,9 @@ size_t GetExtensionStart(const std::string& value)
 
 } // namespace
 
-VirtualPath::VirtualPath()
-{
-}
-
-VirtualPath::VirtualPath(const char* path)
-    : path(path)
-{
-}
-
-VirtualPath::VirtualPath(const std::string& path)
-    : path(path)
-{
-}
+VirtualPath::VirtualPath() = default;
+VirtualPath::VirtualPath(const char* path) : path(path) {}
+VirtualPath::VirtualPath(const std::string& path) : path(path) {}
 
 VirtualPath VirtualPath::GetDirectory() const
 {

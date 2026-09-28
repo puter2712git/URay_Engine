@@ -44,7 +44,9 @@ public:
     RenderPassId GetPassId() const override { return RenderPassId::SelectionOutline; }
 
 private:
-    URay::Shader* shaderAsset = nullptr;
+    void EnsureResources(const RenderPassContext& context);
+
+private:
     Shader* shader = nullptr;
     PipelineState* pso = nullptr;
 

@@ -13,7 +13,7 @@
 namespace URay
 {
 class VirtualPath;
-class VirtualFilesystem;
+class VirtualFileSystem;
 } // namespace URay
 
 namespace URay::Render
@@ -22,7 +22,7 @@ namespace URay::Render
 class ShaderCompiler
 {
 public:
-    ShaderCompiler(VirtualFilesystem& filesystem);
+    ShaderCompiler();
     ~ShaderCompiler();
 
 public:
@@ -37,8 +37,6 @@ public:
         std::span<const std::wstring> defines);
 
 private:
-    VirtualFilesystem& filesystem;
-
     Microsoft::WRL::ComPtr<IDxcUtils> utils = nullptr;
     Microsoft::WRL::ComPtr<IDxcCompiler3> compiler = nullptr;
     Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler = nullptr;

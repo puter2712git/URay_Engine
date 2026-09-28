@@ -28,7 +28,7 @@ struct TextCommandContext;
 class TextBatcher
 {
 public:
-    TextBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader);
+    TextBatcher(RenderDevice& device, ResourceManager& resourceManager);
     ~TextBatcher();
 
 public:
@@ -41,12 +41,14 @@ public:
     void Collect(const TextCommandContext& context);
 
 private:
+    void EnsureResources();
+
+private:
     RenderDevice& device;
     ResourceManager& resourceManager;
 
     std::unordered_map<Font*, std::vector<Vertex>> vertices;
 
-    URay::Shader* shader = nullptr;
     Shader* renderShader = nullptr;
 
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;

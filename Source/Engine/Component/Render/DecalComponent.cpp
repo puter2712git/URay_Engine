@@ -1,6 +1,8 @@
 #include "DecalComponent.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
@@ -17,8 +19,7 @@ URAY_REGISTER_COMPONENT(DecalComponent)
 
 DecalComponent::DecalComponent()
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    material = assetSystem.GetDefaultAssets().decalMaterial;
+    materialUUID = EngineAsset::DecalMaterial;
 }
 
 DecalComponent::~DecalComponent() = default;
@@ -33,7 +34,7 @@ void DecalComponent::RegisterClass()
     StaticClass()->AddProperty(
         { .type = PropertyType::Material,
           .name = "Material",
-          .offset = offsetof(DecalComponent, material),
+          .offset = offsetof(DecalComponent, materialUUID),
           .size = sizeof(Material*) });
 }
 
@@ -43,14 +44,17 @@ Render::RenderObject* DecalComponent::CreateRenderObject()
     if (!unit)
         return nullptr;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = unit->GetTransform();
 
     Render::DecalObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     state.extent = extent;
-    state.material = material;
+    state.material = assetDatabase.Find<Material>(materialUUID);
 
-    renderObject = new Render::DecalObject(gEngine->GetRenderSystem(), state); // TODO: Hmm...
+    renderObject = new Render::DecalObject(gEngine->GetRenderSystem(), state);
     return renderObject;
 }
 
@@ -60,15 +64,17 @@ void DecalComponent::UpdateRenderObject()
     if (!unit)
         return;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = unit->GetTransform();
 
     Render::DecalObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     state.extent = extent;
-    state.material = material;
+    state.material = assetDatabase.Find<Material>(materialUUID);
 
-    Render::DecalObject* decalObject =
-        static_cast<Render::DecalObject*>(renderObject);
+    Render::DecalObject* decalObject = static_cast<Render::DecalObject*>(renderObject);
     decalObject->Update(state);
 }
 

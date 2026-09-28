@@ -1,4 +1,5 @@
-UUID: a153f355-586c-402d-aa96-58358e7a5c28
+UUID: 00000000-0000-0000-0001-000000000002
 Type: Texture
 SourcePath: Engine://Asset/Source/Texture/DejaVu Sans Mono.png
-ImportPath: Engine://Asset/Imported/Texture/DejaVu Sans Mono.png.asset
+MetadataPath: Engine://Asset/Imported/Texture/DejaVu Sans Mono.png.meta
+AssetPath: Engine://Asset/Imported/Texture/DejaVu Sans Mono.png.asset

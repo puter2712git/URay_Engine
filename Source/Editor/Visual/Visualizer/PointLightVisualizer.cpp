@@ -2,7 +2,9 @@
 
 #include "Editor/Selection/SelectionSystem.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Component/Render/Light/PointLightComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -59,14 +61,17 @@ Render::BillboardObjectState PointLightVisualizer::MakeBillboardState(
     Unit& unit,
     Component& component)
 {
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = unit.GetTransform();
     PointLightComponent& pointLight = static_cast<PointLightComponent&>(component);
 
     return {
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
         .colorTint = pointLight.GetColor(),
-        .mesh = context.engine.GetAssetSystem().GetDefaultAssets().quadMesh,
-        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().pointLightBillboardMaterial }
+        .mesh = assetDatabase.Find<Mesh>(EngineAsset::QuadMesh),
+        .materials = { assetDatabase.Find<Material>(EngineAsset::PointLightBillboardMaterial) }
     };
 }
 

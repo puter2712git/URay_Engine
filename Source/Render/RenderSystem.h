@@ -7,7 +7,7 @@ namespace URay
 
 class Engine;
 class Window;
-class VirtualFilesystem;
+class VirtualFileSystem;
 
 namespace Render
 {

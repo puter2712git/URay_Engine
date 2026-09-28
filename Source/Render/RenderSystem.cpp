@@ -20,8 +20,6 @@ RenderSystem::~RenderSystem() = default;
 bool RenderSystem::Initialize()
 {
     Window& window = gEngine->GetWindow();
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
 
     VulkanContextDesc desc = {};
     desc.appName = "URay Editor";
@@ -37,7 +35,7 @@ bool RenderSystem::Initialize()
     if (!device->Initialize())
         return false;
 
-    resourceManager = std::make_unique<ResourceManager>(*device, filesystem);
+    resourceManager = std::make_unique<ResourceManager>(*device);
 
     renderer = std::make_unique<Renderer>(window, *vulkanContext, *device, *resourceManager);
     if (!renderer->Initialize())

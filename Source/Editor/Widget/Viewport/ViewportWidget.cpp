@@ -468,7 +468,7 @@ bool ViewportWidget::SaveCurrScene()
         return false;
     }
 
-    VirtualFilesystem& filesystem = gEngine->GetAssetSystem().GetFilesystem();
+    VirtualFileSystem& filesystem = gEngine->GetAssetSystem().GetFileSystem();
 
     const std::string sceneText = YAML::Dump(scene->Serialize());
 

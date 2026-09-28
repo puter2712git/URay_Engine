@@ -1,11 +1,11 @@
 #include "ShaderImporter.h"
 
-#include "Engine/Asset/AssetFactory.h"
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Engine.h"
 
-#include "Core/File/VirtualFilesystem.h"
+#include "Core/File/VirtualFileSystem.h"
 #include "Core/File/VirtualPath.h"
 
 namespace URay
@@ -15,37 +15,35 @@ ShaderImporter::ShaderImporter() = default;
 
 ShaderImporter::~ShaderImporter() = default;
 
-Asset* ShaderImporter::Import(const VirtualPath& sourcePath)
+void ShaderImporter::Import(const VirtualPath& sourcePath)
 {
-    Asset* ret = nullptr;
-
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
-
-    VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
     AssetMetadata metadata = {};
-    Shader* shader = nullptr;
 
-    if (!filesystem.Exists(metadataPath))
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
+    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+
+    if (fileSystem.Exists(metadataPath))
     {
-        metadata = CreateMetadata(sourcePath);
-
-        YAML::Node metadataNode = metadata.Serialize();
-        filesystem.WriteText(metadataPath, YAML::Dump(metadataNode));
+        const std::string fileText = fileSystem.ReadText(metadataPath);
+        const YAML::Node node = YAML::Load(fileText);
+        metadata.Deserialize(node);
     }
     else
     {
-        std::string metadataNodeString = filesystem.ReadText(metadataPath);
-        YAML::Node metadataNode = YAML::Load(metadataNodeString);
-        metadata.Deserialize(metadataNode);
+        metadata = CreateMetadata(sourcePath);
+        const YAML::Node node = metadata.Serialize();
+        fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
-    ret = assetFactory.CreateShader(metadata);
+    std::unique_ptr<Shader> shader = std::make_unique<Shader>(sourcePath);
+    shader->SetName(metadata.sourcePath.GetStem());
+    shader->SetUUID(metadata.uuid);
 
-    return ret;
+    assetDatabase.Add(std::move(shader));
 }
 
 AssetMetadata ShaderImporter::CreateMetadata(const VirtualPath& sourcePath) const
@@ -63,12 +61,6 @@ AssetMetadata ShaderImporter::CreateMetadata(const VirtualPath& sourcePath) cons
     ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
 
     return ret;
-}
-
-std::vector<UUID> ShaderImporter::CollectDependencies(
-    const VirtualPath& sourcePath) const
-{
-    return {};
 }
 
 bool ShaderImporter::CanImport(const std::string& extension) const

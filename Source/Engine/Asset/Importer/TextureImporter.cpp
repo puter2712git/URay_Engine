@@ -1,6 +1,6 @@
 #include "TextureImporter.h"
 
-#include "Engine/Asset/AssetFactory.h"
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetMetadata.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Texture/Texture.h"
@@ -20,36 +20,50 @@ TextureImporter::TextureImporter() = default;
 
 TextureImporter::~TextureImporter() = default;
 
-Asset* TextureImporter::Import(const VirtualPath& sourcePath)
+void TextureImporter::Import(const VirtualPath& sourcePath)
 {
-    Asset* ret = nullptr;
-
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
-
-    VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
     AssetMetadata metadata = {};
 
-    if (!filesystem.Exists(metadataPath))
-    {
-        metadata = CreateMetadata(sourcePath);
+    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
+    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
 
-        YAML::Node metadataNode = metadata.Serialize();
-        filesystem.WriteText(metadataPath, YAML::Dump(metadataNode));
+    if (fileSystem.Exists(metadataPath))
+    {
+        const std::string fileText = fileSystem.ReadText(metadataPath);
+        const YAML::Node node = YAML::Load(fileText);
+        metadata.Deserialize(node);
     }
     else
     {
-        std::string metadataNodeString = filesystem.ReadText(metadataPath);
-        YAML::Node metadataNode = YAML::Load(metadataNodeString);
-        metadata.Deserialize(metadataNode);
+        metadata = CreateMetadata(sourcePath);
+        const YAML::Node node = metadata.Serialize();
+        fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
-    ret = LoadTexture(sourcePath, metadata);
+    int32 width, height, channels;
+    std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);
 
-    return ret;
+    stbi_uc* data = stbi_load_from_memory(
+        fileBytes.data(),
+        static_cast<int>(fileBytes.size()),
+        &width, &height, &channels,
+        STBI_rgb_alpha);
+    if (!data)
+        return;
+
+    std::vector<uint8> pixels = std::vector<uint8>(data, data + width * height * 4);
+
+    stbi_image_free(data);
+
+    std::unique_ptr<Texture> texture = std::make_unique<Texture>(width, height, channels, pixels);
+    texture->SetName(metadata.sourcePath.GetStem());
+    texture->SetUUID(metadata.uuid);
+
+    assetDatabase.Add(std::move(texture));
 }
 
 AssetMetadata TextureImporter::CreateMetadata(const VirtualPath& sourcePath) const
@@ -69,44 +83,9 @@ AssetMetadata TextureImporter::CreateMetadata(const VirtualPath& sourcePath) con
     return ret;
 }
 
-std::vector<UUID> TextureImporter::CollectDependencies(const VirtualPath& sourcePath) const
-{
-    return {};
-}
-
 bool TextureImporter::CanImport(const std::string& extension) const
 {
     return extension == ".png" || extension == ".jpg";
-}
-
-Texture* TextureImporter::LoadTexture(const VirtualPath& sourcePath, const AssetMetadata& metadata) const
-{
-    Texture* ret = nullptr;
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetFactory& factory = assetSystem.GetAssetFactory();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
-
-    std::vector<uint8> fileBytes = filesystem.ReadBinary(sourcePath);
-
-    int width, height, channels;
-    stbi_uc* data = stbi_load_from_memory(
-        fileBytes.data(),
-        static_cast<int>(fileBytes.size()),
-        &width,
-        &height,
-        &channels,
-        STBI_rgb_alpha);
-
-    if (!data)
-        return nullptr;
-
-    std::vector<uint8> pixels = std::vector<uint8>(data, data + width * height * 4);
-    ret = factory.CreateTexture(metadata, width, height, channels, pixels);
-
-    stbi_image_free(data);
-
-    return ret;
 }
 
 } // namespace URay

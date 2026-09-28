@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Engine/Asset/AssetMetadata.h"
-#include "Engine/Asset/DefaultAssets.h"
 
 #include "Core/UUID.h"
 
@@ -16,12 +15,13 @@
 namespace URay
 {
 
-class VirtualFilesystem;
+class VirtualFileSystem;
 class VirtualPath;
 class Asset;
-class AssetFactory;
+class AssetDatabase;
+class AssetPipeline;
 class Importer;
-class Engine;
+struct MeshInfo;
 
 class AssetSystem
 {
@@ -31,75 +31,25 @@ public:
 
 public:
     bool Initialize(const std::string& enginePath, const std::string& projectPath);
-    bool CreateDefaultAssets();
-    bool LoadAssets(const VirtualPath& sourceDir);
-
     void Finalize();
 
-    Asset* Import(const VirtualPath& path);
+    void ImportRecursive(const VirtualPath& path);
+
+    void CreateDefaultAssets();
 
     VirtualPath GetImportAssetPath(const VirtualPath& sourcePath) const;
 
-    std::optional<AssetMetadata> FindAssetMetadataByUUID(const UUID& uuid) const;
-    std::optional<UUID> FindUUIDBySourcePath(const std::string& sourcePath) const;
-
-    template <typename T>
-    T* Find(const UUID& uuid) const
-    {
-        const auto it = assets.find(uuid);
-
-        if (it == assets.end())
-            return nullptr;
-
-        return Cast<T>(it->second);
-    }
-
-    template <typename T>
-    std::vector<T*> FindAssets() const
-    {
-        std::vector<T*> ret;
-
-        for (auto& [uuid, asset] : assets)
-        {
-            if (T* obj = Cast<T>(asset))
-            {
-                ret.push_back(obj);
-            }
-        }
-
-        return ret;
-    }
-
-    VirtualFilesystem& GetFilesystem() const { return *filesystem; }
-
-    AssetFactory& GetAssetFactory() const { return *factory; } // TODO: Remove this getter.
-
-    const DefaultAssets& GetDefaultAssets() const { return defaultAssets; }
+    VirtualFileSystem& GetFileSystem() const { return *fileSystem; }
+    AssetDatabase& GetDatabase() const { return *database; }
 
 private:
-    std::vector<AssetMetadata> ScanAssets();
-    std::vector<AssetMetadata> ScanAssetsRecursive(const VirtualPath& path);
-    AssetMetadata LoadAssetMetadata(const VirtualPath& path);
-
-    std::vector<AssetMetadata> SortByDependency(const std::vector<AssetMetadata>& metadatas) const;
-
-    void ImportAll(const std::vector<AssetMetadata>& sortedMetadatas);
-
-    Importer* GetImporterByExtension(const std::string& extension) const;
+    void CreateDefaultMesh(const UUID& uuid, const std::string& name, const MeshInfo& meshInfo, const UUID& materialUUID);
 
 private:
-    std::unique_ptr<VirtualFilesystem> filesystem = nullptr;
+    std::unique_ptr<VirtualFileSystem> fileSystem = nullptr;
 
-    std::vector<std::unique_ptr<Importer>> importers;
-
-    std::unique_ptr<AssetFactory> factory = nullptr;
-
-    std::unordered_map<UUID, Asset*, UUIDHash> assets;
-    std::unordered_map<UUID, AssetMetadata, UUIDHash> assetMetadatas;
-
-    std::unordered_map<std::string, UUID> sourceAssets;
-
-    DefaultAssets defaultAssets = {};
+    std::unique_ptr<AssetDatabase> database = nullptr;
+    std::unique_ptr<AssetPipeline> pipeline = nullptr;
 };
 
 } // namespace URay

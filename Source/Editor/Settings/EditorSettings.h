@@ -10,7 +10,7 @@
 namespace URay
 {
 
-class VirtualFilesystem;
+class VirtualFileSystem;
 
 struct EditorCameraSettings
 {
@@ -28,7 +28,7 @@ struct EditorSettingsContext
 class EditorSettings
 {
 public:
-    EditorSettings(VirtualFilesystem& filesystem);
+    EditorSettings(VirtualFileSystem& filesystem);
     ~EditorSettings();
 
 public:
@@ -36,7 +36,7 @@ public:
     bool Load(EditorSettingsContext& outContext);
 
 private:
-    VirtualFilesystem& filesystem;
+    VirtualFileSystem& filesystem;
 
     EditorLayout layout;
 };

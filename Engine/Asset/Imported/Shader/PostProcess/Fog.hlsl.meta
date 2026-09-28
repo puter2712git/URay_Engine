@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000008
+Type: Shader
+SourcePath: Engine://Asset/Source/Shader/PostProcess/Fog.hlsl
+MetadataPath: Engine://Asset/Imported/Shader/PostProcess/Fog.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/PostProcess/Fog.hlsl.asset

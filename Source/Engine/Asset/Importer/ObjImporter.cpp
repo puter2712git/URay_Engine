@@ -1,8 +1,6 @@
 #include "ObjImporter.h"
 
-#include "Engine/Asset/AssetFactory.h"
 #include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/DefaultAssets.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Texture/Texture.h"
@@ -22,62 +20,10 @@ OBJImporter::OBJImporter() = default;
 
 OBJImporter::~OBJImporter() = default;
 
-Asset* OBJImporter::Import(const VirtualPath& sourcePath)
+void OBJImporter::Import(const VirtualPath& sourcePath)
 {
-    Asset* ret = nullptr;
-
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetFactory& assetFactory = assetSystem.GetAssetFactory();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
-
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
-    const VirtualPath assetPath = VirtualPath(importPath.ToString() + ".asset");
-
-    AssetMetadata metadata = {};
-
-    if (!filesystem.Exists(metadataPath))
-    {
-        metadata = CreateMetadata(sourcePath);
-        metadata.dependencies = CollectDependencies(sourcePath);
-
-        const YAML::Node metadataNode = metadata.Serialize();
-        filesystem.WriteText(metadataPath, YAML::Dump(metadataNode));
-    }
-    else
-    {
-        const std::string metadataNodeString = filesystem.ReadText(metadataPath);
-        const YAML::Node metadataNode = YAML::Load(metadataNodeString);
-
-        metadata.Deserialize(metadataNode);
-    }
-
-    // Load mesh
-    std::vector<Material*> defaultMaterials;
-
-    for (const UUID& uuid : metadata.dependencies)
-    {
-        std::optional<AssetMetadata> dependencyMetadata = assetSystem.FindAssetMetadataByUUID(uuid);
-        if (dependencyMetadata.has_value())
-            continue;
-
-        switch (dependencyMetadata->type)
-        {
-        case AssetType::Material:
-        {
-            Material* material = assetSystem.Find<Material>(dependencyMetadata->uuid);
-
-            if (material)
-            {
-                defaultMaterials.push_back(material);
-            }
-        }
-        default:
-            break;
-        }
-    }
-
-    return ret;
+    VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
 }
 
 AssetMetadata OBJImporter::CreateMetadata(const VirtualPath& sourcePath) const
@@ -95,11 +41,6 @@ AssetMetadata OBJImporter::CreateMetadata(const VirtualPath& sourcePath) const
     ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
 
     return ret;
-}
-
-std::vector<UUID> OBJImporter::CollectDependencies(const VirtualPath& sourcePath) const
-{
-    return {};
 }
 
 bool OBJImporter::CanImport(const std::string& extension) const

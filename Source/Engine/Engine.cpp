@@ -1,5 +1,6 @@
 #include "Engine.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Script/ScriptSystem.h"
@@ -49,10 +50,6 @@ bool Engine::Initialize(
     inputManager = std::make_unique<InputManager>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
-    assetSystem = std::make_unique<AssetSystem>();
-    if (!assetSystem->Initialize(enginePath, projectPath))
-        return false;
-
     sceneSystem = std::make_unique<SceneSystem>();
     if (!sceneSystem->Initialize())
         return false;
@@ -61,13 +58,20 @@ bool Engine::Initialize(
     if (!renderSystem->Initialize())
         return false;
 
-    assetSystem->LoadAssets("Engine://Asset/Source");
-    assetSystem->CreateDefaultAssets();
-    assetSystem->LoadAssets("RawAsset://");
+    assetSystem = std::make_unique<AssetSystem>();
+    if (!assetSystem->Initialize(enginePath, projectPath))
+        return false;
 
     scriptSystem = std::make_unique<ScriptSystem>();
     if (!scriptSystem->Initialize(projectPath))
         return false;
+
+    std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
+    for (Material* material : materials)
+    {
+        if (!material->Initialize())
+            return false;
+    }
 
     return true;
 }
@@ -79,14 +83,14 @@ void Engine::Finalize()
     scriptSystem->Finalize();
     scriptSystem.reset();
 
+    assetSystem->Finalize();
+    assetSystem.reset();
+
     renderSystem->Finalize();
     renderSystem.reset();
 
     sceneSystem->Finalize();
     sceneSystem.reset();
-
-    assetSystem->Finalize();
-    assetSystem.reset();
 
     performanceAnalytics.reset();
 

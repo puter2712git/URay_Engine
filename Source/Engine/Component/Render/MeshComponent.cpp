@@ -1,6 +1,8 @@
 #include "Engine/Component/Render/MeshComponent.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -16,16 +18,13 @@
 namespace URay
 {
 
-using namespace Render;
-
 URAY_REGISTER_CLASS(MeshComponent)
 URAY_REGISTER_COMPONENT(MeshComponent)
 
 MeshComponent::MeshComponent()
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    Mesh* defaultMesh = assetSystem.GetDefaultAssets().cubeMesh;
-    SetMesh(defaultMesh);
+    meshUUID = EngineAsset::CubeMesh;
+    materialUUIDs = { EngineAsset::MeshMaterial };
 }
 
 void MeshComponent::RegisterClass()
@@ -33,13 +32,8 @@ void MeshComponent::RegisterClass()
     StaticClass()->AddProperty(
         { .type = PropertyType::Mesh,
           .name = "Mesh",
-          .offset = offsetof(MeshComponent, mesh),
-          .size = sizeof(Mesh*),
-          .OnChangedCallback = [&](Object& owner, const Property& prop)
-          {
-              MeshComponent* meshComp = static_cast<MeshComponent*>(&owner);
-              meshComp->SetMesh(meshComp->GetMesh());
-          } });
+          .offset = offsetof(MeshComponent, meshUUID),
+          .size = sizeof(UUID) });
     StaticClass()->AddProperty(
         { .type = PropertyType::Bool,
           .name = "Casts Shadow",
@@ -53,11 +47,21 @@ Render::RenderObject* MeshComponent::CreateRenderObject()
     if (!owner)
         return nullptr;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = owner->GetTransform();
+
+    std::vector<Material*> materials;
+    for (const UUID& uuid : materialUUIDs)
+    {
+        Material* material = assetDatabase.Find<Material>(uuid);
+        materials.push_back(material);
+    }
 
     Render::MeshObjectState objectState = {};
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    objectState.mesh = mesh;
+    objectState.mesh = assetDatabase.Find<Mesh>(meshUUID);
     objectState.materials = materials;
     objectState.castsShadow = castsShadow;
 
@@ -65,26 +69,31 @@ Render::RenderObject* MeshComponent::CreateRenderObject()
     return renderObject;
 }
 
-void MeshComponent::SetMesh(Mesh* newMesh)
+void MeshComponent::SetMeshUUID(const UUID& newMeshUUID)
 {
-    mesh = newMesh;
-    materials = mesh ? mesh->GetDefaultMaterials()
-                     : std::vector<Material*>();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    meshUUID = newMeshUUID;
+
+    Mesh* mesh = assetDatabase.Find<Mesh>(meshUUID);
+    materialUUIDs = mesh ? mesh->GetDefaultMaterials()
+                         : std::vector<UUID>();
 
     MarkDirty();
 }
 
-void MeshComponent::SetMaterial(Material* newMaterial, size_t index)
+void MeshComponent::SetMaterial(const UUID& newMaterialUUID, size_t index)
 {
-    if (materials.size() <= index)
+    if (materialUUIDs.size() <= index)
     {
-        materials.resize(index + 1);
+        materialUUIDs.resize(index + 1);
     }
 
-    if (materials[index] == newMaterial)
+    if (materialUUIDs[index] == newMaterialUUID)
         return;
 
-    materials[index] = newMaterial;
+    materialUUIDs[index] = newMaterialUUID;
 
     MarkDirty();
 }
@@ -95,16 +104,26 @@ void MeshComponent::UpdateRenderObject()
     if (!owner)
         return;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = owner->GetTransform();
 
-    MeshObjectState state = {};
-    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.mesh = mesh;
-    state.materials = materials;
-    state.castsShadow = castsShadow;
+    std::vector<Material*> materials;
+    for (const UUID& uuid : materialUUIDs)
+    {
+        Material* material = assetDatabase.Find<Material>(uuid);
+        materials.push_back(material);
+    }
 
-    MeshObject* meshObject = static_cast<MeshObject*>(renderObject);
-    meshObject->Update(state);
+    Render::MeshObjectState objectState = {};
+    objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    objectState.mesh = assetDatabase.Find<Mesh>(meshUUID);
+    objectState.materials = materials;
+    objectState.castsShadow = castsShadow;
+
+    Render::MeshObject* meshObject = static_cast<Render::MeshObject*>(renderObject);
+    meshObject->Update(objectState);
 }
 
 } // namespace URay

@@ -17,7 +17,7 @@
 namespace URay
 {
 class Window;
-class VirtualFilesystem;
+class VirtualFileSystem;
 } // namespace URay
 
 namespace URay::Render

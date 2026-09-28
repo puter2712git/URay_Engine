@@ -4,6 +4,7 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Type/Types.h"
+#include "Core/UUID.h"
 
 #include <string>
 #include <variant>
@@ -22,15 +23,16 @@ enum class MaterialParameterType
     Texture2D
 };
 
+using MaterialParameterValue = std::variant<float, Vector2, Vector3, Color, UUID>;
+
 struct MaterialParameter
 {
     uint32 binding = 0;
-
     MaterialParameterType type;
-    std::variant<float, Vector2, Vector3, Color, Texture*> value;
-
     uint32 offset = 0;
     uint32 size = 0;
+
+    MaterialParameterValue value;
 };
 
 } // namespace URay

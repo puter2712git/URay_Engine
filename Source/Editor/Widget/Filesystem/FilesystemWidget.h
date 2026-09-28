@@ -10,7 +10,7 @@ namespace URay
 {
 
 class Engine;
-class VirtualFilesystem;
+class VirtualFileSystem;
 
 struct FileEntry
 {
@@ -37,7 +37,7 @@ private:
     void OnFileDoubleClicked(const VirtualPath& path);
 
 private:
-    VirtualFilesystem& filesystem;
+    VirtualFileSystem& filesystem;
 
     VirtualPath rootPath = {};
     VirtualPath currPath = {};

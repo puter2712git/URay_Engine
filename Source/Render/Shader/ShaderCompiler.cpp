@@ -1,5 +1,8 @@
 #include "ShaderCompiler.h"
 
+#include "Engine/Asset/AssetSystem.h"
+#include "Engine/Engine.h"
+
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/File/VirtualPath.h"
 
@@ -11,8 +14,7 @@ namespace URay::Render
 
 using Microsoft::WRL::ComPtr;
 
-ShaderCompiler::ShaderCompiler(VirtualFilesystem& filesystem)
-    : filesystem(filesystem) {}
+ShaderCompiler::ShaderCompiler() {}
 
 ShaderCompiler::~ShaderCompiler() = default;
 
@@ -51,8 +53,10 @@ bool ShaderCompiler::Compile(
     if (!utils || !compiler || !includeHandler)
         return false;
 
-    const std::wstring sourcePhysicalPath =
-        filesystem.ResolveToPhysicalPath(sourcePath).wstring();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+
+    const std::wstring sourcePhysicalPath = fileSystem.ResolveToPhysicalPath(sourcePath).wstring();
 
     ComPtr<IDxcBlobEncoding> source;
     if (FAILED(utils->LoadFile(sourcePhysicalPath.c_str(), nullptr, &source)))
@@ -114,7 +118,7 @@ bool ShaderCompiler::Compile(
 
     std::vector<uint8> bytes(data, data + size);
 
-    return filesystem.WriteBinary(outputPath, bytes);
+    return fileSystem.WriteBinary(outputPath, bytes);
 }
 
 } // namespace URay::Render

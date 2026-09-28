@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000007
+Type: Shader
+SourcePath: Engine://Asset/Source/Shader/Shadow.hlsl
+MetadataPath: Engine://Asset/Imported/Shader/Shadow.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/Shadow.hlsl.asset

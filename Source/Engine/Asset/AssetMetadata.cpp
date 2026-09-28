@@ -19,6 +19,9 @@ YAML::Node AssetMetadata::Serialize() const
     case AssetType::Material:
         node["Type"] = "Material";
         break;
+    case AssetType::Shader:
+        node["Type"] = "Shader";
+        break;
     case AssetType::Unknown:
     default:
         node["Type"] = "Unknown";
@@ -49,6 +52,10 @@ void AssetMetadata::Deserialize(const YAML::Node& node)
     else if (typeString == "Material")
     {
         type = AssetType::Material;
+    }
+    else if (typeString == "Shader")
+    {
+        type = AssetType::Shader;
     }
     else
     {

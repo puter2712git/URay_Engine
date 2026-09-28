@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000002
+Type: Shader
+SourcePath: Engine://Asset/Source/Shader/Sprite.hlsl
+MetadataPath: Engine://Asset/Imported/Shader/Sprite.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/Sprite.hlsl.asset

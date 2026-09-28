@@ -5,7 +5,7 @@
 namespace URay
 {
 
-class VirtualFilesystem;
+class VirtualFileSystem;
 class VirtualPath;
 
 class MaterialImporter final : public Importer
@@ -15,9 +15,9 @@ public:
     ~MaterialImporter() override;
 
 public:
-    Asset* Import(const VirtualPath& sourcePath) override;
+    void Import(const VirtualPath& sourcePath) override;
+
     AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const override;
-    std::vector<UUID> CollectDependencies(const VirtualPath& sourcePath) const override;
 
     bool CanImport(const std::string& extension) const override;
 

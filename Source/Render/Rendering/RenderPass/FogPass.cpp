@@ -17,93 +17,24 @@
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
+#include "Engine/Asset/AssetDatabase.h"
+#include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
+#include "Engine/Asset/Shader/Shader.h"
+#include "Engine/Engine.h"
+
 #include <stdexcept>
 
 namespace URay::Render
 {
 
-FogPass::FogPass(RenderSystem& renderSystem, URay::Shader* shader)
-    : fogShaderAsset(shader)
-{
-    fogShader = renderSystem.GetResourceManager().GetOrCreateShader(fogShaderAsset, {});
-
-    const DescriptorSetLayoutDesc* layoutDesc = fogShader->GetLayoutDescription(2);
-    if (!layoutDesc)
-        throw std::runtime_error("Failed to initialize fog pass.");
-
-    descriptorSetLayout = renderSystem.GetResourceManager()
-                              .GetOrCreateDescriptorSetLayout(*layoutDesc);
-    if (!descriptorSetLayout)
-        throw std::runtime_error("Failed to initialize fog pass.");
-
-    descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
-
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        descriptorSets[i].reset(
-            renderSystem.GetDevice().CreateDescriptorSet(descriptorSetLayout));
-
-        if (!descriptorSets[i])
-            throw std::runtime_error("Failed to initialize fog pass.");
-    }
-
-    uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        UniformBufferDesc desc = {};
-        desc.size = sizeof(FogConstants);
-        desc.initialData = nullptr;
-        desc.initialDataSize = 0;
-
-        Buffer* uniformBuffer = renderSystem.GetDevice().CreateUniformBuffer(desc);
-        if (!uniformBuffer)
-        {
-            throw std::runtime_error("Failed to initialize fog pass.");
-        }
-
-        uniformBuffers[i].reset(uniformBuffer);
-    }
-
-    SamplerDesc samplerDesc = {};
-    samplerDesc.minFilter = VK_FILTER_LINEAR;
-    samplerDesc.magFilter = VK_FILTER_LINEAR;
-    samplerDesc.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    samplerDesc.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    samplerDesc.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-
-    sampler = renderSystem.GetResourceManager()
-                  .GetOrCreateSampler(samplerDesc);
-
-    if (!sampler)
-        throw std::runtime_error("Failed to initialize fog pass.");
-}
+FogPass::FogPass() = default;
 
 FogPass::~FogPass() = default;
 
 void FogPass::Begin(const RenderPassContext& context)
 {
-    if (!pso)
-    {
-        PipelineStateDesc psoDesc = {};
-        psoDesc.shader = fogShader;
-        psoDesc.topology = PrimitiveTopology::TriangleList;
-        psoDesc.vertexLayout = VertexLayout::PTC;
-        psoDesc.depthStencil = {
-            .depthTestEnable = false,
-            .depthWriteEnable = false
-        };
-        psoDesc.rasterizer = {
-            .cullMode = CullMode::None
-        };
-        psoDesc.blend = {
-            .mode = BlendMode::Opaque
-        };
-        psoDesc.rendering = {
-            .colorAttachmentFormats = { Format::BGRA8_sRGB }
-        };
-
-        pso = context.resourceManager.GetOrCreatePSO(psoDesc);
-    }
+    EnsureResources(context);
 
     const Extent2D& extent = context.postProcessRenderTarget.GetExtent();
 
@@ -175,6 +106,105 @@ void FogPass::Execute(
         2);
 
     commandBuffer.Draw(3);
+}
+
+void FogPass::EnsureResources(const RenderPassContext& context)
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+    if (!fogShader)
+    {
+        URay::Shader* fogShaderAsset = assetDatabase.Find<URay::Shader>(EngineAsset::FogShader);
+        fogShader = resourceManager.GetOrCreateShader(fogShaderAsset, {});
+    }
+
+    if (!descriptorSetLayout)
+    {
+        const DescriptorSetLayoutDesc* layoutDesc = fogShader->GetLayoutDescription(2);
+        if (!layoutDesc)
+            throw std::runtime_error("Failed to initialize fog pass.");
+
+        descriptorSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
+
+        if (!descriptorSetLayout)
+            throw std::runtime_error("Failed to initialize fog pass.");
+    }
+
+    if (descriptorSets.empty())
+    {
+        descriptorSets.resize(MAX_FRAMES_IN_FLIGHT);
+
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            descriptorSets[i].reset(
+                renderSystem.GetDevice().CreateDescriptorSet(descriptorSetLayout));
+
+            if (!descriptorSets[i])
+                throw std::runtime_error("Failed to initialize fog pass.");
+        }
+    }
+
+    if (uniformBuffers.empty())
+    {
+        uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+        {
+            UniformBufferDesc desc = {};
+            desc.size = sizeof(FogConstants);
+            desc.initialData = nullptr;
+            desc.initialDataSize = 0;
+
+            Buffer* uniformBuffer = renderSystem.GetDevice().CreateUniformBuffer(desc);
+            if (!uniformBuffer)
+            {
+                throw std::runtime_error("Failed to initialize fog pass.");
+            }
+
+            uniformBuffers[i].reset(uniformBuffer);
+        }
+    }
+
+    if (sampler == VK_NULL_HANDLE)
+    {
+        SamplerDesc samplerDesc = {};
+        samplerDesc.minFilter = VK_FILTER_LINEAR;
+        samplerDesc.magFilter = VK_FILTER_LINEAR;
+        samplerDesc.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerDesc.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerDesc.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+        sampler = renderSystem.GetResourceManager()
+                      .GetOrCreateSampler(samplerDesc);
+
+        if (sampler == VK_NULL_HANDLE)
+            throw std::runtime_error("Failed to initialize fog pass.");
+    }
+
+    if (!pso)
+    {
+        PipelineStateDesc psoDesc = {};
+        psoDesc.shader = fogShader;
+        psoDesc.topology = PrimitiveTopology::TriangleList;
+        psoDesc.vertexLayout = VertexLayout::PTC;
+        psoDesc.depthStencil = {
+            .depthTestEnable = false,
+            .depthWriteEnable = false
+        };
+        psoDesc.rasterizer = {
+            .cullMode = CullMode::None
+        };
+        psoDesc.blend = {
+            .mode = BlendMode::Opaque
+        };
+        psoDesc.rendering = {
+            .colorAttachmentFormats = { Format::BGRA8_sRGB }
+        };
+
+        pso = context.resourceManager.GetOrCreatePSO(psoDesc);
+    }
 }
 
 } // namespace URay::Render

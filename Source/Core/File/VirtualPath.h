@@ -13,8 +13,6 @@ public:
     VirtualPath(const std::string& path);
 
 public:
-    const std::string& ToString() const { return path; }
-
     VirtualPath GetDirectory() const;
     std::string GetFilename() const;
     std::string GetStem() const;
@@ -26,6 +24,10 @@ public:
 
     std::string GetMountName() const;
     std::string GetRelativePath() const;
+
+    bool IsDirectory() const;
+
+    const std::string& ToString() const { return path; }
 
 private:
     std::string path;

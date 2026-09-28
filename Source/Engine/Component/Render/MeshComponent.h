@@ -3,6 +3,7 @@
 #include "Engine/Component/Render/RenderComponent.h"
 
 #include "Core/Math/AABB.h"
+#include "Core/UUID.h"
 
 #include <vulkan/vulkan.h>
 
@@ -27,21 +28,21 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
-    Mesh* GetMesh() const { return mesh; }
-    void SetMesh(Mesh* newMesh);
+    const UUID& GetMeshUUID() const { return meshUUID; }
+    void SetMeshUUID(const UUID& newMeshUUID);
 
-    Material* GetMaterial(size_t index = 0) const { return materials.size() > index ? materials[index] : nullptr; }
-    const std::vector<Material*>& GetMaterials() const { return materials; }
+    const UUID& GetMaterialUUID(size_t index = 0) const { return materialUUIDs.size() > index ? materialUUIDs[index] : UUID{}; }
+    const std::vector<UUID>& GetMaterials() const { return materialUUIDs; }
 
-    void SetMaterial(Material* newMaterial, size_t index = 0);
-    void SetMaterials(const std::vector<Material*>& newMaterials) { materials = newMaterials; }
+    void SetMaterial(const UUID& newMaterialUUID, size_t index = 0);
+    void SetMaterials(const std::vector<UUID>& newMaterialUUIDs) { materialUUIDs = newMaterialUUIDs; }
 
 protected:
     void UpdateRenderObject() override;
 
 private:
-    Mesh* mesh = nullptr;
-    std::vector<Material*> materials;
+    UUID meshUUID = {};
+    std::vector<UUID> materialUUIDs;
 
     bool castsShadow = true;
 };

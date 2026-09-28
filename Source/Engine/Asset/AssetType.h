@@ -9,7 +9,8 @@ enum class AssetType
     Texture,
     Mesh,
     Material,
-    Shader
+    Shader,
+    Font
 };
 
 }

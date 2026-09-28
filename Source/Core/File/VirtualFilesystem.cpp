@@ -8,23 +8,45 @@
 namespace URay
 {
 
-void VirtualFilesystem::Mount(const std::string& mountName, const fs::path& physicalFilePath)
+VirtualFileSystem::VirtualFileSystem() = default;
+
+VirtualFileSystem::~VirtualFileSystem() = default;
+
+bool VirtualFileSystem::Initialize(
+    const std::string& enginePath,
+    const std::string& projectPath)
+{
+    Mount("Engine", enginePath);
+    Mount("Project", projectPath);
+    Mount("Asset", std::filesystem::path(projectPath) / "Asset/Source");
+
+    return true;
+}
+
+void VirtualFileSystem::Mount(const std::string& mountName, const std::filesystem::path& physicalFilePath)
 {
     mountMap.insert({ mountName, physicalFilePath });
 }
 
-bool VirtualFilesystem::Exists(const VirtualPath& virtualPath) const
+bool VirtualFileSystem::Exists(const VirtualPath& path) const
 {
-    fs::path physicalPath = ResolveToPhysicalPath(virtualPath);
-    return fs::exists(physicalPath);
+    std::filesystem::path physicalPath = ResolveToPhysicalPath(path);
+    return std::filesystem::exists(physicalPath);
 }
 
-std::vector<uint8> VirtualFilesystem::ReadBinary(const VirtualPath& virtualPath) const
+bool VirtualFileSystem::IsDirectory(const VirtualPath& path) const
+{
+    std::error_code error;
+    return std::filesystem::is_directory(
+        ResolveToPhysicalPath(path), error);
+}
+
+std::vector<uint8> VirtualFileSystem::ReadBinary(const VirtualPath& virtualPath) const
 {
     if (!Exists(virtualPath))
         return std::vector<uint8>();
 
-    fs::path physicalPath = ResolveToPhysicalPath(virtualPath);
+    std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath, std::ios::ate | std::ios::binary);
     if (!file | !file.is_open())
@@ -39,12 +61,12 @@ std::vector<uint8> VirtualFilesystem::ReadBinary(const VirtualPath& virtualPath)
     return buffer;
 }
 
-std::string VirtualFilesystem::ReadText(const VirtualPath& virtualPath) const
+std::string VirtualFileSystem::ReadText(const VirtualPath& virtualPath) const
 {
     if (!Exists(virtualPath))
         return std::string();
 
-    fs::path physicalPath = ResolveToPhysicalPath(virtualPath);
+    std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath);
     if (!file || !file.is_open())
@@ -55,13 +77,13 @@ std::string VirtualFilesystem::ReadText(const VirtualPath& virtualPath) const
         std::istreambuf_iterator<char>());
 }
 
-bool VirtualFilesystem::WriteBinary(const VirtualPath& path, const std::vector<uint8>& bin) const
+bool VirtualFileSystem::WriteBinary(const VirtualPath& path, const std::vector<uint8>& bin) const
 {
-    fs::path physicalPath = ResolveToPhysicalPath(path);
+    std::filesystem::path physicalPath = ResolveToPhysicalPath(path);
 
     if (physicalPath.has_parent_path())
     {
-        fs::create_directories(physicalPath.parent_path());
+        std::filesystem::create_directories(physicalPath.parent_path());
     }
 
     std::ofstream file(physicalPath, std::ios::binary);
@@ -72,13 +94,13 @@ bool VirtualFilesystem::WriteBinary(const VirtualPath& path, const std::vector<u
     return file.good();
 }
 
-bool VirtualFilesystem::WriteText(const VirtualPath& virtualPath, const std::string& text) const
+bool VirtualFileSystem::WriteText(const VirtualPath& virtualPath, const std::string& text) const
 {
-    fs::path physicalPath = ResolveToPhysicalPath(virtualPath);
+    std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     if (physicalPath.has_parent_path())
     {
-        fs::create_directories(physicalPath.parent_path());
+        std::filesystem::create_directories(physicalPath.parent_path());
     }
 
     std::ofstream file(physicalPath, std::ios::out);
@@ -89,23 +111,23 @@ bool VirtualFilesystem::WriteText(const VirtualPath& virtualPath, const std::str
     return file.good();
 }
 
-std::vector<VirtualFileEntry> VirtualFilesystem::ListDirectory(
+std::vector<VirtualFileEntry> VirtualFileSystem::ListDirectory(
     const VirtualPath& directory) const
 {
     std::vector<VirtualFileEntry> result;
 
-    const fs::path physicalDirectory = ResolveToPhysicalPath(directory);
+    const std::filesystem::path physicalDirectory = ResolveToPhysicalPath(directory);
 
-    if (physicalDirectory.empty() || !fs::is_directory(physicalDirectory))
+    if (physicalDirectory.empty() || !std::filesystem::is_directory(physicalDirectory))
         return result;
 
     std::error_code error;
-    fs::directory_iterator iterator(physicalDirectory, error);
+    std::filesystem::directory_iterator iterator(physicalDirectory, error);
 
     if (error)
         return result;
 
-    for (const fs::directory_entry& entry : iterator)
+    for (const std::filesystem::directory_entry& entry : iterator)
     {
         std::error_code directoryError;
 
@@ -127,7 +149,7 @@ std::vector<VirtualFileEntry> VirtualFilesystem::ListDirectory(
     return result;
 }
 
-fs::path VirtualFilesystem::ResolveToPhysicalPath(const VirtualPath& virtualPath) const
+std::filesystem::path VirtualFileSystem::ResolveToPhysicalPath(const VirtualPath& virtualPath) const
 {
     std::string pathStr = virtualPath.ToString();
 
@@ -140,15 +162,15 @@ fs::path VirtualFilesystem::ResolveToPhysicalPath(const VirtualPath& virtualPath
 
         auto it = mountMap.find(mount);
         if (it == mountMap.end())
-            return fs::path();
+            return std::filesystem::path();
 
-        fs::path rootPath = it->second;
+        std::filesystem::path rootPath = it->second;
 
-        fs::path resolvedPath = rootPath / fs::u8path(relativePath);
+        std::filesystem::path resolvedPath = rootPath / std::filesystem::u8path(relativePath);
         return resolvedPath;
     }
 
-    return fs::path();
+    return std::filesystem::path();
 }
 
 } // namespace URay

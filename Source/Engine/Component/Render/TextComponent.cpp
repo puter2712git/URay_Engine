@@ -1,6 +1,9 @@
 #include "Engine/Component/Render/TextComponent.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
+#include "Engine/Asset/Font/Font.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
@@ -15,8 +18,7 @@ URAY_REGISTER_COMPONENT(TextComponent)
 
 TextComponent::TextComponent()
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    font = assetSystem.GetDefaultAssets().font;
+    fontUUID = EngineAsset::BitmapFont;
 }
 
 void TextComponent::RegisterClass()
@@ -34,11 +36,14 @@ Render::RenderObject* TextComponent::CreateRenderObject()
     if (!owner)
         return nullptr;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = owner->GetTransform();
 
     Render::TextObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.font = font;
+    state.font = assetDatabase.Find<Font>(fontUUID);
     state.text = text;
 
     renderObject = new Render::TextObject(state);
@@ -51,11 +56,14 @@ void TextComponent::UpdateRenderObject()
     if (!owner)
         return;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = owner->GetTransform();
 
     Render::TextObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.font = font;
+    state.font = assetDatabase.Find<Font>(fontUUID);
     state.text = text;
 
     Render::TextObject* textObject = static_cast<Render::TextObject*>(renderObject);

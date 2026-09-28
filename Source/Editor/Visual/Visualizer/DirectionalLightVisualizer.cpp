@@ -1,6 +1,8 @@
 #include "DirectionalLightVisualizer.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Component/Render/Light/DirectionalLightComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -16,27 +18,33 @@ namespace URay
 
 Render::MeshObjectState DirectionalLightVisualizer::MakeArrowState(EditorVisualContext& context, Unit& unit)
 {
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = unit.GetTransform();
 
     return Render::MeshObjectState{
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
         .colorTint = Color::Green,
-        .mesh = context.engine.GetAssetSystem().GetDefaultAssets().arrowMesh,
-        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().meshMaterial },
+        .mesh = assetDatabase.Find<Mesh>(EngineAsset::ArrowMesh),
+        .materials = { assetDatabase.Find<Material>(EngineAsset::MeshMaterial) },
         .castsShadow = false
     };
 }
 
 Render::BillboardObjectState DirectionalLightVisualizer::MakeBillboardState(EditorVisualContext& context, Unit& unit, Component& component)
 {
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = unit.GetTransform();
     DirectionalLightComponent& directionalLight = static_cast<DirectionalLightComponent&>(component);
 
     return {
         .worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity,
         .colorTint = directionalLight.GetColor(),
-        .mesh = context.engine.GetAssetSystem().GetDefaultAssets().quadMesh,
-        .materials = { context.engine.GetAssetSystem().GetDefaultAssets().billboardMaterial }
+        .mesh = assetDatabase.Find<Mesh>(EngineAsset::QuadMesh),
+        .materials = { assetDatabase.Find<Material>(EngineAsset::DirectionalLightBillboardMaterial) }
     };
 }
 

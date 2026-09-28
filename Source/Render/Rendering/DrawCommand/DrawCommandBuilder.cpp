@@ -11,6 +11,7 @@
 
 #include "Core/Type/Types.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
@@ -31,29 +32,11 @@ DrawCommandBuilder::~DrawCommandBuilder() = default;
 
 bool DrawCommandBuilder::Initialize()
 {
-    std::vector<URay::Shader*> shaders = assetSystem.FindAssets<URay::Shader>();
-
-    URay::Shader* lineShader = nullptr;
-    URay::Shader* fontShader = nullptr;
-
-    for (URay::Shader* shader : shaders)
-    {
-        if (shader->GetName() == "Line")
-        {
-            lineShader = shader;
-        }
-
-        if (shader->GetName() == "Font")
-        {
-            fontShader = shader;
-        }
-    }
-
-    lineBatcher = std::make_unique<LineBatcher>(device, resourceManager, lineShader);
+    lineBatcher = std::make_unique<LineBatcher>(device, resourceManager);
     if (!lineBatcher->Initialize())
         return false;
 
-    textBatcher = std::make_unique<TextBatcher>(device, resourceManager, fontShader);
+    textBatcher = std::make_unique<TextBatcher>(device, resourceManager);
     if (!textBatcher->Initialize())
         return false;
 
@@ -103,6 +86,8 @@ void DrawCommandBuilder::FlushTexts()
 
 void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPassId passId)
 {
+    context.material->PrepareDescriptorSet(currentFrame);
+
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
     std::vector<ShaderDefine> defines;
@@ -166,6 +151,8 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
 
 void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
 {
+    context.material->PrepareDescriptorSet(currentFrame);
+
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),
@@ -307,6 +294,8 @@ void DrawCommandBuilder::BuildText(const TextCommandContext& context)
 
 void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 {
+    context.decalMaterial->PrepareDescriptorSet(currentFrame);
+
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.receiverMesh);
     Render::Shader* shader = resourceManager.GetOrCreateShader(context.decalMaterial->GetShader(), {});
 
@@ -348,6 +337,8 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 
 void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
 {
+    context.material->PrepareDescriptorSet(currentFrame);
+
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),

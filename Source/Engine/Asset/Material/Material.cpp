@@ -1,6 +1,8 @@
 #include "Material.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
@@ -9,6 +11,7 @@
 
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/Texture.h"
@@ -25,7 +28,7 @@ namespace URay
 
 void Material::RegisterClass() {}
 
-Material::Material(Shader* shader) : shader(shader) {}
+Material::Material(const UUID& shaderUUID) : shaderUUID(shaderUUID) {}
 
 Material::~Material()
 {
@@ -49,20 +52,25 @@ Material::~Material()
 
 bool Material::Initialize()
 {
+    if (isInitialized)
+        return true;
+
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
     Render::RenderDevice& device = renderSystem.GetDevice();
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
+    Shader* shader = GetShader();
+
     Render::Shader* renderShader = resourceManager.GetOrCreateShader(shader, {});
     if (!renderShader)
         return false;
 
-    const Render::DescriptorSetLayoutDesc* layoutDescription = renderShader->GetLayoutDescription(1);
-    if (!layoutDescription)
+    descriptorSetLayoutDescription = const_cast<Render::DescriptorSetLayoutDesc*>(renderShader->GetLayoutDescription(1));
+    if (!descriptorSetLayoutDescription)
         return true;
 
-    descriptorSetLayout = device.CreateDescriptorSetLayout(*layoutDescription);
+    descriptorSetLayout = device.CreateDescriptorSetLayout(*descriptorSetLayoutDescription);
     if (!descriptorSetLayout)
         return false;
 
@@ -74,7 +82,7 @@ bool Material::Initialize()
             return false;
     }
 
-    for (const Render::ResourceBinding& binding : layoutDescription->bindings)
+    for (const Render::ResourceBinding& binding : descriptorSetLayoutDescription->bindings)
     {
         switch (binding.resourceType)
         {
@@ -86,24 +94,22 @@ bool Material::Initialize()
             break;
         case Render::ResourceType::SampledImage:
         {
-            Texture* whiteTexture = assetSystem.GetDefaultAssets().whiteTexture;
-            Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(whiteTexture);
-            if (!renderTexture)
+            auto [it, inserted] = parameters.try_emplace(
+                binding.name,
+                MaterialParameter{
+                    .binding = binding.binding,
+                    .type = MaterialParameterType::Texture2D,
+                    .value = EngineAsset::WhiteTexture });
+
+            MaterialParameter& parameter = it->second;
+
+            if (parameter.type != MaterialParameterType::Texture2D ||
+                !std::holds_alternative<UUID>(parameter.value))
+            {
                 return false;
+            }
 
-            Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(renderTexture, Render::TextureViewDesc{});
-            if (!textureView)
-                return false;
-
-            for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
-                descriptorSets[i]->WriteSampledImage(binding.binding, textureView);
-
-            parameters.insert({ binding.name,
-                                MaterialParameter{
-                                    .binding = binding.binding,
-                                    .type = MaterialParameterType::Texture2D,
-                                    .value = whiteTexture,
-                                } });
+            parameter.binding = binding.binding;
             break;
         }
         default:
@@ -128,7 +134,58 @@ bool Material::Initialize()
         }
     }
 
+    isInitialized = true;
+
     return true;
+}
+
+Shader* Material::GetShader() const
+{
+    Shader* ret = nullptr;
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    ret = assetDatabase.Find<Shader>(shaderUUID);
+
+    return ret;
+}
+
+void Material::PrepareDescriptorSet(uint32 frameIndex)
+{
+    if (appliedDescriptorRevisions[frameIndex] == descriptorRevision)
+        return;
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+    for (const auto& [name, parameter] : parameters)
+    {
+        if (parameter.type != MaterialParameterType::Texture2D)
+            continue;
+
+        const UUID textureUUID = std::get<UUID>(parameter.value);
+
+        Texture* texture = assetDatabase.Find<Texture>(textureUUID);
+        if (!texture)
+            texture = assetDatabase.Find<Texture>(EngineAsset::WhiteTexture);
+
+        Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(texture);
+        Render::TextureView* view = resourceManager.GetOrCreateTextureView(renderTexture, {});
+
+        descriptorSets[frameIndex]->WriteSampledImage(parameter.binding, view);
+    }
+
+    appliedDescriptorRevisions[frameIndex] = descriptorRevision;
+}
+
+void Material::AddParameter(const std::string& name, MaterialParameterType type, MaterialParameterValue value)
+{
+    parameters.insert({ name, MaterialParameter{
+                                  .type = type,
+                                  .value = value } });
 }
 
 void Material::SetFloat(const std::string& name, float value)
@@ -150,22 +207,14 @@ void Material::SetFloat(const std::string& name, float value)
     }
 }
 
-void Material::SetTexture(const std::string& name, Texture* texture)
+void Material::SetTexture(const std::string& name, const UUID& textureUUID)
 {
     auto it = parameters.find(name);
     if (it == parameters.end())
         return;
 
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-
-    Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(texture);
-    Render::TextureView* textureView = resourceManager.GetOrCreateTextureView(renderTexture, Render::TextureViewDesc{});
-
-    for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        descriptorSets[i]->WriteSampledImage(it->second.binding, textureView);
-    }
+    it->second.value = textureUUID;
+    ++descriptorRevision;
 }
 
 } // namespace URay

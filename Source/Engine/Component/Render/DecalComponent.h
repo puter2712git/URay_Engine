@@ -3,6 +3,7 @@
 #include "Engine/Component/Render/RenderComponent.h"
 
 #include "Core/Math/Vector3.h"
+#include "Core/UUID.h"
 
 namespace URay
 {
@@ -27,7 +28,7 @@ protected:
 
 private:
     Vector3 extent = Vector3(0.5f, 0.5f, 0.5f);
-    Material* material = nullptr;
+    UUID materialUUID = {};
 };
 
 } // namespace URay

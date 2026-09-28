@@ -12,20 +12,27 @@
 namespace URay
 {
 
-namespace fs = std::filesystem;
-
 struct VirtualFileEntry
 {
     VirtualPath path;
     bool isDirectory = false;
 };
 
-class VirtualFilesystem
+class VirtualFileSystem
 {
 public:
-    void Mount(const std::string& mountName, const fs::path& physicalPath);
+    VirtualFileSystem();
+    ~VirtualFileSystem();
 
-    bool Exists(const VirtualPath& virtualPath) const;
+public:
+    bool Initialize(const std::string& enginePath, const std::string& projectPath);
+    void Finalize();
+
+public:
+    void Mount(const std::string& mountName, const std::filesystem::path& physicalPath);
+
+    bool Exists(const VirtualPath& path) const;
+    bool IsDirectory(const VirtualPath& path) const;
 
     std::vector<uint8> ReadBinary(const VirtualPath& virtualPath) const;
     std::string ReadText(const VirtualPath& path) const;
@@ -35,10 +42,10 @@ public:
 
     std::vector<VirtualFileEntry> ListDirectory(const VirtualPath& directory) const;
 
-    fs::path ResolveToPhysicalPath(const VirtualPath& virtualPath) const;
+    std::filesystem::path ResolveToPhysicalPath(const VirtualPath& virtualPath) const;
 
 private:
-    std::unordered_map<std::string, fs::path> mountMap;
+    std::unordered_map<std::string, std::filesystem::path> mountMap;
 };
 
 } // namespace URay

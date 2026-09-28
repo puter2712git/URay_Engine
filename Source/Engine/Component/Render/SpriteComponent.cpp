@@ -1,8 +1,11 @@
 #include "Engine/Component/Render/SpriteComponent.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Asset/Material/Material.h"
 #include "Engine/Asset/Mesh/Mesh.h"
+#include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
@@ -21,10 +24,9 @@ SpriteComponent::SpriteComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    texture = assetSystem.GetDefaultAssets().whiteTexture;
-    quadMesh = assetSystem.GetDefaultAssets().quadMesh;
-    material = assetSystem.GetDefaultAssets().spriteMaterial;
-    material->SetTexture("textureImage", texture);
+    textureUUID = EngineAsset::WhiteTexture;
+    quadMeshUUID = EngineAsset::QuadMesh;
+    materialUUID = EngineAsset::SpriteMaterial;
 }
 
 void SpriteComponent::RegisterClass()
@@ -32,13 +34,8 @@ void SpriteComponent::RegisterClass()
     StaticClass()->AddProperty(
         { .type = PropertyType::Texture,
           .name = "Texture",
-          .offset = offsetof(SpriteComponent, texture),
-          .size = sizeof(Texture*),
-          .OnChangedCallback = [&](Object& owner, const Property&)
-          {
-              SpriteComponent& component = static_cast<SpriteComponent&>(owner);
-              component.GetMaterial()->SetTexture("textureImage", component.GetTexture());
-          } });
+          .offset = offsetof(SpriteComponent, textureUUID),
+          .size = sizeof(Texture*) });
 }
 
 Render::RenderObject* SpriteComponent::CreateRenderObject()
@@ -47,12 +44,15 @@ Render::RenderObject* SpriteComponent::CreateRenderObject()
     if (!owner)
         return nullptr;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = owner->GetTransform();
 
     Render::MeshObjectState objectState = {};
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    objectState.mesh = quadMesh;
-    objectState.materials = { material };
+    objectState.mesh = assetDatabase.Find<Mesh>(quadMeshUUID);
+    objectState.materials = { assetDatabase.Find<Material>(materialUUID) };
 
     renderObject = new Render::MeshObject(objectState);
     return renderObject;
@@ -64,15 +64,18 @@ void SpriteComponent::UpdateRenderObject()
     if (!owner)
         return;
 
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     TransformComponent* transform = owner->GetTransform();
 
-    Render::MeshObjectState state = {};
-    state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.mesh = quadMesh;
-    state.materials = { material };
+    Render::MeshObjectState objectState = {};
+    objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
+    objectState.mesh = assetDatabase.Find<Mesh>(quadMeshUUID);
+    objectState.materials = { assetDatabase.Find<Material>(materialUUID) };
 
     Render::MeshObject* meshObject = static_cast<Render::MeshObject*>(renderObject);
-    meshObject->Update(state);
+    meshObject->Update(objectState);
 }
 
 } // namespace URay

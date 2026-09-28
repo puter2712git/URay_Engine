@@ -1,6 +1,8 @@
 #include "GizmoController.h"
 
+#include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -25,15 +27,16 @@ namespace URay
 GizmoController::GizmoController()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
 
-    meshes[static_cast<size_t>(GizmoMode::Translation)] = assetSystem.GetDefaultAssets().arrowMesh;
-    meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetSystem.GetDefaultAssets().rotationGizmoMesh;
-    meshes[static_cast<size_t>(GizmoMode::Scale)] = assetSystem.GetDefaultAssets().scaleGizmoMesh;
+    meshes[static_cast<size_t>(GizmoMode::Translation)] = assetDatabase.Find<Mesh>(EngineAsset::ArrowMesh);
+    meshes[static_cast<size_t>(GizmoMode::Rotation)] = assetDatabase.Find<Mesh>(EngineAsset::RotationGizmoMesh);
+    meshes[static_cast<size_t>(GizmoMode::Scale)] = assetDatabase.Find<Mesh>(EngineAsset::ScaleGizmoMesh);
 
-    material = assetSystem.GetDefaultAssets().meshMaterial;
+    material = assetDatabase.Find<Material>(EngineAsset::MeshMaterial);
 
     Scene* editorScene = sceneSystem.GetSceneByType(SceneType::Editor);
     Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(editorScene);

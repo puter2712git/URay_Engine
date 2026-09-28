@@ -5,7 +5,7 @@
 namespace URay
 {
 
-EditorSettings::EditorSettings(VirtualFilesystem& filesystem)
+EditorSettings::EditorSettings(VirtualFileSystem& filesystem)
     : filesystem(filesystem)
 {
 }

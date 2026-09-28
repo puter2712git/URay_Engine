@@ -15,19 +15,18 @@
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Type/Types.h"
 
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Shader/Shader.h"
 #include "Engine/Asset/Texture/Texture.h"
+#include "Engine/Engine.h"
 
 #include <vulkan/vulkan.h>
 
 namespace URay::Render
 {
 
-ResourceManager::ResourceManager(
-    RenderDevice& device,
-    VirtualFilesystem& filesystem)
-    : device(device), filesystem(filesystem), shaderCompiler(ShaderCompiler(filesystem))
+ResourceManager::ResourceManager(RenderDevice& device) : device(device)
 {
     shaderCompiler.Initialize();
 
@@ -221,6 +220,9 @@ void ResourceManager::DestroySamplers()
 
 Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines)
 {
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+
     const ShaderPermutationKey key = {
         .shader = shader,
         .defines = defines
@@ -235,8 +237,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
     // TODO: Fix for shader permutation
     VirtualPath shaderPath = shader->GetFilePath();
 
-    const std::wstring includeDirectory =
-        filesystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
+    const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
 
     std::vector<std::wstring> compilerDefines;
     compilerDefines.reserve(defines.size());
@@ -272,11 +273,11 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
 
     const VirtualPath fragmentShaderPath = importAssetPath;
 
-    std::vector<uint8> vertexShaderCode = filesystem.ReadBinary(vertexShaderPath);
+    std::vector<uint8> vertexShaderCode = fileSystem.ReadBinary(vertexShaderPath);
     if (vertexShaderCode.empty())
         return nullptr;
 
-    std::vector<uint8> fragmentShaderCode = filesystem.ReadBinary(fragmentShaderPath);
+    std::vector<uint8> fragmentShaderCode = fileSystem.ReadBinary(fragmentShaderPath);
     if (fragmentShaderCode.empty())
         return nullptr;
 

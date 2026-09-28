@@ -25,7 +25,7 @@ struct LineCommandContext;
 class LineBatcher
 {
 public:
-    LineBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader);
+    LineBatcher(RenderDevice& device, ResourceManager& resourceManager);
     ~LineBatcher();
 
 public:
@@ -43,7 +43,6 @@ private:
 
     std::vector<Vertex> vertices;
 
-    URay::Shader* shader = nullptr;
     Shader* renderShader = nullptr;
 
     std::unique_ptr<Buffer> vertexBuffer = nullptr;

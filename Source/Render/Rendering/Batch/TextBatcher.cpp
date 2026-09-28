@@ -13,17 +13,20 @@
 
 #include "Core/Type/Types.h"
 
+#include "Engine/Asset/AssetDatabase.h"
+#include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Asset/Font/Font.h"
+#include "Engine/Asset/Shader/Shader.h"
+#include "Engine/Engine.h"
 
 #include <cstring>
 
 namespace URay::Render
 {
 
-TextBatcher::TextBatcher(RenderDevice& device, ResourceManager& resourceManager, URay::Shader* shader)
-    : device(device), resourceManager(resourceManager), shader(shader)
-{
-}
+TextBatcher::TextBatcher(RenderDevice& device, ResourceManager& resourceManager)
+    : device(device), resourceManager(resourceManager) {}
 
 TextBatcher::~TextBatcher() = default;
 
@@ -36,13 +39,6 @@ bool TextBatcher::Initialize()
     vertexBuffer.reset(device.CreateVertexBuffer(desc));
 
     mappedVertexBufferData = vertexBuffer->Map();
-
-    renderShader = resourceManager.GetOrCreateShader(shader, {});
-
-    const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetLayoutDescription(1);
-
-    DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
-    descriptorSet.reset(device.CreateDescriptorSet(setLayout));
 
     return true;
 }
@@ -70,6 +66,11 @@ void TextBatcher::Reset()
 
 std::vector<DrawCommand> TextBatcher::Flush()
 {
+    EnsureResources();
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
     std::vector<DrawCommand> drawCmds;
 
     for (auto& [font, verts] : vertices)
@@ -95,7 +96,11 @@ std::vector<DrawCommand> TextBatcher::Flush()
 
         cmd.pipelineState = psoDesc;
 
-        Texture* texture = resourceManager.GetOrCreateTexture(font->GetBitmapTexture());
+        const UUID bitmapTextureUUID = font->GetBitmapTextureUUID();
+
+        URay::Texture* textureAsset = assetDatabase.Find<URay::Texture>(bitmapTextureUUID);
+
+        Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
         TextureView* textureView = resourceManager.GetOrCreateTextureView(texture, TextureViewDesc{});
 
         descriptorSet->WriteSampledImage(0, textureView);
@@ -150,6 +155,26 @@ void TextBatcher::Collect(const TextCommandContext& context)
         verts.push_back({ p0, uv0, Color::White });
         verts.push_back({ p2, uv2, Color::White });
         verts.push_back({ p3, uv3, Color::White });
+    }
+}
+
+void TextBatcher::EnsureResources()
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    if (!renderShader)
+    {
+        URay::Shader* shaderAsset = assetDatabase.Find<URay::Shader>(EngineAsset::FontShader);
+        renderShader = resourceManager.GetOrCreateShader(shaderAsset, {});
+    }
+
+    if (!descriptorSet)
+    {
+        const DescriptorSetLayoutDesc* layoutDesc = renderShader->GetLayoutDescription(1);
+
+        DescriptorSetLayout* setLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
+        descriptorSet.reset(device.CreateDescriptorSet(setLayout));
     }
 }
 

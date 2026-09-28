@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000006
+Type: Shader
+SourcePath: Engine://Asset/Source/Shader/Decal.hlsl
+MetadataPath: Engine://Asset/Imported/Shader/Decal.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/Decal.hlsl.asset

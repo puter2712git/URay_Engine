@@ -17,7 +17,6 @@ class Shader;
 namespace URay::Render
 {
 
-class RenderSystem;
 class Shader;
 class PipelineState;
 class DescriptorSetLayout;
@@ -36,7 +35,7 @@ struct FogConstants
 class FogPass final : public RenderPass
 {
 public:
-    FogPass(RenderSystem& renderSystem, URay::Shader* shader);
+    FogPass();
     ~FogPass() override;
 
 public:
@@ -50,7 +49,9 @@ public:
     RenderPassId GetPassId() const override { return RenderPassId::Fog; }
 
 private:
-    URay::Shader* fogShaderAsset = nullptr;
+    void EnsureResources(const RenderPassContext& context);
+
+private:
     Shader* fogShader = nullptr;
     PipelineState* pso = nullptr;
 

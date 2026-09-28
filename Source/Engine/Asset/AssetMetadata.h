@@ -20,8 +20,6 @@ struct AssetMetadata
     VirtualPath metadataPath;
     VirtualPath assetPath;
 
-    std::vector<UUID> dependencies;
-
     YAML::Node Serialize() const;
     void Deserialize(const YAML::Node& node);
 };

@@ -13,7 +13,7 @@
 namespace URay
 {
 
-FilesystemWidget::FilesystemWidget() : filesystem(gEngine->GetAssetSystem().GetFilesystem())
+FilesystemWidget::FilesystemWidget() : filesystem(gEngine->GetAssetSystem().GetFileSystem())
 {
     rootPath = "Project://";
     currPath = rootPath;

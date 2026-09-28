@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000003
+Type: Shader
+SourcePath: Engine://Asset/Source/Shader/Line.hlsl
+MetadataPath: Engine://Asset/Imported/Shader/Line.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/Line.hlsl.asset

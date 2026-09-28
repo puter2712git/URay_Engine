@@ -44,7 +44,7 @@ bool Editor::Initialize()
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    VirtualFilesystem& filesystem = assetSystem.GetFilesystem();
+    VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
 
     if (!renderSystem.InitializeImGui())

@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Engine/Asset/Asset.h"
+
 #include "Core/Math/Vector2.h"
+#include "Core/UUID.h"
 
 #include <string>
 
@@ -9,15 +12,18 @@ namespace URay
 
 class Texture;
 
-class Font
+class Font : public Asset
 {
+    URAY_CLASS(Font, Asset)
+
 public:
-    Font(Texture* textureAsset);
+    Font(const UUID& bitmapTextureUUID);
+    ~Font() override;
 
 public:
     Vector2 GetUVFromChar(const char letter) const;
 
-    Texture* GetBitmapTexture() const { return bitmapTexture; }
+    const UUID& GetBitmapTextureUUID() const { return bitmapTextureUUID; }
 
     float GetWidth() const { return width; }
     float GetHeight() const { return height; }
@@ -29,7 +35,7 @@ public:
     float GetCellHeightUV() const { return GetCellHeight() / height; }
 
 private:
-    Texture* bitmapTexture = nullptr;
+    UUID bitmapTextureUUID = {};
 
     std::string charset =
         "abcdefghijklmnopqrstuvwxyz"
