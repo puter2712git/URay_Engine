@@ -41,9 +41,9 @@ public:
     const std::vector<MeshSection>& GetSections() const { return sections; }
     void SetSections(const std::vector<MeshSection>& newSections) { sections = newSections; }
 
-    const UUID& GetDefaultMaterialUUID(size_t index) const { return index < defaultMaterialUUIDs.size() ? defaultMaterialUUIDs[index] : UUID{}; }
-    const std::vector<UUID>& GetDefaultMaterials() const { return defaultMaterialUUIDs; }
-    void SetDefaultMaterials(const std::vector<UUID>& newMaterialUUIDs) { defaultMaterialUUIDs = newMaterialUUIDs; }
+    const AssetHandle& GetDefaultMaterialHandle(size_t index) const { return index < defaultMaterialHandles.size() ? defaultMaterialHandles[index] : AssetHandle{}; }
+    const std::vector<AssetHandle>& GetDefaultMaterials() const { return defaultMaterialHandles; }
+    void SetDefaultMaterials(const std::vector<AssetHandle>& newMaterialHandles) { defaultMaterialHandles = newMaterialHandles; }
 
     const AABB& GetLocalBounds() const { return localBounds; }
 
@@ -51,7 +51,7 @@ private:
     std::vector<Render::VertexPNT> vertices;
     std::vector<uint32> indices;
     std::vector<MeshSection> sections;
-    std::vector<UUID> defaultMaterialUUIDs;
+    std::vector<AssetHandle> defaultMaterialHandles;
 
     AABB localBounds = {};
 };

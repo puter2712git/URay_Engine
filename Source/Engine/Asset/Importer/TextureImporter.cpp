@@ -61,7 +61,7 @@ void TextureImporter::Import(const VirtualPath& sourcePath)
 
     std::unique_ptr<Texture> texture = std::make_unique<Texture>(width, height, channels, pixels);
     texture->SetName(metadata.sourcePath.GetStem());
-    texture->SetUUID(metadata.uuid);
+    texture->SetHandle(metadata.handle);
 
     assetDatabase.Add(std::move(texture));
 }
@@ -72,7 +72,7 @@ AssetMetadata TextureImporter::CreateMetadata(const VirtualPath& sourcePath) con
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    ret.uuid = UUID::Generate();
+    ret.handle = AssetHandle::Generate();
     ret.type = AssetType::Texture;
     ret.sourcePath = sourcePath;
 

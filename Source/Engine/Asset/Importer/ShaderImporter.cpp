@@ -41,7 +41,7 @@ void ShaderImporter::Import(const VirtualPath& sourcePath)
 
     std::unique_ptr<Shader> shader = std::make_unique<Shader>(sourcePath);
     shader->SetName(metadata.sourcePath.GetStem());
-    shader->SetUUID(metadata.uuid);
+    shader->SetHandle(metadata.handle);
 
     assetDatabase.Add(std::move(shader));
 }
@@ -52,7 +52,7 @@ AssetMetadata ShaderImporter::CreateMetadata(const VirtualPath& sourcePath) cons
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    ret.uuid = UUID::Generate();
+    ret.handle = AssetHandle::Generate();
     ret.type = AssetType::Shader;
     ret.sourcePath = sourcePath;
 

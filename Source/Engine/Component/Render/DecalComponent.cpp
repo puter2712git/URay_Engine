@@ -19,7 +19,7 @@ URAY_REGISTER_COMPONENT(DecalComponent)
 
 DecalComponent::DecalComponent()
 {
-    materialUUID = EngineAsset::DecalMaterial;
+    materialHandle = EngineAsset::DecalMaterial;
 }
 
 DecalComponent::~DecalComponent() = default;
@@ -34,7 +34,7 @@ void DecalComponent::RegisterClass()
     StaticClass()->AddProperty(
         { .type = PropertyType::Material,
           .name = "Material",
-          .offset = offsetof(DecalComponent, materialUUID),
+          .offset = offsetof(DecalComponent, materialHandle),
           .size = sizeof(Material*) });
 }
 
@@ -52,7 +52,7 @@ Render::RenderObject* DecalComponent::CreateRenderObject()
     Render::DecalObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     state.extent = extent;
-    state.material = assetDatabase.Find<Material>(materialUUID);
+    state.material = assetDatabase.Find<Material>(materialHandle);
 
     renderObject = new Render::DecalObject(gEngine->GetRenderSystem(), state);
     return renderObject;
@@ -72,7 +72,7 @@ void DecalComponent::UpdateRenderObject()
     Render::DecalObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     state.extent = extent;
-    state.material = assetDatabase.Find<Material>(materialUUID);
+    state.material = assetDatabase.Find<Material>(materialHandle);
 
     Render::DecalObject* decalObject = static_cast<Render::DecalObject*>(renderObject);
     decalObject->Update(state);

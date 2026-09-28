@@ -5,7 +5,7 @@ namespace URay
 
 URAY_REGISTER_CLASS(Font)
 
-Font::Font(const UUID& bitmapTextureUUID) : bitmapTextureUUID(bitmapTextureUUID) {}
+Font::Font(const AssetHandle& bitmapTextureHandle) : bitmapTextureHandle(bitmapTextureHandle) {}
 
 Font::~Font() = default;
 
@@ -14,8 +14,8 @@ void Font::RegisterClass()
     StaticClass()->AddProperty(
         { .type = PropertyType::Texture,
           .name = "Bitmap Texture",
-          .offset = offsetof(Font, bitmapTextureUUID),
-          .size = sizeof(UUID) });
+          .offset = offsetof(Font, bitmapTextureHandle),
+          .size = sizeof(AssetHandle) });
 }
 
 Vector2 Font::GetUVFromChar(const char letter) const

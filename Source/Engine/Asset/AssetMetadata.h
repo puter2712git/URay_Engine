@@ -3,7 +3,7 @@
 #include "Engine/Asset/AssetType.h"
 
 #include "Core/File/VirtualPath.h"
-#include "Core/UUID.h"
+#include "Engine/Asset/Asset.h"
 
 #include <yaml-cpp/yaml.h>
 
@@ -14,7 +14,7 @@ namespace URay
 
 struct AssetMetadata
 {
-    UUID uuid = {};
+    AssetHandle handle = {};
     AssetType type = AssetType::Unknown;
     VirtualPath sourcePath;
     VirtualPath metadataPath;

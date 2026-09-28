@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Engine/Component/Render/RenderComponent.h"
+#include "Engine/Asset/Asset.h"
 
 #include "Core/Math/AABB.h"
-#include "Core/UUID.h"
 
 #include <vulkan/vulkan.h>
 
@@ -28,21 +28,21 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
-    const UUID& GetMeshUUID() const { return meshUUID; }
-    void SetMeshUUID(const UUID& newMeshUUID);
+    const AssetHandle& GetMeshHandle() const { return meshHandle; }
+    void SetMeshHandle(const AssetHandle& newMeshHandle);
 
-    const UUID& GetMaterialUUID(size_t index = 0) const { return materialUUIDs.size() > index ? materialUUIDs[index] : UUID{}; }
-    const std::vector<UUID>& GetMaterials() const { return materialUUIDs; }
+    const AssetHandle& GetMaterialHandle(size_t index = 0) const { return materialHandles.size() > index ? materialHandles[index] : AssetHandle{}; }
+    const std::vector<AssetHandle>& GetMaterials() const { return materialHandles; }
 
-    void SetMaterial(const UUID& newMaterialUUID, size_t index = 0);
-    void SetMaterials(const std::vector<UUID>& newMaterialUUIDs) { materialUUIDs = newMaterialUUIDs; }
+    void SetMaterial(const AssetHandle& newMaterialHandle, size_t index = 0);
+    void SetMaterials(const std::vector<AssetHandle>& newMaterialHandles) { materialHandles = newMaterialHandles; }
 
 protected:
     void UpdateRenderObject() override;
 
 private:
-    UUID meshUUID = {};
-    std::vector<UUID> materialUUIDs;
+    AssetHandle meshHandle = {};
+    std::vector<AssetHandle> materialHandles;
 
     bool castsShadow = true;
 };

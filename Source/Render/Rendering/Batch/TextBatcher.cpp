@@ -96,9 +96,9 @@ std::vector<DrawCommand> TextBatcher::Flush()
 
         cmd.pipelineState = psoDesc;
 
-        const UUID bitmapTextureUUID = font->GetBitmapTextureUUID();
+        const AssetHandle bitmapTextureHandle = font->GetBitmapTextureHandle();
 
-        URay::Texture* textureAsset = assetDatabase.Find<URay::Texture>(bitmapTextureUUID);
+        URay::Texture* textureAsset = assetDatabase.Find<URay::Texture>(bitmapTextureHandle);
 
         Texture* texture = resourceManager.GetOrCreateTexture(textureAsset);
         TextureView* textureView = resourceManager.GetOrCreateTextureView(texture, TextureViewDesc{});

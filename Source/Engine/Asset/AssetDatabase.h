@@ -5,7 +5,6 @@
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Asset/Texture/Texture.h"
 
-#include "Core/UUID.h"
 
 #include <memory>
 #include <unordered_map>
@@ -24,9 +23,9 @@ public:
 
 public:
     template <typename T>
-    T* Find(const UUID& uuid) const
+    T* Find(const AssetHandle& handle) const
     {
-        const auto it = assets.find(uuid);
+        const auto it = assets.find(handle);
         if (it == assets.end())
             return nullptr;
 
@@ -36,14 +35,14 @@ public:
 
         return static_cast<T*>(asset);
     }
-    Asset* Find(const UUID& uuid, Class* assetClass) const;
+    Asset* Find(const AssetHandle& handle, Class* assetClass) const;
 
     template <typename T>
     std::vector<T*> GetAssets() const
     {
         std::vector<T*> ret;
 
-        for (const auto& [uuid, asset] : assets)
+        for (const auto& [handle, asset] : assets)
         {
             if (asset->IsA<T>())
                 ret.push_back(static_cast<T*>(asset.get()));
@@ -56,7 +55,7 @@ public:
     void Add(std::unique_ptr<Asset> asset);
 
 private:
-    std::unordered_map<UUID, std::unique_ptr<Asset>, UUIDHash> assets;
+    std::unordered_map<AssetHandle, std::unique_ptr<Asset>, AssetHandleHash> assets;
 };
 
 } // namespace URay

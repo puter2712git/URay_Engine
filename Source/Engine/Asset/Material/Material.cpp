@@ -28,7 +28,7 @@ namespace URay
 
 void Material::RegisterClass() {}
 
-Material::Material(const UUID& shaderUUID) : shaderUUID(shaderUUID) {}
+Material::Material(const AssetHandle& shaderHandle) : shaderHandle(shaderHandle) {}
 
 Material::~Material()
 {
@@ -104,7 +104,7 @@ bool Material::Initialize()
             MaterialParameter& parameter = it->second;
 
             if (parameter.type != MaterialParameterType::Texture2D ||
-                !std::holds_alternative<UUID>(parameter.value))
+                !std::holds_alternative<AssetHandle>(parameter.value))
             {
                 return false;
             }
@@ -146,7 +146,7 @@ Shader* Material::GetShader() const
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
 
-    ret = assetDatabase.Find<Shader>(shaderUUID);
+    ret = assetDatabase.Find<Shader>(shaderHandle);
 
     return ret;
 }
@@ -166,9 +166,9 @@ void Material::PrepareDescriptorSet(uint32 frameIndex)
         if (parameter.type != MaterialParameterType::Texture2D)
             continue;
 
-        const UUID textureUUID = std::get<UUID>(parameter.value);
+        const AssetHandle textureHandle = std::get<AssetHandle>(parameter.value);
 
-        Texture* texture = assetDatabase.Find<Texture>(textureUUID);
+        Texture* texture = assetDatabase.Find<Texture>(textureHandle);
         if (!texture)
             texture = assetDatabase.Find<Texture>(EngineAsset::WhiteTexture);
 
@@ -207,13 +207,13 @@ void Material::SetFloat(const std::string& name, float value)
     }
 }
 
-void Material::SetTexture(const std::string& name, const UUID& textureUUID)
+void Material::SetTexture(const std::string& name, const AssetHandle& textureHandle)
 {
     auto it = parameters.find(name);
     if (it == parameters.end())
         return;
 
-    it->second.value = textureUUID;
+    it->second.value = textureHandle;
     ++descriptorRevision;
 }
 

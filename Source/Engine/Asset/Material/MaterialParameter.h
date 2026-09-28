@@ -4,7 +4,7 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Math/Vector3.h"
 #include "Core/Type/Types.h"
-#include "Core/UUID.h"
+#include "Engine/Asset/Asset.h"
 
 #include <string>
 #include <variant>
@@ -23,7 +23,7 @@ enum class MaterialParameterType
     Texture2D
 };
 
-using MaterialParameterValue = std::variant<float, Vector2, Vector3, Color, UUID>;
+using MaterialParameterValue = std::variant<float, Vector2, Vector3, Color, AssetHandle>;
 
 struct MaterialParameter
 {

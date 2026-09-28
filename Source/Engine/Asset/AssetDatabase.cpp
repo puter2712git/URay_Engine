@@ -9,9 +9,9 @@ AssetDatabase::AssetDatabase() = default;
 
 AssetDatabase::~AssetDatabase() = default;
 
-Asset* AssetDatabase::Find(const UUID& uuid, Class* assetClass) const
+Asset* AssetDatabase::Find(const AssetHandle& handle, Class* assetClass) const
 {
-    const auto it = assets.find(uuid);
+    const auto it = assets.find(handle);
     if (it == assets.end())
         return nullptr;
 
@@ -26,7 +26,7 @@ std::vector<Asset*> AssetDatabase::GetAssets(Class* assetClass) const
 {
     std::vector<Asset*> ret;
 
-    for (const auto& [uuid, asset] : assets)
+    for (const auto& [handle, asset] : assets)
     {
         if (asset->IsA(assetClass))
             ret.push_back(asset.get());
@@ -37,19 +37,19 @@ std::vector<Asset*> AssetDatabase::GetAssets(Class* assetClass) const
 
 void AssetDatabase::Add(std::unique_ptr<Asset> asset)
 {
-    const UUID& uuid = asset->GetUUID();
-    if (!uuid.IsValid())
+    const AssetHandle& handle = asset->GetHandle();
+    if (!handle.IsValid())
         return;
 
-    const auto it = assets.find(uuid);
+    const auto it = assets.find(handle);
     if (it != assets.end())
     {
-        // Duplicate uuid found!
+        // Duplicate asset handle found!
         // TODO: Print error msg.
         return;
     }
 
-    assets.insert({ uuid, std::move(asset) });
+    assets.insert({ handle, std::move(asset) });
 }
 
 } // namespace URay

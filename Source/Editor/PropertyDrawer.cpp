@@ -118,7 +118,7 @@ bool PropertyDrawer::DrawString(Property& prop, void* addr)
 
 bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 {
-    UUID* currMeshUUID = reinterpret_cast<UUID*>(static_cast<uint8*>(addr) + prop.offset);
+    AssetHandle* currMeshHandle = reinterpret_cast<AssetHandle*>(static_cast<uint8*>(addr) + prop.offset);
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
@@ -126,7 +126,7 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
 
     bool isChanged = false;
 
-    Mesh* currMesh = assetDatabase.Find<Mesh>(*currMeshUUID);
+    Mesh* currMesh = assetDatabase.Find<Mesh>(*currMeshHandle);
 
     const char* preview = currMesh ? currMesh->GetName().c_str() : "None";
     if (ImGui::BeginCombo("Mesh", preview))
@@ -142,7 +142,7 @@ bool PropertyDrawer::DrawMesh(Property& prop, void* addr)
                     isChanged = true;
                 }
 
-                *currMeshUUID = mesh->GetUUID();
+                *currMeshHandle = mesh->GetHandle();
             }
 
             if (isSelected)

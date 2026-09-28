@@ -46,11 +46,11 @@ void MaterialImporter::Import(const VirtualPath& sourcePath)
     const std::string materialText = fileSystem.ReadText(metadata.sourcePath);
     const YAML::Node materialNode = YAML::Load(materialText);
 
-    const UUID shaderUUID = UUID::FromString(materialNode["Shader"].as<std::string>());
+    const AssetHandle shaderHandle = AssetHandle::FromString(materialNode["Shader"].as<std::string>());
 
-    std::unique_ptr<Material> material = std::make_unique<Material>(shaderUUID);
+    std::unique_ptr<Material> material = std::make_unique<Material>(shaderHandle);
     material->SetName(metadata.sourcePath.GetStem());
-    material->SetUUID(metadata.uuid);
+    material->SetHandle(metadata.handle);
 
     const YAML::Node parametersNode = materialNode["Parameters"];
     if (parametersNode)
@@ -64,8 +64,8 @@ void MaterialImporter::Import(const VirtualPath& sourcePath)
 
             if (typeName == "Texture2D")
             {
-                const UUID textureUUID = UUID::FromString(parameter["Value"].as<std::string>());
-                material->AddParameter(name, MaterialParameterType::Texture2D, textureUUID);
+                const AssetHandle textureHandle = AssetHandle::FromString(parameter["Value"].as<std::string>());
+                material->AddParameter(name, MaterialParameterType::Texture2D, textureHandle);
             }
         }
     }
@@ -79,7 +79,7 @@ AssetMetadata MaterialImporter::CreateMetadata(const VirtualPath& sourcePath) co
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    ret.uuid = UUID::Generate();
+    ret.handle = AssetHandle::Generate();
     ret.type = AssetType::Material;
     ret.sourcePath = sourcePath;
 

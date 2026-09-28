@@ -18,7 +18,7 @@ URAY_REGISTER_COMPONENT(TextComponent)
 
 TextComponent::TextComponent()
 {
-    fontUUID = EngineAsset::BitmapFont;
+    fontHandle = EngineAsset::BitmapFont;
 }
 
 void TextComponent::RegisterClass()
@@ -43,7 +43,7 @@ Render::RenderObject* TextComponent::CreateRenderObject()
 
     Render::TextObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.font = assetDatabase.Find<Font>(fontUUID);
+    state.font = assetDatabase.Find<Font>(fontHandle);
     state.text = text;
 
     renderObject = new Render::TextObject(state);
@@ -63,7 +63,7 @@ void TextComponent::UpdateRenderObject()
 
     Render::TextObjectState state = {};
     state.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    state.font = assetDatabase.Find<Font>(fontUUID);
+    state.font = assetDatabase.Find<Font>(fontHandle);
     state.text = text;
 
     Render::TextObject* textObject = static_cast<Render::TextObject*>(renderObject);

@@ -24,9 +24,9 @@ SpriteComponent::SpriteComponent()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    textureUUID = EngineAsset::WhiteTexture;
-    quadMeshUUID = EngineAsset::QuadMesh;
-    materialUUID = EngineAsset::SpriteMaterial;
+    textureHandle = EngineAsset::WhiteTexture;
+    quadMeshHandle = EngineAsset::QuadMesh;
+    materialHandle = EngineAsset::SpriteMaterial;
 }
 
 void SpriteComponent::RegisterClass()
@@ -34,7 +34,7 @@ void SpriteComponent::RegisterClass()
     StaticClass()->AddProperty(
         { .type = PropertyType::Texture,
           .name = "Texture",
-          .offset = offsetof(SpriteComponent, textureUUID),
+          .offset = offsetof(SpriteComponent, textureHandle),
           .size = sizeof(Texture*) });
 }
 
@@ -51,8 +51,8 @@ Render::RenderObject* SpriteComponent::CreateRenderObject()
 
     Render::MeshObjectState objectState = {};
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    objectState.mesh = assetDatabase.Find<Mesh>(quadMeshUUID);
-    objectState.materials = { assetDatabase.Find<Material>(materialUUID) };
+    objectState.mesh = assetDatabase.Find<Mesh>(quadMeshHandle);
+    objectState.materials = { assetDatabase.Find<Material>(materialHandle) };
 
     renderObject = new Render::MeshObject(objectState);
     return renderObject;
@@ -71,8 +71,8 @@ void SpriteComponent::UpdateRenderObject()
 
     Render::MeshObjectState objectState = {};
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
-    objectState.mesh = assetDatabase.Find<Mesh>(quadMeshUUID);
-    objectState.materials = { assetDatabase.Find<Material>(materialUUID) };
+    objectState.mesh = assetDatabase.Find<Mesh>(quadMeshHandle);
+    objectState.materials = { assetDatabase.Find<Material>(materialHandle) };
 
     Render::MeshObject* meshObject = static_cast<Render::MeshObject*>(renderObject);
     meshObject->Update(objectState);

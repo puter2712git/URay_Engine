@@ -6,7 +6,7 @@ namespace URay
 YAML::Node AssetMetadata::Serialize() const
 {
     YAML::Node node;
-    node["UUID"] = uuid.ToString();
+    node["UUID"] = handle.ToString();
 
     switch (type)
     {
@@ -37,7 +37,7 @@ YAML::Node AssetMetadata::Serialize() const
 
 void AssetMetadata::Deserialize(const YAML::Node& node)
 {
-    uuid = UUID::FromString(node["UUID"].as<std::string>());
+    handle = AssetHandle::FromString(node["UUID"].as<std::string>());
 
     std::string typeString = node["Type"].as<std::string>();
 

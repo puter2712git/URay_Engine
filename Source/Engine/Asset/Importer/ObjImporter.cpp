@@ -32,7 +32,7 @@ AssetMetadata OBJImporter::CreateMetadata(const VirtualPath& sourcePath) const
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    ret.uuid = UUID::Generate();
+    ret.handle = AssetHandle::Generate();
     ret.type = AssetType::Material;
     ret.sourcePath = sourcePath;
 

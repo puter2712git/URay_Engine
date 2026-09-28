@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Engine/Component/Render/RenderComponent.h"
-
-#include "Core/UUID.h"
+#include "Engine/Asset/Asset.h"
 
 namespace URay
 {
@@ -22,18 +21,18 @@ public:
 public:
     Render::RenderObject* CreateRenderObject() override;
 
-    const UUID& GetTextureUUID() const { return textureUUID; }
-    const UUID& GetQuadMeshUUID() const { return quadMeshUUID; }
-    const UUID& GetMaterialUUID() const { return materialUUID; }
+    const AssetHandle& GetTextureHandle() const { return textureHandle; }
+    const AssetHandle& GetQuadMeshHandle() const { return quadMeshHandle; }
+    const AssetHandle& GetMaterialHandle() const { return materialHandle; }
 
 protected:
     void UpdateRenderObject() override;
 
 private:
-    UUID textureUUID = {};
+    AssetHandle textureHandle = {};
 
-    UUID quadMeshUUID = {};
-    UUID materialUUID = {};
+    AssetHandle quadMeshHandle = {};
+    AssetHandle materialHandle = {};
 };
 
 } // namespace URay

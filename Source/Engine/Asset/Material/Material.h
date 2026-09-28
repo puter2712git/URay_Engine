@@ -32,7 +32,7 @@ class Material : public Asset
     URAY_CLASS(Material, Asset)
 
 public:
-    Material(const UUID& shaderUUID);
+    Material(const AssetHandle& shaderHandle);
     ~Material();
 
 public:
@@ -45,7 +45,7 @@ public:
     void AddParameter(const std::string& name, MaterialParameterType type, MaterialParameterValue value);
 
     void SetFloat(const std::string& name, float value);
-    void SetTexture(const std::string& name, const UUID& textureUUID);
+    void SetTexture(const std::string& name, const AssetHandle& textureHandle);
 
     Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const
     {
@@ -58,7 +58,7 @@ public:
 protected:
     bool isInitialized = false;
 
-    UUID shaderUUID = {};
+    AssetHandle shaderHandle = {};
 
     Render::DescriptorSetLayoutDesc* descriptorSetLayoutDescription = nullptr;
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;

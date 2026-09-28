@@ -3,7 +3,6 @@
 #include "Engine/Asset/Asset.h"
 
 #include "Core/Math/Vector2.h"
-#include "Core/UUID.h"
 
 #include <string>
 
@@ -17,13 +16,13 @@ class Font : public Asset
     URAY_CLASS(Font, Asset)
 
 public:
-    Font(const UUID& bitmapTextureUUID);
+    Font(const AssetHandle& bitmapTextureHandle);
     ~Font() override;
 
 public:
     Vector2 GetUVFromChar(const char letter) const;
 
-    const UUID& GetBitmapTextureUUID() const { return bitmapTextureUUID; }
+    const AssetHandle& GetBitmapTextureHandle() const { return bitmapTextureHandle; }
 
     float GetWidth() const { return width; }
     float GetHeight() const { return height; }
@@ -35,7 +34,7 @@ public:
     float GetCellHeightUV() const { return GetCellHeight() / height; }
 
 private:
-    UUID bitmapTextureUUID = {};
+    AssetHandle bitmapTextureHandle = {};
 
     std::string charset =
         "abcdefghijklmnopqrstuvwxyz"

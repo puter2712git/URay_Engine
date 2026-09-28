@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Engine/Component/Render/RenderComponent.h"
-
-#include "Core/UUID.h"
+#include "Engine/Asset/Asset.h"
 
 #include <string>
 
@@ -30,7 +29,7 @@ protected:
     void UpdateRenderObject() override;
 
 private:
-    UUID fontUUID = {};
+    AssetHandle fontHandle = {};
     std::string text;
 };
 

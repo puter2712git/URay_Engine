@@ -2,7 +2,6 @@
 
 #include "Engine/Asset/AssetMetadata.h"
 
-#include "Core/UUID.h"
 
 #include <filesystem>
 #include <memory>
@@ -43,7 +42,7 @@ public:
     AssetDatabase& GetDatabase() const { return *database; }
 
 private:
-    void CreateDefaultMesh(const UUID& uuid, const std::string& name, const MeshInfo& meshInfo, const UUID& materialUUID);
+    void CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle);
 
 private:
     std::unique_ptr<VirtualFileSystem> fileSystem = nullptr;

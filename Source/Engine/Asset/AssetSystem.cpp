@@ -106,15 +106,15 @@ VirtualPath AssetSystem::GetImportAssetPath(const VirtualPath& sourcePath) const
     return VirtualPath(importPath);
 }
 
-void AssetSystem::CreateDefaultMesh(const UUID& uuid, const std::string& name, const MeshInfo& meshInfo, const UUID& materialUUID)
+void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)
 {
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
-    mesh->SetUUID(uuid);
+    mesh->SetHandle(handle);
     mesh->SetName(name);
     mesh->SetVertices(meshInfo.vertices);
     mesh->SetIndices(meshInfo.indices);
     mesh->SetSections(meshInfo.sections);
-    mesh->SetDefaultMaterials({ materialUUID });
+    mesh->SetDefaultMaterials({ materialHandle });
 
     database->Add(std::move(mesh));
 }
