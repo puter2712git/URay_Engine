@@ -140,6 +140,7 @@ void Editor::PrepareRender()
     URAY_PROFILE_SCOPE("Editor::PrepareRender")
 
     widgetSystem->PrepareRender();
+    widgetSystem->Paint();
 }
 
 void Editor::StartGame()
@@ -250,6 +251,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
         request.selectedUnit = selectionSystem->GetSelectedUnit();
     }
+
+    request.uiDrawContext = &widgetSystem->GetDrawContext();
 
     return request;
 }

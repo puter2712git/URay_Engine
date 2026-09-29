@@ -10,7 +10,7 @@
 
 namespace URay::Render
 {
-class UIDrawList;
+class UIDrawContext;
 }
 
 namespace URay
@@ -26,7 +26,7 @@ public:
 public:
     void Update(float deltaTime);
     void Draw();
-    void Paint(Render::UIDrawList& drawList);
+    void Paint(Render::UIDrawContext& context);
 
     void AddChild(std::unique_ptr<Widget> child);
     const std::vector<std::unique_ptr<Widget>>& GetChildren() const { return children; }
@@ -54,7 +54,7 @@ protected:
 
     virtual void OnUpdate(float) {}
     virtual void OnDraw() {}
-    virtual void OnPaint(Render::UIDrawList& drawList) {}
+    virtual void OnPaint(Render::UIDrawContext& context) {}
 
 protected:
     std::vector<std::unique_ptr<Widget>> children;

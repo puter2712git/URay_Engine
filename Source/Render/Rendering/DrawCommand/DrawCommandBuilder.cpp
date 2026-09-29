@@ -5,6 +5,7 @@
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/Batch/LineBatcher.h"
 #include "Render/Rendering/Batch/TextBatcher.h"
+#include "Render/Rendering/Batch/UIBatcher.h"
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/ResourceManager.h"
@@ -40,20 +41,23 @@ bool DrawCommandBuilder::Initialize()
     if (!textBatcher->Initialize())
         return false;
 
+    uiBatcher = std::make_unique<UIBatcher>(device, resourceManager);
+    if (!uiBatcher->Initialize())
+        return false;
+
     return true;
 }
 
 void DrawCommandBuilder::Finalize()
 {
-    if (textBatcher)
-    {
-        textBatcher.reset();
-    }
-    if (lineBatcher)
-    {
-        lineBatcher->Finalize();
-        lineBatcher.reset();
-    }
+    uiBatcher->Finalize();
+    uiBatcher.reset();
+
+    textBatcher->Finalize();
+    textBatcher.reset();
+
+    lineBatcher->Finalize();
+    lineBatcher.reset();
 }
 
 void DrawCommandBuilder::Reset()
@@ -81,6 +85,12 @@ void DrawCommandBuilder::FlushTexts()
         return;
 
     std::vector<DrawCommand> cmds = textBatcher->Flush();
+    drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
+}
+
+void DrawCommandBuilder::FlushUI(const UIDrawContext& context)
+{
+    std::vector<DrawCommand> cmds = uiBatcher->Flush(context);
     drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 

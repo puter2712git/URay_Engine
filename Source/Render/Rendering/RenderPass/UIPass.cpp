@@ -3,9 +3,15 @@
 #include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/CommandBuffer/ImageBarrier.h"
+#include "Render/RHI/PipelineLayout/PipelineLayout.h"
+#include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/Rendering/ImGui/ImGuiDrawable.h"
+#include "Render/Rendering/RenderConstants.h"
 #include "Render/Rendering/Renderer.h"
+#include "Render/ResourceManager.h"
+
+#include "Core/Math/Rect.h"
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
@@ -27,11 +33,11 @@ UIPass::~UIPass() = default;
 void UIPass::Begin(const RenderPassContext& context)
 {
     BeginImGui();
+    BeginSwapChainPass(context);
 }
 
 void UIPass::End(const RenderPassContext& context)
 {
-    BeginSwapChainPass(context);
     EndImGui(context);
     EndSwapChainPass(context);
 }
@@ -40,6 +46,7 @@ void UIPass::Execute(
     const RenderPassContext& context,
     const std::vector<DrawCommand>& drawCmds)
 {
+    ExecuteCustomUI(context, drawCmds);
     drawable.DrawImGui();
 }
 
@@ -136,6 +143,64 @@ void UIPass::EndSwapChainPass(const RenderPassContext& context)
     };
     context.commandBuffer.PipelineBarrier(
         std::span(&toPresent, 1));
+}
+
+void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+{
+    CommandBuffer& commandBuffer = context.commandBuffer;
+    ResourceManager& resourceManager = context.resourceManager;
+
+    for (const DrawCommand& cmd : drawCmds)
+    {
+        PipelineStateDesc psoDesc = cmd.pipelineState;
+        psoDesc.rendering = {
+            .colorAttachmentFormats = { Format::BGRA8_sRGB },
+            .depthAttachmentFormat = Format::Unknown,
+            .stencilAttachmentFormat = Format::Unknown
+        };
+
+        PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
+
+        commandBuffer.BindPipeline(*pso);
+
+        UIConstants uiConstants = {
+            .viewportSize = {
+                static_cast<float>(context.swapChainExtent.width),
+                static_cast<float>(context.swapChainExtent.height) }
+        };
+
+        if (pso->GetLayout()->SupportsPushConstants())
+        {
+            vkCmdPushConstants(
+                commandBuffer.GetHandle(),
+                pso->GetLayout()->GetHandle(),
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(uiConstants),
+                &uiConstants);
+        }
+
+        commandBuffer.BindVertexBuffer(*cmd.vertexBuffer);
+
+        if (cmd.scissor.has_value())
+        {
+            const Rect& rect = *cmd.scissor;
+            commandBuffer.SetScissor(rect.position.x, rect.position.y, rect.size.x, rect.size.y);
+        }
+        else
+        {
+        }
+
+        if (cmd.indexBuffer)
+        {
+            commandBuffer.BindIndexBuffer(*cmd.indexBuffer);
+            commandBuffer.DrawIndexed(cmd.indexCount, cmd.indexOffset);
+        }
+        else
+        {
+            commandBuffer.Draw(cmd.vertexCount);
+        }
+    }
 }
 
 } // namespace URay::Render

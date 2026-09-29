@@ -472,12 +472,27 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
     dynamicState.dynamicStateCount = static_cast<uint32>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
-    const auto bindingDescription = desc.vertexLayout == VertexLayout::PNT
-                                        ? VertexPNT::GetBindingDescription()
-                                        : Vertex::GetBindingDescription();
-    const auto attributeDescriptions = desc.vertexLayout == VertexLayout::PNT
-                                           ? VertexPNT::GetAttributeDescriptions()
-                                           : Vertex::GetAttributeDescriptions();
+    VkVertexInputBindingDescription bindingDescription = {};
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+
+    switch (desc.vertexLayout)
+    {
+    case VertexLayout::PNT:
+        bindingDescription = VertexPNT::GetBindingDescription();
+        attributeDescriptions = VertexPNT::GetAttributeDescriptions();
+        break;
+
+    case VertexLayout::UI:
+        bindingDescription = VertexUI::GetBindingDescription();
+        attributeDescriptions = VertexUI::GetAttributeDescriptions();
+        break;
+
+    case VertexLayout::PTC:
+    default:
+        bindingDescription = Vertex::GetBindingDescription();
+        attributeDescriptions = Vertex::GetAttributeDescriptions();
+        break;
+    }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;

@@ -5,9 +5,13 @@
 
 #include "Core/Math/Color.h"
 #include "Core/Math/Matrix.h"
+#include "Core/Math/Rect.h"
 #include "Core/Type/Types.h"
 
 #include <vulkan/vulkan.h>
+
+#include <array>
+#include <optional>
 
 namespace URay::Render
 {
@@ -34,6 +38,8 @@ struct DrawCommand
     PipelineStateDesc pipelineState = {};
 
     std::array<DescriptorSet*, 4> descriptorSets;
+
+    std::optional<Rect> scissor = std::nullopt;
 };
 
 } // namespace URay::Render

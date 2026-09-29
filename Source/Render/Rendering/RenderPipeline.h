@@ -28,13 +28,14 @@ class AmbientLightObject;
 class DirectionalLightObject;
 class PointLightObject;
 class SpotLightObject;
+class UIDrawContext;
 
 struct RenderRequest
 {
     std::vector<RenderScene*> scenes;
     RenderView view = {};
-
     Unit* selectedUnit = nullptr;
+    const UIDrawContext* uiDrawContext = nullptr;
 };
 
 class RenderPipeline

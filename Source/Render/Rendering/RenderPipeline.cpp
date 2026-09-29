@@ -3,6 +3,7 @@
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/Rendering/Object/BoundedObject.h"
 #include "Render/Rendering/Object/DecalObject.h"
@@ -210,6 +211,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     builder->FlushLines();
     builder->FlushTexts();
+    builder->FlushUI(*request.uiDrawContext);
 
     if (request.selectedUnit)
     {

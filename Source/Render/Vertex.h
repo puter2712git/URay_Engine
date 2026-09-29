@@ -6,7 +6,8 @@
 #include "Core/Type/Types.h"
 
 #include <vulkan/vulkan.h>
-#include <array>
+
+#include <vector>
 
 namespace URay::Render
 {
@@ -27,9 +28,9 @@ struct Vertex
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
+    static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
     {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;
@@ -50,10 +51,50 @@ struct Vertex
     }
 };
 
+struct VertexUI
+{
+    Vector2 position;
+    Vector2 uv;
+    Color color;
+
+    static VkVertexInputBindingDescription GetBindingDescription()
+    {
+        VkVertexInputBindingDescription bindingDescription = {};
+        bindingDescription.binding = 0;
+        bindingDescription.stride = sizeof(VertexUI);
+        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return bindingDescription;
+    }
+
+    static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
+    {
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
+
+        attributeDescriptions[0].binding = 0;
+        attributeDescriptions[0].location = 0;
+        attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[0].offset = offsetof(VertexUI, position);
+
+        attributeDescriptions[1].binding = 0;
+        attributeDescriptions[1].location = 1;
+        attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+        attributeDescriptions[1].offset = offsetof(VertexUI, uv);
+
+        attributeDescriptions[2].binding = 0;
+        attributeDescriptions[2].location = 2;
+        attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+        attributeDescriptions[2].offset = offsetof(VertexUI, color);
+
+        return attributeDescriptions;
+    }
+};
+
 enum class VertexLayout : uint8
 {
     PTC,
-    PNT
+    PNT,
+    UI
 };
 
 struct VertexPNT
@@ -72,9 +113,9 @@ struct VertexPNT
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions()
+    static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions()
     {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions = {};
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
 
         attributeDescriptions[0].binding = 0;
         attributeDescriptions[0].location = 0;

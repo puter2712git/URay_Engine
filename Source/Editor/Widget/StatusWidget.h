@@ -15,6 +15,7 @@ public:
 
 protected:
     void OnDraw() override;
+    void OnPaint(Render::UIDrawContext& context) override;
 };
 
 } // namespace URay

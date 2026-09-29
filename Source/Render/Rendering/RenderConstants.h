@@ -104,4 +104,10 @@ struct PointLightShadowConstants
     float padding[2];
 };
 
+struct UIConstants
+{
+    Vector2 viewportSize = Vector2::Zero;
+    float padding[2];
+};
+
 } // namespace URay::Render

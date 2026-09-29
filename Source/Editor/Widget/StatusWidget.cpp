@@ -5,6 +5,8 @@
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
+#include "Render/Rendering/Batch/UIDrawContext.h"
+
 #include <imgui/imgui.h>
 
 namespace URay
@@ -51,6 +53,46 @@ void StatusWidget::OnDraw()
     }
 
     ImGui::End();
+}
+
+void StatusWidget::OnPaint(Render::UIDrawContext& context)
+{
+    const Rect& statusRect = GetRect();
+
+    const Rect outerRect = {
+        .position = statusRect.position + Vector2(20.0f, 20.0f),
+        .size = Vector2(220.0f, 120.0f),
+    };
+
+    // 기준 배경: clip 없이 전체 표시
+    context.AddFilledRect(
+        outerRect,
+        Color(0.15f, 0.15f, 0.18f, 1.0f));
+
+    const Rect firstClip = {
+        .position = outerRect.position + Vector2(30.0f, 20.0f),
+        .size = Vector2(130.0f, 75.0f),
+    };
+
+    // 큰 초록 Rect를 그리지만 firstClip 안에서만 보여야 함
+    context.PushClipRect(firstClip);
+    context.AddFilledRect(
+        outerRect,
+        Color(0.0f, 0.9f, 0.25f, 1.0f));
+
+    const Rect secondClip = {
+        .position = firstClip.position + Vector2(25.0f, 15.0f),
+        .size = Vector2(60.0f, 35.0f),
+    };
+
+    // 큰 빨강 Rect를 그리지만 secondClip 안에서만 보여야 함
+    context.PushClipRect(secondClip);
+    context.AddFilledRect(
+        outerRect,
+        Color(1.0f, 0.1f, 0.1f, 1.0f));
+    context.PopClipRect();
+
+    context.PopClipRect();
 }
 
 } // namespace URay

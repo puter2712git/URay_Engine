@@ -1,5 +1,7 @@
 #include "Widget.h"
 
+#include "Render/Rendering/Batch/UIDrawContext.h"
+
 #include <imgui/imgui.h>
 
 namespace URay
@@ -25,14 +27,18 @@ void Widget::Draw()
     }
 }
 
-void Widget::Paint(Render::UIDrawList& drawList)
+void Widget::Paint(Render::UIDrawContext& context)
 {
-    OnPaint(drawList);
+    context.PushClipRect(rect);
+
+    OnPaint(context);
 
     for (const auto& child : children)
     {
-        child->Paint(drawList);
+        child->Paint(context);
     }
+
+    context.PopClipRect();
 }
 
 void Widget::AddChild(std::unique_ptr<Widget> child)

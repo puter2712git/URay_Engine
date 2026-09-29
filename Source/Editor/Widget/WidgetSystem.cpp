@@ -13,9 +13,10 @@
 
 #include "Engine/Engine.h"
 
+#include "Render/RenderSystem.h"
+#include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/RenderPass/UIPass.h"
 #include "Render/Rendering/RenderPipeline.h"
-#include "Render/RenderSystem.h"
 
 #include <imgui/imgui.h>
 
@@ -43,11 +44,17 @@ bool WidgetSystem::Initialize()
 
     inputRouter = std::make_unique<UIInputRouter>(gEngine->GetWindow());
 
+    drawContext = std::make_unique<Render::UIDrawContext>();
+
     return true;
 }
 
 void WidgetSystem::Finalize()
 {
+    drawContext.reset();
+
+    inputRouter.reset();
+
     drawer.reset();
 
     root.reset();
@@ -68,6 +75,14 @@ void WidgetSystem::PrepareRender()
     root->Arrange(
         { .position = Vector2(imGuiViewport->WorkPos.x, imGuiViewport->WorkPos.y),
           .size = Vector2(imGuiViewport->WorkSize.x, imGuiViewport->WorkSize.y) });
+}
+
+void WidgetSystem::Paint()
+{
+    drawContext->Clear();
+
+    mainMenuBar->Paint(*drawContext);
+    root->Paint(*drawContext);
 }
 
 void WidgetSystem::CreateDefaultWidgets()

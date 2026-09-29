@@ -14,6 +14,7 @@ inline const AssetHandle DecalShader = AssetHandle::FromString("00000000-0000-00
 inline const AssetHandle ShadowShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000007");
 inline const AssetHandle FogShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000008");
 inline const AssetHandle SelectionOutlineShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000009");
+inline const AssetHandle UIShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000010");
 
 inline const AssetHandle WhiteTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000001");
 inline const AssetHandle FontBitmapTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000002");

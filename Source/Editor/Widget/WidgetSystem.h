@@ -2,6 +2,11 @@
 
 #include <memory>
 
+namespace URay::Render
+{
+class UIDrawContext;
+}
+
 namespace URay
 {
 
@@ -22,9 +27,12 @@ public:
 
     void Update(float deltaTime);
     void PrepareRender();
+    void Paint();
 
     Widget& GetRootWidget() const { return *root; }
     ViewportWidget& GetViewport() const { return *viewport; }
+
+    Render::UIDrawContext& GetDrawContext() const { return *drawContext; }
 
 private:
     void CreateDefaultWidgets();
@@ -35,6 +43,8 @@ private:
 
     std::unique_ptr<WidgetDrawer> drawer = nullptr;
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
+
+    std::unique_ptr<Render::UIDrawContext> drawContext = nullptr;
 
     ViewportWidget* viewport = nullptr;
 };

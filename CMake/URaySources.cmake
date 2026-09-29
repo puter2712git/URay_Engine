@@ -40,6 +40,8 @@ if(MSVC)
         /external:W0
     )
 
+    target_compile_options(URay_Engine PRIVATE /utf-8)
+
     target_compile_options(URay_ThirdParty PRIVATE
         "/external:I${URAY_SOURCE_DIR}/ThirdParty"
         /external:W0

@@ -28,6 +28,8 @@ private:
     void BeginSwapChainPass(const RenderPassContext& context);
     void EndSwapChainPass(const RenderPassContext& context);
 
+    void ExecuteCustomUI(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds);
+
 private:
     ImGuiDrawable& drawable;
 };

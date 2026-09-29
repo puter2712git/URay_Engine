@@ -4,6 +4,8 @@
 #include "Render/RHI/CommandBuffer/ImageBarrier.h"
 #include "Render/RHI/RenderDevice.h"
 
+#include <array>
+
 namespace URay::Render
 {
 
