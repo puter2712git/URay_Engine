@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Panel/Panel.h"
 
 namespace URay
 {
 
 class Engine;
 
-class StatusWidget final : public Widget
+class StatusWidget final : public Panel
 {
 public:
     StatusWidget();

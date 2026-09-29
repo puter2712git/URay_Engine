@@ -12,7 +12,13 @@
 namespace URay
 {
 
-StatusWidget::StatusWidget() = default;
+StatusWidget::StatusWidget()
+{
+    SetBackgroundColor(Color(0.08f, 0.12f, 0.20f, 1.0f));
+    SetOutlineColor(Color(0.15f, 0.75f, 1.0f, 1.0f));
+    SetOutlineWidth(3.0f);
+    SetPadding(Padding(12.0f));
+}
 
 StatusWidget::~StatusWidget() = default;
 
@@ -57,6 +63,8 @@ void StatusWidget::OnDraw()
 
 void StatusWidget::OnPaint(Render::UIDrawContext& context)
 {
+    Panel::OnPaint(context);
+
     const Rect& statusRect = GetRect();
 
     const Rect outerRect = {

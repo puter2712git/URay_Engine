@@ -30,6 +30,22 @@ struct Vector2
         return ret;
     }
 
+    Vector2& operator+=(const Vector2& rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+
+        return *this;
+    }
+
+    Vector2& operator-=(const Vector2& rhs)
+    {
+        x -= rhs.x;
+        y -= rhs.y;
+
+        return *this;
+    }
+
     Vector2 operator*(const float& rhs) const
     {
         return Vector2(x * rhs, y * rhs);
