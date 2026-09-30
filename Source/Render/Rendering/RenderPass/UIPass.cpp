@@ -163,6 +163,14 @@ void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector
 
         commandBuffer.BindPipeline(*pso);
 
+        if (cmd.descriptorSets[1])
+        {
+            commandBuffer.BindDescriptorSet(
+                *pso->GetLayout(),
+                *cmd.descriptorSets[1],
+                1);
+        }
+
         UIConstants uiConstants = {
             .viewportSize = {
                 static_cast<float>(context.swapChainExtent.width),

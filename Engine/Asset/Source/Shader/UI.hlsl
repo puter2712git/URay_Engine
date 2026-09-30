@@ -9,6 +9,7 @@ struct VertexUIOut
 {
     float4 outPosition : SV_Position;
     [[vk::location(0)]] float4 outColor : COLOR;
+    [[vk::location(1)]] float2 outUV : TEXCOORD0;
 };
 
 struct FragOut
@@ -24,6 +25,9 @@ struct UIConstants
 [[vk::push_constant]]
 UIConstants ui;
 
+[[vk::binding(0, 1)]] Texture2D<float4> textureImage;
+[[vk::binding(1, 1)]] SamplerState textureSampler;
+
 VertexUIOut VSMain(VertexUIIn input)
 {
     VertexUIOut output;
@@ -34,6 +38,7 @@ VertexUIOut VSMain(VertexUIIn input)
     
     output.outPosition = float4(ndc, 0.0f, 1.0f);
     output.outColor = input.inColor;
+    output.outUV = input.inUV;
     
     return output;
 }
@@ -41,6 +46,6 @@ VertexUIOut VSMain(VertexUIIn input)
 FragOut PSMain(VertexUIOut input)
 {
     FragOut output;
-    output.outColor = input.outColor;
+    output.outColor = textureImage.Sample(textureSampler, input.outUV) * input.outColor;
     return output;
 }
