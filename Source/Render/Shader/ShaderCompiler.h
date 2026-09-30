@@ -3,6 +3,9 @@
 #define NOMINMAX
 #include <Windows.h>
 #undef RegisterClass
+#undef GetObject
+#undef near
+#undef far
 
 #include <dxcapi.h>
 #include <wrl/client.h>

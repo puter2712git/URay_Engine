@@ -25,7 +25,6 @@ class RenderDevice;
 class Renderer;
 class ResourceManager;
 class LineBatcher;
-class TextBatcher;
 class UIBatcher;
 class UIDrawContext;
 
@@ -42,12 +41,10 @@ public:
     void Reset();
 
     void FlushLines();
-    void FlushTexts();
     void FlushUI(const UIDrawContext& context);
 
     void BuildMesh(const MeshCommandContext& context, RenderPassId passId);
     void BuildBillboard(const BillboardCommandContext& context);
-    void BuildText(const TextCommandContext& context);
 
     void BuildDecal(const DecalCommandContext& context);
 
@@ -70,7 +67,6 @@ private:
     std::vector<DrawCommand> drawCmds;
 
     std::unique_ptr<LineBatcher> lineBatcher = nullptr;
-    std::unique_ptr<TextBatcher> textBatcher = nullptr;
     std::unique_ptr<UIBatcher> uiBatcher = nullptr;
 
     ViewMode viewMode = ViewMode::Lit;

@@ -4,7 +4,6 @@
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/Batch/LineBatcher.h"
-#include "Render/Rendering/Batch/TextBatcher.h"
 #include "Render/Rendering/Batch/UIBatcher.h"
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/Renderer.h"
@@ -37,10 +36,6 @@ bool DrawCommandBuilder::Initialize()
     if (!lineBatcher->Initialize())
         return false;
 
-    textBatcher = std::make_unique<TextBatcher>(device, resourceManager);
-    if (!textBatcher->Initialize())
-        return false;
-
     uiBatcher = std::make_unique<UIBatcher>(device, resourceManager);
     if (!uiBatcher->Initialize())
         return false;
@@ -53,9 +48,6 @@ void DrawCommandBuilder::Finalize()
     uiBatcher->Finalize();
     uiBatcher.reset();
 
-    textBatcher->Finalize();
-    textBatcher.reset();
-
     lineBatcher->Finalize();
     lineBatcher.reset();
 }
@@ -63,7 +55,6 @@ void DrawCommandBuilder::Finalize()
 void DrawCommandBuilder::Reset()
 {
     lineBatcher->Reset();
-    textBatcher->Reset();
     drawCmds.clear();
 }
 
@@ -77,15 +68,6 @@ void DrawCommandBuilder::FlushLines()
         return;
 
     drawCmds.push_back(cmd);
-}
-
-void DrawCommandBuilder::FlushTexts()
-{
-    if (!textBatcher)
-        return;
-
-    std::vector<DrawCommand> cmds = textBatcher->Flush();
-    drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 
 void DrawCommandBuilder::FlushUI(const UIDrawContext& context)
@@ -291,14 +273,6 @@ void DrawCommandBuilder::BuildOBB(const AABB& localBounds, const Matrix& worldMa
         BuildLine({ .start = worldCorners[edge[0]],
                     .end = worldCorners[edge[1]],
                     .color = Color::Yellow });
-    }
-}
-
-void DrawCommandBuilder::BuildText(const TextCommandContext& context)
-{
-    if (textBatcher)
-    {
-        textBatcher->Collect(context);
     }
 }
 

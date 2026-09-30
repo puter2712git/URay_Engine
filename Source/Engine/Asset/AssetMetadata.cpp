@@ -22,6 +22,9 @@ YAML::Node AssetMetadata::Serialize() const
     case AssetType::Shader:
         node["Type"] = "Shader";
         break;
+    case AssetType::Font:
+        node["Type"] = "Font";
+        break;
     case AssetType::Unknown:
     default:
         node["Type"] = "Unknown";
@@ -56,6 +59,10 @@ void AssetMetadata::Deserialize(const YAML::Node& node)
     else if (typeString == "Shader")
     {
         type = AssetType::Shader;
+    }
+    else if (typeString == "Font")
+    {
+        type = AssetType::Font;
     }
     else
     {

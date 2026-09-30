@@ -1,5 +1,0 @@
-UUID: 00000000-0000-0000-0000-000000000004
-Type: Shader
-SourcePath: Engine://Asset/Source/Shader/Font.hlsl
-MetadataPath: Engine://Asset/Imported/Shader/Font.hlsl.meta
-AssetPath: Engine://Asset/Imported/Shader/Font.hlsl.asset

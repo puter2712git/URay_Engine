@@ -8,7 +8,6 @@ namespace URay::EngineAsset
 inline const AssetHandle MeshShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000001");
 inline const AssetHandle SpriteShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000002");
 inline const AssetHandle LineShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000003");
-inline const AssetHandle FontShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000004");
 inline const AssetHandle BillboardShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000005");
 inline const AssetHandle DecalShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000006");
 inline const AssetHandle ShadowShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000007");
@@ -17,7 +16,6 @@ inline const AssetHandle SelectionOutlineShader = AssetHandle::FromString("00000
 inline const AssetHandle UIShader = AssetHandle::FromString("00000000-0000-0000-0000-000000000010");
 
 inline const AssetHandle WhiteTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000001");
-inline const AssetHandle FontBitmapTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000002");
 inline const AssetHandle DecalTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000003");
 inline const AssetHandle DecalBillboardTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000004");
 inline const AssetHandle DirectionalLightBillboardTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000005");
@@ -38,6 +36,6 @@ inline const AssetHandle ArrowMesh = AssetHandle::FromString("00000000-0000-0000
 inline const AssetHandle RotationGizmoMesh = AssetHandle::FromString("00000000-0000-0000-0003-000000000006");
 inline const AssetHandle ScaleGizmoMesh = AssetHandle::FromString("00000000-0000-0000-0003-000000000007");
 
-inline const AssetHandle BitmapFont = AssetHandle::FromString("00000000-0000-0000-0004-000000000001");
+inline const AssetHandle EditorFont = AssetHandle::FromString("00000000-0000-0000-0004-000000000001");
 
 } // namespace URay::EngineAsset

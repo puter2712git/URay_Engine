@@ -212,7 +212,6 @@ void RenderPipeline::Execute(const RenderRequest& request)
     }
 
     builder->FlushLines();
-    builder->FlushTexts();
 
     FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
     if (!fontSystem.FlushAtlasUploads())

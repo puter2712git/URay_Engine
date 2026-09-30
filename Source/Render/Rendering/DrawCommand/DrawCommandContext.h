@@ -6,11 +6,9 @@
 #include "Core/Type/Types.h"
 
 #include <cstdint>
-#include <string>
 
 namespace URay
 {
-class Font;
 class Material;
 class Mesh;
 } // namespace URay
@@ -47,13 +45,6 @@ struct LineCommandContext
     Vector3 start = Vector3::Zero;
     Vector3 end = Vector3::Zero;
     Color color = Color::White;
-};
-
-struct TextCommandContext
-{
-    Matrix worldMatrix = Matrix::Identity;
-    std::string text;
-    Font* font = nullptr;
 };
 
 struct DecalCommandContext
