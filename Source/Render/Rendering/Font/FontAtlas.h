@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Render/RHI/Texture/Texture.h"
+
 #include "Engine/Asset/Asset.h"
 
 #include "Core/Math/Rect.h"
@@ -83,6 +85,8 @@ private:
 
     std::unique_ptr<Texture> texture;
     std::unique_ptr<TextureView> view;
+
+    TextureRegion dirtyRegion = {};
 };
 
 } // namespace URay::Render

@@ -150,6 +150,8 @@ VkImageLayout ToVkImageLayout(ImageLayout layout)
     {
     case ImageLayout::Undefined:
         return VK_IMAGE_LAYOUT_UNDEFINED;
+    case ImageLayout::TransferDst:
+        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     case ImageLayout::ColorAttachment:
         return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     case ImageLayout::DepthAttachment:

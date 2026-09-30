@@ -52,6 +52,7 @@ if(MSVC)
 endif()
 
 target_compile_definitions(URay_Engine PRIVATE
+    NOMINMAX
     SPIRV_REFLECT_USE_SYSTEM_SPIRV_H
 )
 

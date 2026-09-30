@@ -94,11 +94,6 @@ void StatusWidget::OnPaint(Render::UIDrawContext& context)
         .size = Vector2(60.0f, 35.0f),
     };
 
-    const Render::TextStyle textStyle = {
-        .fontHandle = EngineAsset::EditorFont,
-        .pixelHeight = 24,
-        .color = Color::White,
-    };
 
     // 큰 빨강 Rect를 그리지만 secondClip 안에서만 보여야 함
     context.PushClipRect(secondClip);
@@ -109,10 +104,29 @@ void StatusWidget::OnPaint(Render::UIDrawContext& context)
 
     context.PopClipRect();
 
+    const Render::TextStyle style = {
+        .fontHandle = EngineAsset::EditorFont,
+        .pixelHeight = 24,
+        .color = Color::White,
+    };
+
+    static uint32 paintFrame = 0;
+    ++paintFrame;
+
+    // 최초 atlas upload에 포함될 문자열
     context.AddText(
         outerRect.position + Vector2(12.0f, 12.0f),
-        "안뇽하세요",
-        textStyle);
+        "ABC",
+        style);
+
+    // 약 2초 뒤, 최초 upload 시 없던 한글 glyph 요청
+    if (paintFrame > 120)
+    {
+        context.AddText(
+            outerRect.position + Vector2(12.0f, 46.0f),
+            "가나다",
+            style);
+    }
 }
 
 } // namespace URay

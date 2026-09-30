@@ -78,6 +78,12 @@ Texture::SyncInfo Texture::GetSyncInfo(ImageLayout layout)
             .access = VK_ACCESS_2_NONE
         };
 
+    case ImageLayout::TransferDst:
+        return SyncInfo{
+            .stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+            .access = VK_ACCESS_2_TRANSFER_WRITE_BIT
+        };
+
     case ImageLayout::ColorAttachment:
         return SyncInfo{
             .stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,

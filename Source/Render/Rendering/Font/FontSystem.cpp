@@ -10,6 +10,7 @@
 #include "Render/RHI/Texture/TextureView.h"
 
 #include <algorithm>
+#include <cstring>
 
 namespace URay::Render
 {
@@ -43,7 +44,39 @@ bool FontSystem::FlushAtlasUploads()
 
         if (atlas->texture)
         {
-            succeeded = false;
+            const TextureRegion& region = atlas->dirtyRegion;
+
+            if (region.IsEmpty())
+            {
+                succeeded = false;
+                continue;
+            }
+
+            const size_t rowByteSize = static_cast<size_t>(region.width) * 4;
+
+            std::vector<uint8> packedPixels(rowByteSize * region.height);
+
+            for (uint32 y = 0; y < region.height; ++y)
+            {
+                const size_t sourceIndex = (static_cast<size_t>(region.y + y) * atlas->width + region.x) * 4;
+
+                uint8* destination = packedPixels.data() + rowByteSize * y;
+
+                std::memcpy(destination, atlas->pixels.data() + sourceIndex, rowByteSize);
+            }
+
+            if (!device.UploadTextureRegion(
+                    atlas->texture.get(),
+                    region,
+                    packedPixels))
+            {
+                succeeded = false;
+                continue;
+            }
+
+            atlas->isDirty = false;
+            atlas->dirtyRegion = {};
+
             continue;
         }
 
@@ -77,6 +110,7 @@ bool FontSystem::FlushAtlasUploads()
         }
 
         atlas->isDirty = false;
+        atlas->dirtyRegion = {};
     }
 
     return succeeded;
@@ -212,7 +246,7 @@ const Glyph* FontSystem::GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint)
     const int32 rowCount = static_cast<int32>(bitmap.rows);
     const int32 rowPitch = bitmap.pitch;
 
-    for (uint32 y = 0; y < rowCount; ++y)
+    for (int32 y = 0; y < rowCount; ++y)
     {
         const uint8* sourceRow = bitmap.buffer + y * rowPitch;
 
@@ -233,6 +267,14 @@ const Glyph* FontSystem::GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint)
     atlas->rowHeight = std::max(atlas->rowHeight, packedHeight);
 
     atlas->isDirty = true;
+
+    TextureRegion textureRegion = {};
+    textureRegion.x = glyph.atlasX;
+    textureRegion.y = glyph.atlasY;
+    textureRegion.width = glyph.atlasWidth;
+    textureRegion.height = glyph.atlasHeight;
+
+    atlas->dirtyRegion = atlas->dirtyRegion.Union(textureRegion);
 
     auto [it, inserted] = atlas->glyphs.emplace(codepoint, glyph);
 

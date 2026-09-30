@@ -270,21 +270,48 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
     return newTexture;
 }
 
-bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pixelData)
+bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pixels)
 {
     if (!texture)
         return false;
 
-    const TextureDesc& textureDesc = texture->GetDesc();
+    const TextureDesc& desc = texture->GetDesc();
 
-    if ((textureDesc.usage & TextureUsage::TransferDst) == TextureUsage::None)
+    TextureRegion region = {};
+    region.x = 0;
+    region.y = 0;
+    region.width = desc.width;
+    region.height = desc.height;
+
+    return UploadTextureRegion(texture, region, pixels);
+}
+
+bool RenderDevice::UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels)
+{
+    if (!texture || region.IsEmpty())
         return false;
 
-    VkFormat vkFormat = Vulkan::ToVkFormat(textureDesc.format);
+    const TextureDesc& desc = texture->GetDesc();
 
-    VkDeviceSize dataSize = static_cast<VkDeviceSize>(textureDesc.width) * textureDesc.height * 4;
-    if (dataSize != static_cast<VkDeviceSize>(pixelData.size()))
+    if ((desc.usage & TextureUsage::TransferDst) == TextureUsage::None)
         return false;
+
+    if (region.x > desc.width ||
+        region.y > desc.height ||
+        region.x + region.width > desc.width ||
+        region.y + region.height > desc.height)
+        return false;
+
+    const size_t dataSize = static_cast<size_t>(region.width) * region.height * 4;
+
+    if (pixels.size() != dataSize)
+        return false;
+
+    CommandBuffer* commandBuffer = BeginSingleTimeCommands();
+    if (!commandBuffer)
+        return false;
+
+    texture->Transition(*commandBuffer, ImageLayout::TransferDst);
 
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
@@ -296,18 +323,33 @@ bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pi
 
     void* data;
     vkMapMemory(device, stagingBufferMemory, 0, dataSize, 0, &data);
-    std::memcpy(data, pixelData.data(), static_cast<size_t>(dataSize));
+    std::memcpy(data, pixels.data(), static_cast<size_t>(dataSize));
     vkUnmapMemory(device, stagingBufferMemory);
 
-    TransitionImageLayout(
-        texture->GetHandle(), vkFormat,
-        VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    CopyBufferToImage(
-        stagingBuffer, texture->GetHandle(),
-        textureDesc.width, textureDesc.height);
-    TransitionImageLayout(
-        texture->GetHandle(), vkFormat,
-        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    VkBufferImageCopy copyRegion = {};
+    copyRegion.bufferOffset = 0;
+    copyRegion.bufferRowLength = 0;
+    copyRegion.bufferImageHeight = 0;
+
+    copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    copyRegion.imageSubresource.mipLevel = 0;
+    copyRegion.imageSubresource.baseArrayLayer = 0;
+    copyRegion.imageSubresource.layerCount = 1;
+
+    copyRegion.imageOffset = { static_cast<int32>(region.x), static_cast<int32>(region.y), 0 };
+    copyRegion.imageExtent = { region.width, region.height, 1 };
+
+    vkCmdCopyBufferToImage(
+        commandBuffer->GetHandle(),
+        stagingBuffer,
+        texture->GetHandle(),
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1,
+        &copyRegion);
+
+    texture->Transition(*commandBuffer, ImageLayout::ShaderReadOnly);
+
+    EndSingleTimeCommands(commandBuffer);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);

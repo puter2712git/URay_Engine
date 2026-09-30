@@ -43,6 +43,7 @@ struct UniformBufferDesc;
 struct StorageBufferDesc;
 struct BufferDesc;
 struct TextureDesc;
+struct TextureRegion;
 struct TextureViewDesc;
 struct SamplerDesc;
 struct DescriptorSetLayoutDesc;
@@ -83,7 +84,8 @@ public:
     MeshBuffer* CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer);
 
     Texture* CreateTexture(const TextureDesc& desc);
-    bool UploadTextureData(Texture* texture, std::span<const uint8> pixelData);
+    bool UploadTextureData(Texture* texture, std::span<const uint8> pixels);
+    bool UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels);
     TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc);
     VkSampler CreateTextureSampler(const SamplerDesc& samplerDesc);
 

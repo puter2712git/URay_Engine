@@ -4,6 +4,8 @@
 
 #include <vulkan/vulkan.h>
 
+#include <algorithm>
+
 namespace URay::Render
 {
 
@@ -13,6 +15,8 @@ class CommandBuffer;
 enum class ImageLayout : uint8
 {
     Undefined,
+
+    TransferDst,
 
     ColorAttachment,
     DepthAttachment,
@@ -80,6 +84,39 @@ struct TextureDesc
 
     Format format = Format::Unknown;
     TextureUsage usage = TextureUsage::None;
+};
+
+struct TextureRegion
+{
+    uint32 x = 0;
+    uint32 y = 0;
+    uint32 width = 0;
+    uint32 height = 0;
+
+    bool IsEmpty() const { return width == 0 || height == 0; }
+
+    TextureRegion Union(const TextureRegion& region) const
+    {
+        if (IsEmpty())
+            return region;
+
+        if (region.IsEmpty())
+            return *this;
+
+        const uint32 minX = std::min(x, region.x);
+        const uint32 minY = std::min(y, region.y);
+
+        const uint32 maxX = std::max(x + width, region.x + region.width);
+        const uint32 maxY = std::max(y + height, region.y + region.height);
+
+        TextureRegion result = {};
+        result.x = minX;
+        result.y = minY;
+        result.width = maxX - minX;
+        result.height = maxY - minY;
+
+        return result;
+    }
 };
 
 class Texture
