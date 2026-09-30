@@ -1,5 +1,7 @@
 #include "StatusWidget.h"
 
+#include "Editor/Widget/Label.h"
+
 #include "Engine/Asset/EngineAsset.h"
 #include "Engine/Engine.h"
 
@@ -19,9 +21,35 @@ StatusWidget::StatusWidget()
     SetOutlineColor(Color(0.15f, 0.75f, 1.0f, 1.0f));
     SetOutlineWidth(3.0f);
     SetPadding(Padding(12.0f));
+
+    auto label = std::make_unique<Label>("Status");
+    label->SetTextStyle({
+        .fontHandle = EngineAsset::EditorFont,
+        .pixelHeight = 18,
+        .color = Color::White,
+    });
+    statusLabel = label.get();
+    AddChild(std::move(label));
+
+    label = std::make_unique<Label>("FPS:");
+    label->SetTextStyle({
+        .fontHandle = EngineAsset::EditorFont,
+        .pixelHeight = 18,
+        .color = Color::White,
+    });
+    fpsLabel = label.get();
+    AddChild(std::move(label));
 }
 
 StatusWidget::~StatusWidget() = default;
+
+void StatusWidget::Arrange(const Rect& rect)
+{
+    Widget::Arrange(rect);
+
+    statusLabel->Arrange({ .position = rect.position, .size = Vector2(200.0f, 28.0f) });
+    fpsLabel->Arrange({ .position = rect.position + Vector2(0.0f, 32.0f), .size = Vector2(200.0f, 24.0f) });
+}
 
 void StatusWidget::OnDraw()
 {
@@ -94,7 +122,6 @@ void StatusWidget::OnPaint(Render::UIDrawContext& context)
         .size = Vector2(60.0f, 35.0f),
     };
 
-
     // 큰 빨강 Rect를 그리지만 secondClip 안에서만 보여야 함
     context.PushClipRect(secondClip);
     context.AddFilledRect(
@@ -103,30 +130,6 @@ void StatusWidget::OnPaint(Render::UIDrawContext& context)
     context.PopClipRect();
 
     context.PopClipRect();
-
-    const Render::TextStyle style = {
-        .fontHandle = EngineAsset::EditorFont,
-        .pixelHeight = 24,
-        .color = Color::White,
-    };
-
-    static uint32 paintFrame = 0;
-    ++paintFrame;
-
-    // 최초 atlas upload에 포함될 문자열
-    context.AddText(
-        outerRect.position + Vector2(12.0f, 12.0f),
-        "ABC",
-        style);
-
-    // 약 2초 뒤, 최초 upload 시 없던 한글 glyph 요청
-    if (paintFrame > 120)
-    {
-        context.AddText(
-            outerRect.position + Vector2(12.0f, 46.0f),
-            "가나다",
-            style);
-    }
 }
 
 } // namespace URay
