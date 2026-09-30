@@ -6,6 +6,7 @@
 #include "Core/Math/Vector2.h"
 #include "Core/Type/Types.h"
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -13,6 +14,8 @@ namespace URay::Render
 {
 
 class FontFace;
+class Texture;
+class TextureView;
 
 struct Glyph
 {
@@ -56,6 +59,11 @@ public:
 public:
     const Glyph* FindGlyph(char32_t codepoint) const;
 
+    uint32 GetPixelHeight() const { return pixelHeight; }
+    uint32 GetWidth() const { return width; }
+    uint32 GetHeight() const { return height; }
+    TextureView* GetTextureView() const { return view.get(); }
+
 private:
     FontFace* face = nullptr;
     uint32 pixelHeight = 0;
@@ -72,6 +80,9 @@ private:
     uint32 rowHeight = 0;
 
     bool isDirty = false;
+
+    std::unique_ptr<Texture> texture;
+    std::unique_ptr<TextureView> view;
 };
 
 } // namespace URay::Render

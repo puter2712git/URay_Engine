@@ -11,29 +11,30 @@
 #include <memory>
 #include <unordered_map>
 
-namespace URay
-{
-class Font;
-}
-
 namespace URay::Render
 {
+
+class RenderDevice;
 
 class FontSystem
 {
 public:
-    FontSystem();
+    FontSystem(RenderDevice& device);
     ~FontSystem();
 
 public:
     bool Initialize();
     void Finalize();
 
-    FontFace* GetOrCreateFace(URay::Font* font);
-    FontAtlas* GetOrCreateAtlas(FontFace* face, uint32 pixelHeight);
+    bool FlushAtlasUploads();
+
+    FontFace* GetOrCreateFace(AssetHandle fontHandle);
+    FontAtlas* GetOrCreateAtlas(AssetHandle fontHandle, uint32 pixelHeight);
     const Glyph* GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint);
 
 private:
+    RenderDevice& device;
+
     FT_Library library = nullptr;
 
     std::unordered_map<AssetHandle, std::unique_ptr<FontFace>, AssetHandleHash> faces;

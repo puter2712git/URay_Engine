@@ -1,13 +1,20 @@
 #include "FontSystem.h"
 
+#include "Engine/Asset/AssetDatabase.h"
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/Font/Font.h"
+#include "Engine/Engine.h"
+
+#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Texture/Texture.h"
+#include "Render/RHI/Texture/TextureView.h"
 
 #include <algorithm>
 
 namespace URay::Render
 {
 
-FontSystem::FontSystem() = default;
+FontSystem::FontSystem(RenderDevice& device) : device(device) {};
 
 FontSystem::~FontSystem() = default;
 
@@ -25,18 +32,73 @@ void FontSystem::Finalize()
     library = nullptr;
 }
 
-FontFace* FontSystem::GetOrCreateFace(URay::Font* font)
+bool FontSystem::FlushAtlasUploads()
+{
+    bool succeeded = true;
+
+    for (auto& [key, atlas] : atlases)
+    {
+        if (!atlas->isDirty)
+            continue;
+
+        if (atlas->texture)
+        {
+            succeeded = false;
+            continue;
+        }
+
+        const TextureDesc textureDesc = {
+            .width = atlas->width,
+            .height = atlas->height,
+            .format = Format::RGBA8_UNorm,
+            .usage = TextureUsage::TransferDst | TextureUsage::Sampled
+        };
+
+        atlas->texture.reset(device.CreateTexture(textureDesc));
+        if (!atlas->texture)
+        {
+            succeeded = false;
+            continue;
+        }
+
+        if (!device.UploadTextureData(atlas->texture.get(), atlas->pixels))
+        {
+            atlas->texture.reset();
+            succeeded = false;
+            continue;
+        }
+
+        atlas->view.reset(device.CreateTextureView(atlas->texture.get(), TextureViewDesc{}));
+        if (!atlas->view)
+        {
+            atlas->texture.reset();
+            succeeded = false;
+            continue;
+        }
+
+        atlas->isDirty = false;
+    }
+
+    return succeeded;
+}
+
+FontFace* FontSystem::GetOrCreateFace(AssetHandle fontHandle)
 {
     FontFace* ret = nullptr;
 
-    const AssetHandle handle = font->GetHandle();
-
-    const auto it = faces.find(handle);
+    const auto it = faces.find(fontHandle);
     if (it != faces.end())
     {
         ret = it->second.get();
         return ret;
     }
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    URay::Font* font = assetDatabase.Find<URay::Font>(fontHandle);
+    if (!font)
+        return nullptr;
 
     const std::vector<uint8>& data = font->GetData();
 
@@ -61,16 +123,20 @@ FontFace* FontSystem::GetOrCreateFace(URay::Font* font)
     auto newFace = std::make_unique<FontFace>(font, nativeFace);
 
     ret = newFace.get();
-    faces.insert({ handle, std::move(newFace) });
+    faces.insert({ fontHandle, std::move(newFace) });
 
     return ret;
 }
 
-FontAtlas* FontSystem::GetOrCreateAtlas(FontFace* face, uint32 pixelHeight)
+FontAtlas* FontSystem::GetOrCreateAtlas(AssetHandle fontHandle, uint32 pixelHeight)
 {
     FontAtlas* ret = nullptr;
 
-    const URay::Font* font = face->GetFont();
+    FontFace* face = GetOrCreateFace(fontHandle);
+    if (!face)
+        return nullptr;
+
+    const URay::Font* font = face->font;
 
     const FontAtlasKey key = {
         .fontHandle = font->GetHandle(),
@@ -143,9 +209,12 @@ const Glyph* FontSystem::GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint)
     glyph.atlasWidth = bitmap.width;
     glyph.atlasHeight = bitmap.rows;
 
-    for (uint32 y = 0; y < bitmap.rows; ++y)
+    const int32 rowCount = static_cast<int32>(bitmap.rows);
+    const int32 rowPitch = bitmap.pitch;
+
+    for (uint32 y = 0; y < rowCount; ++y)
     {
-        const uint8* sourceRow = bitmap.buffer + y * bitmap.pitch;
+        const uint8* sourceRow = bitmap.buffer + y * rowPitch;
 
         for (uint32 x = 0; x < bitmap.width; ++x)
         {

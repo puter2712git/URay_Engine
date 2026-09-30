@@ -35,6 +35,7 @@ class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
 class ShadowSystem;
+class FontSystem;
 
 class ResourceManager
 {
@@ -67,6 +68,7 @@ public:
     PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc);
     void DestroyPSOs();
 
+    FontSystem& GetFontSystem() { return *fontSystem; }
     ShadowSystem& GetShadowSystem() { return *shadowSystem; }
 
 private:
@@ -74,6 +76,7 @@ private:
 
     ShaderCompiler shaderCompiler;
 
+    std::unique_ptr<FontSystem> fontSystem = nullptr;
     std::unique_ptr<ShadowSystem> shadowSystem = nullptr;
 
     std::unordered_map<::URay::Mesh*, MeshBuffer*> meshBuffers;

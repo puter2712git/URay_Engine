@@ -9,6 +9,7 @@
 #include "Render/RHI/RenderDevice.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/Rendering/Font/FontSystem.h"
 #include "Render/Rendering/Shadow/ShadowSystem.h"
 #include "Render/Shader/Shader.h"
 
@@ -30,6 +31,9 @@ ResourceManager::ResourceManager(RenderDevice& device) : device(device)
 {
     shaderCompiler.Initialize();
 
+    fontSystem = std::make_unique<FontSystem>(device);
+    fontSystem->Initialize();
+
     shadowSystem = std::make_unique<ShadowSystem>(device);
     shadowSystem->Initialize();
 }
@@ -38,6 +42,9 @@ ResourceManager::~ResourceManager()
 {
     shadowSystem->Finalize();
     shadowSystem.reset();
+
+    fontSystem->Finalize();
+    fontSystem.reset();
 
     DestroyPSOs();
     DestroyPipelineLayouts();

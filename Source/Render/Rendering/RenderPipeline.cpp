@@ -5,6 +5,7 @@
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
+#include "Render/Rendering/Font/FontSystem.h"
 #include "Render/Rendering/Object/BoundedObject.h"
 #include "Render/Rendering/Object/DecalObject.h"
 #include "Render/Rendering/Object/Drawable/DrawableObject.h"
@@ -26,6 +27,7 @@
 #include "Render/Rendering/RenderPass/ShadowPass.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/ResourceManager.h"
 
 #include "Core/Math/Frustum.h"
 #include "Core/Math/Math.h"
@@ -211,6 +213,12 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     builder->FlushLines();
     builder->FlushTexts();
+
+    FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
+    if (!fontSystem.FlushAtlasUploads())
+    {
+    }
+
     builder->FlushUI(*request.uiDrawContext);
 
     if (request.selectedUnit)
