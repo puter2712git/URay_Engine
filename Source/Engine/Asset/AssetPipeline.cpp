@@ -1,6 +1,7 @@
 #include "AssetPipeline.h"
 
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/Importer/FontImporter.h"
 #include "Engine/Asset/Importer/MaterialImporter.h"
 #include "Engine/Asset/Importer/ShaderImporter.h"
 #include "Engine/Asset/Importer/TextureImporter.h"
@@ -16,6 +17,7 @@ AssetPipeline::AssetPipeline()
     importers.push_back(std::make_unique<TextureImporter>());
     importers.push_back(std::make_unique<ShaderImporter>());
     importers.push_back(std::make_unique<MaterialImporter>());
+    importers.push_back(std::make_unique<FontImporter>());
 }
 
 AssetPipeline::~AssetPipeline() = default;
