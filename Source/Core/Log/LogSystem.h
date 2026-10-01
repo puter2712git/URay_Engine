@@ -2,8 +2,7 @@
 
 #include "Engine/Engine.h"
 
-#include <memory>
-#include <string_view>
+#include <cstdarg>
 #include <vector>
 
 namespace URay
@@ -17,14 +16,19 @@ public:
     void RegisterSink(LogSink* sink);
     void UnregisterSink(LogSink* sink);
 
-    void Log(std::string_view msg);
+    void Log(const char* format, ...);
+
+private:
+    void LogV(const char* format, va_list args);
 
 private:
     std::vector<LogSink*> sinks;
 };
 
-#define URAY_LOG(msg)                               \
-    LogSystem& logSystem = gEngine->GetLogSystem(); \
-    logSystem.Log(msg);
+#define URAY_LOG(...)                             \
+    do                                            \
+    {                                             \
+        gEngine->GetLogSystem().Log(__VA_ARGS__); \
+    } while (false)
 
 } // namespace URay

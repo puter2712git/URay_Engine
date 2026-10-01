@@ -474,11 +474,11 @@ bool ViewportWidget::SaveCurrScene()
 
     if (!filesystem.WriteText(scenePath, sceneText))
     {
-        URAY_LOG("Failed to save scene: " + scenePath.ToString());
+        URAY_LOG("Failed to save scene: %s", scenePath.ToString().c_str());
         return false;
     }
 
-    URAY_LOG("Scene saved: " + scenePath.ToString());
+    URAY_LOG("Scene saved: %s", scenePath.ToString().c_str());
     return true;
 }
 

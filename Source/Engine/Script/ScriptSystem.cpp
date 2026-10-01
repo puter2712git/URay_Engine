@@ -54,7 +54,7 @@ void ScriptSystem::LogUTF8(const uint8* message, int32 byteCount)
 
     const char* utf8 = reinterpret_cast<const char*>(message);
 
-    URAY_LOG(std::string(utf8, static_cast<size_t>(byteCount)));
+    URAY_LOG("%s", utf8);
 }
 
 } // namespace URay
