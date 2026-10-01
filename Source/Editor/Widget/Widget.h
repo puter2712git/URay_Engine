@@ -39,6 +39,7 @@ public:
     bool HasPointerCapture() const { return pointerCaptured; }
 
     bool HitTest(const Vector2& position) const;
+    virtual bool CanHit() const { return true; }
 
     virtual EventReply OnPointerEnter() { return EventReply{}; }
     virtual EventReply OnPointerLeave() { return EventReply{}; }

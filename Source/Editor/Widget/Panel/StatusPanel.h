@@ -6,23 +6,24 @@ namespace URay
 {
 
 class Label;
+class Button;
 
-class StatusWidget final : public Panel
+class StatusPanel final : public Panel
 {
 public:
-    StatusWidget();
-    ~StatusWidget() override;
+    StatusPanel();
+    ~StatusPanel() override;
 
 public:
     void Arrange(const Rect& rect) override;
 
 protected:
-    void OnDraw() override;
-    void OnPaint(Render::UIDrawContext& context) override;
+    void OnUpdate(float deltaTime) override;
 
 private:
     Label* statusLabel = nullptr;
     Label* fpsLabel = nullptr;
+    Button* button = nullptr;
 };
 
 } // namespace URay

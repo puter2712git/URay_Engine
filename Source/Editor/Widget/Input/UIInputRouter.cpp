@@ -155,6 +155,9 @@ Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) cons
             return hit;
     }
 
+    if (!root.CanHit())
+        return nullptr;
+
     return &root;
 }
 

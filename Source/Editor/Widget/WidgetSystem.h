@@ -38,7 +38,6 @@ private:
     void CreateDefaultWidgets();
 
 private:
-    std::unique_ptr<Widget> mainMenuBar = nullptr;
     std::unique_ptr<Widget> root = nullptr;
 
     std::unique_ptr<WidgetDrawer> drawer = nullptr;

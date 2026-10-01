@@ -4,10 +4,9 @@
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/Input/UIInputRouter.h"
 #include "Editor/Widget/InspectorWidget.h"
-#include "Editor/Widget/MainMenuBarWidget.h"
 #include "Editor/Widget/SceneTreeWidget.h"
 #include "Editor/Widget/Splitter.h"
-#include "Editor/Widget/StatusWidget.h"
+#include "Editor/Widget/Panel/StatusPanel.h"
 #include "Editor/Widget/Viewport/ViewportWidget.h"
 #include "Editor/Widget/WidgetDrawer.h"
 
@@ -33,7 +32,7 @@ bool WidgetSystem::Initialize()
 {
     CreateDefaultWidgets();
 
-    std::vector<Widget*> widgets = { mainMenuBar.get(), root.get() };
+    std::vector<Widget*> widgets = { root.get() };
     drawer = std::make_unique<WidgetDrawer>(widgets);
 
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
@@ -58,14 +57,12 @@ void WidgetSystem::Finalize()
     drawer.reset();
 
     root.reset();
-    mainMenuBar.reset();
 }
 
 void WidgetSystem::Update(float deltaTime)
 {
     inputRouter->Process(*root, gEngine->GetInputManager());
 
-    mainMenuBar->Update(deltaTime);
     root->Update(deltaTime);
 }
 
@@ -81,19 +78,16 @@ void WidgetSystem::Paint()
 {
     drawContext->Clear();
 
-    mainMenuBar->Paint(*drawContext);
     root->Paint(*drawContext);
 }
 
 void WidgetSystem::CreateDefaultWidgets()
 {
-    mainMenuBar = std::make_unique<MainMenuBarWidget>();
-
     std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>();
     std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>();
     std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
     std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>();
-    std::unique_ptr<StatusWidget> status = std::make_unique<StatusWidget>();
+    std::unique_ptr<StatusPanel> status = std::make_unique<StatusPanel>();
     std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>();
     this->viewport = viewport.get();
 

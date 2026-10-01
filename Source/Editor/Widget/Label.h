@@ -17,6 +17,8 @@ public:
     ~Label() override;
 
 public:
+    bool CanHit() const override { return false; }
+
     const std::string_view& GetText() const { return text; }
     void SetText(std::string_view text) { this->text = text; }
 
