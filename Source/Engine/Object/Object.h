@@ -47,18 +47,4 @@ public:
     }
 };
 
-template <typename To, typename From>
-To* Cast(From* src)
-{
-    if (src == nullptr)
-        return nullptr;
-
-    if (src->IsA<To>())
-    {
-        return static_cast<To*>(src);
-    }
-
-    return nullptr;
-}
-
 } // namespace URay

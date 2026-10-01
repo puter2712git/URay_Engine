@@ -56,4 +56,18 @@ inline bool IsTypeOf(const RuntimeType& derived, const RuntimeType& target)
     return false;
 }
 
+template <typename To, typename From>
+To* Cast(From* src)
+{
+    if (src == nullptr)
+        return nullptr;
+
+    if (!IsTypeOf(src->GetRuntimeType(), To::StaticRuntimeType()))
+    {
+        return nullptr;
+    }
+
+    return static_cast<To*>(src);
+}
+
 } // namespace URay
