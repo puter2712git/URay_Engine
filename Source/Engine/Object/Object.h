@@ -38,6 +38,7 @@ public:
 
     virtual void NotifyPropertyChanged(const Property& property) {}
 
+    bool IsA(const RuntimeType& type) const;
     bool IsA(Class* cls) const;
 
     template <typename T>

@@ -187,9 +187,14 @@ void Object::Deserialize(const YAML::Node& node)
     }
 }
 
+bool Object::IsA(const RuntimeType& type) const
+{
+    return IsTypeOf(GetRuntimeType(), type);
+}
+
 bool Object::IsA(Class* cls) const
 {
-    return IsTypeOf(GetRuntimeType(), cls->GetType());
+    return cls && IsA(cls->GetType());
 }
 
 } // namespace URay
