@@ -9,6 +9,8 @@ class DrawCommandBuilder;
 
 class DrawableObject : public RenderObject
 {
+    URAY_TYPE(DrawableObject, RenderObject)
+
 public:
     ~DrawableObject() override = default;
 

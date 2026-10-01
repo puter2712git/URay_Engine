@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/Object/BoundedObject.h"
 #include "Render/Rendering/Object/RenderObject.h"
+#include "Render/Rendering/RenderInfo.h"
 
 #include "Core/Math/AABB.h"
 #include "Core/Math/Matrix.h"
@@ -38,6 +38,8 @@ struct DecalObjectState
 
 class DecalObject : public RenderObject, public BoundedObject
 {
+    URAY_TYPE(DecalObject, RenderObject)
+
 public:
     DecalObject(RenderSystem& renderSystem, const DecalObjectState& state);
     ~DecalObject() override;

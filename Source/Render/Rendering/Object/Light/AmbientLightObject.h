@@ -15,6 +15,8 @@ struct AmbientLightObjectState
 
 class AmbientLightObject : public RenderObject
 {
+    URAY_TYPE(AmbientLightObject, RenderObject)
+
 public:
     AmbientLightObject(const AmbientLightObjectState& state);
     ~AmbientLightObject() override;

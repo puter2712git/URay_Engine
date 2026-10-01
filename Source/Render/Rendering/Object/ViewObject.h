@@ -16,6 +16,8 @@ struct ViewObjectState
 
 class ViewObject : public RenderObject
 {
+    URAY_TYPE(ViewObject, RenderObject)
+
 public:
     ViewObject(const ViewObjectState& state);
     ~ViewObject() override;

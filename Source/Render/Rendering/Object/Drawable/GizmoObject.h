@@ -25,6 +25,8 @@ struct GizmoObjectState
 
 class GizmoObject : public DrawableObject
 {
+    URAY_TYPE(GizmoObject, DrawableObject)
+
 public:
     GizmoObject(const GizmoObjectState& state);
     ~GizmoObject() override;

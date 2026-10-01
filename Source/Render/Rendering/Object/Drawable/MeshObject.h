@@ -30,6 +30,8 @@ struct MeshObjectState
 
 class MeshObject : public DrawableObject, public BoundedObject
 {
+    URAY_TYPE(MeshObject, DrawableObject)
+
 public:
     MeshObject(const MeshObjectState& state);
     ~MeshObject() override;

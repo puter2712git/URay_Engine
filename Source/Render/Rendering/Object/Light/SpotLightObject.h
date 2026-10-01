@@ -23,6 +23,8 @@ struct SpotLightObjectState
 
 class SpotLightObject : public RenderObject
 {
+    URAY_TYPE(SpotLightObject, RenderObject)
+
 public:
     explicit SpotLightObject(const SpotLightObjectState& state);
     ~SpotLightObject() override;

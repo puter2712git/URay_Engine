@@ -29,6 +29,8 @@ struct BillboardObjectState
 
 class BillboardObject : public DrawableObject, public BoundedObject
 {
+    URAY_TYPE(BillboardObject, DrawableObject)
+
 public:
     BillboardObject(const BillboardObjectState& state);
     ~BillboardObject() override;

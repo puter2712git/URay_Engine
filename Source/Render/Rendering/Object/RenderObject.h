@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Math/Matrix.h"
+#include "Core/Type/RuntimeType.h"
 
 namespace URay::Render
 {
@@ -9,6 +10,8 @@ class RenderScene;
 
 class RenderObject
 {
+    URAY_ROOT_TYPE(RenderObject)
+
 public:
     virtual ~RenderObject() = default;
 
