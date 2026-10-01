@@ -50,4 +50,26 @@ void Window::ChangeCursor(CursorType type)
     glfwSetCursor(glfwWindow, cursor);
 }
 
+Extent2D Window::GetClientSize() const
+{
+    int32 width, height;
+    glfwGetWindowSize(glfwWindow, &width, &height);
+
+    return Extent2D{
+        .width = static_cast<uint32>(width),
+        .height = static_cast<uint32>(height)
+    };
+}
+
+Extent2D Window::GetFramebufferSize() const
+{
+    int32 width, height;
+    glfwGetFramebufferSize(glfwWindow, &width, &height);
+
+    return Extent2D{
+        .width = static_cast<uint32>(width),
+        .height = static_cast<uint32>(height)
+    };
+}
+
 } // namespace URay

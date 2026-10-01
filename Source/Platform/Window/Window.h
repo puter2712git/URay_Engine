@@ -2,6 +2,8 @@
 
 #include "Platform/Window/Cursor.h"
 
+#include "Core/Math/Extent2D.h"
+
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -22,6 +24,9 @@ public:
     void Finalize();
 
     void ChangeCursor(CursorType type);
+
+    Extent2D GetClientSize() const;
+    Extent2D GetFramebufferSize() const;
 
     GLFWwindow* GetGLFWWindow() const { return glfwWindow; }
 

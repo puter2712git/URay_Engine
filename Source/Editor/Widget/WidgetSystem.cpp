@@ -4,9 +4,9 @@
 #include "Editor/Widget/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/Input/UIInputRouter.h"
 #include "Editor/Widget/InspectorWidget.h"
+#include "Editor/Widget/Panel/StatusPanel.h"
 #include "Editor/Widget/SceneTreeWidget.h"
 #include "Editor/Widget/Splitter.h"
-#include "Editor/Widget/Panel/StatusPanel.h"
 #include "Editor/Widget/Viewport/ViewportWidget.h"
 #include "Editor/Widget/WidgetDrawer.h"
 
@@ -17,7 +17,7 @@
 #include "Render/Rendering/RenderPass/UIPass.h"
 #include "Render/Rendering/RenderPipeline.h"
 
-#include <imgui/imgui.h>
+#include "Platform/Window/Window.h"
 
 #include <vector>
 
@@ -68,10 +68,16 @@ void WidgetSystem::Update(float deltaTime)
 
 void WidgetSystem::PrepareRender()
 {
-    ImGuiViewport* imGuiViewport = ImGui::GetMainViewport();
-    root->Arrange(
-        { .position = Vector2(imGuiViewport->WorkPos.x, imGuiViewport->WorkPos.y),
-          .size = Vector2(imGuiViewport->WorkSize.x, imGuiViewport->WorkSize.y) });
+    Window& window = gEngine->GetWindow();
+    const Extent2D clientSize = window.GetClientSize();
+
+    Rect finalRect = {};
+    finalRect.position = Vector2::Zero;
+    finalRect.size = Vector2(
+        static_cast<float>(clientSize.width),
+        static_cast<float>(clientSize.height));
+
+    root->Arrange(finalRect);
 }
 
 void WidgetSystem::Paint()
