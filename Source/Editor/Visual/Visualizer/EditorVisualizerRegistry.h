@@ -9,7 +9,7 @@
 namespace URay
 {
 
-class Class;
+struct RuntimeType;
 class Component;
 class Unit;
 
@@ -21,17 +21,17 @@ public:
     template <typename T>
     void Register(Constructor constructor)
     {
-        constructors.insert_or_assign(T::StaticClass(), std::move(constructor));
+        constructors.insert_or_assign(&T::StaticRuntimeType(), std::move(constructor));
     }
 
-    const Constructor* Find(Class* cls) const
+    const Constructor* Find(const RuntimeType* type) const
     {
-        const auto it = constructors.find(cls);
+        const auto it = constructors.find(type);
         return it != constructors.end() ? &it->second : nullptr;
     }
 
 private:
-    std::unordered_map<Class*, Constructor> constructors;
+    std::unordered_map<const RuntimeType*, Constructor> constructors;
 };
 
 } // namespace URay

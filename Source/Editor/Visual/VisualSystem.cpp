@@ -98,7 +98,7 @@ void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* compone
     if (visualizers.contains(component))
         return;
 
-    const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(component->GetClass());
+    const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(&component->GetRuntimeType());
     if (constructor)
     {
         std::unique_ptr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);
