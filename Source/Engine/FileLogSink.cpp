@@ -1,29 +1,38 @@
 #include "FileLogSink.h"
 
-#include "Engine/Asset/AssetSystem.h"
-#include "Engine/Engine.h"
-
-#include "Core/File/VirtualFileSystem.h"
-
-#include <filesystem>
 #include <iostream>
+#include <system_error>
 
 namespace URay
 {
 
-FileLogSink::FileLogSink(const VirtualPath& filePath)
+FileLogSink::FileLogSink(const std::filesystem::path& filePath)
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+    const std::filesystem::path directory = filePath.parent_path();
 
-    std::filesystem::path path = fileSystem.ResolveToPhysicalPath(filePath);
+    if (!directory.empty())
+    {
+        std::error_code error;
+        std::filesystem::create_directories(directory, error);
 
-    std::filesystem::create_directories(path.parent_path());
+        if (error)
+        {
+            std::cerr
+                << "[Log] Failed to create log directory: "
+                << directory.string()
+                << " (" << error.message() << ")\n";
+            return;
+        }
+    }
 
-    stream.open(path, std::ios::out | std::ios::trunc);
+    stream.open(filePath, std::ios::out | std::ios::trunc);
+
     if (!stream.is_open())
     {
-        std::cerr << "Failed to open log filestream." << std::endl;
+        std::cerr
+            << "[Log] Failed to open log file: "
+            << filePath.string()
+            << "\n";
     }
 }
 
@@ -31,6 +40,9 @@ FileLogSink::~FileLogSink() = default;
 
 void FileLogSink::Write(std::string_view msg)
 {
+    if (!stream.is_open())
+        return;
+
     stream << msg << '\n';
 }
 

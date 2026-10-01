@@ -5,6 +5,7 @@
 #include "Engine/FileLogSink.h"
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Script/ScriptSystem.h"
+#include "Engine/StdErrLogSink.h"
 
 #include "Core/Input/InputManager.h"
 #include "Core/Log/LogSystem.h"
@@ -41,6 +42,13 @@ bool Engine::Initialize(
 {
     gEngine = this;
 
+    stdErrLogSink = std::make_unique<StdErrLogSink>();
+    fileLogSink = std::make_unique<FileLogSink>(std::filesystem::path(projectPath) / "Log/Log.txt");
+
+    logSystem = std::make_unique<LogSystem>();
+    logSystem->RegisterSink(stdErrLogSink.get());
+    logSystem->RegisterSink(fileLogSink.get());
+
     window = std::make_unique<Window>();
     if (!window->Initialize())
         return false;
@@ -50,8 +58,6 @@ bool Engine::Initialize(
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
     timer = std::make_unique<Timer>();
-
-    logSystem = std::make_unique<LogSystem>();
 
     inputManager = std::make_unique<InputManager>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
@@ -78,9 +84,6 @@ bool Engine::Initialize(
         if (!material->Initialize())
             return false;
     }
-
-    fileLogSink = std::make_unique<FileLogSink>("Project://Log/Log.txt");
-    logSystem->RegisterSink(fileLogSink.get());
 
     return true;
 }

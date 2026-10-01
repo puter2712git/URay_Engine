@@ -13,6 +13,7 @@ class Timer;
 class LogSystem;
 class InputManager;
 class PerformanceAnalytics;
+class StdErrLogSink;
 class FileLogSink;
 
 class AssetSystem;
@@ -40,9 +41,9 @@ public:
     void BeginRender();
     void Render(const Render::RenderRequest& request);
 
+    LogSystem& GetLogSystem() const { return *logSystem; }
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }
-    LogSystem& GetLogSystem() const { return *logSystem; }
     InputManager& GetInputManager() const { return *inputManager; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
@@ -52,11 +53,12 @@ public:
     Render::RenderSystem& GetRenderSystem() const { return *renderSystem; }
 
 private:
+    std::unique_ptr<LogSystem> logSystem = nullptr;
+    std::unique_ptr<StdErrLogSink> stdErrLogSink = nullptr;
+    std::unique_ptr<FileLogSink> fileLogSink = nullptr;
+
     std::unique_ptr<Window> window = nullptr;
     std::unique_ptr<Timer> timer = nullptr;
-
-    std::unique_ptr<LogSystem> logSystem = nullptr;
-    std::unique_ptr<FileLogSink> fileLogSink = nullptr;
 
     std::unique_ptr<InputManager> inputManager = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
