@@ -12,7 +12,7 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class CommandBuffer;
 class Texture;
 class TextureView;
@@ -33,7 +33,7 @@ struct RenderTargetDesc
 class RenderTarget
 {
 public:
-    RenderTarget(RenderDevice& renderDevice, const RenderTargetDesc& desc);
+    RenderTarget(Device& device, const RenderTargetDesc& desc);
     ~RenderTarget();
 
 public:
@@ -51,7 +51,7 @@ public:
     const Extent2D& GetExtent() const { return desc.extent; }
 
 private:
-    RenderDevice& device;
+    Device& device;
 
     RenderTargetDesc desc = {};
 

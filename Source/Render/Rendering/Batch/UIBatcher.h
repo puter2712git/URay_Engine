@@ -12,7 +12,7 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class ResourceManager;
 class Buffer;
 class Shader;
@@ -25,7 +25,7 @@ class TextureView;
 class UIBatcher
 {
 public:
-    UIBatcher(RenderDevice& device, ResourceManager& resourceManager);
+    UIBatcher(Device& device, ResourceManager& resourceManager);
     ~UIBatcher();
 
 public:
@@ -40,7 +40,7 @@ private:
     DescriptorSet* GetOrCreateDescriptorSet(const FontAtlas* fontAtlas);
 
 private:
-    RenderDevice& device;
+    Device& device;
     ResourceManager& resourceManager;
 
     std::unique_ptr<Buffer> vertexBuffer = nullptr;

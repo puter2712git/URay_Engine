@@ -16,7 +16,7 @@ class Shader;
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class ResourceManager;
 class Buffer;
 
@@ -25,7 +25,7 @@ struct LineCommandContext;
 class LineBatcher
 {
 public:
-    LineBatcher(RenderDevice& device, ResourceManager& resourceManager);
+    LineBatcher(Device& device, ResourceManager& resourceManager);
     ~LineBatcher();
 
 public:
@@ -38,7 +38,7 @@ public:
     void Collect(const LineCommandContext& context);
 
 private:
-    RenderDevice& device;
+    Device& device;
     ResourceManager& resourceManager;
 
     std::vector<Vertex> vertices;

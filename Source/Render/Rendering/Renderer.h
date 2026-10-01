@@ -24,7 +24,7 @@ namespace URay::Render
 {
 
 class VulkanContext;
-class RenderDevice;
+class Device;
 class DescriptorSetLayout;
 class RenderTarget;
 class ResourceManager;
@@ -37,7 +37,7 @@ class TextureView;
 class Renderer
 {
 public:
-    Renderer(Window& window, VulkanContext& context, RenderDevice& device, ResourceManager& resourceManager);
+    Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager);
     ~Renderer();
 
 public:
@@ -100,7 +100,7 @@ public:
 private:
     Window& window;
     VulkanContext& context;
-    RenderDevice& device;
+    Device& device;
     ResourceManager& resourceManager;
 
     std::unique_ptr<SwapChain> swapChain = nullptr;

@@ -1,6 +1,6 @@
 #include "ShadowSystem.h"
 
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
@@ -8,7 +8,7 @@
 namespace URay::Render
 {
 
-ShadowSystem::ShadowSystem(RenderDevice& device) : device(device) {}
+ShadowSystem::ShadowSystem(Device& device) : device(device) {}
 
 ShadowSystem::~ShadowSystem() = default;
 

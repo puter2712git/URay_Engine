@@ -1,12 +1,12 @@
 #include "CommandPool.h"
 
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 
 namespace URay::Render
 {
 
-CommandPool::CommandPool(RenderDevice& device, VkCommandPool handle)
+CommandPool::CommandPool(Device& device, VkCommandPool handle)
     : device(device), handle(handle)
 {
 }

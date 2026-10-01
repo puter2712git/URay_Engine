@@ -1,6 +1,6 @@
 #include "SwapChain.h"
 
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
 
@@ -12,7 +12,7 @@
 namespace URay::Render
 {
 
-SwapChain::SwapChain(RenderDevice& device, VulkanContext& context)
+SwapChain::SwapChain(Device& device, VulkanContext& context)
     : device(device), context(context)
 {
 }

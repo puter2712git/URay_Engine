@@ -2,14 +2,14 @@
 
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/CommandBuffer/ImageBarrier.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 
 #include <array>
 
 namespace URay::Render
 {
 
-Texture::Texture(RenderDevice& device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc)
+Texture::Texture(Device& device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc)
     : device(device), handle(handle), memory(memory), desc(desc)
 {
 }

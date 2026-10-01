@@ -3,7 +3,7 @@
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/Rendering/DrawCommand/DrawCommandContext.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
@@ -19,7 +19,7 @@
 namespace URay::Render
 {
 
-LineBatcher::LineBatcher(RenderDevice& device, ResourceManager& resourceManager)
+LineBatcher::LineBatcher(Device& device, ResourceManager& resourceManager)
     : device(device), resourceManager(resourceManager) {}
 
 LineBatcher::~LineBatcher() = default;

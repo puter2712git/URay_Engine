@@ -21,7 +21,7 @@ namespace URay::Render
 {
 
 class RenderSystem;
-class RenderDevice;
+class Device;
 class Renderer;
 class ResourceManager;
 class LineBatcher;
@@ -60,7 +60,7 @@ public:
 
 private:
     AssetSystem& assetSystem;
-    RenderDevice& device;
+    Device& device;
     Renderer& renderer;
     ResourceManager& resourceManager;
 

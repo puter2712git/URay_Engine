@@ -9,7 +9,7 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class CommandBuffer;
 
 enum class ImageLayout : uint8
@@ -122,7 +122,7 @@ struct TextureRegion
 class Texture
 {
 public:
-    Texture(RenderDevice& device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc);
+    Texture(Device& device, VkImage handle, VkDeviceMemory memory, const TextureDesc& desc);
     ~Texture();
 
 private:
@@ -143,7 +143,7 @@ private:
     SyncInfo GetSyncInfo(ImageLayout layout);
 
 private:
-    RenderDevice& device;
+    Device& device;
 
     VkImage handle = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;

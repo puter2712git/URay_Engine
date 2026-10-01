@@ -27,7 +27,7 @@ class Shader;
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class MeshBuffer;
 class Texture;
 class Shader;
@@ -40,7 +40,7 @@ class FontSystem;
 class ResourceManager
 {
 public:
-    ResourceManager(RenderDevice& device);
+    ResourceManager(Device& device);
     ~ResourceManager();
 
 public:
@@ -72,7 +72,7 @@ public:
     ShadowSystem& GetShadowSystem() { return *shadowSystem; }
 
 private:
-    RenderDevice& device;
+    Device& device;
 
     ShaderCompiler shaderCompiler;
 

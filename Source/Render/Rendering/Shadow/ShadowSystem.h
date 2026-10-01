@@ -9,7 +9,7 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class RenderTarget;
 class Texture;
 class TextureView;
@@ -27,7 +27,7 @@ struct ShadowAtlasEntry
 class ShadowSystem
 {
 public:
-    ShadowSystem(RenderDevice& device);
+    ShadowSystem(Device& device);
     ~ShadowSystem();
 
 public:
@@ -49,7 +49,7 @@ public:
     TextureView* GetPointShadowFaceView(uint32 lightIndex, uint32 faceIndex) const { return pointShadowFaceViews[lightIndex * 6 + faceIndex].get(); }
 
 private:
-    RenderDevice& device;
+    Device& device;
 
     std::unique_ptr<RenderTarget> directionalRenderTarget = nullptr;
     std::unique_ptr<RenderTarget> shadowAtlasRT = nullptr;

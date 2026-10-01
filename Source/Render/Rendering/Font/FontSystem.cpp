@@ -5,7 +5,7 @@
 #include "Engine/Asset/Font/Font.h"
 #include "Engine/Engine.h"
 
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 
@@ -15,7 +15,7 @@
 namespace URay::Render
 {
 
-FontSystem::FontSystem(RenderDevice& device) : device(device) {};
+FontSystem::FontSystem(Device& device) : device(device) {};
 
 FontSystem::~FontSystem() = default;
 

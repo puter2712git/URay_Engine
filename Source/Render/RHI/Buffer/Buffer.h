@@ -7,13 +7,13 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 struct BufferDesc;
 
 class Buffer
 {
 public:
-    Buffer(RenderDevice& device, VkBuffer handle, VkDeviceMemory memory, const BufferDesc& desc);
+    Buffer(Device& device, VkBuffer handle, VkDeviceMemory memory, const BufferDesc& desc);
     ~Buffer();
 
 public:
@@ -30,7 +30,7 @@ public:
     MemoryUsage GetMemoryUsage() const { return memoryUsage; }
 
 private:
-    RenderDevice& device;
+    Device& device;
     VkBuffer handle = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;
 

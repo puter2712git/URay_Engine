@@ -8,7 +8,7 @@
 #include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
 
 #include "Core/Type/Types.h"

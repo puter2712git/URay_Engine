@@ -5,7 +5,7 @@
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/DrawCommand/DrawCommandBuilder.h"
 #include "Render/ResourceManager.h"

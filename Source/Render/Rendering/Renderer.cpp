@@ -9,7 +9,7 @@
 #include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/Texture/Texture.h"
@@ -58,7 +58,7 @@ static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
     renderer->framebufferResized = true;
 }
 
-Renderer::Renderer(Window& window, VulkanContext& context, RenderDevice& device, ResourceManager& resourceManager)
+Renderer::Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager)
     : window(window), context(context), device(device), resourceManager(resourceManager) {}
 
 Renderer::~Renderer() = default;

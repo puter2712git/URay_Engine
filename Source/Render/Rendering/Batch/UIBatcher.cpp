@@ -6,7 +6,7 @@
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/Font/FontAtlas.h"
 #include "Render/ResourceManager.h"
@@ -25,7 +25,7 @@
 namespace URay::Render
 {
 
-UIBatcher::UIBatcher(RenderDevice& device, ResourceManager& resourceManager)
+UIBatcher::UIBatcher(Device& device, ResourceManager& resourceManager)
     : device(device), resourceManager(resourceManager) {}
 
 UIBatcher::~UIBatcher() = default;

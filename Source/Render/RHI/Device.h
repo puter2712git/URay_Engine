@@ -63,11 +63,11 @@ struct QueueFamilyIndices
     }
 };
 
-class RenderDevice
+class Device
 {
 public:
-    RenderDevice(VulkanContext& context);
-    ~RenderDevice();
+    Device(VulkanContext& context);
+    ~Device();
 
 public:
     bool Initialize();

@@ -10,7 +10,7 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 class VulkanContext;
 
 struct SwapChainDesc
@@ -21,7 +21,7 @@ struct SwapChainDesc
 class SwapChain
 {
 public:
-    SwapChain(RenderDevice& device, VulkanContext& context);
+    SwapChain(Device& device, VulkanContext& context);
 
 public:
     bool Initialize(const SwapChainDesc& desc);
@@ -48,7 +48,7 @@ private:
     VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities, const VkExtent2D& requestedExtent) const;
 
 private:
-    RenderDevice& device;
+    Device& device;
     VulkanContext& context;
 
     VkSwapchainKHR handle = VK_NULL_HANDLE;

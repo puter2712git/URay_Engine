@@ -1,12 +1,12 @@
 #include "Buffer.h"
 
 #include "Render/RHI/Buffer/BufferDesc.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 
 namespace URay::Render
 {
 
-Buffer::Buffer(RenderDevice& device, VkBuffer handle, VkDeviceMemory memory, const BufferDesc& desc)
+Buffer::Buffer(Device& device, VkBuffer handle, VkDeviceMemory memory, const BufferDesc& desc)
     : device(device), handle(handle), memory(memory),
       size(desc.size), bindFlags(desc.bindFlags), memoryUsage(desc.memoryUsage) {}
 

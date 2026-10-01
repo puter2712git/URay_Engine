@@ -7,7 +7,7 @@
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
@@ -108,7 +108,7 @@ void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
     RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    RenderDevice& device = renderSystem.GetDevice();
+    Device& device = renderSystem.GetDevice();
     ResourceManager& resourceManager = renderSystem.GetResourceManager();
 
     if (!shader)

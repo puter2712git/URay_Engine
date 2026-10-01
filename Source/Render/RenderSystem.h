@@ -14,7 +14,7 @@ namespace Render
 
 class VulkanContext;
 class Renderer;
-class RenderDevice;
+class Device;
 class ResourceManager;
 class RenderPipeline;
 class SceneSystem;
@@ -38,7 +38,7 @@ public:
     void EndFrame();
 
     Renderer& GetRenderer() const { return *renderer; }
-    RenderDevice& GetDevice() const { return *device; }
+    Device& GetDevice() const { return *device; }
     ResourceManager& GetResourceManager() const { return *resourceManager; }
 
     RenderPipeline& GetPipeline() const { return *pipeline; }
@@ -48,7 +48,7 @@ public:
 private:
     std::unique_ptr<VulkanContext> vulkanContext = nullptr;
     std::unique_ptr<Renderer> renderer = nullptr;
-    std::unique_ptr<RenderDevice> device = nullptr;
+    std::unique_ptr<Device> device = nullptr;
 
     std::unique_ptr<ResourceManager> resourceManager = nullptr;
 

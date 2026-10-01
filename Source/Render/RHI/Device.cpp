@@ -1,4 +1,4 @@
-#include "RenderDevice.h"
+#include "Device.h"
 
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Buffer/BufferDesc.h"
@@ -36,12 +36,12 @@
 namespace URay::Render
 {
 
-RenderDevice::RenderDevice(VulkanContext& context)
+Device::Device(VulkanContext& context)
     : context(context) {}
 
-RenderDevice::~RenderDevice() = default;
+Device::~Device() = default;
 
-bool RenderDevice::Initialize()
+bool Device::Initialize()
 {
     instance = context.GetInstance();
 
@@ -59,7 +59,7 @@ bool RenderDevice::Initialize()
     return true;
 }
 
-void RenderDevice::Finalize()
+void Device::Finalize()
 {
     DestroyDescriptorPool();
 
@@ -75,7 +75,7 @@ void RenderDevice::Finalize()
     }
 }
 
-Buffer* RenderDevice::CreateVertexBuffer(const VertexBufferDesc& desc)
+Buffer* Device::CreateVertexBuffer(const VertexBufferDesc& desc)
 {
     BufferDesc bufferDesc = {};
     bufferDesc.size = desc.size;
@@ -89,7 +89,7 @@ Buffer* RenderDevice::CreateVertexBuffer(const VertexBufferDesc& desc)
     return newBuffer;
 }
 
-Buffer* RenderDevice::CreateIndexBuffer(const IndexBufferDesc& desc)
+Buffer* Device::CreateIndexBuffer(const IndexBufferDesc& desc)
 {
     const uint32 indexStride =
         desc.indexType == IndexType::UInt16 ? 2 : 4;
@@ -106,7 +106,7 @@ Buffer* RenderDevice::CreateIndexBuffer(const IndexBufferDesc& desc)
     return newBuffer;
 }
 
-Buffer* RenderDevice::CreateUniformBuffer(const UniformBufferDesc& desc)
+Buffer* Device::CreateUniformBuffer(const UniformBufferDesc& desc)
 {
     BufferDesc bufferDesc = {};
     bufferDesc.size = desc.size;
@@ -119,7 +119,7 @@ Buffer* RenderDevice::CreateUniformBuffer(const UniformBufferDesc& desc)
     return newBuffer;
 }
 
-Buffer* RenderDevice::CreateStorageBuffer(const StorageBufferDesc& desc)
+Buffer* Device::CreateStorageBuffer(const StorageBufferDesc& desc)
 {
     BufferDesc bufferDesc = {};
     bufferDesc.size = static_cast<uint64>(desc.elementCapacity) * desc.elementStride;
@@ -133,7 +133,7 @@ Buffer* RenderDevice::CreateStorageBuffer(const StorageBufferDesc& desc)
     return newBuffer;
 }
 
-bool RenderDevice::UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSize, uint64 offset)
+bool Device::UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSize, uint64 offset)
 {
     if (buffer.GetMemoryUsage() == MemoryUsage::CpuToGpu)
     {
@@ -207,12 +207,12 @@ bool RenderDevice::UpdateBuffer(Buffer& buffer, const void* data, uint64 dataSiz
     return true;
 }
 
-MeshBuffer* RenderDevice::CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer)
+MeshBuffer* Device::CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer)
 {
     return new MeshBuffer(vertexBuffer, indexBuffer);
 }
 
-Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
+Texture* Device::CreateTexture(const TextureDesc& desc)
 {
     if (desc.width == 0 || desc.height == 0)
         return nullptr;
@@ -270,7 +270,7 @@ Texture* RenderDevice::CreateTexture(const TextureDesc& desc)
     return newTexture;
 }
 
-bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pixels)
+bool Device::UploadTextureData(Texture* texture, std::span<const uint8> pixels)
 {
     if (!texture)
         return false;
@@ -286,7 +286,7 @@ bool RenderDevice::UploadTextureData(Texture* texture, std::span<const uint8> pi
     return UploadTextureRegion(texture, region, pixels);
 }
 
-bool RenderDevice::UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels)
+bool Device::UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels)
 {
     if (!texture || region.IsEmpty())
         return false;
@@ -357,7 +357,7 @@ bool RenderDevice::UploadTextureRegion(Texture* texture, const TextureRegion& re
     return true;
 }
 
-TextureView* RenderDevice::CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc)
+TextureView* Device::CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc)
 {
     if (!texture)
         return nullptr;
@@ -383,7 +383,7 @@ TextureView* RenderDevice::CreateTextureView(Texture* texture, const TextureView
     return textureView;
 }
 
-VkSampler RenderDevice::CreateTextureSampler(const SamplerDesc& samplerDesc)
+VkSampler Device::CreateTextureSampler(const SamplerDesc& samplerDesc)
 {
     VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -416,7 +416,7 @@ VkSampler RenderDevice::CreateTextureSampler(const SamplerDesc& samplerDesc)
     return sampler;
 }
 
-DescriptorSetLayout* RenderDevice::CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
+DescriptorSetLayout* Device::CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)
 {
     DescriptorSetLayoutBuilder builder;
 
@@ -428,7 +428,7 @@ DescriptorSetLayout* RenderDevice::CreateDescriptorSetLayout(const DescriptorSet
     return builder.Build(device);
 }
 
-DescriptorSet* RenderDevice::CreateDescriptorSet(DescriptorSetLayout* layout)
+DescriptorSet* Device::CreateDescriptorSet(DescriptorSetLayout* layout)
 {
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -446,7 +446,7 @@ DescriptorSet* RenderDevice::CreateDescriptorSet(DescriptorSetLayout* layout)
     return descriptorSet;
 }
 
-PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& desc)
+PipelineLayout* Device::CreatePipelineLayout(const PipelineLayoutDesc& desc)
 {
     uint32 maxSetNum = 0;
     for (auto& [set, layout] : desc.setLayouts)
@@ -485,7 +485,7 @@ PipelineLayout* RenderDevice::CreatePipelineLayout(const PipelineLayoutDesc& des
     return pipelineLayout;
 }
 
-PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout)
+PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout)
 {
     VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexShaderCode());
     VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentShaderCode());
@@ -723,7 +723,7 @@ PipelineState* RenderDevice::CreatePSO(const PipelineStateDesc& desc, PipelineLa
     return pso;
 }
 
-Framebuffer* RenderDevice::CreateFramebuffer(const FramebufferDesc& desc)
+Framebuffer* Device::CreateFramebuffer(const FramebufferDesc& desc)
 {
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -743,7 +743,7 @@ Framebuffer* RenderDevice::CreateFramebuffer(const FramebufferDesc& desc)
     return framebuffer;
 }
 
-SwapChain* RenderDevice::CreateSwapChain(const SwapChainDesc& desc)
+SwapChain* Device::CreateSwapChain(const SwapChainDesc& desc)
 {
     SwapChain* swapChain = new SwapChain(*this, context);
     if (!swapChain->Initialize(desc))
@@ -755,7 +755,7 @@ SwapChain* RenderDevice::CreateSwapChain(const SwapChainDesc& desc)
     return swapChain;
 }
 
-CommandPool* RenderDevice::CreateCommandPool(QueueType queueType, CommandPoolFlags poolFlags)
+CommandPool* Device::CreateCommandPool(QueueType queueType, CommandPoolFlags poolFlags)
 {
     const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
     uint32 queueFamilyIndex = 0;
@@ -783,7 +783,7 @@ CommandPool* RenderDevice::CreateCommandPool(QueueType queueType, CommandPoolFla
     return commandPool;
 }
 
-void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
+void Device::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
                                 VkMemoryPropertyFlags properties,
                                 VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
 {
@@ -811,7 +811,7 @@ void RenderDevice::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
         return;
 }
 
-void RenderDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const
+void Device::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) const
 {
     CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
@@ -822,7 +822,7 @@ void RenderDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSi
     EndSingleTimeCommands(commandBuffer);
 }
 
-void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,
+void Device::TransitionImageLayout(VkImage image, VkFormat format,
                                          VkImageLayout oldLayout, VkImageLayout newLayout) const
 {
     CommandBuffer* commandBuffer = BeginSingleTimeCommands();
@@ -888,7 +888,7 @@ void RenderDevice::TransitionImageLayout(VkImage image, VkFormat format,
     EndSingleTimeCommands(commandBuffer);
 }
 
-void RenderDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32 width, uint32 height) const
+void Device::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32 width, uint32 height) const
 {
     CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
@@ -911,7 +911,7 @@ void RenderDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32 widt
     EndSingleTimeCommands(commandBuffer);
 }
 
-VkImageView RenderDevice::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const
+VkImageView Device::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const
 {
     VkImageViewCreateInfo viewInfo = {};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -931,7 +931,7 @@ VkImageView RenderDevice::CreateImageView(VkImage image, VkFormat format, VkImag
     return imageView;
 }
 
-Buffer* RenderDevice::CreateBuffer(const BufferDesc& desc)
+Buffer* Device::CreateBuffer(const BufferDesc& desc)
 {
     if (desc.size == 0)
         return nullptr;
@@ -1032,7 +1032,7 @@ Buffer* RenderDevice::CreateBuffer(const BufferDesc& desc)
     return buffer;
 }
 
-bool RenderDevice::PickPhysicalDevice()
+bool Device::PickPhysicalDevice()
 {
     uint32 deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -1058,7 +1058,7 @@ bool RenderDevice::PickPhysicalDevice()
     return true;
 }
 
-bool RenderDevice::CreateLogicalDevice()
+bool Device::CreateLogicalDevice()
 {
     QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
 
@@ -1113,7 +1113,7 @@ bool RenderDevice::CreateLogicalDevice()
     return true;
 }
 
-bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
+bool Device::IsDeviceSuitable(VkPhysicalDevice device) const
 {
     VkPhysicalDeviceProperties properties = {};
     vkGetPhysicalDeviceProperties(device, &properties);
@@ -1153,7 +1153,7 @@ bool RenderDevice::IsDeviceSuitable(VkPhysicalDevice device) const
            supportsDynamicRendering && supportsSynchronization;
 }
 
-QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device) const
+QueueFamilyIndices Device::FindQueueFamilyIndices(VkPhysicalDevice device) const
 {
     QueueFamilyIndices indices = {};
 
@@ -1188,7 +1188,7 @@ QueueFamilyIndices RenderDevice::FindQueueFamilyIndices(VkPhysicalDevice device)
     return indices;
 }
 
-DescriptorSetLayoutDesc RenderDevice::MakeFrameDescriptorSetLayoutDescription() const
+DescriptorSetLayoutDesc Device::MakeFrameDescriptorSetLayoutDescription() const
 {
     DescriptorSetLayoutDesc description = {};
     description.bindings.push_back(ResourceBinding{
@@ -1245,7 +1245,7 @@ DescriptorSetLayoutDesc RenderDevice::MakeFrameDescriptorSetLayoutDescription() 
     return description;
 }
 
-bool RenderDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
+bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
 {
     uint32 extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -1264,7 +1264,7 @@ bool RenderDevice::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
     return requiredExtensions.empty();
 }
 
-CommandBuffer* RenderDevice::BeginSingleTimeCommands() const
+CommandBuffer* Device::BeginSingleTimeCommands() const
 {
     CommandBuffer* commandBuffer = commandPool->Allocate();
 
@@ -1277,7 +1277,7 @@ CommandBuffer* RenderDevice::BeginSingleTimeCommands() const
     return commandBuffer;
 }
 
-void RenderDevice::EndSingleTimeCommands(CommandBuffer* commandBuffer) const
+void Device::EndSingleTimeCommands(CommandBuffer* commandBuffer) const
 {
     if (!commandBuffer->End())
         return;
@@ -1295,7 +1295,7 @@ void RenderDevice::EndSingleTimeCommands(CommandBuffer* commandBuffer) const
     delete commandBuffer;
 }
 
-void RenderDevice::CreateDescriptorPool()
+void Device::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 6> poolSizes = {};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1320,7 +1320,7 @@ void RenderDevice::CreateDescriptorPool()
     vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
 }
 
-void RenderDevice::DestroyDescriptorPool()
+void Device::DestroyDescriptorPool()
 {
     if (descriptorPool)
     {
@@ -1328,7 +1328,7 @@ void RenderDevice::DestroyDescriptorPool()
     }
 }
 
-VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8>& code) const
+VkShaderModule Device::CreateShaderModule(const std::vector<uint8>& code) const
 {
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -1342,7 +1342,7 @@ VkShaderModule RenderDevice::CreateShaderModule(const std::vector<uint8>& code) 
     return shaderModule;
 }
 
-uint32 RenderDevice::FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties) const
+uint32 Device::FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties) const
 {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);

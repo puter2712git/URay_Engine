@@ -14,12 +14,12 @@
 namespace URay::Render
 {
 
-class RenderDevice;
+class Device;
 
 class FontSystem
 {
 public:
-    FontSystem(RenderDevice& device);
+    FontSystem(Device& device);
     ~FontSystem();
 
 public:
@@ -33,7 +33,7 @@ public:
     const Glyph* GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint);
 
 private:
-    RenderDevice& device;
+    Device& device;
 
     FT_Library library = nullptr;
 

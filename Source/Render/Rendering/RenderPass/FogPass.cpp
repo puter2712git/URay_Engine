@@ -6,7 +6,7 @@
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/TextureView.h"

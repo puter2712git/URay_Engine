@@ -1,6 +1,6 @@
 #include "RenderSystem.h"
 
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/Rendering/RenderPipeline.h"
 #include "Render/Rendering/Renderer.h"
@@ -31,7 +31,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    device = std::make_unique<RenderDevice>(*vulkanContext);
+    device = std::make_unique<Device>(*vulkanContext);
     if (!device->Initialize())
         return false;
 

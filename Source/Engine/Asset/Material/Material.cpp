@@ -12,7 +12,7 @@
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
-#include "Render/RHI/RenderDevice.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
@@ -57,7 +57,7 @@ bool Material::Initialize()
 
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-    Render::RenderDevice& device = renderSystem.GetDevice();
+    Render::Device& device = renderSystem.GetDevice();
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
     Shader* shader = GetShader();
