@@ -170,17 +170,17 @@ void RenderPipeline::Execute(const RenderRequest& request)
             if (!robj->IsEnabled())
                 continue;
 
-            if (MeshObject* mesh = dynamic_cast<MeshObject*>(robj))
+            if (MeshObject* mesh = Cast<MeshObject>(robj))
             {
                 meshReceivers.push_back(mesh);
             }
 
-            if (DecalObject* decal = dynamic_cast<DecalObject*>(robj))
+            if (DecalObject* decal = Cast<DecalObject>(robj))
             {
                 decals.push_back(decal);
             }
 
-            if (DrawableObject* drawableObj = dynamic_cast<DrawableObject*>(robj))
+            if (DrawableObject* drawableObj = Cast<DrawableObject>(robj))
             {
                 drawableObj->Submit(*builder);
             }
@@ -227,7 +227,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
             if (RenderComponent* renderComponent = Cast<RenderComponent>(component.get()))
             {
                 RenderObject* renderObject = renderComponent->GetRenderObject();
-                if (DrawableObject* drawableObject = dynamic_cast<DrawableObject*>(renderObject))
+                if (DrawableObject* drawableObject = Cast<DrawableObject>(renderObject))
                 {
                     drawableObject->SubmitSelectionMask(*builder);
                 }
@@ -293,7 +293,7 @@ FogObject* RenderPipeline::FindFog(
         {
             RenderObject* robj = scene->GetObject(i);
 
-            if (FogObject* fog = dynamic_cast<FogObject*>(robj))
+            if (FogObject* fog = Cast<FogObject>(robj))
             {
                 return fog;
             }
@@ -314,7 +314,7 @@ AmbientLightObject* RenderPipeline::FindAmbientLight(
         {
             RenderObject* robj = scene->GetObject(i);
 
-            if (AmbientLightObject* light = dynamic_cast<AmbientLightObject*>(robj))
+            if (AmbientLightObject* light = Cast<AmbientLightObject>(robj))
             {
                 return light;
             }
@@ -335,7 +335,7 @@ DirectionalLightObject* RenderPipeline::FindDirectionalLight(
         {
             RenderObject* robj = scene->GetObject(i);
 
-            if (DirectionalLightObject* light = dynamic_cast<DirectionalLightObject*>(robj))
+            if (DirectionalLightObject* light = Cast<DirectionalLightObject>(robj))
             {
                 return light;
             }
@@ -358,7 +358,7 @@ std::vector<PointLightObject*> RenderPipeline::FindPointLights(
         {
             RenderObject* robj = scene->GetObject(i);
 
-            if (PointLightObject* light = dynamic_cast<PointLightObject*>(robj))
+            if (PointLightObject* light = Cast<PointLightObject>(robj))
             {
                 pointLights.push_back(light);
             }
@@ -381,7 +381,7 @@ std::vector<SpotLightObject*> RenderPipeline::FindSpotLights(
         {
             RenderObject* robj = scene->GetObject(i);
 
-            if (SpotLightObject* light = dynamic_cast<SpotLightObject*>(robj))
+            if (SpotLightObject* light = Cast<SpotLightObject>(robj))
             {
                 spotLights.push_back(light);
             }
