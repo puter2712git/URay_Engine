@@ -10,6 +10,8 @@ namespace URay
 
 class Panel : public Widget
 {
+    URAY_TYPE(Panel, Widget)
+
 public:
     Panel();
     ~Panel() override;

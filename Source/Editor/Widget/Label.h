@@ -12,6 +12,8 @@ namespace URay
 
 class Label final : public Widget
 {
+    URAY_TYPE(Label, Widget)
+
 public:
     Label(std::string_view text = {});
     ~Label() override;

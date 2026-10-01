@@ -13,6 +13,8 @@ class EditorConsoleLogSink;
 
 class ConsoleWidget final : public Widget
 {
+    URAY_TYPE(ConsoleWidget, Widget)
+
 public:
     ConsoleWidget();
     ~ConsoleWidget() override;

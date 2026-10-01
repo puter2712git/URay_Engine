@@ -20,6 +20,8 @@ struct FileEntry
 
 class FilesystemWidget final : public Widget
 {
+    URAY_TYPE(FilesystemWidget, Widget)
+
 public:
     FilesystemWidget();
     ~FilesystemWidget();

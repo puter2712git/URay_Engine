@@ -4,6 +4,7 @@
 
 #include "Core/Input/InputEvent.h"
 #include "Core/Math/Rect.h"
+#include "Core/Type/RuntimeType.h"
 
 #include <memory>
 #include <vector>
@@ -18,6 +19,8 @@ namespace URay
 
 class Widget
 {
+    URAY_ROOT_TYPE(Widget)
+
     friend class UIInputRouter;
 
 public:

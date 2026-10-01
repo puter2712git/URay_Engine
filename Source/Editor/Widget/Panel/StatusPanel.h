@@ -10,6 +10,8 @@ class Button;
 
 class StatusPanel final : public Panel
 {
+    URAY_TYPE(StatusPanel, Panel)
+
 public:
     StatusPanel();
     ~StatusPanel() override;

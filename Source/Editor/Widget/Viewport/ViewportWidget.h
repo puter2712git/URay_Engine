@@ -30,6 +30,8 @@ class Renderer;
 
 class ViewportWidget : public Widget
 {
+    URAY_TYPE(ViewportWidget, Widget)
+
 public:
     ViewportWidget();
     ~ViewportWidget() override;

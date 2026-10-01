@@ -31,7 +31,7 @@ void EditorLayout::LoadLayout(Widget& root, const YAML::Node& layout)
 
 void EditorLayout::CollectSplitters(const Widget& widget, YAML::Node& splitters)
 {
-    if (const auto* splitter = dynamic_cast<const Splitter*>(&widget))
+    if (const auto* splitter = Cast<const Splitter>(&widget))
     {
         if (!splitter->GetLayoutId().empty())
         {
@@ -47,7 +47,7 @@ void EditorLayout::CollectSplitters(const Widget& widget, YAML::Node& splitters)
 
 void EditorLayout::ApplySplitters(Widget& widget, const YAML::Node& layout)
 {
-    if (auto* splitter = dynamic_cast<Splitter*>(&widget))
+    if (auto* splitter = Cast<Splitter>(&widget))
     {
         const YAML::Node ratioNode = layout[splitter->GetLayoutId()];
         if (ratioNode)

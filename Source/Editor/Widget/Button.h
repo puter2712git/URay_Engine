@@ -22,6 +22,8 @@ enum class ButtonState
 
 class Button final : public Widget
 {
+    URAY_TYPE(Button, Widget)
+
 public:
     Button(std::string_view text = {});
     ~Button() override;

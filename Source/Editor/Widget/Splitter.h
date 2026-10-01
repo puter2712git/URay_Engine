@@ -16,6 +16,8 @@ enum class SplitAxis
 
 class Splitter : public Widget
 {
+    URAY_TYPE(Splitter, Widget)
+
 public:
     Splitter(const std::string& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
     ~Splitter() override;

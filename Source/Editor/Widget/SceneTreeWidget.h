@@ -13,6 +13,8 @@ class Unit;
 
 class SceneTreeWidget final : public Widget
 {
+    URAY_TYPE(SceneTreeWidget, Widget)
+
 public:
     SceneTreeWidget();
     ~SceneTreeWidget() override;

@@ -9,6 +9,8 @@ class SelectionSystem;
 
 class InspectorWidget final : public Widget
 {
+    URAY_TYPE(InspectorWidget, Widget)
+
 public:
     InspectorWidget();
     ~InspectorWidget() override;
