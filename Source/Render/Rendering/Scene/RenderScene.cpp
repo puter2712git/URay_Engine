@@ -25,7 +25,7 @@ void RenderScene::Add(std::unique_ptr<RenderObject> object, Component* component
     RenderObject* renderObject = object.get();
     renderObject->SetScene(this);
 
-    if (ViewObject* viewObj = dynamic_cast<ViewObject*>(object.get()))
+    if (ViewObject* viewObj = Cast<ViewObject>(object.get()))
     {
         viewObjects.push_back(viewObj);
     }
