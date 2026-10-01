@@ -2,6 +2,8 @@
 
 #include "Engine/Object/Property/Property.h"
 
+#include "Core/Type/RuntimeType.h"
+
 #include <string>
 #include <vector>
 
@@ -11,7 +13,7 @@ namespace URay
 class Class
 {
 public:
-    Class(const std::string& name, Class* superClass);
+    Class(const RuntimeType& type);
     ~Class();
 
 public:
@@ -20,15 +22,38 @@ public:
     void AddProperty(Property prop) { properties.push_back(prop); }
     const std::vector<Property>& GetProperties() const { return properties; }
 
-    const std::string& GetName() const { return name; }
-
-    Class* GetSuperClass() const { return superClass; }
+    const RuntimeType& GetType() const { return type; }
 
 private:
-    std::string name;
-    std::vector<Property> properties;
+    const RuntimeType& type;
 
-    Class* superClass = nullptr;
+    std::vector<Property> properties;
 };
+
+#define URAY_CLASS(self, parent)               \
+    URAY_TYPE(self, parent)                    \
+public:                                        \
+    static void RegisterClass();               \
+                                               \
+    static Class* StaticClass()                \
+    {                                          \
+        static Class cls(StaticRuntimeType()); \
+        return &cls;                           \
+    }                                          \
+                                               \
+    Class* GetClass() const override           \
+    {                                          \
+        return self::StaticClass();            \
+    }
+
+#define URAY_REGISTER_CLASS(self)                                \
+    static struct URayRegister##self                             \
+    {                                                            \
+        URayRegister##self()                                     \
+        {                                                        \
+            self::RegisterClass();                               \
+            ClassRegistry::Get().Register(*self::StaticClass()); \
+        }                                                        \
+    } _URayAutoRegister##self;
 
 } // namespace URay

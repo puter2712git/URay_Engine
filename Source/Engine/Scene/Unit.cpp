@@ -45,7 +45,7 @@ YAML::Node Unit::Serialize() const
 
     for (const auto& component : components)
     {
-        node[component->GetClass()->GetName()] = component->Serialize();
+        node[component->GetClass()->GetType().name] = component->Serialize();
     }
 
     return node;

@@ -8,17 +8,6 @@
 namespace URay
 {
 
-#define URAY_REGISTER_COMPONENT(Type)              \
-    namespace                                      \
-    {                                              \
-    const bool registered##Type = []()             \
-    {                                              \
-        ComponentFactory::RegisterComponent<Type>( \
-            Type::StaticClass()->GetName());       \
-        return true;                               \
-    }();                                           \
-    }
-
 class Unit;
 
 class Component : public Object
@@ -44,5 +33,16 @@ protected:
 
     bool enabled = true;
 };
+
+#define URAY_REGISTER_COMPONENT(Type)                       \
+    namespace                                               \
+    {                                                       \
+    const bool registered##Type = []()                      \
+    {                                                       \
+        ComponentFactory::RegisterComponent<Type>(          \
+            std::string{ Type::StaticRuntimeType().name }); \
+        return true;                                        \
+    }();                                                    \
+    }
 
 } // namespace URay

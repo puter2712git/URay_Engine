@@ -59,7 +59,7 @@ void InspectorWidget::OnDraw()
 
         ImGui::PushID(comp.get());
 
-        ImGui::Text("%s", cls->GetName().c_str());
+        ImGui::Text("%.*s", static_cast<int>(cls->GetType().name.size()), cls->GetType().name.data());
 
         for (Property& prop : properties)
         {

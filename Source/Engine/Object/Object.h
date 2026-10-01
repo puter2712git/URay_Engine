@@ -3,31 +3,9 @@
 #include "Engine/Object/Class/Class.h"
 #include "Engine/Object/Class/ClassRegistry.h"
 
+#include "Core/Type/RuntimeType.h"
+
 #include <yaml-cpp/yaml.h>
-
-#define URAY_CLASS(self, parent)                        \
-public:                                                 \
-    typedef parent Super;                               \
-                                                        \
-    static void RegisterClass();                        \
-    inline static Class* StaticClass()                  \
-    {                                                   \
-        static Class cls(#self, parent::StaticClass()); \
-        return &cls;                                    \
-    }                                                   \
-    virtual Class* GetClass() const override            \
-    {                                                   \
-        return self::StaticClass();                     \
-    }
-
-#define URAY_REGISTER_CLASS(self)            \
-    static struct URayRegister##self         \
-    {                                        \
-        URayRegister##self()                 \
-        {                                    \
-            ClassRegistry::Register<self>(); \
-        }                                    \
-    } _URayAutoRegister##self;
 
 namespace URay
 {
@@ -36,15 +14,17 @@ class Class;
 
 class Object
 {
+    URAY_ROOT_TYPE(Object)
+
 public:
     virtual ~Object() = default;
 
 public:
     static void RegisterClass();
 
-    inline static Class* StaticClass()
+    static Class* StaticClass()
     {
-        static Class cls("Object", nullptr);
+        static Class cls(StaticRuntimeType());
         return &cls;
     }
 

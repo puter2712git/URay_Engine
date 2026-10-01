@@ -1,18 +1,27 @@
 #pragma once
 
+#include <unordered_map>
+
 namespace URay
 {
 
 class Class;
+struct RuntimeType;
 
 class ClassRegistry
 {
 public:
-    template <typename T>
-    static void Register()
+    static ClassRegistry& Get()
     {
-        T::RegisterClass();
+        static ClassRegistry instance;
+        return instance;
     }
+
+    void Register(Class& cls);
+    Class* Find(const RuntimeType& type) const;
+
+private:
+    std::unordered_map<const RuntimeType*, Class*> classes;
 };
 
 } // namespace URay
