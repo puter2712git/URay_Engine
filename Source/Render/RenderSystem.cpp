@@ -10,6 +10,8 @@
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
 
+#include "Core/Log/LogSystem.h"
+
 namespace URay::Render
 {
 
@@ -28,26 +30,50 @@ bool RenderSystem::Initialize()
     vulkanContext = std::make_unique<VulkanContext>();
     if (!vulkanContext->Initialize(gEngine->GetWindow(), desc))
     {
+        URAY_LOG("[RenderSystem] Failed to initialize vulkan context.");
+        Finalize();
         return false;
     }
 
     device = std::make_unique<Device>(*vulkanContext);
     if (!device->Initialize())
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize RHI device.");
+        Finalize();
         return false;
+    }
 
     resourceManager = std::make_unique<ResourceManager>(*device);
+    if (!resourceManager->Initialize())
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize resource manager.");
+        Finalize();
+        return false;
+    }
 
     renderer = std::make_unique<Renderer>(window, *vulkanContext, *device, *resourceManager);
     if (!renderer->Initialize())
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize renderer.");
+        Finalize();
         return false;
+    }
 
     pipeline = std::make_unique<RenderPipeline>(*this);
     if (!pipeline->Initialize())
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize render pipeline.");
+        Finalize();
         return false;
+    }
 
     sceneSystem = std::make_unique<SceneSystem>();
     if (!sceneSystem->Initialize())
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize render scene system.");
+        Finalize();
         return false;
+    }
 
     return true;
 }
@@ -56,8 +82,11 @@ void RenderSystem::Finalize()
 {
     WaitIdle();
 
-    sceneSystem->Finalize();
-    sceneSystem.reset();
+    if (sceneSystem)
+    {
+        sceneSystem->Finalize();
+        sceneSystem.reset();
+    }
 
     if (pipeline)
     {
@@ -73,6 +102,7 @@ void RenderSystem::Finalize()
 
     if (resourceManager)
     {
+        resourceManager->Finalize();
         resourceManager.reset();
     }
 
@@ -101,7 +131,10 @@ void RenderSystem::FinalizeImGui()
 
 void RenderSystem::WaitIdle()
 {
-    renderer->WaitIdle();
+    if (renderer)
+    {
+        renderer->WaitIdle();
+    }
 }
 
 bool RenderSystem::BeginFrame()

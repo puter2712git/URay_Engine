@@ -3,10 +3,10 @@
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/Buffer/MeshBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/PipelineState/PipelineStateDesc.h"
-#include "Render/RHI/Device.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/Rendering/Font/FontSystem.h"
@@ -27,7 +27,11 @@
 namespace URay::Render
 {
 
-ResourceManager::ResourceManager(Device& device) : device(device)
+ResourceManager::ResourceManager(Device& device) : device(device) {}
+
+ResourceManager::~ResourceManager() = default;
+
+bool ResourceManager::Initialize()
 {
     shaderCompiler.Initialize();
 
@@ -38,7 +42,7 @@ ResourceManager::ResourceManager(Device& device) : device(device)
     shadowSystem->Initialize();
 }
 
-ResourceManager::~ResourceManager()
+void ResourceManager::Finalize()
 {
     shadowSystem->Finalize();
     shadowSystem.reset();

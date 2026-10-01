@@ -44,6 +44,10 @@ public:
     ~ResourceManager();
 
 public:
+    bool Initialize();
+    void Finalize();
+
+public:
     MeshBuffer* GetOrCreateMeshBuffer(URay::Mesh* asset);
     void DestroyMeshBuffers();
 

@@ -4,12 +4,12 @@
 
 namespace URay
 {
-
 class Engine;
 class Window;
 class VirtualFileSystem;
+} // namespace URay
 
-namespace Render
+namespace URay::Render
 {
 
 class VulkanContext;
@@ -57,6 +57,4 @@ private:
     std::unique_ptr<SceneSystem> sceneSystem = nullptr;
 };
 
-} // namespace Render
-
-} // namespace URay
+} // namespace URay::Render
