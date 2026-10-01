@@ -126,7 +126,7 @@ void DecalVisualizer::OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit)
     if (previousUnit == selectedUnit)
         return;
 
-    Scene* scene = selectedUnit->GetOwner();
+    Scene* scene = visual.component->GetOwner()->GetOwner();
 
     Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
     Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
