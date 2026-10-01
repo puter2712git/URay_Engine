@@ -51,7 +51,11 @@ bool Engine::Initialize(
 
     window = std::make_unique<Window>();
     if (!window->Initialize())
+    {
+        URAY_LOG("[Engine] Failed to initialize window.");
+        Finalize();
         return false;
+    }
 
     glfwSetKeyCallback(window->GetGLFWWindow(), KeyCallback);
     glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
@@ -64,25 +68,45 @@ bool Engine::Initialize(
 
     sceneSystem = std::make_unique<SceneSystem>();
     if (!sceneSystem->Initialize())
+    {
+        URAY_LOG("[Engine] Failed to initialize scene system.");
+        Finalize();
         return false;
+    }
 
     renderSystem = std::make_unique<Render::RenderSystem>();
     if (!renderSystem->Initialize())
+    {
+        URAY_LOG("[Engine] Failed to initialize render system.");
+        Finalize();
         return false;
+    }
 
     assetSystem = std::make_unique<AssetSystem>();
     if (!assetSystem->Initialize(enginePath, projectPath))
+    {
+        URAY_LOG("[Engine] Failed to initialize asset system.");
+        Finalize();
         return false;
+    }
 
     scriptSystem = std::make_unique<ScriptSystem>();
     if (!scriptSystem->Initialize(projectPath))
+    {
+        URAY_LOG("[Engine] Failed to initialize script system.");
+        Finalize();
         return false;
+    }
 
     std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
     for (Material* material : materials)
     {
         if (!material->Initialize())
+        {
+            URAY_LOG("[Engine] Failed to initialize material: %s", material->GetName().c_str());
+            Finalize();
             return false;
+        }
     }
 
     return true;
@@ -90,26 +114,73 @@ bool Engine::Initialize(
 
 void Engine::Finalize()
 {
-    renderSystem->WaitIdle();
+    if (renderSystem)
+    {
+        renderSystem->WaitIdle();
+    }
 
-    scriptSystem->Finalize();
-    scriptSystem.reset();
+    if (scriptSystem)
+    {
+        scriptSystem->Finalize();
+        scriptSystem.reset();
+    }
 
-    assetSystem->Finalize();
-    assetSystem.reset();
+    if (assetSystem)
+    {
+        assetSystem->Finalize();
+        assetSystem.reset();
+    }
 
-    renderSystem->Finalize();
-    renderSystem.reset();
+    if (renderSystem)
+    {
+        renderSystem->Finalize();
+        renderSystem.reset();
+    }
 
-    sceneSystem->Finalize();
-    sceneSystem.reset();
+    if (sceneSystem)
+    {
+        sceneSystem->Finalize();
+        sceneSystem.reset();
+    }
 
-    performanceAnalytics.reset();
+    if (performanceAnalytics)
+    {
+        performanceAnalytics.reset();
+    }
 
-    timer.reset();
+    if (inputManager)
+    {
+        inputManager.reset();
+    }
 
-    window->Finalize();
-    window.reset();
+    if (timer)
+    {
+        timer.reset();
+    }
+
+    if (window)
+    {
+        window->Finalize();
+        window.reset();
+    }
+
+    if (logSystem)
+    {
+        if (fileLogSink)
+        {
+            logSystem->UnregisterSink(fileLogSink.get());
+            fileLogSink.reset();
+        }
+        if (stdErrLogSink)
+        {
+            logSystem->UnregisterSink(stdErrLogSink.get());
+            stdErrLogSink.reset();
+        }
+
+        logSystem.reset();
+    }
+
+    gEngine = nullptr;
 }
 
 void Engine::Update()

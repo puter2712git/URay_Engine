@@ -14,6 +14,7 @@
 #include "Render/Shader/Shader.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
 #include "Engine/Asset/AssetSystem.h"
@@ -36,19 +37,37 @@ bool ResourceManager::Initialize()
     shaderCompiler.Initialize();
 
     fontSystem = std::make_unique<FontSystem>(device);
-    fontSystem->Initialize();
+    if (!fontSystem->Initialize())
+    {
+        URAY_LOG("[ResourceManager] Failed to initialize font system.");
+        Finalize();
+        return false;
+    }
 
     shadowSystem = std::make_unique<ShadowSystem>(device);
-    shadowSystem->Initialize();
+    if (!shadowSystem->Initialize())
+    {
+        URAY_LOG("[ResourceManager] Failed to initialize shadow system.");
+        Finalize();
+        return false;
+    }
+
+    return true;
 }
 
 void ResourceManager::Finalize()
 {
-    shadowSystem->Finalize();
-    shadowSystem.reset();
+    if (shadowSystem)
+    {
+        shadowSystem->Finalize();
+        shadowSystem.reset();
+    }
 
-    fontSystem->Finalize();
-    fontSystem.reset();
+    if (fontSystem)
+    {
+        fontSystem->Finalize();
+        fontSystem.reset();
+    }
 
     DestroyPSOs();
     DestroyPipelineLayouts();
