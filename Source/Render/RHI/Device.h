@@ -6,13 +6,14 @@
 
 #include "Core/Type/Types.h"
 
+#include <spirv/spirv_reflect.h>
+#include <vulkan/vulkan.h>
+
 #include <memory>
 #include <optional>
 #include <span>
-#include <spirv/spirv_reflect.h>
 #include <string>
 #include <vector>
-#include <vulkan/vulkan.h>
 
 namespace URay
 {
@@ -133,7 +134,7 @@ private:
     CommandBuffer* BeginSingleTimeCommands() const;
     void EndSingleTimeCommands(CommandBuffer* commandBuffer) const;
 
-    void CreateDescriptorPool();
+    bool CreateDescriptorPool();
     void DestroyDescriptorPool();
 
     VkShaderModule CreateShaderModule(const std::vector<uint8>& code) const;

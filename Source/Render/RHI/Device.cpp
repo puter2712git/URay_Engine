@@ -26,6 +26,7 @@
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
+#include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
 #include <cassert>
@@ -36,8 +37,7 @@
 namespace URay::Render
 {
 
-Device::Device(VulkanContext& context)
-    : context(context) {}
+Device::Device(VulkanContext& context) : context(context) {}
 
 Device::~Device() = default;
 
@@ -46,15 +46,31 @@ bool Device::Initialize()
     instance = context.GetInstance();
 
     if (!PickPhysicalDevice())
+    {
+        URAY_LOG("[Device] Failed to pick physical device.");
         return false;
+    }
+
     if (!CreateLogicalDevice())
+    {
+        URAY_LOG("[Device] Failed to create logical device.");
         return false;
+    }
 
     commandPool.reset(CreateCommandPool(QueueType::Graphics, CommandPoolFlags::Transient));
     if (!commandPool)
+    {
+        URAY_LOG("[Device] Failed to create graphics command pool.");
+        Finalize();
         return false;
+    }
 
-    CreateDescriptorPool();
+    if (!CreateDescriptorPool())
+    {
+        URAY_LOG("[Device] Failed to create descriptor pool.");
+        Finalize();
+        return false;
+    }
 
     return true;
 }
@@ -784,8 +800,8 @@ CommandPool* Device::CreateCommandPool(QueueType queueType, CommandPoolFlags poo
 }
 
 void Device::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage,
-                                VkMemoryPropertyFlags properties,
-                                VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
+                          VkMemoryPropertyFlags properties,
+                          VkBuffer& buffer, VkDeviceMemory& bufferMemory) const
 {
     VkBufferCreateInfo bufferInfo = {};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -823,7 +839,7 @@ void Device::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 }
 
 void Device::TransitionImageLayout(VkImage image, VkFormat format,
-                                         VkImageLayout oldLayout, VkImageLayout newLayout) const
+                                   VkImageLayout oldLayout, VkImageLayout newLayout) const
 {
     CommandBuffer* commandBuffer = BeginSingleTimeCommands();
 
@@ -1035,13 +1051,28 @@ Buffer* Device::CreateBuffer(const BufferDesc& desc)
 bool Device::PickPhysicalDevice()
 {
     uint32 deviceCount = 0;
-    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    VkResult result = vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG("[Device] vkEnumeratePhysicalDevices failed. (VkResult: %d)", static_cast<int>(result));
+        return false;
+    }
 
     if (deviceCount == 0)
+    {
+        URAY_LOG("[Device] Failed to pick physical device! Count is zero.");
         return false;
+    }
 
     std::vector<VkPhysicalDevice> devices(deviceCount);
-    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+    result = vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG("[Device] vkEnumeratePhysicalDevices failed. (VkResult: %d)", static_cast<int>(result));
+        return false;
+    }
 
     for (const auto& device : devices)
     {
@@ -1053,7 +1084,11 @@ bool Device::PickPhysicalDevice()
     }
 
     if (physicalDevice == VK_NULL_HANDLE)
+    {
+        URAY_LOG(
+            "[Device] Failed to pick physical device. Required: Vulkan 1.3, SwapChain, Required Features");
         return false;
+    }
 
     return true;
 }
@@ -1061,6 +1096,12 @@ bool Device::PickPhysicalDevice()
 bool Device::CreateLogicalDevice()
 {
     QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+
+    if (!indices.IsComplete())
+    {
+        URAY_LOG("[Device] Required graphics/present queue families are unavailable.");
+        return false;
+    }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32> uniqueQueueFamilies = {
@@ -1104,8 +1145,13 @@ bool Device::CreateLogicalDevice()
 
     createInfo.pNext = &synchronizationFeatures;
 
-    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
+    const VkResult result = vkCreateDevice(physicalDevice, &createInfo, nullptr, &device);
+
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG("[Device] vkCreateDevice failed. (VkResult: %d)", static_cast<int>(result));
         return false;
+    }
 
     vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
     vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
@@ -1295,7 +1341,7 @@ void Device::EndSingleTimeCommands(CommandBuffer* commandBuffer) const
     delete commandBuffer;
 }
 
-void Device::CreateDescriptorPool()
+bool Device::CreateDescriptorPool()
 {
     std::array<VkDescriptorPoolSize, 6> poolSizes = {};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1317,7 +1363,15 @@ void Device::CreateDescriptorPool()
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT) * 1000;
 
-    vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
+    const VkResult result = vkCreateDescriptorPool(device, &poolInfo, nullptr, &descriptorPool);
+
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG("[Device] vkCreateDescriptorPool failed. (VkResult: %d)", static_cast<int>(result));
+        return false;
+    }
+
+    return true;
 }
 
 void Device::DestroyDescriptorPool()
@@ -1325,6 +1379,7 @@ void Device::DestroyDescriptorPool()
     if (descriptorPool)
     {
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+        descriptorPool = VK_NULL_HANDLE;
     }
 }
 
