@@ -84,6 +84,7 @@ void Window::Finalize()
     if (glfwWindow)
     {
         glfwDestroyWindow(glfwWindow);
+        glfwWindow = nullptr;
     }
 
     if (glfwInitialized)
