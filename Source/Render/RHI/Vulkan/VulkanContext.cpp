@@ -1,5 +1,6 @@
 #include "VulkanContext.h"
 
+#include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
 #include "Platform/Window/Window.h"
@@ -7,22 +8,21 @@
 #include <glfw/glfw3.h>
 #include <iostream>
 
+namespace URay::Render
+{
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData)
 {
-    std::cerr << "Validation Layer: " << pCallbackData->pMessage << std::endl;
+    URAY_LOG(
+        "[Vulkan Validation Layer]: %s",
+        pCallbackData->pMessage);
 
     return VK_FALSE;
 }
-
-namespace URay
-{
-
-namespace Render
-{
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
                                       const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -56,13 +56,24 @@ bool VulkanContext::Initialize(
     const VulkanContextDesc& desc)
 {
     if (!CreateInstance(desc))
+    {
+        URAY_LOG("[VulkanContext] Failed to create Vulkan instance.");
         return false;
+    }
 
     if (!SetupDebugMessenger())
+    {
+        URAY_LOG("[VulkanContext] Failed to setup debug messenger.");
+        Finalize();
         return false;
+    }
 
     if (!CreateSurface(window))
+    {
+        URAY_LOG("[VulkanContext] Failed to create surface.");
+        Finalize();
         return false;
+    }
 
     return true;
 }
@@ -105,7 +116,9 @@ bool VulkanContext::CreateInstance(const VulkanContextDesc& desc)
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    auto extensions = GetRequiredExtensions();
+    std::vector<const char*> extensions;
+    if (!GetRequiredExtensions(extensions))
+        return false;
 
 #ifdef __APPLE__
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -131,8 +144,12 @@ bool VulkanContext::CreateInstance(const VulkanContextDesc& desc)
         createInfo.pNext = nullptr;
     }
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS)
+    const VkResult result = vkCreateInstance(&createInfo, nullptr, &instance);
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG("[VulkanContext] vkCreateInstance failed. (VkResult: %d)", static_cast<int>(result));
         return false;
+    }
 
     return true;
 }
@@ -145,10 +162,10 @@ bool VulkanContext::SetupDebugMessenger()
     VkDebugUtilsMessengerCreateInfoEXT createInfo = {};
     PopulateDebugMessengerCreateInfo(createInfo);
 
-    if (CreateDebugUtilsMessengerEXT(
-            instance, &createInfo,
-            nullptr, &debugMessenger) != VK_SUCCESS)
+    const VkResult result = CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger);
+    if (result != VK_SUCCESS)
     {
+        URAY_LOG("[VulkanContext] vkCreateDebugUtilsMessengerEXT failed. (VkResult: %d)", static_cast<int>(result));
         return false;
     }
 
@@ -157,9 +174,10 @@ bool VulkanContext::SetupDebugMessenger()
 
 bool VulkanContext::CreateSurface(Window& window)
 {
-    if (glfwCreateWindowSurface(
-            instance, window.GetGLFWWindow(), nullptr, &surface) != VK_SUCCESS)
+    const VkResult result = glfwCreateWindowSurface(instance, window.GetGLFWWindow(), nullptr, &surface);
+    if (result != VK_SUCCESS)
     {
+        URAY_LOG("[VulkanContext] glfwCreateWindowSurface failed. (VkResult: %d)", static_cast<int>(result));
         return false;
     }
 
@@ -188,34 +206,45 @@ bool VulkanContext::CheckValidationLayerSupport() const
         }
 
         if (!layerFound)
+        {
+            URAY_LOG(
+                "[VulkanContext] Required validation layer is unavailable: %s",
+                layerName);
             return false;
+        }
     }
 
     return true;
 }
 
-std::vector<const char*> VulkanContext::GetRequiredExtensions() const
+bool VulkanContext::GetRequiredExtensions(std::vector<const char*>& outExtensions) const
 {
     uint32 glfwExtensionCount = 0;
     const char** glfwExtensions;
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
-    std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    if (!glfwExtensions)
+    {
+        URAY_LOG(
+            "[VulkanContext] GLFW did not provide required Vulkan instance extensions.");
+        return false;
+    }
+
+    outExtensions = std::vector<const char*>(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
     if (enableValidationLayers)
     {
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        outExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
 
-    return extensions;
+    return true;
 }
 
 void VulkanContext::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const
 {
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
                                  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
     createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                              VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
@@ -223,6 +252,4 @@ void VulkanContext::PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreate
     createInfo.pfnUserCallback = DebugCallback;
 }
 
-} // namespace Render
-
-} // namespace URay
+} // namespace URay::Render

@@ -37,7 +37,7 @@ private:
     bool CreateSurface(Window& window);
 
     bool CheckValidationLayerSupport() const;
-    std::vector<const char*> GetRequiredExtensions() const;
+    bool GetRequiredExtensions(std::vector<const char*>& outExtensions) const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
 
 private:
