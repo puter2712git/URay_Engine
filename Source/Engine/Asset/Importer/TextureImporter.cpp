@@ -7,7 +7,6 @@
 #include "Engine/Engine.h"
 
 #include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/Log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

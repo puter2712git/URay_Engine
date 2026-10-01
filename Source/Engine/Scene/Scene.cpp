@@ -6,7 +6,7 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
-#include "Core/Log/Log.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
 #include "Render/Rendering/Object/RenderObject.h"
@@ -124,7 +124,7 @@ void Scene::Deserialize(const YAML::Node& node)
 
     if (!unitNodes || !unitNodes.IsSequence())
     {
-        Logger::Log("Failed to deserialize scene: Units must be a sequence.");
+        URAY_LOG("Failed to deserialize scene: Units must be a sequence.");
         return;
     }
 
@@ -141,7 +141,7 @@ void Scene::Deserialize(const YAML::Node& node)
     {
         if (!unitNode.IsMap() || !unitNode["Id"])
         {
-            Logger::Log("Failed to deserialize scene: Unit id is missing.");
+            URAY_LOG("Failed to deserialize scene: Unit id is missing.");
             continue;
         }
 
@@ -149,7 +149,7 @@ void Scene::Deserialize(const YAML::Node& node)
 
         if (unitsById.contains(id))
         {
-            Logger::Log("Failed to deserialize scene: Duplicate Unit Id.");
+            URAY_LOG("Failed to deserialize scene: Duplicate Unit Id.");
             continue;
         }
 
@@ -190,13 +190,13 @@ void Scene::Deserialize(const YAML::Node& node)
 
         if (parentIter == unitsById.end())
         {
-            Logger::Log("Failed to deserialize scene: Parent Unit Id was not found.");
+            URAY_LOG("Failed to deserialize scene: Parent Unit Id was not found.");
             continue;
         }
 
         if (!link.child->SetParent(parentIter->second))
         {
-            Logger::Log("Failed to deserialize scene: Invalid parent relationship.");
+            URAY_LOG("Failed to deserialize scene: Invalid parent relationship.");
         }
     }
 }

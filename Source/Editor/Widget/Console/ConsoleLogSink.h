@@ -7,14 +7,14 @@ namespace URay
 
 class ConsoleWidget;
 
-class EditorConsoleLogSink : public ILogSink
+class EditorConsoleLogSink final : public LogSink
 {
 public:
     EditorConsoleLogSink(ConsoleWidget& console);
-    virtual ~EditorConsoleLogSink() override = default;
+    ~EditorConsoleLogSink() override;
 
 public:
-    void Write(const std::string& message) override;
+    void Write(std::string_view msg) override;
 
 private:
     ConsoleWidget& console;

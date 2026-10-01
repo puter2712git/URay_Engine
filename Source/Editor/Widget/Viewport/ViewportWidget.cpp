@@ -6,7 +6,7 @@
 #include "Editor/Widget/Viewport/GizmoController.h"
 
 #include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/Log.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
 #include "Engine/Asset/AssetSystem.h"
@@ -464,7 +464,7 @@ bool ViewportWidget::SaveCurrScene()
 
     if (scenePath.ToString().empty())
     {
-        Logger::Log("Failed to save scene: Scene Path is empty.");
+        URAY_LOG("Failed to save scene: Scene Path is empty.");
         return false;
     }
 
@@ -474,11 +474,11 @@ bool ViewportWidget::SaveCurrScene()
 
     if (!filesystem.WriteText(scenePath, sceneText))
     {
-        Logger::Log("Failed to save scene: " + scenePath.ToString());
+        URAY_LOG("Failed to save scene: " + scenePath.ToString());
         return false;
     }
 
-    Logger::Log("Scene saved: " + scenePath.ToString());
+    URAY_LOG("Scene saved: " + scenePath.ToString());
     return true;
 }
 

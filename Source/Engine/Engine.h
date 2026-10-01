@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Core/Input/InputManager.h"
 #include "Core/Performance/ScopeTimer.h"
 
 #include <string>
@@ -11,6 +10,8 @@ namespace URay
 
 class Window;
 class Timer;
+class LogSystem;
+class InputManager;
 class PerformanceAnalytics;
 
 class AssetSystem;
@@ -40,6 +41,7 @@ public:
 
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }
+    LogSystem& GetLogSystem() const { return *logSystem; }
     InputManager& GetInputManager() const { return *inputManager; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
@@ -51,6 +53,7 @@ public:
 private:
     std::unique_ptr<Window> window = nullptr;
     std::unique_ptr<Timer> timer = nullptr;
+    std::unique_ptr<LogSystem> logSystem = nullptr;
     std::unique_ptr<InputManager> inputManager = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 

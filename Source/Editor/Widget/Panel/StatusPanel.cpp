@@ -6,7 +6,7 @@
 #include "Engine/Asset/EngineAsset.h"
 #include "Engine/Engine.h"
 
-#include "Core/Log/Log.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
@@ -45,7 +45,7 @@ StatusPanel::StatusPanel()
     auto newButton = std::make_unique<Button>("Test Button");
     button = newButton.get();
     button->GetOnClickRay().Register(this, [this]()
-                                     { Logger::Log("Button Clicked!"); });
+                                     { URAY_LOG("Button Clicked!"); });
     AddChild(std::move(newButton));
 }
 

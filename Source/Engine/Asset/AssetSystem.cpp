@@ -15,7 +15,6 @@
 #include "Engine/Object/Object.h"
 
 #include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/Log.h"
 
 #include <iostream>
 #include <string>

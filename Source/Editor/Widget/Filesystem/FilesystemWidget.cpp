@@ -6,7 +6,6 @@
 #include "Engine/Scene/SceneSystem.h"
 
 #include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/Log.h"
 
 #include <imgui/imgui.h>
 

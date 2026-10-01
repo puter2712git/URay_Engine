@@ -5,13 +5,13 @@ namespace URay
 {
 
 EditorConsoleLogSink::EditorConsoleLogSink(ConsoleWidget& console)
-    : console(console)
-{
-}
+    : console(console) {}
 
-void EditorConsoleLogSink::Write(const std::string& message)
+EditorConsoleLogSink::~EditorConsoleLogSink() = default;
+
+void EditorConsoleLogSink::Write(std::string_view msg)
 {
-    console.AddLog("%s", message.c_str());
+    console.AddLog("%s", msg.data());
 }
 
 } // namespace URay

@@ -5,6 +5,8 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Script/ScriptSystem.h"
 
+#include "Core/Input/InputManager.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
@@ -47,6 +49,7 @@ bool Engine::Initialize(
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
     timer = std::make_unique<Timer>();
+    logSystem = std::make_unique<LogSystem>();
     inputManager = std::make_unique<InputManager>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 

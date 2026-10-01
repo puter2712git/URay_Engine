@@ -1,7 +1,9 @@
 #include "ConsoleWidget.h"
 #include "ConsoleLogSink.h"
 
-#include "Core/Log/Log.h"
+#include "Engine/Engine.h"
+
+#include "Core/Log/LogSystem.h"
 
 #include <cstdio>
 
@@ -12,14 +14,17 @@ ConsoleWidget::ConsoleWidget()
 {
     logSink = new EditorConsoleLogSink(*this);
 
-    Logger::RegisterSink(logSink);
+    LogSystem& logSystem = gEngine->GetLogSystem();
+    logSystem.RegisterSink(logSink);
 }
 
 ConsoleWidget::~ConsoleWidget()
 {
     ClearLog();
 
-    Logger::UnregisterSink(logSink);
+    LogSystem& logSystem = gEngine->GetLogSystem();
+    logSystem.UnregisterSink(logSink);
+
     delete logSink;
 }
 

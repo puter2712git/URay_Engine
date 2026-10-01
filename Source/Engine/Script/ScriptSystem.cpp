@@ -2,7 +2,7 @@
 
 #include "Engine/Script/NativeAPI.h"
 
-#include "Core/Log/Log.h"
+#include "Core/Log/LogSystem.h"
 
 namespace URay
 {
@@ -54,7 +54,7 @@ void ScriptSystem::LogUTF8(const uint8* message, int32 byteCount)
 
     const char* utf8 = reinterpret_cast<const char*>(message);
 
-    Logger::Log(std::string(utf8, static_cast<size_t>(byteCount)));
+    URAY_LOG(std::string(utf8, static_cast<size_t>(byteCount)));
 }
 
 } // namespace URay

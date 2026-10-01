@@ -1,17 +1,17 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 
 namespace URay
 {
 
-class ILogSink
+class LogSink
 {
 public:
-    virtual ~ILogSink() = default;
+    virtual ~LogSink() = default;
 
 public:
-    virtual void Write(const std::string& message) = 0;
+    virtual void Write(std::string_view msg) = 0;
 };
 
 } // namespace URay
