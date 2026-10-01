@@ -6,10 +6,10 @@
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/SwapChain.h"
 #include "Render/RHI/Texture/Texture.h"
@@ -25,6 +25,7 @@
 #include "Render/Shader/Shader.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
 #include "Engine/Asset/AssetSystem.h"
@@ -78,19 +79,44 @@ bool Renderer::Initialize()
     };
 
     swapChain.reset(device.CreateSwapChain(swapChainDesc));
+    if (!swapChain)
+    {
+        URAY_LOG("[Renderer] Failed to create swap chain.");
+        return false;
+    }
 
     if (!CreateCommandPool())
+    {
+        URAY_LOG("[Renderer] Failed to create command pool.");
+        Finalize();
         return false;
+    }
 
     if (!CreateSceneRenderTarget())
+    {
+        URAY_LOG("[Renderer] Failed to create scene render target.");
+        Finalize();
         return false;
+    }
     if (!CreatePostProcessRenderTarget())
+    {
+        URAY_LOG("[Renderer] Failed to create post process render target.");
+        Finalize();
         return false;
+    }
     if (!CreateSelectionMaskRenderTarget())
+    {
+        URAY_LOG("[Renderer] Failed to create selection mask render target.");
+        Finalize();
         return false;
+    }
 
     if (!CreateFrameResources())
+    {
+        URAY_LOG("[Renderer] Failed to create frame resources.");
+        Finalize();
         return false;
+    }
 
     return true;
 }
@@ -322,8 +348,11 @@ VkExtent2D Renderer::GetSwapChainExtent() const
 
 void Renderer::CleanupSwapChain()
 {
-    swapChain->Finalize();
-    swapChain.reset();
+    if (swapChain)
+    {
+        swapChain->Finalize();
+        swapChain.reset();
+    }
 }
 
 void Renderer::RecreateSwapChain()
@@ -419,14 +448,20 @@ bool Renderer::CreateSelectionMaskRenderTarget()
 
 void Renderer::DestroySelectionMaskRenderTarget()
 {
-    selectionMaskRenderTarget.reset();
+    if (selectionMaskRenderTarget)
+    {
+        selectionMaskRenderTarget.reset();
+    }
 }
 
 bool Renderer::CreateCommandPool()
 {
     commandPool.reset(device.CreateCommandPool(QueueType::Graphics, CommandPoolFlags::ResetCommandBuffer));
     if (!commandPool)
+    {
+        URAY_LOG("[Renderer] Failed to create graphics command pool.");
         return false;
+    }
 
     return true;
 }
@@ -531,6 +566,7 @@ void Renderer::DestroyFrameResources()
     {
         frameResources[i].descriptorSet.reset();
 
+        frameResources[i].pointLightShadowStorageBuffer.reset();
         frameResources[i].spotLightShadowStorageBuffer.reset();
         frameResources[i].shadowUniformBuffer.reset();
         frameResources[i].spotLightStorageBuffer.reset();
@@ -539,12 +575,23 @@ void Renderer::DestroyFrameResources()
 
         frameResources[i].commandBuffer.reset();
 
-        vkDestroyFence(
-            device.GetVKDevice(),
-            frameResources[i].inFlightFence, nullptr);
-        vkDestroySemaphore(
-            device.GetVKDevice(),
-            frameResources[i].imageAvailableSemaphore, nullptr);
+        if (frameResources[i].inFlightFence != VK_NULL_HANDLE)
+        {
+            vkDestroyFence(
+                device.GetVKDevice(),
+                frameResources[i].inFlightFence,
+                nullptr);
+            frameResources[i].inFlightFence = VK_NULL_HANDLE;
+        }
+
+        if (frameResources[i].imageAvailableSemaphore != VK_NULL_HANDLE)
+        {
+            vkDestroySemaphore(
+                device.GetVKDevice(),
+                frameResources[i].imageAvailableSemaphore,
+                nullptr);
+            frameResources[i].imageAvailableSemaphore = VK_NULL_HANDLE;
+        }
     }
 
     frameDescriptorSetLayout.reset();
