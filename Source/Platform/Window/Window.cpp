@@ -1,24 +1,66 @@
 #include "Window.h"
 
+#include "Core/Log/LogSystem.h"
+
 namespace URay
 {
 
+void GLFWErrorCallback(int errorCode, const char* description)
+{
+    URAY_LOG(
+        "[GLFW] Error %d: %s",
+        errorCode,
+        description ? description : "No description");
+}
+
 bool Window::Initialize()
 {
-    glfwInit();
+    glfwSetErrorCallback(GLFWErrorCallback);
+
+    if (!glfwInit())
+    {
+        URAY_LOG("[Window] glfwInit failed.");
+        return false;
+    }
+    glfwInitialized = true;
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (!monitor)
+    {
+        URAY_LOG("[Window] Failed to get primary monitor.");
+        Finalize();
+        return false;
+    }
+
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    if (!mode)
+    {
+        URAY_LOG("[Window] Failed to get primary monitor video mode.");
+        Finalize();
+        return false;
+    }
 
     glfwWindow = glfwCreateWindow(mode->width, mode->height, "URay Engine", nullptr, nullptr);
-
-    glfwMakeContextCurrent(glfwWindow);
-    glfwSwapInterval(1);
+    if (!glfwWindow)
+    {
+        URAY_LOG("[Window] Failed to create GLFW window.");
+        Finalize();
+        return false;
+    }
 
     GLFWcursor* hresizeCursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+    if (!hresizeCursor)
+    {
+        URAY_LOG("[Window] Failed to create HRESIZE_CURSOR.");
+    }
+
     GLFWcursor* vresizeCursor = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+    if (!vresizeCursor)
+    {
+        URAY_LOG("[Window] Failed to create VRESIZE_CURSOR.");
+    }
 
     cursors.insert({ CursorType::ARROW, nullptr });
     cursors.insert({ CursorType::HRESIZE, hresizeCursor });
@@ -31,13 +73,24 @@ void Window::Finalize()
 {
     for (auto& [type, cursor] : cursors)
     {
-        glfwDestroyCursor(cursor);
-        cursor = nullptr;
+        if (cursor)
+        {
+            glfwDestroyCursor(cursor);
+            cursor = nullptr;
+        }
     }
     cursors.clear();
 
-    glfwDestroyWindow(glfwWindow);
-    glfwTerminate();
+    if (glfwWindow)
+    {
+        glfwDestroyWindow(glfwWindow);
+    }
+
+    if (glfwInitialized)
+    {
+        glfwTerminate();
+        glfwInitialized = false;
+    }
 }
 
 void Window::ChangeCursor(CursorType type)

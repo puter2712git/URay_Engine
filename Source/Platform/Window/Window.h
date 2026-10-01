@@ -31,6 +31,7 @@ public:
     GLFWwindow* GetGLFWWindow() const { return glfwWindow; }
 
 private:
+    bool glfwInitialized = false;
     GLFWwindow* glfwWindow = nullptr;
 
     std::unordered_map<CursorType, GLFWcursor*> cursors;
