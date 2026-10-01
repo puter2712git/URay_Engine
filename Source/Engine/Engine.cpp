@@ -2,6 +2,7 @@
 
 #include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/FileLogSink.h"
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Script/ScriptSystem.h"
 
@@ -49,7 +50,9 @@ bool Engine::Initialize(
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
     timer = std::make_unique<Timer>();
+
     logSystem = std::make_unique<LogSystem>();
+
     inputManager = std::make_unique<InputManager>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
@@ -75,6 +78,9 @@ bool Engine::Initialize(
         if (!material->Initialize())
             return false;
     }
+
+    fileLogSink = std::make_unique<FileLogSink>("Project://Log/Log.txt");
+    logSystem->RegisterSink(fileLogSink.get());
 
     return true;
 }

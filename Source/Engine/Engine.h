@@ -13,6 +13,7 @@ class Timer;
 class LogSystem;
 class InputManager;
 class PerformanceAnalytics;
+class FileLogSink;
 
 class AssetSystem;
 class SceneSystem;
@@ -53,7 +54,10 @@ public:
 private:
     std::unique_ptr<Window> window = nullptr;
     std::unique_ptr<Timer> timer = nullptr;
+
     std::unique_ptr<LogSystem> logSystem = nullptr;
+    std::unique_ptr<FileLogSink> fileLogSink = nullptr;
+
     std::unique_ptr<InputManager> inputManager = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
