@@ -42,12 +42,6 @@ Material::~Material()
     }
 
     descriptorSets.clear();
-
-    if (descriptorSetLayout)
-    {
-        delete descriptorSetLayout;
-        descriptorSetLayout = nullptr;
-    }
 }
 
 bool Material::Initialize()
@@ -70,7 +64,7 @@ bool Material::Initialize()
     if (!descriptorSetLayoutDescription)
         return true;
 
-    descriptorSetLayout = device.CreateDescriptorSetLayout(*descriptorSetLayoutDescription);
+    descriptorSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*descriptorSetLayoutDescription);
     if (!descriptorSetLayout)
         return false;
 

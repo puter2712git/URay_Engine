@@ -4,6 +4,7 @@
 
 #include "Core/Type/Types.h"
 
+#include <limits>
 #include <utility>
 
 namespace URay::Render
@@ -131,7 +132,7 @@ bool ShaderReflector::ReflectVertexInputs(
             .name = input->name ? input->name : "",
             .semantic = input->semantic ? input->semantic : "",
             .location = input->location,
-            .component = input->component,
+            .component = input->component == std::numeric_limits<uint32>::max() ? 0u : input->component,
             .format = static_cast<VkFormat>(input->format) });
     }
 

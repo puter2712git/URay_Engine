@@ -139,6 +139,8 @@ void Editor::Finalize()
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
 
+    renderSystem.WaitIdle();
+
     Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
 
     if (editorSettings && editorCamera && widgetSystem && gameScene)

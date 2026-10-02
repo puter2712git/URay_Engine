@@ -30,19 +30,6 @@ DecalObject::DecalObject(RenderSystem& renderSystem, const DecalObjectState& sta
 
     for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        VkBuffer bufferHandle = VK_NULL_HANDLE;
-        VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-
-        renderSystem.GetDevice().CreateBuffer(
-            sizeof(DecalConstants),
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            bufferHandle,
-            bufferMemory);
-
-        assert(bufferHandle != VK_NULL_HANDLE &&
-               bufferMemory != VK_NULL_HANDLE);
-
         UniformBufferDesc desc = {};
         desc.size = sizeof(DecalConstants);
 

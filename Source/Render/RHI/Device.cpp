@@ -30,6 +30,7 @@
 #include "Core/Log/LogSystem.h"
 #include "Core/Type/Types.h"
 
+#include <algorithm>
 #include <cassert>
 #include <map>
 #include <set>
@@ -538,32 +539,77 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     }
 
     const VertexInputLayout& inputLayout = *desc.vertexInputLayout;
+    const auto& shaderInputs = desc.shader->GetVertexReflection().vertexInputs;
+
+    for (const ShaderVertexInput& shaderInput : shaderInputs)
+    {
+        if (shaderInput.component != 0)
+        {
+            URAY_LOG(
+                "[Device] Vertex input component {} at location {} is not supported.",
+                shaderInput.component,
+                shaderInput.location);
+            return nullptr;
+        }
+
+        const auto attributeIt = std::find_if(
+            inputLayout.attributes.begin(),
+            inputLayout.attributes.end(),
+            [&shaderInput](const VertexInputAttribute& attribute)
+            {
+                return attribute.location == shaderInput.location;
+            });
+
+        if (attributeIt == inputLayout.attributes.end())
+        {
+            URAY_LOG(
+                "[Device] Vertex layout is missing shader input '{}' at location {}.",
+                shaderInput.name,
+                shaderInput.location);
+            return nullptr;
+        }
+    }
+
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+    std::set<uint32> usedBindings;
+
+    for (const VertexInputAttribute& attribute : inputLayout.attributes)
+    {
+        const bool consumedByShader = std::any_of(
+            shaderInputs.begin(),
+            shaderInputs.end(),
+            [&attribute](const ShaderVertexInput& shaderInput)
+            {
+                return shaderInput.location == attribute.location;
+            });
+
+        if (!consumedByShader)
+            continue;
+
+        VkVertexInputAttributeDescription description = {};
+        description.location = attribute.location;
+        description.binding = attribute.binding;
+        description.format = attribute.format;
+        description.offset = attribute.offset;
+
+        attributeDescriptions.push_back(description);
+
+        usedBindings.insert(attribute.binding);
+    }
 
     std::vector<VkVertexInputBindingDescription> bindingDescriptions;
-    bindingDescriptions.reserve(inputLayout.bindings.size());
 
     for (const VertexInputBinding& binding : inputLayout.bindings)
     {
+        if (usedBindings.find(binding.binding) == usedBindings.end())
+            continue;
+
         VkVertexInputBindingDescription newBinding = {};
         newBinding.binding = binding.binding;
         newBinding.stride = binding.stride;
         newBinding.inputRate = binding.inputRate;
 
         bindingDescriptions.push_back(newBinding);
-    }
-
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-    attributeDescriptions.reserve(inputLayout.attributes.size());
-
-    for (const VertexInputAttribute& attribute : inputLayout.attributes)
-    {
-        VkVertexInputAttributeDescription newAttribute = {};
-        newAttribute.binding = attribute.binding;
-        newAttribute.location = attribute.location;
-        newAttribute.format = attribute.format;
-        newAttribute.offset = attribute.offset;
-
-        attributeDescriptions.push_back(newAttribute);
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
