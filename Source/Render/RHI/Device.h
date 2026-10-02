@@ -2,7 +2,7 @@
 
 #include "Render/RHI/CommandBuffer/CommandPoolFlags.h"
 #include "Render/RHI/Queue/QueueType.h"
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include "Core/Type/Types.h"
 

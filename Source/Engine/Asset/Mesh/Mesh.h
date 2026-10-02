@@ -5,7 +5,7 @@
 #include "Core/Math/AABB.h"
 #include "Core/Type/Types.h"
 
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include <string>
 #include <vector>

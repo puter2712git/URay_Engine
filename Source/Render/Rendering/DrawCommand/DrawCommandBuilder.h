@@ -5,7 +5,7 @@
 
 #include "Render/Rendering/RenderPass/RenderPassId.h"
 #include "Render/Rendering/View/ViewMode.h"
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include "Core/Math/AABB.h"
 

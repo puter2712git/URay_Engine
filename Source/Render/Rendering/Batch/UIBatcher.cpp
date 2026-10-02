@@ -5,8 +5,8 @@
 #include "Render/RHI/Descriptor/DescriptorSet.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayout.h"
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
-#include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/Device.h"
+#include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/Font/FontAtlas.h"
 #include "Render/ResourceManager.h"
@@ -104,7 +104,7 @@ std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
         PipelineStateDesc psoDesc = {};
         psoDesc.shader = shader;
         psoDesc.topology = PrimitiveTopology::TriangleList;
-        psoDesc.vertexLayout = VertexLayout::UI;
+        psoDesc.vertexInputLayout = &VertexUI::GetInputLayout();
         psoDesc.depthStencil.depthTestEnable = false;
         psoDesc.depthStencil.depthWriteEnable = false;
         psoDesc.rasterizer.cullMode = CullMode::None;

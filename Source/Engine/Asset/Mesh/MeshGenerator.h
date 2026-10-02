@@ -4,7 +4,7 @@
 
 #include "Core/Type/Types.h"
 
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include <vector>
 

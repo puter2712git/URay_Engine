@@ -2,7 +2,7 @@
 
 #include "Render/Rendering/Object/BoundedObject.h"
 #include "Render/Rendering/Object/Drawable/DrawableObject.h"
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 

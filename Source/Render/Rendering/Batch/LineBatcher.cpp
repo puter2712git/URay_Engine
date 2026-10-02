@@ -79,6 +79,7 @@ DrawCommand LineBatcher::Flush()
 
     PipelineStateDesc psoDesc = {};
     psoDesc.shader = renderShader;
+    psoDesc.vertexInputLayout = &Vertex::GetInputLayout();
     psoDesc.topology = PrimitiveTopology::LineList;
     psoDesc.depthStencil.depthTestEnable = true;
     psoDesc.depthStencil.depthWriteEnable = false;
@@ -92,11 +93,11 @@ DrawCommand LineBatcher::Flush()
 void LineBatcher::Collect(const LineCommandContext& context)
 {
     Vertex v0 = {};
-    v0.pos = context.start;
+    v0.position = context.start;
     v0.color = context.color;
 
     Vertex v1 = {};
-    v1.pos = context.end;
+    v1.position = context.end;
     v1.color = context.color;
 
     vertices.push_back(v0);

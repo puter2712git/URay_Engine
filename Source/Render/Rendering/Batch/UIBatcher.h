@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Render/Rendering/DrawCommand/DrawCommand.h"
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include <vulkan/vulkan.h>
 

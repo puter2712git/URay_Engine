@@ -5,7 +5,8 @@
 #include "PrimitiveTopology.h"
 #include "RasterizerState.h"
 #include "Render/RHI/Texture/Texture.h"
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
+#include "Render/RHI/Vertex/VertexInputLayout.h"
 
 #include <functional>
 #include <vector>
@@ -29,8 +30,9 @@ struct PipelineStateDesc
 {
     Shader* shader = nullptr;
 
+    const VertexInputLayout* vertexInputLayout = nullptr;
+
     PrimitiveTopology topology = PrimitiveTopology::TriangleList;
-    VertexLayout vertexLayout = VertexLayout::PTC;
 
     DepthStencilState depthStencil = {};
     RasterizerState rasterizer = {};
@@ -55,7 +57,7 @@ struct PipelineStateDescHash
 
         combine(desc.shader);
         combine(desc.topology);
-        combine(desc.vertexLayout);
+        combine(desc.vertexInputLayout);
         combine(desc.depthStencil.depthTestEnable);
         combine(desc.depthStencil.depthWriteEnable);
         combine(desc.depthStencil.depthCompareOp);

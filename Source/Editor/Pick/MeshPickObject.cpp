@@ -7,7 +7,7 @@
 #include "Core/Math/Math.h"
 
 #include "Render/Rendering/Object/Drawable/MeshObject.h"
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 namespace URay
 {

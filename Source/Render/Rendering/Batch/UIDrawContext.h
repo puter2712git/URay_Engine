@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Render/Vertex.h"
+#include "Render/RHI/Vertex/Vertex.h"
 
 #include "Engine/Asset/Asset.h"
 

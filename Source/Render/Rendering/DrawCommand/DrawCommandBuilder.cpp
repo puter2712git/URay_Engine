@@ -113,7 +113,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
     PipelineStateDesc stateDesc = {};
     stateDesc.shader = shader;
     stateDesc.topology = PrimitiveTopology::TriangleList;
-    stateDesc.vertexLayout = VertexLayout::PNT;
+    stateDesc.vertexInputLayout = &VertexPNT::GetInputLayout();
     stateDesc.depthStencil = depthStencil;
     stateDesc.blend.mode = BlendMode::AlphaBlend;
 
@@ -173,7 +173,7 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
     PipelineStateDesc state = {};
     state.shader = shader;
     state.topology = PrimitiveTopology::TriangleList;
-    state.vertexLayout = VertexLayout::PNT;
+    state.vertexInputLayout = &VertexPNT::GetInputLayout();
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
     state.blend = blend;
@@ -307,7 +307,7 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
     PipelineStateDesc state = {};
     state.shader = shader;
     state.topology = PrimitiveTopology::TriangleList;
-    state.vertexLayout = VertexLayout::PNT;
+    state.vertexInputLayout = &VertexPNT::GetInputLayout();
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
     state.blend = blend;
@@ -347,7 +347,7 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     PipelineStateDesc state = {};
     state.shader = shader;
     state.topology = PrimitiveTopology::TriangleList;
-    state.vertexLayout = VertexLayout::PNT;
+    state.vertexInputLayout = &VertexPNT::GetInputLayout();
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
 

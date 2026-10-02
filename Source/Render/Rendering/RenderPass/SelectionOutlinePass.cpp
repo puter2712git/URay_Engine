@@ -5,9 +5,9 @@
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
@@ -171,8 +171,8 @@ void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
     {
         PipelineStateDesc psoDesc = {
             .shader = shader,
+            .vertexInputLayout = &GetEmptyVertexInputLayout(),
             .topology = PrimitiveTopology::TriangleList,
-            .vertexLayout = VertexLayout::PTC,
             .depthStencil = { .depthTestEnable = false, .depthWriteEnable = false },
             .rasterizer = { .cullMode = CullMode::None },
             .blend = { .mode = BlendMode::AlphaBlend },

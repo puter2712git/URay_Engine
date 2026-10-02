@@ -18,6 +18,7 @@
 #include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/RHI/Vertex/VertexInputLayout.h"
 #include "Render/RHI/Vulkan/VulkanContext.h"
 #include "Render/RHI/Vulkan/VulkanSurfaceSupport.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
@@ -530,34 +531,47 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     dynamicState.dynamicStateCount = static_cast<uint32>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
-    VkVertexInputBindingDescription bindingDescription = {};
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-
-    switch (desc.vertexLayout)
+    if (!desc.vertexInputLayout)
     {
-    case VertexLayout::PNT:
-        bindingDescription = VertexPNT::GetBindingDescription();
-        attributeDescriptions = VertexPNT::GetAttributeDescriptions();
-        break;
+        URAY_LOG("[Device] Graphics pipeline has no vertex input layout.");
+        return nullptr;
+    }
 
-    case VertexLayout::UI:
-        bindingDescription = VertexUI::GetBindingDescription();
-        attributeDescriptions = VertexUI::GetAttributeDescriptions();
-        break;
+    const VertexInputLayout& inputLayout = *desc.vertexInputLayout;
 
-    case VertexLayout::PTC:
-    default:
-        bindingDescription = Vertex::GetBindingDescription();
-        attributeDescriptions = Vertex::GetAttributeDescriptions();
-        break;
+    std::vector<VkVertexInputBindingDescription> bindingDescriptions;
+    bindingDescriptions.reserve(inputLayout.bindings.size());
+
+    for (const VertexInputBinding& binding : inputLayout.bindings)
+    {
+        VkVertexInputBindingDescription newBinding = {};
+        newBinding.binding = binding.binding;
+        newBinding.stride = binding.stride;
+        newBinding.inputRate = binding.inputRate;
+
+        bindingDescriptions.push_back(newBinding);
+    }
+
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+    attributeDescriptions.reserve(inputLayout.attributes.size());
+
+    for (const VertexInputAttribute& attribute : inputLayout.attributes)
+    {
+        VkVertexInputAttributeDescription newAttribute = {};
+        newAttribute.binding = attribute.binding;
+        newAttribute.location = attribute.location;
+        newAttribute.format = attribute.format;
+        newAttribute.offset = attribute.offset;
+
+        attributeDescriptions.push_back(newAttribute);
     }
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo = {};
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+    vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32>(bindingDescriptions.size());
+    vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.empty() ? nullptr : bindingDescriptions.data();
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32>(attributeDescriptions.size());
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+    vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.empty() ? nullptr : attributeDescriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly = {};
     inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
