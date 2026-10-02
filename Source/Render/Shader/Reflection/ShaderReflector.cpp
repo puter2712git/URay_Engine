@@ -72,14 +72,68 @@ bool ShaderReflector::Reflect(
         return false;
     }
 
+    bool succeeded = true;
+
+    if (module.shader_stage == SPV_REFLECT_SHADER_STAGE_VERTEX_BIT)
+    {
+        if (!ReflectVertexInputs(module, entryPoint, outReflection))
+            succeeded = false;
+    }
+
     if (!ReflectDescriptorBindings(module, outReflection))
-        return false;
+        succeeded = false;
+
     if (!ReflectUniformBuffers(module, outReflection))
-        return false;
+        succeeded = false;
+
     if (!ReflectPushConstants(module, outReflection))
-        return false;
+        succeeded = false;
 
     spvReflectDestroyShaderModule(&module);
+
+    return succeeded;
+}
+
+bool ShaderReflector::ReflectVertexInputs(
+    const SpvReflectShaderModule& module,
+    const std::string& entryPoint,
+    ShaderReflection& outReflection)
+{
+    uint32 inputCount = 0;
+
+    SpvReflectResult result =
+        spvReflectEnumerateEntryPointInputVariables(
+            &module,
+            entryPoint.c_str(),
+            &inputCount,
+            nullptr);
+
+    if (result != SPV_REFLECT_RESULT_SUCCESS)
+        return false;
+
+    std::vector<SpvReflectInterfaceVariable*> inputs(inputCount);
+
+    result = spvReflectEnumerateEntryPointInputVariables(
+        &module,
+        entryPoint.c_str(),
+        &inputCount,
+        inputs.data());
+
+    if (result != SPV_REFLECT_RESULT_SUCCESS)
+        return false;
+
+    for (const SpvReflectInterfaceVariable* input : inputs)
+    {
+        if (input->built_in != -1)
+            continue;
+
+        outReflection.vertexInputs.push_back(ShaderVertexInput{
+            .name = input->name ? input->name : "",
+            .semantic = input->semantic ? input->semantic : "",
+            .location = input->location,
+            .component = input->component,
+            .format = static_cast<VkFormat>(input->format) });
+    }
 
     return true;
 }

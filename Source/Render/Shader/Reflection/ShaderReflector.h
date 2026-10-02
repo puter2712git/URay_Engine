@@ -20,6 +20,11 @@ public:
         ShaderReflection& outReflection);
 
 private:
+    static bool ReflectVertexInputs(
+        const SpvReflectShaderModule& module,
+        const std::string& entryPoint,
+        ShaderReflection& outReflection);
+
     static bool ReflectDescriptorBindings(
         const SpvReflectShaderModule& module,
         ShaderReflection& outReflection);

@@ -5,11 +5,24 @@
 
 #include "Core/Type/Types.h"
 
+#include <vulkan/vulkan.h>
+
 #include <string>
 #include <vector>
 
 namespace URay::Render
 {
+
+struct ShaderVertexInput
+{
+    std::string name;
+    std::string semantic;
+
+    uint32 location = 0;
+    uint32 component = 0;
+
+    VkFormat format = VK_FORMAT_UNDEFINED;
+};
 
 struct ShaderDescriptorBinding
 {
@@ -59,6 +72,7 @@ struct ShaderPushConstant
 
 struct ShaderReflection
 {
+    std::vector<ShaderVertexInput> vertexInputs;
     std::vector<ShaderDescriptorBinding> descriptorBindings;
     std::vector<ShaderUniformBuffer> uniformBuffers;
     ShaderPushConstant pushConstant = {};
