@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <system_error>
 
 namespace URay
 {
@@ -30,8 +31,13 @@ void VirtualFileSystem::Mount(const std::string& mountName, const std::filesyste
 
 bool VirtualFileSystem::Exists(const VirtualPath& path) const
 {
-    std::filesystem::path physicalPath = ResolveToPhysicalPath(path);
-    return std::filesystem::exists(physicalPath);
+    const std::filesystem::path physicalPath = ResolveToPhysicalPath(path);
+
+    if (physicalPath.empty())
+        return false;
+
+    std::error_code error;
+    return std::filesystem::exists(physicalPath, error) && !error;
 }
 
 bool VirtualFileSystem::IsDirectory(const VirtualPath& path) const
@@ -49,7 +55,7 @@ std::vector<uint8> VirtualFileSystem::ReadBinary(const VirtualPath& virtualPath)
     std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath, std::ios::ate | std::ios::binary);
-    if (!file | !file.is_open())
+    if (!file.is_open())
         return std::vector<uint8>();
 
     const size_t size = static_cast<size_t>(file.tellg());
@@ -69,7 +75,7 @@ std::string VirtualFileSystem::ReadText(const VirtualPath& virtualPath) const
     std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath);
-    if (!file || !file.is_open())
+    if (!file.is_open())
         return std::string();
 
     return std::string(
@@ -81,13 +87,20 @@ bool VirtualFileSystem::WriteBinary(const VirtualPath& path, const std::vector<u
 {
     std::filesystem::path physicalPath = ResolveToPhysicalPath(path);
 
+    if (physicalPath.empty())
+        return false;
+
     if (physicalPath.has_parent_path())
     {
-        std::filesystem::create_directories(physicalPath.parent_path());
+        std::error_code error;
+        std::filesystem::create_directories(physicalPath.parent_path(), error);
+
+        if (error)
+            return false;
     }
 
     std::ofstream file(physicalPath, std::ios::binary);
-    if (!file || !file.is_open())
+    if (!file.is_open())
         return false;
 
     file.write(reinterpret_cast<const char*>(bin.data()), static_cast<std::streamsize>(bin.size()));
@@ -98,13 +111,20 @@ bool VirtualFileSystem::WriteText(const VirtualPath& virtualPath, const std::str
 {
     std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
+    if (physicalPath.empty())
+        return false;
+
     if (physicalPath.has_parent_path())
     {
-        std::filesystem::create_directories(physicalPath.parent_path());
+        std::error_code error;
+        std::filesystem::create_directories(physicalPath.parent_path(), error);
+
+        if (error)
+            return false;
     }
 
     std::ofstream file(physicalPath, std::ios::out);
-    if (!file || !file.is_open())
+    if (!file.is_open())
         return false;
 
     file << text;
@@ -118,10 +138,13 @@ std::vector<VirtualFileEntry> VirtualFileSystem::ListDirectory(
 
     const std::filesystem::path physicalDirectory = ResolveToPhysicalPath(directory);
 
-    if (physicalDirectory.empty() || !std::filesystem::is_directory(physicalDirectory))
-        return result;
-
     std::error_code error;
+    if (physicalDirectory.empty() ||
+        !std::filesystem::is_directory(physicalDirectory, error) || error)
+    {
+        return result;
+    }
+
     std::filesystem::directory_iterator iterator(physicalDirectory, error);
 
     if (error)

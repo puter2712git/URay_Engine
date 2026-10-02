@@ -1,6 +1,7 @@
 #include "EditorSettings.h"
 
 #include "Core/File/VirtualFilesystem.h"
+#include "Core/Log/LogSystem.h"
 
 namespace URay
 {
@@ -43,22 +44,38 @@ bool EditorSettings::Save(const EditorSettingsContext& context)
 
 bool EditorSettings::Load(EditorSettingsContext& context)
 {
-    std::string settings = filesystem.ReadText("Project://Config/Editor.ini");
+    const std::string settings = filesystem.ReadText("Project://Config/Editor.ini");
     if (settings.empty())
         return false;
 
-    YAML::Node settingsNode = YAML::Load(settings);
-    context.startScenePath = settingsNode["StartScene"].as<std::string>();
-    context.cameraSettings.position.x = settingsNode["CameraTransform"]["Position"][0].as<float>();
-    context.cameraSettings.position.y = settingsNode["CameraTransform"]["Position"][1].as<float>();
-    context.cameraSettings.position.z = settingsNode["CameraTransform"]["Position"][2].as<float>();
-    context.cameraSettings.rotation.x = settingsNode["CameraTransform"]["Rotation"][0].as<float>();
-    context.cameraSettings.rotation.y = settingsNode["CameraTransform"]["Rotation"][1].as<float>();
-    context.cameraSettings.rotation.z = settingsNode["CameraTransform"]["Rotation"][2].as<float>();
+    try
+    {
+        const YAML::Node settingsNode = YAML::Load(settings);
 
-    layout.LoadLayout(context.rootWidget, settingsNode["Layout"]);
+        EditorSettingsContext loadedContext = {
+            .rootWidget = context.rootWidget
+        };
 
-    return true;
+        loadedContext.startScenePath = settingsNode["StartScene"].as<std::string>();
+        loadedContext.cameraSettings.position.x = settingsNode["CameraTransform"]["Position"][0].as<float>();
+        loadedContext.cameraSettings.position.y = settingsNode["CameraTransform"]["Position"][1].as<float>();
+        loadedContext.cameraSettings.position.z = settingsNode["CameraTransform"]["Position"][2].as<float>();
+        loadedContext.cameraSettings.rotation.x = settingsNode["CameraTransform"]["Rotation"][0].as<float>();
+        loadedContext.cameraSettings.rotation.y = settingsNode["CameraTransform"]["Rotation"][1].as<float>();
+        loadedContext.cameraSettings.rotation.z = settingsNode["CameraTransform"]["Rotation"][2].as<float>();
+
+        layout.LoadLayout(context.rootWidget, settingsNode["Layout"]);
+
+        context.startScenePath = loadedContext.startScenePath;
+        context.cameraSettings = loadedContext.cameraSettings;
+
+        return true;
+    }
+    catch (const YAML::Exception& exception)
+    {
+        URAY_LOG("[EditorSettings] Failed to parse Editor.ini: %s", exception.what());
+        return false;
+    }
 }
 
 } // namespace URay

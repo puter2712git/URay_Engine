@@ -91,25 +91,44 @@ bool Editor::Initialize()
         .rootWidget = widgetSystem->GetRootWidget()
     };
 
+    auto createEmptyGameScene = [&]()
+    {
+        sceneSystem.SwitchScene(sceneSystem.CreateScene(SceneType::Game, ""));
+    };
+
     if (editorSettings->Load(settingsContext))
     {
         TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
         cameraTransform->SetPosition(settingsContext.cameraSettings.position);
         cameraTransform->SetRotation(settingsContext.cameraSettings.rotation);
 
-        const std::string sceneText = filesystem.ReadText(settingsContext.startScenePath);
-        YAML::Node sceneNode = YAML::Load(sceneText);
+        const VirtualPath& path = settingsContext.startScenePath;
+        const std::string sceneText = filesystem.ReadText(path);
 
-        std::unique_ptr<Scene> loadedScene = sceneSystem.CreateScene(SceneType::Game, settingsContext.startScenePath);
-        loadedScene->Deserialize(sceneNode);
-
-        sceneSystem.SwitchScene(std::move(loadedScene));
+        if (path.ToString().empty() || sceneText.empty())
+        {
+            URAY_LOG("[Editor] Failed to read start scene: %s", path.ToString().c_str());
+            createEmptyGameScene();
+        }
+        else
+        {
+            try
+            {
+                YAML::Node sceneNode = YAML::Load(sceneText);
+                auto scene = sceneSystem.CreateScene(SceneType::Game, path);
+                scene->Deserialize(sceneNode);
+                sceneSystem.SwitchScene(std::move(scene));
+            }
+            catch (const YAML::Exception& exception)
+            {
+                URAY_LOG("[Editor] Failed to load start scene \'%s\': %s", path.ToString().c_str(), exception.what());
+                createEmptyGameScene();
+            }
+        }
     }
     else
     {
-        std::unique_ptr<Scene> loadedScene = sceneSystem.CreateScene(SceneType::Game, "");
-
-        sceneSystem.SwitchScene(std::move(loadedScene));
+        createEmptyGameScene();
     }
 
     return true;
@@ -134,7 +153,11 @@ void Editor::Finalize()
                 .rotation = cameraTransform->GetRotation(),
             },
         };
-        editorSettings->Save(settingsContext);
+
+        if (!editorSettings->Save(settingsContext))
+        {
+            URAY_LOG("[Editor] Failed to save editor settings.");
+        }
     }
 
     if (widgetSystem)
