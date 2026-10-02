@@ -280,44 +280,68 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
     VirtualPath importAssetPath = VirtualPath(
         "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".vs.spv");
 
-    shaderCompiler.Compile(
-        shader->GetFilePath(),
-        importAssetPath,
-        L"vs_6_0",
-        L"VSMain",
-        includeDirectory,
-        compilerDefines);
+    if (!shaderCompiler.Compile(
+            shader->GetFilePath(),
+            importAssetPath,
+            L"vs_6_0",
+            L"VSMain",
+            includeDirectory,
+            compilerDefines))
+    {
+        URAY_LOG(
+            "[ResourceManager] Vertex shader compilation failed: %s",
+            shaderPath.ToString().c_str());
+        return nullptr;
+    }
 
     const VirtualPath vertexShaderPath = importAssetPath;
 
     importAssetPath = VirtualPath(
         "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".fs.spv");
 
-    shaderCompiler.Compile(
-        shader->GetFilePath(),
-        importAssetPath,
-        L"ps_6_0",
-        L"PSMain",
-        includeDirectory,
-        compilerDefines);
+    if (!shaderCompiler.Compile(
+            shader->GetFilePath(),
+            importAssetPath,
+            L"ps_6_0",
+            L"PSMain",
+            includeDirectory,
+            compilerDefines))
+    {
+        URAY_LOG(
+            "[ResourceManager] Fragment shader compilation failed: %s",
+            shaderPath.ToString().c_str());
+        return nullptr;
+    }
 
     const VirtualPath fragmentShaderPath = importAssetPath;
 
     std::vector<uint8> vertexShaderCode = fileSystem.ReadBinary(vertexShaderPath);
     if (vertexShaderCode.empty())
+    {
+        URAY_LOG("[ResourceManager] Failed to read vertex SPIR-V: %s", vertexShaderPath.ToString().c_str());
         return nullptr;
+    }
 
     std::vector<uint8> fragmentShaderCode = fileSystem.ReadBinary(fragmentShaderPath);
     if (fragmentShaderCode.empty())
+    {
+        URAY_LOG("[ResourceManager] Failed to read fragment SPIR-V: %s", fragmentShaderPath.ToString().c_str());
         return nullptr;
+    }
 
     ShaderReflection vertexShaderReflection = {};
     if (!ShaderReflector::Reflect(vertexShaderCode, "VSMain", vertexShaderReflection))
+    {
+        URAY_LOG("[ResourceManager] Failed to reflect vertex SPIR-V: %s", vertexShaderPath.ToString().c_str());
         return nullptr;
+    }
 
     ShaderReflection fragmentShaderReflection = {};
     if (!ShaderReflector::Reflect(fragmentShaderCode, "PSMain", fragmentShaderReflection))
+    {
+        URAY_LOG("[ResourceManager] Failed to reflect fragment SPIR-V: %s", fragmentShaderPath.ToString().c_str());
         return nullptr;
+    }
 
     Shader* newShader = new Shader(
         vertexShaderCode,

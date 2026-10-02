@@ -5,8 +5,8 @@
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/File/VirtualPath.h"
+#include "Core/Log/LogSystem.h"
 
-#include <iostream>
 #include <vector>
 
 namespace URay::Render
@@ -99,10 +99,27 @@ bool ShaderCompiler::Compile(
     result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&diagnostics), nullptr);
 
     if (diagnostics && diagnostics->GetStringLength() > 0)
-        std::cerr << diagnostics->GetStringPointer();
+    {
+        const std::string diagnosticsText(diagnostics->GetStringPointer(), diagnostics->GetStringLength());
+
+        URAY_LOG(
+            "[ShaderCompiler] DXC diagnostics for %s (%ls, %ls):\n%s",
+            sourcePath.ToString().c_str(),
+            std::wstring(profile).c_str(),
+            std::wstring(entryPoint).c_str(),
+            diagnosticsText.c_str());
+    }
 
     if (FAILED(compileStatus))
+    {
+        URAY_LOG(
+            "[ShaderCompiler] Compilation failed: %s (%ls, %ls)",
+            sourcePath.ToString().c_str(),
+            std::wstring(profile).c_str(),
+            std::wstring(entryPoint).c_str());
+
         return false;
+    }
 
     ComPtr<IDxcBlob> spirv;
     if (FAILED(result->GetOutput(
