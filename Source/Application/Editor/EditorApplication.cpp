@@ -18,11 +18,17 @@ bool EditorApplication::Initialize(
 {
     engine = std::make_unique<Engine>();
     if (!engine->Initialize(enginePath, projectPath))
+    {
+        Finalize();
         return false;
+    }
 
     editor = std::make_unique<Editor>();
     if (!editor->Initialize())
+    {
+        Finalize();
         return false;
+    }
 
     return true;
 }
