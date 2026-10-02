@@ -17,6 +17,7 @@
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/File/VirtualPath.h"
+#include "Core/Log/LogSystem.h"
 #include "Core/Timer.h"
 
 #include "Render/RenderSystem.h"
@@ -48,7 +49,13 @@ bool Editor::Initialize()
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
 
     if (!renderSystem.InitializeImGui())
+    {
+        URAY_LOG("[Editor] Failed to initialize ImGui.");
+        Finalize();
         return false;
+    }
+
+    isImGuiInitialized = true;
 
     editorSettings = std::make_unique<EditorSettings>(filesystem);
 
@@ -56,15 +63,28 @@ bool Editor::Initialize()
 
     selectionSystem = std::make_unique<SelectionSystem>();
     if (!selectionSystem->Initialize())
+    {
+        URAY_LOG("[Editor] Failed to initialize selection system.");
+        Finalize();
         return false;
+    }
 
     visualSystem = std::make_unique<VisualSystem>(*gEngine, *selectionSystem);
     if (!visualSystem->Initialize())
+    {
+        URAY_LOG("[Editor] Failed to initialize visual system.");
+        Finalize();
         return false;
+    }
 
     widgetSystem = std::make_unique<WidgetSystem>();
     if (!widgetSystem->Initialize())
+    {
+        URAY_LOG("[Editor] Failed to initialize widget system.");
+        Finalize();
         return false;
+    }
+
     widgetSystem->GetViewport().SetCamera(editorCamera);
 
     EditorSettingsContext settingsContext = {
@@ -100,29 +120,55 @@ void Editor::Finalize()
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
 
-    TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
+    Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
 
-    EditorSettingsContext settingsContext = {
-        .rootWidget = widgetSystem->GetRootWidget(),
-        .startScenePath = sceneSystem.GetSceneByType(SceneType::Game)->GetFilePath().ToString(),
-        .cameraSettings = {
-            .position = cameraTransform->GetPosition(),
-            .rotation = cameraTransform->GetRotation(),
-        },
-    };
+    if (editorSettings && editorCamera && widgetSystem && gameScene)
+    {
+        TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
 
-    editorSettings->Save(settingsContext);
+        EditorSettingsContext settingsContext = {
+            .rootWidget = widgetSystem->GetRootWidget(),
+            .startScenePath = gameScene->GetFilePath().ToString(),
+            .cameraSettings = {
+                .position = cameraTransform->GetPosition(),
+                .rotation = cameraTransform->GetRotation(),
+            },
+        };
+        editorSettings->Save(settingsContext);
+    }
 
-    widgetSystem->Finalize();
-    widgetSystem.reset();
+    if (widgetSystem)
+    {
+        widgetSystem->Finalize();
+        widgetSystem.reset();
+    }
 
-    visualSystem->Finalize();
-    visualSystem.reset();
+    if (visualSystem)
+    {
+        visualSystem->Finalize();
+        visualSystem.reset();
+    }
 
-    selectionSystem->Finalize();
-    selectionSystem.reset();
+    if (selectionSystem)
+    {
+        selectionSystem->Finalize();
+        selectionSystem.reset();
+    }
 
-    renderSystem.FinalizeImGui();
+    if (isImGuiInitialized)
+    {
+        renderSystem.FinalizeImGui();
+        isImGuiInitialized = false;
+    }
+
+    editorCamera = nullptr;
+
+    if (editorSettings)
+    {
+        editorSettings.reset();
+    }
+
+    gEditor = nullptr;
 }
 
 void Editor::Update()
