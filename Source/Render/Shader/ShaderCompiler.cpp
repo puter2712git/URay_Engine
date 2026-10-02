@@ -14,28 +14,41 @@ namespace URay::Render
 
 using Microsoft::WRL::ComPtr;
 
-ShaderCompiler::ShaderCompiler() {}
+ShaderCompiler::ShaderCompiler() = default;
 
 ShaderCompiler::~ShaderCompiler() = default;
 
 bool ShaderCompiler::Initialize()
 {
-    if (FAILED(DxcCreateInstance(
-            CLSID_DxcUtils,
-            IID_PPV_ARGS(&utils))))
+    HRESULT result = DxcCreateInstance(
+        CLSID_DxcUtils,
+        IID_PPV_ARGS(&utils));
+
+    if (FAILED(result))
     {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to create DXC utils. (HRESULT: 0x%08X)",
+            static_cast<unsigned int>(result));
         return false;
     }
 
-    if (FAILED(DxcCreateInstance(
-            CLSID_DxcCompiler,
-            IID_PPV_ARGS(&compiler))))
-    {
-        return false;
-    }
+    result = DxcCreateInstance(
+        CLSID_DxcCompiler,
+        IID_PPV_ARGS(&compiler));
 
-    if (FAILED(utils->CreateDefaultIncludeHandler(&includeHandler)))
+    if (FAILED(result))
     {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to create DXC compiler. (HRESULT: 0x%08X)",
+            static_cast<unsigned int>(result));
+        return false;
+    };
+    result = utils->CreateDefaultIncludeHandler(&includeHandler);
+    if (FAILED(result))
+    {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to create DXC include handler. (HRESULT: 0x%08X)",
+            static_cast<unsigned int>(result));
         return false;
     }
 
@@ -51,16 +64,33 @@ bool ShaderCompiler::Compile(
     std::span<const std::wstring> defines)
 {
     if (!utils || !compiler || !includeHandler)
+    {
+        URAY_LOG("[ShaderCompiler] Compiler is not initialized.");
         return false;
+    }
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
     const std::wstring sourcePhysicalPath = fileSystem.ResolveToPhysicalPath(sourcePath).wstring();
 
-    ComPtr<IDxcBlobEncoding> source;
-    if (FAILED(utils->LoadFile(sourcePhysicalPath.c_str(), nullptr, &source)))
+    if (sourcePhysicalPath.empty())
+    {
+        URAY_LOG("[ShaderCompiler] Failed to resolve shader path: %s", sourcePath.ToString().c_str());
         return false;
+    }
+
+    ComPtr<IDxcBlobEncoding> source;
+    const HRESULT loadResult = utils->LoadFile(sourcePhysicalPath.c_str(), nullptr, &source);
+
+    if (FAILED(loadResult))
+    {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to load shader source: %s (HRESULT: 0x%08X)",
+            sourcePath.ToString().c_str(),
+            static_cast<unsigned int>(loadResult));
+        return false;
+    }
 
     DxcBuffer sourceBuffer = {
         .Ptr = source->GetBufferPointer(),
@@ -82,21 +112,44 @@ bool ShaderCompiler::Compile(
     }
 
     ComPtr<IDxcResult> result;
-    if (FAILED(compiler->Compile(
-            &sourceBuffer,
-            args.data(),
-            static_cast<uint32_t>(args.size()),
-            includeHandler.Get(),
-            IID_PPV_ARGS(&result))))
+    const HRESULT compileResult = compiler->Compile(
+        &sourceBuffer,
+        args.data(),
+        static_cast<uint32_t>(args.size()),
+        includeHandler.Get(),
+        IID_PPV_ARGS(&result));
+
+    if (FAILED(compileResult))
     {
+        URAY_LOG(
+            "[ShaderCompiler] DXC compile invocation failed: %s (HRESULT: 0x%08X)",
+            sourcePath.ToString().c_str(),
+            static_cast<unsigned int>(compileResult));
         return false;
     }
 
     HRESULT compileStatus = E_FAIL;
-    result->GetStatus(&compileStatus);
+    const HRESULT statusResult = result->GetStatus(&compileStatus);
+
+    if (FAILED(statusResult))
+    {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to get compile status: %s (HRESULT: 0x%08X)",
+            sourcePath.ToString().c_str(),
+            static_cast<unsigned int>(statusResult));
+        return false;
+    }
 
     ComPtr<IDxcBlobUtf8> diagnostics;
-    result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&diagnostics), nullptr);
+    const HRESULT diagnosticsResult = result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&diagnostics), nullptr);
+
+    if (FAILED(diagnosticsResult))
+    {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to get DXC diagnostics: %s (HRESULT: 0x%08X)",
+            sourcePath.ToString().c_str(),
+            static_cast<unsigned int>(diagnosticsResult));
+    }
 
     if (diagnostics && diagnostics->GetStringLength() > 0)
     {
@@ -122,20 +175,34 @@ bool ShaderCompiler::Compile(
     }
 
     ComPtr<IDxcBlob> spirv;
-    if (FAILED(result->GetOutput(
-            DXC_OUT_OBJECT,
-            IID_PPV_ARGS(&spirv),
-            nullptr)))
+    const HRESULT objectResult = result->GetOutput(
+        DXC_OUT_OBJECT,
+        IID_PPV_ARGS(&spirv),
+        nullptr);
+
+    if (FAILED(objectResult))
     {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to get SPIR-V output: %s (HRESULT: 0x%08X)",
+            sourcePath.ToString().c_str(),
+            static_cast<unsigned int>(objectResult));
         return false;
     }
 
-    const auto* data = static_cast<const uint8*>(spirv->GetBufferPointer());
-    const size_t size = spirv->GetBufferSize();
+    std::vector<uint8> bytes(
+        static_cast<const uint8*>(spirv->GetBufferPointer()),
+        static_cast<const uint8*>(spirv->GetBufferPointer()) +
+            spirv->GetBufferSize());
 
-    std::vector<uint8> bytes(data, data + size);
+    if (!fileSystem.WriteBinary(outputPath, bytes))
+    {
+        URAY_LOG(
+            "[ShaderCompiler] Failed to write SPIR-V output: %s",
+            outputPath.ToString().c_str());
+        return false;
+    }
 
-    return fileSystem.WriteBinary(outputPath, bytes);
+    return true;
 }
 
 } // namespace URay::Render

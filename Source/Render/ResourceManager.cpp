@@ -34,7 +34,12 @@ ResourceManager::~ResourceManager() = default;
 
 bool ResourceManager::Initialize()
 {
-    shaderCompiler.Initialize();
+    if (!shaderCompiler.Initialize())
+    {
+        URAY_LOG("[ResourceManager] Failed to initialize shader compiler.");
+        Finalize();
+        return false;
+    }
 
     fontSystem = std::make_unique<FontSystem>(device);
     if (!fontSystem->Initialize())
