@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace URay
@@ -37,6 +38,9 @@ private:
 
     std::vector<std::unique_ptr<RenderObject>> objects;
     std::vector<ViewObject*> viewObjects;
+
+    uint32 nextPickId = 1;
+    std::unordered_map<uint32, Unit*> pickTargets;
 };
 
 } // namespace URay::Render

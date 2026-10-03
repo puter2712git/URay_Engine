@@ -36,6 +36,8 @@ enum class Format
 
     BGRA8_sRGB,
 
+    R32_UInt,
+
     D32_Float,
     D32_Float_S8_UInt,
     D24_UNorm_S8_UInt,

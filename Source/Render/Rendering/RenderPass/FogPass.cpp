@@ -40,11 +40,13 @@ void FogPass::Begin(const RenderPassContext& context)
 
     const std::array colorAttachments = {
         RenderingAttachmentInfo{
-            .imageView = context.postProcessRenderTarget.GetColorView()->GetHandle(),
+            .imageView = context.postProcessRenderTarget.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
             .loadOp = LoadOp::Clear,
             .storeOp = StoreOp::Store,
-            .clearColor = Color(0.01f, 0.01f, 0.01f, 1.0f) }
+            .clearColor = ClearColorValue{
+                .type = ClearValueType::Float,
+                .floatValue = Color::Black } }
     };
 
     const RenderingInfo renderingInfo = {
@@ -55,7 +57,7 @@ void FogPass::Begin(const RenderPassContext& context)
         .colorAttachments = colorAttachments
     };
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ColorAttachment);
+    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
 }
@@ -64,7 +66,7 @@ void FogPass::End(const RenderPassContext& context)
 {
     context.commandBuffer.EndRendering();
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ShaderReadOnly);
+    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
 }
 
 void FogPass::Execute(
@@ -88,7 +90,7 @@ void FogPass::Execute(
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
 
-    descriptorSet->WriteSampledImage(0, context.sceneRenderTarget.GetColorView());
+    descriptorSet->WriteSampledImage(0, context.sceneRenderTarget.GetColorView(0));
     descriptorSet->WriteSampledImage(1, context.sceneRenderTarget.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
     descriptorSet->WriteSampler(2, sampler);
     descriptorSet->WriteUniformBuffer(3, *uniformBuffers[currentFrame]);
@@ -185,6 +187,10 @@ void FogPass::EnsureResources(const RenderPassContext& context)
 
     if (!pso)
     {
+        std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+        colorBlendAttachments.push_back(ColorBlendAttachmentState{
+            .mode = BlendMode::Opaque });
+
         PipelineStateDesc psoDesc = {};
         psoDesc.shader = fogShader;
         psoDesc.topology = PrimitiveTopology::TriangleList;
@@ -193,15 +199,10 @@ void FogPass::EnsureResources(const RenderPassContext& context)
             .depthTestEnable = false,
             .depthWriteEnable = false
         };
-        psoDesc.rasterizer = {
-            .cullMode = CullMode::None
-        };
-        psoDesc.blend = {
-            .mode = BlendMode::Opaque
-        };
-        psoDesc.rendering = {
-            .colorAttachmentFormats = { Format::BGRA8_sRGB }
-        };
+        psoDesc.rasterizer.cullMode = CullMode::None;
+
+        psoDesc.colorBlendAttachments = colorBlendAttachments;
+        psoDesc.rendering.colorAttachmentFormats = { Format::BGRA8_sRGB };
 
         pso = context.resourceManager.GetOrCreatePSO(psoDesc);
     }

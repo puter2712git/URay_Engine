@@ -35,10 +35,13 @@ void DecalPass::Execute(
     {
         PipelineStateDesc psoDesc = cmd.pipelineState;
         psoDesc.rendering = {
-            .colorAttachmentFormats = { Format::BGRA8_sRGB },
+            .colorAttachmentFormats = { Format::BGRA8_sRGB, Format::R32_UInt },
             .depthAttachmentFormat = Format::D32_Float_S8_UInt,
             .stencilAttachmentFormat = Format::Unknown
         };
+        psoDesc.colorBlendAttachments.push_back(ColorBlendAttachmentState{
+            .mode = BlendMode::Opaque,
+            .writeMask = ColorWriteMask::None });
 
         PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 

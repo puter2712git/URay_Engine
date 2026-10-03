@@ -26,23 +26,25 @@ void OpaquePass::Begin(const RenderPassContext& context)
 {
     const Extent2D& extent = context.sceneRenderTarget.GetExtent();
 
-    const std::array colorAttachments = {
-        RenderingAttachmentInfo{
-            .imageView = context.sceneRenderTarget.GetColorView()->GetHandle(),
-            .layout = ImageLayout::ColorAttachment,
-            .loadOp = LoadOp::Clear,
-            .storeOp = StoreOp::Store,
-            .clearColor = Color(0.01f, 0.01f, 0.01f, 1.0f) }
-    };
-
-    const RenderingAttachmentInfo depthAttachment = {
-        .imageView = context.sceneRenderTarget.GetDepthView()->GetHandle(),
-        .layout = ImageLayout::DepthAttachment,
+    std::vector<RenderingAttachmentInfo> colorAttachments;
+    colorAttachments.push_back(RenderingAttachmentInfo{
+        .imageView = context.sceneRenderTarget.GetColorView(0)->GetHandle(),
+        .layout = ImageLayout::ColorAttachment,
         .loadOp = LoadOp::Clear,
         .storeOp = StoreOp::Store,
-        .clearDepth = 1.0f,
-        .clearStencil = 0
-    };
+        .clearColor = ClearColorValue{
+            .type = ClearValueType::Float,
+            .floatValue = Color(0.01f, 0.01f, 0.01f, 1.0f) } });
+    colorAttachments.push_back(RenderingAttachmentInfo{
+        .imageView = context.sceneRenderTarget.GetColorView(1)->GetHandle(),
+        .layout = ImageLayout::ColorAttachment,
+        .loadOp = LoadOp::Clear,
+        .storeOp = StoreOp::Store,
+        .clearColor = ClearColorValue{
+            .type = ClearValueType::UInt,
+            .uintValue = 0 } });
+
+    const RenderingAttachmentInfo depthAttachment = { .imageView = context.sceneRenderTarget.GetDepthView()->GetHandle(), .layout = ImageLayout::DepthAttachment, .loadOp = LoadOp::Clear, .storeOp = StoreOp::Store, .clearDepth = 1.0f, .clearStencil = 0 };
 
     const RenderingInfo renderingInfo = {
         .renderArea = {
@@ -53,7 +55,8 @@ void OpaquePass::Begin(const RenderPassContext& context)
         .depthAttachment = &depthAttachment
     };
 
-    context.sceneRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ColorAttachment);
+    context.sceneRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
+    context.sceneRenderTarget.TransitionColor(context.commandBuffer, 1, ImageLayout::ColorAttachment);
     context.sceneRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
@@ -88,10 +91,13 @@ void OpaquePass::Execute(
     {
         PipelineStateDesc psoDesc = cmd.pipelineState;
         psoDesc.rendering = {
-            .colorAttachmentFormats = { Format::BGRA8_sRGB },
+            .colorAttachmentFormats = { Format::BGRA8_sRGB, Format::R32_UInt },
             .depthAttachmentFormat = Format::D32_Float_S8_UInt,
             .stencilAttachmentFormat = Format::Unknown
         };
+        psoDesc.colorBlendAttachments.push_back(ColorBlendAttachmentState{
+            .mode = BlendMode::Opaque,
+            .writeMask = ColorWriteMask::None });
 
         PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 

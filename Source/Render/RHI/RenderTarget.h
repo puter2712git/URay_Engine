@@ -8,6 +8,7 @@
 
 #include <memory>
 #include <optional>
+#include <vector>
 
 namespace URay::Render
 {
@@ -26,7 +27,7 @@ struct RenderTargetAttachmentDesc
 struct RenderTargetDesc
 {
     Extent2D extent = {};
-    std::optional<RenderTargetAttachmentDesc> color;
+    std::vector<RenderTargetAttachmentDesc> colorAttachments;
     std::optional<RenderTargetAttachmentDesc> depth;
 };
 
@@ -39,11 +40,11 @@ public:
 public:
     bool Recreate(const Extent2D& newExtent);
 
-    void TransitionColor(CommandBuffer& commandBuffer, ImageLayout newLayout);
+    void TransitionColor(CommandBuffer& commandBuffer, uint32 index, ImageLayout newLayout);
     void TransitionDepth(CommandBuffer& commandBuffer, ImageLayout newLayout);
 
-    Texture* GetColorTexture() const { return colorTexture.get(); }
-    TextureView* GetColorView() const { return colorView.get(); }
+    Texture* GetColorTexture(uint32 index) const;
+    TextureView* GetColorView(uint32 index) const;
 
     Texture* GetDepthTexture() const { return depthTexture.get(); }
     TextureView* GetDepthView() const { return depthView.get(); }
@@ -55,8 +56,8 @@ private:
 
     RenderTargetDesc desc = {};
 
-    std::unique_ptr<Texture> colorTexture = nullptr;
-    std::unique_ptr<TextureView> colorView = nullptr;
+    std::vector<std::unique_ptr<Texture>> colorTextures;
+    std::vector<std::unique_ptr<TextureView>> colorViews;
 
     std::unique_ptr<Texture> depthTexture = nullptr;
     std::unique_ptr<TextureView> depthView = nullptr;

@@ -5,9 +5,9 @@
 #include "Render/RHI/Buffer/BufferDesc.h"
 #include "Render/RHI/CommandBuffer/CommandBuffer.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/Device.h"
 #include "Render/RHI/RenderTarget.h"
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/RHI/Texture/TextureView.h"
@@ -145,6 +145,7 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
             .depthAttachmentFormat = Format::D32_Float,
             .stencilAttachmentFormat = Format::Unknown
         };
+        psoDesc.colorBlendAttachments.clear();
 
         PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
@@ -267,6 +268,7 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
                 .depthAttachmentFormat = Format::D32_Float,
                 .stencilAttachmentFormat = Format::Unknown
             };
+            psoDesc.colorBlendAttachments.clear();
 
             PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
@@ -412,6 +414,7 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
                     .depthAttachmentFormat = Format::D32_Float,
                     .stencilAttachmentFormat = Format::Unknown
                 };
+                psoDesc.colorBlendAttachments.clear();
 
                 PipelineState* pso = context.resourceManager.GetOrCreatePSO(psoDesc);
 

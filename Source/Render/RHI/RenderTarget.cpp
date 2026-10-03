@@ -29,53 +29,89 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
     RenderTargetDesc newDesc = desc;
     newDesc.extent = newExtent;
 
-    if (newDesc.color)
+    std::vector<std::unique_ptr<Texture>> newColorTextures;
+    std::vector<std::unique_ptr<TextureView>> newColorViews;
+
+    newColorTextures.reserve(newDesc.colorAttachments.size());
+    newColorViews.reserve(newDesc.colorAttachments.size());
+
+    for (const RenderTargetAttachmentDesc& attachment : newDesc.colorAttachments)
     {
-        TextureDesc colorDesc = {};
-        colorDesc.width = newExtent.width;
-        colorDesc.height = newExtent.height;
-        colorDesc.format = desc.color->format;
-        colorDesc.usage = desc.color->usage;
+        TextureDesc textureDesc = {};
+        textureDesc.width = newExtent.width;
+        textureDesc.height = newExtent.height;
+        textureDesc.format = attachment.format;
+        textureDesc.usage = attachment.usage;
 
-        colorTexture.reset(device.CreateTexture(colorDesc));
-        if (!colorTexture)
+        std::unique_ptr<Texture> texture(device.CreateTexture(textureDesc));
+        if (!texture)
             return false;
 
-        colorView.reset(device.CreateTextureView(colorTexture.get(), TextureViewDesc{}));
-        if (!colorView)
+        std::unique_ptr<TextureView> view(device.CreateTextureView(texture.get(), TextureViewDesc{}));
+        if (!view)
             return false;
+
+        newColorTextures.push_back(std::move(texture));
+        newColorViews.push_back(std::move(view));
     }
+
+    std::unique_ptr<Texture> newDepthTexture = nullptr;
+    std::unique_ptr<TextureView> newDepthView = nullptr;
 
     if (newDesc.depth)
     {
-        TextureDesc depthDesc = {};
-        depthDesc.width = newExtent.width;
-        depthDesc.height = newExtent.height;
-        depthDesc.format = desc.depth->format;
-        depthDesc.usage = desc.depth->usage;
+        TextureDesc textureDesc = {};
+        textureDesc.width = newExtent.width;
+        textureDesc.height = newExtent.height;
+        textureDesc.format = desc.depth->format;
+        textureDesc.usage = desc.depth->usage;
 
-        depthTexture.reset(device.CreateTexture(depthDesc));
-        if (!depthTexture)
+        newDepthTexture.reset(device.CreateTexture(textureDesc));
+        if (!newDepthTexture)
             return false;
 
-        depthView.reset(device.CreateTextureView(depthTexture.get(), TextureViewDesc{}));
-        if (!depthView)
+        newDepthView.reset(device.CreateTextureView(newDepthTexture.get(), TextureViewDesc{}));
+        if (!newDepthView)
             return false;
     }
 
-    desc = newDesc;
+    colorTextures.swap(newColorTextures);
+    colorViews.swap(newColorViews);
+    depthTexture.swap(newDepthTexture);
+    depthView.swap(newDepthView);
+    desc = std::move(newDesc);
 
     return true;
 }
 
-void RenderTarget::TransitionColor(CommandBuffer& commandBuffer, ImageLayout newLayout)
+void RenderTarget::TransitionColor(CommandBuffer& commandBuffer, uint32 index, ImageLayout newLayout)
 {
-    colorTexture->Transition(commandBuffer, newLayout);
+    Texture* texture = GetColorTexture(index);
+    if (!texture)
+        return;
+
+    texture->Transition(commandBuffer, newLayout);
 }
 
 void RenderTarget::TransitionDepth(CommandBuffer& commandBuffer, ImageLayout newLayout)
 {
     depthTexture->Transition(commandBuffer, newLayout);
+}
+
+Texture* RenderTarget::GetColorTexture(uint32 index) const
+{
+    if (index >= colorTextures.size())
+        return nullptr;
+
+    return colorTextures[index].get();
+}
+
+TextureView* RenderTarget::GetColorView(uint32 index) const
+{
+    if (index >= colorViews.size())
+        return nullptr;
+
+    return colorViews[index].get();
 }
 
 } // namespace URay::Render

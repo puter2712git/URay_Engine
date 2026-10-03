@@ -708,42 +708,42 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     depthStencil.front = {};
     depthStencil.back = {};
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment = {};
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
-                                          VK_COLOR_COMPONENT_G_BIT |
-                                          VK_COLOR_COMPONENT_B_BIT |
-                                          VK_COLOR_COMPONENT_A_BIT;
-
-    switch (desc.blend.mode)
-    {
-    case BlendMode::Opaque:
-        colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        break;
-
-    case BlendMode::AlphaBlend:
-        colorBlendAttachment.blendEnable = VK_TRUE;
-
-        // RGB = src.rgb * src.a + dst.rgb * (1 - src.a)
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        colorBlendAttachment.dstColorBlendFactor =
-            VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        colorBlendAttachment.dstAlphaBlendFactor =
-            VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        break;
-    }
-
     std::vector<VkFormat> colorFormats;
     colorFormats.reserve(desc.rendering.colorAttachmentFormats.size());
 
     for (Format format : desc.rendering.colorAttachmentFormats)
     {
         colorFormats.push_back(Vulkan::ToVkFormat(format));
+    }
+
+    if (desc.colorBlendAttachments.size() != colorFormats.size())
+    {
+        URAY_LOG("[Device] Blend state count must match color attachment count.");
+        return nullptr;
+    }
+
+    std::vector<VkPipelineColorBlendAttachmentState> vkBlendAttachments;
+    vkBlendAttachments.reserve(desc.colorBlendAttachments.size());
+
+    for (const ColorBlendAttachmentState& state : desc.colorBlendAttachments)
+    {
+        VkPipelineColorBlendAttachmentState vkState = {};
+        vkState.colorWriteMask = Vulkan::ToVkColorWriteMask(state.writeMask);
+
+        if (state.mode == BlendMode::Opaque)
+        {
+            vkState.blendEnable = VK_FALSE;
+        }
+        else
+        {
+            vkState.blendEnable = VK_TRUE;
+            vkState.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+            vkState.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+            vkState.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+            vkState.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        }
+
+        vkBlendAttachments.push_back(vkState);
     }
 
     VkPipelineRenderingCreateInfo pipelineRenderingInfo = {};
@@ -757,8 +757,8 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
     colorBlending.logicOpEnable = VK_FALSE;
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
-    colorBlending.attachmentCount = static_cast<uint32>(colorFormats.size());
-    colorBlending.pAttachments = &colorBlendAttachment;
+    colorBlending.attachmentCount = static_cast<uint32>(vkBlendAttachments.size());
+    colorBlending.pAttachments = vkBlendAttachments.empty() ? nullptr : vkBlendAttachments.data();
     colorBlending.blendConstants[0] = 0.0f;
     colorBlending.blendConstants[1] = 0.0f;
     colorBlending.blendConstants[2] = 0.0f;

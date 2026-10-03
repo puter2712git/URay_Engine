@@ -206,7 +206,7 @@ bool Renderer::InitializeImGui()
     ImGui_ImplVulkan_Init(&initInfo);
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        postProcessRenderTarget->GetColorView()->GetHandle(),
+        postProcessRenderTarget->GetColorView(0)->GetHandle(),
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     return true;
@@ -384,16 +384,25 @@ bool Renderer::CreateSceneRenderTarget()
 {
     const VkExtent2D swapChainExtent = swapChain->GetExtent();
 
-    const RenderTargetDesc desc = {
-        .extent = { swapChainExtent.width, swapChainExtent.height },
-        .color = RenderTargetAttachmentDesc{
-            .format = Format::BGRA8_sRGB,
-            .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled },
-        .depth = RenderTargetAttachmentDesc{ .format = Format::D32_Float_S8_UInt, .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
+    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    colorAttachments.push_back(RenderTargetAttachmentDesc{
+        .format = Format::BGRA8_sRGB,
+        .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled });
+    colorAttachments.push_back(RenderTargetAttachmentDesc{
+        .format = Format::R32_UInt,
+        .usage = TextureUsage::ColorAttachment | TextureUsage::TransferSrc });
+
+    RenderTargetDesc desc = {};
+    desc.extent.width = swapChainExtent.width;
+    desc.extent.height = swapChainExtent.height;
+    desc.colorAttachments = colorAttachments;
+    desc.depth = RenderTargetAttachmentDesc{
+        .format = Format::D32_Float_S8_UInt,
+        .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
     };
 
     sceneRenderTarget = std::make_unique<RenderTarget>(device, desc);
-    return true;
+    return sceneRenderTarget != nullptr;
 }
 
 void Renderer::DestroySceneRenderTarget()
@@ -408,16 +417,21 @@ bool Renderer::CreatePostProcessRenderTarget()
 {
     const VkExtent2D swapChainExtent = swapChain->GetExtent();
 
-    const RenderTargetDesc desc = {
-        .extent = { swapChainExtent.width, swapChainExtent.height },
-        .color = RenderTargetAttachmentDesc{
-            .format = Format::BGRA8_sRGB,
-            .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled },
-        .depth = RenderTargetAttachmentDesc{ .format = Format::D32_Float_S8_UInt, .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
+    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    colorAttachments.push_back(RenderTargetAttachmentDesc{
+        .format = Format::BGRA8_sRGB,
+        .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled });
+
+    RenderTargetDesc desc = {};
+    desc.extent.width = swapChainExtent.width;
+    desc.extent.height = swapChainExtent.height;
+    desc.colorAttachments = colorAttachments;
+    desc.depth = RenderTargetAttachmentDesc{
+        .format = Format::D32_Float_S8_UInt,
+        .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
     };
 
     postProcessRenderTarget = std::make_unique<RenderTarget>(device, desc);
-
     return postProcessRenderTarget != nullptr;
 }
 
@@ -433,16 +447,21 @@ bool Renderer::CreateSelectionMaskRenderTarget()
 {
     const VkExtent2D swapChainExtent = swapChain->GetExtent();
 
-    const RenderTargetDesc desc = {
-        .extent = { swapChainExtent.width, swapChainExtent.height },
-        .color = RenderTargetAttachmentDesc{
-            .format = Format::BGRA8_sRGB,
-            .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled },
-        .depth = RenderTargetAttachmentDesc{ .format = Format::D32_Float_S8_UInt, .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
+    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    colorAttachments.push_back(RenderTargetAttachmentDesc{
+        .format = Format::BGRA8_sRGB,
+        .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled });
+
+    RenderTargetDesc desc = {};
+    desc.extent.width = swapChainExtent.width;
+    desc.extent.height = swapChainExtent.height;
+    desc.colorAttachments = colorAttachments;
+    desc.depth = RenderTargetAttachmentDesc{
+        .format = Format::D32_Float_S8_UInt,
+        .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
     };
 
     selectionMaskRenderTarget = std::make_unique<RenderTarget>(device, desc);
-
     return selectionMaskRenderTarget != nullptr;
 }
 
@@ -627,7 +646,7 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     }
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        postProcessRenderTarget->GetColorView()->GetHandle(),
+        postProcessRenderTarget->GetColorView(0)->GetHandle(),
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 

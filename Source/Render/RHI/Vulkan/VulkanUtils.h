@@ -2,6 +2,7 @@
 
 #include "Render/RHI/Attachment/RenderingInfo.h"
 #include "Render/RHI/Buffer/BufferUsage.h"
+#include "Render/RHI/PipelineState/BlendState.h"
 #include "Render/RHI/Texture/TextureView.h"
 
 #include <vulkan/vulkan.h>
@@ -30,5 +31,7 @@ VkAttachmentLoadOp ToVkLoadOp(LoadOp op);
 VkAttachmentStoreOp ToVkStoreOp(StoreOp op);
 
 VkRenderingAttachmentInfo ToVkAttachment(const RenderingAttachmentInfo& attachmentInfo);
+
+VkColorComponentFlags ToVkColorWriteMask(ColorWriteMask mask);
 
 } // namespace URay::Render::Vulkan

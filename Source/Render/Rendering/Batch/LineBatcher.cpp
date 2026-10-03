@@ -77,6 +77,10 @@ DrawCommand LineBatcher::Flush()
     cmd.vertexBuffer = vertexBuffer.get();
     cmd.vertexCount = static_cast<uint32>(vertices.size());
 
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    colorBlendAttachments.push_back(ColorBlendAttachmentState{
+        .mode = BlendMode::Opaque });
+
     PipelineStateDesc psoDesc = {};
     psoDesc.shader = renderShader;
     psoDesc.vertexInputLayout = &Vertex::GetInputLayout();
@@ -84,6 +88,7 @@ DrawCommand LineBatcher::Flush()
     psoDesc.depthStencil.depthTestEnable = true;
     psoDesc.depthStencil.depthWriteEnable = false;
     psoDesc.rasterizer.cullMode = CullMode::None;
+    psoDesc.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = psoDesc;
 

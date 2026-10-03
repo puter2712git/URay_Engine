@@ -42,7 +42,7 @@ void SelectionOutlinePass::Begin(const RenderPassContext& context)
 
     const std::array colorAttachments = {
         RenderingAttachmentInfo{
-            .imageView = context.postProcessRenderTarget.GetColorView()->GetHandle(),
+            .imageView = context.postProcessRenderTarget.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
             .loadOp = LoadOp::Load,
             .storeOp = StoreOp::Store }
@@ -56,7 +56,7 @@ void SelectionOutlinePass::Begin(const RenderPassContext& context)
         .colorAttachments = colorAttachments
     };
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ColorAttachment);
+    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
 
@@ -73,7 +73,7 @@ void SelectionOutlinePass::End(const RenderPassContext& context)
 {
     context.commandBuffer.EndRendering();
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ShaderReadOnly);
+    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
 }
 
 void SelectionOutlinePass::Execute(
@@ -92,7 +92,7 @@ void SelectionOutlinePass::Execute(
     uniformBuffers[currentFrame]->Update(&constants, sizeof(constants));
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
-    descriptorSet->WriteSampledImage(0, context.selectionMaskRenderTarget.GetColorView(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    descriptorSet->WriteSampledImage(0, context.selectionMaskRenderTarget.GetColorView(0), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     descriptorSet->WriteSampler(1, sampler);
     descriptorSet->WriteUniformBuffer(2, *uniformBuffers[currentFrame]);
 
@@ -169,13 +169,18 @@ void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
 
     if (!pso)
     {
+        std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+        colorBlendAttachments.push_back(ColorBlendAttachmentState{
+            .mode = BlendMode::AlphaBlend,
+            .writeMask = ColorWriteMask::RGBA });
+
         PipelineStateDesc psoDesc = {
             .shader = shader,
             .vertexInputLayout = &GetEmptyVertexInputLayout(),
             .topology = PrimitiveTopology::TriangleList,
             .depthStencil = { .depthTestEnable = false, .depthWriteEnable = false },
             .rasterizer = { .cullMode = CullMode::None },
-            .blend = { .mode = BlendMode::AlphaBlend },
+            .colorBlendAttachments = colorBlendAttachments,
             .rendering = { .colorAttachmentFormats = { Format::BGRA8_sRGB } }
         };
 

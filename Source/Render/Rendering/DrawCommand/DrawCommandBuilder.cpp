@@ -115,12 +115,16 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
     stateDesc.topology = PrimitiveTopology::TriangleList;
     stateDesc.vertexInputLayout = &VertexPNT::GetInputLayout();
     stateDesc.depthStencil = depthStencil;
-    stateDesc.blend.mode = BlendMode::AlphaBlend;
 
-    stateDesc.rasterizer.polygonMode =
-        viewMode == ViewMode::Wireframe
-            ? PolygonMode::Line
-            : PolygonMode::Fill;
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    colorBlendAttachments.push_back(ColorBlendAttachmentState{
+        .mode = BlendMode::Opaque });
+
+    stateDesc.colorBlendAttachments = colorBlendAttachments;
+
+    stateDesc.rasterizer.polygonMode = viewMode == ViewMode::Wireframe
+                                           ? PolygonMode::Line
+                                           : PolygonMode::Fill;
 
     DrawCommand cmd = {};
     cmd.passId = passId;
@@ -167,8 +171,10 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
 
-    BlendState blend = {};
-    blend.mode = BlendMode::AlphaBlend;
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    colorBlendAttachments.push_back(ColorBlendAttachmentState{
+        .mode = BlendMode::AlphaBlend,
+        .writeMask = ColorWriteMask::RGBA });
 
     PipelineStateDesc state = {};
     state.shader = shader;
@@ -176,7 +182,7 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
     state.vertexInputLayout = &VertexPNT::GetInputLayout();
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
-    state.blend = blend;
+    state.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = state;
     cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
@@ -301,8 +307,10 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::Back;
 
-    BlendState blend = {};
-    blend.mode = BlendMode::AlphaBlend;
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    colorBlendAttachments.push_back(ColorBlendAttachmentState{
+        .mode = BlendMode::AlphaBlend,
+        .writeMask = ColorWriteMask::RGBA });
 
     PipelineStateDesc state = {};
     state.shader = shader;
@@ -310,7 +318,7 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
     state.vertexInputLayout = &VertexPNT::GetInputLayout();
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
-    state.blend = blend;
+    state.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = state;
     cmd.descriptorSets[1] = context.decalMaterial->GetDescriptorSet(currentFrame);
@@ -344,12 +352,17 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
 
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    colorBlendAttachments.push_back(ColorBlendAttachmentState{
+        .mode = BlendMode::Opaque });
+
     PipelineStateDesc state = {};
     state.shader = shader;
     state.topology = PrimitiveTopology::TriangleList;
     state.vertexInputLayout = &VertexPNT::GetInputLayout();
     state.depthStencil = depthStencil;
     state.rasterizer = rasterizer;
+    state.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = state;
     cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);

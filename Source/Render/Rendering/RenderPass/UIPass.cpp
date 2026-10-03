@@ -95,7 +95,10 @@ void UIPass::BeginSwapChainPass(const RenderPassContext& context)
     colorAttachment.layout = ImageLayout::ColorAttachment;
     colorAttachment.loadOp = LoadOp::Clear;
     colorAttachment.storeOp = StoreOp::Store;
-    colorAttachment.clearColor = Color::Black;
+    colorAttachment.clearColor = ClearColorValue{
+        .type = ClearValueType::Float,
+        .floatValue = Color::Black
+    };
 
     const RenderingInfo renderingInfo = {
         .renderArea = { .offset = { 0, 0 }, .extent = context.swapChainExtent },

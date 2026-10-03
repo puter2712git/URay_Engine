@@ -18,6 +18,8 @@ VkFormat ToVkFormat(Format format)
         return VK_FORMAT_R8G8B8A8_SRGB;
     case Format::BGRA8_sRGB:
         return VK_FORMAT_B8G8R8A8_SRGB;
+    case Format::R32_UInt:
+        return VK_FORMAT_R32_UINT;
     case Format::D32_Float:
         return VK_FORMAT_D32_SFLOAT;
     case Format::D32_Float_S8_UInt:
@@ -39,6 +41,8 @@ Format FromVkFormat(VkFormat format)
         return Format::RGBA8_sRGB;
     case VK_FORMAT_B8G8R8A8_SRGB:
         return Format::BGRA8_sRGB;
+    case VK_FORMAT_R32_UINT:
+        return Format::R32_UInt;
     case VK_FORMAT_D32_SFLOAT:
         return Format::D32_Float;
     case VK_FORMAT_D32_SFLOAT_S8_UINT:
@@ -212,13 +216,39 @@ VkRenderingAttachmentInfo ToVkAttachment(const RenderingAttachmentInfo& attachme
     }
     else
     {
-        attachment.clearValue.color.float32[0] = attachmentInfo.clearColor.r;
-        attachment.clearValue.color.float32[1] = attachmentInfo.clearColor.g;
-        attachment.clearValue.color.float32[2] = attachmentInfo.clearColor.b;
-        attachment.clearValue.color.float32[3] = attachmentInfo.clearColor.a;
+        if (attachmentInfo.clearColor.type == ClearValueType::UInt)
+        {
+            attachment.clearValue.color.uint32[0] = attachmentInfo.clearColor.uintValue;
+        }
+        else
+        {
+            const Color& color = attachmentInfo.clearColor.floatValue;
+            attachment.clearValue.color.float32[0] = color.r;
+            attachment.clearValue.color.float32[1] = color.g;
+            attachment.clearValue.color.float32[2] = color.b;
+            attachment.clearValue.color.float32[3] = color.a;
+        }
     }
 
     return attachment;
+}
+
+VkColorComponentFlags ToVkColorWriteMask(ColorWriteMask mask)
+{
+    const uint8 bits = static_cast<uint8>(mask);
+
+    VkColorComponentFlags flags = 0;
+
+    if ((bits & static_cast<uint8>(ColorWriteMask::R)) != 0)
+        flags |= VK_COLOR_COMPONENT_R_BIT;
+    if ((bits & static_cast<uint8>(ColorWriteMask::G)) != 0)
+        flags |= VK_COLOR_COMPONENT_G_BIT;
+    if ((bits & static_cast<uint8>(ColorWriteMask::B)) != 0)
+        flags |= VK_COLOR_COMPONENT_B_BIT;
+    if ((bits & static_cast<uint8>(ColorWriteMask::A)) != 0)
+        flags |= VK_COLOR_COMPONENT_A_BIT;
+
+    return flags;
 }
 
 } // namespace URay::Render::Vulkan

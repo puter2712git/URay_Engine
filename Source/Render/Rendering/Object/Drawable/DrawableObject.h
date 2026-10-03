@@ -12,7 +12,6 @@ class DrawableObject : public RenderObject
     URAY_TYPE(DrawableObject, RenderObject)
 
 public:
-    ~DrawableObject() override = default;
 
 public:
     virtual void Submit(DrawCommandBuilder& builder) const = 0;

@@ -36,7 +36,7 @@ struct PipelineStateDesc
 
     DepthStencilState depthStencil = {};
     RasterizerState rasterizer = {};
-    BlendState blend = {};
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
 
     PipelineRenderingDesc rendering = {};
 
@@ -64,7 +64,12 @@ struct PipelineStateDescHash
         combine(desc.depthStencil.stencilTestEnable);
         combine(desc.rasterizer.cullMode);
         combine(desc.rasterizer.polygonMode);
-        combine(desc.blend.mode);
+
+        for (const ColorBlendAttachmentState& state : desc.colorBlendAttachments)
+        {
+            combine(state.mode);
+            combine(state.writeMask);
+        }
 
         for (Format colorAttachmentFormat : desc.rendering.colorAttachmentFormats)
             combine(colorAttachmentFormat);

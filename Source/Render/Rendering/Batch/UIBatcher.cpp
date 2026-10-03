@@ -101,6 +101,11 @@ std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
 
         cmd.descriptorSets[1] = descriptorSet;
 
+        std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+        colorBlendAttachments.push_back(ColorBlendAttachmentState{
+            .mode = BlendMode::AlphaBlend,
+            .writeMask = ColorWriteMask::RGBA });
+
         PipelineStateDesc psoDesc = {};
         psoDesc.shader = shader;
         psoDesc.topology = PrimitiveTopology::TriangleList;
@@ -108,7 +113,7 @@ std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
         psoDesc.depthStencil.depthTestEnable = false;
         psoDesc.depthStencil.depthWriteEnable = false;
         psoDesc.rasterizer.cullMode = CullMode::None;
-        psoDesc.blend.mode = BlendMode::AlphaBlend;
+        psoDesc.colorBlendAttachments = colorBlendAttachments;
 
         cmd.pipelineState = psoDesc;
 

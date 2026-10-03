@@ -27,11 +27,13 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
 
     const std::array colorAttachments = {
         RenderingAttachmentInfo{
-            .imageView = context.selectionMaskRenderTarget.GetColorView()->GetHandle(),
+            .imageView = context.selectionMaskRenderTarget.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
             .loadOp = LoadOp::Clear,
             .storeOp = StoreOp::Store,
-            .clearColor = Color(0.0f, 0.0f, 0.0f, 1.0f) }
+            .clearColor = {
+                .type = ClearValueType::Float,
+                .floatValue = Color::Black } }
     };
 
     const RenderingAttachmentInfo depthAttachment = {
@@ -52,7 +54,7 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
         .depthAttachment = &depthAttachment
     };
 
-    context.selectionMaskRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ColorAttachment);
+    context.selectionMaskRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
     context.selectionMaskRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
@@ -70,7 +72,7 @@ void SelectionMaskPass::End(const RenderPassContext& context)
 {
     context.commandBuffer.EndRendering();
 
-    context.selectionMaskRenderTarget.TransitionColor(context.commandBuffer, ImageLayout::ShaderReadOnly);
+    context.selectionMaskRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
     context.selectionMaskRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
 }
 

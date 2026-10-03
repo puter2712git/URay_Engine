@@ -24,6 +24,19 @@ enum class StoreOp : uint8
     DontCare
 };
 
+enum class ClearValueType : uint8
+{
+    Float,
+    UInt
+};
+
+struct ClearColorValue
+{
+    ClearValueType type = ClearValueType::Float;
+    Color floatValue = Color::White;
+    uint32 uintValue = 0;
+};
+
 struct RenderingAttachmentInfo
 {
     VkImageView imageView = VK_NULL_HANDLE;
@@ -32,7 +45,7 @@ struct RenderingAttachmentInfo
     LoadOp loadOp = LoadOp::Load;
     StoreOp storeOp = StoreOp::Store;
 
-    Color clearColor = Color::White;
+    ClearColorValue clearColor = {};
     float clearDepth = 1.0f;
     uint32 clearStencil = 0;
 };
