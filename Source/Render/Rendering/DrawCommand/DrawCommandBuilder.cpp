@@ -130,6 +130,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
     cmd.passId = passId;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
+    cmd.objectId = context.objectId;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
     cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();

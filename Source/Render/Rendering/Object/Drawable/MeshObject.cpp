@@ -35,6 +35,7 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
         builder.BuildMesh(
             { .worldMatrix = state.worldMatrix,
               .colorTint = state.colorTint,
+              .objectId = GetId(),
               .mesh = state.mesh,
               .material = state.materials[section.materialIndex],
               .indexOffset = section.indexOffset,
@@ -46,6 +47,7 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
             builder.BuildMesh(
                 { .worldMatrix = state.worldMatrix,
                   .colorTint = state.colorTint,
+                  .objectId = GetId(),
                   .mesh = state.mesh,
                   .material = state.materials[section.materialIndex],
                   .indexOffset = section.indexOffset,

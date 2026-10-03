@@ -44,7 +44,14 @@ void OpaquePass::Begin(const RenderPassContext& context)
             .type = ClearValueType::UInt,
             .uintValue = 0 } });
 
-    const RenderingAttachmentInfo depthAttachment = { .imageView = context.sceneRenderTarget.GetDepthView()->GetHandle(), .layout = ImageLayout::DepthAttachment, .loadOp = LoadOp::Clear, .storeOp = StoreOp::Store, .clearDepth = 1.0f, .clearStencil = 0 };
+    const RenderingAttachmentInfo depthAttachment = {
+        .imageView = context.sceneRenderTarget.GetDepthView()->GetHandle(),
+        .layout = ImageLayout::DepthAttachment,
+        .loadOp = LoadOp::Clear,
+        .storeOp = StoreOp::Store,
+        .clearDepth = 1.0f,
+        .clearStencil = 0
+    };
 
     const RenderingInfo renderingInfo = {
         .renderArea = {
@@ -97,7 +104,7 @@ void OpaquePass::Execute(
         };
         psoDesc.colorBlendAttachments.push_back(ColorBlendAttachmentState{
             .mode = BlendMode::Opaque,
-            .writeMask = ColorWriteMask::None });
+            .writeMask = ColorWriteMask::R });
 
         PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 

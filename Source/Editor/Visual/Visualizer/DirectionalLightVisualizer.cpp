@@ -12,6 +12,7 @@
 #include "Render/Rendering/Object/Drawable/BillboardObject.h"
 #include "Render/Rendering/Object/Drawable/MeshObject.h"
 #include "Render/Rendering/Scene/RenderScene.h"
+#include "Render/Rendering/Scene/SceneSystem.h"
 
 namespace URay
 {
@@ -57,17 +58,20 @@ DirectionalLightVisualizer::DirectionalLightVisualizer(EditorVisualContext& cont
     visual.arrow = arrow.get();
     visual.billboard = billboard.get();
 
-    renderScene.Add(std::move(arrow), &component);
-    renderScene.Add(std::move(billboard), &component);
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.AddObject(context.renderScene, std::move(arrow), &component);
+    sceneSystem.AddObject(context.renderScene, std::move(billboard), &component);
 }
 
 DirectionalLightVisualizer::~DirectionalLightVisualizer()
 {
+    Render::SceneSystem& sceneSystem = renderScene.GetSceneSystem();
+
     if (visual.arrow)
-        renderScene.Destroy(visual.arrow);
+        sceneSystem.DestroyObject(renderScene, visual.arrow);
 
     if (visual.billboard)
-        renderScene.Destroy(visual.billboard);
+        sceneSystem.DestroyObject(renderScene, visual.billboard);
 }
 
 void DirectionalLightVisualizer::OnUnitWorldTransformUpdated(EditorVisualContext& context, Scene&, Unit& unit, Component& component)

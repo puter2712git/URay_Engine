@@ -42,6 +42,37 @@ void SceneSystem::Finalize()
     sceneSystem.GetSceneAddRay().UnregisterAll(this);
 }
 
+RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderObject> object, Component* component)
+{
+    if (!object)
+        return nullptr;
+
+    RenderObject* objectPtr = object.get();
+    objectPtr->SetId(AllocateObjectId());
+
+    scene.Add(std::move(object));
+
+    Unit* unit = component ? component->GetOwner() : nullptr;
+    objectAddRay.Emit(&scene, objectPtr, unit, component);
+
+    return objectPtr;
+}
+
+void SceneSystem::DestroyObject(RenderScene& scene, RenderObject* object)
+{
+    if (!object)
+        return;
+
+    objectDestroyRay.Emit(&scene, object);
+    scene.Destroy(object);
+}
+
+uint32 SceneSystem::AllocateObjectId()
+{
+    assert(nextObjectId != 0);
+    return nextObjectId++;
+}
+
 RenderScene* SceneSystem::GetRenderScene(Scene* scene) const
 {
     const auto it = scenes.find(scene);
@@ -77,10 +108,9 @@ void SceneSystem::OnEngineSceneComponentAdded(Scene* scene, Unit* unit, Componen
     if (!renderComponent)
         return;
 
-    std::unique_ptr<RenderObject> newRenderObject = nullptr;
-    newRenderObject.reset(renderComponent->CreateRenderObject());
+    std::unique_ptr<RenderObject> newRenderObject(renderComponent->CreateRenderObject());
 
-    renderScene->Add(std::move(newRenderObject), component);
+    AddObject(*renderScene, std::move(newRenderObject), component);
 }
 
 void SceneSystem::OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Component* component)
@@ -95,7 +125,7 @@ void SceneSystem::OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Comp
         return;
 
     RenderObject* renderObject = renderComponent->GetRenderObject();
-    renderScene->Destroy(renderObject);
+    DestroyObject(*renderScene, renderObject);
 }
 
 } // namespace URay::Render

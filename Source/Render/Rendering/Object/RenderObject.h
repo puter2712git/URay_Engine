@@ -2,6 +2,7 @@
 
 #include "Core/Math/Matrix.h"
 #include "Core/Type/RuntimeType.h"
+#include "Core/Type/Types.h"
 
 namespace URay::Render
 {
@@ -24,6 +25,9 @@ public:
     bool IsEnabled() const { return isEnabled; }
     void SetEnabled(bool enabled) { isEnabled = enabled; }
 
+    uint32 GetId() const { return id; }
+    void SetId(uint32 id) { this->id = id; }
+
 protected:
     void NotifyUpdated();
 
@@ -33,6 +37,8 @@ protected:
 
 private:
     RenderScene* scene = nullptr;
+
+    uint32 id = 0;
 };
 
 } // namespace URay::Render

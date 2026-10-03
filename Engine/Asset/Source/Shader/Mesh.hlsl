@@ -122,9 +122,15 @@ VertexPNTOut VSMain(VertexPNTIn input)
     return output;
 }
 
-FragOut PSMain(VertexPNTOut input)
+struct MeshFragOut
 {
-    FragOut output;
+    [[vk::location(0)]] float4 outColor : SV_Target;
+    [[vk::location(1)]] uint outObjectId : SV_Target1;
+};
+
+MeshFragOut PSMain(VertexPNTOut input)
+{
+    MeshFragOut output;
     
 #if URAY_SELECTION_MASK
     output.outColor = float4(1, 1, 1, 1);
@@ -135,5 +141,6 @@ FragOut PSMain(VertexPNTOut input)
     output.outColor = float4(finalColor, albedo.a);
 #endif
 
+    output.outObjectId = obj.objectId;
     return output;
 }

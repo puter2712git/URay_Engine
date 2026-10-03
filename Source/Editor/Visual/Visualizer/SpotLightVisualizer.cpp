@@ -165,7 +165,9 @@ void SpotLightVisualizer::CreateLine(EditorVisualContext& context, Component& co
     std::unique_ptr<Render::LineObject> line =
         std::make_unique<Render::LineObject>(MakeLineState(*visual.unit, component));
     visual.line = line.get();
-    context.renderScene.Add(std::move(line), &component);
+
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.AddObject(context.renderScene, std::move(line), &component);
 }
 
 void SpotLightVisualizer::DestroyLine(EditorVisualContext& context, SpotLightVisual& visual)
@@ -173,7 +175,9 @@ void SpotLightVisualizer::DestroyLine(EditorVisualContext& context, SpotLightVis
     if (!visual.line)
         return;
 
-    context.renderScene.Destroy(visual.line);
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.DestroyObject(context.renderScene, visual.line);
+
     visual.line = nullptr;
 }
 

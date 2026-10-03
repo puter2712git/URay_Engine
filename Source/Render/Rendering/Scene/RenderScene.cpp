@@ -17,7 +17,7 @@ RenderScene::RenderScene(SceneSystem& sceneSystem) : sceneSystem(sceneSystem) {}
 
 RenderScene::~RenderScene() = default;
 
-void RenderScene::Add(std::unique_ptr<RenderObject> object, Component* component)
+void RenderScene::Add(std::unique_ptr<RenderObject> object)
 {
     if (!object)
         return;
@@ -31,17 +31,12 @@ void RenderScene::Add(std::unique_ptr<RenderObject> object, Component* component
     }
 
     objects.push_back(std::move(object));
-
-    Unit* unit = component ? component->GetOwner() : nullptr;
-    sceneSystem.GetObjectAddRay().Emit(this, renderObject, unit, component);
 }
 
 void RenderScene::Destroy(RenderObject* object)
 {
     if (!object)
         return;
-
-    sceneSystem.GetObjectDestroyRay().Emit(this, object);
 
     std::erase_if(objects, [&](std::unique_ptr<RenderObject>& robj)
                   { return object == robj.get(); });

@@ -2,6 +2,8 @@
 
 #include "Engine/Ray/EventRay.h"
 
+#include "Core/Type/Types.h"
+
 #include <memory>
 #include <unordered_map>
 
@@ -28,6 +30,11 @@ public:
     bool Initialize();
     void Finalize();
 
+    RenderObject* AddObject(RenderScene& scene, std::unique_ptr<RenderObject> object, Component* component);
+    void DestroyObject(RenderScene& scene, RenderObject* object);
+
+    uint32 AllocateObjectId();
+
     RenderScene* GetRenderScene(Scene* scene) const;
 
     EventRay<RenderScene*, RenderObject*, Unit*, Component*>& GetObjectAddRay() { return objectAddRay; }
@@ -47,6 +54,8 @@ private:
     EventRay<RenderScene*, RenderObject*, Unit*, Component*> objectAddRay;
     EventRay<RenderScene*, RenderObject*> objectDestroyRay;
     EventRay<RenderScene*, RenderObject*> objectUpdateRay;
+
+    uint32 nextObjectId = 1;
 };
 
 } // namespace URay::Render

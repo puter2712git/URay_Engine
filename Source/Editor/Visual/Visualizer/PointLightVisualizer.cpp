@@ -38,7 +38,9 @@ PointLightVisualizer::PointLightVisualizer(EditorVisualContext& context, Unit& u
         .component = &component,
         .billboard = billboard.get()
     };
-    renderScene.Add(std::move(billboard), &component);
+
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.AddObject(context.renderScene, std::move(billboard), &component);
 
     if (selectionSystem.GetSelectedUnit() == &unit)
         CreateLine(context, component, visual);
@@ -52,8 +54,11 @@ PointLightVisualizer::~PointLightVisualizer()
         .renderScene = renderScene
     };
     DestroyLine(context, visual);
+
+    Render::SceneSystem& sceneSystem = renderScene.GetSceneSystem();
+
     if (visual.billboard)
-        renderScene.Destroy(visual.billboard);
+        sceneSystem.DestroyObject(renderScene, visual.billboard);
 }
 
 Render::BillboardObjectState PointLightVisualizer::MakeBillboardState(
@@ -191,7 +196,9 @@ void PointLightVisualizer::CreateLine(EditorVisualContext& context, Component& c
     std::unique_ptr<Render::LineObject> line =
         std::make_unique<Render::LineObject>(MakeLineState(context, *visual.unit, component));
     visual.line = line.get();
-    context.renderScene.Add(std::move(line), &component);
+
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.AddObject(context.renderScene, std::move(line), &component);
 }
 
 void PointLightVisualizer::DestroyLine(EditorVisualContext& context, PointLightVisual& visual)
@@ -199,7 +206,9 @@ void PointLightVisualizer::DestroyLine(EditorVisualContext& context, PointLightV
     if (!visual.line)
         return;
 
-    context.renderScene.Destroy(visual.line);
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.DestroyObject(context.renderScene, visual.line);
+
     visual.line = nullptr;
 }
 

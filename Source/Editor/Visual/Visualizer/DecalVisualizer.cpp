@@ -36,7 +36,9 @@ DecalVisualizer::DecalVisualizer(EditorVisualContext& context, Unit& unit, Compo
         .component = &component,
         .billboard = billboard.get()
     };
-    renderScene.Add(std::move(billboard), &component);
+
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.AddObject(context.renderScene, std::move(billboard), &component);
 
     if (selectionSystem.GetSelectedUnit() == &unit)
         CreateLine(context, component, visual);
@@ -50,8 +52,11 @@ DecalVisualizer::~DecalVisualizer()
         .renderScene = renderScene
     };
     DestroyLine(context, visual);
+
+    Render::SceneSystem& sceneSystem = renderScene.GetSceneSystem();
+
     if (visual.billboard)
-        renderScene.Destroy(visual.billboard);
+        sceneSystem.DestroyObject(renderScene, visual.billboard);
 }
 
 Render::BillboardObjectState DecalVisualizer::MakeBillboardState(EditorVisualContext& context, Unit& unit)
@@ -150,7 +155,9 @@ void DecalVisualizer::CreateLine(EditorVisualContext& context, Component& compon
     std::unique_ptr<Render::LineObject> line =
         std::make_unique<Render::LineObject>(MakeLineState(*visual.unit, component));
     visual.line = line.get();
-    context.renderScene.Add(std::move(line), &component);
+
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.AddObject(context.renderScene, std::move(line), &component);
 }
 
 void DecalVisualizer::DestroyLine(EditorVisualContext& context, DecalVisual& visual)
@@ -158,7 +165,9 @@ void DecalVisualizer::DestroyLine(EditorVisualContext& context, DecalVisual& vis
     if (!visual.line)
         return;
 
-    context.renderScene.Destroy(visual.line);
+    Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
+    sceneSystem.DestroyObject(context.renderScene, visual.line);
+
     visual.line = nullptr;
 }
 
