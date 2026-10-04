@@ -35,6 +35,7 @@ void BillboardObject::Submit(DrawCommandBuilder& builder) const
         builder.BuildBillboard({
             .worldMatrix = state.worldMatrix,
             .colorTint = state.colorTint,
+            .objectId = GetId(),
             .mesh = state.mesh,
             .material = state.materials[section.materialIndex],
             .indexOffset = section.indexOffset,

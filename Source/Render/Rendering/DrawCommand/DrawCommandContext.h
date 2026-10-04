@@ -33,6 +33,7 @@ struct BillboardCommandContext
 {
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
+    uint32 objectId = 0;
 
     Mesh* mesh = nullptr;
     Material* material = nullptr;

@@ -131,6 +131,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.objectId = context.objectId;
+    cmd.writeObjectId = true;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
     cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();
@@ -159,6 +160,8 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
     cmd.passId = RenderPassId::Overlay;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
+    cmd.objectId = context.objectId;
+    cmd.writeObjectId = true;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
     cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();

@@ -27,6 +27,7 @@ struct DrawCommand
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     uint32 objectId = 0;
+    bool writeObjectId = false;
 
     Buffer* vertexBuffer = nullptr;
     uint32 vertexCount = 0;

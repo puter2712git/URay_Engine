@@ -22,11 +22,22 @@ VertexPNTOut VSMain(VertexPNTIn input)
     return output;
 }
 
-FragOut PSMain(VertexPNTOut input)
+struct BillboardFragOut
 {
-    FragOut output;
+    [[vk::location(0)]] float4 outColor : SV_Target;
+    [[vk::location(1)]] uint outObjectId : SV_Target1;
+};
 
-    output.outColor = textureImage.Sample(textureSampler, input.outUV) * obj.colorTint;
+BillboardFragOut PSMain(VertexPNTOut input)
+{
+    BillboardFragOut output;
+
+    float4 color = textureImage.Sample(textureSampler, input.outUV) * obj.colorTint;
+    
+    clip(color.a - 0.01f);
+    
+    output.outColor = color;
+    output.outObjectId = obj.objectId;
 
     return output;
 }

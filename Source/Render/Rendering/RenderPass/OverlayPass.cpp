@@ -50,7 +50,9 @@ void OverlayPass::Execute(
         };
         psoDesc.colorBlendAttachments.push_back(ColorBlendAttachmentState{
             .mode = BlendMode::Opaque,
-            .writeMask = ColorWriteMask::None });
+            .writeMask = cmd.writeObjectId
+                             ? ColorWriteMask::R
+                             : ColorWriteMask::None });
 
         PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
