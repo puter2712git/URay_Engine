@@ -32,15 +32,38 @@ void BillboardObject::Submit(DrawCommandBuilder& builder) const
             !state.materials[section.materialIndex])
             continue;
 
-        builder.BuildBillboard({
-            .worldMatrix = state.worldMatrix,
-            .colorTint = state.colorTint,
-            .objectId = GetId(),
-            .mesh = state.mesh,
-            .material = state.materials[section.materialIndex],
-            .indexOffset = section.indexOffset,
-            .indexCount = section.indexCount,
-        });
+        builder.BuildBillboard(
+            { .worldMatrix = state.worldMatrix,
+              .colorTint = state.colorTint,
+              .objectId = GetId(),
+              .mesh = state.mesh,
+              .material = state.materials[section.materialIndex],
+              .indexOffset = section.indexOffset,
+              .indexCount = section.indexCount },
+            RenderPassId::Overlay);
+    }
+}
+
+void BillboardObject::SubmitSelectionMask(DrawCommandBuilder& builder) const
+{
+    if (!state.mesh)
+        return;
+
+    for (const auto& section : state.mesh->GetSections())
+    {
+        if (section.materialIndex >= state.materials.size() ||
+            !state.materials[section.materialIndex])
+            continue;
+
+        builder.BuildBillboard(
+            { .worldMatrix = state.worldMatrix,
+              .colorTint = state.colorTint,
+              .objectId = GetId(),
+              .mesh = state.mesh,
+              .material = state.materials[section.materialIndex],
+              .indexOffset = section.indexOffset,
+              .indexCount = section.indexCount },
+            RenderPassId::SelectionMask);
     }
 }
 

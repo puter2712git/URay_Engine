@@ -3,6 +3,10 @@
 #include "Common/ObjectConstants.hlsli"
 #include "Common/VertexTypes.hlsli"
 
+#ifndef URAY_SELECTION_MASK
+#define URAY_SELECTION_MASK 0
+#endif
+
 [[vk::binding(0, 1)]] Texture2D<float4> textureImage;
 [[vk::binding(1, 1)]] SamplerState textureSampler;
 
@@ -36,7 +40,11 @@ BillboardFragOut PSMain(VertexPNTOut input)
     
     clip(color.a - 0.01f);
     
+#if URAY_SELECTION_MASK
+    output.outColor = float4(1, 1, 1, 1);
+#else
     output.outColor = color;
+#endif
     output.outObjectId = obj.objectId;
 
     return output;

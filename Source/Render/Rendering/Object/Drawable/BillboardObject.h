@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Render/RHI/Vertex/Vertex.h"
 #include "Render/Rendering/Object/BoundedObject.h"
 #include "Render/Rendering/Object/Drawable/DrawableObject.h"
-#include "Render/RHI/Vertex/Vertex.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 
@@ -38,6 +38,7 @@ public:
 public:
     void Update(const BillboardObjectState& state);
     void Submit(DrawCommandBuilder& builder) const override;
+    void SubmitSelectionMask(DrawCommandBuilder& builder) const override;
 
     const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
     Mesh* GetMesh() const { return state.mesh; }

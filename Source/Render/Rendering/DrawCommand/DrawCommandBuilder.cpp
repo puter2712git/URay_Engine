@@ -147,17 +147,24 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
     drawCmds.push_back(cmd);
 }
 
-void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
+void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context, RenderPassId passId)
 {
     context.material->PrepareDescriptorSet(currentFrame);
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
+
+    std::vector<ShaderDefine> defines;
+    if (passId == RenderPassId::SelectionMask)
+    {
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SELECTION_MASK", .value = L"1" } });
+    }
+
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),
-        {});
+        defines);
 
     DrawCommand cmd = {};
-    cmd.passId = RenderPassId::Overlay;
+    cmd.passId = passId;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.objectId = context.objectId;
@@ -170,14 +177,14 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context)
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
-    depthStencil.depthWriteEnable = false;
+    depthStencil.depthWriteEnable = passId == RenderPassId::Overlay ? false : true;
 
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
 
     std::vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
-        .mode = BlendMode::AlphaBlend,
+        .mode = passId == RenderPassId::Overlay ? BlendMode::AlphaBlend : BlendMode::Opaque,
         .writeMask = ColorWriteMask::RGBA });
 
     PipelineStateDesc state = {};
