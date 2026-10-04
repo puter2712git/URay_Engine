@@ -222,11 +222,16 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     if (request.selectedUnit)
     {
-        for (const auto& component : request.selectedUnit->GetComponents())
+        for (RenderScene* scene : request.scenes)
         {
-            if (RenderComponent* renderComponent = Cast<RenderComponent>(component.get()))
+            if (!scene)
+                continue;
+
+            for (RenderObject* renderObject : scene->GetObjects(request.selectedUnit))
             {
-                RenderObject* renderObject = renderComponent->GetRenderObject();
+                if (!renderObject || !renderObject->IsEnabled())
+                    continue;
+
                 if (DrawableObject* drawableObject = Cast<DrawableObject>(renderObject))
                 {
                     drawableObject->SubmitSelectionMask(*builder);

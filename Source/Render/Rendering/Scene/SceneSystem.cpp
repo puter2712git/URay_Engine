@@ -50,9 +50,9 @@ RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderO
     RenderObject* objectPtr = object.get();
     objectPtr->SetId(AllocateObjectId());
 
-    scene.Add(std::move(object));
-
     Unit* unit = component ? component->GetOwner() : nullptr;
+    scene.Add(std::move(object), unit);
+
     objectAddRay.Emit(&scene, objectPtr, unit, component);
 
     return objectPtr;
