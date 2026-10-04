@@ -118,6 +118,14 @@ bool Renderer::Initialize()
         return false;
     }
 
+    objectIdReadback = std::make_unique<ObjectIdReadback>(device);
+    if (!objectIdReadback->Initialize())
+    {
+        URAY_LOG("[Renderer] Failed to initialize object ID readback.");
+        Finalize();
+        return false;
+    }
+
     return true;
 }
 
@@ -126,6 +134,12 @@ void Renderer::Finalize()
     vkDeviceWaitIdle(device.GetVKDevice());
 
     CleanupSwapChain();
+
+    if (objectIdReadback)
+    {
+        objectIdReadback->Finalize();
+        objectIdReadback.reset();
+    }
 
     DestroyFrameResources();
 
@@ -228,6 +242,11 @@ void Renderer::FinalizeImGui()
 bool Renderer::BeginFrame()
 {
     vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
+
+    if (const auto result = objectIdReadback->ConsumeCompleted(currentFrame))
+    {
+        objectIdReadbackRay.Emit(*result);
+    }
 
     ProcessPendingSceneRenderTargetResize();
 

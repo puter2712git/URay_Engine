@@ -14,12 +14,14 @@ namespace URay::Render
 
 class CommandPool;
 class Buffer;
+class Texture;
 class PipelineState;
 class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
 struct RenderingInfo;
 struct ImageBarrierDesc;
+struct TextureRegion;
 
 class CommandBuffer
 {
@@ -45,13 +47,14 @@ public:
     void BindPipeline(const PipelineState& pso);
     void BindVertexBuffer(const Buffer& buffer);
     void BindIndexBuffer(const Buffer& buffer);
-
     void BindDescriptorSet(
         const PipelineLayout& layout,
         const DescriptorSet& descriptorSet,
         uint32 set);
 
     void PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers);
+
+    void CopyTextureToBuffer(const Texture& texture, Buffer& buffer, const TextureRegion& region);
 
     void SetViewport(float x, float y, float width, float height, float minDepth, float maxDepth);
     void SetScissor(int offsetX, int offsetY, uint32 width, uint32 height);

@@ -44,6 +44,8 @@ public:
 
     PickResult Pick(CameraComponent* camera, float screenX, float screenY) const;
 
+    Unit* FindTarget(uint32 objectId) const;
+
 private:
     bool PickGizmo(const Ray& worldRay, int32& outAxis) const;
 
@@ -56,6 +58,8 @@ private:
 
     PickRegistry pickRegistry;
     std::unordered_map<Render::RenderObject*, std::unique_ptr<PickObject>> pickObjects;
+
+    std::unordered_map<uint32, Unit*> objectTargets;
 };
 
 } // namespace URay

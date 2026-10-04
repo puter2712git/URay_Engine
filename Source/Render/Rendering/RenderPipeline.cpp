@@ -275,6 +275,11 @@ void RenderPipeline::Execute(const RenderRequest& request)
         pass->Execute(passContext, drawCmds[passIdIndex]);
         pass->End(passContext);
     }
+
+    renderer.GetObjectIdReadback().Record(
+        passContext.commandBuffer,
+        *passContext.sceneRenderTarget.GetColorTexture(1),
+        currentFrame);
 }
 
 void RenderPipeline::AddRenderPass(std::unique_ptr<RenderPass> pass)

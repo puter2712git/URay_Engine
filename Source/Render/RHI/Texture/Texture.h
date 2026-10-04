@@ -16,6 +16,7 @@ enum class ImageLayout : uint8
 {
     Undefined,
 
+    TransferSrc,
     TransferDst,
 
     ColorAttachment,

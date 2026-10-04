@@ -34,10 +34,14 @@ ViewportWidget::ViewportWidget()
 
     gEditor->GetSelectionSystem().GetOnSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
                                                                       { gizmo->SetTarget(unit); });
+
+    renderer.GetObjectIdReadbackRay().Register(this, [this](const Render::ObjectIdReadbackResult& result)
+                                               { selectionSystem.SelectUnit(pickSystem->FindTarget(result.objectId)); });
 }
 
 ViewportWidget::~ViewportWidget()
 {
+    renderer.GetObjectIdReadbackRay().UnregisterAll(this);
     selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
 
     if (pickSystem)
@@ -71,20 +75,15 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
             return {};
 
         const PickResult pickResult = pickSystem->Pick(camera, targetPosition->x, targetPosition->y);
-        if (!pickResult.isHit)
+        if (pickResult.isHit && pickResult.gizmoAxis != -1)
         {
-            selectionSystem.SelectUnit(nullptr);
+            gizmo->StartDragging(*targetPosition, pickResult.gizmoAxis, *camera);
         }
         else
         {
-            if (pickResult.gizmoAxis != -1)
-            {
-                gizmo->StartDragging(*targetPosition, pickResult.gizmoAxis, *camera);
-            }
-            else
-            {
-                selectionSystem.SelectUnit(pickResult.pickedUnit);
-            }
+            renderer.GetObjectIdReadback().Request(
+                static_cast<uint32>(targetPosition->x),
+                static_cast<uint32>(targetPosition->y));
         }
     }
 

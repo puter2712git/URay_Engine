@@ -116,6 +116,8 @@ public:
 
     DescriptorSetLayoutDesc MakeFrameDescriptorSetLayoutDescription() const;
 
+    Buffer* CreateBuffer(const BufferDesc& desc);
+
     VkPhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
     VkDevice GetVKDevice() const { return device; }
 
@@ -123,8 +125,6 @@ public:
     VkQueue GetPresentQueue() const { return presentQueue; }
 
 private:
-    Buffer* CreateBuffer(const BufferDesc& desc);
-
     bool PickPhysicalDevice();
     bool CreateLogicalDevice();
 

@@ -59,20 +59,20 @@ void PickSystem::Finalize()
     sceneSystem.GetObjectAddRay().UnregisterAll(this);
 
     pickObjects.clear();
+    objectTargets.clear();
 }
 
 void PickSystem::OnRenderObjectAdded(Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component)
 {
-    const PickRegistry::Constructor* constructor = pickRegistry.Find(object);
-    if (constructor)
-    {
-        pickObjects.insert_or_assign(object, (*constructor)(*object, *unit));
-    }
+    if (!unit)
+        return;
+
+    objectTargets.insert({ object->GetId(), unit });
 }
 
 void PickSystem::OnRenderObjectDestroyed(Render::RenderScene* scene, Render::RenderObject* object)
 {
-    pickObjects.erase(object);
+    objectTargets.erase(object->GetId());
 }
 
 void PickSystem::OnRenderObjectUpdated(Render::RenderScene* scene, Render::RenderObject* object)
@@ -182,6 +182,18 @@ bool PickSystem::PickGizmo(const Ray& worldRay, int32& outAxis) const
     }
 
     return finalHit;
+}
+
+Unit* PickSystem::FindTarget(uint32 objectId) const
+{
+    if (objectId == 0)
+        return nullptr;
+
+    const auto it = objectTargets.find(objectId);
+    if (it == objectTargets.end())
+        return nullptr;
+
+    return it->second;
 }
 
 } // namespace URay

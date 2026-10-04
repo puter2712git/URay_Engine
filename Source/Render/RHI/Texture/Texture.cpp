@@ -77,7 +77,11 @@ Texture::SyncInfo Texture::GetSyncInfo(ImageLayout layout)
             .stage = VK_PIPELINE_STAGE_2_NONE,
             .access = VK_ACCESS_2_NONE
         };
-
+    case ImageLayout::TransferSrc:
+        return SyncInfo{
+            .stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+            .access = VK_ACCESS_2_TRANSFER_READ_BIT
+        };
     case ImageLayout::TransferDst:
         return SyncInfo{
             .stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT,

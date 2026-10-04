@@ -38,7 +38,7 @@ bool Buffer::Update(const void* data, uint64 dataSize, uint64 offset)
 
 void* Buffer::Map()
 {
-    if (memoryUsage != MemoryUsage::CpuToGpu)
+    if (memoryUsage == MemoryUsage::GpuOnly)
         return nullptr;
 
     if (mappedData != nullptr)

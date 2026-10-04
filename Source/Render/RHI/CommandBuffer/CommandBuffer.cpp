@@ -5,10 +5,10 @@
 #include "Render/RHI/CommandBuffer/CommandPool.h"
 #include "Render/RHI/CommandBuffer/ImageBarrier.h"
 #include "Render/RHI/Descriptor/DescriptorSet.h"
+#include "Render/RHI/Device.h"
 #include "Render/RHI/Framebuffer.h"
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
-#include "Render/RHI/Device.h"
 #include "Render/RHI/Vulkan/VulkanUtils.h"
 
 #include "Core/Type/Types.h"
@@ -192,6 +192,50 @@ void CommandBuffer::PipelineBarrier(std::span<const ImageBarrierDesc> imageBarri
     dependencyInfo.pImageMemoryBarriers = vkImageBarriers.data();
 
     vkCmdPipelineBarrier2(handle, &dependencyInfo);
+}
+
+void CommandBuffer::CopyTextureToBuffer(const Texture& texture, Buffer& buffer, const TextureRegion& region)
+{
+    if (region.IsEmpty())
+        return;
+
+    const TextureDesc& textureDesc = texture.GetDesc();
+
+    if (region.x >= textureDesc.width ||
+        region.y >= textureDesc.height ||
+        region.width > textureDesc.width - region.x ||
+        region.height > textureDesc.height - region.y)
+    {
+        return;
+    }
+
+    VkBufferImageCopy copy = {};
+    copy.bufferOffset = 0;
+    copy.bufferRowLength = 0;
+    copy.imageSubresource = {
+        .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+        .mipLevel = 0,
+        .baseArrayLayer = 0,
+        .layerCount = 1
+    };
+    copy.imageOffset = {
+        static_cast<int32>(region.x),
+        static_cast<int32>(region.y),
+        0
+    };
+    copy.imageExtent = {
+        region.width,
+        region.height,
+        1
+    };
+
+    vkCmdCopyImageToBuffer(
+        handle,
+        texture.GetHandle(),
+        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+        buffer.GetHandle(),
+        1,
+        &copy);
 }
 
 void CommandBuffer::SetViewport(
