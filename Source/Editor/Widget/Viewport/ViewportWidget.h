@@ -53,6 +53,7 @@ public:
 protected:
     void OnUpdate(float deltaTime) override;
     void OnDraw() override;
+    void OnPaint(Render::UIDrawContext& context) override;
 
 private:
     void UpdateCameraMovement(float deltaTime);

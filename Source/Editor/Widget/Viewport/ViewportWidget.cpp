@@ -1,9 +1,9 @@
 #include "ViewportWidget.h"
 
 #include "Editor/Editor.h"
+#include "Editor/Gizmo/TransformGizmo.h"
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
-#include "Editor/Gizmo/TransformGizmo.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/LogSystem.h"
@@ -16,8 +16,14 @@
 #include "Engine/Scene/SceneSystem.h"
 #include "Engine/Scene/Unit.h"
 
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/RenderSystem.h"
+#include "Render/Rendering/Batch/UIDrawContext.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/Rendering/Renderer.h"
+#include "Render/ResourceManager.h"
+
+#include "Platform/Window/Window.h"
 
 #include <imgui/imgui.h>
 
@@ -264,9 +270,6 @@ void ViewportWidget::OnDraw()
 {
     ApplyRect();
 
-    imageRect = {};
-    targetExtent = {};
-
     constexpr ImGuiWindowFlags flags =
         ImGuiWindowFlags_NoBackground |
         ImGuiWindowFlags_NoTitleBar |
@@ -334,41 +337,61 @@ void ViewportWidget::OnDraw()
         ImGui::EndPopup();
     }
 
-    ImGui::Separator();
-
-    const ImVec2 imagePosition = ImGui::GetCursorScreenPos();
-    const ImVec2 logicalSize = ImGui::GetContentRegionAvail();
-
-    if (logicalSize.x <= 0.0f || logicalSize.y <= 0.0f)
-    {
-        ImGui::End();
-        return;
-    }
-
-    const VkDescriptorSet descriptorSet = renderer.GetSceneImGuiTexture();
-    if (descriptorSet)
-    {
-        imageRect = {
-            .position = Vector2(imagePosition.x, imagePosition.y),
-            .size = Vector2(logicalSize.x, logicalSize.y),
-        };
-
-        targetExtent = renderer.GetSceneRenderTargetExtent();
-
-        const ImVec2 framebufferScale = ImGui::GetIO().DisplayFramebufferScale;
-        const Extent2D requestedExtent = {
-            .width = static_cast<uint32>(std::round(logicalSize.x * framebufferScale.x)),
-            .height = static_cast<uint32>(std::round(logicalSize.y * framebufferScale.y)),
-        };
-
-        renderer.RequestSceneRenderTargetResize(requestedExtent);
-        camera->SetViewportExtent(targetExtent);
-
-        const ImTextureID textureId = static_cast<ImTextureID>(reinterpret_cast<uintptr_t>(descriptorSet));
-        ImGui::Image(ImTextureRef(textureId), logicalSize);
-    }
-
     ImGui::End();
+}
+
+void ViewportWidget::OnPaint(Render::UIDrawContext& context)
+{
+    constexpr float toolbarHeight = 40.0f;
+
+    imageRect = rect;
+    imageRect.position.y += toolbarHeight;
+    imageRect.size.y -= toolbarHeight;
+
+    if (imageRect.size.x <= 0.0f || imageRect.size.y <= 0.0f)
+        return;
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::Renderer& renderer = renderSystem.GetRenderer();
+
+    Render::RenderTarget& postProcessRT =
+        renderer.GetRenderTargetRegistry().Get(
+            Render::RenderTargetId::PostProcess);
+
+    Render::TextureView* view = postProcessRT.GetColorView(0);
+    Render::Sampler* sampler =
+        gEngine->GetRenderSystem()
+            .GetResourceManager()
+            .GetOrCreateSampler({});
+
+    if (!view || !sampler)
+        return;
+
+    targetExtent = postProcessRT.GetExtent();
+
+    Window& window = gEngine->GetWindow();
+    const Extent2D clientSize = window.GetClientSize();
+    const Extent2D framebufferSize = window.GetFramebufferSize();
+
+    const float scaleX =
+        clientSize.width > 0
+            ? static_cast<float>(framebufferSize.width) / clientSize.width
+            : 1.0f;
+
+    const float scaleY =
+        clientSize.height > 0
+            ? static_cast<float>(framebufferSize.height) / clientSize.height
+            : 1.0f;
+
+    renderer.RequestSceneRenderTargetResize({
+        .width = static_cast<uint32>(std::round(imageRect.size.x * scaleX)),
+        .height = static_cast<uint32>(std::round(imageRect.size.y * scaleY)),
+    });
+
+    camera->SetViewportExtent(targetExtent);
+
+    context.AddImage(imageRect, { .view = view,
+                                  .sampler = sampler });
 }
 
 void ViewportWidget::UpdateCameraMovement(float deltaTime)

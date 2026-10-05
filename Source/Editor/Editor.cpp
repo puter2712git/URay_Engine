@@ -277,7 +277,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             }
         }
 
-        if (useEditorCamera)
+        if (!camera || useEditorCamera)
         {
             camera = editorCamera;
         }

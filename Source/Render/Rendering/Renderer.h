@@ -63,7 +63,7 @@ public:
     VkImageView GetSwapChainImageView() const;
     VkExtent2D GetSwapChainExtent() const;
 
-    VkDescriptorSet GetSceneImGuiTexture() const { return sceneImGuiTexture; }
+    EventRay<>& GetViewportRenderTargetsRecreatedRay() { return viewportRenderTargetsRecreatedRay; }
 
     FrameResource& GetFrameResource() { return frameResources[currentFrame]; }
 
@@ -109,11 +109,10 @@ private:
 
     std::unique_ptr<RenderTargetRegistry> renderTargetRegistry = nullptr;
 
-    VkDescriptorSet sceneImGuiTexture = VK_NULL_HANDLE;
-
     std::unique_ptr<CommandPool> commandPool = nullptr;
 
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
+    EventRay<> viewportRenderTargetsRecreatedRay;
 
     std::unique_ptr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
     std::array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;

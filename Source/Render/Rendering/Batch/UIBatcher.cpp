@@ -8,8 +8,10 @@
 #include "Render/RHI/Device.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/Texture/Sampler.h"
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/Font/FontAtlas.h"
+#include "Render/Rendering/Renderer.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
@@ -33,6 +35,9 @@ UIBatcher::~UIBatcher() = default;
 
 bool UIBatcher::Initialize()
 {
+    RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Renderer& renderer = renderSystem.GetRenderer();
+
     const VertexBufferDesc vbDesc = {
         .size = 1024 * 1024 * 4,
         .memoryUsage = MemoryUsage::CpuToGpu
@@ -48,11 +53,19 @@ bool UIBatcher::Initialize()
     mappedVertexData = vertexBuffer->Map();
     mappedIndexData = indexBuffer->Map();
 
+    renderer.GetViewportRenderTargetsRecreatedRay().Register(this, [this]()
+                                                             { descriptorSets.clear(); });
+
     return true;
 }
 
 void UIBatcher::Finalize()
 {
+    RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Renderer& renderer = renderSystem.GetRenderer();
+
+    renderer.GetViewportRenderTargetsRecreatedRay().UnregisterAll(this);
+
     descriptorSets.clear();
     whiteTextureView = nullptr;
     textureSetLayout = nullptr;

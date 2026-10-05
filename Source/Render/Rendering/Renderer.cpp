@@ -232,21 +232,11 @@ bool Renderer::InitializeImGui()
 
     RenderTarget& postProcessRT = renderTargetRegistry->Get(RenderTargetId::PostProcess);
 
-    sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        postProcessRT.GetColorView(0)->GetHandle(),
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
     return true;
 }
 
 void Renderer::FinalizeImGui()
 {
-    if (sceneImGuiTexture != VK_NULL_HANDLE)
-    {
-        ImGui_ImplVulkan_RemoveTexture(sceneImGuiTexture);
-        sceneImGuiTexture = VK_NULL_HANDLE;
-    }
-
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -656,19 +646,9 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
 
     vkDeviceWaitIdle(device.GetVKDevice());
 
-    if (sceneImGuiTexture != VK_NULL_HANDLE)
-    {
-        ImGui_ImplVulkan_RemoveTexture(sceneImGuiTexture);
-        sceneImGuiTexture = VK_NULL_HANDLE;
-    }
-
     renderTargetRegistry->RecreateViewportRelative(extent);
 
-    RenderTarget& postProcessRT = renderTargetRegistry->Get(RenderTargetId::PostProcess);
-
-    sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        postProcessRT.GetColorView(0)->GetHandle(),
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    viewportRenderTargetsRecreatedRay.Emit();
 }
 
 Format Renderer::FindDepthFormat() const
