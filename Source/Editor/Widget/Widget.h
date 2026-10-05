@@ -37,6 +37,9 @@ public:
     virtual void Arrange(const Rect& rect) { this->rect = rect; }
     const Rect& GetRect() const { return rect; }
 
+    const Vector2& GetDesiredSize() const { return desiredSize; }
+    void SetDesiredSize(const Vector2& size) { desiredSize = size; }
+
     bool IsHovered() const { return hovered; }
     bool IsFocused() const { return focused; }
     bool HasPointerCapture() const { return pointerCaptured; }
@@ -64,6 +67,7 @@ protected:
     std::vector<std::unique_ptr<Widget>> children;
 
     Rect rect = {};
+    Vector2 desiredSize = Vector2::Zero;
 
     bool hovered = false;
     bool focused = false;

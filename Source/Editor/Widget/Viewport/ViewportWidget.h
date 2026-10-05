@@ -22,6 +22,7 @@ class TransformGizmo;
 class PickSystem;
 class SelectionSystem;
 class Editor;
+class HorizontalLayout;
 
 namespace Render
 {
@@ -37,6 +38,8 @@ public:
     ~ViewportWidget() override;
 
 public:
+    void Arrange(const Rect& rect) override;
+
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
@@ -52,7 +55,6 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
-    void OnDraw() override;
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
@@ -91,6 +93,8 @@ private:
     bool isPerspective = true;
 
     Render::ViewMode viewMode = Render::ViewMode::Lit;
+
+    HorizontalLayout* layout = nullptr;
 };
 
 } // namespace URay

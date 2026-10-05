@@ -4,6 +4,8 @@
 #include "Editor/Gizmo/TransformGizmo.h"
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
+#include "Editor/Widget/Button.h"
+#include "Editor/Widget/Layout/HorizontalLayout.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/LogSystem.h"
@@ -43,6 +45,20 @@ ViewportWidget::ViewportWidget()
 
     renderer.GetObjectIdReadbackRay().Register(this, [this](const Render::ObjectIdReadbackResult& result)
                                                { selectionSystem.SelectUnit(pickSystem->FindTarget(result.objectId)); });
+
+    auto horizontalLayout = std::make_unique<HorizontalLayout>();
+    layout = horizontalLayout.get();
+    layout->SetPadding(Padding(5.0f, 10.0f));
+    layout->SetGap(5.0f);
+    children.push_back(std::move(horizontalLayout));
+
+    auto buttonA = std::make_unique<Button>("A");
+    buttonA->SetDesiredSize(Vector2(40.0f, 0.0f));
+    layout->AddChild(std::move(buttonA));
+
+    auto buttonB = std::make_unique<Button>("B");
+    buttonB->SetDesiredSize(Vector2(40.0f, 0.0f));
+    layout->AddChild(std::move(buttonB));
 }
 
 ViewportWidget::~ViewportWidget()
@@ -60,6 +76,16 @@ ViewportWidget::~ViewportWidget()
         gizmo.reset();
         gizmo = nullptr;
     }
+}
+
+void ViewportWidget::Arrange(const Rect& rect)
+{
+    Widget::Arrange(rect);
+
+    constexpr float toolbarHeight = 40.0f;
+
+    layout->Arrange({ .position = rect.position,
+                      .size = Vector2(rect.size.x, toolbarHeight) });
 }
 
 EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
@@ -264,80 +290,6 @@ void ViewportWidget::OnUpdate(float deltaTime)
 
     UpdateCameraMovement(deltaTime);
     UpdateCameraRotation();
-}
-
-void ViewportWidget::OnDraw()
-{
-    ApplyRect();
-
-    constexpr ImGuiWindowFlags flags =
-        ImGuiWindowFlags_NoBackground |
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoCollapse |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoResize;
-
-    ImGui::Begin("Viewport", nullptr, flags);
-
-    if (ImGui::Button("Play"))
-    {
-        gEditor->StartGame();
-    }
-    ImGui::SameLine();
-
-    if (ImGui::Button("Stop"))
-    {
-        gEditor->StopGame();
-    }
-    ImGui::SameLine();
-
-    const char* viewModeNames[] = {
-        "Lit",
-        "Unlit",
-        "Wireframe"
-    };
-
-    const int32 currViewMode = static_cast<int32>(viewMode);
-
-    if (ImGui::BeginCombo("##ViewMode", viewModeNames[currViewMode]))
-    {
-        for (int32 i = 0; i < std::size(viewModeNames); ++i)
-        {
-            const bool selected = i == currViewMode;
-
-            if (ImGui::Selectable(viewModeNames[i], selected))
-            {
-                viewMode = static_cast<Render::ViewMode>(i);
-            }
-
-            if (selected)
-            {
-                ImGui::SetItemDefaultFocus();
-            }
-        }
-
-        ImGui::EndCombo();
-    }
-    ImGui::SameLine();
-
-    if (ImGui::Button("Camera"))
-    {
-        ImGui::OpenPopup("CameraModePopup");
-    }
-
-    if (ImGui::BeginPopup("CameraModePopup"))
-    {
-        if (ImGui::Checkbox("Perspective", &isPerspective))
-        {
-            camera->SetIsPerspective(isPerspective);
-        }
-
-        ImGui::Separator();
-
-        ImGui::EndPopup();
-    }
-
-    ImGui::End();
 }
 
 void ViewportWidget::OnPaint(Render::UIDrawContext& context)
