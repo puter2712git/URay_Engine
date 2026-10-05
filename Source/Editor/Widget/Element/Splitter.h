@@ -37,7 +37,10 @@ public:
     const std::string& GetLayoutId() const { return layoutId; }
 
 protected:
-    void OnUpdate(float) override;
+    void OnPaint(Render::UIDrawContext& context) override;
+
+private:
+    Rect GetHandleRect() const;
 
 private:
     std::string layoutId;

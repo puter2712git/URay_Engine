@@ -2,6 +2,8 @@
 
 #include "Core/Type/Types.h"
 
+#include "Render/Rendering/Batch/UIDrawContext.h"
+
 #include <algorithm>
 
 namespace URay
@@ -132,8 +134,46 @@ void Splitter::Arrange(const Rect& rect)
     second->Arrange(secondRect);
 }
 
-void Splitter::OnUpdate(float)
+void Splitter::OnPaint(Render::UIDrawContext& context)
 {
+    Rect handleRect = GetHandleRect();
+
+    const Color handleColor = IsHovered() ? Color(0.1f, 0.1f, 0.1f, 0.7f) : Color(0.1f, 0.1f, 0.1f, 1.0f);
+
+    context.AddFilledRect(handleRect, handleColor);
+}
+
+Rect Splitter::GetHandleRect() const
+{
+    const bool isHorizontal = axis == SplitAxis::Horizontal;
+
+    const float totalLength = isHorizontal ? rect.size.x : rect.size.y;
+    const float actualHandleThickness = std::min(handleThickness, std::max(0.0f, totalLength));
+    const float contentLength = std::max(0.0f, totalLength - actualHandleThickness);
+    const float firstLength = contentLength * std::clamp(splitRatio, 0.0f, 1.0f);
+
+    Rect handleRect = {};
+
+    if (isHorizontal)
+    {
+        handleRect.position = Vector2(
+            rect.position.x + firstLength,
+            rect.position.y);
+        handleRect.size = Vector2(
+            actualHandleThickness,
+            rect.size.y);
+    }
+    else
+    {
+        handleRect.position = Vector2(
+            rect.position.x,
+            rect.position.y + firstLength);
+        handleRect.size = Vector2(
+            rect.size.x,
+            actualHandleThickness);
+    }
+
+    return handleRect;
 }
 
 } // namespace URay
