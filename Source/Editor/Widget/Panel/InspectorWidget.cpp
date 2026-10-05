@@ -1,4 +1,4 @@
-#include "InspectorWidget.h"
+#include "Editor/Widget/Panel/InspectorWidget.h"
 
 #include "Editor/Editor.h"
 #include "Editor/PropertyDrawer.h"

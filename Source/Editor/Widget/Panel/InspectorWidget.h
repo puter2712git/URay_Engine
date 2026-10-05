@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Panel/Panel.h"
 
 namespace URay
 {
 
 class SelectionSystem;
 
-class InspectorWidget final : public Widget
+class InspectorWidget final : public Panel
 {
-    URAY_TYPE(InspectorWidget, Widget)
+    URAY_TYPE(InspectorWidget, Panel)
 
 public:
     InspectorWidget();

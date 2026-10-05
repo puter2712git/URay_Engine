@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Panel/Panel.h"
 
 #include "Core/Ray/EventRay.h"
 
@@ -32,9 +32,9 @@ namespace Render
 class Renderer;
 }
 
-class ViewportWidget : public Widget
+class ViewportWidget : public Panel
 {
-    URAY_TYPE(ViewportWidget, Widget)
+    URAY_TYPE(ViewportWidget, Panel)
 
 public:
     ViewportWidget();

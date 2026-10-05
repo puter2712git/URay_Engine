@@ -1,4 +1,4 @@
-#include "SceneTreeWidget.h"
+#include "Editor/Widget/Panel/SceneTreeWidget.h"
 
 #include "Editor/Editor.h"
 #include "Editor/Selection/SelectionSystem.h"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Panel/Panel.h"
 
 #include "Core/File/VirtualPath.h"
 
@@ -18,9 +18,9 @@ struct FileEntry
     bool isDirectory = false;
 };
 
-class FilesystemWidget final : public Widget
+class FilesystemWidget final : public Panel
 {
-    URAY_TYPE(FilesystemWidget, Widget)
+    URAY_TYPE(FilesystemWidget, Panel)
 
 public:
     FilesystemWidget();

@@ -16,19 +16,10 @@ public:
 
     void Tick();
 
-    double GetDeltaTime() const
-    {
-        return deltaTime;
-    }
-    double GetElapsedTime() const
-    {
-        return elapsedTime;
-    }
+    double GetDeltaTime() const { return deltaTime; }
+    double GetElapsedTime() const { return elapsedTime; }
 
-    int GetFPS() const
-    {
-        return fps;
-    }
+    int GetFPS() const { return fps; }
 
 private:
     Clock::time_point previousTime;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Panel/Panel.h"
 
 #include <imgui/imgui.h>
 
@@ -11,9 +11,9 @@ namespace URay
 
 class EditorConsoleLogSink;
 
-class ConsoleWidget final : public Widget
+class ConsoleWidget final : public Panel
 {
-    URAY_TYPE(ConsoleWidget, Widget)
+    URAY_TYPE(ConsoleWidget, Panel)
 
 public:
     ConsoleWidget();

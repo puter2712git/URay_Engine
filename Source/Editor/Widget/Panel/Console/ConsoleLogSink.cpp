@@ -1,5 +1,5 @@
-#include "ConsoleLogSink.h"
-#include "ConsoleWidget.h"
+#include "Editor/Widget/Panel/Console/ConsoleLogSink.h"
+#include "Editor/Widget/Panel/Console/ConsoleWidget.h"
 
 namespace URay
 {

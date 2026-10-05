@@ -3,7 +3,7 @@
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Visual/VisualSystem.h"
-#include "Editor/Widget/Viewport/ViewportWidget.h"
+#include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
 #include "Editor/Widget/WidgetSystem.h"
 
 #include "Engine/Asset/AssetSystem.h"

@@ -1,13 +1,13 @@
 #include "WidgetSystem.h"
 
-#include "Editor/Widget/Console/ConsoleWidget.h"
-#include "Editor/Widget/Filesystem/FilesystemWidget.h"
+#include "Editor/Widget/Panel/Console/ConsoleWidget.h"
+#include "Editor/Widget/Panel/Filesystem/FilesystemWidget.h"
 #include "Editor/Widget/Input/UIInputRouter.h"
-#include "Editor/Widget/InspectorWidget.h"
+#include "Editor/Widget/Panel/InspectorWidget.h"
 #include "Editor/Widget/Panel/StatusPanel.h"
-#include "Editor/Widget/SceneTreeWidget.h"
+#include "Editor/Widget/Panel/SceneTreeWidget.h"
 #include "Editor/Widget/Splitter.h"
-#include "Editor/Widget/Viewport/ViewportWidget.h"
+#include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
 #include "Editor/Widget/WidgetDrawer.h"
 
 #include "Engine/Engine.h"

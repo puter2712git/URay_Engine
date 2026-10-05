@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Panel/Panel.h"
 
 namespace URay
 {
@@ -11,9 +11,9 @@ class Engine;
 class Scene;
 class Unit;
 
-class SceneTreeWidget final : public Widget
+class SceneTreeWidget final : public Panel
 {
-    URAY_TYPE(SceneTreeWidget, Widget)
+    URAY_TYPE(SceneTreeWidget, Panel)
 
 public:
     SceneTreeWidget();

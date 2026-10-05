@@ -1,4 +1,4 @@
-#include "ViewportWidget.h"
+#include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
 
 #include "Editor/Editor.h"
 #include "Editor/EditorCamera.h"
@@ -308,6 +308,8 @@ void ViewportWidget::OnUpdate(float deltaTime)
 
 void ViewportWidget::OnPaint(Render::UIDrawContext& context)
 {
+    Panel::OnPaint(context);
+
     constexpr float toolbarHeight = 40.0f;
 
     imageRect = rect;
