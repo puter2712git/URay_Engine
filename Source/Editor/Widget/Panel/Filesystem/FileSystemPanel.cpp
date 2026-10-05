@@ -1,4 +1,4 @@
-#include "Editor/Widget/Panel/Filesystem/FilesystemWidget.h"
+#include "Editor/Widget/Panel/Filesystem/FileSystemPanel.h"
 
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
@@ -12,7 +12,7 @@
 namespace URay
 {
 
-FilesystemWidget::FilesystemWidget() : filesystem(gEngine->GetAssetSystem().GetFileSystem())
+FileSystemPanel::FileSystemPanel() : filesystem(gEngine->GetAssetSystem().GetFileSystem())
 {
     rootPath = "Project://";
     currPath = rootPath;
@@ -20,16 +20,16 @@ FilesystemWidget::FilesystemWidget() : filesystem(gEngine->GetAssetSystem().GetF
     Refresh();
 }
 
-FilesystemWidget::~FilesystemWidget() = default;
+FileSystemPanel::~FileSystemPanel() = default;
 
-EventReply FilesystemWidget::OnPointerDown(const PointerEvent& event)
+EventReply FileSystemPanel::OnPointerDown(const PointerEvent& event)
 {
     return EventReply{
         .requestFocus = true,
     };
 }
 
-void FilesystemWidget::OnDraw()
+void FileSystemPanel::OnDraw()
 {
     ApplyRect();
     ImGui::Begin("Filesystem", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
@@ -93,7 +93,7 @@ void FilesystemWidget::OnDraw()
     ImGui::End();
 }
 
-void FilesystemWidget::Refresh()
+void FileSystemPanel::Refresh()
 {
     entries.clear();
 
@@ -107,13 +107,13 @@ void FilesystemWidget::Refresh()
     }
 }
 
-void FilesystemWidget::NavigateTo(const VirtualPath& path)
+void FileSystemPanel::NavigateTo(const VirtualPath& path)
 {
     currPath = path;
     Refresh();
 }
 
-void FilesystemWidget::OnFileDoubleClicked(const VirtualPath& path)
+void FileSystemPanel::OnFileDoubleClicked(const VirtualPath& path)
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 

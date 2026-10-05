@@ -3,7 +3,7 @@
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Settings/EditorSettings.h"
 #include "Editor/Visual/VisualSystem.h"
-#include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
+#include "Editor/Widget/Panel/Viewport/ViewportPanel.h"
 #include "Editor/Widget/WidgetSystem.h"
 
 #include "Engine/Asset/AssetSystem.h"
@@ -251,7 +251,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
 
-    ViewportWidget& viewport = widgetSystem->GetViewport();
+    ViewportPanel& viewport = widgetSystem->GetViewport();
 
     if (isPlaying)
     {

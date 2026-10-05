@@ -1,4 +1,4 @@
-#include "Editor/Widget/Panel/InspectorWidget.h"
+#include "Editor/Widget/Panel/InspectorPanel.h"
 
 #include "Editor/Editor.h"
 #include "Editor/PropertyDrawer.h"
@@ -12,18 +12,18 @@
 namespace URay
 {
 
-InspectorWidget::InspectorWidget() : selectionSystem(gEditor->GetSelectionSystem()) {}
+InspectorPanel::InspectorPanel() : selectionSystem(gEditor->GetSelectionSystem()) {}
 
-InspectorWidget::~InspectorWidget() = default;
+InspectorPanel::~InspectorPanel() = default;
 
-EventReply InspectorWidget::OnPointerDown(const PointerEvent& event)
+EventReply InspectorPanel::OnPointerDown(const PointerEvent& event)
 {
     return EventReply{
         .requestFocus = true,
     };
 }
 
-void InspectorWidget::OnDraw()
+void InspectorPanel::OnDraw()
 {
     ApplyRect();
     ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);

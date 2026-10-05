@@ -11,7 +11,7 @@ namespace URay
 {
 
 class Widget;
-class ViewportWidget;
+class ViewportPanel;
 class WidgetDrawer;
 class UIInputRouter;
 
@@ -30,7 +30,7 @@ public:
     void Paint();
 
     Widget& GetRootWidget() const { return *root; }
-    ViewportWidget& GetViewport() const { return *viewport; }
+    ViewportPanel& GetViewport() const { return *viewport; }
 
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }
 
@@ -45,7 +45,7 @@ private:
 
     std::unique_ptr<Render::UIDrawContext> drawContext = nullptr;
 
-    ViewportWidget* viewport = nullptr;
+    ViewportPanel* viewport = nullptr;
 };
 
 } // namespace URay

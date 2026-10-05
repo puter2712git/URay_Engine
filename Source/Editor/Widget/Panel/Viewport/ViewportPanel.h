@@ -32,13 +32,13 @@ namespace Render
 class Renderer;
 }
 
-class ViewportWidget : public Panel
+class ViewportPanel : public Panel
 {
-    URAY_TYPE(ViewportWidget, Panel)
+    URAY_TYPE(ViewportPanel, Panel)
 
 public:
-    ViewportWidget();
-    ~ViewportWidget() override;
+    ViewportPanel();
+    ~ViewportPanel() override;
 
 public:
     void Arrange(const Rect& rect) override;

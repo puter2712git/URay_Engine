@@ -1,10 +1,10 @@
 #include "Editor/Widget/Panel/Console/ConsoleLogSink.h"
-#include "Editor/Widget/Panel/Console/ConsoleWidget.h"
+#include "Editor/Widget/Panel/Console/ConsolePanel.h"
 
 namespace URay
 {
 
-EditorConsoleLogSink::EditorConsoleLogSink(ConsoleWidget& console)
+EditorConsoleLogSink::EditorConsoleLogSink(ConsolePanel& console)
     : console(console) {}
 
 EditorConsoleLogSink::~EditorConsoleLogSink() = default;

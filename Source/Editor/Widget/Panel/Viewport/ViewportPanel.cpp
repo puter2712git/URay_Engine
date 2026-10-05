@@ -1,4 +1,4 @@
-#include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
+#include "Editor/Widget/Panel/Viewport/ViewportPanel.h"
 
 #include "Editor/Editor.h"
 #include "Editor/EditorCamera.h"
@@ -33,7 +33,7 @@
 namespace URay
 {
 
-ViewportWidget::ViewportWidget()
+ViewportPanel::ViewportPanel()
     : renderer(gEngine->GetRenderSystem().GetRenderer()),
       selectionSystem(gEditor->GetSelectionSystem())
 {
@@ -66,7 +66,7 @@ ViewportWidget::ViewportWidget()
     layout->AddChild(std::move(buttonB));
 }
 
-ViewportWidget::~ViewportWidget()
+ViewportPanel::~ViewportPanel()
 {
     renderer.GetObjectIdReadbackRay().UnregisterAll(this);
     selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
@@ -83,7 +83,7 @@ ViewportWidget::~ViewportWidget()
     }
 }
 
-void ViewportWidget::Arrange(const Rect& rect)
+void ViewportPanel::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
@@ -93,7 +93,7 @@ void ViewportWidget::Arrange(const Rect& rect)
                       .size = Vector2(rect.size.x, toolbarHeight) });
 }
 
-EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
+EventReply ViewportPanel::OnPointerDown(const PointerEvent& event)
 {
     if (event.changedButton == MouseButton::Right)
     {
@@ -130,7 +130,7 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
     };
 }
 
-EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
+EventReply ViewportPanel::OnPointerMove(const PointerEvent& event)
 {
     if (isCameraRotating)
     {
@@ -151,7 +151,7 @@ EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
     return {};
 }
 
-EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
+EventReply ViewportPanel::OnPointerUp(const PointerEvent& event)
 {
     if (event.changedButton == MouseButton::Right)
     {
@@ -171,7 +171,7 @@ EventReply ViewportWidget::OnPointerUp(const PointerEvent& event)
     };
 }
 
-EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
+EventReply ViewportPanel::OnKeyDown(const KeyEvent& event)
 {
     if (event.key == KeyCode::S &&
         event.action == KeyAction::Pressed &&
@@ -244,7 +244,7 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
     return {};
 }
 
-EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
+EventReply ViewportPanel::OnKeyUp(const KeyEvent& event)
 {
     if (event.action == KeyAction::Released)
     {
@@ -277,13 +277,13 @@ EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
     return {};
 }
 
-void ViewportWidget::SetCamera(CameraComponent* camera)
+void ViewportPanel::SetCamera(CameraComponent* camera)
 {
     editorCamera->SetCamera(camera);
     camera->SetViewportExtent(GetTargetExtent());
 }
 
-void ViewportWidget::OnUpdate(float deltaTime)
+void ViewportPanel::OnUpdate(float deltaTime)
 {
     PickResult pickResult = pickSystem->Pick(editorCamera->GetCamera(), cachedPosition.x, cachedPosition.y);
     if (!pickResult.isHit || pickResult.gizmoHandle == GizmoHandleId::None)
@@ -308,7 +308,7 @@ void ViewportWidget::OnUpdate(float deltaTime)
     cameraMouseDelta = Vector2::Zero;
 }
 
-void ViewportWidget::OnPaint(Render::UIDrawContext& context)
+void ViewportPanel::OnPaint(Render::UIDrawContext& context)
 {
     Panel::OnPaint(context);
 
@@ -364,7 +364,7 @@ void ViewportWidget::OnPaint(Render::UIDrawContext& context)
                                   .sampler = sampler });
 }
 
-std::optional<Vector2> ViewportWidget::WindowToRenderTarget(const Vector2& windowPosition) const
+std::optional<Vector2> ViewportPanel::WindowToRenderTarget(const Vector2& windowPosition) const
 {
     if (imageRect.size.x <= 0.0f || imageRect.size.y <= 0.0f)
         return std::nullopt;
@@ -389,7 +389,7 @@ std::optional<Vector2> ViewportWidget::WindowToRenderTarget(const Vector2& windo
         viewportPosition.y / imageRect.size.y * targetExtent.height);
 }
 
-bool ViewportWidget::SaveCurrScene()
+bool ViewportPanel::SaveCurrScene()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);

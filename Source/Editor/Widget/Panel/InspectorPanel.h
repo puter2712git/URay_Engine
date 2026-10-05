@@ -7,13 +7,13 @@ namespace URay
 
 class SelectionSystem;
 
-class InspectorWidget final : public Panel
+class InspectorPanel final : public Panel
 {
-    URAY_TYPE(InspectorWidget, Panel)
+    URAY_TYPE(InspectorPanel, Panel)
 
 public:
-    InspectorWidget();
-    ~InspectorWidget() override;
+    InspectorPanel();
+    ~InspectorPanel() override;
 
 public:
     EventReply OnPointerDown(const PointerEvent& event) override;

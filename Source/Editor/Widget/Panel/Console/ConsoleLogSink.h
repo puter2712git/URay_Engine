@@ -5,19 +5,19 @@
 namespace URay
 {
 
-class ConsoleWidget;
+class ConsolePanel;
 
 class EditorConsoleLogSink final : public LogSink
 {
 public:
-    EditorConsoleLogSink(ConsoleWidget& console);
+    EditorConsoleLogSink(ConsolePanel& console);
     ~EditorConsoleLogSink() override;
 
 public:
     void Write(std::string_view msg) override;
 
 private:
-    ConsoleWidget& console;
+    ConsolePanel& console;
 };
 
 } // namespace URay

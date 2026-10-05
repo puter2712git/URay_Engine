@@ -1,4 +1,4 @@
-#include "Editor/Widget/Panel/Console/ConsoleWidget.h"
+#include "Editor/Widget/Panel/Console/ConsolePanel.h"
 #include "Editor/Widget/Panel/Console/ConsoleLogSink.h"
 
 #include "Engine/Engine.h"
@@ -10,7 +10,7 @@
 namespace URay
 {
 
-ConsoleWidget::ConsoleWidget()
+ConsolePanel::ConsolePanel()
 {
     logSink = new EditorConsoleLogSink(*this);
 
@@ -18,7 +18,7 @@ ConsoleWidget::ConsoleWidget()
     logSystem.RegisterSink(logSink);
 }
 
-ConsoleWidget::~ConsoleWidget()
+ConsolePanel::~ConsolePanel()
 {
     ClearLog();
 
@@ -28,14 +28,14 @@ ConsoleWidget::~ConsoleWidget()
     delete logSink;
 }
 
-EventReply ConsoleWidget::OnPointerDown(const PointerEvent& event)
+EventReply ConsolePanel::OnPointerDown(const PointerEvent& event)
 {
     return EventReply{
         .requestFocus = true,
     };
 }
 
-void ConsoleWidget::ClearLog()
+void ConsolePanel::ClearLog()
 {
     for (int i = 0; i < items.Size; ++i)
     {
@@ -46,7 +46,7 @@ void ConsoleWidget::ClearLog()
 
 static int TextEditCallbackStub(ImGuiInputTextCallbackData* data);
 
-void ConsoleWidget::OnDraw()
+void ConsolePanel::OnDraw()
 {
     ApplyRect();
     if (!ImGui::Begin("Console", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
@@ -163,7 +163,7 @@ void ConsoleWidget::OnDraw()
     ImGui::End();
 }
 
-void ConsoleWidget::AddLog(const char* fmt, ...)
+void ConsolePanel::AddLog(const char* fmt, ...)
 {
     char buf[1024];
     va_list args;
@@ -174,7 +174,7 @@ void ConsoleWidget::AddLog(const char* fmt, ...)
     items.push_back(Strdup(buf));
 }
 
-void ConsoleWidget::ExecCommand(const char* commandLine)
+void ConsolePanel::ExecCommand(const char* commandLine)
 {
     AddLog("# %s\n", commandLine);
 
@@ -218,11 +218,11 @@ void ConsoleWidget::ExecCommand(const char* commandLine)
 
 static int TextEditCallbackStub(ImGuiInputTextCallbackData* data)
 {
-    ConsoleWidget* console = (ConsoleWidget*)data->UserData;
+    ConsolePanel* console = (ConsolePanel*)data->UserData;
     return console->TextEditCallback(data);
 }
 
-int ConsoleWidget::TextEditCallback(ImGuiInputTextCallbackData* data)
+int ConsolePanel::TextEditCallback(ImGuiInputTextCallbackData* data)
 {
     // AddLog("cursor: %d, selection: %d-%d", data->CursorPos, data->SelectionStart, data->SelectionEnd);
     switch (data->EventFlag)

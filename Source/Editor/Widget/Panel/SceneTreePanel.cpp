@@ -1,4 +1,4 @@
-#include "Editor/Widget/Panel/SceneTreeWidget.h"
+#include "Editor/Widget/Panel/SceneTreePanel.h"
 
 #include "Editor/Editor.h"
 #include "Editor/Selection/SelectionSystem.h"
@@ -34,18 +34,18 @@ const char* GetSceneLabel(SceneType type)
 
 } // namespace
 
-SceneTreeWidget::SceneTreeWidget() : selectionSystem(gEditor->GetSelectionSystem()) {}
+SceneTreePanel::SceneTreePanel() : selectionSystem(gEditor->GetSelectionSystem()) {}
 
-SceneTreeWidget::~SceneTreeWidget() = default;
+SceneTreePanel::~SceneTreePanel() = default;
 
-EventReply SceneTreeWidget::OnPointerDown(const PointerEvent& event)
+EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
 {
     return EventReply{
         .requestFocus = true,
     };
 }
 
-void SceneTreeWidget::OnDraw()
+void SceneTreePanel::OnDraw()
 {
     ApplyRect();
     ImGui::Begin("Scene Tree", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
@@ -81,7 +81,7 @@ void SceneTreeWidget::OnDraw()
     ImGui::End();
 }
 
-void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
+void SceneTreePanel::DrawScene(Scene& scene, Unit* currSelectedUnit)
 {
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow;
 
@@ -138,7 +138,7 @@ void SceneTreeWidget::DrawScene(Scene& scene, Unit* currSelectedUnit)
     ImGui::TreePop();
 }
 
-void SceneTreeWidget::DrawUnit(Unit* unit, Unit* currSelectedUnit)
+void SceneTreePanel::DrawUnit(Unit* unit, Unit* currSelectedUnit)
 {
     if (!unit)
         return;
@@ -174,7 +174,7 @@ void SceneTreeWidget::DrawUnit(Unit* unit, Unit* currSelectedUnit)
     }
 }
 
-void SceneTreeWidget::DrawUnitDragDrop(Unit* unit)
+void SceneTreePanel::DrawUnitDragDrop(Unit* unit)
 {
     if (ImGui::BeginDragDropSource())
     {

@@ -1,13 +1,13 @@
 #include "WidgetSystem.h"
 
-#include "Editor/Widget/Panel/Console/ConsoleWidget.h"
-#include "Editor/Widget/Panel/Filesystem/FilesystemWidget.h"
+#include "Editor/Widget/Panel/Console/ConsolePanel.h"
+#include "Editor/Widget/Panel/Filesystem/FileSystemPanel.h"
 #include "Editor/Widget/Input/UIInputRouter.h"
-#include "Editor/Widget/Panel/InspectorWidget.h"
+#include "Editor/Widget/Panel/InspectorPanel.h"
 #include "Editor/Widget/Panel/StatusPanel.h"
-#include "Editor/Widget/Panel/SceneTreeWidget.h"
+#include "Editor/Widget/Panel/SceneTreePanel.h"
 #include "Editor/Widget/Element/Splitter.h"
-#include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
+#include "Editor/Widget/Panel/Viewport/ViewportPanel.h"
 #include "Editor/Widget/WidgetDrawer.h"
 
 #include "Engine/Engine.h"
@@ -89,12 +89,12 @@ void WidgetSystem::Paint()
 
 void WidgetSystem::CreateDefaultWidgets()
 {
-    std::unique_ptr<SceneTreeWidget> sceneTree = std::make_unique<SceneTreeWidget>();
-    std::unique_ptr<InspectorWidget> inspector = std::make_unique<InspectorWidget>();
-    std::unique_ptr<ConsoleWidget> console = std::make_unique<ConsoleWidget>();
-    std::unique_ptr<FilesystemWidget> filesystem = std::make_unique<FilesystemWidget>();
+    std::unique_ptr<SceneTreePanel> sceneTree = std::make_unique<SceneTreePanel>();
+    std::unique_ptr<InspectorPanel> inspector = std::make_unique<InspectorPanel>();
+    std::unique_ptr<ConsolePanel> console = std::make_unique<ConsolePanel>();
+    std::unique_ptr<FileSystemPanel> filesystem = std::make_unique<FileSystemPanel>();
     std::unique_ptr<StatusPanel> status = std::make_unique<StatusPanel>();
-    std::unique_ptr<ViewportWidget> viewport = std::make_unique<ViewportWidget>();
+    std::unique_ptr<ViewportPanel> viewport = std::make_unique<ViewportPanel>();
     this->viewport = viewport.get();
 
     std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));

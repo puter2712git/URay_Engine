@@ -11,13 +11,13 @@ class Engine;
 class Scene;
 class Unit;
 
-class SceneTreeWidget final : public Panel
+class SceneTreePanel final : public Panel
 {
-    URAY_TYPE(SceneTreeWidget, Panel)
+    URAY_TYPE(SceneTreePanel, Panel)
 
 public:
-    SceneTreeWidget();
-    ~SceneTreeWidget() override;
+    SceneTreePanel();
+    ~SceneTreePanel() override;
 
 public:
     EventReply OnPointerDown(const PointerEvent& event) override;

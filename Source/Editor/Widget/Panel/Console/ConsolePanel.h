@@ -11,13 +11,13 @@ namespace URay
 
 class EditorConsoleLogSink;
 
-class ConsoleWidget final : public Panel
+class ConsolePanel final : public Panel
 {
-    URAY_TYPE(ConsoleWidget, Panel)
+    URAY_TYPE(ConsolePanel, Panel)
 
 public:
-    ConsoleWidget();
-    ~ConsoleWidget() override;
+    ConsolePanel();
+    ~ConsolePanel() override;
 
 public:
     EventReply OnPointerDown(const PointerEvent& event) override;

@@ -18,13 +18,13 @@ struct FileEntry
     bool isDirectory = false;
 };
 
-class FilesystemWidget final : public Panel
+class FileSystemPanel final : public Panel
 {
-    URAY_TYPE(FilesystemWidget, Panel)
+    URAY_TYPE(FileSystemPanel, Panel)
 
 public:
-    FilesystemWidget();
-    ~FilesystemWidget();
+    FileSystemPanel();
+    ~FileSystemPanel();
 
 public:
     EventReply OnPointerDown(const PointerEvent& event) override;
