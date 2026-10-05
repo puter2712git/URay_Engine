@@ -11,6 +11,7 @@ struct Vector2
     Vector2(float x = 0.0f, float y = 0.0f);
 
     static Vector2 Zero;
+    static Vector2 One;
 
     Vector2 operator+(const Vector2& rhs) const
     {

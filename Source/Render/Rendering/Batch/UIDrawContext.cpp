@@ -46,7 +46,7 @@ void UIDrawContext::PopClipRect()
 
 void UIDrawContext::AddFilledRect(const Rect& rect, const Color& color)
 {
-    AddQuad(rect, Vector2::Zero, Vector2::Zero, color, nullptr);
+    AddQuad(rect, Vector2::Zero, Vector2::Zero, color, nullptr, nullptr);
 }
 
 void UIDrawContext::AddText(const Vector2& position, std::string_view utf8Text, const TextStyle& style)
@@ -83,14 +83,22 @@ void UIDrawContext::AddText(const Vector2& position, std::string_view utf8Text, 
                 static_cast<float>(glyph->atlasX + glyph->atlasWidth) / fontAtlas->GetWidth(),
                 static_cast<float>(glyph->atlasY + glyph->atlasHeight) / fontAtlas->GetHeight());
 
-            AddQuad(glyphRect, uvMin, uvMax, style.color, fontAtlas);
+            AddQuad(glyphRect, uvMin, uvMax, style.color, fontAtlas->GetTextureView(), nullptr);
         }
 
         penX += glyph->advance;
     }
 }
 
-void UIDrawContext::AddQuad(const Rect& rect, const Vector2& uvMin, const Vector2& uvMax, const Color& color, FontAtlas* fontAtlas)
+void UIDrawContext::AddImage(const Rect& rect, const UIImage& image, const Color& color)
+{
+    if (!image.view)
+        return;
+
+    AddQuad(rect, image.uvMin, image.uvMax, color, image.view, image.sampler);
+}
+
+void UIDrawContext::AddQuad(const Rect& rect, const Vector2& uvMin, const Vector2& uvMax, const Color& color, TextureView* view, Sampler* sampler)
 {
     if (rect.size.x <= 0.0f || rect.size.y <= 0.0f)
         return;
@@ -136,11 +144,12 @@ void UIDrawContext::AddQuad(const Rect& rect, const Vector2& uvMin, const Vector
             lastBatch.clipRect.size.x == clipRect.size.x &&
             lastBatch.clipRect.size.y == clipRect.size.y;
 
-        const bool isSameAtlas = lastBatch.fontAtlas == fontAtlas;
+        const bool isSameTexture = lastBatch.view == view;
+        const bool isSameSampler = lastBatch.sampler == sampler;
 
         const bool isContiguous = lastBatch.indexOffset + lastBatch.indexCount == indexOffset;
 
-        if (isSameClip && isSameAtlas && isContiguous)
+        if (isSameClip && isSameTexture && isSameSampler && isContiguous)
         {
             lastBatch.indexCount += 6;
             return;
@@ -151,7 +160,8 @@ void UIDrawContext::AddQuad(const Rect& rect, const Vector2& uvMin, const Vector
         .indexOffset = indexOffset,
         .indexCount = 6,
         .clipRect = clipRect,
-        .fontAtlas = fontAtlas });
+        .view = view,
+        .sampler = sampler });
 }
 
 Rect UIDrawContext::Intersect(const Rect& rectA, const Rect& rectB) const

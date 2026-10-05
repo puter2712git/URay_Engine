@@ -96,7 +96,14 @@ std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
         cmd.indexOffset = batch.indexOffset;
         cmd.indexCount = batch.indexCount;
 
-        DescriptorSet* descriptorSet = GetOrCreateDescriptorSet(batch.fontAtlas);
+        TextureView* resolvedView = batch.view ? batch.view : whiteTextureView;
+        Sampler* resolvedSampler = batch.sampler ? batch.sampler : sampler;
+
+        TextureSamplerKey key = {};
+        key.view = resolvedView;
+        key.sampler = resolvedSampler;
+
+        DescriptorSet* descriptorSet = GetOrCreateDescriptorSet(key);
         if (!descriptorSet)
             continue;
 
@@ -156,26 +163,25 @@ void UIBatcher::EnsureResources()
     }
 }
 
-DescriptorSet* UIBatcher::GetOrCreateDescriptorSet(const FontAtlas* fontAtlas)
+DescriptorSet* UIBatcher::GetOrCreateDescriptorSet(const TextureSamplerKey& key)
 {
-    const auto it = descriptorSets.find(fontAtlas);
+    if (!key.view || !key.sampler)
+        return nullptr;
+
+    const auto it = descriptorSets.find(key);
     if (it != descriptorSets.end())
         return it->second.get();
-
-    TextureView* view = fontAtlas ? fontAtlas->GetTextureView() : whiteTextureView;
-    if (!view || !sampler)
-        return nullptr;
 
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
     descriptorSet.reset(device.CreateDescriptorSet(textureSetLayout));
     if (!descriptorSet)
         return nullptr;
 
-    descriptorSet->WriteSampledImage(0, view);
-    descriptorSet->WriteSampler(1, *sampler);
+    descriptorSet->WriteSampledImage(0, key.view);
+    descriptorSet->WriteSampler(1, *key.sampler);
 
     DescriptorSet* result = descriptorSet.get();
-    descriptorSets.emplace(fontAtlas, std::move(descriptorSet));
+    descriptorSets.emplace(key, std::move(descriptorSet));
 
     return result;
 }

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Render/Rendering/DrawCommand/DrawCommand.h"
 #include "Render/RHI/Vertex/Vertex.h"
+#include "Render/Rendering/DrawCommand/DrawCommand.h"
 
 #include <vulkan/vulkan.h>
 
@@ -23,6 +23,26 @@ class FontAtlas;
 class TextureView;
 class Sampler;
 
+struct TextureSamplerKey
+{
+    TextureView* view = nullptr;
+    Sampler* sampler = nullptr;
+
+    bool operator==(const TextureSamplerKey&) const = default;
+};
+
+struct TextureSamplerKeyHash
+{
+    size_t operator()(const TextureSamplerKey& key) const noexcept
+    {
+        size_t hash = std::hash<TextureView*>{}(key.view);
+        const size_t samplerHash = std::hash<Sampler*>{}(key.sampler);
+
+        hash ^= samplerHash + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        return hash;
+    }
+};
+
 class UIBatcher
 {
 public:
@@ -38,7 +58,7 @@ public:
 private:
     void EnsureResources();
 
-    DescriptorSet* GetOrCreateDescriptorSet(const FontAtlas* fontAtlas);
+    DescriptorSet* GetOrCreateDescriptorSet(const TextureSamplerKey& key);
 
 private:
     Device& device;
@@ -55,7 +75,7 @@ private:
     DescriptorSetLayout* textureSetLayout = nullptr;
     Sampler* sampler = nullptr;
 
-    std::unordered_map<const FontAtlas*, std::unique_ptr<DescriptorSet>> descriptorSets;
+    std::unordered_map<TextureSamplerKey, std::unique_ptr<DescriptorSet>, TextureSamplerKeyHash> descriptorSets;
 
     TextureView* whiteTextureView = nullptr;
 };

@@ -21,6 +21,7 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
+    void OnPaint(Render::UIDrawContext& context) override;
 
 private:
     Label* statusLabel = nullptr;

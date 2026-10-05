@@ -3,14 +3,19 @@
 #include "Editor/Widget/Button.h"
 #include "Editor/Widget/Label.h"
 
+#include "Engine/Asset/AssetDatabase.h"
+#include "Engine/Asset/AssetSystem.h"
 #include "Engine/Asset/EngineAsset.h"
+#include "Engine/Asset/Texture/Texture.h"
 #include "Engine/Engine.h"
 
 #include "Core/Log/LogSystem.h"
 #include "Core/Performance/PerformanceAnalytics.h"
 #include "Core/Timer.h"
 
+#include "Render/RenderSystem.h"
 #include "Render/Rendering/Batch/UIDrawContext.h"
+#include "Render/ResourceManager.h"
 
 #include <imgui/imgui.h>
 
@@ -67,6 +72,44 @@ void StatusPanel::OnUpdate(float deltaTime)
 {
     const Timer& timer = gEngine->GetTimer();
     fpsLabel->SetText(std::format("FPS: {} ({:.2f} ms)", timer.GetFPS(), timer.GetDeltaTime() * 1000.0));
+}
+
+void StatusPanel::OnPaint(Render::UIDrawContext& context)
+{
+    Panel::OnPaint(context);
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    URay::Texture* texture =
+        assetSystem.GetDatabase().Find<URay::Texture>(
+            EngineAsset::DirectionalLightBillboardTexture);
+
+    Render::Texture* renderTexture =
+        resourceManager.GetOrCreateTexture(texture);
+
+    Render::TextureView* view =
+        resourceManager.GetOrCreateTextureView(renderTexture, {});
+
+    Render::Sampler* sampler =
+        resourceManager.GetOrCreateSampler({
+            .magFilter = VK_FILTER_LINEAR,
+            .minFilter = VK_FILTER_LINEAR,
+            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+        });
+
+    const Rect previewRect = {
+        .position = rect.position + Vector2(rect.size.x - 76.0f, 12.0f),
+        .size = Vector2(64.0f, 64.0f),
+    };
+
+    context.AddImage(previewRect, {
+                                      .view = view,
+                                      .sampler = sampler,
+                                  });
 }
 
 } // namespace URay
