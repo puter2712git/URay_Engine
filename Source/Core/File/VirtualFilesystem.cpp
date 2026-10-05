@@ -24,6 +24,11 @@ bool VirtualFileSystem::Initialize(
     return true;
 }
 
+void VirtualFileSystem::Finalize()
+{
+    mountMap.clear();
+}
+
 void VirtualFileSystem::Mount(const std::string& mountName, const std::filesystem::path& physicalFilePath)
 {
     mountMap.insert({ mountName, physicalFilePath });
