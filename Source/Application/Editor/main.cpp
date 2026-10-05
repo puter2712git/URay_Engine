@@ -1,5 +1,7 @@
 #include "EditorApplication.h"
 
+#include "Application/CommandLine.h"
+
 #include <iostream>
 #include <string>
 
@@ -11,26 +13,12 @@ int main(int argc, char** argv)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-    EditorApplication app;
+    CommandLine commandLine(argc, argv);
 
-    std::string enginePath;
-    std::string projectPath;
+    auto enginePath = commandLine.Get("--engine");
+    auto projectPath = commandLine.Get("--project");
 
-    for (int i = 1; i < argc; ++i)
-    {
-        const std::string arg = argv[i];
-
-        if (arg == "--engine" && i + 1 < argc)
-        {
-            enginePath = argv[++i];
-        }
-        else if (arg == "--project" && i + 1 < argc)
-        {
-            projectPath = argv[++i];
-        }
-    }
-
-    if (enginePath.empty() || projectPath.empty())
+    if (!enginePath || !projectPath)
     {
         std::cerr
             << "Usage: URay_Engine.exe "
@@ -40,7 +28,9 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    if (!app.Initialize(enginePath, projectPath))
+    EditorApplication app;
+
+    if (!app.Initialize(*enginePath, *projectPath))
         return EXIT_FAILURE;
 
     app.Run();
