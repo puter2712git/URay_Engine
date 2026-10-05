@@ -8,6 +8,7 @@
 
 #include "Core/Math/Extent2D.h"
 #include "Core/Math/Matrix.h"
+#include "Core/TimeFlow/Schedule/Scheduler.h"
 #include "Core/Type/Types.h"
 
 #include "Core/Ray/EventRay.h"
@@ -111,7 +112,10 @@ private:
 
     std::unique_ptr<CommandPool> commandPool = nullptr;
 
+    std::optional<Extent2D> scheduledSceneResizeExtent;
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
+    std::optional<Scheduler::TaskId> sceneResizeTaskId;
+    static constexpr double SceneResizeDebounceSeconds = 0.15;
     EventRay<> viewportRenderTargetsRecreatedRay;
 
     std::unique_ptr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;

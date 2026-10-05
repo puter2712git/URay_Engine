@@ -337,17 +337,42 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
     if (extent.width == 0 || extent.height == 0)
         return;
 
+    Scheduler& scheduler = gEngine->GetScheduler();
+
     RenderTarget& sceneRT = renderTargetRegistry->Get(RenderTargetId::Scene);
 
-    const Extent2D currExtent = sceneRT.GetExtent();
-
+    const Extent2D currExtent = GetSceneRenderTargetExtent();
     if (currExtent.width == extent.width && currExtent.height == extent.height)
     {
-        pendingSceneRenderTargetExtent.reset();
+        if (sceneResizeTaskId)
+        {
+            scheduler.Cancel(*sceneResizeTaskId);
+            sceneResizeTaskId.reset();
+        }
         return;
     }
 
-    pendingSceneRenderTargetExtent = extent;
+    if (sceneResizeTaskId &&
+        scheduledSceneResizeExtent->width == extent.width &&
+        scheduledSceneResizeExtent->height == extent.height)
+    {
+        return;
+    }
+
+    if (sceneResizeTaskId)
+    {
+        scheduler.Cancel(*sceneResizeTaskId);
+    }
+
+    scheduledSceneResizeExtent = extent;
+    sceneResizeTaskId = scheduler.ScheduleOnce(
+        SceneResizeDebounceSeconds,
+        [this, extent]()
+        {
+            pendingSceneRenderTargetExtent = extent;
+            scheduledSceneResizeExtent.reset();
+            sceneResizeTaskId.reset();
+        });
 }
 
 Extent2D Renderer::GetSceneRenderTargetExtent() const
@@ -649,6 +674,8 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     renderTargetRegistry->RecreateViewportRelative(extent);
 
     viewportRenderTargetsRecreatedRay.Emit();
+
+    URAY_LOG("[Renderer] Viewport resized.");
 }
 
 Format Renderer::FindDepthFormat() const
