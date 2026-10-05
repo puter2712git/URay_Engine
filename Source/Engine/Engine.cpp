@@ -10,7 +10,8 @@
 #include "Core/Input/InputManager.h"
 #include "Core/Log/LogSystem.h"
 #include "Core/Performance/PerformanceAnalytics.h"
-#include "Core/Timer.h"
+#include "Core/TimeFlow/Schedule/Scheduler.h"
+#include "Core/TimeFlow/Timer.h"
 
 #include "Platform/Input/GLFWInputAdapter.h"
 #include "Platform/Window/Window.h"
@@ -62,6 +63,7 @@ bool Engine::Initialize(
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
 
     timer = std::make_unique<Timer>();
+    scheduler = std::make_unique<Scheduler>();
 
     inputManager = std::make_unique<InputManager>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
@@ -193,6 +195,7 @@ void Engine::Update()
     glfwPollEvents();
 
     timer->Tick();
+    scheduler->Update(timer->GetDeltaTime());
 
     sceneSystem->Update(timer->GetDeltaTime());
 }

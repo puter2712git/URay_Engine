@@ -10,6 +10,7 @@ namespace URay
 
 class Window;
 class Timer;
+class Scheduler;
 class LogSystem;
 class InputManager;
 class PerformanceAnalytics;
@@ -44,6 +45,7 @@ public:
     LogSystem& GetLogSystem() const { return *logSystem; }
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }
+    Scheduler& GetScheduler() const { return *scheduler; }
     InputManager& GetInputManager() const { return *inputManager; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
@@ -59,6 +61,7 @@ private:
 
     std::unique_ptr<Window> window = nullptr;
     std::unique_ptr<Timer> timer = nullptr;
+    std::unique_ptr<Scheduler> scheduler = nullptr;
 
     std::unique_ptr<InputManager> inputManager = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
