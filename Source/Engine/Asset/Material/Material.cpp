@@ -81,11 +81,17 @@ bool Material::Initialize()
         switch (binding.resourceType)
         {
         case Render::ResourceType::Sampler:
+        {
+            Render::Sampler* sampler = resourceManager.GetOrCreateSampler({});
+            if (!sampler)
+                return false;
+
             for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
             {
-                descriptorSets[i]->WriteSampler(binding.binding, resourceManager.GetOrCreateSampler({}));
+                descriptorSets[i]->WriteSampler(binding.binding, *sampler);
             }
             break;
+        }
         case Render::ResourceType::SampledImage:
         {
             auto [it, inserted] = parameters.try_emplace(

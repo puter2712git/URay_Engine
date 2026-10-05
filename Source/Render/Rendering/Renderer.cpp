@@ -527,6 +527,10 @@ bool Renderer::CreateFrameResources()
     if (!frameDescriptorSetLayout)
         return false;
 
+    Sampler* shadowSampler = resourceManager.GetOrCreateSampler({});
+    if (!shadowSampler)
+        return false;
+
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
         VkSemaphoreCreateInfo semaphoreInfo = {};
@@ -595,7 +599,7 @@ bool Renderer::CreateFrameResources()
         frameResources[i].descriptorSet->WriteStorageBuffer(2, *frameResources[i].spotLightStorageBuffer);
         frameResources[i].descriptorSet->WriteUniformBuffer(3, *frameResources[i].shadowUniformBuffer);
         frameResources[i].descriptorSet->WriteSampledImage(4, resourceManager.GetShadowSystem().GetDirectionalTarget()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
-        frameResources[i].descriptorSet->WriteSampler(5, resourceManager.GetOrCreateSampler({}));
+        frameResources[i].descriptorSet->WriteSampler(5, *shadowSampler);
         frameResources[i].descriptorSet->WriteSampledImage(6, resourceManager.GetShadowSystem().GetShadowAtlasRT()->GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
         frameResources[i].descriptorSet->WriteStorageBuffer(7, *frameResources[i].spotLightShadowStorageBuffer);
         frameResources[i].descriptorSet->WriteSampledImage(8, resourceManager.GetShadowSystem().GetPointShadowSamplingView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);

@@ -224,32 +224,24 @@ void ResourceManager::DestroyTextureViews()
     textureViews.clear();
 }
 
-VkSampler ResourceManager::GetOrCreateSampler(const SamplerDesc& samplerDesc)
+Sampler* ResourceManager::GetOrCreateSampler(const SamplerDesc& samplerDesc)
 {
     auto it = textureSamplers.find(samplerDesc);
     if (it != textureSamplers.end())
-        return it->second;
+        return it->second.get();
 
-    VkSampler sampler = device.CreateTextureSampler(samplerDesc);
-    if (sampler == VK_NULL_HANDLE)
-        return VK_NULL_HANDLE;
+    std::unique_ptr<Sampler> sampler(device.CreateSampler(samplerDesc));
+    if (!sampler)
+        return nullptr;
 
-    textureSamplers.insert({ samplerDesc, sampler });
+    Sampler* result = sampler.get();
+    textureSamplers.insert({ samplerDesc, std::move(sampler) });
 
-    return sampler;
+    return result;
 }
 
 void ResourceManager::DestroySamplers()
 {
-    for (auto& [desc, sampler] : textureSamplers)
-    {
-        if (sampler)
-        {
-            vkDestroySampler(device.GetVKDevice(), sampler, nullptr);
-            sampler = VK_NULL_HANDLE;
-        }
-    }
-
     textureSamplers.clear();
 }
 

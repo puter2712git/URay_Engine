@@ -401,7 +401,7 @@ TextureView* Device::CreateTextureView(Texture* texture, const TextureViewDesc& 
     return textureView;
 }
 
-VkSampler Device::CreateTextureSampler(const SamplerDesc& samplerDesc)
+Sampler* Device::CreateSampler(const SamplerDesc& samplerDesc)
 {
     VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -429,9 +429,9 @@ VkSampler Device::CreateTextureSampler(const SamplerDesc& samplerDesc)
     VkSampler sampler = VK_NULL_HANDLE;
 
     if (vkCreateSampler(device, &samplerInfo, nullptr, &sampler) != VK_SUCCESS)
-        return VK_NULL_HANDLE;
+        return nullptr;
 
-    return sampler;
+    return new Sampler(*this, sampler, samplerDesc);
 }
 
 DescriptorSetLayout* Device::CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)

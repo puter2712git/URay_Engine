@@ -21,6 +21,7 @@ class DescriptorSetLayout;
 class DescriptorSet;
 class FontAtlas;
 class TextureView;
+class Sampler;
 
 class UIBatcher
 {
@@ -52,7 +53,7 @@ private:
     Shader* shader = nullptr;
 
     DescriptorSetLayout* textureSetLayout = nullptr;
-    VkSampler sampler = VK_NULL_HANDLE;
+    Sampler* sampler = nullptr;
 
     std::unordered_map<const FontAtlas*, std::unique_ptr<DescriptorSet>> descriptorSets;
 

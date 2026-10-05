@@ -7,6 +7,8 @@
 namespace URay::Render
 {
 
+class Device;
+
 struct SamplerDesc
 {
     VkFilter magFilter = VK_FILTER_LINEAR;
@@ -38,6 +40,27 @@ struct SamplerDescHash
 
         return hash;
     }
+};
+
+class Sampler
+{
+public:
+    Sampler(Device& device, VkSampler handle, const SamplerDesc& desc);
+    ~Sampler();
+
+    Sampler(const Sampler&) = delete;
+    Sampler& operator=(const Sampler&) = delete;
+    Sampler(Sampler&&) = delete;
+    Sampler& operator=(Sampler&&) = delete;
+
+public:
+    VkSampler GetHandle() const { return handle; }
+    const SamplerDesc& GetDesc() const { return desc; }
+
+private:
+    Device& device;
+    VkSampler handle = VK_NULL_HANDLE;
+    SamplerDesc desc = {};
 };
 
 } // namespace URay::Render

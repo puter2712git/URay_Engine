@@ -57,7 +57,7 @@ public:
     TextureView* GetOrCreateTextureView(Texture* texture, const TextureViewDesc& desc);
     void DestroyTextureViews();
 
-    VkSampler GetOrCreateSampler(const SamplerDesc& samplerDesc);
+    Sampler* GetOrCreateSampler(const SamplerDesc& samplerDesc);
     void DestroySamplers();
 
     Render::Shader* GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
@@ -87,7 +87,7 @@ private:
 
     std::unordered_map<::URay::Texture*, Texture*> textures;
     std::unordered_map<TextureViewKey, TextureView*, TextureViewKeyHash> textureViews;
-    std::unordered_map<SamplerDesc, VkSampler, SamplerDescHash> textureSamplers;
+    std::unordered_map<SamplerDesc, std::unique_ptr<Sampler>, SamplerDescHash> textureSamplers;
 
     std::unordered_map<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 

@@ -99,7 +99,7 @@ void FogPass::Execute(
 
     descriptorSet->WriteSampledImage(0, sceneRT.GetColorView(0));
     descriptorSet->WriteSampledImage(1, sceneRT.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
-    descriptorSet->WriteSampler(2, sampler);
+    descriptorSet->WriteSampler(2, *sampler);
     descriptorSet->WriteUniformBuffer(3, *uniformBuffers[currentFrame]);
 
     CommandBuffer& commandBuffer = context.commandBuffer;
@@ -176,7 +176,7 @@ void FogPass::EnsureResources(const RenderPassContext& context)
         }
     }
 
-    if (sampler == VK_NULL_HANDLE)
+    if (!sampler)
     {
         SamplerDesc samplerDesc = {};
         samplerDesc.minFilter = VK_FILTER_LINEAR;
@@ -188,7 +188,7 @@ void FogPass::EnsureResources(const RenderPassContext& context)
         sampler = renderSystem.GetResourceManager()
                       .GetOrCreateSampler(samplerDesc);
 
-        if (sampler == VK_NULL_HANDLE)
+        if (!sampler)
             throw std::runtime_error("Failed to initialize fog pass.");
     }
 

@@ -2,6 +2,7 @@
 
 #include "Render/RHI/Buffer/Buffer.h"
 #include "Render/RHI/Texture/TextureView.h"
+#include "Render/RHI/Texture/Sampler.h"
 
 #include "Core/Type/Types.h"
 
@@ -79,10 +80,10 @@ void DescriptorSet::WriteSampledImage(
 
 void DescriptorSet::WriteSampler(
     uint32 binding,
-    VkSampler sampler)
+    const Sampler& sampler)
 {
     VkDescriptorImageInfo samplerInfo = {};
-    samplerInfo.sampler = sampler;
+    samplerInfo.sampler = sampler.GetHandle();
 
     VkWriteDescriptorSet write = {};
     write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

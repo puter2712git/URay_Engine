@@ -10,6 +10,7 @@ namespace URay::Render
 class Buffer;
 class DescriptorSetLayout;
 class TextureView;
+class Sampler;
 
 class DescriptorSet
 {
@@ -37,7 +38,7 @@ public:
 
     void WriteSampler(
         uint32 binding,
-        VkSampler sampler);
+        const Sampler& sampler);
 
     VkDescriptorSet GetHandle() const
     {

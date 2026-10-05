@@ -29,6 +29,7 @@ class Buffer;
 class MeshBuffer;
 class Texture;
 class TextureView;
+class Sampler;
 class DescriptorSetLayout;
 class DescriptorSet;
 class PipelineLayout;
@@ -88,7 +89,7 @@ public:
     bool UploadTextureData(Texture* texture, std::span<const uint8> pixels);
     bool UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels);
     TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc);
-    VkSampler CreateTextureSampler(const SamplerDesc& samplerDesc);
+    Sampler* CreateSampler(const SamplerDesc& samplerDesc);
 
     DescriptorSetLayout* CreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
     DescriptorSet* CreateDescriptorSet(DescriptorSetLayout* layout);

@@ -7,6 +7,7 @@
 #include "Render/RHI/Descriptor/DescriptorSetLayoutDesc.h"
 #include "Render/RHI/Device.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/Rendering/Font/FontAtlas.h"
 #include "Render/ResourceManager.h"
@@ -55,7 +56,7 @@ void UIBatcher::Finalize()
     descriptorSets.clear();
     whiteTextureView = nullptr;
     textureSetLayout = nullptr;
-    sampler = VK_NULL_HANDLE;
+    sampler = nullptr;
     shader = nullptr;
 
     indexBuffer->Unmap();
@@ -142,7 +143,7 @@ void UIBatcher::EnsureResources()
         textureSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*layoutDesc);
     }
 
-    if (sampler == VK_NULL_HANDLE)
+    if (!sampler)
     {
         sampler = resourceManager.GetOrCreateSampler(SamplerDesc{});
     }
@@ -162,7 +163,7 @@ DescriptorSet* UIBatcher::GetOrCreateDescriptorSet(const FontAtlas* fontAtlas)
         return it->second.get();
 
     TextureView* view = fontAtlas ? fontAtlas->GetTextureView() : whiteTextureView;
-    if (!view)
+    if (!view || !sampler)
         return nullptr;
 
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
@@ -171,7 +172,7 @@ DescriptorSet* UIBatcher::GetOrCreateDescriptorSet(const FontAtlas* fontAtlas)
         return nullptr;
 
     descriptorSet->WriteSampledImage(0, view);
-    descriptorSet->WriteSampler(1, sampler);
+    descriptorSet->WriteSampler(1, *sampler);
 
     DescriptorSet* result = descriptorSet.get();
     descriptorSets.emplace(fontAtlas, std::move(descriptorSet));

@@ -9,6 +9,7 @@
 #include "Render/RHI/PipelineLayout/PipelineLayout.h"
 #include "Render/RHI/PipelineState/PipelineState.h"
 #include "Render/RHI/RenderTarget.h"
+#include "Render/RHI/Texture/Sampler.h"
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/RenderSystem.h"
 #include "Render/Rendering/FrameResource.h"
@@ -101,7 +102,7 @@ void SelectionOutlinePass::Execute(
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
     descriptorSet->WriteSampledImage(0, selectionMaskRT.GetColorView(0), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-    descriptorSet->WriteSampler(1, sampler);
+    descriptorSet->WriteSampler(1, *sampler);
     descriptorSet->WriteUniformBuffer(2, *uniformBuffers[currentFrame]);
 
     commandBuffer.BindPipeline(*pso);
@@ -163,7 +164,7 @@ void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
         }
     }
 
-    if (sampler == VK_NULL_HANDLE)
+    if (!sampler)
     {
         SamplerDesc samplerDesc = {
             .magFilter = VK_FILTER_LINEAR,
@@ -173,6 +174,8 @@ void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
             .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE
         };
         sampler = resourceManager.GetOrCreateSampler(samplerDesc);
+        if (!sampler)
+            throw std::runtime_error("Failed to initialize selection outline pass.");
     }
 
     if (!pso)

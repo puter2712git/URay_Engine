@@ -17,6 +17,8 @@ class Shader;
 namespace URay::Render
 {
 
+class Sampler;
+
 class Shader;
 class PipelineState;
 class DescriptorSetLayout;
@@ -59,7 +61,7 @@ private:
     std::vector<std::unique_ptr<DescriptorSet>> descriptorSets;
     std::vector<std::unique_ptr<Buffer>> uniformBuffers;
 
-    VkSampler sampler = VK_NULL_HANDLE;
+    Sampler* sampler = nullptr;
 };
 
 } // namespace URay::Render
