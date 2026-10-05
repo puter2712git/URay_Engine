@@ -23,8 +23,6 @@ public:
 private:
     std::unique_ptr<Engine> engine = nullptr;
     std::unique_ptr<Editor> editor = nullptr;
-
-    bool shouldQuit = false;
 };
 
 } // namespace URay
