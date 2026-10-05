@@ -3,7 +3,7 @@
 #include "Editor/Editor.h"
 #include "Editor/Pick/MeshPickObject.h"
 #include "Editor/Pick/PickObject.h"
-#include "Editor/Widget/Viewport/GizmoController.h"
+#include "Editor/Gizmo/TransformGizmo.h"
 
 #include "Engine/Asset/Mesh/Mesh.h"
 #include "Engine/Component/Render/CameraComponent.h"
@@ -23,7 +23,7 @@
 namespace URay
 {
 
-PickSystem::PickSystem(GizmoController& gizmo) : gizmo(gizmo) {}
+PickSystem::PickSystem(TransformGizmo& gizmo) : gizmo(gizmo) {}
 
 PickSystem::~PickSystem() = default;
 
@@ -103,13 +103,13 @@ PickResult PickSystem::Pick(
 
     PickResult pickResult = {};
 
-    int32 gizmoAxis;
-    bool isGizmoPicked = PickGizmo(ray, gizmoAxis);
+    GizmoHandleId gizmoHandle = GizmoHandleId::None;
+    bool isGizmoPicked = PickGizmo(ray, gizmoHandle);
 
     if (isGizmoPicked)
     {
         pickResult.isHit = true;
-        pickResult.gizmoAxis = gizmoAxis;
+        pickResult.gizmoHandle = gizmoHandle;
         return pickResult;
     }
 
@@ -129,9 +129,9 @@ PickResult PickSystem::Pick(
     return pickResult;
 }
 
-bool PickSystem::PickGizmo(const Ray& worldRay, int32& outAxis) const
+bool PickSystem::PickGizmo(const Ray& worldRay, GizmoHandleId& outHandle) const
 {
-    if (!gizmo.GetTarget())
+    if (!gizmo.GetTargetUnit())
         return false;
 
     const TransformComponent* targetTransform = gizmo.GetTargetTransform();
@@ -141,14 +141,16 @@ bool PickSystem::PickGizmo(const Ray& worldRay, int32& outAxis) const
     float nearestDistance = std::numeric_limits<float>::max();
     bool finalHit = false;
 
-    for (size_t axis = 0; axis < 3; ++axis)
+    for (const GizmoHandle& handle : gizmo.GetHandles())
     {
-        const Mesh* mesh = gizmo.GetMesh();
+        const Mesh* mesh = handle.mesh;
+        if (!mesh)
+            continue;
 
         const std::vector<Render::VertexPNT>& vertices = mesh->GetVertices();
         const std::vector<uint32>& indices = mesh->GetIndices();
 
-        const Matrix gizmoWorld = gizmo.GetWorldMatrix(axis);
+        const Matrix& gizmoWorld = handle.worldMatrix;
         const Matrix invGizmoWorld = gizmoWorld.Inverse();
 
         const Vector3 localOrigin = invGizmoWorld.TransformPoint(worldRay.origin);
@@ -176,7 +178,7 @@ bool PickSystem::PickGizmo(const Ray& worldRay, int32& outAxis) const
             {
                 nearestDistance = distance;
                 finalHit = true;
-                outAxis = axis;
+                outHandle = handle.id;
             }
         }
     }

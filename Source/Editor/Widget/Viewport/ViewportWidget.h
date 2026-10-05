@@ -18,7 +18,7 @@ namespace URay
 class CameraComponent;
 class Engine;
 
-class GizmoController;
+class TransformGizmo;
 class PickSystem;
 class SelectionSystem;
 class Editor;
@@ -67,7 +67,7 @@ private:
 
     CameraComponent* camera;
 
-    std::unique_ptr<GizmoController> gizmo = nullptr;
+    std::unique_ptr<TransformGizmo> gizmo = nullptr;
     std::unique_ptr<PickSystem> pickSystem = nullptr;
 
     SelectionSystem& selectionSystem;

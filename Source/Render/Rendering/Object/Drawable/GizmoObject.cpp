@@ -22,17 +22,17 @@ void GizmoObject::Update(const GizmoObjectState& state)
 
 void GizmoObject::Submit(DrawCommandBuilder& builder) const
 {
-    if (!state.mesh)
+    if (!state.material)
         return;
 
-    size_t count = state.worldMatrices.size();
-
-    for (size_t i = 0; i < count; ++i)
+    for (const GizmoObjectState::Handle& handle : state.handles)
     {
+        if (!handle.mesh)
+            continue;
         builder.BuildGizmo(
-            { .worldMatrix = state.worldMatrices[i],
-              .colorTint = state.colorTints[i],
-              .mesh = state.mesh,
+            { .worldMatrix = handle.worldMatrix,
+              .colorTint = handle.colorTint,
+              .mesh = handle.mesh,
               .material = state.material });
     }
 }

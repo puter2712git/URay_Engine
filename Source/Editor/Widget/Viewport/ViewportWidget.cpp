@@ -3,7 +3,7 @@
 #include "Editor/Editor.h"
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
-#include "Editor/Widget/Viewport/GizmoController.h"
+#include "Editor/Gizmo/TransformGizmo.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/LogSystem.h"
@@ -28,7 +28,7 @@ ViewportWidget::ViewportWidget()
     : renderer(gEngine->GetRenderSystem().GetRenderer()),
       selectionSystem(gEditor->GetSelectionSystem())
 {
-    gizmo = std::make_unique<GizmoController>();
+    gizmo = std::make_unique<TransformGizmo>();
     pickSystem = std::make_unique<PickSystem>(*gizmo);
     pickSystem->Initialize();
 
@@ -75,9 +75,9 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
             return {};
 
         const PickResult pickResult = pickSystem->Pick(camera, targetPosition->x, targetPosition->y);
-        if (pickResult.isHit && pickResult.gizmoAxis != -1)
+        if (pickResult.isHit && pickResult.gizmoHandle != GizmoHandleId::None)
         {
-            gizmo->StartDragging(*targetPosition, pickResult.gizmoAxis, *camera);
+            gizmo->StartDragging(*targetPosition, pickResult.gizmoHandle, *camera);
         }
         else
         {
@@ -244,14 +244,14 @@ void ViewportWidget::SetCamera(CameraComponent* camera)
 void ViewportWidget::OnUpdate(float deltaTime)
 {
     PickResult pickResult = pickSystem->Pick(camera, cachedPosition.x, cachedPosition.y);
-    if (!pickResult.isHit || pickResult.gizmoAxis == -1)
+    if (!pickResult.isHit || pickResult.gizmoHandle == GizmoHandleId::None)
     {
-        gizmo->SetHoveredAxis(-1);
+        gizmo->SetHoveredHandle(GizmoHandleId::None);
     }
 
-    if (pickResult.gizmoAxis != -1)
+    if (pickResult.gizmoHandle != GizmoHandleId::None)
     {
-        gizmo->SetHoveredAxis(pickResult.gizmoAxis);
+        gizmo->SetHoveredHandle(pickResult.gizmoHandle);
     }
 
     gizmo->Update(cachedPosition, *camera);

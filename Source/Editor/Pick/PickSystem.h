@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Editor/Pick/PickRegistry.h"
+#include "Editor/Gizmo/Strategy/GizmoStrategy.h"
 
 #include "Core/Type/Types.h"
 
@@ -20,7 +21,7 @@ class Component;
 class CameraComponent;
 class PickObject;
 class Unit;
-class GizmoController;
+class TransformGizmo;
 class Engine;
 class Scene;
 struct Ray;
@@ -29,13 +30,13 @@ struct PickResult
 {
     bool isHit = false;
     Unit* pickedUnit = nullptr;
-    int32 gizmoAxis = -1;
+    GizmoHandleId gizmoHandle = GizmoHandleId::None;
 };
 
 class PickSystem
 {
 public:
-    PickSystem(GizmoController& gizmo);
+    PickSystem(TransformGizmo& gizmo);
     ~PickSystem();
 
 public:
@@ -47,14 +48,14 @@ public:
     Unit* FindTarget(uint32 objectId) const;
 
 private:
-    bool PickGizmo(const Ray& worldRay, int32& outAxis) const;
+    bool PickGizmo(const Ray& worldRay, GizmoHandleId& outHandle) const;
 
     void OnRenderObjectAdded(Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component);
     void OnRenderObjectDestroyed(Render::RenderScene* scene, Render::RenderObject* object);
     void OnRenderObjectUpdated(Render::RenderScene* scene, Render::RenderObject* object);
 
 private:
-    GizmoController& gizmo;
+    TransformGizmo& gizmo;
 
     PickRegistry pickRegistry;
     std::unordered_map<Render::RenderObject*, std::unique_ptr<PickObject>> pickObjects;

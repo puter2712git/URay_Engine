@@ -17,10 +17,15 @@ namespace URay::Render
 
 struct GizmoObjectState
 {
-    std::vector<Matrix> worldMatrices;
-    Mesh* mesh = nullptr;
+    struct Handle
+    {
+        Matrix worldMatrix = Matrix::Identity;
+        Color colorTint = Color::White;
+        Mesh* mesh = nullptr;
+    };
+
+    std::vector<Handle> handles;
     Material* material = nullptr;
-    std::vector<Color> colorTints;
 };
 
 class GizmoObject : public DrawableObject
