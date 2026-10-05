@@ -125,7 +125,9 @@ VertexPNTOut VSMain(VertexPNTIn input)
 struct MeshFragOut
 {
     [[vk::location(0)]] float4 outColor : SV_Target;
+#if !URAY_SELECTION_MASK
     [[vk::location(1)]] uint outObjectId : SV_Target1;
+#endif
 };
 
 MeshFragOut PSMain(VertexPNTOut input)
@@ -139,8 +141,8 @@ MeshFragOut PSMain(VertexPNTOut input)
     float3 finalColor = EvaluateLighting(albedo.rgb, input.outWorldPosition, input.outNormal);
     
     output.outColor = float4(finalColor, albedo.a);
+    output.outObjectId = obj.objectId;
 #endif
 
-    output.outObjectId = obj.objectId;
     return output;
 }

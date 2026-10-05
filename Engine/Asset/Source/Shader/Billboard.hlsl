@@ -29,7 +29,9 @@ VertexPNTOut VSMain(VertexPNTIn input)
 struct BillboardFragOut
 {
     [[vk::location(0)]] float4 outColor : SV_Target;
+#if !URAY_SELECTION_MASK
     [[vk::location(1)]] uint outObjectId : SV_Target1;
+#endif
 };
 
 BillboardFragOut PSMain(VertexPNTOut input)
@@ -44,8 +46,8 @@ BillboardFragOut PSMain(VertexPNTOut input)
     output.outColor = float4(1, 1, 1, 1);
 #else
     output.outColor = color;
-#endif
     output.outObjectId = obj.objectId;
+#endif
 
     return output;
 }
