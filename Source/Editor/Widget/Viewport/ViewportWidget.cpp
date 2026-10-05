@@ -1,6 +1,7 @@
 #include "ViewportWidget.h"
 
 #include "Editor/Editor.h"
+#include "Editor/EditorCamera.h"
 #include "Editor/Gizmo/TransformGizmo.h"
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
@@ -39,6 +40,8 @@ ViewportWidget::ViewportWidget()
     gizmo = std::make_unique<TransformGizmo>();
     pickSystem = std::make_unique<PickSystem>(*gizmo);
     pickSystem->Initialize();
+
+    editorCamera = std::make_unique<EditorCamera>();
 
     gEditor->GetSelectionSystem().GetOnSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
                                                                       { gizmo->SetTarget(unit); });
@@ -106,10 +109,10 @@ EventReply ViewportWidget::OnPointerDown(const PointerEvent& event)
         if (!targetPosition)
             return {};
 
-        const PickResult pickResult = pickSystem->Pick(camera, targetPosition->x, targetPosition->y);
+        const PickResult pickResult = pickSystem->Pick(editorCamera->GetCamera(), targetPosition->x, targetPosition->y);
         if (pickResult.isHit && pickResult.gizmoHandle != GizmoHandleId::None)
         {
-            gizmo->StartDragging(*targetPosition, pickResult.gizmoHandle, *camera);
+            gizmo->StartDragging(*targetPosition, pickResult.gizmoHandle, *editorCamera->GetCamera());
         }
         else
         {
@@ -129,8 +132,8 @@ EventReply ViewportWidget::OnPointerMove(const PointerEvent& event)
 {
     if (isCameraRotating)
     {
-        pendingCameraLookDelta.x += event.delta.x;
-        pendingCameraLookDelta.y += event.delta.y;
+        cameraMouseDelta.x += event.delta.x;
+        cameraMouseDelta.y += event.delta.y;
         return {};
     }
 
@@ -208,29 +211,32 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
         gEditor->SetUseEditorCamera(!gEditor->UsingEditorCamera());
     }
 
-    if (event.key == KeyCode::W)
+    if (event.action == KeyAction::Pressed)
     {
-        cameraForward = true;
-    }
-    if (event.key == KeyCode::S)
-    {
-        cameraBackward = true;
-    }
-    if (event.key == KeyCode::D)
-    {
-        cameraRight = true;
-    }
-    if (event.key == KeyCode::A)
-    {
-        cameraLeft = true;
-    }
-    if (event.key == KeyCode::E)
-    {
-        cameraUp = true;
-    }
-    if (event.key == KeyCode::Q)
-    {
-        cameraDown = true;
+        if (event.key == KeyCode::W)
+        {
+            cameraMoveAxis = cameraMoveAxis + Vector3::Forward;
+        }
+        if (event.key == KeyCode::S)
+        {
+            cameraMoveAxis = cameraMoveAxis - Vector3::Forward;
+        }
+        if (event.key == KeyCode::D)
+        {
+            cameraMoveAxis = cameraMoveAxis + Vector3::Right;
+        }
+        if (event.key == KeyCode::A)
+        {
+            cameraMoveAxis = cameraMoveAxis - Vector3::Right;
+        }
+        if (event.key == KeyCode::E)
+        {
+            cameraMoveAxis = cameraMoveAxis + Vector3::Up;
+        }
+        if (event.key == KeyCode::Q)
+        {
+            cameraMoveAxis = cameraMoveAxis - Vector3::Up;
+        }
     }
 
     return {};
@@ -238,29 +244,32 @@ EventReply ViewportWidget::OnKeyDown(const KeyEvent& event)
 
 EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
 {
-    if (event.key == KeyCode::W)
+    if (event.action == KeyAction::Released)
     {
-        cameraForward = false;
-    }
-    if (event.key == KeyCode::S)
-    {
-        cameraBackward = false;
-    }
-    if (event.key == KeyCode::D)
-    {
-        cameraRight = false;
-    }
-    if (event.key == KeyCode::A)
-    {
-        cameraLeft = false;
-    }
-    if (event.key == KeyCode::E)
-    {
-        cameraUp = false;
-    }
-    if (event.key == KeyCode::Q)
-    {
-        cameraDown = false;
+        if (event.key == KeyCode::W)
+        {
+            cameraMoveAxis = cameraMoveAxis - Vector3::Forward;
+        }
+        if (event.key == KeyCode::S)
+        {
+            cameraMoveAxis = cameraMoveAxis + Vector3::Forward;
+        }
+        if (event.key == KeyCode::D)
+        {
+            cameraMoveAxis = cameraMoveAxis - Vector3::Right;
+        }
+        if (event.key == KeyCode::A)
+        {
+            cameraMoveAxis = cameraMoveAxis + Vector3::Right;
+        }
+        if (event.key == KeyCode::E)
+        {
+            cameraMoveAxis = cameraMoveAxis - Vector3::Up;
+        }
+        if (event.key == KeyCode::Q)
+        {
+            cameraMoveAxis = cameraMoveAxis + Vector3::Up;
+        }
     }
 
     return {};
@@ -268,14 +277,13 @@ EventReply ViewportWidget::OnKeyUp(const KeyEvent& event)
 
 void ViewportWidget::SetCamera(CameraComponent* camera)
 {
-    this->camera = camera;
-
-    this->camera->SetViewportExtent(GetTargetExtent());
+    editorCamera->SetCamera(camera);
+    camera->SetViewportExtent(GetTargetExtent());
 }
 
 void ViewportWidget::OnUpdate(float deltaTime)
 {
-    PickResult pickResult = pickSystem->Pick(camera, cachedPosition.x, cachedPosition.y);
+    PickResult pickResult = pickSystem->Pick(editorCamera->GetCamera(), cachedPosition.x, cachedPosition.y);
     if (!pickResult.isHit || pickResult.gizmoHandle == GizmoHandleId::None)
     {
         gizmo->SetHoveredHandle(GizmoHandleId::None);
@@ -286,10 +294,16 @@ void ViewportWidget::OnUpdate(float deltaTime)
         gizmo->SetHoveredHandle(pickResult.gizmoHandle);
     }
 
-    gizmo->Update(cachedPosition, *camera);
+    gizmo->Update(cachedPosition, *editorCamera->GetCamera());
 
-    UpdateCameraMovement(deltaTime);
-    UpdateCameraRotation();
+    EditorCameraInput input = {};
+    input.horizontalAxis = Vector3(cameraMoveAxis.x, cameraMoveAxis.y, 0.0f);
+    input.verticalAxis = Vector3(0.0f, 0.0f, cameraMoveAxis.z);
+    input.mouseDelta = cameraMouseDelta;
+
+    editorCamera->Update(deltaTime, input);
+
+    cameraMouseDelta = Vector2::Zero;
 }
 
 void ViewportWidget::OnPaint(Render::UIDrawContext& context)
@@ -340,65 +354,10 @@ void ViewportWidget::OnPaint(Render::UIDrawContext& context)
         .height = static_cast<uint32>(std::round(imageRect.size.y * scaleY)),
     });
 
-    camera->SetViewportExtent(targetExtent);
+    editorCamera->GetCamera()->SetViewportExtent(targetExtent);
 
     context.AddImage(imageRect, { .view = view,
                                   .sampler = sampler });
-}
-
-void ViewportWidget::UpdateCameraMovement(float deltaTime)
-{
-    Vector3 cameraMove = Vector3::Zero;
-
-    if (cameraForward)
-    {
-        cameraMove.y += 5.0f * deltaTime;
-    }
-    if (cameraBackward)
-    {
-        cameraMove.y -= 5.0f * deltaTime;
-    }
-    if (cameraRight)
-    {
-        cameraMove.x += 5.0f * deltaTime;
-    }
-    if (cameraLeft)
-    {
-        cameraMove.x -= 5.0f * deltaTime;
-    }
-
-    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
-    cameraMove = cameraTransform->TransformVectorNoScale(cameraMove);
-
-    if (cameraUp)
-    {
-        cameraMove.z += 5.0f * deltaTime;
-    }
-    if (cameraDown)
-    {
-        cameraMove.z -= 5.0f * deltaTime;
-    }
-
-    const Vector3 currCameraPosition = cameraTransform->GetPosition();
-    cameraTransform->SetPosition(currCameraPosition + cameraMove);
-}
-
-void ViewportWidget::UpdateCameraRotation()
-{
-    if (!isCameraRotating)
-        return;
-
-    TransformComponent* cameraTransform = camera->GetOwner()->GetTransform();
-
-    Vector3 rotation = cameraTransform->GetRotation();
-    rotation.x -= pendingCameraLookDelta.y * 0.1f;
-    rotation.z -= pendingCameraLookDelta.x * 0.1f;
-
-    rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
-
-    cameraTransform->SetRotation(rotation);
-
-    pendingCameraLookDelta = Vector2::Zero;
 }
 
 std::optional<Vector2> ViewportWidget::WindowToRenderTarget(const Vector2& windowPosition) const

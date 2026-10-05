@@ -5,6 +5,8 @@
 #include "Core/Ray/EventRay.h"
 
 #include "Core/Math/Extent2D.h"
+#include "Core/Math/Vector2.h"
+#include "Core/Math/Vector3.h"
 
 #include "Render/Rendering/View/ViewMode.h"
 
@@ -23,6 +25,7 @@ class PickSystem;
 class SelectionSystem;
 class Editor;
 class HorizontalLayout;
+class EditorCamera;
 
 namespace Render
 {
@@ -58,9 +61,6 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
-    void UpdateCameraMovement(float deltaTime);
-    void UpdateCameraRotation();
-
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
 
     bool SaveCurrScene();
@@ -68,7 +68,11 @@ private:
 private:
     Render::Renderer& renderer;
 
-    CameraComponent* camera;
+    std::unique_ptr<EditorCamera> editorCamera = nullptr;
+
+    bool isCameraRotating = false;
+    Vector3 cameraMoveAxis = Vector3::Zero;
+    Vector2 cameraMouseDelta = Vector2::Zero;
 
     std::unique_ptr<TransformGizmo> gizmo = nullptr;
     std::unique_ptr<PickSystem> pickSystem = nullptr;
@@ -79,16 +83,6 @@ private:
     Extent2D targetExtent = {};
 
     Vector2 cachedPosition = Vector2::Zero;
-
-    bool cameraForward = false;
-    bool cameraBackward = false;
-    bool cameraRight = false;
-    bool cameraLeft = false;
-    bool cameraUp = false;
-    bool cameraDown = false;
-
-    bool isCameraRotating = false;
-    Vector2 pendingCameraLookDelta = Vector2::Zero;
 
     bool isPerspective = true;
 
