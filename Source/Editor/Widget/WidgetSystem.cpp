@@ -6,7 +6,7 @@
 #include "Editor/Widget/Panel/InspectorWidget.h"
 #include "Editor/Widget/Panel/StatusPanel.h"
 #include "Editor/Widget/Panel/SceneTreeWidget.h"
-#include "Editor/Widget/Splitter.h"
+#include "Editor/Widget/Element/Splitter.h"
 #include "Editor/Widget/Panel/Viewport/ViewportWidget.h"
 #include "Editor/Widget/WidgetDrawer.h"
 

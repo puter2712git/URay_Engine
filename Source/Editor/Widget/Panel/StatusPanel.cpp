@@ -1,7 +1,7 @@
 #include "StatusPanel.h"
 
-#include "Editor/Widget/Button.h"
-#include "Editor/Widget/Label.h"
+#include "Editor/Widget/Element/Button.h"
+#include "Editor/Widget/Element/Label.h"
 
 #include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"

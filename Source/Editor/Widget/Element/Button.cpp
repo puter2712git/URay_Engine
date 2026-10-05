@@ -1,6 +1,6 @@
 #include "Button.h"
 
-#include "Editor/Widget/Label.h"
+#include "Editor/Widget/Element/Label.h"
 
 #include "Engine/Asset/EngineAsset.h"
 
