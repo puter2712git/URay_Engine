@@ -5,7 +5,7 @@
 #include "Editor/Gizmo/TransformGizmo.h"
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
-#include "Editor/Widget/Button.h"
+#include "Editor/Widget/Element/Button.h"
 #include "Editor/Widget/Layout/HorizontalLayout.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -37,6 +37,8 @@ ViewportWidget::ViewportWidget()
     : renderer(gEngine->GetRenderSystem().GetRenderer()),
       selectionSystem(gEditor->GetSelectionSystem())
 {
+    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
+
     gizmo = std::make_unique<TransformGizmo>();
     pickSystem = std::make_unique<PickSystem>(*gizmo);
     pickSystem->Initialize();
