@@ -35,9 +35,10 @@ bool EditorApplication::Initialize(
 
 void EditorApplication::Run()
 {
+    Window& window = engine->GetWindow();
     PerformanceAnalytics& analytics = engine->GetPerformanceAnalytics();
 
-    while (!glfwWindowShouldClose(engine->GetWindow().GetGLFWWindow()))
+    while (!window.ShouldClose())
     {
         analytics.BeginFrame();
 

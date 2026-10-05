@@ -126,4 +126,9 @@ Extent2D Window::GetFramebufferSize() const
     };
 }
 
+bool Window::ShouldClose() const
+{
+    return glfwWindowShouldClose(glfwWindow);
+}
+
 } // namespace URay
