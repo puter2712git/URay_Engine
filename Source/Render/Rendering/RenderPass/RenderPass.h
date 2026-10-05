@@ -21,6 +21,7 @@ class FogObject;
 class DirectionalLightObject;
 class SpotLightObject;
 class PointLightObject;
+class RenderTargetRegistry;
 struct RenderView;
 struct FrameResource;
 
@@ -33,10 +34,7 @@ struct RenderPassContext
     RenderView& renderView;
 
     FrameResource& frameResource;
-
-    RenderTarget& sceneRenderTarget;
-    RenderTarget& postProcessRenderTarget;
-    RenderTarget& selectionMaskRenderTarget;
+    RenderTargetRegistry& renderTargetRegistry;
 
     VkImage swapChainImage = VK_NULL_HANDLE;
     VkImageView swapChainImageView = VK_NULL_HANDLE;

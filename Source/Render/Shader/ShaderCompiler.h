@@ -1,6 +1,5 @@
 #pragma once
 
-#define NOMINMAX
 #include <Windows.h>
 #undef RegisterClass
 #undef GetObject

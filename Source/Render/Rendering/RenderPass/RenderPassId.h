@@ -14,6 +14,7 @@ enum class RenderPassId : uint8
     SelectionMask,
     Decal,
     Overlay,
+    Gizmo,
     Fog,
     SelectionOutline,
     UI,

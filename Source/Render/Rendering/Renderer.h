@@ -36,6 +36,7 @@ class SwapChain;
 class CommandPool;
 class Texture;
 class TextureView;
+class RenderTargetRegistry;
 
 class Renderer
 {
@@ -58,10 +59,6 @@ public:
     void RequestSceneRenderTargetResize(const Extent2D& extent);
     Extent2D GetSceneRenderTargetExtent() const;
 
-    RenderTarget& GetSceneRenderTarget() const { return *sceneRenderTarget; }
-    RenderTarget& GetPostProcessRenderTarget() const { return *postProcessRenderTarget; }
-    RenderTarget& GetSelectionMaskRenderTarget() const { return *selectionMaskRenderTarget; }
-
     VkImage GetSwapChainImage() const;
     VkImageView GetSwapChainImageView() const;
     VkExtent2D GetSwapChainExtent() const;
@@ -70,18 +67,16 @@ public:
 
     FrameResource& GetFrameResource() { return frameResources[currentFrame]; }
 
+    RenderTargetRegistry& GetRenderTargetRegistry() { return *renderTargetRegistry; }
+
     ObjectIdReadback& GetObjectIdReadback() { return *objectIdReadback; }
     EventRay<const ObjectIdReadbackResult&>& GetObjectIdReadbackRay() { return objectIdReadbackRay; }
 
 private:
     bool CreateSceneRenderTarget();
-    void DestroySceneRenderTarget();
-
     bool CreatePostProcessRenderTarget();
-    void DestroyPostProcessRenderTarget();
-
     bool CreateSelectionMaskRenderTarget();
-    void DestroySelectionMaskRenderTarget();
+    bool CreateGizmoDepthRenderTarget();
 
     void CleanupSwapChain();
     void RecreateSwapChain();
@@ -112,9 +107,7 @@ private:
     std::unique_ptr<SwapChain> swapChain = nullptr;
     uint32 imageIndex = 0;
 
-    std::unique_ptr<RenderTarget> sceneRenderTarget = nullptr;
-    std::unique_ptr<RenderTarget> postProcessRenderTarget = nullptr;
-    std::unique_ptr<RenderTarget> selectionMaskRenderTarget = nullptr;
+    std::unique_ptr<RenderTargetRegistry> renderTargetRegistry = nullptr;
 
     VkDescriptorSet sceneImGuiTexture = VK_NULL_HANDLE;
 

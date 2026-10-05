@@ -14,6 +14,7 @@
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/RenderConstants.h"
 #include "Render/Rendering/RenderInfo.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
@@ -36,13 +37,16 @@ SelectionOutlinePass::~SelectionOutlinePass() = default;
 
 void SelectionOutlinePass::Begin(const RenderPassContext& context)
 {
+    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+
     EnsureResources(context);
 
-    const Extent2D& extent = context.selectionMaskRenderTarget.GetExtent();
+    const Extent2D& extent = selectionMaskRT.GetExtent();
 
     const std::array colorAttachments = {
         RenderingAttachmentInfo{
-            .imageView = context.postProcessRenderTarget.GetColorView(0)->GetHandle(),
+            .imageView = postProcessRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
             .loadOp = LoadOp::Load,
             .storeOp = StoreOp::Store }
@@ -56,7 +60,7 @@ void SelectionOutlinePass::Begin(const RenderPassContext& context)
         .colorAttachments = colorAttachments
     };
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
+    postProcessRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
 
@@ -71,15 +75,19 @@ void SelectionOutlinePass::Begin(const RenderPassContext& context)
 
 void SelectionOutlinePass::End(const RenderPassContext& context)
 {
+    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+
     context.commandBuffer.EndRendering();
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
+    postProcessRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
 }
 
 void SelectionOutlinePass::Execute(
     const RenderPassContext& context,
     const std::vector<DrawCommand>& drawCmds)
 {
+    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;
 
@@ -92,7 +100,7 @@ void SelectionOutlinePass::Execute(
     uniformBuffers[currentFrame]->Update(&constants, sizeof(constants));
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
-    descriptorSet->WriteSampledImage(0, context.selectionMaskRenderTarget.GetColorView(0), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    descriptorSet->WriteSampledImage(0, selectionMaskRT.GetColorView(0), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     descriptorSet->WriteSampler(1, sampler);
     descriptorSet->WriteUniformBuffer(2, *uniformBuffers[currentFrame]);
 

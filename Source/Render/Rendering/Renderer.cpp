@@ -19,6 +19,7 @@
 #include "Render/Rendering/RenderConstants.h"
 #include "Render/Rendering/RenderInfo.h"
 #include "Render/Rendering/RenderPass/RenderPass.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/Rendering/Scene/RenderScene.h"
 #include "Render/Rendering/Shadow/ShadowSystem.h"
 #include "Render/ResourceManager.h"
@@ -92,6 +93,8 @@ bool Renderer::Initialize()
         return false;
     }
 
+    renderTargetRegistry = std::make_unique<RenderTargetRegistry>(device);
+
     if (!CreateSceneRenderTarget())
     {
         URAY_LOG("[Renderer] Failed to create scene render target.");
@@ -107,6 +110,12 @@ bool Renderer::Initialize()
     if (!CreateSelectionMaskRenderTarget())
     {
         URAY_LOG("[Renderer] Failed to create selection mask render target.");
+        Finalize();
+        return false;
+    }
+    if (!CreateGizmoDepthRenderTarget())
+    {
+        URAY_LOG("[Renderer] Failed to create gizmo depth render target.");
         Finalize();
         return false;
     }
@@ -143,9 +152,11 @@ void Renderer::Finalize()
 
     DestroyFrameResources();
 
-    DestroySelectionMaskRenderTarget();
-    DestroyPostProcessRenderTarget();
-    DestroySceneRenderTarget();
+    if (renderTargetRegistry)
+    {
+        renderTargetRegistry->DestroyAll();
+        renderTargetRegistry.reset();
+    }
 
     DestroyCommandPool();
 }
@@ -219,8 +230,10 @@ bool Renderer::InitializeImGui()
 
     ImGui_ImplVulkan_Init(&initInfo);
 
+    RenderTarget& postProcessRT = renderTargetRegistry->Get(RenderTargetId::PostProcess);
+
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        postProcessRenderTarget->GetColorView(0)->GetHandle(),
+        postProcessRT.GetColorView(0)->GetHandle(),
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
     return true;
@@ -334,7 +347,9 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
     if (extent.width == 0 || extent.height == 0)
         return;
 
-    const Extent2D currExtent = sceneRenderTarget->GetExtent();
+    RenderTarget& sceneRT = renderTargetRegistry->Get(RenderTargetId::Scene);
+
+    const Extent2D currExtent = sceneRT.GetExtent();
 
     if (currExtent.width == extent.width && currExtent.height == extent.height)
     {
@@ -347,7 +362,8 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
 
 Extent2D Renderer::GetSceneRenderTargetExtent() const
 {
-    return sceneRenderTarget->GetExtent();
+    RenderTarget& sceneRT = renderTargetRegistry->Get(RenderTargetId::Scene);
+    return sceneRT.GetExtent();
 }
 
 VkImage Renderer::GetSwapChainImage() const
@@ -401,6 +417,9 @@ void Renderer::RecreateSwapChain()
 
 bool Renderer::CreateSceneRenderTarget()
 {
+    if (!renderTargetRegistry)
+        return false;
+
     const VkExtent2D swapChainExtent = swapChain->GetExtent();
 
     std::vector<RenderTargetAttachmentDesc> colorAttachments;
@@ -420,16 +439,7 @@ bool Renderer::CreateSceneRenderTarget()
         .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
     };
 
-    sceneRenderTarget = std::make_unique<RenderTarget>(device, desc);
-    return sceneRenderTarget != nullptr;
-}
-
-void Renderer::DestroySceneRenderTarget()
-{
-    if (sceneRenderTarget)
-    {
-        sceneRenderTarget.reset();
-    }
+    return renderTargetRegistry->Create(RenderTargetId::Scene, desc, true);
 }
 
 bool Renderer::CreatePostProcessRenderTarget()
@@ -450,16 +460,7 @@ bool Renderer::CreatePostProcessRenderTarget()
         .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
     };
 
-    postProcessRenderTarget = std::make_unique<RenderTarget>(device, desc);
-    return postProcessRenderTarget != nullptr;
-}
-
-void Renderer::DestroyPostProcessRenderTarget()
-{
-    if (postProcessRenderTarget)
-    {
-        postProcessRenderTarget.reset();
-    }
+    return renderTargetRegistry->Create(RenderTargetId::PostProcess, desc, true);
 }
 
 bool Renderer::CreateSelectionMaskRenderTarget()
@@ -480,16 +481,22 @@ bool Renderer::CreateSelectionMaskRenderTarget()
         .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled
     };
 
-    selectionMaskRenderTarget = std::make_unique<RenderTarget>(device, desc);
-    return selectionMaskRenderTarget != nullptr;
+    return renderTargetRegistry->Create(RenderTargetId::SelectionMask, desc, true);
 }
 
-void Renderer::DestroySelectionMaskRenderTarget()
+bool Renderer::CreateGizmoDepthRenderTarget()
 {
-    if (selectionMaskRenderTarget)
-    {
-        selectionMaskRenderTarget.reset();
-    }
+    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+
+    RenderTargetDesc desc = {};
+    desc.extent.width = swapChainExtent.width;
+    desc.extent.height = swapChainExtent.height;
+    desc.depth = RenderTargetAttachmentDesc{
+        .format = Format::D32_Float_S8_UInt,
+        .usage = TextureUsage::DepthAttachment
+    };
+
+    return renderTargetRegistry->Create(RenderTargetId::GizmoDepth, desc, true);
 }
 
 bool Renderer::CreateCommandPool()
@@ -651,21 +658,12 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
         sceneImGuiTexture = VK_NULL_HANDLE;
     }
 
-    if (!sceneRenderTarget->Recreate(extent))
-    {
-        throw std::runtime_error("Failed to resize scene render target.");
-    }
-    if (!postProcessRenderTarget->Recreate(extent))
-    {
-        throw std::runtime_error("Failed to resize post process render target.");
-    }
-    if (!selectionMaskRenderTarget->Recreate(extent))
-    {
-        throw std::runtime_error("Failed to resize selection mask render target.");
-    }
+    renderTargetRegistry->RecreateViewportRelative(extent);
+
+    RenderTarget& postProcessRT = renderTargetRegistry->Get(RenderTargetId::PostProcess);
 
     sceneImGuiTexture = ImGui_ImplVulkan_AddTexture(
-        postProcessRenderTarget->GetColorView(0)->GetHandle(),
+        postProcessRT.GetColorView(0)->GetHandle(),
         VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 

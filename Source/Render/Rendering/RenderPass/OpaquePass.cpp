@@ -9,6 +9,7 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/RenderConstants.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/ResourceManager.h"
 
 #include <vulkan/vulkan.h>
@@ -24,11 +25,13 @@ OpaquePass::~OpaquePass() = default;
 
 void OpaquePass::Begin(const RenderPassContext& context)
 {
-    const Extent2D& extent = context.sceneRenderTarget.GetExtent();
+    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
+
+    const Extent2D& extent = sceneRT.GetExtent();
 
     std::vector<RenderingAttachmentInfo> colorAttachments;
     colorAttachments.push_back(RenderingAttachmentInfo{
-        .imageView = context.sceneRenderTarget.GetColorView(0)->GetHandle(),
+        .imageView = sceneRT.GetColorView(0)->GetHandle(),
         .layout = ImageLayout::ColorAttachment,
         .loadOp = LoadOp::Clear,
         .storeOp = StoreOp::Store,
@@ -36,7 +39,7 @@ void OpaquePass::Begin(const RenderPassContext& context)
             .type = ClearValueType::Float,
             .floatValue = Color(0.01f, 0.01f, 0.01f, 1.0f) } });
     colorAttachments.push_back(RenderingAttachmentInfo{
-        .imageView = context.sceneRenderTarget.GetColorView(1)->GetHandle(),
+        .imageView = sceneRT.GetColorView(1)->GetHandle(),
         .layout = ImageLayout::ColorAttachment,
         .loadOp = LoadOp::Clear,
         .storeOp = StoreOp::Store,
@@ -45,7 +48,7 @@ void OpaquePass::Begin(const RenderPassContext& context)
             .uintValue = 0 } });
 
     const RenderingAttachmentInfo depthAttachment = {
-        .imageView = context.sceneRenderTarget.GetDepthView()->GetHandle(),
+        .imageView = sceneRT.GetDepthView()->GetHandle(),
         .layout = ImageLayout::DepthAttachment,
         .loadOp = LoadOp::Clear,
         .storeOp = StoreOp::Store,
@@ -62,9 +65,9 @@ void OpaquePass::Begin(const RenderPassContext& context)
         .depthAttachment = &depthAttachment
     };
 
-    context.sceneRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
-    context.sceneRenderTarget.TransitionColor(context.commandBuffer, 1, ImageLayout::ColorAttachment);
-    context.sceneRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
+    sceneRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
+    sceneRT.TransitionColor(context.commandBuffer, 1, ImageLayout::ColorAttachment);
+    sceneRT.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
 

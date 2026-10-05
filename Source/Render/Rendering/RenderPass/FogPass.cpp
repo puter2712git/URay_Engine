@@ -14,6 +14,7 @@
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/Object/FogObject.h"
 #include "Render/Rendering/RenderInfo.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/ResourceManager.h"
 #include "Render/Shader/Shader.h"
 
@@ -34,13 +35,15 @@ FogPass::~FogPass() = default;
 
 void FogPass::Begin(const RenderPassContext& context)
 {
+    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+
     EnsureResources(context);
 
-    const Extent2D& extent = context.postProcessRenderTarget.GetExtent();
+    const Extent2D& extent = postProcessRT.GetExtent();
 
     const std::array colorAttachments = {
         RenderingAttachmentInfo{
-            .imageView = context.postProcessRenderTarget.GetColorView(0)->GetHandle(),
+            .imageView = postProcessRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
             .loadOp = LoadOp::Clear,
             .storeOp = StoreOp::Store,
@@ -57,22 +60,26 @@ void FogPass::Begin(const RenderPassContext& context)
         .colorAttachments = colorAttachments
     };
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
+    postProcessRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
 }
 
 void FogPass::End(const RenderPassContext& context)
 {
+    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+
     context.commandBuffer.EndRendering();
 
-    context.postProcessRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
+    postProcessRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
 }
 
 void FogPass::Execute(
     const RenderPassContext& context,
     const std::vector<DrawCommand>&)
 {
+    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
+
     FogConstants constants = {};
     constants.enabled = 0;
 
@@ -90,8 +97,8 @@ void FogPass::Execute(
 
     DescriptorSet* descriptorSet = descriptorSets[currentFrame].get();
 
-    descriptorSet->WriteSampledImage(0, context.sceneRenderTarget.GetColorView(0));
-    descriptorSet->WriteSampledImage(1, context.sceneRenderTarget.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
+    descriptorSet->WriteSampledImage(0, sceneRT.GetColorView(0));
+    descriptorSet->WriteSampledImage(1, sceneRT.GetDepthView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
     descriptorSet->WriteSampler(2, sampler);
     descriptorSet->WriteUniformBuffer(3, *uniformBuffers[currentFrame]);
 

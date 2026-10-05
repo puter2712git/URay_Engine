@@ -8,6 +8,7 @@
 #include "Render/RHI/Texture/TextureView.h"
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/RenderConstants.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/ResourceManager.h"
 
 #include <vulkan/vulkan.h>
@@ -23,11 +24,12 @@ SelectionMaskPass::~SelectionMaskPass() = default;
 
 void SelectionMaskPass::Begin(const RenderPassContext& context)
 {
-    const Extent2D& extent = context.selectionMaskRenderTarget.GetExtent();
+    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+    const Extent2D& extent = selectionMaskRT.GetExtent();
 
     const std::array colorAttachments = {
         RenderingAttachmentInfo{
-            .imageView = context.selectionMaskRenderTarget.GetColorView(0)->GetHandle(),
+            .imageView = selectionMaskRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
             .loadOp = LoadOp::Clear,
             .storeOp = StoreOp::Store,
@@ -37,7 +39,7 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
     };
 
     const RenderingAttachmentInfo depthAttachment = {
-        .imageView = context.selectionMaskRenderTarget.GetDepthView()->GetHandle(),
+        .imageView = selectionMaskRT.GetDepthView()->GetHandle(),
         .layout = ImageLayout::DepthAttachment,
         .loadOp = LoadOp::Clear,
         .storeOp = StoreOp::Store,
@@ -54,8 +56,8 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
         .depthAttachment = &depthAttachment
     };
 
-    context.selectionMaskRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
-    context.selectionMaskRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
+    selectionMaskRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ColorAttachment);
+    selectionMaskRT.TransitionDepth(context.commandBuffer, ImageLayout::DepthAttachment);
 
     context.commandBuffer.BeginRendering(renderingInfo);
 
@@ -70,10 +72,12 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
 
 void SelectionMaskPass::End(const RenderPassContext& context)
 {
+    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+
     context.commandBuffer.EndRendering();
 
-    context.selectionMaskRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
-    context.selectionMaskRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
+    selectionMaskRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
+    selectionMaskRT.TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
 }
 
 void SelectionMaskPass::Execute(

@@ -20,11 +20,13 @@
 #include "Render/Rendering/RenderConstants.h"
 #include "Render/Rendering/RenderPass/DecalPass.h"
 #include "Render/Rendering/RenderPass/FogPass.h"
+#include "Render/Rendering/RenderPass/GizmoPass.h"
 #include "Render/Rendering/RenderPass/OpaquePass.h"
 #include "Render/Rendering/RenderPass/OverlayPass.h"
 #include "Render/Rendering/RenderPass/SelectionMaskPass.h"
 #include "Render/Rendering/RenderPass/SelectionOutlinePass.h"
 #include "Render/Rendering/RenderPass/ShadowPass.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/Rendering/Renderer.h"
 #include "Render/Rendering/Scene/RenderScene.h"
 #include "Render/ResourceManager.h"
@@ -64,6 +66,7 @@ bool RenderPipeline::Initialize()
     passes.push_back(std::make_unique<SelectionMaskPass>());
     passes.push_back(std::make_unique<FogPass>());
     passes.push_back(std::make_unique<SelectionOutlinePass>());
+    passes.push_back(std::make_unique<GizmoPass>());
 
     return true;
 }
@@ -93,6 +96,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
     std::vector<SpotLightObject*> spotLights = FindSpotLights(request.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
+    RenderTargetRegistry& renderTargetRegistry = renderer.GetRenderTargetRegistry();
+
+    const Extent2D extent = renderer.GetSceneRenderTargetExtent();
 
     RenderView view = request.view;
 
@@ -107,9 +113,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
     frameConstants.invViewProj = frameConstants.viewProj.Inverse();
     frameConstants.nearPlane = view.nearPlane;
     frameConstants.farPlane = view.farPlane;
-    frameConstants.renderTargetSize = Vector2(
-        renderer.GetSceneRenderTarget().GetExtent().width,
-        renderer.GetSceneRenderTarget().GetExtent().height);
+    frameConstants.renderTargetSize = Vector2(static_cast<float>(extent.width), static_cast<float>(extent.height));
 
     if (ambientLight)
     {
@@ -256,10 +260,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .renderView = view,
 
         .frameResource = renderer.GetFrameResource(),
-
-        .sceneRenderTarget = renderer.GetSceneRenderTarget(),
-        .postProcessRenderTarget = renderer.GetPostProcessRenderTarget(),
-        .selectionMaskRenderTarget = renderer.GetSelectionMaskRenderTarget(),
+        .renderTargetRegistry = renderTargetRegistry,
 
         .swapChainImage = renderer.GetSwapChainImage(),
         .swapChainImageView = renderer.GetSwapChainImageView(),
@@ -281,9 +282,11 @@ void RenderPipeline::Execute(const RenderRequest& request)
         pass->End(passContext);
     }
 
+    RenderTarget& sceneRT = renderTargetRegistry.Get(RenderTargetId::Scene);
+
     renderer.GetObjectIdReadback().Record(
         passContext.commandBuffer,
-        *passContext.sceneRenderTarget.GetColorTexture(1),
+        *sceneRT.GetColorTexture(1),
         currentFrame);
 }
 

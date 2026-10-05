@@ -8,6 +8,7 @@
 #include "Render/RHI/Texture/Texture.h"
 #include "Render/Rendering/FrameResource.h"
 #include "Render/Rendering/RenderConstants.h"
+#include "Render/Rendering/RenderTargetRegistry.h"
 #include "Render/ResourceManager.h"
 
 #include <vulkan/vulkan.h>
@@ -27,10 +28,12 @@ void OverlayPass::Begin(const RenderPassContext& context)
 
 void OverlayPass::End(const RenderPassContext& context)
 {
+    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
+
     context.commandBuffer.EndRendering();
 
-    context.sceneRenderTarget.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
-    context.sceneRenderTarget.TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
+    sceneRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
+    sceneRT.TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
 }
 
 void OverlayPass::Execute(

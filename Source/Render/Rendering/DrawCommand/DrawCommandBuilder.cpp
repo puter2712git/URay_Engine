@@ -348,7 +348,7 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
         { ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
 
     DrawCommand cmd = {};
-    cmd.passId = RenderPassId::Overlay;
+    cmd.passId = RenderPassId::Gizmo;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
@@ -357,8 +357,9 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     cmd.indexCount = static_cast<uint32>(context.mesh->GetIndices().size());
 
     DepthStencilState depthStencil = {};
-    depthStencil.depthTestEnable = false;
-    depthStencil.depthWriteEnable = false;
+    depthStencil.depthTestEnable = true;
+    depthStencil.depthWriteEnable = true;
+    depthStencil.depthCompareOp = CompareOp::Less;
 
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
