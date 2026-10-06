@@ -27,11 +27,16 @@ ViewportToolbar::ViewportToolbar()
     gizmoModeButtons[2] = scaleButton.get();
     gizmoModeButtons[2]->SetDesiredSize(Vector2(30.0f, 0.0f));
 
+    auto spaceToggleButton = std::make_unique<Button>(EngineAsset::GizmoWorldSpaceIconTexture);
+    gizmoSpaceToggleButton = spaceToggleButton.get();
+    gizmoSpaceToggleButton->SetDesiredSize(Vector2(30.0f, 0.0f));
+
     AddChild(std::move(gizmoHorizontalLayout));
 
     gizmoModeButtonLayout->AddChild(std::move(translationButton));
     gizmoModeButtonLayout->AddChild(std::move(rotationButton));
     gizmoModeButtonLayout->AddChild(std::move(scaleButton));
+    gizmoModeButtonLayout->AddChild(std::move(spaceToggleButton));
 }
 
 ViewportToolbar::~ViewportToolbar() = default;

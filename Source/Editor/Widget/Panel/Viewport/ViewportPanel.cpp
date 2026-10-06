@@ -6,6 +6,7 @@
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Widget/Element/Button.h"
+#include "Editor/Widget/Element/Image.h"
 #include "Editor/Widget/Panel/Viewport/ViewportToolbar.h"
 
 #include "Core/File/VirtualFilesystem.h"
@@ -13,6 +14,7 @@
 #include "Core/Type/Types.h"
 
 #include "Engine/Asset/AssetSystem.h"
+#include "Engine/Asset/EngineAsset.h"
 #include "Engine/Component/Render/CameraComponent.h"
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
@@ -43,16 +45,6 @@ ViewportPanel::ViewportPanel()
     toolbar = viewportToolbar.get();
     AddChild(std::move(viewportToolbar));
 
-    auto gizmoButtons = toolbar->GetGizmoModeButtons();
-    for (size_t i = 0; i < gizmoButtons.size(); ++i)
-    {
-        gizmoButtons[i]->GetOnClickRay().Register(
-            this, [this, i]()
-            { 
-            GizmoMode mode = static_cast<GizmoMode>(i); 
-            gizmo->SetMode(mode); });
-    }
-
     gizmo = std::make_unique<TransformGizmo>();
     pickSystem = std::make_unique<PickSystem>(*gizmo);
     pickSystem->Initialize();
@@ -64,6 +56,53 @@ ViewportPanel::ViewportPanel()
 
     renderer.GetObjectIdReadbackRay().Register(this, [this](const Render::ObjectIdReadbackResult& result)
                                                { selectionSystem.SelectUnit(pickSystem->FindTarget(result.objectId)); });
+
+    auto gizmoButtons = toolbar->GetGizmoModeButtons();
+    for (size_t i = 0; i < gizmoButtons.size(); ++i)
+    {
+        gizmoButtons[i]->GetOnClickRay().Register(
+            this, [this, i]()
+            { 
+            GizmoMode mode = static_cast<GizmoMode>(i); 
+            gizmo->SetMode(mode); });
+    }
+
+    auto gizmoSpaceToggleButton = toolbar->GetGizmoSpaceToggleButton();
+    gizmoSpaceToggleButton->GetOnClickRay().Register(this,
+                                                     [this, gizmoSpaceToggleButton]()
+                                                     {
+                                                         bool isLocal = gizmo->IsLocal();
+                                                         bool gizmoSpace = !isLocal;
+                                                         gizmo->SetIsLocal(gizmoSpace);
+
+                                                         auto& content = gizmoSpaceToggleButton->GetChildren()[0];
+                                                         Image* image = static_cast<Image*>(content.get());
+
+                                                         if (image)
+                                                         {
+                                                             if (gizmo->IsLocal())
+                                                             {
+                                                                 image->SetTexture(EngineAsset::GizmoLocalSpaceIconTexture);
+                                                             }
+                                                             else
+                                                             {
+                                                                 image->SetTexture(EngineAsset::GizmoWorldSpaceIconTexture);
+                                                             }
+                                                         }
+                                                     });
+    bool gizmoIsLocal = gizmo->IsLocal();
+
+    auto& content = gizmoSpaceToggleButton->GetChildren()[0];
+    Image* image = static_cast<Image*>(content.get());
+
+    if (gizmoIsLocal)
+    {
+        image->SetTexture(EngineAsset::GizmoLocalSpaceIconTexture);
+    }
+    else
+    {
+        image->SetTexture(EngineAsset::GizmoWorldSpaceIconTexture);
+    }
 }
 
 ViewportPanel::~ViewportPanel()
