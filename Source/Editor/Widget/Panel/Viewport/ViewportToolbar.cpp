@@ -19,12 +19,11 @@ ViewportToolbar::ViewportToolbar()
     gizmoModeButtons[0] = translationButton.get();
     gizmoModeButtons[0]->SetDesiredSize(Vector2(30.0f, 0.0f));
 
-    auto rotationButton = std::make_unique<Button>("Rotation");
+    auto rotationButton = std::make_unique<Button>(EngineAsset::RotationGizmoIconTexture);
     gizmoModeButtons[1] = rotationButton.get();
     gizmoModeButtons[1]->SetDesiredSize(Vector2(30.0f, 0.0f));
-    gizmoModeButtons[1]->SetDesiredSize(Vector2(30.0f, 0.0f));
 
-    auto scaleButton = std::make_unique<Button>("Scale");
+    auto scaleButton = std::make_unique<Button>(EngineAsset::ScaleGizmoIconTexture);
     gizmoModeButtons[2] = scaleButton.get();
     gizmoModeButtons[2]->SetDesiredSize(Vector2(30.0f, 0.0f));
 
