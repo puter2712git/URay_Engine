@@ -19,6 +19,10 @@ public:
     void EndDragging() override { selectedHandle = GizmoHandleId::None; }
 
 private:
+    Matrix GetAxisRotationMatrix(GizmoHandleId selectedHandle, float angle);
+    Vector3 MatrixToEulerXYZ(const Matrix& matrix);
+
+private:
     TransformGizmo& gizmo;
     GizmoHandleId selectedHandle = GizmoHandleId::None;
     Vector3 startWorldPosition = Vector3::Zero;

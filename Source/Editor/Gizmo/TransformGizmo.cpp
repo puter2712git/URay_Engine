@@ -1,8 +1,8 @@
 #include "TransformGizmo.h"
 
-#include "Editor/Gizmo/Strategy/TranslationGizmoStrategy.h"
 #include "Editor/Gizmo/Strategy/RotationGizmoStrategy.h"
 #include "Editor/Gizmo/Strategy/ScaleGizmoStrategy.h"
+#include "Editor/Gizmo/Strategy/TranslationGizmoStrategy.h"
 
 #include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
@@ -78,19 +78,26 @@ void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
 
     UpdateDragging(position, camera);
 
-    const Matrix& targetWorld = GetTargetTransform()->GetWorldMatrix();
-    Vector3 xAxis(targetWorld.m00, targetWorld.m01, targetWorld.m02);
-    Vector3 yAxis(targetWorld.m10, targetWorld.m11, targetWorld.m12);
-    Vector3 zAxis(targetWorld.m20, targetWorld.m21, targetWorld.m22);
-    Matrix noScaleWorld = Matrix::Identity;
-    noScaleWorld.m00 = xAxis.GetNormalized().x; noScaleWorld.m01 = xAxis.GetNormalized().y; noScaleWorld.m02 = xAxis.GetNormalized().z;
-    noScaleWorld.m10 = yAxis.GetNormalized().x; noScaleWorld.m11 = yAxis.GetNormalized().y; noScaleWorld.m12 = yAxis.GetNormalized().z;
-    noScaleWorld.m20 = zAxis.GetNormalized().x; noScaleWorld.m21 = zAxis.GetNormalized().y; noScaleWorld.m22 = zAxis.GetNormalized().z;
-    noScaleWorld.m30 = targetWorld.m30; noScaleWorld.m31 = targetWorld.m31; noScaleWorld.m32 = targetWorld.m32;
+    const Vector3 targetPosition = GetTargetTransform()->GetPosition();
+    const Vector3 targetRotation = GetTargetTransform()->GetRotation();
 
     const float distance = (camera.GetOwner()->GetTransform()->GetPosition() - GetTargetTransform()->GetPosition()).GetLength();
     const float scale = std::clamp(distance * scaleFactor, minScale, maxScale);
-    currentStrategy->UpdateHandles(Matrix::MakeScale(Vector3(scale, scale, scale)) * noScaleWorld);
+
+    if (isLocal || GetMode() == GizmoMode::Scale)
+    {
+        const Matrix relativeMatrix =
+            Matrix::MakeScale(Vector3(scale, scale, scale)) * Matrix::MakeRotation(targetRotation) * Matrix::MakeTranslation(targetPosition);
+
+        currentStrategy->UpdateHandles(relativeMatrix);
+    }
+    else
+    {
+        const Matrix relativeMatrix =
+            Matrix::MakeScale(Vector3(scale, scale, scale)) * Matrix::MakeTranslation(targetPosition);
+
+        currentStrategy->UpdateHandles(relativeMatrix);
+    }
     UpdateRenderObject();
 }
 

@@ -91,20 +91,45 @@ void TranslationGizmoStrategy::StartDragging(
     startLineDirection = farPosition - startWorldPosition;
     targetInitPosition = targetTransform->GetPosition();
     selectedHandle = handleId;
-    xAxis = targetTransform->TransformVectorNoScale(Vector3::Right).GetNormalized();
-    yAxis = targetTransform->TransformVectorNoScale(Vector3::Forward).GetNormalized();
-    zAxis = targetTransform->TransformVectorNoScale(Vector3::Up).GetNormalized();
+
+    if (gizmo.IsLocal())
+    {
+        xAxis = targetTransform->TransformVectorNoScale(Vector3::Right).GetNormalized();
+        yAxis = targetTransform->TransformVectorNoScale(Vector3::Forward).GetNormalized();
+        zAxis = targetTransform->TransformVectorNoScale(Vector3::Up).GetNormalized();
+    }
+    else
+    {
+        xAxis = Vector3::Right;
+        yAxis = Vector3::Forward;
+        zAxis = Vector3::Up;
+    }
 
     switch (selectedHandle)
     {
-    case GizmoHandleId::X: planeNormal = Vector3::Cross(xAxis, Vector3::Cross(cameraTransform->GetForward(), xAxis).GetNormalized()).GetNormalized(); break;
-    case GizmoHandleId::Y: planeNormal = Vector3::Cross(yAxis, Vector3::Cross(cameraTransform->GetForward(), yAxis).GetNormalized()).GetNormalized(); break;
-    case GizmoHandleId::Z: planeNormal = Vector3::Cross(zAxis, Vector3::Cross(cameraTransform->GetForward(), zAxis).GetNormalized()).GetNormalized(); break;
-    case GizmoHandleId::XY: planeNormal = zAxis; break;
-    case GizmoHandleId::YZ: planeNormal = xAxis; break;
-    case GizmoHandleId::XZ: planeNormal = yAxis; break;
-    case GizmoHandleId::XYZ: planeNormal = cameraTransform->GetForward(); break;
-    default: return;
+    case GizmoHandleId::X:
+        planeNormal = Vector3::Cross(xAxis, Vector3::Cross(cameraTransform->GetForward(), xAxis).GetNormalized()).GetNormalized();
+        break;
+    case GizmoHandleId::Y:
+        planeNormal = Vector3::Cross(yAxis, Vector3::Cross(cameraTransform->GetForward(), yAxis).GetNormalized()).GetNormalized();
+        break;
+    case GizmoHandleId::Z:
+        planeNormal = Vector3::Cross(zAxis, Vector3::Cross(cameraTransform->GetForward(), zAxis).GetNormalized()).GetNormalized();
+        break;
+    case GizmoHandleId::XY:
+        planeNormal = zAxis;
+        break;
+    case GizmoHandleId::YZ:
+        planeNormal = xAxis;
+        break;
+    case GizmoHandleId::XZ:
+        planeNormal = yAxis;
+        break;
+    case GizmoHandleId::XYZ:
+        planeNormal = cameraTransform->GetForward();
+        break;
+    default:
+        return;
     }
 }
 
@@ -139,14 +164,29 @@ void TranslationGizmoStrategy::UpdateDragging(
     Vector3 move = Vector3::Zero;
     switch (selectedHandle)
     {
-    case GizmoHandleId::X: move = xAxis * Vector3::Dot(delta, xAxis); break;
-    case GizmoHandleId::Y: move = yAxis * Vector3::Dot(delta, yAxis); break;
-    case GizmoHandleId::Z: move = zAxis * Vector3::Dot(delta, zAxis); break;
-    case GizmoHandleId::XY: move = xAxis * Vector3::Dot(delta, xAxis) + yAxis * Vector3::Dot(delta, yAxis); break;
-    case GizmoHandleId::YZ: move = yAxis * Vector3::Dot(delta, yAxis) + zAxis * Vector3::Dot(delta, zAxis); break;
-    case GizmoHandleId::XZ: move = xAxis * Vector3::Dot(delta, xAxis) + zAxis * Vector3::Dot(delta, zAxis); break;
-    case GizmoHandleId::XYZ: move = delta; break;
-    default: return;
+    case GizmoHandleId::X:
+        move = xAxis * Vector3::Dot(delta, xAxis);
+        break;
+    case GizmoHandleId::Y:
+        move = yAxis * Vector3::Dot(delta, yAxis);
+        break;
+    case GizmoHandleId::Z:
+        move = zAxis * Vector3::Dot(delta, zAxis);
+        break;
+    case GizmoHandleId::XY:
+        move = xAxis * Vector3::Dot(delta, xAxis) + yAxis * Vector3::Dot(delta, yAxis);
+        break;
+    case GizmoHandleId::YZ:
+        move = yAxis * Vector3::Dot(delta, yAxis) + zAxis * Vector3::Dot(delta, zAxis);
+        break;
+    case GizmoHandleId::XZ:
+        move = xAxis * Vector3::Dot(delta, xAxis) + zAxis * Vector3::Dot(delta, zAxis);
+        break;
+    case GizmoHandleId::XYZ:
+        move = delta;
+        break;
+    default:
+        return;
     }
 
     targetTransform->SetPosition(targetInitPosition + move);

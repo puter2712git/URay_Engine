@@ -38,6 +38,9 @@ public:
     void SetHoveredHandle(GizmoHandleId handleId) { hoveredHandle = handleId; }
     bool IsDragging() const { return dragging; }
 
+    bool IsLocal() const { return isLocal; }
+    void SetIsLocal(bool local) { isLocal = local; }
+
     void Update(const Vector2& position, CameraComponent& camera);
     void StartDragging(const Vector2& position, GizmoHandleId handleId, const CameraComponent& camera);
     void UpdateDragging(const Vector2& position, const CameraComponent& camera);
@@ -57,6 +60,8 @@ private:
 
     GizmoHandleId hoveredHandle = GizmoHandleId::None;
     GizmoHandleId selectedHandle = GizmoHandleId::None;
+
+    bool isLocal = false;
 
     Unit* targetUnit = nullptr;
     Material* material = nullptr;

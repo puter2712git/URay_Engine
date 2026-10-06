@@ -1,5 +1,6 @@
 #include "ScaleGizmoStrategy.h"
 
+#include "Core/Math/Math.h"
 #include "Editor/Gizmo/TransformGizmo.h"
 #include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
@@ -8,7 +9,6 @@
 #include "Engine/Component/TransformComponent.h"
 #include "Engine/Engine.h"
 #include "Engine/Scene/Unit.h"
-#include "Core/Math/Math.h"
 
 #include <algorithm>
 
@@ -47,39 +47,65 @@ void ScaleGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId id
 {
     TransformComponent* transform = gizmo.GetTargetTransform();
     TransformComponent* cameraTransform = camera.GetOwner() ? camera.GetOwner()->GetTransform() : nullptr;
-    if (!transform || !cameraTransform) return;
-    selectedHandle = id; startWorldPosition = cameraTransform->GetPosition();
+    if (!transform || !cameraTransform)
+        return;
+    selectedHandle = id;
+    startWorldPosition = cameraTransform->GetPosition();
     startLineDirection = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition;
-    targetInitPosition = transform->GetPosition(); targetInitScale = transform->GetScale();
+    targetInitPosition = transform->GetPosition();
+    targetInitScale = transform->GetScale();
+
     xAxis = transform->TransformVectorNoScale(Vector3::Right).GetNormalized();
     yAxis = transform->TransformVectorNoScale(Vector3::Forward).GetNormalized();
     zAxis = transform->TransformVectorNoScale(Vector3::Up).GetNormalized();
+
     switch (id)
     {
-    case GizmoHandleId::X: planeNormal = Vector3::Cross(xAxis, Vector3::Cross(cameraTransform->GetForward(), xAxis).GetNormalized()).GetNormalized(); break;
-    case GizmoHandleId::Y: planeNormal = Vector3::Cross(yAxis, Vector3::Cross(cameraTransform->GetForward(), yAxis).GetNormalized()).GetNormalized(); break;
-    case GizmoHandleId::Z: planeNormal = Vector3::Cross(zAxis, Vector3::Cross(cameraTransform->GetForward(), zAxis).GetNormalized()).GetNormalized(); break;
-    case GizmoHandleId::XY: planeNormal = zAxis; break;
-    case GizmoHandleId::YZ: planeNormal = xAxis; break;
-    case GizmoHandleId::XZ: planeNormal = yAxis; break;
-    case GizmoHandleId::XYZ: planeNormal = cameraTransform->GetForward(); break;
-    default: return;
+    case GizmoHandleId::X:
+        planeNormal = Vector3::Cross(xAxis, Vector3::Cross(cameraTransform->GetForward(), xAxis).GetNormalized()).GetNormalized();
+        break;
+    case GizmoHandleId::Y:
+        planeNormal = Vector3::Cross(yAxis, Vector3::Cross(cameraTransform->GetForward(), yAxis).GetNormalized()).GetNormalized();
+        break;
+    case GizmoHandleId::Z:
+        planeNormal = Vector3::Cross(zAxis, Vector3::Cross(cameraTransform->GetForward(), zAxis).GetNormalized()).GetNormalized();
+        break;
+    case GizmoHandleId::XY:
+        planeNormal = zAxis;
+        break;
+    case GizmoHandleId::YZ:
+        planeNormal = xAxis;
+        break;
+    case GizmoHandleId::XZ:
+        planeNormal = yAxis;
+        break;
+    case GizmoHandleId::XYZ:
+        planeNormal = cameraTransform->GetForward();
+        break;
+    default:
+        return;
     }
 }
 
 void ScaleGizmoStrategy::UpdateDragging(const Vector2& position, const CameraComponent& camera)
 {
     TransformComponent* transform = gizmo.GetTargetTransform();
-    if (!transform) return;
+    if (!transform)
+        return;
     Vector3 startHit, currentHit;
     if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitPosition, planeNormal, startHit) ||
-        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, targetInitPosition, planeNormal, currentHit)) return;
+        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, targetInitPosition, planeNormal, currentHit))
+        return;
     const Vector3 delta = currentHit - startHit;
     float amount = 0.0f;
-    if (selectedHandle == GizmoHandleId::X) amount = Vector3::Dot(delta, xAxis);
-    else if (selectedHandle == GizmoHandleId::Y) amount = Vector3::Dot(delta, yAxis);
-    else if (selectedHandle == GizmoHandleId::Z) amount = Vector3::Dot(delta, zAxis);
-    else amount = (Vector3::Dot(delta, xAxis) + Vector3::Dot(delta, yAxis) + Vector3::Dot(delta, zAxis)) / 3.0f;
+    if (selectedHandle == GizmoHandleId::X)
+        amount = Vector3::Dot(delta, xAxis);
+    else if (selectedHandle == GizmoHandleId::Y)
+        amount = Vector3::Dot(delta, yAxis);
+    else if (selectedHandle == GizmoHandleId::Z)
+        amount = Vector3::Dot(delta, zAxis);
+    else
+        amount = (Vector3::Dot(delta, xAxis) + Vector3::Dot(delta, yAxis) + Vector3::Dot(delta, zAxis)) / 3.0f;
 
     constexpr float minimumScale = 0.01f;
     Vector3 scale = targetInitScale;
