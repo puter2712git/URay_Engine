@@ -138,7 +138,7 @@ void Splitter::OnPaint(Render::UIDrawContext& context)
 {
     Rect handleRect = GetHandleRect();
 
-    const Color handleColor = IsHovered() ? Color(0.1f, 0.1f, 0.1f, 0.7f) : Color(0.1f, 0.1f, 0.1f, 1.0f);
+    const Color handleColor = (IsHovered() || isDragging) ? Color(0.3f, 0.3f, 0.3f, 1.0f) : Color(0.1f, 0.1f, 0.1f, 1.0f);
 
     context.AddFilledRect(handleRect, handleColor);
 }
