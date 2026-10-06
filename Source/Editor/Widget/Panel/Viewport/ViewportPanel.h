@@ -26,6 +26,7 @@ class SelectionSystem;
 class Editor;
 class HorizontalLayout;
 class EditorCamera;
+class ViewportToolbar;
 
 namespace Render
 {
@@ -67,6 +68,8 @@ private:
 
 private:
     Render::Renderer& renderer;
+
+    ViewportToolbar* toolbar = nullptr;
 
     std::unique_ptr<EditorCamera> editorCamera = nullptr;
 

@@ -6,7 +6,7 @@
 #include "Editor/Pick/PickSystem.h"
 #include "Editor/Selection/SelectionSystem.h"
 #include "Editor/Widget/Element/Button.h"
-#include "Editor/Widget/Layout/HorizontalLayout.h"
+#include "Editor/Widget/Panel/Viewport/ViewportToolbar.h"
 
 #include "Core/File/VirtualFilesystem.h"
 #include "Core/Log/LogSystem.h"
@@ -39,6 +39,20 @@ ViewportPanel::ViewportPanel()
 {
     SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
 
+    auto viewportToolbar = std::make_unique<ViewportToolbar>();
+    toolbar = viewportToolbar.get();
+    AddChild(std::move(viewportToolbar));
+
+    auto gizmoButtons = toolbar->GetGizmoModeButtons();
+    for (size_t i = 0; i < gizmoButtons.size(); ++i)
+    {
+        gizmoButtons[i]->GetOnClickRay().Register(
+            this, [this, i]()
+            { 
+            GizmoMode mode = static_cast<GizmoMode>(i); 
+            gizmo->SetMode(mode); });
+    }
+
     gizmo = std::make_unique<TransformGizmo>();
     pickSystem = std::make_unique<PickSystem>(*gizmo);
     pickSystem->Initialize();
@@ -50,20 +64,6 @@ ViewportPanel::ViewportPanel()
 
     renderer.GetObjectIdReadbackRay().Register(this, [this](const Render::ObjectIdReadbackResult& result)
                                                { selectionSystem.SelectUnit(pickSystem->FindTarget(result.objectId)); });
-
-    auto horizontalLayout = std::make_unique<HorizontalLayout>();
-    layout = horizontalLayout.get();
-    layout->SetPadding(Padding(5.0f, 10.0f));
-    layout->SetGap(5.0f);
-    children.push_back(std::move(horizontalLayout));
-
-    auto buttonA = std::make_unique<Button>("A");
-    buttonA->SetDesiredSize(Vector2(40.0f, 0.0f));
-    layout->AddChild(std::move(buttonA));
-
-    auto buttonB = std::make_unique<Button>("B");
-    buttonB->SetDesiredSize(Vector2(40.0f, 0.0f));
-    layout->AddChild(std::move(buttonB));
 }
 
 ViewportPanel::~ViewportPanel()
@@ -89,8 +89,11 @@ void ViewportPanel::Arrange(const Rect& rect)
 
     constexpr float toolbarHeight = 40.0f;
 
-    layout->Arrange({ .position = rect.position,
-                      .size = Vector2(rect.size.x, toolbarHeight) });
+    Rect toolbarRect = {};
+    toolbarRect.position = Vector2(rect.position.x, rect.position.y);
+    toolbarRect.size = Vector2(rect.size.x, toolbarHeight);
+
+    toolbar->Arrange(toolbarRect);
 }
 
 EventReply ViewportPanel::OnPointerDown(const PointerEvent& event)
