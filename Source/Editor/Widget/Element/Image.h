@@ -15,6 +15,8 @@ public:
     explicit Image(AssetHandle textureHandle);
 
 public:
+    bool CanHit() const override { return false; }
+
     void SetTexture(AssetHandle textureHandle) { this->textureHandle = textureHandle; }
     void SetColor(const Color& color) { this->color = color; }
 

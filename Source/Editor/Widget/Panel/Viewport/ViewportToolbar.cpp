@@ -3,6 +3,8 @@
 #include "Editor/Widget/Element/Button.h"
 #include "Editor/Widget/Layout/HorizontalLayout.h"
 
+#include "Engine/Asset/EngineAsset.h"
+
 namespace URay
 {
 
@@ -13,7 +15,7 @@ ViewportToolbar::ViewportToolbar()
     gizmoModeButtonLayout->SetPadding(Padding(5.0f, 5.0f));
     gizmoModeButtonLayout->SetGap(5.0f);
 
-    auto translationButton = std::make_unique<Button>("Translation");
+    auto translationButton = std::make_unique<Button>(EngineAsset::TranslationGizmoIconTexture);
     gizmoModeButtons[0] = translationButton.get();
     gizmoModeButtons[0]->SetDesiredSize(Vector2(30.0f, 0.0f));
 

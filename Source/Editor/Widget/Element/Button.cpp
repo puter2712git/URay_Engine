@@ -1,5 +1,6 @@
 #include "Button.h"
 
+#include "Editor/Widget/Element/Image.h"
 #include "Editor/Widget/Element/Label.h"
 
 #include "Engine/Asset/EngineAsset.h"
@@ -15,8 +16,15 @@ Button::Button(std::string_view text)
     buttonLabel->SetTextStyle({ .fontHandle = EngineAsset::EditorFont,
                                 .pixelHeight = 18,
                                 .color = Color::Black });
-    label = buttonLabel.get();
-    children.push_back(std::move(buttonLabel));
+    content = buttonLabel.get();
+    AddChild(std::move(buttonLabel));
+}
+
+Button::Button(AssetHandle textureHandle)
+{
+    auto image = std::make_unique<Image>(textureHandle);
+    content = image.get();
+    AddChild(std::move(image));
 }
 
 Button::~Button() = default;
@@ -25,7 +33,7 @@ void Button::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    label->Arrange(rect);
+    content->Arrange(rect);
 }
 
 EventReply Button::OnPointerDown(const PointerEvent& event)

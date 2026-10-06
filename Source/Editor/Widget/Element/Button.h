@@ -2,9 +2,10 @@
 
 #include "Editor/Widget/Widget.h"
 
-#include "Core/Ray/EventRay.h"
+#include "Engine/Asset/Asset.h"
 
 #include "Core/Math/Color.h"
+#include "Core/Ray/EventRay.h"
 
 #include <string_view>
 
@@ -25,7 +26,8 @@ class Button final : public Widget
     URAY_TYPE(Button, Widget)
 
 public:
-    Button(std::string_view text = {});
+    explicit Button(std::string_view text);
+    explicit Button(AssetHandle textureHandle);
     ~Button() override;
 
 public:
@@ -42,11 +44,11 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
-    Label* label = nullptr;
+    Widget* content = nullptr;
 
-    Color normalColor = Color::White;
-    Color hoverColor = Color::Blue;
-    Color pressedColor = Color::Green;
+    Color normalColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
+    Color hoverColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+    Color pressedColor = Color(0.3f, 0.3f, 0.3f, 1.0f);
 
     EventRay<> onClickRay;
 };
