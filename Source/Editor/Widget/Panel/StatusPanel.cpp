@@ -1,6 +1,7 @@
 #include "StatusPanel.h"
 
 #include "Editor/Widget/Element/Button.h"
+#include "Editor/Widget/Element/Image.h"
 #include "Editor/Widget/Element/Label.h"
 
 #include "Engine/Asset/AssetDatabase.h"
@@ -52,6 +53,10 @@ StatusPanel::StatusPanel()
     button->GetOnClickRay().Register(this, [this]()
                                      { URAY_LOG("Button Clicked!"); });
     AddChild(std::move(newButton));
+
+    auto newImage = std::make_unique<Image>(EngineAsset::TranslationGizmoIconTexture);
+    testImage = newImage.get();
+    AddChild(std::move(newImage));
 }
 
 StatusPanel::~StatusPanel()
@@ -66,50 +71,13 @@ void StatusPanel::Arrange(const Rect& rect)
     statusLabel->Arrange({ .position = rect.position, .size = Vector2(200.0f, 28.0f) });
     fpsLabel->Arrange({ .position = rect.position + Vector2(0.0f, 32.0f), .size = Vector2(200.0f, 24.0f) });
     button->Arrange({ .position = rect.position + Vector2(0.0f, 50.0f), .size = Vector2(200.0f, 40.0f) });
+    testImage->Arrange({ .position = rect.position + Vector2(0.0f, 80.0f), .size = Vector2(64, 64) });
 }
 
 void StatusPanel::OnUpdate(float deltaTime)
 {
     const Timer& timer = gEngine->GetTimer();
     fpsLabel->SetText(std::format("FPS: {} ({:.2f} ms)", timer.GetFPS(), timer.GetDeltaTime() * 1000.0));
-}
-
-void StatusPanel::OnPaint(Render::UIDrawContext& context)
-{
-    Panel::OnPaint(context);
-
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    URay::Texture* texture =
-        assetSystem.GetDatabase().Find<URay::Texture>(
-            EngineAsset::DirectionalLightBillboardTexture);
-
-    Render::Texture* renderTexture =
-        resourceManager.GetOrCreateTexture(texture);
-
-    Render::TextureView* view =
-        resourceManager.GetOrCreateTextureView(renderTexture, {});
-
-    Render::Sampler* sampler =
-        resourceManager.GetOrCreateSampler({
-            .magFilter = VK_FILTER_LINEAR,
-            .minFilter = VK_FILTER_LINEAR,
-            .addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            .addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-            .addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        });
-
-    const Rect previewRect = {
-        .position = rect.position + Vector2(rect.size.x - 76.0f, 12.0f),
-        .size = Vector2(64.0f, 64.0f),
-    };
-
-    context.AddImage(previewRect, {
-                                      .view = view,
-                                      .sampler = sampler,
-                                  });
 }
 
 } // namespace URay

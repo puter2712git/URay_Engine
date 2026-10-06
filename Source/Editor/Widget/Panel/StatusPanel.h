@@ -7,6 +7,7 @@ namespace URay
 
 class Label;
 class Button;
+class Image;
 
 class StatusPanel final : public Panel
 {
@@ -21,12 +22,12 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
-    void OnPaint(Render::UIDrawContext& context) override;
 
 private:
     Label* statusLabel = nullptr;
     Label* fpsLabel = nullptr;
     Button* button = nullptr;
+    Image* testImage = nullptr;
 };
 
 } // namespace URay
