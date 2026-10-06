@@ -25,6 +25,7 @@ inline const AssetHandle RotationGizmoIconTexture = AssetHandle::FromString("000
 inline const AssetHandle ScaleGizmoIconTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000009");
 inline const AssetHandle GizmoWorldSpaceIconTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000010");
 inline const AssetHandle GizmoLocalSpaceIconTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000011");
+inline const AssetHandle ViewModeIconTexture = AssetHandle::FromString("00000000-0000-0000-0001-000000000012");
 
 inline const AssetHandle DecalMaterial = AssetHandle::FromString("00000000-0000-0000-0002-000000000001");
 inline const AssetHandle SpriteMaterial = AssetHandle::FromString("00000000-0000-0000-0002-000000000002");

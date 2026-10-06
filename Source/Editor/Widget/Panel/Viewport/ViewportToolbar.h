@@ -31,6 +31,7 @@ private:
     HorizontalLayout* gizmoModeButtonLayout = nullptr;
     std::array<Button*, static_cast<size_t>(GizmoMode::Count)> gizmoModeButtons;
     Button* gizmoSpaceToggleButton = nullptr;
+    Button* viewModeToggleButton = nullptr;
 };
 
 } // namespace URay
