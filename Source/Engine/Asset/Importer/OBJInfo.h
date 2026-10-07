@@ -16,6 +16,28 @@ struct OBJIndex
     int32 positionIndex = -1;
     int32 normalIndex = -1;
     int32 uvIndex = -1;
+
+    bool operator==(const OBJIndex&) const = default;
+};
+
+struct OBJIndexHash
+{
+    size_t operator()(const OBJIndex& index) const
+    {
+        size_t hash = 0;
+
+        auto combine = [&hash](auto value)
+        {
+            const size_t valueHash = std::hash<decltype(value)>{}(value);
+            hash ^= valueHash + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+        };
+
+        combine(index.positionIndex);
+        combine(index.normalIndex);
+        combine(index.uvIndex);
+
+        return hash;
+    }
 };
 
 struct Face
