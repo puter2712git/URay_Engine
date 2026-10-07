@@ -36,6 +36,8 @@ public:
 
 private:
     void Assemble(const OBJ::OBJInfo& objInfo, const OBJ::MTLInfo& mtlInfo, const AssetMetadata& metadata) const;
+    std::vector<Material*> CreateMaterials(const OBJ::MTLInfo& mtlInfo, const VirtualPath& directory) const;
+    void CreateMesh(const OBJ::OBJInfo& objInfo, const std::vector<Material*>& materialHandles, const AssetMetadata& metadata) const;
 
     OBJ::OBJInfo ParseOBJ(const VirtualPath& objPath) const;
     OBJ::MTLInfo ParseMTL(const VirtualPath& mtlPath) const;

@@ -33,7 +33,12 @@ void MeshComponent::RegisterClass()
         { .type = PropertyType::Mesh,
           .name = "Mesh",
           .offset = offsetof(MeshComponent, meshHandle),
-          .size = sizeof(AssetHandle) });
+          .size = sizeof(AssetHandle),
+          .OnChangedCallback = [&](Object& owner, const Property& property)
+          {
+              MeshComponent* meshComp = static_cast<MeshComponent*>(&owner);
+              meshComp->SetMeshHandle(meshComp->GetMeshHandle());
+          } });
     StaticClass()->AddProperty(
         { .type = PropertyType::Bool,
           .name = "Casts Shadow",

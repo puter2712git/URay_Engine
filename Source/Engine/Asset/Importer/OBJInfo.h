@@ -6,6 +6,7 @@
 #include "Core/Type/Types.h"
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace URay::OBJ
@@ -53,7 +54,7 @@ struct OBJInfo
     std::vector<Vector3> normals;
     std::vector<Vector2> uvs;
 
-    std::vector<Face> faces;
+    std::unordered_map<std::string, std::vector<Face>> mtlTofaces;
 };
 
 struct MTLData
