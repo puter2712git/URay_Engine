@@ -16,9 +16,7 @@ namespace URay
 
 URAY_REGISTER_CLASS(Object)
 
-void Object::RegisterClass()
-{
-}
+void Object::RegisterClass() {}
 
 YAML::Node Object::Serialize() const
 {
@@ -84,14 +82,14 @@ YAML::Node Object::Serialize() const
             break;
         case PropertyType::Mesh:
         {
-            Mesh* mesh = prop.GetValue<Mesh*>(this);
-            node[prop.name] = mesh ? mesh->GetHandle().ToString() : "";
+            AssetHandle meshHandle = prop.GetValue<AssetHandle>(this);
+            node[prop.name] = meshHandle.ToString();
             break;
         }
         case PropertyType::Texture:
         {
-            Texture* texture = prop.GetValue<Texture*>(this);
-            node[prop.name] = texture ? texture->GetHandle().ToString() : "";
+            AssetHandle textureHandle = prop.GetValue<AssetHandle>(this);
+            node[prop.name] = textureHandle.ToString();
             break;
         }
         default:
@@ -167,13 +165,13 @@ void Object::Deserialize(const YAML::Node& node)
         case PropertyType::Mesh:
         {
             const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
-            *static_cast<Mesh**>(valueAddress) = assetDatabase.Find<Mesh>(handle);
+            *static_cast<AssetHandle*>(valueAddress) = handle;
             break;
         }
         case PropertyType::Texture:
         {
             const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
-            *static_cast<Texture**>(valueAddress) = assetDatabase.Find<Texture>(handle);
+            *static_cast<AssetHandle*>(valueAddress) = handle;
             break;
         }
         default:
