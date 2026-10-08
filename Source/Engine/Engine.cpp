@@ -2,13 +2,13 @@
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
-#include <Engine/FileLogSink.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Script/ScriptSystem.h>
-#include <Engine/StdErrLogSink.h>
 
 #include <Core/Input/InputManager.h>
+#include <Core/Log/FileLogSink.h>
 #include <Core/Log/LogSystem.h>
+#include <Core/Log/StdErrLogSink.h>
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/TimeFlow/Timer.h>

@@ -1,4 +1,5 @@
-#include <Editor/Widget/Panel/Console/ConsoleLogSink.h>
+#include <Core/Log/ConsoleLogSink.h>
+
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
 
 namespace URay

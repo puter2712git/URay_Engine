@@ -1,5 +1,5 @@
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
-#include <Editor/Widget/Panel/Console/ConsoleLogSink.h>
+#include <Core/Log/ConsoleLogSink.h>
 
 #include <Engine/Engine.h>
 
