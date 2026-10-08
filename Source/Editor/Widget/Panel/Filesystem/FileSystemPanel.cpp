@@ -17,12 +17,14 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     fileSystem = &assetSystem.GetFileSystem();
 
-    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
+    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f, 1.0f));
+    SetOutlineWidth(2.0f);
+    SetOutlineColor(Color::Black);
 
     layout = AddChild<HorizontalLayout>();
 
-    auto sourceAssetDirectory = std::make_unique<DirectoryEntryWidget>("Project://Asset/Source");
-    layout->AddChild(std::move(sourceAssetDirectory));
+    // auto sourceAssetDirectory = std::make_unique<DirectoryEntryWidget>("Project://Asset/Source");
+    // layout->AddChild(std::move(sourceAssetDirectory));
 }
 
 void FileSystemPanel::Arrange(const Rect& rect)

@@ -11,6 +11,8 @@ namespace URay
 PanelHeader::PanelHeader(const std::string& name)
 {
     layout = AddChild<HorizontalLayout>();
+    layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
+    layout->SetPadding(Padding(2.0f, 0.0f));
 
     Label* label = layout->AddChild<Label>(name);
     label->SetDesiredSize(Vector2(100.0f, 0.0f));

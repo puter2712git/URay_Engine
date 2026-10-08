@@ -7,41 +7,57 @@ void HorizontalLayout::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    switch (mode)
-    {
-    case HorizontalLayoutMode::Left:
-        AlignLeft();
-        break;
-    case HorizontalLayoutMode::Center:
-        AlignCenter();
-        break;
-    case HorizontalLayoutMode::Right:
-        AlignRight();
-        break;
-    }
-}
+    Rect contentRect;
+    contentRect.position = Vector2(rect.position.x + padding.left, rect.position.y + padding.top);
+    contentRect.size = contentRect.size = {
+        std::max(0.0f, rect.size.x - padding.left - padding.right),
+        std::max(0.0f, rect.size.y - padding.top - padding.bottom),
+    };
 
-void HorizontalLayout::AlignLeft()
-{
-    float x = rect.position.x + padding.left;
+    float offsetX = CalculateStartOffsetX(contentRect);
 
     for (const auto& child : children)
     {
-        Rect childRect = {};
-        childRect.position = Vector2(x, rect.position.y + padding.top);
-        childRect.size = Vector2(
-            child->GetDesiredSize().x,
-            rect.size.y - padding.top - padding.bottom);
+        const Vector2& childDesiredSize = child->GetDesiredSize();
+        float childHeight = CalculateChildHeight(childDesiredSize.y, contentRect);
+
+        Rect childRect;
+        childRect.position = Vector2(offsetX, CalculateChildY(childHeight, contentRect));
+        childRect.size = Vector2(childDesiredSize.x, childHeight);
 
         child->Arrange(childRect);
 
-        x += child->GetDesiredSize().x + gap;
+        offsetX += childDesiredSize.x + gap;
     }
 }
 
-void HorizontalLayout::AlignCenter()
+float HorizontalLayout::CalculateStartOffsetX(const Rect& contentRect) const
 {
-    float totalWidth = 0;
+    switch (mode)
+    {
+    case HorizontalLayoutMode::Left:
+        return contentRect.position.x;
+
+    case HorizontalLayoutMode::Center:
+    {
+        float totalWidth = CalculateTotalWidth();
+        return contentRect.position.x + contentRect.size.x * 0.5f - totalWidth * 0.5f;
+    }
+
+    case HorizontalLayoutMode::Right:
+    {
+        float totalWidth = CalculateTotalWidth();
+        return contentRect.position.x + contentRect.size.x - totalWidth;
+    }
+
+    default:
+        return 0.0f;
+    }
+}
+
+float HorizontalLayout::CalculateTotalWidth() const
+{
+    float totalWidth = 0.0f;
 
     for (const auto& child : children)
     {
@@ -50,26 +66,48 @@ void HorizontalLayout::AlignCenter()
 
     int32 childCount = static_cast<int32>(children.size());
     int32 gapCount = std::max(0, childCount - 1);
+
     totalWidth += gap * gapCount;
 
-    float xOffset = rect.position.x + rect.size.x * 0.5f - totalWidth * 0.5f;
+    return totalWidth;
+}
 
-    for (const auto& child : children)
+float HorizontalLayout::CalculateChildY(float childHeight, const Rect& contentRect) const
+{
+    switch (crossAxisAlignment)
     {
-        const Vector2 desiredSize = child->GetDesiredSize();
+    case CrossAxisAlignment::Start:
+        return contentRect.position.y;
 
-        Rect childRect = {};
-        childRect.position = Vector2(xOffset, rect.position.y + padding.top);
-        childRect.size = desiredSize;
+    case CrossAxisAlignment::Center:
+        return contentRect.position.y + contentRect.size.y * 0.5f - childHeight * 0.5f;
 
-        child->Arrange(childRect);
+    case CrossAxisAlignment::End:
+        return contentRect.position.y + contentRect.size.y - childHeight;
 
-        xOffset += desiredSize.x + gap;
+    case CrossAxisAlignment::Stretch:
+        return contentRect.position.y;
+
+    default:
+        return contentRect.position.y;
     }
 }
 
-void HorizontalLayout::AlignRight()
+float HorizontalLayout::CalculateChildHeight(float desiredHeight, const Rect& contentRect) const
 {
+    switch (crossAxisAlignment)
+    {
+    case CrossAxisAlignment::Start:
+    case CrossAxisAlignment::Center:
+    case CrossAxisAlignment::End:
+        return desiredHeight;
+
+    case CrossAxisAlignment::Stretch:
+        return contentRect.size.y;
+
+    default:
+        return desiredHeight;
+    }
 }
 
 } // namespace URay
