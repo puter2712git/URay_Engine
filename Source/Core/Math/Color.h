@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Type/Types.h>
+
 namespace URay
 {
 
@@ -18,6 +20,8 @@ struct Color
     static Color Yellow;
     static Color Black;
     static Color White;
+
+    static Color FromRGB(uint8 r, uint8 g, uint8 b, uint8 a = 255);
 };
 
 } // namespace URay

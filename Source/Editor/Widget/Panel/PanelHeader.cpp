@@ -2,6 +2,7 @@
 
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Engine/Asset/EngineAsset.h>
 
@@ -16,11 +17,6 @@ PanelHeader::PanelHeader(const std::string& name)
 
     Label* label = layout->AddChild<Label>(name);
     label->SetDesiredSize(Vector2(100.0f, 12.0f));
-    label->SetTextStyle({
-        .fontHandle = EngineAsset::EditorFont,
-        .pixelHeight = 12,
-        .color = Color::White,
-    });
 }
 
 void PanelHeader::Arrange(const Rect& rect)
@@ -34,7 +30,7 @@ void PanelHeader::OnPaint(Render::UIDrawContext& context)
 {
     Widget::OnPaint(context);
 
-    context.AddFilledRect(rect, Color(0.05f, 0.05f, 0.05f, 1.0f));
+    context.AddFilledRect(rect, EditorStyle::SurfaceHeader);
 }
 
 } // namespace URay

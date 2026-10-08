@@ -1,7 +1,7 @@
 #pragma once
 
+#include <Editor/Widget/Style/EditorStyles.h>
 #include <Editor/Widget/Widget.h>
-
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <string>
@@ -31,7 +31,7 @@ protected:
 
 private:
     std::string text;
-    Render::TextStyle style;
+    Render::TextStyle style = EditorStyle::SmallText();
 };
 
 } // namespace URay

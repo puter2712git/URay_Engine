@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Editor/Widget/Widget.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Padding.h>
@@ -45,7 +46,7 @@ protected:
 
     std::string name;
 
-    Color backgroundColor = Color::White;
+    Color backgroundColor = EditorStyle::Surface;
 
     float outlineWidth = 0.0f;
     Color outlineColor;

@@ -24,7 +24,7 @@ void Panel::Arrange(const Rect& rect)
     {
         Rect headerRect = {};
         headerRect.position = rect.position;
-        headerRect.size = Vector2(rect.size.x, 25.0f);
+        headerRect.size = Vector2(rect.size.x, EditorStyle::PanelHeaderHeight);
 
         header->Arrange(headerRect);
     }

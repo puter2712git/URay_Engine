@@ -1,5 +1,7 @@
 #include "DirectoryEntryWidget.h"
 
+#include <Editor/Widget/Style/EditorStyles.h>
+
 #include <Editor/Widget/Element/Label.h>
 
 #include <Engine/Asset/EngineAsset.h>
@@ -18,7 +20,7 @@ DirectoryEntryWidget::DirectoryEntryWidget(const VirtualPath& path) : path(path)
     label->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 12,
-        .color = Color::White,
+        .color = EditorStyle::TextPrimary,
     });
 }
 

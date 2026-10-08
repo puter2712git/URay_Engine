@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Editor/Widget/Widget.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Engine/Asset/Asset.h>
 
@@ -46,9 +47,9 @@ protected:
 private:
     Widget* content = nullptr;
 
-    Color normalColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
-    Color hoverColor = Color(0.3f, 0.3f, 0.3f, 1.0f);
-    Color pressedColor = Color(0.2f, 0.2f, 0.2f, 1.0f);
+    Color normalColor = EditorStyle::ControlNormal;
+    Color hoverColor = EditorStyle::ControlHovered;
+    Color pressedColor = EditorStyle::ControlPressed;
 
     EventRay<> onClickRay;
 };

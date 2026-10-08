@@ -1,5 +1,7 @@
 #include "Splitter.h"
 
+#include <Editor/Widget/Style/EditorStyles.h>
+
 #include <Core/Type/Types.h>
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
@@ -138,7 +140,7 @@ void Splitter::OnPaint(Render::UIDrawContext& context)
 {
     Rect handleRect = GetHandleRect();
 
-    const Color handleColor = (IsHovered() || isDragging) ? Color(0.3f, 0.3f, 0.3f, 1.0f) : Color(0.1f, 0.1f, 0.1f, 1.0f);
+    const Color handleColor = (IsHovered() || isDragging) ? EditorStyle::ControlHovered : EditorStyle::ControlNormal;
 
     context.AddFilledRect(handleRect, handleColor);
 }

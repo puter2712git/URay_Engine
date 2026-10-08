@@ -18,7 +18,7 @@ Button::Button(std::string_view text)
     {
         label->SetTextStyle({ .fontHandle = EngineAsset::EditorFont,
                               .pixelHeight = 18,
-                              .color = Color::Black });
+                              .color = EditorStyle::TextOnButton });
     }
 }
 

@@ -2,6 +2,7 @@
 
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -22,18 +23,15 @@ namespace URay
 
 StatusPanel::StatusPanel() : Panel("Status")
 {
-    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
-    SetPadding(Padding(12.0f));
+    SetBackgroundColor(EditorStyle::Surface);
+    SetOutlineWidth(2.0f);
+    SetOutlineColor(EditorStyle::Border);
 
     layout = AddChild<VerticalLayout>();
 
     fpsLabel = layout->AddChild<Label>("FPS:");
     fpsLabel->SetDesiredSize(Vector2(200.0f, 100.0f));
-    fpsLabel->SetTextStyle({
-        .fontHandle = EngineAsset::EditorFont,
-        .pixelHeight = 12,
-        .color = Color::White,
-    });
+    fpsLabel->SetTextStyle(EditorStyle::SmallText());
 }
 
 void StatusPanel::Arrange(const Rect& rect)
@@ -41,8 +39,8 @@ void StatusPanel::Arrange(const Rect& rect)
     Panel::Arrange(rect);
 
     Rect layoutRect;
-    layoutRect.position = Vector2(rect.position.x, rect.position.y + 25.0f);
-    layoutRect.size = Vector2(rect.size.x, rect.size.y - 25.0f);
+    layoutRect.position = Vector2(rect.position.x, rect.position.y + EditorStyle::PanelHeaderHeight);
+    layoutRect.size = Vector2(rect.size.x, rect.size.y - EditorStyle::PanelHeaderHeight);
 
     layout->Arrange(layoutRect);
 }

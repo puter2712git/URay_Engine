@@ -8,6 +8,7 @@
 #include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Image.h>
 #include <Editor/Widget/Panel/Viewport/ViewportToolbar.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Core/File/VirtualFilesystem.h>
 #include <Core/Log/LogSystem.h>
@@ -39,7 +40,7 @@ ViewportPanel::ViewportPanel()
     : renderer(gEngine->GetRenderSystem().GetRenderer()),
       selectionSystem(gEditor->GetSelectionSystem())
 {
-    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
+    SetBackgroundColor(EditorStyle::Surface);
 
     auto viewportToolbar = std::make_unique<ViewportToolbar>();
     toolbar = viewportToolbar.get();

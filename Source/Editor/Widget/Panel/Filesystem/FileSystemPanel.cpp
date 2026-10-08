@@ -1,4 +1,5 @@
 #include <Editor/Widget/Panel/Filesystem/FileSystemPanel.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -17,9 +18,9 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     fileSystem = &assetSystem.GetFileSystem();
 
-    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f, 1.0f));
+    SetBackgroundColor(EditorStyle::Surface);
     SetOutlineWidth(2.0f);
-    SetOutlineColor(Color::Black);
+    SetOutlineColor(EditorStyle::Border);
 
     layout = AddChild<HorizontalLayout>();
 
