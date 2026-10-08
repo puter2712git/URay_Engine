@@ -49,6 +49,22 @@ void UIDrawContext::AddFilledRect(const Rect& rect, const Color& color)
     AddQuad(rect, Vector2::Zero, Vector2::Zero, color, nullptr, nullptr);
 }
 
+void UIDrawContext::AddOutlineRect(const Rect& rect, float thickness, const Color& color)
+{
+    if (rect.size.x <= 0.0f || rect.size.y <= 0.0f || thickness <= 0.0f)
+        return;
+
+    const float clampedThickness = std::min(thickness, std::min(rect.size.x, rect.size.y) * 0.5f);
+
+    AddFilledRect({ .position = rect.position, .size = Vector2(rect.size.x, clampedThickness) }, color);
+    AddFilledRect({ .position = Vector2(rect.position.x, rect.position.y + rect.size.y - clampedThickness),
+                    .size = Vector2(rect.size.x, clampedThickness) }, color);
+    AddFilledRect({ .position = Vector2(rect.position.x, rect.position.y + clampedThickness),
+                    .size = Vector2(clampedThickness, rect.size.y - clampedThickness * 2.0f) }, color);
+    AddFilledRect({ .position = Vector2(rect.position.x + rect.size.x - clampedThickness, rect.position.y + clampedThickness),
+                    .size = Vector2(clampedThickness, rect.size.y - clampedThickness * 2.0f) }, color);
+}
+
 void UIDrawContext::AddText(const Vector2& position, std::string_view utf8Text, const TextStyle& style)
 {
     RenderSystem& renderSystem = gEngine->GetRenderSystem();

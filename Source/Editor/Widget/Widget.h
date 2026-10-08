@@ -73,7 +73,9 @@ protected:
 
     virtual void OnUpdate(float) {}
     virtual void OnDraw() {}
+
     virtual void OnPaint(Render::UIDrawContext& context) {}
+    virtual void OnPaintForeground(Render::UIDrawContext& context) {}
 
 protected:
     std::vector<std::unique_ptr<Widget>> children;

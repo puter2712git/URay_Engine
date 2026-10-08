@@ -11,11 +11,11 @@ namespace URay
 PanelHeader::PanelHeader(const std::string& name)
 {
     layout = AddChild<HorizontalLayout>();
-    layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
-    layout->SetPadding(Padding(2.0f, 0.0f));
+    layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
+    layout->SetPadding(Padding(5.0f, 0.0f));
 
     Label* label = layout->AddChild<Label>(name);
-    label->SetDesiredSize(Vector2(100.0f, 0.0f));
+    label->SetDesiredSize(Vector2(100.0f, 12.0f));
     label->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 12,
@@ -34,7 +34,7 @@ void PanelHeader::OnPaint(Render::UIDrawContext& context)
 {
     Widget::OnPaint(context);
 
-    context.AddFilledRect(rect, Color(0.1f, 0.1f, 0.1f, 1.0f));
+    context.AddFilledRect(rect, Color(0.05f, 0.05f, 0.05f, 1.0f));
 }
 
 } // namespace URay

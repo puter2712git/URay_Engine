@@ -24,7 +24,7 @@ void Panel::Arrange(const Rect& rect)
     {
         Rect headerRect = {};
         headerRect.position = rect.position;
-        headerRect.size = Vector2(rect.size.x, 20.0f);
+        headerRect.size = Vector2(rect.size.x, 25.0f);
 
         header->Arrange(headerRect);
     }
@@ -32,19 +32,15 @@ void Panel::Arrange(const Rect& rect)
 
 void Panel::OnPaint(Render::UIDrawContext& context)
 {
+    context.AddFilledRect(rect, backgroundColor);
+}
+
+void Panel::OnPaintForeground(Render::UIDrawContext& context)
+{
     if (outlineWidth > 0.0f)
     {
-        context.AddFilledRect(rect, outlineColor);
-
-        Rect innerRect = rect;
-        innerRect.position += Vector2(outlineWidth, outlineWidth);
-        innerRect.size -= Vector2(outlineWidth * 2.0f, outlineWidth * 2.0f);
-
-        context.AddFilledRect(innerRect, backgroundColor);
-        return;
+        context.AddOutlineRect(rect, outlineWidth, outlineColor);
     }
-
-    context.AddFilledRect(rect, backgroundColor);
 }
 
 } // namespace URay

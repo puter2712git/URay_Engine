@@ -57,6 +57,7 @@ public:
     void PopClipRect();
 
     void AddFilledRect(const Rect& rect, const Color& color);
+    void AddOutlineRect(const Rect& rect, float thickness, const Color& color);
     void AddText(const Vector2& position, std::string_view utf8Text, const TextStyle& style);
     void AddImage(const Rect& rect, const UIImage& image, const Color& color = Color::White);
 

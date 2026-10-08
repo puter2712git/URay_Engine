@@ -38,6 +38,7 @@ public:
 
 protected:
     virtual void OnPaint(Render::UIDrawContext& context) override;
+    virtual void OnPaintForeground(Render::UIDrawContext& context) override;
 
 protected:
     PanelHeader* header = nullptr;

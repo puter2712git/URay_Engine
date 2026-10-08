@@ -38,6 +38,8 @@ void Widget::Paint(Render::UIDrawContext& context)
         child->Paint(context);
     }
 
+    OnPaintForeground(context);
+
     context.PopClipRect();
 }
 
