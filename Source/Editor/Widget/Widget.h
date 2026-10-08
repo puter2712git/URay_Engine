@@ -32,6 +32,18 @@ public:
     void Paint(Render::UIDrawContext& context);
 
     void AddChild(std::unique_ptr<Widget> child);
+
+    template <typename T, typename... Args>
+        requires std::derived_from<T, Widget>
+    T* AddChild(Args&&... args)
+    {
+        auto child = std::make_unique<T>(std::forward<Args>(args)...);
+        T* result = child.get();
+
+        AddChild(std::move(child));
+        return result;
+    }
+
     const std::vector<std::unique_ptr<Widget>>& GetChildren() const { return children; }
 
     virtual void Arrange(const Rect& rect) { this->rect = rect; }

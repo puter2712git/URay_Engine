@@ -9,15 +9,12 @@ namespace URay
 
 PanelHeader::PanelHeader(const std::string& name)
 {
-    auto headerLabel = std::make_unique<Label>(name);
-    label = headerLabel.get();
+    label = AddChild<Label>(name);
     label->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 12,
         .color = Color::White,
     });
-
-    AddChild(std::move(headerLabel));
 }
 
 void PanelHeader::Arrange(const Rect& rect)

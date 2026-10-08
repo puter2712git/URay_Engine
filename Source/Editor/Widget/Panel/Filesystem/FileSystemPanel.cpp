@@ -19,9 +19,7 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
 
     SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
 
-    auto horizontalLayout = std::make_unique<HorizontalLayout>();
-    layout = horizontalLayout.get();
-    AddChild(std::move(horizontalLayout));
+    layout = AddChild<HorizontalLayout>();
 
     auto sourceAssetDirectory = std::make_unique<DirectoryEntryWidget>("Project://Asset/Source");
     layout->AddChild(std::move(sourceAssetDirectory));

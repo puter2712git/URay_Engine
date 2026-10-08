@@ -12,19 +12,19 @@ namespace URay
 
 Button::Button(std::string_view text)
 {
-    auto buttonLabel = std::make_unique<Label>(text);
-    buttonLabel->SetTextStyle({ .fontHandle = EngineAsset::EditorFont,
-                                .pixelHeight = 18,
-                                .color = Color::Black });
-    content = buttonLabel.get();
-    AddChild(std::move(buttonLabel));
+    content = AddChild<Label>(text);
+
+    if (Label* label = static_cast<Label*>(content))
+    {
+        label->SetTextStyle({ .fontHandle = EngineAsset::EditorFont,
+                              .pixelHeight = 18,
+                              .color = Color::Black });
+    }
 }
 
 Button::Button(AssetHandle textureHandle)
 {
-    auto image = std::make_unique<Image>(textureHandle);
-    content = image.get();
-    AddChild(std::move(image));
+    content = AddChild<Image>(textureHandle);
 }
 
 Button::~Button() = default;

@@ -11,10 +11,7 @@ Panel::Panel() = default;
 
 Panel::Panel(const std::string& name)
 {
-    auto panelHeader = std::make_unique<PanelHeader>(name);
-    header = panelHeader.get();
-
-    AddChild(std::move(panelHeader));
+    header = AddChild<PanelHeader>(name);
 }
 
 Panel::~Panel() = default;

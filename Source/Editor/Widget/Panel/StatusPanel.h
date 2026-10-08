@@ -24,7 +24,6 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
-    Label* statusLabel = nullptr;
     Label* fpsLabel = nullptr;
     Button* button = nullptr;
     Image* testImage = nullptr;

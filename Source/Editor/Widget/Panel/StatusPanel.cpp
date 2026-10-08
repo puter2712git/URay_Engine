@@ -23,40 +23,23 @@
 namespace URay
 {
 
-StatusPanel::StatusPanel()
+StatusPanel::StatusPanel() : Panel("Status")
 {
-    SetBackgroundColor(Color(0.08f, 0.12f, 0.20f, 1.0f));
-    SetOutlineColor(Color(0.15f, 0.75f, 1.0f, 1.0f));
-    SetOutlineWidth(3.0f);
+    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
     SetPadding(Padding(12.0f));
 
-    auto label = std::make_unique<Label>("Status");
-    label->SetTextStyle({
+    fpsLabel = AddChild<Label>("FPS:");
+    fpsLabel->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 18,
         .color = Color::White,
     });
-    statusLabel = label.get();
-    AddChild(std::move(label));
 
-    label = std::make_unique<Label>("FPS:");
-    label->SetTextStyle({
-        .fontHandle = EngineAsset::EditorFont,
-        .pixelHeight = 18,
-        .color = Color::White,
-    });
-    fpsLabel = label.get();
-    AddChild(std::move(label));
-
-    auto newButton = std::make_unique<Button>("Test Button");
-    button = newButton.get();
+    button = AddChild<Button>("Test Button");
     button->GetOnClickRay().Register(this, [this]()
                                      { URAY_LOG("Button Clicked!"); });
-    AddChild(std::move(newButton));
 
-    auto newImage = std::make_unique<Image>(EngineAsset::TranslationGizmoIconTexture);
-    testImage = newImage.get();
-    AddChild(std::move(newImage));
+    testImage = AddChild<Image>(EngineAsset::TranslationGizmoIconTexture);
 }
 
 StatusPanel::~StatusPanel()
@@ -66,9 +49,8 @@ StatusPanel::~StatusPanel()
 
 void StatusPanel::Arrange(const Rect& rect)
 {
-    Widget::Arrange(rect);
+    Panel::Arrange(rect);
 
-    statusLabel->Arrange({ .position = rect.position, .size = Vector2(200.0f, 28.0f) });
     fpsLabel->Arrange({ .position = rect.position + Vector2(0.0f, 32.0f), .size = Vector2(200.0f, 24.0f) });
     button->Arrange({ .position = rect.position + Vector2(0.0f, 50.0f), .size = Vector2(200.0f, 40.0f) });
     testImage->Arrange({ .position = rect.position + Vector2(0.0f, 80.0f), .size = Vector2(64, 64) });
