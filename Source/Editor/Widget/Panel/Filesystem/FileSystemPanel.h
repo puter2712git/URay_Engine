@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Editor/Widget/Panel/FileSystem/DirectoryEntryWidget.h"
 #include "Editor/Widget/Panel/Panel.h"
 
 #include "Core/File/VirtualPath.h"
@@ -9,14 +10,8 @@
 namespace URay
 {
 
-class Engine;
 class VirtualFileSystem;
-
-struct FileEntry
-{
-    VirtualPath path = {};
-    bool isDirectory = false;
-};
+class VerticalLayout;
 
 class FileSystemPanel final : public Panel
 {
@@ -24,27 +19,19 @@ class FileSystemPanel final : public Panel
 
 public:
     FileSystemPanel();
-    ~FileSystemPanel();
 
 public:
-    EventReply OnPointerDown(const PointerEvent& event) override;
+    void Arrange(const Rect& rect) override;
 
 protected:
-    void OnDraw() override;
+    void OnPaint(Render::UIDrawContext& context) override;
 
 private:
-    void Refresh();
-    void NavigateTo(const VirtualPath& path);
+    VirtualFileSystem* fileSystem = nullptr;
 
-    void OnFileDoubleClicked(const VirtualPath& path);
+    VerticalLayout* directoryLayout = nullptr;
 
-private:
-    VirtualFileSystem& filesystem;
-
-    VirtualPath rootPath = {};
-    VirtualPath currPath = {};
-
-    std::vector<FileEntry> entries;
+    std::vector<DirectoryEntryWidget*> directoryEntries;
 };
 
 } // namespace URay

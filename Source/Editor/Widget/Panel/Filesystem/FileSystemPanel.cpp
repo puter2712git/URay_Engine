@@ -1,134 +1,54 @@
 #include "Editor/Widget/Panel/Filesystem/FileSystemPanel.h"
 
+#include "Editor/Widget/Layout/VerticalLayout.h"
+
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
-#include "Engine/Scene/Scene.h"
-#include "Engine/Scene/SceneSystem.h"
 
 #include "Core/File/VirtualFilesystem.h"
-
-#include <imgui/imgui.h>
 
 namespace URay
 {
 
-FileSystemPanel::FileSystemPanel() : filesystem(gEngine->GetAssetSystem().GetFileSystem())
+FileSystemPanel::FileSystemPanel()
 {
-    rootPath = "Project://";
-    currPath = rootPath;
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    fileSystem = &assetSystem.GetFileSystem();
 
-    Refresh();
-}
+    SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
 
-FileSystemPanel::~FileSystemPanel() = default;
+    auto verticalLayout = std::make_unique<VerticalLayout>();
+    directoryLayout = verticalLayout.get();
+    directoryLayout->SetPadding(Padding(8.0f));
+    directoryLayout->SetGap(4.0f);
+    directoryLayout->SetDesiredSize(Vector2(220.0f, 0.0f));
+    AddChild(std::move(verticalLayout));
 
-EventReply FileSystemPanel::OnPointerDown(const PointerEvent& event)
-{
-    return EventReply{
-        .requestFocus = true,
-    };
-}
-
-void FileSystemPanel::OnDraw()
-{
-    ApplyRect();
-    ImGui::Begin("Filesystem", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
-    if (ImGui::Button("<-"))
+    for (const VirtualFileEntry& entry : fileSystem->ListDirectory("Project://Asset"))
     {
-        if (currPath.ToString() != rootPath.ToString())
-        {
-            currPath = currPath.GetDirectory();
-            Refresh();
-        }
-    }
+        if (!entry.isDirectory)
+            continue;
 
-    ImGui::SameLine();
-    ImGui::TextUnformatted(currPath.ToString().c_str());
-
-    ImGui::Separator();
-
-    for (const FileEntry& entry : entries)
-    {
-        std::string name = entry.path.ToString();
-
-        if (entry.isDirectory)
-        {
-            name = "[DIR] " + name;
-        }
-
-        const bool clicked = ImGui::Selectable(
-            name.c_str(),
-            false,
-            ImGuiSelectableFlags_AllowDoubleClick);
-
-        if (clicked && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-        {
-            if (entry.isDirectory)
-            {
-                currPath = entry.path;
-                Refresh();
-                break;
-            }
-            else
-            {
-                OnFileDoubleClicked(entry.path);
-            }
-        }
-    }
-
-    if (ImGui::BeginPopupContextWindow())
-    {
-        if (ImGui::MenuItem("Create Scene"))
-        {
-            VirtualPath scenePath = currPath.Join("NewScene.urscene");
-            filesystem.WriteText(scenePath, "");
-
-            Refresh();
-        }
-
-        ImGui::EndPopup();
-    }
-
-    ImGui::End();
-}
-
-void FileSystemPanel::Refresh()
-{
-    entries.clear();
-
-    for (const VirtualFileEntry& entry : filesystem.ListDirectory(currPath))
-    {
-        FileEntry fileEntry = {};
-        fileEntry.path = entry.path;
-        fileEntry.isDirectory = entry.isDirectory;
-
-        entries.push_back(fileEntry);
+        auto directoryEntry = std::make_unique<DirectoryEntryWidget>(entry.path);
+        directoryEntries.push_back(directoryEntry.get());
+        directoryLayout->AddChild(std::move(directoryEntry));
     }
 }
 
-void FileSystemPanel::NavigateTo(const VirtualPath& path)
+void FileSystemPanel::Arrange(const Rect& rect)
 {
-    currPath = path;
-    Refresh();
+    Panel::Arrange(rect);
+
+    Rect layoutRect = {};
+    layoutRect.position = rect.position;
+    layoutRect.size = Vector2(directoryLayout->GetDesiredSize().x, rect.size.y);
+
+    directoryLayout->Arrange(layoutRect);
 }
 
-void FileSystemPanel::OnFileDoubleClicked(const VirtualPath& path)
+void FileSystemPanel::OnPaint(Render::UIDrawContext& context)
 {
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-
-    const std::string extension = path.GetExtension();
-
-    if (extension == ".urscene")
-    {
-        const std::string sceneText = filesystem.ReadText(path);
-        YAML::Node sceneNode = YAML::Load(sceneText);
-
-        std::unique_ptr<Scene> loadedScene = sceneSystem.CreateScene(SceneType::Game, path);
-        loadedScene->Deserialize(sceneNode);
-
-        sceneSystem.SwitchScene(std::move(loadedScene));
-    }
+    Panel::OnPaint(context);
 }
 
 } // namespace URay
