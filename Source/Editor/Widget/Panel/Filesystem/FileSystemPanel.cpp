@@ -1,38 +1,30 @@
 #include "Editor/Widget/Panel/Filesystem/FileSystemPanel.h"
 
-#include "Editor/Widget/Layout/VerticalLayout.h"
-
 #include "Engine/Asset/AssetSystem.h"
 #include "Engine/Engine.h"
+#include "Engine/Scene/Scene.h"
+#include "Engine/Scene/SceneSystem.h"
 
 #include "Core/File/VirtualFilesystem.h"
+
+#include <imgui/imgui.h>
 
 namespace URay
 {
 
-FileSystemPanel::FileSystemPanel()
+FileSystemPanel::FileSystemPanel() : Panel("File System")
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     fileSystem = &assetSystem.GetFileSystem();
 
     SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
 
-    auto verticalLayout = std::make_unique<VerticalLayout>();
-    directoryLayout = verticalLayout.get();
-    directoryLayout->SetPadding(Padding(8.0f));
-    directoryLayout->SetGap(4.0f);
-    directoryLayout->SetDesiredSize(Vector2(220.0f, 0.0f));
-    AddChild(std::move(verticalLayout));
+    auto horizontalLayout = std::make_unique<HorizontalLayout>();
+    layout = horizontalLayout.get();
+    AddChild(std::move(horizontalLayout));
 
-    for (const VirtualFileEntry& entry : fileSystem->ListDirectory("Project://Asset"))
-    {
-        if (!entry.isDirectory)
-            continue;
-
-        auto directoryEntry = std::make_unique<DirectoryEntryWidget>(entry.path);
-        directoryEntries.push_back(directoryEntry.get());
-        directoryLayout->AddChild(std::move(directoryEntry));
-    }
+    auto sourceAssetDirectory = std::make_unique<DirectoryEntryWidget>("Project://Asset/Source");
+    layout->AddChild(std::move(sourceAssetDirectory));
 }
 
 void FileSystemPanel::Arrange(const Rect& rect)
@@ -41,9 +33,9 @@ void FileSystemPanel::Arrange(const Rect& rect)
 
     Rect layoutRect = {};
     layoutRect.position = rect.position;
-    layoutRect.size = Vector2(directoryLayout->GetDesiredSize().x, rect.size.y);
+    layoutRect.size = Vector2(rect.size.x, 100.0f);
 
-    directoryLayout->Arrange(layoutRect);
+    layout->Arrange(layoutRect);
 }
 
 void FileSystemPanel::OnPaint(Render::UIDrawContext& context)

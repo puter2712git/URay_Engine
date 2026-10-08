@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Editor/Widget/Layout/HorizontalLayout.h"
 #include "Editor/Widget/Panel/FileSystem/DirectoryEntryWidget.h"
 #include "Editor/Widget/Panel/Panel.h"
 
@@ -11,7 +12,6 @@ namespace URay
 {
 
 class VirtualFileSystem;
-class VerticalLayout;
 
 class FileSystemPanel final : public Panel
 {
@@ -29,7 +29,7 @@ protected:
 private:
     VirtualFileSystem* fileSystem = nullptr;
 
-    VerticalLayout* directoryLayout = nullptr;
+    HorizontalLayout* layout = nullptr;
 
     std::vector<DirectoryEntryWidget*> directoryEntries;
 };

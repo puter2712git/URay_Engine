@@ -5,8 +5,12 @@
 #include "Core/Math/Color.h"
 #include "Core/Math/Padding.h"
 
+#include <string>
+
 namespace URay
 {
+
+class PanelHeader;
 
 class Panel : public Widget
 {
@@ -14,9 +18,12 @@ class Panel : public Widget
 
 public:
     Panel();
+    Panel(const std::string& name);
     ~Panel() override;
 
 public:
+    void Arrange(const Rect& rect) override;
+
     const Color& GetBackgroundColor() const { return backgroundColor; }
     void SetBackgroundColor(const Color& color) { backgroundColor = color; }
 
@@ -33,6 +40,10 @@ protected:
     virtual void OnPaint(Render::UIDrawContext& context) override;
 
 protected:
+    PanelHeader* header = nullptr;
+
+    std::string name;
+
     Color backgroundColor = Color::White;
 
     float outlineWidth = 0.0f;
