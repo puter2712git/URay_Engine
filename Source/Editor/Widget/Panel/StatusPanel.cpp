@@ -17,8 +17,6 @@
 #include "Render/Rendering/Batch/UIDrawContext.h"
 #include "Render/ResourceManager.h"
 
-#include <imgui/imgui.h>
-
 namespace URay
 {
 
