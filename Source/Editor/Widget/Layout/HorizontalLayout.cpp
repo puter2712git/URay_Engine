@@ -28,7 +28,7 @@ void HorizontalLayout::AlignLeft()
     for (const auto& child : children)
     {
         Rect childRect = {};
-        childRect.position = Vector2(x, rect.position.x + padding.top);
+        childRect.position = Vector2(x, rect.position.y + padding.top);
         childRect.size = Vector2(
             child->GetDesiredSize().x,
             rect.size.y - padding.top - padding.bottom);

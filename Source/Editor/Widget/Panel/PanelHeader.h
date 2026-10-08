@@ -7,7 +7,7 @@
 namespace URay
 {
 
-class Label;
+class HorizontalLayout;
 
 class PanelHeader final : public Widget
 {
@@ -21,7 +21,7 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
-    Label* label = nullptr;
+    HorizontalLayout* layout = nullptr;
 };
 
 } // namespace URay
