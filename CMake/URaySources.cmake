@@ -49,6 +49,9 @@ if(MSVC)
         /wd26439
         /wd26440
     )
+
+    target_compile_options(URay_Engine PRIVATE /MP)
+    target_compile_options(URay_ThirdParty PRIVATE /MP)
 endif()
 
 target_compile_definitions(URay_Engine PRIVATE
