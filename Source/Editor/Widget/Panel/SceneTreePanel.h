@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Widget/Panel/Panel.h"
+#include <Editor/Widget/Panel/Panel.h>
 
 namespace URay
 {

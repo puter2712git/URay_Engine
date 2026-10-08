@@ -1,6 +1,6 @@
 #include "GLFWInputAdapter.h"
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <GLFW/glfw3.h>
 

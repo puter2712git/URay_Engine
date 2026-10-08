@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/RHI/Texture/Texture.h"
+#include <Render/RHI/Texture/Texture.h>
 
-#include "Core/Math/Extent2D.h"
+#include <Core/Math/Extent2D.h>
 
 #include <vulkan/vulkan.h>
 

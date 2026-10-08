@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Input/InputEvent.h"
+#include <Core/Input/InputEvent.h>
 
 #include <optional>
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Render/RHI/Descriptor/ResourceBinding.h"
-#include "Render/Shader/ShaderStageFlags.h"
+#include <Render/RHI/Descriptor/ResourceBinding.h>
+#include <Render/Shader/ShaderStageFlags.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <vulkan/vulkan.h>
 

@@ -1,6 +1,6 @@
 #include "LogSystem.h"
 
-#include "Core/Log/LogSink.h"
+#include <Core/Log/LogSink.h>
 
 #include <cstdio>
 #include <string>

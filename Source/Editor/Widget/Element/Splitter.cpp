@@ -1,8 +1,8 @@
 #include "Splitter.h"
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
-#include "Render/Rendering/Batch/UIDrawContext.h"
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <algorithm>
 

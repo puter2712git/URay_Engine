@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Input/InputEvent.h"
-#include "Core/Math/Vector2.h"
+#include <Core/Input/InputEvent.h>
+#include <Core/Math/Vector2.h>
 
 namespace URay
 {

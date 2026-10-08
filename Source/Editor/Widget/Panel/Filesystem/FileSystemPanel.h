@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Editor/Widget/Layout/HorizontalLayout.h"
-#include "Editor/Widget/Panel/FileSystem/DirectoryEntryWidget.h"
-#include "Editor/Widget/Panel/Panel.h"
+#include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Editor/Widget/Panel/FileSystem/DirectoryEntryWidget.h>
+#include <Editor/Widget/Panel/Panel.h>
 
-#include "Core/File/VirtualPath.h"
+#include <Core/File/VirtualPath.h>
 
 #include <vector>
 

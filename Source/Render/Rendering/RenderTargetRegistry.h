@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/RHI/RenderTarget.h"
+#include <Render/RHI/RenderTarget.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <array>
 

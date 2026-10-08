@@ -1,7 +1,7 @@
 #include "Buffer.h"
 
-#include "Render/RHI/Buffer/BufferDesc.h"
-#include "Render/RHI/Device.h"
+#include <Render/RHI/Buffer/BufferDesc.h>
+#include <Render/RHI/Device.h>
 
 namespace URay::Render
 {

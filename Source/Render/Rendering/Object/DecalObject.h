@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Render/Rendering/Object/BoundedObject.h"
-#include "Render/Rendering/Object/RenderObject.h"
-#include "Render/Rendering/RenderInfo.h"
+#include <Render/Rendering/Object/BoundedObject.h>
+#include <Render/Rendering/Object/RenderObject.h>
+#include <Render/Rendering/RenderInfo.h>
 
-#include "Core/Math/AABB.h"
-#include "Core/Math/Matrix.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/AABB.h>
+#include <Core/Math/Matrix.h>
+#include <Core/Type/Types.h>
 
 #include <array>
 #include <memory>

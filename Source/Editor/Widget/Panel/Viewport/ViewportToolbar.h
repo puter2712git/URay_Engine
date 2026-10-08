@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Editor/Gizmo/Strategy/GizmoStrategy.h"
-#include "Editor/Widget/Widget.h"
+#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
+#include <Editor/Widget/Widget.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <array>
 

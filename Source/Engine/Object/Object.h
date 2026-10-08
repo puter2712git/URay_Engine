@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Engine/Object/Class/Class.h"
-#include "Engine/Object/Class/ClassRegistry.h"
+#include <Engine/Object/Class/Class.h>
+#include <Engine/Object/Class/ClassRegistry.h>
 
-#include "Core/Type/RuntimeType.h"
+#include <Core/Type/RuntimeType.h>
 
 #include <yaml-cpp/yaml.h>
 

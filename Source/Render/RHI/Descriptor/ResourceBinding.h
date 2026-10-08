@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/Shader/ShaderStageFlags.h"
+#include <Render/Shader/ShaderStageFlags.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <cstdint>
 #include <string>

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Engine/Asset/Asset.h"
-#include "Engine/Asset/Material/MaterialParameter.h"
+#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/Material/MaterialParameter.h>
 
-#include "Core/Math/Color.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/Color.h>
+#include <Core/Type/Types.h>
 
-#include "Render/Rendering/RenderInfo.h"
+#include <Render/Rendering/RenderInfo.h>
 
 #include <cstdint>
 #include <unordered_map>

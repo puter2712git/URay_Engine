@@ -1,11 +1,11 @@
 #include "SceneSystem.h"
 
-#include "Render/Rendering/Object/RenderObject.h"
-#include "Render/Rendering/Scene/RenderScene.h"
+#include <Render/Rendering/Object/RenderObject.h>
+#include <Render/Rendering/Scene/RenderScene.h>
 
-#include "Engine/Component/Render/RenderComponent.h"
-#include "Engine/Engine.h"
-#include "Engine/Scene/SceneSystem.h"
+#include <Engine/Component/Render/RenderComponent.h>
+#include <Engine/Engine.h>
+#include <Engine/Scene/SceneSystem.h>
 
 #include <cassert>
 

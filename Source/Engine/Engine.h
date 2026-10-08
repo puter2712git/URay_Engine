@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Performance/ScopeTimer.h"
+#include <Core/Performance/ScopeTimer.h>
 
 #include <string>
 #include <vector>

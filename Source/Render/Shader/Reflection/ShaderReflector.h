@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/Shader/Reflection/ShaderReflection.h"
+#include <Render/Shader/Reflection/ShaderReflection.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <spirv/spirv_reflect.h>
 #include <string>

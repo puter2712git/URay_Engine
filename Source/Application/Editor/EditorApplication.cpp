@@ -1,10 +1,10 @@
 #include "EditorApplication.h"
 
-#include "Core/Performance/PerformanceAnalytics.h"
-#include "Editor/Editor.h"
-#include "Engine/Engine.h"
+#include <Core/Performance/PerformanceAnalytics.h>
+#include <Editor/Editor.h>
+#include <Engine/Engine.h>
 
-#include "Platform/Window/Window.h"
+#include <Platform/Window/Window.h>
 
 namespace URay
 {

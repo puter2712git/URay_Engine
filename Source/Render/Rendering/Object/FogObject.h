@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Render/Rendering/Object/RenderObject.h"
+#include <Render/Rendering/Object/RenderObject.h>
 
-#include "Core/Math/Color.h"
+#include <Core/Math/Color.h>
 
 namespace URay::Render
 {

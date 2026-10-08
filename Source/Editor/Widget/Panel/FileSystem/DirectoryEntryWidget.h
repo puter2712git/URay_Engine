@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include <Editor/Widget/Widget.h>
 
-#include "Core/File/VirtualPath.h"
+#include <Core/File/VirtualPath.h>
 
 namespace URay
 {

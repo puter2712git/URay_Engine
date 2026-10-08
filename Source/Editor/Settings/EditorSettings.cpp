@@ -1,7 +1,7 @@
 #include "EditorSettings.h"
 
-#include "Core/File/VirtualFilesystem.h"
-#include "Core/Log/LogSystem.h"
+#include <Core/File/VirtualFilesystem.h>
+#include <Core/Log/LogSystem.h>
 
 namespace URay
 {

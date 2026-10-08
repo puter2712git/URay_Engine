@@ -1,8 +1,8 @@
 #include "ShaderReflector.h"
 
-#include "Render/RHI/Descriptor/ResourceBinding.h"
+#include <Render/RHI/Descriptor/ResourceBinding.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <limits>
 #include <utility>

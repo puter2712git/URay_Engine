@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Editor/Pick/PickRegistry.h"
-#include "Editor/Gizmo/Strategy/GizmoStrategy.h"
+#include <Editor/Pick/PickRegistry.h>
+#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <memory>
 #include <unordered_map>

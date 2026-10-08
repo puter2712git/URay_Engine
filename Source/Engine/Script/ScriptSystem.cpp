@@ -1,8 +1,8 @@
 #include "ScriptSystem.h"
 
-#include "Engine/Script/NativeAPI.h"
+#include <Engine/Script/NativeAPI.h>
 
-#include "Core/Log/LogSystem.h"
+#include <Core/Log/LogSystem.h>
 
 namespace URay
 {

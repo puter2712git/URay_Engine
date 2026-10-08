@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Engine/Asset/AssetType.h"
+#include <Engine/Asset/AssetType.h>
 
-#include "Core/File/VirtualPath.h"
-#include "Engine/Asset/Asset.h"
+#include <Core/File/VirtualPath.h>
+#include <Engine/Asset/Asset.h>
 
 #include <yaml-cpp/yaml.h>
 

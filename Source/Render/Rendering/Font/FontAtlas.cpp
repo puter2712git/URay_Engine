@@ -1,7 +1,7 @@
 #include "FontAtlas.h"
 
-#include "Render/RHI/Texture/Texture.h"
-#include "Render/RHI/Texture/TextureView.h"
+#include <Render/RHI/Texture/Texture.h>
+#include <Render/RHI/Texture/TextureView.h>
 
 namespace URay::Render
 {

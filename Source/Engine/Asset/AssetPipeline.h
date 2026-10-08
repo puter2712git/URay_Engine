@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Asset/AssetMetadata.h"
+#include <Engine/Asset/AssetMetadata.h>
 
 #include <memory>
 #include <string>

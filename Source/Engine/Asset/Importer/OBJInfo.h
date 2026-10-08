@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Core/Math/Color3.h"
-#include "Core/Math/Vector2.h"
-#include "Core/Math/Vector3.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/Color3.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Math/Vector3.h>
+#include <Core/Type/Types.h>
 
 #include <string>
 #include <unordered_map>

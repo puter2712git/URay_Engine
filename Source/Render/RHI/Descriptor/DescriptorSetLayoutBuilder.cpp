@@ -2,7 +2,7 @@
 #include "DescriptorSetLayout.h"
 #include "ResourceBinding.h"
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 namespace URay::Render
 {

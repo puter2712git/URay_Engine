@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Editor/Gizmo/Strategy/GizmoStrategy.h"
+#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 
-#include "Core/Math/Vector3.h"
+#include <Core/Math/Vector3.h>
 
 namespace URay
 {

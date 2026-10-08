@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include <Editor/Widget/Widget.h>
 
 #include <string>
 

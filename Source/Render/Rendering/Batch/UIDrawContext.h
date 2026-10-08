@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Render/RHI/Vertex/Vertex.h"
+#include <Render/RHI/Vertex/Vertex.h>
 
-#include "Engine/Asset/Asset.h"
+#include <Engine/Asset/Asset.h>
 
-#include "Core/Math/Color.h"
-#include "Core/Math/Rect.h"
-#include "Core/Math/Vector2.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/Color.h>
+#include <Core/Math/Rect.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Type/Types.h>
 
 #include <string_view>
 #include <vector>

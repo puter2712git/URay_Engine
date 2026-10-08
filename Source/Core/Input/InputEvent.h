@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Math/Vector2.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/Vector2.h>
+#include <Core/Type/Types.h>
 
 #include <cstdint>
 #include <variant>

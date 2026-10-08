@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Asset/Asset.h"
+#include <Engine/Asset/Asset.h>
 
-#include "Core/Math/Vector2.h"
+#include <Core/Math/Vector2.h>
 
 #include <string>
 

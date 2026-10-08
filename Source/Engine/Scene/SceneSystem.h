@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Ray/EventRay.h"
-#include "Engine/Scene/Scene.h"
+#include <Core/Ray/EventRay.h>
+#include <Engine/Scene/Scene.h>
 
 #include <memory>
 #include <vector>

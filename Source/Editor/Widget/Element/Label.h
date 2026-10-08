@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include <Editor/Widget/Widget.h>
 
-#include "Render/Rendering/Batch/UIDrawContext.h"
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <string>
 #include <string_view>

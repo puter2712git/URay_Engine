@@ -1,6 +1,6 @@
 #include "MeshGenerator.h"
 
-#include "Core/Math/Math.h"
+#include <Core/Math/Math.h>
 
 namespace URay
 {

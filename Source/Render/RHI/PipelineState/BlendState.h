@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 namespace URay::Render
 {

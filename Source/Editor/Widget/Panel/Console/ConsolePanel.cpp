@@ -1,9 +1,9 @@
-#include "Editor/Widget/Panel/Console/ConsolePanel.h"
-#include "Editor/Widget/Panel/Console/ConsoleLogSink.h"
+#include <Editor/Widget/Panel/Console/ConsolePanel.h>
+#include <Editor/Widget/Panel/Console/ConsoleLogSink.h>
 
-#include "Engine/Engine.h"
+#include <Engine/Engine.h>
 
-#include "Core/Log/LogSystem.h"
+#include <Core/Log/LogSystem.h>
 
 #include <cstdio>
 

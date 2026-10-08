@@ -1,6 +1,6 @@
 #include "Window.h"
 
-#include "Core/Log/LogSystem.h"
+#include <Core/Log/LogSystem.h>
 
 namespace URay
 {

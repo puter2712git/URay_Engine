@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <coreclr_delegates.h>
 #include <hostfxr.h>

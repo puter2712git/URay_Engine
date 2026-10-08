@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Editor/Widget/Widget.h"
+#include <Editor/Widget/Widget.h>
 
-#include "Core/Math/Color.h"
-#include "Core/Math/Padding.h"
+#include <Core/Math/Color.h>
+#include <Core/Math/Padding.h>
 
 #include <string>
 

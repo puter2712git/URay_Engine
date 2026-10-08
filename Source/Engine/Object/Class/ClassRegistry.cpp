@@ -1,6 +1,6 @@
 #include "ClassRegistry.h"
 
-#include "Engine/Object/Class/Class.h"
+#include <Engine/Object/Class/Class.h>
 
 namespace URay
 {

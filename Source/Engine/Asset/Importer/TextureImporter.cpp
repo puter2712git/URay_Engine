@@ -1,12 +1,12 @@
 #include "TextureImporter.h"
 
-#include "Engine/Asset/AssetDatabase.h"
-#include "Engine/Asset/AssetMetadata.h"
-#include "Engine/Asset/AssetSystem.h"
-#include "Engine/Asset/Texture/Texture.h"
-#include "Engine/Engine.h"
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetMetadata.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Texture/Texture.h>
+#include <Engine/Engine.h>
 
-#include "Core/File/VirtualFilesystem.h"
+#include <Core/File/VirtualFilesystem.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

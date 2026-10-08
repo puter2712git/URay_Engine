@@ -1,6 +1,6 @@
 #include "EditorApplication.h"
 
-#include "Application/CommandLine.h"
+#include <Application/CommandLine.h>
 
 #include <iostream>
 #include <string>

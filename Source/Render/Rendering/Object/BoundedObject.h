@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Math/AABB.h"
+#include <Core/Math/AABB.h>
 
 namespace URay::Render
 {

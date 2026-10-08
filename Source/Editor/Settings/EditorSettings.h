@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Editor/Settings/EditorLayout.h"
+#include <Editor/Settings/EditorLayout.h>
 
-#include "Core/File/VirtualPath.h"
-#include "Core/Math/Vector3.h"
+#include <Core/File/VirtualPath.h>
+#include <Core/Math/Vector3.h>
 
 #include <string>
 

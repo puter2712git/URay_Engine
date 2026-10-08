@@ -1,11 +1,11 @@
-#include "Editor/Widget/Panel/InspectorPanel.h"
+#include <Editor/Widget/Panel/InspectorPanel.h>
 
-#include "Editor/Editor.h"
-#include "Editor/PropertyDrawer.h"
-#include "Editor/Selection/SelectionSystem.h"
+#include <Editor/Editor.h>
+#include <Editor/PropertyDrawer.h>
+#include <Editor/Selection/SelectionSystem.h>
 
-#include "Engine/Component/Component.h"
-#include "Engine/Scene/Unit.h"
+#include <Engine/Component/Component.h>
+#include <Engine/Scene/Unit.h>
 
 #include <imgui/imgui.h>
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/Ray/EventRay.h"
+#include <Core/Ray/EventRay.h>
 
 namespace URay
 {

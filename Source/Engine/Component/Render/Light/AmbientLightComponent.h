@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Component/Render/Light/LightComponent.h"
+#include <Engine/Component/Render/Light/LightComponent.h>
 
-#include "Core/Math/Color.h"
+#include <Core/Math/Color.h>
 
 namespace URay
 {

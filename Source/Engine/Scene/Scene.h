@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Object/Object.h"
+#include <Engine/Object/Object.h>
 
-#include "Core/File/VirtualPath.h"
+#include <Core/File/VirtualPath.h>
 
 #include <functional>
 #include <map>

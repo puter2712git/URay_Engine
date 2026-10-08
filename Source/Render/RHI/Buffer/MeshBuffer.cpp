@@ -1,6 +1,6 @@
 #include "MeshBuffer.h"
 
-#include "Render/RHI/Buffer/Buffer.h"
+#include <Render/RHI/Buffer/Buffer.h>
 
 namespace URay::Render
 {

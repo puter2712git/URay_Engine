@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Core/Ray/EventRay.h"
+#include <Core/Ray/EventRay.h>
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
 #include <memory>
 #include <unordered_map>

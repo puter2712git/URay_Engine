@@ -1,6 +1,6 @@
 #include "RenderTargetRegistry.h"
 
-#include "Render/RHI/Device.h"
+#include <Render/RHI/Device.h>
 
 namespace URay::Render
 {

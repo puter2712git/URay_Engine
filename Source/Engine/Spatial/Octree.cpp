@@ -1,8 +1,8 @@
 #include "Octree.h"
 
-#include "Core/Type/Types.h"
+#include <Core/Type/Types.h>
 
-#include "Render/Rendering/Object/BoundedObject.h"
+#include <Render/Rendering/Object/BoundedObject.h>
 
 namespace URay
 {

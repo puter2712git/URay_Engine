@@ -1,8 +1,8 @@
 #include "DirectoryEntryWidget.h"
 
-#include "Editor/Widget/Element/Label.h"
+#include <Editor/Widget/Element/Label.h>
 
-#include "Engine/Asset/EngineAsset.h"
+#include <Engine/Asset/EngineAsset.h>
 
 #include <memory>
 

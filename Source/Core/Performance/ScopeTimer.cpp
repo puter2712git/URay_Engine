@@ -1,6 +1,6 @@
 #include "ScopeTimer.h"
 
-#include "Core/Performance/PerformanceAnalytics.h"
+#include <Core/Performance/PerformanceAnalytics.h>
 
 namespace URay
 {

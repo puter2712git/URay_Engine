@@ -1,8 +1,8 @@
 #include "Panel.h"
 
-#include "Editor/Widget/Panel/PanelHeader.h"
+#include <Editor/Widget/Panel/PanelHeader.h>
 
-#include "Render/Rendering/Batch/UIDrawContext.h"
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 namespace URay
 {

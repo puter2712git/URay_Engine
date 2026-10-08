@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Component/Render/Light/LightComponent.h"
+#include <Engine/Component/Render/Light/LightComponent.h>
 
 namespace URay
 {

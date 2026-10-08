@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Engine/Component/Component.h"
+#include <Engine/Component/Component.h>
 
 #include <functional>
 #include <memory>

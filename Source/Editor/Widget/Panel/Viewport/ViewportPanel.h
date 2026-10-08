@@ -1,14 +1,14 @@
 #pragma once
 
-#include "Editor/Widget/Panel/Panel.h"
+#include <Editor/Widget/Panel/Panel.h>
 
-#include "Core/Ray/EventRay.h"
+#include <Core/Ray/EventRay.h>
 
-#include "Core/Math/Extent2D.h"
-#include "Core/Math/Vector2.h"
-#include "Core/Math/Vector3.h"
+#include <Core/Math/Extent2D.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Math/Vector3.h>
 
-#include "Render/Rendering/View/ViewMode.h"
+#include <Render/Rendering/View/ViewMode.h>
 
 #include <functional>
 #include <memory>

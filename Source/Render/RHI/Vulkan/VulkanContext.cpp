@@ -1,9 +1,9 @@
 #include "VulkanContext.h"
 
-#include "Core/Log/LogSystem.h"
-#include "Core/Type/Types.h"
+#include <Core/Log/LogSystem.h>
+#include <Core/Type/Types.h>
 
-#include "Platform/Window/Window.h"
+#include <Platform/Window/Window.h>
 
 #include <glfw/glfw3.h>
 #include <iostream>

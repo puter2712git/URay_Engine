@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Engine/Object/Property/Property.h"
+#include <Engine/Object/Property/Property.h>
 
-#include "Core/Type/RuntimeType.h"
+#include <Core/Type/RuntimeType.h>
 
 #include <string>
 #include <vector>

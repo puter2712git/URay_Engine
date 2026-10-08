@@ -1,12 +1,12 @@
 #pragma once
 
-#include "Render/RHI/Texture/Texture.h"
+#include <Render/RHI/Texture/Texture.h>
 
-#include "Engine/Asset/Asset.h"
+#include <Engine/Asset/Asset.h>
 
-#include "Core/Math/Rect.h"
-#include "Core/Math/Vector2.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/Rect.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Type/Types.h>
 
 #include <memory>
 #include <unordered_map>

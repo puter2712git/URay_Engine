@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Platform/Window/Cursor.h"
+#include <Platform/Window/Cursor.h>
 
 #include <optional>
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Render/Rendering/RenderPass/RenderPass.h"
+#include <Render/Rendering/RenderPass/RenderPass.h>
 
-#include "Core/Math/Color.h"
-#include "Core/Type/Types.h"
+#include <Core/Math/Color.h>
+#include <Core/Type/Types.h>
 
 #include <cstdint>
 #include <memory>
