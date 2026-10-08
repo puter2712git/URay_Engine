@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Layout/CrossAxisAlignment.h"
+#include "Editor/Widget/Layout/MainAxisAlignment.h"
 
 #include "Core/Math/Padding.h"
 #include "Core/Type/Types.h"
@@ -8,28 +10,13 @@
 namespace URay
 {
 
-enum class HorizontalLayoutMode : uint8
-{
-    Left,
-    Center,
-    Right
-};
-
-enum class CrossAxisAlignment : uint8
-{
-    Start,
-    Center,
-    End,
-    Stretch
-};
-
 class HorizontalLayout final : public Widget
 {
 public:
     void Arrange(const Rect& rect) override;
 
-    HorizontalLayoutMode GetMode() const { return mode; }
-    void SetMode(HorizontalLayoutMode mode) { this->mode = mode; }
+    MainAxisAlignment GetMainAxisAlignment() const { return mainAxisAlignment; }
+    void SetMainAxisAlignment(MainAxisAlignment alignment) { mainAxisAlignment = alignment; }
 
     CrossAxisAlignment GetCrossAxisAlignment() const { return crossAxisAlignment; }
     void SetCrossAxisAlignment(CrossAxisAlignment alignment) { crossAxisAlignment = alignment; }
@@ -48,7 +35,7 @@ private:
     float CalculateChildHeight(float desiredHeight, const Rect& contentRect) const;
 
 private:
-    HorizontalLayoutMode mode = HorizontalLayoutMode::Left;
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment::Start;
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment::Start;
 
     Padding padding = {};

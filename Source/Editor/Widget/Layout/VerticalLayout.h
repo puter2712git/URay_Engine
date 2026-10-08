@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Editor/Widget/Widget.h"
+#include "Editor/Widget/Layout/CrossAxisAlignment.h"
+#include "Editor/Widget/Layout/MainAxisAlignment.h"
 
 #include "Core/Math/Padding.h"
 #include "Core/Type/Types.h"
@@ -8,20 +10,16 @@
 namespace URay
 {
 
-enum class VerticalLayoutMode : uint8
-{
-    Top,
-    Center,
-    Bottom
-};
-
 class VerticalLayout final : public Widget
 {
 public:
     void Arrange(const Rect& rect) override;
 
-    VerticalLayoutMode GetMode() const { return mode; }
-    void SetMode(VerticalLayoutMode mode) { this->mode = mode; }
+    MainAxisAlignment GetMainAxisAlignment() const { return mainAxisAlignment; }
+    void SetMainAxisAlignment(MainAxisAlignment alignment) { mainAxisAlignment = alignment; }
+
+    CrossAxisAlignment GetCrossAxisAlignment() const { return crossAxisAlignment; }
+    void SetCrossAxisAlignment(CrossAxisAlignment alignment) { crossAxisAlignment = alignment; }
 
     const Padding& GetPadding() const { return padding; }
     void SetPadding(const Padding& padding) { this->padding = padding; }
@@ -30,12 +28,15 @@ public:
     void SetGap(float gap) { this->gap = gap; }
 
 private:
-    void AlignTop();
-    void AlignCenter();
-    void AlignBottom();
+    float CalculateStartOffsetY(const Rect& contentRect) const;
+    float CalculateTotalHeight() const;
+
+    float CalculateChildX(float childWidth, const Rect& contentRect) const;
+    float CalculateChildWidth(float desiredWidth, const Rect& contentRect) const;
 
 private:
-    VerticalLayoutMode mode = VerticalLayoutMode::Top;
+    MainAxisAlignment mainAxisAlignment = MainAxisAlignment::Start;
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment::Start;
 
     Padding padding = {};
     float gap = 0.0f;

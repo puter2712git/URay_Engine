@@ -6,8 +6,7 @@ namespace URay
 {
 
 class Label;
-class Button;
-class Image;
+class VerticalLayout;
 
 class StatusPanel final : public Panel
 {
@@ -15,7 +14,6 @@ class StatusPanel final : public Panel
 
 public:
     StatusPanel();
-    ~StatusPanel() override;
 
 public:
     void Arrange(const Rect& rect) override;
@@ -24,9 +22,9 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
+    VerticalLayout* layout = nullptr;
+
     Label* fpsLabel = nullptr;
-    Button* button = nullptr;
-    Image* testImage = nullptr;
 };
 
 } // namespace URay

@@ -1,8 +1,7 @@
 #include "StatusPanel.h"
 
-#include "Editor/Widget/Element/Button.h"
-#include "Editor/Widget/Element/Image.h"
 #include "Editor/Widget/Element/Label.h"
+#include "Editor/Widget/Layout/VerticalLayout.h"
 
 #include "Engine/Asset/AssetDatabase.h"
 #include "Engine/Asset/AssetSystem.h"
@@ -28,32 +27,26 @@ StatusPanel::StatusPanel() : Panel("Status")
     SetBackgroundColor(Color(0.1f, 0.1f, 0.1f));
     SetPadding(Padding(12.0f));
 
-    fpsLabel = AddChild<Label>("FPS:");
+    layout = AddChild<VerticalLayout>();
+
+    fpsLabel = layout->AddChild<Label>("FPS:");
+    fpsLabel->SetDesiredSize(Vector2(200.0f, 100.0f));
     fpsLabel->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
-        .pixelHeight = 18,
+        .pixelHeight = 12,
         .color = Color::White,
     });
-
-    button = AddChild<Button>("Test Button");
-    button->GetOnClickRay().Register(this, [this]()
-                                     { URAY_LOG("Button Clicked!"); });
-
-    testImage = AddChild<Image>(EngineAsset::TranslationGizmoIconTexture);
-}
-
-StatusPanel::~StatusPanel()
-{
-    button->GetOnClickRay().UnregisterAll(this);
 }
 
 void StatusPanel::Arrange(const Rect& rect)
 {
     Panel::Arrange(rect);
 
-    fpsLabel->Arrange({ .position = rect.position + Vector2(0.0f, 32.0f), .size = Vector2(200.0f, 24.0f) });
-    button->Arrange({ .position = rect.position + Vector2(0.0f, 50.0f), .size = Vector2(200.0f, 40.0f) });
-    testImage->Arrange({ .position = rect.position + Vector2(0.0f, 80.0f), .size = Vector2(64, 64) });
+    Rect layoutRect;
+    layoutRect.position = Vector2(rect.position.x, rect.position.y + 25.0f);
+    layoutRect.size = Vector2(rect.size.x, rect.size.y - 25.0f);
+
+    layout->Arrange(layoutRect);
 }
 
 void StatusPanel::OnUpdate(float deltaTime)

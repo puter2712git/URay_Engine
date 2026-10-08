@@ -33,18 +33,18 @@ void HorizontalLayout::Arrange(const Rect& rect)
 
 float HorizontalLayout::CalculateStartOffsetX(const Rect& contentRect) const
 {
-    switch (mode)
+    switch (mainAxisAlignment)
     {
-    case HorizontalLayoutMode::Left:
+    case MainAxisAlignment::Start:
         return contentRect.position.x;
 
-    case HorizontalLayoutMode::Center:
+    case MainAxisAlignment::Center:
     {
         float totalWidth = CalculateTotalWidth();
         return contentRect.position.x + contentRect.size.x * 0.5f - totalWidth * 0.5f;
     }
 
-    case HorizontalLayoutMode::Right:
+    case MainAxisAlignment::End:
     {
         float totalWidth = CalculateTotalWidth();
         return contentRect.position.x + contentRect.size.x - totalWidth;

@@ -9,70 +9,55 @@ void VerticalLayout::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    switch (mode)
-    {
-    case VerticalLayoutMode::Top:
-        AlignTop();
-        break;
-    case VerticalLayoutMode::Center:
-        AlignCenter();
-        break;
-    case VerticalLayoutMode::Bottom:
-        AlignBottom();
-        break;
-    }
-}
+    Rect contentRect;
+    contentRect.position = Vector2(rect.position.x + padding.left, rect.position.y + padding.top);
+    contentRect.size = {
+        std::max(0.0f, rect.size.x - padding.left - padding.right),
+        std::max(0.0f, rect.size.y - padding.top - padding.bottom),
+    };
 
-void VerticalLayout::AlignTop()
-{
-    float y = rect.position.y + padding.top;
-    const float width = std::max(0.0f, rect.size.x - padding.left - padding.right);
+    float offsetY = CalculateStartOffsetY(contentRect);
 
     for (const auto& child : children)
     {
-        const Vector2 desiredSize = child->GetDesiredSize();
+        const Vector2& childDesiredSize = child->GetDesiredSize();
+        float childWidth = CalculateChildWidth(childDesiredSize.x, contentRect);
 
-        Rect childRect = {};
-        childRect.position = Vector2(rect.position.x + padding.left, y);
-        childRect.size = Vector2(width, desiredSize.y);
+        Rect childRect;
+        childRect.position = Vector2(CalculateChildX(childWidth, contentRect), offsetY);
+        childRect.size = Vector2(childWidth, childDesiredSize.y);
 
         child->Arrange(childRect);
 
-        y += desiredSize.y + gap;
+        offsetY += childDesiredSize.y + gap;
     }
 }
 
-void VerticalLayout::AlignCenter()
+float VerticalLayout::CalculateStartOffsetY(const Rect& contentRect) const
 {
-    float totalHeight = 0.0f;
-
-    for (const auto& child : children)
+    switch (mainAxisAlignment)
     {
-        totalHeight += child->GetDesiredSize().y;
+    case MainAxisAlignment::Start:
+        return contentRect.position.y;
+
+    case MainAxisAlignment::Center:
+    {
+        float totalHeight = CalculateTotalHeight();
+        return contentRect.position.y + contentRect.size.y * 0.5f - totalHeight * 0.5f;
     }
 
-    const int32 childCount = static_cast<int32>(children.size());
-    const int32 gapCount = std::max(0, childCount - 1);
-    totalHeight += gap * gapCount;
-
-    float y = rect.position.y + rect.size.y * 0.5f - totalHeight * 0.5f;
-    const float width = std::max(0.0f, rect.size.x - padding.left - padding.right);
-
-    for (const auto& child : children)
+    case MainAxisAlignment::End:
     {
-        const Vector2 desiredSize = child->GetDesiredSize();
+        float totalHeight = CalculateTotalHeight();
+        return contentRect.position.y + contentRect.size.y - totalHeight;
+    }
 
-        Rect childRect = {};
-        childRect.position = Vector2(rect.position.x + padding.left, y);
-        childRect.size = Vector2(width, desiredSize.y);
-
-        child->Arrange(childRect);
-
-        y += desiredSize.y + gap;
+    default:
+        return 0.0f;
     }
 }
 
-void VerticalLayout::AlignBottom()
+float VerticalLayout::CalculateTotalHeight() const
 {
     float totalHeight = 0.0f;
 
@@ -81,24 +66,49 @@ void VerticalLayout::AlignBottom()
         totalHeight += child->GetDesiredSize().y;
     }
 
-    const int32 childCount = static_cast<int32>(children.size());
-    const int32 gapCount = std::max(0, childCount - 1);
+    int32 childCount = static_cast<int32>(children.size());
+    int32 gapCount = std::max(0, childCount - 1);
+
     totalHeight += gap * gapCount;
 
-    float y = rect.position.y + rect.size.y - padding.bottom - totalHeight;
-    const float width = std::max(0.0f, rect.size.x - padding.left - padding.right);
+    return totalHeight;
+}
 
-    for (const auto& child : children)
+float VerticalLayout::CalculateChildX(float childWidth, const Rect& contentRect) const
+{
+    switch (crossAxisAlignment)
     {
-        const Vector2 desiredSize = child->GetDesiredSize();
+    case CrossAxisAlignment::Start:
+        return contentRect.position.x;
 
-        Rect childRect = {};
-        childRect.position = Vector2(rect.position.x + padding.left, y);
-        childRect.size = Vector2(width, desiredSize.y);
+    case CrossAxisAlignment::Center:
+        return contentRect.position.x + contentRect.size.x * 0.5f - childWidth * 0.5f;
 
-        child->Arrange(childRect);
+    case CrossAxisAlignment::End:
+        return contentRect.position.x + contentRect.size.x - childWidth;
 
-        y += desiredSize.y + gap;
+    case CrossAxisAlignment::Stretch:
+        return contentRect.position.x;
+
+    default:
+        return contentRect.position.x;
+    }
+}
+
+float VerticalLayout::CalculateChildWidth(float desiredWidth, const Rect& contentRect) const
+{
+    switch (crossAxisAlignment)
+    {
+    case CrossAxisAlignment::Start:
+    case CrossAxisAlignment::Center:
+    case CrossAxisAlignment::End:
+        return desiredWidth;
+
+    case CrossAxisAlignment::Stretch:
+        return contentRect.size.x;
+
+    default:
+        return desiredWidth;
     }
 }
 
