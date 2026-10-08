@@ -58,6 +58,12 @@ void ShadowPass::End(const RenderPassContext& context)
 
 void ShadowPass::Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
 {
+    ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
+
+    shadowSystem.GetDirectionalTarget()->TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
+    shadowSystem.GetShadowAtlasRT()->TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
+    shadowSystem.GetDepthTextureCubeArray()->Transition(context.commandBuffer, ImageLayout::DepthReadOnly);
+
     RecordDirectionalDepth(context, drawCmds);
     RecordSpotLightsDepth(context, drawCmds);
     RecordPointLightsDepth(context, drawCmds);

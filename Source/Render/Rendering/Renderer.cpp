@@ -674,8 +674,6 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     renderTargetRegistry->RecreateViewportRelative(extent);
 
     viewportRenderTargetsRecreatedRay.Emit();
-
-    URAY_LOG("[Renderer] Viewport resized.");
 }
 
 Format Renderer::FindDepthFormat() const
