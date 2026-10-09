@@ -48,6 +48,8 @@ public:
 
     const std::vector<std::unique_ptr<Widget>>& GetChildren() const { return children; }
 
+    void ClearChildren() { children.clear(); }
+
     virtual void Arrange(const Rect& rect) { this->rect = rect; }
     const Rect& GetRect() const { return rect; }
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Editor/Widget/Widget.h>
 #include <Editor/Widget/Layout/CrossAxisAlignment.h>
 #include <Editor/Widget/Layout/MainAxisAlignment.h>
+#include <Editor/Widget/Widget.h>
 
 #include <Core/Math/Padding.h>
 #include <Core/Type/Types.h>
@@ -13,6 +13,8 @@ namespace URay
 class HorizontalLayout final : public Widget
 {
 public:
+    bool CanHit() const override { return false; }
+
     void Arrange(const Rect& rect) override;
 
     MainAxisAlignment GetMainAxisAlignment() const { return mainAxisAlignment; }
