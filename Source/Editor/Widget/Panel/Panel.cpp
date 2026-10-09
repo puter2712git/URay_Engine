@@ -30,6 +30,33 @@ void Panel::Arrange(const Rect& rect)
     }
 }
 
+Rect Panel::GetContentRect() const
+{
+    const float effectiveOutline = std::max(0.0f, std::min(outlineWidth, std::min(rect.size.x, rect.size.y) * 0.5f));
+
+    Rect contentRect = rect;
+
+    const float left = effectiveOutline + padding.left;
+    const float top = effectiveOutline + padding.top;
+    const float right = effectiveOutline + padding.right;
+    const float bottom = effectiveOutline + padding.bottom;
+
+    contentRect.position += Vector2(left, top);
+    contentRect.size = Vector2(
+        std::max(0.0f, rect.size.x - left - right),
+        std::max(0.0f, rect.size.y - top - bottom));
+
+    if (header)
+    {
+        const float headerHeight = std::min(EditorStyle::PanelHeaderHeight, contentRect.size.y);
+
+        contentRect.position.y += headerHeight;
+        contentRect.size.y -= headerHeight;
+    }
+
+    return contentRect;
+}
+
 void Panel::OnPaint(Render::UIDrawContext& context)
 {
     context.AddFilledRect(rect, backgroundColor);

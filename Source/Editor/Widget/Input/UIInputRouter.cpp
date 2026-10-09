@@ -66,15 +66,15 @@ void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event
     switch (event.action)
     {
     case PointerAction::Moved:
-        target->OnPointerMove(event);
+        BubblePointerEvent(target, event, &Widget::OnPointerMove);
         return;
 
     case PointerAction::Pressed:
-        reply = target->OnPointerDown(event);
+        BubblePointerEvent(target, event, &Widget::OnPointerDown);
         break;
 
     case PointerAction::Released:
-        reply = target->OnPointerUp(event);
+        BubblePointerEvent(target, event, &Widget::OnPointerUp);
         break;
     }
 
@@ -87,6 +87,18 @@ void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
 
 void UIInputRouter::DispatchTextInputEvent(const TextInputEvent& event)
 {
+}
+
+void UIInputRouter::BubblePointerEvent(Widget* target, const PointerEvent& event, PointerEventHandler handler)
+{
+    for (Widget* widget = target; widget; widget = widget->GetParent())
+    {
+        const EventReply reply = (widget->*handler)(event);
+        ApplyReply(widget, reply);
+
+        if (reply.handled)
+            return;
+    }
 }
 
 void UIInputRouter::UpdateHoveredWidget(Widget* hitWidget)

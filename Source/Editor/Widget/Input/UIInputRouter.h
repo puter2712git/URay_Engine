@@ -14,6 +14,8 @@ struct EventReply;
 
 class UIInputRouter
 {
+    using PointerEventHandler = EventReply (Widget::*)(const PointerEvent&);
+
 public:
     UIInputRouter(Window& window);
 
@@ -25,6 +27,8 @@ private:
     void DispatchPointerEvent(Widget& root, const PointerEvent& event);
     void DispatchScrollEvent(Widget& root, const ScrollEvent& event);
     void DispatchTextInputEvent(const TextInputEvent& event);
+
+    void BubblePointerEvent(Widget* target, const PointerEvent& event, PointerEventHandler handler);
 
     void UpdateHoveredWidget(Widget* hitWidget);
     void ApplyReply(Widget* target, const EventReply& reply);

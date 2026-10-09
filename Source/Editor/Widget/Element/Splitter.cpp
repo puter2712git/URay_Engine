@@ -42,49 +42,47 @@ EventReply Splitter::OnPointerLeave()
 
 EventReply Splitter::OnPointerDown(const PointerEvent& event)
 {
-    if (event.changedButton == MouseButton::Left)
-    {
-        isDragging = true;
+    if (event.changedButton != MouseButton::Left || !IsHandleHit(event.position))
+        return {};
 
-        dragStartPosition = axis == SplitAxis::Horizontal ? event.position.x : event.position.y;
-        dragStartRatio = splitRatio;
+    isDragging = true;
 
-        return EventReply{
-            .capturePointer = true,
-        };
-    }
+    dragStartPosition = axis == SplitAxis::Horizontal ? event.position.x : event.position.y;
+    dragStartRatio = splitRatio;
 
-    return {};
+    return EventReply{
+        .handled = true,
+        .capturePointer = true
+    };
 }
 
 EventReply Splitter::OnPointerMove(const PointerEvent& event)
 {
-    if (isDragging)
-    {
-        const float currPosition = axis == SplitAxis::Horizontal ? event.position.x : event.position.y;
-        const float movedPixels = currPosition - dragStartPosition;
+    if (!isDragging)
+        return {};
 
-        uint32 contentLength = axis == SplitAxis::Horizontal ? rect.size.x : rect.size.y;
+    const float currPosition = axis == SplitAxis::Horizontal ? event.position.x : event.position.y;
+    const float movedPixels = currPosition - dragStartPosition;
 
-        const float firstLength = dragStartRatio * contentLength + movedPixels;
-        splitRatio = std::clamp(firstLength / contentLength, 0.0f, 1.0f);
-    }
+    uint32 contentLength = axis == SplitAxis::Horizontal ? rect.size.x : rect.size.y;
 
-    return {};
+    const float firstLength = dragStartRatio * contentLength + movedPixels;
+    splitRatio = std::clamp(firstLength / contentLength, 0.0f, 1.0f);
+
+    return EventReply{ .handled = true };
 }
 
 EventReply Splitter::OnPointerUp(const PointerEvent& event)
 {
-    if (event.changedButton == MouseButton::Left && isDragging)
-    {
-        isDragging = false;
+    if (event.changedButton != MouseButton::Left || !isDragging)
+        return {};
 
-        return EventReply{
-            .releasePointer = true,
-        };
-    }
+    isDragging = false;
 
-    return {};
+    return EventReply{
+        .handled = true,
+        .releasePointer = true
+    };
 }
 
 void Splitter::Arrange(const Rect& rect)
@@ -143,6 +141,16 @@ void Splitter::OnPaint(Render::UIDrawContext& context)
     const Color handleColor = (IsHovered() || isDragging) ? EditorStyle::ControlHovered : EditorStyle::ControlNormal;
 
     context.AddFilledRect(handleRect, handleColor);
+}
+
+bool Splitter::IsHandleHit(const Vector2& position) const
+{
+    const Rect handle = GetHandleRect();
+
+    return position.x >= handle.position.x &&
+           position.x < handle.position.x + handle.size.x &&
+           position.y >= handle.position.y &&
+           position.y < handle.position.y + handle.size.y;
 }
 
 Rect Splitter::GetHandleRect() const

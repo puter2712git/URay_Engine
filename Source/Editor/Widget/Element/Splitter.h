@@ -40,6 +40,7 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
+    bool IsHandleHit(const Vector2& position) const;
     Rect GetHandleRect() const;
 
 private:

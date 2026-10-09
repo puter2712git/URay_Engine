@@ -45,6 +45,7 @@ void Widget::Paint(Render::UIDrawContext& context)
 
 void Widget::AddChild(std::unique_ptr<Widget> child)
 {
+    child->parent = this;
     children.push_back(std::move(child));
 }
 

@@ -26,6 +26,7 @@ StatusPanel::StatusPanel() : Panel("Status")
     SetBackgroundColor(EditorStyle::Surface);
     SetOutlineWidth(2.0f);
     SetOutlineColor(EditorStyle::Border);
+    SetPadding(Padding(2.0f, 2.0f));
 
     layout = AddChild<VerticalLayout>();
 
@@ -38,11 +39,7 @@ void StatusPanel::Arrange(const Rect& rect)
 {
     Panel::Arrange(rect);
 
-    Rect layoutRect;
-    layoutRect.position = Vector2(rect.position.x, rect.position.y + EditorStyle::PanelHeaderHeight);
-    layoutRect.size = Vector2(rect.size.x, rect.size.y - EditorStyle::PanelHeaderHeight);
-
-    layout->Arrange(layoutRect);
+    layout->Arrange(GetContentRect());
 }
 
 void StatusPanel::OnUpdate(float deltaTime)

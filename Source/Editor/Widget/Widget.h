@@ -31,6 +31,8 @@ public:
     void Draw();
     void Paint(Render::UIDrawContext& context);
 
+    Widget* GetParent() const { return parent; }
+
     void AddChild(std::unique_ptr<Widget> child);
 
     template <typename T, typename... Args>
@@ -51,6 +53,8 @@ public:
 
     const Vector2& GetDesiredSize() const { return desiredSize; }
     void SetDesiredSize(const Vector2& size) { desiredSize = size; }
+
+    virtual Rect GetContentRect() const { return rect; }
 
     bool IsHovered() const { return hovered; }
     bool IsFocused() const { return focused; }
@@ -78,6 +82,7 @@ protected:
     virtual void OnPaintForeground(Render::UIDrawContext& context) {}
 
 protected:
+    Widget* parent = nullptr;
     std::vector<std::unique_ptr<Widget>> children;
 
     Rect rect = {};
