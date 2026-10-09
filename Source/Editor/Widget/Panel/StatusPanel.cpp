@@ -2,6 +2,7 @@
 
 #include <Editor/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/Label.h>
+#include <Editor/Widget/Element/TextBox.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -39,6 +40,10 @@ StatusPanel::StatusPanel() : Panel("Status")
     fpsLabel = layout->AddChild<Label>("FPS:");
     fpsLabel->SetDesiredSize(Vector2(200.0f, 100.0f));
     fpsLabel->SetTextStyle(EditorStyle::SmallText());
+
+    TextBox* textBox = layout->AddChild<TextBox>("Test");
+    textBox->SetDesiredSize(Vector2(200.0f, 30.0f));
+    textBox->SetOutlineWidth(1.0f);
 }
 
 void StatusPanel::Arrange(const Rect& rect)
