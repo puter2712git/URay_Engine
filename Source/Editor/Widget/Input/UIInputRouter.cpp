@@ -87,6 +87,10 @@ void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
 
 void UIInputRouter::DispatchTextInputEvent(const TextInputEvent& event)
 {
+    if (focusedWidget)
+    {
+        ApplyReply(focusedWidget, focusedWidget->OnTextInput(event));
+    }
 }
 
 void UIInputRouter::BubblePointerEvent(Widget* target, const PointerEvent& event, PointerEventHandler handler)

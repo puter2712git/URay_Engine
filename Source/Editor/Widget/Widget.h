@@ -73,6 +73,7 @@ public:
     virtual EventReply OnKeyDown(const KeyEvent& event) { return EventReply{}; }
     virtual EventReply OnKeyUp(const KeyEvent& event) { return EventReply{}; }
     virtual EventReply OnScroll(const ScrollEvent& event) { return EventReply{}; }
+    virtual EventReply OnTextInput(const TextInputEvent& event) { return {}; }
 
 protected:
     void ApplyRect() const;

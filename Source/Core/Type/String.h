@@ -8,6 +8,49 @@
 namespace URay::UTF8
 {
 
+inline std::string Encode(std::u32string_view text)
+{
+    std::string result;
+    result.reserve(text.size());
+
+    for (char32_t codepoint : text)
+    {
+        uint32 value = static_cast<uint32>(codepoint);
+
+        const bool isSurrogate = value >= 0xD800 && value <= 0xDFFF;
+
+        if (value > 0x10FFFF || isSurrogate)
+        {
+            value = 0xFFFD;
+        }
+
+        if (value <= 0x7F)
+        {
+            result.push_back(static_cast<char>(value));
+        }
+        else if (value <= 0x7FF)
+        {
+            result.push_back(static_cast<char>(0xC0 | (value >> 6)));
+            result.push_back(static_cast<char>(0x80 | (value & 0x3F)));
+        }
+        else if (value <= 0xFFFF)
+        {
+            result.push_back(static_cast<char>(0xE0 | (value >> 12)));
+            result.push_back(static_cast<char>(0x80 | ((value >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (value & 0x3F)));
+        }
+        else
+        {
+            result.push_back(static_cast<char>(0xF0 | (value >> 18)));
+            result.push_back(static_cast<char>(0x80 | ((value >> 12) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | ((value >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (value & 0x3F)));
+        }
+    }
+
+    return result;
+}
+
 inline std::u32string Decode(std::string_view text)
 {
     std::u32string result;
