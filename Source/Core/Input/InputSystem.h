@@ -7,7 +7,7 @@
 namespace URay
 {
 
-class InputManager
+class InputSystem
 {
 public:
     void Update();

@@ -12,7 +12,7 @@ class Window;
 class Timer;
 class Scheduler;
 class LogSystem;
-class InputManager;
+class InputSystem;
 class PerformanceAnalytics;
 class StdErrLogSink;
 class FileLogSink;
@@ -46,7 +46,7 @@ public:
     Window& GetWindow() const { return *window; }
     Timer& GetTimer() const { return *timer; }
     Scheduler& GetScheduler() const { return *scheduler; }
-    InputManager& GetInputManager() const { return *inputManager; }
+    InputSystem& GetInputSystem() const { return *inputSystem; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
     AssetSystem& GetAssetSystem() const { return *assetSystem; }
@@ -63,7 +63,7 @@ private:
     std::unique_ptr<Timer> timer = nullptr;
     std::unique_ptr<Scheduler> scheduler = nullptr;
 
-    std::unique_ptr<InputManager> inputManager = nullptr;
+    std::unique_ptr<InputSystem> inputSystem = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
     std::unique_ptr<AssetSystem> assetSystem = nullptr;

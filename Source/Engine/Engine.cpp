@@ -5,7 +5,7 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Script/ScriptSystem.h>
 
-#include <Core/Input/InputManager.h>
+#include <Core/Input/InputSystem.h>
 #include <Core/Log/FileLogSink.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/Log/StdErrLogSink.h>
@@ -65,7 +65,7 @@ bool Engine::Initialize(
     timer = std::make_unique<Timer>();
     scheduler = std::make_unique<Scheduler>();
 
-    inputManager = std::make_unique<InputManager>();
+    inputSystem = std::make_unique<InputSystem>();
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
     sceneSystem = std::make_unique<SceneSystem>();
@@ -150,9 +150,9 @@ void Engine::Finalize()
         performanceAnalytics.reset();
     }
 
-    if (inputManager)
+    if (inputSystem)
     {
-        inputManager.reset();
+        inputSystem.reset();
     }
 
     if (timer)
@@ -189,8 +189,8 @@ void Engine::Update()
 {
     URAY_PROFILE_SCOPE("Engine::Update");
 
-    inputManager->ClearEvents();
-    inputManager->Update();
+    inputSystem->ClearEvents();
+    inputSystem->Update();
 
     glfwPollEvents();
 
@@ -224,7 +224,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     if (keyCode == KeyCode::Unknown || !keyAction)
         return;
 
-    gEngine->GetInputManager().OnKey(
+    gEngine->GetInputSystem().OnKey(
         keyCode,
         *keyAction,
         Platform::ToModifierKey(mods));
@@ -238,7 +238,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     if (mouseButton == MouseButton::None || !mouseAction)
         return;
 
-    gEngine->GetInputManager().OnMouseButton(
+    gEngine->GetInputSystem().OnMouseButton(
         mouseButton,
         *mouseAction,
         Platform::ToModifierKey(mods));
@@ -246,7 +246,7 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
-    gEngine->GetInputManager().OnCursorMoved(Vector2(xpos, ypos));
+    gEngine->GetInputSystem().OnCursorMoved(Vector2(xpos, ypos));
 }
 
 } // namespace URay

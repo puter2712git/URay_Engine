@@ -61,7 +61,7 @@ void WidgetSystem::Finalize()
 
 void WidgetSystem::Update(float deltaTime)
 {
-    inputRouter->Process(*root, gEngine->GetInputManager());
+    inputRouter->Process(*root, gEngine->GetInputSystem());
 
     root->Update(deltaTime);
 }

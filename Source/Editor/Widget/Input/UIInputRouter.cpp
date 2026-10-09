@@ -2,7 +2,7 @@
 
 #include <Editor/Widget/Widget.h>
 
-#include <Core/Input/InputManager.h>
+#include <Core/Input/InputSystem.h>
 
 #include <Platform/Window/Window.h>
 
@@ -14,7 +14,7 @@ UIInputRouter::UIInputRouter(Window& window)
 {
 }
 
-void UIInputRouter::Process(Widget& root, const InputManager& input)
+void UIInputRouter::Process(Widget& root, const InputSystem& input)
 {
     for (const InputEvent& inputEvent : input.GetEvents())
     {

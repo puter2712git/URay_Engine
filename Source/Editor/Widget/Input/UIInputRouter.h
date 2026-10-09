@@ -7,7 +7,7 @@ namespace URay
 {
 
 class Widget;
-class InputManager;
+class InputSystem;
 class Window;
 
 struct EventReply;
@@ -18,7 +18,7 @@ public:
     UIInputRouter(Window& window);
 
 public:
-    void Process(Widget& root, const InputManager& input);
+    void Process(Widget& root, const InputSystem& input);
 
 private:
     void DispatchKeyEvent(const KeyEvent& event);

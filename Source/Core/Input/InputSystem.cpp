@@ -1,11 +1,11 @@
-#include "InputManager.h"
+#include "InputSystem.h"
 
 #include <cstring>
 
 namespace URay
 {
 
-void InputManager::Update()
+void InputSystem::Update()
 {
     std::memcpy(prevKeys, currKeys, sizeof(currKeys));
     prevMouseButtons = currMouseButtons;
@@ -20,12 +20,12 @@ void InputManager::Update()
     scrollY = 0.0;
 }
 
-void InputManager::ClearEvents()
+void InputSystem::ClearEvents()
 {
     events.clear();
 }
 
-void InputManager::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
+void InputSystem::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
 {
     const size_t keyIndex = static_cast<size_t>(key);
     if (keyIndex >= static_cast<size_t>(KeyCode::Count))
@@ -40,7 +40,7 @@ void InputManager::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
     });
 }
 
-void InputManager::OnMouseButton(MouseButton button, KeyAction action, ModifierKey modifiers)
+void InputSystem::OnMouseButton(MouseButton button, KeyAction action, ModifierKey modifiers)
 {
     const MouseButtonMask buttonMask = static_cast<MouseButtonMask>(button);
 
@@ -65,7 +65,7 @@ void InputManager::OnMouseButton(MouseButton button, KeyAction action, ModifierK
     });
 }
 
-void InputManager::OnCursorMoved(Vector2 position)
+void InputSystem::OnCursorMoved(Vector2 position)
 {
     const Vector2 delta = Vector2(position.x - mouseX, position.y - mouseY);
 
@@ -84,7 +84,7 @@ void InputManager::OnCursorMoved(Vector2 position)
     });
 }
 
-bool InputManager::GetKey(KeyCode key) const
+bool InputSystem::GetKey(KeyCode key) const
 {
     const size_t keyIndex = static_cast<size_t>(key);
     if (keyIndex >= static_cast<size_t>(KeyCode::Count))
@@ -93,7 +93,7 @@ bool InputManager::GetKey(KeyCode key) const
     return currKeys[keyIndex];
 }
 
-bool InputManager::GetKeyDown(KeyCode key) const
+bool InputSystem::GetKeyDown(KeyCode key) const
 {
     const size_t keyIndex = static_cast<size_t>(key);
     if (keyIndex >= static_cast<size_t>(KeyCode::Count))
@@ -102,7 +102,7 @@ bool InputManager::GetKeyDown(KeyCode key) const
     return currKeys[keyIndex] && !prevKeys[keyIndex];
 }
 
-bool InputManager::GetKeyUp(KeyCode key) const
+bool InputSystem::GetKeyUp(KeyCode key) const
 {
     const size_t keyIndex = static_cast<size_t>(key);
     if (keyIndex >= static_cast<size_t>(KeyCode::Count))
@@ -111,19 +111,19 @@ bool InputManager::GetKeyUp(KeyCode key) const
     return !currKeys[keyIndex] && prevKeys[keyIndex];
 }
 
-bool InputManager::GetMouse(MouseButton button) const
+bool InputSystem::GetMouse(MouseButton button) const
 {
     const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
     return button != MouseButton::None && (currMouseButtons & mask) != 0;
 }
 
-bool InputManager::GetMouseDown(MouseButton button) const
+bool InputSystem::GetMouseDown(MouseButton button) const
 {
     const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
     return button != MouseButton::None && (currMouseButtons & mask) != 0 && (prevMouseButtons & mask) == 0;
 }
 
-bool InputManager::GetMouseUp(MouseButton button) const
+bool InputSystem::GetMouseUp(MouseButton button) const
 {
     const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
     return button != MouseButton::None && (currMouseButtons & mask) == 0 && (prevMouseButtons & mask) != 0;
