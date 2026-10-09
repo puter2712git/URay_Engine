@@ -18,6 +18,8 @@
 #include <imgui/imgui_impl_vulkan.h>
 #include <vulkan/vulkan.h>
 
+#include <algorithm>
+#include <cmath>
 #include <vector>
 
 namespace URay::Render
@@ -196,7 +198,20 @@ void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector
         if (cmd.scissor.has_value())
         {
             const Rect& rect = *cmd.scissor;
-            commandBuffer.SetScissor(rect.position.x, rect.position.y, rect.size.x, rect.size.y);
+
+            const int maxX = static_cast<int>(context.swapChainExtent.width);
+            const int maxY = static_cast<int>(context.swapChainExtent.height);
+
+            const int left = std::clamp(static_cast<int>(std::floor(rect.position.x)), 0, maxX);
+            const int top = std::clamp(static_cast<int>(std::floor(rect.position.y)), 0, maxY);
+            const int right = std::clamp(static_cast<int>(std::ceil(rect.position.x + rect.size.x)), 0, maxX);
+            const int bottom = std::clamp(static_cast<int>(std::ceil(rect.position.y + rect.size.y)), 0, maxY);
+
+            commandBuffer.SetScissor(
+                left,
+                top,
+                static_cast<uint32>(std::max(0, right - left)),
+                static_cast<uint32>(std::max(0, bottom - top)));
         }
         else
         {
