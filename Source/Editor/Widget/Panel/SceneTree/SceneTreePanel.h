@@ -7,6 +7,7 @@ namespace URay
 
 class SceneSystem;
 class VerticalLayout;
+class Unit;
 
 class SceneTreePanel final : public Panel
 {
@@ -21,6 +22,10 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
+
+private:
+    void UpdateTree();
+    void AddSubtree(Unit& unit, uint32 depth);
 
 private:
     SceneSystem* sceneSystem = nullptr;
