@@ -1,5 +1,7 @@
 #include "InputSystem.h"
 
+#include <Core/Log/LogSystem.h>
+
 #include <cstring>
 
 namespace URay
@@ -82,6 +84,12 @@ void InputSystem::OnCursorMoved(Vector2 position)
         .changedButton = MouseButton::None,
         .pressedButtons = currMouseButtons,
     });
+}
+
+void InputSystem::OnTextInput(char32_t codepoint)
+{
+    events.push_back(TextInputEvent{
+        .codepoint = codepoint });
 }
 
 bool InputSystem::GetKey(KeyCode key) const

@@ -30,6 +30,7 @@ namespace URay
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+void CharacterCallback(GLFWwindow* window, unsigned int codepoint);
 
 Engine* gEngine;
 
@@ -61,6 +62,7 @@ bool Engine::Initialize(
     glfwSetKeyCallback(window->GetGLFWWindow(), KeyCallback);
     glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
     glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
+    glfwSetCharCallback(window->GetGLFWWindow(), CharacterCallback);
 
     timer = std::make_unique<Timer>();
     scheduler = std::make_unique<Scheduler>();
@@ -247,6 +249,14 @@ void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 {
     gEngine->GetInputSystem().OnCursorMoved(Vector2(xpos, ypos));
+}
+
+void CharacterCallback(GLFWwindow* window, unsigned int codepoint)
+{
+    if (codepoint == 0 || codepoint > 0x10FFFF)
+        return;
+
+    gEngine->GetInputSystem().OnTextInput(static_cast<char32_t>(codepoint));
 }
 
 } // namespace URay

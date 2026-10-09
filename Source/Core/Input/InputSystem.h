@@ -16,6 +16,7 @@ public:
     void OnKey(KeyCode key, KeyAction action, ModifierKey modifiers);
     void OnMouseButton(MouseButton button, KeyAction action, ModifierKey modifiers);
     void OnCursorMoved(Vector2 position);
+    void OnTextInput(char32_t codepoint);
 
     bool GetKey(KeyCode key) const;
     bool GetKeyDown(KeyCode key) const;
