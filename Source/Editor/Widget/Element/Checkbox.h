@@ -19,6 +19,7 @@ public:
     EventReply OnPointerUp(const PointerEvent& event) override;
 
     bool IsChecked() const { return checked; }
+    void SetChecked(bool value) { checked = value; }
 
     EventRay<bool>& GetValueChangeRay() { return valueChangeRay; }
 

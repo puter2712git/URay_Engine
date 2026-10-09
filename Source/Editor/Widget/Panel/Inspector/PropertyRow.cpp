@@ -14,7 +14,7 @@ void PropertyRow::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    constexpr float nameWidth = 120.0f;
+    constexpr float nameWidth = 250.0f;
     constexpr float gap = 8.0f;
 
     Rect nameRect;

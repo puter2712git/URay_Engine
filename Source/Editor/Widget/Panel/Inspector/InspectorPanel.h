@@ -2,10 +2,15 @@
 
 #include <Editor/Widget/Panel/Panel.h>
 
+#include <string>
+
 namespace URay
 {
 
 class SelectionSystem;
+class VerticalLayout;
+class Object;
+struct Property;
 
 class InspectorPanel final : public Panel
 {
@@ -16,13 +21,22 @@ public:
     ~InspectorPanel() override;
 
 public:
+    void Arrange(const Rect& rect) override;
+
     EventReply OnPointerDown(const PointerEvent& event) override;
 
 protected:
-    void OnDraw() override;
+    void OnUpdate(float deltaTime) override;
+
+private:
+    void RebuildProperties();
+    void AddBoolProperty(Object& object, const Property& property, const std::string& name);
 
 private:
     SelectionSystem& selectionSystem;
+    VerticalLayout* layout = nullptr;
+
+    bool isDirty = true;
 };
 
 } // namespace URay

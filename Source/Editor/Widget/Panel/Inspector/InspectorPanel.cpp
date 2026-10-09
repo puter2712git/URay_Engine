@@ -1,21 +1,48 @@
 #include "InspectorPanel.h"
 
 #include <Editor/Editor.h>
-#include <Editor/PropertyDrawer.h>
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/Element/Checkbox.h>
+#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 
 #include <Engine/Component/Component.h>
+#include <Engine/Object/Object.h>
+#include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/Unit.h>
-
-#include <imgui/imgui.h>
 
 namespace URay
 {
 
 InspectorPanel::InspectorPanel()
-    : selectionSystem(gEditor->GetSelectionSystem()) {}
+    : Panel("Inspector"),
+      selectionSystem(gEditor->GetSelectionSystem())
+{
+    SetBackgroundColor(EditorStyle::Surface);
+    SetOutlineWidth(2.0f);
+    SetOutlineColor(EditorStyle::Border);
+    SetPadding(Padding(5.0f, 5.0f));
 
-InspectorPanel::~InspectorPanel() = default;
+    layout = AddChild<VerticalLayout>();
+    layout->SetGap(2.0f);
+    layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
+
+    selectionSystem.GetOnSelectionChangedRay().Register(
+        this,
+        [this](Unit*, Unit*)
+        { isDirty = true; });
+}
+
+InspectorPanel::~InspectorPanel()
+{
+    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+}
+
+void InspectorPanel::Arrange(const Rect& rect)
+{
+    Panel::Arrange(rect);
+    layout->Arrange(GetContentRect());
+}
 
 EventReply InspectorPanel::OnPointerDown(const PointerEvent& event)
 {
@@ -24,73 +51,62 @@ EventReply InspectorPanel::OnPointerDown(const PointerEvent& event)
     };
 }
 
-void InspectorPanel::OnDraw()
+void InspectorPanel::OnUpdate(float)
 {
-    ApplyRect();
-    ImGui::Begin("Inspector", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+    if (!isDirty)
+        return;
+
+    isDirty = false;
+    RebuildProperties();
+}
+
+void InspectorPanel::RebuildProperties()
+{
+    layout->ClearChildren();
 
     Unit* selectedUnit = selectionSystem.GetSelectedUnit();
-
     if (!selectedUnit)
-    {
-        ImGui::End();
         return;
-    }
 
-    Class* cls = nullptr;
-    std::vector<Property> properties;
-
-    cls = selectedUnit->GetClass();
-    properties = cls->GetAllProperties();
-
-    for (Property& prop : properties)
+    for (const Property& property : selectedUnit->GetClass()->GetAllProperties())
     {
-        ImGui::PushID(prop.name.c_str());
-
-        PropertyDrawer::Draw(prop, selectedUnit);
-
-        ImGui::PopID();
+        AddBoolProperty(*selectedUnit, property, property.name);
     }
 
     const auto& components = selectedUnit->GetComponents();
     for (const auto& comp : components)
     {
-        cls = comp->GetClass();
-        properties = cls->GetAllProperties();
-
-        ImGui::PushID(comp.get());
-
-        ImGui::Text("%.*s", static_cast<int>(cls->GetType().name.size()), cls->GetType().name.data());
-
-        for (Property& prop : properties)
+        const std::string componentName(comp->GetClass()->GetType().name);
+        for (const Property& property : comp->GetClass()->GetAllProperties())
         {
-            ImGui::PushID(prop.name.c_str());
-
-            PropertyDrawer::Draw(prop, comp.get());
-
-            ImGui::PopID();
+            AddBoolProperty(*comp, property, componentName + "." + property.name);
         }
-
-        ImGui::PopID();
     }
+}
 
-    if (ImGui::BeginPopupContextWindow())
-    {
-        auto& components = ComponentFactory::GetRegisteredComponents();
-        for (auto [name, constructor] : components)
+void InspectorPanel::AddBoolProperty(Object& object, const Property& property, const std::string& name)
+{
+    if (property.type != PropertyType::Bool)
+        return;
+
+    bool* value = reinterpret_cast<bool*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = layout->AddChild<PropertyRow>(name);
+    row->SetDesiredSize(Vector2(0.0f, 18.0f));
+
+    Checkbox* checkbox = row->SetValueWidget<Checkbox>();
+    checkbox->SetChecked(*value);
+
+    checkbox->GetValueChangeRay().Register(
+        this,
+        [&object, property, value](bool checked)
         {
-            std::string menuName = "Add " + name;
-            if (ImGui::MenuItem(menuName.c_str()))
-            {
-                std::unique_ptr<Component> newComp = constructor();
-                selectedUnit->AddComponent(std::move(newComp));
-            }
-        }
+            *value = checked;
+            object.NotifyPropertyChanged(property);
 
-        ImGui::EndPopup();
-    }
-
-    ImGui::End();
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
 }
 
 } // namespace URay
