@@ -3,6 +3,7 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Checkbox.h>
+#include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 
@@ -70,7 +71,7 @@ void InspectorPanel::RebuildProperties()
 
     for (const Property& property : selectedUnit->GetClass()->GetAllProperties())
     {
-        AddBoolProperty(*selectedUnit, property, property.name);
+        AddProperty(*selectedUnit, property, property.name);
     }
 
     const auto& components = selectedUnit->GetComponents();
@@ -79,16 +80,30 @@ void InspectorPanel::RebuildProperties()
         const std::string componentName(comp->GetClass()->GetType().name);
         for (const Property& property : comp->GetClass()->GetAllProperties())
         {
-            AddBoolProperty(*comp, property, componentName + "." + property.name);
+            AddProperty(*comp, property, componentName + "." + property.name);
         }
+    }
+}
+
+void InspectorPanel::AddProperty(Object& object, const Property& property, const std::string& name)
+{
+    switch (property.type)
+    {
+    case PropertyType::Bool:
+        AddBoolProperty(object, property, name);
+        break;
+
+    case PropertyType::String:
+        AddStringProperty(object, property, name);
+        break;
+
+    default:
+        break;
     }
 }
 
 void InspectorPanel::AddBoolProperty(Object& object, const Property& property, const std::string& name)
 {
-    if (property.type != PropertyType::Bool)
-        return;
-
     bool* value = reinterpret_cast<bool*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
     PropertyRow* row = layout->AddChild<PropertyRow>(name);
@@ -102,6 +117,28 @@ void InspectorPanel::AddBoolProperty(Object& object, const Property& property, c
         [&object, property, value](bool checked)
         {
             *value = checked;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddStringProperty(Object& object, const Property& property, const std::string& name)
+{
+    std::string* value = reinterpret_cast<std::string*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = layout->AddChild<PropertyRow>(name);
+    row->SetDesiredSize(Vector2(0.0f, 22.0f));
+
+    StringField* field = row->SetValueWidget<StringField>();
+    field->SetText(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value, field]()
+        {
+            *value = field->GetText();
             object.NotifyPropertyChanged(property);
 
             if (property.OnChangedCallback)
