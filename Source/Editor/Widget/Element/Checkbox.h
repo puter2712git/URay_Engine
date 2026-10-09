@@ -13,6 +13,8 @@ public:
     Checkbox();
 
 public:
+    void Arrange(const Rect& rect) override;
+
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
@@ -24,6 +26,7 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
+    Rect indicatorRect = {};
     bool checked = false;
 
     EventRay<bool> valueChangeRay;

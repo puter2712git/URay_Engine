@@ -1,7 +1,9 @@
 #include "StatusPanel.h"
 
+#include <Editor/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Engine/Asset/AssetDatabase.h>
@@ -29,6 +31,10 @@ StatusPanel::StatusPanel() : Panel("Status")
     SetPadding(Padding(2.0f, 2.0f));
 
     layout = AddChild<VerticalLayout>();
+
+    PropertyRow* row = layout->AddChild<PropertyRow>("Test");
+    row->SetDesiredSize(Vector2(700.0f, 15.0f));
+    row->SetValueWidget<Checkbox>();
 
     fpsLabel = layout->AddChild<Label>("FPS:");
     fpsLabel->SetDesiredSize(Vector2(200.0f, 100.0f));

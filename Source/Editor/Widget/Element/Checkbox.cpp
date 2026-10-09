@@ -12,6 +12,18 @@ Checkbox::Checkbox()
     SetDesiredSize(Vector2(18.0f, 18.0f));
 }
 
+void Checkbox::Arrange(const Rect& rect)
+{
+    Widget::Arrange(rect);
+
+    const float side = std::max(0.0f, std::min(rect.size.x, rect.size.y));
+
+    indicatorRect.position = Vector2(
+        rect.position.x,
+        rect.position.y + (rect.size.y - side) * 0.5f);
+    indicatorRect.size = Vector2(side, side);
+}
+
 EventReply Checkbox::OnPointerDown(const PointerEvent& event)
 {
     if (event.changedButton != MouseButton::Left)
@@ -50,8 +62,8 @@ void Checkbox::OnPaint(Render::UIDrawContext& context)
     else if (IsHovered())
         background = EditorStyle::ControlHovered;
 
-    context.AddFilledRect(rect, background);
-    context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
+    context.AddFilledRect(indicatorRect, background);
+    context.AddOutlineRect(indicatorRect, 1.0f, EditorStyle::Border);
 
     if (!checked)
         return;
@@ -59,10 +71,10 @@ void Checkbox::OnPaint(Render::UIDrawContext& context)
     constexpr float inset = 4.0f;
 
     Rect markRect = {};
-    markRect.position = rect.position + Vector2(inset, inset);
+    markRect.position = indicatorRect.position + Vector2(inset, inset);
     markRect.size = Vector2(
-        std::max(0.0f, rect.size.x - inset * 2.0f),
-        std::max(0.0f, rect.size.y - inset * 2.0f));
+        std::max(0.0f, indicatorRect.size.x - inset * 2.0f),
+        std::max(0.0f, indicatorRect.size.y - inset * 2.0f));
 
     context.AddFilledRect(markRect, EditorStyle::TextPrimary);
 }
