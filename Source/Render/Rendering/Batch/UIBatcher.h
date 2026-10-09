@@ -2,9 +2,11 @@
 
 #include <Render/RHI/Vertex/Vertex.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
+#include <Render/Rendering/RenderInfo.h>
 
 #include <vulkan/vulkan.h>
 
+#include <array>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -64,11 +66,11 @@ private:
     Device& device;
     ResourceManager& resourceManager;
 
-    std::unique_ptr<Buffer> vertexBuffer = nullptr;
-    std::unique_ptr<Buffer> indexBuffer = nullptr;
+    std::array<std::unique_ptr<Buffer>, MAX_FRAMES_IN_FLIGHT> vertexBuffers;
+    std::array<std::unique_ptr<Buffer>, MAX_FRAMES_IN_FLIGHT> indexBuffers;
 
-    void* mappedVertexData = nullptr;
-    void* mappedIndexData = nullptr;
+    std::array<void*, MAX_FRAMES_IN_FLIGHT> mappedVertexData = {};
+    std::array<void*, MAX_FRAMES_IN_FLIGHT> mappedIndexData = {};
 
     Shader* shader = nullptr;
 

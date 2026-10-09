@@ -42,16 +42,21 @@ bool UIBatcher::Initialize()
         .size = 1024 * 1024 * 4,
         .memoryUsage = MemoryUsage::CpuToGpu
     };
-    vertexBuffer.reset(device.CreateVertexBuffer(vbDesc));
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        vertexBuffers[i].reset(device.CreateVertexBuffer(vbDesc));
+        mappedVertexData[i] = vertexBuffers[i]->Map();
+    }
 
     const IndexBufferDesc ibDesc = {
         .size = 1024 * 1024 * 4,
         .memoryUsage = MemoryUsage::CpuToGpu
     };
-    indexBuffer.reset(device.CreateIndexBuffer(ibDesc));
-
-    mappedVertexData = vertexBuffer->Map();
-    mappedIndexData = indexBuffer->Map();
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        indexBuffers[i].reset(device.CreateIndexBuffer(ibDesc));
+        mappedIndexData[i] = indexBuffers[i]->Map();
+    }
 
     renderer.GetViewportRenderTargetsRecreatedRay().Register(this, [this]()
                                                              { descriptorSets.clear(); });
@@ -72,11 +77,14 @@ void UIBatcher::Finalize()
     sampler = nullptr;
     shader = nullptr;
 
-    indexBuffer->Unmap();
-    vertexBuffer->Unmap();
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
+    {
+        indexBuffers[i]->Unmap();
+        vertexBuffers[i]->Unmap();
 
-    indexBuffer.reset();
-    vertexBuffer.reset();
+        indexBuffers[i].reset();
+        vertexBuffers[i].reset();
+    }
 }
 
 std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
@@ -92,20 +100,24 @@ std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
 
     std::vector<DrawCommand> ret;
 
+    const size_t frameIndex = static_cast<size_t>(currentFrame);
+    Buffer* vertexBuffer = vertexBuffers[frameIndex].get();
+    Buffer* indexBuffer = indexBuffers[frameIndex].get();
+
     VkDeviceSize vertexSize = sizeof(VertexUI) * vertices.size();
-    std::memcpy(mappedVertexData, vertices.data(), vertexSize);
+    std::memcpy(mappedVertexData[frameIndex], vertices.data(), vertexSize);
 
     VkDeviceSize indexSize = sizeof(uint32) * indices.size();
-    std::memcpy(mappedIndexData, indices.data(), indexSize);
+    std::memcpy(mappedIndexData[frameIndex], indices.data(), indexSize);
 
     for (const UIDrawBatch& batch : batches)
     {
         DrawCommand cmd = {};
         cmd.passId = RenderPassId::UI;
         cmd.worldMatrix = Matrix::Identity;
-        cmd.vertexBuffer = vertexBuffer.get();
+        cmd.vertexBuffer = vertexBuffer;
         cmd.vertexCount = static_cast<uint32>(vertices.size());
-        cmd.indexBuffer = indexBuffer.get();
+        cmd.indexBuffer = indexBuffer;
         cmd.indexOffset = batch.indexOffset;
         cmd.indexCount = batch.indexCount;
 
