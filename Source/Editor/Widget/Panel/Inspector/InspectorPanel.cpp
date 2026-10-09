@@ -1,4 +1,4 @@
-#include <Editor/Widget/Panel/InspectorPanel.h>
+#include "InspectorPanel.h"
 
 #include <Editor/Editor.h>
 #include <Editor/PropertyDrawer.h>
@@ -12,7 +12,8 @@
 namespace URay
 {
 
-InspectorPanel::InspectorPanel() : selectionSystem(gEditor->GetSelectionSystem()) {}
+InspectorPanel::InspectorPanel()
+    : selectionSystem(gEditor->GetSelectionSystem()) {}
 
 InspectorPanel::~InspectorPanel() = default;
 

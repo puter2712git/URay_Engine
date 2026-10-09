@@ -4,7 +4,7 @@
 #include <Editor/Widget/Input/UIInputRouter.h>
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
 #include <Editor/Widget/Panel/Filesystem/FileSystemPanel.h>
-#include <Editor/Widget/Panel/InspectorPanel.h>
+#include <Editor/Widget/Panel/Inspector/InspectorPanel.h>
 #include <Editor/Widget/Panel/SceneTree/SceneTreePanel.h>
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
