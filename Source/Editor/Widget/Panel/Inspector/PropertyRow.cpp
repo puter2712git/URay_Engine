@@ -37,4 +37,19 @@ void PropertyRow::Arrange(const Rect& rect)
     }
 }
 
+Vector2 PropertyRow::OnMeasure()
+{
+    constexpr float nameWidth = 250.0f;
+    constexpr float gap = 8.0f;
+
+    const Vector2 nameSize = nameLabel->GetDesiredSize();
+    const Vector2 valueSize = valueWidget
+                                  ? valueWidget->GetDesiredSize()
+                                  : Vector2::Zero;
+
+    return Vector2(
+        nameWidth + gap + valueSize.x,
+        std::max(nameSize.y, valueSize.y));
+}
+
 } // namespace URay

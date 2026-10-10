@@ -27,6 +27,9 @@ public:
         return widget;
     }
 
+protected:
+    Vector2 OnMeasure() override;
+
 private:
     Label* nameLabel = nullptr;
     Widget* valueWidget = nullptr;
