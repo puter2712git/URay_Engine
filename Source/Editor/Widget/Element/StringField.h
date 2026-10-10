@@ -13,7 +13,7 @@ public:
     EventRay<>& GetValueChangedRay() { return valueChangedRay; }
 
 protected:
-    void OnTextCommitted(const std::string& prevText, const std::string& committedText) override;
+    void OnTextChanged(const std::string& prevText, const std::string& currText) override;
 
 private:
     EventRay<> valueChangedRay;

@@ -176,12 +176,26 @@ void TextBox::CancelEdit()
         return;
 
     isEditing = false;
+
+    const std::string prevText = GetText();
+
+    if (prevText == originalText)
+        return;
+
     SetText(originalText);
+    OnTextChanged(prevText, originalText);
 }
 
 void TextBox::RefreshText()
 {
-    SetText(UTF8::Encode(editingText));
+    const std::string prevText = GetText();
+    const std::string currText = UTF8::Encode(editingText);
+
+    if (prevText == currText)
+        return;
+
+    SetText(currText);
+    OnTextChanged(prevText, currText);
 }
 
 } // namespace URay

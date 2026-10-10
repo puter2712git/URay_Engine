@@ -16,7 +16,7 @@ public:
 
 protected:
     bool TryCommitText(const std::string& editingText, std::string& committedText) override;
-    void OnTextCommitted(const std::string& prevText, const std::string& committedText) override;
+    void OnTextChanged(const std::string& prevText, const std::string& currText) override;
 
 private:
     bool TryParse(const std::string& text, float& outValue);

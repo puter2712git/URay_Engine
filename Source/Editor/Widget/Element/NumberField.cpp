@@ -24,12 +24,12 @@ bool NumberField::TryCommitText(
     return true;
 }
 
-void NumberField::OnTextCommitted(
+void NumberField::OnTextChanged(
     const std::string& prevText,
-    const std::string& committedText)
+    const std::string& currText)
 {
     float value = 0.0f;
-    if (!TryParse(committedText, value))
+    if (!TryParse(currText, value))
         return;
 
     valueChangedRay.Emit(value);

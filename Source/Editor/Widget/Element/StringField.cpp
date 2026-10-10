@@ -5,9 +5,9 @@
 namespace URay
 {
 
-void StringField::OnTextCommitted(
+void StringField::OnTextChanged(
     const std::string& prevText,
-    const std::string& committedText)
+    const std::string& currText)
 {
     valueChangedRay.Emit();
 }

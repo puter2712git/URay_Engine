@@ -44,6 +44,7 @@ protected:
         committedText = editingText;
         return true;
     }
+    virtual void OnTextChanged(const std::string& prevText, const std::string& currText) {}
     virtual void OnTextCommitted(const std::string& prevText, const std::string& committedText) {}
 
 private:
