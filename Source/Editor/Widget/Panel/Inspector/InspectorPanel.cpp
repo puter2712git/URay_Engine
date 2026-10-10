@@ -3,6 +3,7 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Checkbox.h>
+#include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
@@ -93,6 +94,10 @@ void InspectorPanel::AddProperty(Object& object, const Property& property, const
         AddBoolProperty(object, property, name);
         break;
 
+    case PropertyType::Float:
+        AddFloatProperty(object, property, name);
+        break;
+
     case PropertyType::String:
         AddStringProperty(object, property, name);
         break;
@@ -116,6 +121,27 @@ void InspectorPanel::AddBoolProperty(Object& object, const Property& property, c
         [&object, property, value](bool checked)
         {
             *value = checked;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddFloatProperty(Object& object, const Property& property, const std::string& name)
+{
+    float* value = reinterpret_cast<float*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = layout->AddChild<PropertyRow>(name);
+
+    NumberField* field = row->SetValueWidget<NumberField>();
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value, field](float newValue)
+        {
+            *value = newValue;
             object.NotifyPropertyChanged(property);
 
             if (property.OnChangedCallback)

@@ -17,6 +17,8 @@ public:
 
 public:
     EventReply OnPointerDown(const PointerEvent& event) override;
+    EventReply OnTextInput(const TextInputEvent& event) override;
+    EventReply OnKeyDown(const KeyEvent& event) override;
 
     Rect GetContentRect() const override;
 
@@ -26,13 +28,38 @@ public:
     void SetOutlineColor(const Color& color) { outlineColor = color; }
     void SetOutlineWidth(float width) { outlineWidth = width; }
 
+    bool IsEditing() const { return isEditing; }
+
+    bool IsReadonly() const { return isReadonly; }
+    void SetReadonly(bool value) { isReadonly = value; }
+
 protected:
     Vector2 OnMeasure() override;
 
     void OnPaint(Render::UIDrawContext& context) override;
+    void OnPaintForeground(Render::UIDrawContext& context) override;
+
+    virtual bool TryCommitText(const std::string& editingText, std::string& committedText)
+    {
+        committedText = editingText;
+        return true;
+    }
+    virtual void OnTextCommitted(const std::string& prevText, const std::string& committedText) {}
+
+private:
+    void BeginEdit();
+    void CommitEdit();
+    void CancelEdit();
+
+    void RefreshText();
 
 private:
     std::string text;
+
+    std::u32string editingText;
+    std::string originalText;
+    bool isEditing = false;
+    bool isReadonly = false;
 
     Padding padding = Padding(6.0f, 4.0f);
     Render::TextStyle textStyle = EditorStyle::SmallText();

@@ -34,6 +34,7 @@ private:
     void AddProperty(Object& object, const Property& property, const std::string& name);
 
     void AddBoolProperty(Object& object, const Property& property, const std::string& name);
+    void AddFloatProperty(Object& object, const Property& property, const std::string& name);
     void AddStringProperty(Object& object, const Property& property, const std::string& name);
 
 private:
