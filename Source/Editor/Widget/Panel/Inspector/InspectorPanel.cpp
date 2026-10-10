@@ -3,6 +3,7 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Checkbox.h>
+#include <Editor/Widget/Element/Float3Field.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
@@ -12,6 +13,8 @@
 #include <Engine/Object/Object.h>
 #include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/Unit.h>
+
+#include <Core/Math/Vector3.h>
 
 namespace URay
 {
@@ -98,6 +101,10 @@ void InspectorPanel::AddProperty(Object& object, const Property& property, const
         AddFloatProperty(object, property, name);
         break;
 
+    case PropertyType::Vector3:
+        AddVector3Property(object, property, name);
+        break;
+
     case PropertyType::String:
         AddStringProperty(object, property, name);
         break;
@@ -140,6 +147,27 @@ void InspectorPanel::AddFloatProperty(Object& object, const Property& property, 
     field->GetValueChangedRay().Register(
         this,
         [&object, property, value, field](float newValue)
+        {
+            *value = newValue;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddVector3Property(Object& object, const Property& property, const std::string& name)
+{
+    Vector3* value = reinterpret_cast<Vector3*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = layout->AddChild<PropertyRow>(name);
+
+    Float3Field* field = row->SetValueWidget<Float3Field>();
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](const Vector3& newValue)
         {
             *value = newValue;
             object.NotifyPropertyChanged(property);
