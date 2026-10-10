@@ -29,12 +29,18 @@ public:
     float GetGap() const { return gap; }
     void SetGap(float gap) { this->gap = gap; }
 
+protected:
+    Vector2 OnMeasure() override;
+
 private:
     float CalculateStartOffsetX(const Rect& contentRect) const;
     float CalculateTotalWidth() const;
 
     float CalculateChildY(float childHeight, const Rect& contentRect) const;
-    float CalculateChildHeight(float desiredHeight, const Rect& contentRect) const;
+    float CalculateChildHeight(const Widget& child, const Rect& contentRect) const;
+
+    float GetChildLayoutWidth(const Widget& child) const;
+    float GetChildLayoutHeight(const Widget& child) const;
 
 private:
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment::Start;

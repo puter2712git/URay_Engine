@@ -49,6 +49,16 @@ void Widget::AddChild(std::unique_ptr<Widget> child)
     children.push_back(std::move(child));
 }
 
+void Widget::Measure()
+{
+    for (const auto& child : children)
+    {
+        child->Measure();
+    }
+
+    desiredSize = OnMeasure();
+}
+
 bool Widget::HitTest(const Vector2& position) const
 {
     return position.x >= rect.position.x && position.x < rect.position.x + rect.size.x &&

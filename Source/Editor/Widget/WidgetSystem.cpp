@@ -77,6 +77,7 @@ void WidgetSystem::PrepareRender()
         static_cast<float>(clientSize.width),
         static_cast<float>(clientSize.height));
 
+    root->Measure();
     root->Arrange(finalRect);
 }
 

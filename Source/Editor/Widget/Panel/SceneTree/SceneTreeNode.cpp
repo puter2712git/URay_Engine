@@ -16,7 +16,7 @@ SceneTreeNode::SceneTreeNode(Unit& unit, uint32 depth)
 {
     selectionSystem = &gEditor->GetSelectionSystem();
 
-    SetPreferredSize(Vector2(700.0f, 20.0f));
+    SetPreferredHeight(20.0f);
 
     surface = AddChild<Surface>();
     surface->SetBackgroundColor(Color::Black);
@@ -27,7 +27,6 @@ SceneTreeNode::SceneTreeNode(Unit& unit, uint32 depth)
 
     label = layout->AddChild<Label>(unit.GetName());
     label->SetTextStyle(EditorStyle::SmallText());
-    label->SetPreferredSize(Vector2(100.0f, 20.0f));
 }
 
 void SceneTreeNode::Arrange(const Rect& rect)

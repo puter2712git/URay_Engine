@@ -51,7 +51,7 @@ public:
 
     void ClearChildren() { children.clear(); }
 
-    void Measure() { desiredSize = OnMeasure(); }
+    void Measure();
 
     virtual void Arrange(const Rect& rect) { this->rect = rect; }
 

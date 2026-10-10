@@ -16,7 +16,6 @@ PanelHeader::PanelHeader(const std::string& name)
     layout->SetPadding(Padding(5.0f, 0.0f));
 
     Label* label = layout->AddChild<Label>(name);
-    label->SetPreferredSize(Vector2(100.0f, 12.0f));
 }
 
 void PanelHeader::Arrange(const Rect& rect)

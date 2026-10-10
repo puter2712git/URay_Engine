@@ -1,5 +1,7 @@
 #include "HorizontalLayout.h"
 
+#include <algorithm>
+
 namespace URay
 {
 
@@ -18,17 +20,37 @@ void HorizontalLayout::Arrange(const Rect& rect)
 
     for (const auto& child : children)
     {
-        const Vector2& childDesiredSize = child->GetDesiredSize();
-        float childHeight = CalculateChildHeight(childDesiredSize.y, contentRect);
+        const float childWidth = GetChildLayoutWidth(*child);
+        const float childHeight = CalculateChildHeight(*child, contentRect);
 
         Rect childRect;
         childRect.position = Vector2(offsetX, CalculateChildY(childHeight, contentRect));
-        childRect.size = Vector2(childDesiredSize.x, childHeight);
+        childRect.size = Vector2(childWidth, childHeight);
 
         child->Arrange(childRect);
 
-        offsetX += childDesiredSize.x + gap;
+        offsetX += childWidth + gap;
     }
+}
+
+Vector2 HorizontalLayout::OnMeasure()
+{
+    float width = padding.left + padding.right;
+    float height = 0.0f;
+
+    for (size_t index = 0; index < children.size(); ++index)
+    {
+        Widget& child = *children[index];
+
+        width += GetChildLayoutWidth(child);
+        height = std::max(height, GetChildLayoutHeight(child));
+
+        if (index + 1 < children.size())
+            width += gap;
+    }
+
+    height += padding.top + padding.bottom;
+    return Vector2(width, height);
 }
 
 float HorizontalLayout::CalculateStartOffsetX(const Rect& contentRect) const
@@ -61,7 +83,7 @@ float HorizontalLayout::CalculateTotalWidth() const
 
     for (const auto& child : children)
     {
-        totalWidth += child->GetDesiredSize().x;
+        totalWidth += GetChildLayoutWidth(*child);
     }
 
     int32 childCount = static_cast<int32>(children.size());
@@ -93,21 +115,31 @@ float HorizontalLayout::CalculateChildY(float childHeight, const Rect& contentRe
     }
 }
 
-float HorizontalLayout::CalculateChildHeight(float desiredHeight, const Rect& contentRect) const
+float HorizontalLayout::CalculateChildHeight(const Widget& child, const Rect& contentRect) const
 {
     switch (crossAxisAlignment)
     {
     case CrossAxisAlignment::Start:
     case CrossAxisAlignment::Center:
     case CrossAxisAlignment::End:
-        return desiredHeight;
+        return GetChildLayoutHeight(child);
 
     case CrossAxisAlignment::Stretch:
         return contentRect.size.y;
 
     default:
-        return desiredHeight;
+        return GetChildLayoutHeight(child);
     }
+}
+
+float HorizontalLayout::GetChildLayoutWidth(const Widget& child) const
+{
+    return std::max(0.0f, child.GetPreferredWidth().value_or(child.GetDesiredSize().x));
+}
+
+float HorizontalLayout::GetChildLayoutHeight(const Widget& child) const
+{
+    return std::max(0.0f, child.GetPreferredHeight().value_or(child.GetDesiredSize().y));
 }
 
 } // namespace URay

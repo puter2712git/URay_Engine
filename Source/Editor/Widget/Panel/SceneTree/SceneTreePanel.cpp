@@ -20,11 +20,14 @@ SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
     SetPadding(Padding(5.0f, 5.0f));
 
     layout = AddChild<VerticalLayout>();
+    layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
     sceneSystem->GetUnitAddRay().Register(this, [this](Scene*, Unit*)
                                           { isTreeDirty = true; });
     sceneSystem->GetUnitRemoveRay().Register(this, [this](Scene*, Unit*)
                                              { isTreeDirty = true; });
+
+    UpdateTree();
 }
 
 SceneTreePanel::~SceneTreePanel()

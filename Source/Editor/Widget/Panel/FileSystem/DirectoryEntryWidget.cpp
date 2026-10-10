@@ -16,7 +16,6 @@ DirectoryEntryWidget::DirectoryEntryWidget(const VirtualPath& path) : path(path)
     SetPreferredSize(Vector2(100.0f, 200.0f));
 
     Label* label = AddChild<Label>(path.GetStem());
-    label->SetPreferredSize(Vector2(100.0f, 200.0f));
     label->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 12,
