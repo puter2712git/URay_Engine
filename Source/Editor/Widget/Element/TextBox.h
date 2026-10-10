@@ -27,6 +27,8 @@ public:
     void SetOutlineWidth(float width) { outlineWidth = width; }
 
 protected:
+    Vector2 OnMeasure() override;
+
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:

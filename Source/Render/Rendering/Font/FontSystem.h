@@ -32,6 +32,8 @@ public:
     FontAtlas* GetOrCreateAtlas(AssetHandle fontHandle, uint32 pixelHeight);
     const Glyph* GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint);
 
+    Vector2 MeasureText(const std::string& text, AssetHandle fontHandle, uint32 pixelHeight);
+
 private:
     Device& device;
 

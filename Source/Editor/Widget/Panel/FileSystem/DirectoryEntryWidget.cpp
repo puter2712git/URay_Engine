@@ -13,10 +13,10 @@ namespace URay
 
 DirectoryEntryWidget::DirectoryEntryWidget(const VirtualPath& path) : path(path)
 {
-    SetDesiredSize(Vector2(100.0f, 200.0f));
+    SetPreferredSize(Vector2(100.0f, 200.0f));
 
     Label* label = AddChild<Label>(path.GetStem());
-    label->SetDesiredSize(Vector2(100.0f, 200.0f));
+    label->SetPreferredSize(Vector2(100.0f, 200.0f));
     label->SetTextStyle({
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 12,

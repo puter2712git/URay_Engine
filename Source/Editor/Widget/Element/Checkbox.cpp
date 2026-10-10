@@ -7,11 +7,6 @@
 namespace URay
 {
 
-Checkbox::Checkbox()
-{
-    SetDesiredSize(Vector2(18.0f, 18.0f));
-}
-
 void Checkbox::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);

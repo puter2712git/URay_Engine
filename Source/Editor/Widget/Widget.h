@@ -7,6 +7,7 @@
 #include <Core/Type/RuntimeType.h>
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace URay::Render
@@ -50,12 +51,23 @@ public:
 
     void ClearChildren() { children.clear(); }
 
+    void Measure() { desiredSize = OnMeasure(); }
+
     virtual void Arrange(const Rect& rect) { this->rect = rect; }
-    const Rect& GetRect() const { return rect; }
 
     const Vector2& GetDesiredSize() const { return desiredSize; }
-    void SetDesiredSize(const Vector2& size) { desiredSize = size; }
 
+    const std::optional<float>& GetPreferredWidth() const { return preferredWidth; }
+    const std::optional<float>& GetPreferredHeight() const { return preferredHeight; }
+    void SetPreferredWidth(float width) { preferredWidth = width; }
+    void SetPreferredHeight(float height) { preferredHeight = height; }
+    void SetPreferredSize(const Vector2& size)
+    {
+        preferredWidth = size.x;
+        preferredHeight = size.y;
+    }
+
+    const Rect& GetRect() const { return rect; }
     virtual Rect GetContentRect() const { return rect; }
 
     bool IsHovered() const { return hovered; }
@@ -78,6 +90,8 @@ public:
 protected:
     void ApplyRect() const;
 
+    virtual Vector2 OnMeasure() { return Vector2::Zero; }
+
     virtual void OnUpdate(float) {}
     virtual void OnDraw() {}
 
@@ -90,6 +104,8 @@ protected:
 
     Rect rect = {};
     Vector2 desiredSize = Vector2::Zero;
+    std::optional<float> preferredWidth = std::nullopt;
+    std::optional<float> preferredHeight = std::nullopt;
 
     bool hovered = false;
     bool focused = false;

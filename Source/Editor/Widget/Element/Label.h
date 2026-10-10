@@ -27,6 +27,7 @@ public:
     void SetTextStyle(const Render::TextStyle& style) { this->style = style; }
 
 protected:
+    Vector2 OnMeasure() override;
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:

@@ -34,19 +34,19 @@ StatusPanel::StatusPanel() : Panel("Status")
     layout = AddChild<VerticalLayout>();
 
     PropertyRow* row = layout->AddChild<PropertyRow>("Test");
-    row->SetDesiredSize(Vector2(700.0f, 15.0f));
+    row->SetPreferredSize(Vector2(700.0f, 15.0f));
     row->SetValueWidget<Checkbox>();
 
     fpsLabel = layout->AddChild<Label>("FPS:");
-    fpsLabel->SetDesiredSize(Vector2(200.0f, 100.0f));
+    fpsLabel->SetPreferredSize(Vector2(200.0f, 100.0f));
     fpsLabel->SetTextStyle(EditorStyle::SmallText());
 
     TextBox* textBox = layout->AddChild<TextBox>("Test");
-    textBox->SetDesiredSize(Vector2(200.0f, 30.0f));
+    textBox->SetPreferredSize(Vector2(200.0f, 30.0f));
     textBox->SetOutlineWidth(1.0f);
 
     StringField* stringField = layout->AddChild<StringField>();
-    stringField->SetDesiredSize(Vector2(200.0f, 30.0f));
+    stringField->SetPreferredSize(Vector2(200.0f, 30.0f));
 }
 
 void StatusPanel::Arrange(const Rect& rect)

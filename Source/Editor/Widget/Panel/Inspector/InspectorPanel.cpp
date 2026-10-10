@@ -107,7 +107,7 @@ void InspectorPanel::AddBoolProperty(Object& object, const Property& property, c
     bool* value = reinterpret_cast<bool*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
     PropertyRow* row = layout->AddChild<PropertyRow>(name);
-    row->SetDesiredSize(Vector2(0.0f, 18.0f));
+    row->SetPreferredSize(Vector2(0.0f, 18.0f));
 
     Checkbox* checkbox = row->SetValueWidget<Checkbox>();
     checkbox->SetChecked(*value);
@@ -129,7 +129,7 @@ void InspectorPanel::AddStringProperty(Object& object, const Property& property,
     std::string* value = reinterpret_cast<std::string*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
     PropertyRow* row = layout->AddChild<PropertyRow>(name);
-    row->SetDesiredSize(Vector2(0.0f, 22.0f));
+    row->SetPreferredSize(Vector2(0.0f, 22.0f));
 
     StringField* field = row->SetValueWidget<StringField>();
     field->SetText(*value);

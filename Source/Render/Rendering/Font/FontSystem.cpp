@@ -9,6 +9,8 @@
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/RHI/Texture/TextureView.h>
 
+#include <Core/Type/String.h>
+
 #include <algorithm>
 #include <cstring>
 
@@ -280,6 +282,29 @@ const Glyph* FontSystem::GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint)
 
     ret = &it->second;
     return ret;
+}
+
+Vector2 FontSystem::MeasureText(
+    const std::string& text,
+    AssetHandle fontHandle,
+    uint32 pixelHeight)
+{
+    FontAtlas* atlas = GetOrCreateAtlas(fontHandle, pixelHeight);
+    if (!atlas)
+        return Vector2::Zero;
+
+    float width = 0.0f;
+
+    for (char32_t codepoint : UTF8::Decode(text))
+    {
+        const Glyph* glyph = GetOrCreateGlyph(atlas, codepoint);
+        if (!glyph)
+            continue;
+
+        width += glyph->advance;
+    }
+
+    return Vector2(width, static_cast<float>(atlas->GetPixelHeight()));
 }
 
 } // namespace URay::Render

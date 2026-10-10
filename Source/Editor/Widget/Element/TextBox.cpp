@@ -1,5 +1,11 @@
 #include "TextBox.h"
 
+#include <Engine/Engine.h>
+
+#include <Render/RenderSystem.h>
+#include <Render/Rendering/Font/FontSystem.h>
+#include <Render/ResourceManager.h>
+
 namespace URay
 {
 
@@ -27,6 +33,18 @@ Rect TextBox::GetContentRect() const
         rect.size.y - padding.top - padding.bottom - outlineWidth * 2.0f);
 
     return contentRect;
+}
+
+Vector2 TextBox::OnMeasure()
+{
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
+
+    Vector2 textSize = fontSystem.MeasureText(text, textStyle.fontHandle, textStyle.pixelHeight);
+    textSize.x += padding.left + padding.right + outlineWidth * 2.0f;
+    textSize.y += padding.top + padding.bottom + outlineWidth * 2.0f;
+
+    return textSize;
 }
 
 void TextBox::OnPaint(Render::UIDrawContext& context)

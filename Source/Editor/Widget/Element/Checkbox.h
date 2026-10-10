@@ -10,9 +10,6 @@ namespace URay
 class Checkbox : public Widget
 {
 public:
-    Checkbox();
-
-public:
     void Arrange(const Rect& rect) override;
 
     EventReply OnPointerDown(const PointerEvent& event) override;
@@ -24,6 +21,8 @@ public:
     EventRay<bool>& GetValueChangeRay() { return valueChangeRay; }
 
 protected:
+    Vector2 OnMeasure() override { return Vector2(18.0f, 18.0f); }
+
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
