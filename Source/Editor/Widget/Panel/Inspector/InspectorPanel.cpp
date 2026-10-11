@@ -3,6 +3,7 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/AssetField.h>
+#include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float2Field.h>
@@ -12,17 +13,22 @@
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
+#include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Panel/ScrollView.h>
+#include <Editor/Widget/Popup/ComponentPickerPopup.h>
+#include <Editor/Widget/WidgetSystem.h>
 
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Component/Component.h>
+#include <Engine/Engine.h>
 #include <Engine/Object/Object.h>
 #include <Engine/Object/Property/Property.h>
+#include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 
 #include <Core/Math/Color.h>
@@ -52,10 +58,24 @@ InspectorPanel::InspectorPanel()
         this,
         [this](Unit*, Unit*)
         { isDirty = true; });
+
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    sceneSystem.GetComponentAddRay().Register(
+        this,
+        [this](Scene*, Unit* unit, Component*)
+        {
+            if (unit == selectionSystem.GetSelectedUnit())
+            {
+                isDirty = true;
+            }
+        });
 }
 
 InspectorPanel::~InspectorPanel()
 {
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    sceneSystem.GetComponentAddRay().UnregisterAll(this);
+
     selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
 }
 
@@ -110,6 +130,39 @@ void InspectorPanel::RebuildProperties()
             AddProperty(*section->GetContent(), *comp, property, property.name);
         }
     }
+
+    layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
+
+    Button* addComponentButton = layout->AddChild<Button>("Add Component");
+    addComponentButton->SetPreferredHeight(26.0f);
+    addComponentButton->GetOnClickRay().Register(
+        this,
+        [this, addComponentButton]
+        {
+            Unit* selectedUnit = selectionSystem.GetSelectedUnit();
+            if (!selectedUnit)
+                return;
+
+            PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+
+            ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *selectedUnit);
+            popup->GetComponentSelectedRay().Register(
+                popup,
+                [this, &popupLayer](const std::string& typeName)
+                {
+                    Unit* targetUnit = selectionSystem.GetSelectedUnit();
+
+                    if (targetUnit)
+                    {
+                        if (auto component = ComponentFactory::Create(typeName))
+                        {
+                            targetUnit->AddComponent(std::move(component));
+                        }
+                    }
+
+                    popupLayer.ClosePopup();
+                });
+        });
 }
 
 void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
