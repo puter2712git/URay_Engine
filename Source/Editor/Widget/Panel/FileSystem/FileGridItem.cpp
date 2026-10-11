@@ -1,12 +1,42 @@
 #include "FileGridItem.h"
 
-#include <Core/Math/Color.h>
+#include <Editor/Widget/Element/Label.h>
+#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
+
+#include <utility>
 
 namespace URay
 {
 
-FileGridItem::FileGridItem(VirtualFileEntry entry) : entry(std::move(entry)) {}
+FileGridItem::FileGridItem(VirtualFileEntry entry) : entry(std::move(entry))
+{
+    surface = AddChild<Surface>();
+    surface->SetOutlineWidth(1.0f);
+    surface->SetOutlineColor(EditorStyle::Border);
+
+    layout = surface->AddChild<VerticalLayout>();
+    layout->SetPadding(Padding(8.0f, 0.0f, 0.0f, 0.0f));
+    layout->SetGap(10.0f);
+    layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
+
+    thumbnailSurface = layout->AddChild<Surface>();
+    thumbnailSurface->SetPreferredSize(Vector2(64.0f, 64.0f));
+    thumbnailSurface->SetBackgroundColor(
+        this->entry.isDirectory
+            ? Color::FromRGB(0xC0, 0x90, 0x30)
+            : EditorStyle::Separator);
+
+    nameLabel = layout->AddChild<Label>(this->entry.path.GetFilename());
+    nameLabel->SetTextStyle(EditorStyle::SmallText());
+}
+
+void FileGridItem::Arrange(const Rect& rect)
+{
+    Widget::Arrange(rect);
+    surface->Arrange(rect);
+}
 
 EventReply FileGridItem::OnPointerDown(const PointerEvent& event)
 {
@@ -39,29 +69,13 @@ Vector2 FileGridItem::OnMeasure()
     return Vector2(96.0f, 112.0f);
 }
 
-void FileGridItem::OnPaint(Render::UIDrawContext& context)
+void FileGridItem::OnUpdate(float)
 {
     const Color background = IsHovered()
                                  ? EditorStyle::ControlHovered
                                  : EditorStyle::ControlNormal;
 
-    context.AddFilledRect(rect, background);
-    context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
-
-    Rect thumbnailRect;
-    thumbnailRect.position = rect.position + Vector2(16.0f, 8.0f);
-    thumbnailRect.size = Vector2(64.0f, 64.0f);
-
-    const Color thumbnailColor = entry.isDirectory
-                                     ? Color::FromRGB(0xC0, 0x90, 0x30)
-                                     : EditorStyle::Separator;
-
-    context.AddFilledRect(thumbnailRect, thumbnailColor);
-
-    context.AddText(
-        rect.position + Vector2(6.0f, 82.0f),
-        entry.path.GetFilename(),
-        EditorStyle::SmallText());
+    surface->SetBackgroundColor(background);
 }
 
 } // namespace URay

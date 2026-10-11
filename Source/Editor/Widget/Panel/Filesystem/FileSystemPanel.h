@@ -13,6 +13,7 @@ class ScrollView;
 class DirectoryTreeView;
 class BreadcrumbBar;
 class FileGridView;
+class Separator;
 
 class FileSystemPanel final : public Panel
 {
@@ -40,6 +41,9 @@ private:
 
     ScrollView* contentScroll = nullptr;
     FileGridView* fileGrid = nullptr;
+
+    Separator* verticalSeparator = nullptr;
+    Separator* horizontalSeparator = nullptr;
 };
 
 } // namespace URay

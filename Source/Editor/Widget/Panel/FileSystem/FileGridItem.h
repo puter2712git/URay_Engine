@@ -7,12 +7,18 @@
 namespace URay
 {
 
+class Surface;
+class VerticalLayout;
+class Label;
+
 class FileGridItem final : public Widget
 {
 public:
     explicit FileGridItem(VirtualFileEntry entry);
 
 public:
+    void Arrange(const Rect& rect) override;
+
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
@@ -21,11 +27,16 @@ public:
 
 protected:
     Vector2 OnMeasure() override;
-
-    void OnPaint(Render::UIDrawContext& context) override;
+    void OnUpdate(float deltaTime) override;
 
 private:
     VirtualFileEntry entry = {};
+
+    Surface* surface = nullptr;
+    VerticalLayout* layout = nullptr;
+    Surface* thumbnailSurface = nullptr;
+    Label* nameLabel = nullptr;
+
     EventRay<const VirtualFileEntry&> activatedRay;
 };
 
