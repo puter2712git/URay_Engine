@@ -35,8 +35,11 @@ private:
     void AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
 
     void AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
+    void AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddFloatProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
+    void AddVector2Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddVector3Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
+    void AddVector4Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);

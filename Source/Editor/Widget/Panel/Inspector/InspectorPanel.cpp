@@ -5,7 +5,10 @@
 #include <Editor/Widget/Element/AssetField.h>
 #include <Editor/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/ColorField.h>
+#include <Editor/Widget/Element/Float2Field.h>
 #include <Editor/Widget/Element/Float3Field.h>
+#include <Editor/Widget/Element/Float4Field.h>
+#include <Editor/Widget/Element/IntField.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
@@ -23,7 +26,9 @@
 #include <Engine/Scene/Unit.h>
 
 #include <Core/Math/Color.h>
+#include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
+#include <Core/Math/Vector4.h>
 
 namespace URay
 {
@@ -115,12 +120,24 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
         AddBoolProperty(targetLayout, object, property, name);
         break;
 
+    case PropertyType::Int:
+        AddIntProperty(targetLayout, object, property, name);
+        break;
+
     case PropertyType::Float:
         AddFloatProperty(targetLayout, object, property, name);
         break;
 
+    case PropertyType::Vector2:
+        AddVector2Property(targetLayout, object, property, name);
+        break;
+
     case PropertyType::Vector3:
         AddVector3Property(targetLayout, object, property, name);
+        break;
+
+    case PropertyType::Vector4:
+        AddVector4Property(targetLayout, object, property, name);
         break;
 
     case PropertyType::Color:
@@ -184,6 +201,48 @@ void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& obje
         });
 }
 
+void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+{
+    int32* value = reinterpret_cast<int32*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
+
+    IntField* field = row->SetValueWidget<IntField>();
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](int32 newValue)
+        {
+            *value = newValue;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+{
+    Vector2* value = reinterpret_cast<Vector2*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
+
+    Float2Field* field = row->SetValueWidget<Float2Field>();
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](const Vector2& newValue)
+        {
+            *value = newValue;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
 void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
 {
     Vector3* value = reinterpret_cast<Vector3*>(reinterpret_cast<uint8*>(&object) + property.offset);
@@ -217,6 +276,27 @@ void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& obje
     field->GetValueChangedRay().Register(
         this,
         [&object, property, value](const Color& newValue)
+        {
+            *value = newValue;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+{
+    Vector4* value = reinterpret_cast<Vector4*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
+
+    Float4Field* field = row->SetValueWidget<Float4Field>();
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](const Vector4& newValue)
         {
             *value = newValue;
             object.NotifyPropertyChanged(property);
