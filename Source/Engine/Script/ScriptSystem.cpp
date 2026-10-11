@@ -36,6 +36,7 @@ bool ScriptSystem::Initialize(const std::filesystem::path& projectPath)
 
 void ScriptSystem::Finalize()
 {
+    scriptTypes.clear();
     isInitialized = false;
 }
 
@@ -45,6 +46,21 @@ bool ScriptSystem::RunSample()
         return false;
 
     return dotnetHost.RunSample();
+}
+
+bool ScriptSystem::RegisterScriptType(ScriptTypeDefinition definition)
+{
+    if (definition.className.empty())
+        return false;
+
+    scriptTypes.insert_or_assign(definition.className, std::move(definition));
+    return true;
+}
+
+const ScriptTypeDefinition* ScriptSystem::FindScriptType(const std::string& className) const
+{
+    const auto it = scriptTypes.find(className);
+    return it != scriptTypes.end() ? &it->second : nullptr;
 }
 
 void ScriptSystem::LogUTF8(const uint8* message, int32 byteCount)
