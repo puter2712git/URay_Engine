@@ -1,20 +1,40 @@
 #include "DirectoryTreeItem.h"
 
-#include <Core/Math/Color.h>
+#include <Editor/Widget/Element/Label.h>
+#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
+
+#include <utility>
 
 namespace URay
 {
 
 DirectoryTreeItem::DirectoryTreeItem(VirtualPath path, uint32 depth, bool expanded, bool selected)
-    : path(path), depth(depth), expanded(expanded), selected(selected) {}
+    : path(std::move(path)), depth(depth), expanded(expanded), selected(selected)
+{
+    surface = AddChild<Surface>();
+
+    layout = surface->AddChild<HorizontalLayout>();
+    layout->SetPadding(Padding(0.0f, 0.0f, 0.0f, depth * 16.0f));
+    layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
+
+    disclosureLabel = layout->AddChild<Label>(expanded ? "v" : ">");
+    disclosureLabel->SetPreferredWidth(16.0f);
+    disclosureLabel->SetTextStyle(EditorStyle::SmallText());
+
+    const std::string label = this->path.GetFilename().empty()
+                                  ? this->path.GetMountName() + "://"
+                                  : this->path.GetFilename();
+
+    directoryLabel = layout->AddChild<Label>(label);
+    directoryLabel->SetTextStyle(EditorStyle::SmallText());
+}
 
 void DirectoryTreeItem::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
-
-    disclosureRect.position = rect.position + Vector2(depth * 16.0f, 0.0f);
-    disclosureRect.size = Vector2(16.0f, rect.size.y);
+    surface->Arrange(rect);
 }
 
 EventReply DirectoryTreeItem::OnPointerDown(const PointerEvent& event)
@@ -42,6 +62,8 @@ EventReply DirectoryTreeItem::OnPointerUp(const PointerEvent& event)
         };
     }
 
+    const Rect& disclosureRect = disclosureLabel->GetRect();
+
     if (event.position.x >= disclosureRect.position.x &&
         event.position.x < disclosureRect.position.x + disclosureRect.size.x)
     {
@@ -63,7 +85,7 @@ Vector2 DirectoryTreeItem::OnMeasure()
     return Vector2(0.0f, 20.0f);
 }
 
-void DirectoryTreeItem::OnPaint(Render::UIDrawContext& context)
+void DirectoryTreeItem::OnUpdate(float)
 {
     Color background = EditorStyle::Surface;
 
@@ -76,21 +98,7 @@ void DirectoryTreeItem::OnPaint(Render::UIDrawContext& context)
         background = EditorStyle::ControlHovered;
     }
 
-    context.AddFilledRect(rect, background);
-
-    context.AddText(
-        disclosureRect.position + Vector2(3.0f, 3.0f),
-        expanded ? "v" : ">",
-        EditorStyle::SmallText());
-
-    const std::string label = path.GetFilename().empty()
-                                  ? path.GetMountName() + "://"
-                                  : path.GetFilename();
-
-    context.AddText(
-        rect.position + Vector2(depth * 16.0f + 18.0f, 3.0f),
-        label,
-        EditorStyle::SmallText());
+    surface->SetBackgroundColor(background);
 }
 
 } // namespace URay

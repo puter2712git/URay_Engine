@@ -7,6 +7,10 @@
 namespace URay
 {
 
+class Surface;
+class HorizontalLayout;
+class Label;
+
 class DirectoryTreeItem final : public Widget
 {
 public:
@@ -23,8 +27,7 @@ public:
 
 protected:
     Vector2 OnMeasure() override;
-
-    void OnPaint(Render::UIDrawContext& context) override;
+    void OnUpdate(float deltaTime) override;
 
 private:
     VirtualPath path = {};
@@ -32,7 +35,11 @@ private:
     bool expanded = false;
     bool selected = false;
 
-    Rect disclosureRect = {};
+    Surface* surface = nullptr;
+    HorizontalLayout* layout = nullptr;
+    Label* disclosureLabel = nullptr;
+    Label* directoryLabel = nullptr;
+
     EventRay<const VirtualPath&> activatedRay;
     EventRay<const VirtualPath&> expandRequestedRay;
 };
