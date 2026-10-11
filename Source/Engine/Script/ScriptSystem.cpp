@@ -52,9 +52,8 @@ void ScriptSystem::LogUTF8(const uint8* message, int32 byteCount)
     if (message == nullptr || byteCount < 0)
         return;
 
-    const char* utf8 = reinterpret_cast<const char*>(message);
-
-    URAY_LOG("%s", utf8);
+    const char* text = reinterpret_cast<const char*>(message);
+    URAY_LOG("%s", std::string(text, byteCount).c_str());
 }
 
 } // namespace URay
