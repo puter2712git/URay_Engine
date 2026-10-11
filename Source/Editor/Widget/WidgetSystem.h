@@ -13,7 +13,6 @@ namespace URay
 class Widget;
 class ViewportPanel;
 class PopupLayer;
-class WidgetDrawer;
 class UIInputRouter;
 
 class WidgetSystem
@@ -42,7 +41,6 @@ private:
 private:
     std::unique_ptr<Widget> root = nullptr;
 
-    std::unique_ptr<WidgetDrawer> drawer = nullptr;
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
 
     std::unique_ptr<Render::UIDrawContext> drawContext = nullptr;

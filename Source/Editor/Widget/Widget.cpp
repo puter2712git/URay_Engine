@@ -2,8 +2,6 @@
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
-#include <imgui/imgui.h>
-
 #include <atomic>
 
 namespace URay
@@ -20,16 +18,6 @@ void Widget::Update(float deltaTime)
     for (const auto& child : children)
     {
         child->Update(deltaTime);
-    }
-}
-
-void Widget::Draw()
-{
-    OnDraw();
-
-    for (const auto& child : children)
-    {
-        child->Draw();
     }
 }
 
@@ -69,12 +57,6 @@ bool Widget::HitTest(const Vector2& position) const
 {
     return position.x >= rect.position.x && position.x < rect.position.x + rect.size.x &&
            position.y >= rect.position.y && position.y < rect.position.y + rect.size.y;
-}
-
-void Widget::ApplyRect() const
-{
-    ImGui::SetNextWindowPos(ImVec2(rect.position.x, rect.position.y), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(rect.size.x, rect.size.y), ImGuiCond_Always);
 }
 
 } // namespace URay

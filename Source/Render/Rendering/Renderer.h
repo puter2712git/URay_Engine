@@ -49,9 +49,6 @@ public:
     bool Initialize();
     void Finalize();
 
-    bool InitializeImGui();
-    void FinalizeImGui();
-
     bool BeginFrame();
     void EndFrame();
 

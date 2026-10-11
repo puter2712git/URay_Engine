@@ -9,7 +9,6 @@
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Editor/Widget/RootWidget.h>
-#include <Editor/Widget/WidgetDrawer.h>
 
 #include <Engine/Engine.h>
 
@@ -19,8 +18,6 @@
 #include <Render/Rendering/RenderPipeline.h>
 
 #include <Platform/Window/Window.h>
-
-#include <vector>
 
 namespace URay
 {
@@ -33,13 +30,10 @@ bool WidgetSystem::Initialize()
 {
     CreateDefaultWidgets();
 
-    std::vector<Widget*> widgets = { root.get() };
-    drawer = std::make_unique<WidgetDrawer>(widgets);
-
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::RenderPipeline& renderPipeline = renderSystem.GetPipeline();
 
-    std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>(*drawer);
+    std::unique_ptr<Render::UIPass> uiPass = std::make_unique<Render::UIPass>();
     renderPipeline.AddRenderPass(std::move(uiPass));
 
     inputRouter = std::make_unique<UIInputRouter>(gEngine->GetWindow());
@@ -54,8 +48,6 @@ void WidgetSystem::Finalize()
     drawContext.reset();
 
     inputRouter.reset();
-
-    drawer.reset();
 
     root.reset();
 }

@@ -29,9 +29,6 @@ public:
     bool Initialize();
     void Finalize();
 
-    bool InitializeImGui();
-    void FinalizeImGui();
-
     void WaitIdle();
 
     bool BeginFrame();

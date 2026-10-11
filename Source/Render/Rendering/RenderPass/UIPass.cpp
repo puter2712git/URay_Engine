@@ -6,16 +6,12 @@
 #include <Render/RHI/PipelineLayout/PipelineLayout.h>
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/RenderTarget.h>
-#include <Render/Rendering/ImGui/ImGuiDrawable.h>
 #include <Render/Rendering/RenderConstants.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/ResourceManager.h>
 
 #include <Core/Math/Rect.h>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_vulkan.h>
 #include <vulkan/vulkan.h>
 
 #include <algorithm>
@@ -25,22 +21,17 @@
 namespace URay::Render
 {
 
-UIPass::UIPass(ImGuiDrawable& drawable)
-    : drawable(drawable)
-{
-}
+UIPass::UIPass() = default;
 
 UIPass::~UIPass() = default;
 
 void UIPass::Begin(const RenderPassContext& context)
 {
-    BeginImGui();
     BeginSwapChainPass(context);
 }
 
 void UIPass::End(const RenderPassContext& context)
 {
-    EndImGui(context);
     EndSwapChainPass(context);
 }
 
@@ -49,24 +40,6 @@ void UIPass::Execute(
     const std::vector<DrawCommand>& drawCmds)
 {
     ExecuteCustomUI(context, drawCmds);
-    drawable.DrawImGui();
-}
-
-void UIPass::BeginImGui()
-{
-    ImGui_ImplVulkan_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-}
-
-void UIPass::EndImGui(const RenderPassContext& context)
-{
-    ImGui::Render();
-    ImDrawData* drawData = ImGui::GetDrawData();
-
-    ImGui_ImplVulkan_RenderDrawData(
-        drawData,
-        context.commandBuffer.GetHandle());
 }
 
 void UIPass::BeginSwapChainPass(const RenderPassContext& context)

@@ -119,16 +119,6 @@ void RenderSystem::Finalize()
     }
 }
 
-bool RenderSystem::InitializeImGui()
-{
-    return renderer->InitializeImGui();
-}
-
-void RenderSystem::FinalizeImGui()
-{
-    renderer->FinalizeImGui();
-}
-
 void RenderSystem::WaitIdle()
 {
     if (renderer)

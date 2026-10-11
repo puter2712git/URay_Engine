@@ -31,8 +31,6 @@
 
 #include <Platform/Window/Window.h>
 
-#include <imgui/imgui.h>
-
 namespace URay
 {
 

@@ -41,10 +41,6 @@
 
 #include <stb/stb_image.h>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_vulkan.h>
-
 #include <algorithm>
 #include <iostream>
 #include <set>
@@ -159,87 +155,6 @@ void Renderer::Finalize()
     }
 
     DestroyCommandPool();
-}
-
-bool Renderer::InitializeImGui()
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
-
-    auto addFont = [&](const char* path, bool merge)
-    {
-        const std::vector<uint8> bytes = filesystem.ReadBinary(path);
-        if (bytes.empty())
-            return false;
-
-        void* data = IM_ALLOC(bytes.size());
-        std::memcpy(data, bytes.data(), bytes.size());
-
-        ImFontConfig config;
-        config.FontDataOwnedByAtlas = true;
-        config.MergeMode = merge;
-
-        if (!io.Fonts->AddFontFromMemoryTTF(
-                data,
-                static_cast<int>(bytes.size()),
-                18.0f,
-                &config))
-        {
-            IM_FREE(data);
-            return false;
-        }
-
-        return true;
-    };
-
-    if (!addFont("Engine://Asset/Source/Font/NotoSansKR-Regular.ttf", false))
-        return false;
-
-    if (!addFont("Engine://Asset/Source/Font/NotoSansJP-Regular.ttf", true))
-        return false;
-
-    if (!addFont("Engine://Asset/Source/Font/NotoSansSC-Regular.ttf", true))
-        return false;
-
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForVulkan(window.GetGLFWWindow(), true);
-    ImGui_ImplVulkan_InitInfo initInfo = {};
-    initInfo.ApiVersion = VK_API_VERSION_1_3;
-    initInfo.Instance = context.GetInstance();
-    initInfo.PhysicalDevice = device.GetPhysicalDevice();
-    initInfo.Device = device.GetVKDevice();
-    initInfo.QueueFamily = device.FindQueueFamilyIndices(device.GetPhysicalDevice()).graphicsFamily.value();
-    initInfo.Queue = device.GetGraphicsQueue();
-    initInfo.DescriptorPool = VK_NULL_HANDLE;
-    initInfo.DescriptorPoolSize = 8;
-    initInfo.MinImageCount = 2;
-    initInfo.ImageCount = static_cast<uint32>(swapChain->GetImageViews().size());
-
-    const VkFormat colorFormat = swapChain->GetFormat();
-
-    initInfo.UseDynamicRendering = true;
-    initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-    initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-    initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &colorFormat;
-
-    ImGui_ImplVulkan_Init(&initInfo);
-
-    RenderTarget& postProcessRT = renderTargetRegistry->Get(RenderTargetId::PostProcess);
-
-    return true;
-}
-
-void Renderer::FinalizeImGui()
-{
-    ImGui_ImplVulkan_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
 }
 
 bool Renderer::BeginFrame()

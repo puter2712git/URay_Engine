@@ -2,10 +2,6 @@ file(GLOB_RECURSE URAY_SOURCES CONFIGURE_DEPENDS
     "${URAY_SOURCE_DIR}/Source/*.cpp"
 )
 
-file(GLOB_RECURSE URAY_IMGUI_SOURCES CONFIGURE_DEPENDS
-    "${URAY_SOURCE_DIR}/ThirdParty/imgui/*.cpp"
-)
-
 file(GLOB_RECURSE URAY_HEADERS CONFIGURE_DEPENDS
     "${URAY_SOURCE_DIR}/Source/*.h"
 )
@@ -18,7 +14,6 @@ target_sources(URay_Engine PRIVATE
 add_library(URay_ThirdParty STATIC)
 
 target_sources(URay_ThirdParty PRIVATE
-    ${URAY_IMGUI_SOURCES}
     "${URAY_SOURCE_DIR}/ThirdParty/spirv/spirv_reflect.c"
 )
 

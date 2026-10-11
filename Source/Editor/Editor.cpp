@@ -26,8 +26,6 @@
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 
-#include <imgui/imgui.h>
-
 #include <memory>
 
 namespace URay
@@ -46,16 +44,6 @@ bool Editor::Initialize()
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-
-    if (!renderSystem.InitializeImGui())
-    {
-        URAY_LOG("[Editor] Failed to initialize ImGui.");
-        Finalize();
-        return false;
-    }
-
-    isImGuiInitialized = true;
 
     editorSettings = std::make_unique<EditorSettings>(filesystem);
 
@@ -137,9 +125,6 @@ bool Editor::Initialize()
 void Editor::Finalize()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-
-    renderSystem.WaitIdle();
 
     Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
 
@@ -178,12 +163,6 @@ void Editor::Finalize()
     {
         selectionSystem->Finalize();
         selectionSystem.reset();
-    }
-
-    if (isImGuiInitialized)
-    {
-        renderSystem.FinalizeImGui();
-        isImGuiInitialized = false;
     }
 
     editorCamera = nullptr;

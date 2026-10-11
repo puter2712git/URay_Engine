@@ -44,8 +44,6 @@ private:
     CameraComponent& PrepareEditorScene();
 
 private:
-    bool isImGuiInitialized = false;
-
     CameraComponent* editorCamera = nullptr;
 
     std::unique_ptr<WidgetSystem> widgetSystem = nullptr;

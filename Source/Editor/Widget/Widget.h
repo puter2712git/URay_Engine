@@ -36,7 +36,6 @@ public:
     WidgetId GetId() const { return id; }
 
     void Update(float deltaTime);
-    void Draw();
     void Paint(Render::UIDrawContext& context);
 
     Widget* GetParent() const { return parent; }
@@ -95,13 +94,9 @@ public:
     virtual EventReply OnTextInput(const TextInputEvent& event) { return {}; }
 
 protected:
-    void ApplyRect() const;
-
     virtual Vector2 OnMeasure() { return Vector2::Zero; }
 
     virtual void OnUpdate(float) {}
-    virtual void OnDraw() {}
-
     virtual void OnPaint(Render::UIDrawContext& context) {}
     virtual void OnPaintForeground(Render::UIDrawContext& context) {}
 
