@@ -7,6 +7,85 @@
 namespace URay
 {
 
+EventReply NumberField::OnPointerDown(const PointerEvent& event)
+{
+    if (event.changedButton != MouseButton::Left || IsReadonly())
+        return {};
+
+    isPointerDown = true;
+    isDragging = false;
+
+    initPointerPosition = event.position;
+
+    return EventReply{
+        .handled = true,
+        .requestFocus = true,
+        .capturePointer = true
+    };
+}
+
+EventReply NumberField::OnPointerMove(const PointerEvent& event)
+{
+    if (!isPointerDown)
+        return {};
+
+    if (!isDragging)
+    {
+        const float movedX = event.position.x - initPointerPosition.x;
+
+        if (std::abs(movedX) < 4.0f)
+        {
+            return EventReply{
+                .handled = true
+            };
+        }
+
+        if (IsEditing())
+        {
+            CommitEdit();
+        }
+
+        if (!TryParse(GetText(), dragValue))
+        {
+            return EventReply{
+                .handled = true
+            };
+        }
+
+        isDragging = true;
+    }
+
+    dragValue += event.delta.x * GetModifiedDragSpeed(event.modifiers);
+
+    SetValue(dragValue);
+    valueChangedRay.Emit(dragValue);
+
+    return EventReply{
+        .handled = true
+    };
+}
+
+EventReply NumberField::OnPointerUp(const PointerEvent& event)
+{
+    if (event.changedButton != MouseButton::Left || !isPointerDown)
+        return {};
+
+    const bool wasDragging = isDragging;
+
+    isPointerDown = false;
+    isDragging = false;
+
+    if (!wasDragging && IsHovered())
+    {
+        BeginEdit();
+    }
+
+    return EventReply{
+        .handled = true,
+        .releasePointer = true
+    };
+}
+
 void NumberField::SetValue(float value)
 {
     TextBox::SetText(FormatValue(value));
@@ -57,6 +136,21 @@ bool NumberField::TryParse(const std::string& text, float& outValue)
 std::string NumberField::FormatValue(float value)
 {
     return std::format("{}", value);
+}
+
+float NumberField::GetModifiedDragSpeed(ModifierKey modifiers) const
+{
+    if ((modifiers & ModifierKey::Shift) != ModifierKey::None)
+    {
+        return dragSpeed * 0.1f;
+    }
+
+    if ((modifiers & ModifierKey::Ctrl) != ModifierKey::None)
+    {
+        return dragSpeed * 10.0f;
+    }
+
+    return dragSpeed;
 }
 
 } // namespace URay
