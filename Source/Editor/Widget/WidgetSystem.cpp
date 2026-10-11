@@ -8,6 +8,7 @@
 #include <Editor/Widget/Panel/SceneTree/SceneTreePanel.h>
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
+#include <Editor/Widget/RootWidget.h>
 #include <Editor/Widget/WidgetDrawer.h>
 
 #include <Engine/Engine.h>
@@ -88,6 +89,12 @@ void WidgetSystem::Paint()
     root->Paint(*drawContext);
 }
 
+PopupLayer& WidgetSystem::GetPopupLayer() const
+{
+    RootWidget* rootWidget = static_cast<RootWidget*>(root.get());
+    return rootWidget->GetPopupLayer();
+}
+
 void WidgetSystem::CreateDefaultWidgets()
 {
     std::unique_ptr<SceneTreePanel> sceneTree = std::make_unique<SceneTreePanel>();
@@ -103,11 +110,13 @@ void WidgetSystem::CreateDefaultWidgets()
     std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>("LeftPanel2", SplitAxis::Horizontal, std::move(console), std::move(filesystem));
     std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
 
-    root = std::make_unique<Splitter>(
+    auto mainContent = std::make_unique<Splitter>(
         "Root",
         SplitAxis::Horizontal,
         std::move(leftPanel),
         std::move(rightPanel));
+
+    root = std::make_unique<RootWidget>(std::move(mainContent));
 }
 
 } // namespace URay

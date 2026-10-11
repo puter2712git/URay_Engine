@@ -12,6 +12,7 @@ namespace URay
 
 class Widget;
 class ViewportPanel;
+class PopupLayer;
 class WidgetDrawer;
 class UIInputRouter;
 
@@ -31,6 +32,7 @@ public:
 
     Widget& GetRootWidget() const { return *root; }
     ViewportPanel& GetViewport() const { return *viewport; }
+    PopupLayer& GetPopupLayer() const;
 
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }
 
