@@ -6,7 +6,7 @@
 #include <Engine/Asset/Font/Font.h>
 #include <Engine/Engine.h>
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
 
 namespace URay

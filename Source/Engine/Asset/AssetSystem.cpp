@@ -14,7 +14,7 @@
 #include <Engine/Engine.h>
 #include <Engine/Object/Object.h>
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 
 #include <iostream>
 #include <string>

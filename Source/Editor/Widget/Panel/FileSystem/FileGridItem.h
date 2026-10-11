@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 #include <Core/Ray/EventRay.h>
 #include <Editor/Widget/Widget.h>
 

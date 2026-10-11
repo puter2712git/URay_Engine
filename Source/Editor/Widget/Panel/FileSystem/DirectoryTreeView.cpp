@@ -1,6 +1,6 @@
 #include "DirectoryTreeView.h"
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeItem.h>
 
 #include <algorithm>

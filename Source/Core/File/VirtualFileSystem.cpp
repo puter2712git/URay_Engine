@@ -1,4 +1,4 @@
-#include "VirtualFilesystem.h"
+#include "VirtualFileSystem.h"
 
 #include <Core/Type/Types.h>
 

@@ -15,7 +15,7 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/TimeFlow/Timer.h>

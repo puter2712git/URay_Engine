@@ -10,7 +10,7 @@
 #include <Editor/Widget/Panel/Viewport/ViewportToolbar.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/Type/Types.h>
 

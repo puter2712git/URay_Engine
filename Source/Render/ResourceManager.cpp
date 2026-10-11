@@ -13,7 +13,7 @@
 #include <Render/Rendering/Shadow/ShadowSystem.h>
 #include <Render/Shader/Shader.h>
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/Type/Types.h>
 

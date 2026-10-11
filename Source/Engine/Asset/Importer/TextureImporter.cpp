@@ -6,7 +6,7 @@
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
 
-#include <Core/File/VirtualFilesystem.h>
+#include <Core/File/VirtualFileSystem.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
