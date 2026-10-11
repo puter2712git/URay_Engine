@@ -41,6 +41,9 @@ void Component::Update(float deltaTime)
     if (!initialized || !enabled || finalized)
         return;
 
+    if (!loaded && !CanUpdateWhenUnloaded())
+        return;
+
     OnUpdate(deltaTime);
 }
 

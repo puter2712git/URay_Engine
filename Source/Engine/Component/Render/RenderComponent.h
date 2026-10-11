@@ -29,6 +29,8 @@ public:
 protected:
     void OnUpdate(float deltaTime) override;
 
+    bool CanUpdateWhenUnloaded() const override { return true; }
+
     virtual void UpdateRenderObject() = 0;
 
 protected:

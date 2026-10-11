@@ -60,6 +60,8 @@ public:
 protected:
     void OnUpdate(float deltaTime) override;
 
+    bool CanUpdateWhenUnloaded() const override { return true; }
+
 private:
     TransformComponent* FindRelativeTransform(Unit* parentUnit) const;
 

@@ -39,6 +39,8 @@ protected:
     virtual void OnUnload() {}
     virtual void OnFinalize() {}
 
+    virtual bool CanUpdateWhenUnloaded() const { return false; }
+
 protected:
     Unit* owner = nullptr;
     bool enabled = true;
