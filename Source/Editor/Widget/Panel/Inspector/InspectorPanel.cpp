@@ -3,6 +3,7 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Checkbox.h>
+#include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float3Field.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/StringField.h>
@@ -14,6 +15,7 @@
 #include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/Unit.h>
 
+#include <Core/Math/Color.h>
 #include <Core/Math/Vector3.h>
 
 namespace URay
@@ -105,6 +107,10 @@ void InspectorPanel::AddProperty(Object& object, const Property& property, const
         AddVector3Property(object, property, name);
         break;
 
+    case PropertyType::Color:
+        AddColorProperty(object, property, name);
+        break;
+
     case PropertyType::String:
         AddStringProperty(object, property, name);
         break;
@@ -168,6 +174,27 @@ void InspectorPanel::AddVector3Property(Object& object, const Property& property
     field->GetValueChangedRay().Register(
         this,
         [&object, property, value](const Vector3& newValue)
+        {
+            *value = newValue;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddColorProperty(Object& object, const Property& property, const std::string& name)
+{
+    Color* value = reinterpret_cast<Color*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = layout->AddChild<PropertyRow>(name);
+
+    ColorField* field = row->SetValueWidget<ColorField>();
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](const Color& newValue)
         {
             *value = newValue;
             object.NotifyPropertyChanged(property);
