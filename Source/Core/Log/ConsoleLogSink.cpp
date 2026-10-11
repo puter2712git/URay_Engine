@@ -12,7 +12,7 @@ EditorConsoleLogSink::~EditorConsoleLogSink() = default;
 
 void EditorConsoleLogSink::Write(std::string_view msg)
 {
-    console.AddLog("%s", msg.data());
+    console.AddLog(msg);
 }
 
 } // namespace URay

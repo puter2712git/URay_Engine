@@ -20,6 +20,8 @@ public:
 
     EventReply OnScroll(const ScrollEvent& event) override;
 
+    void RequestScrollToBottom() { scrollToBottomRequested = true; }
+
 protected:
     Vector2 OnMeasure() override;
 
@@ -30,6 +32,8 @@ private:
 
     float scrollOffsetY = 0.0f;
     float maxScrollOffsetY = 0.0f;
+
+    bool scrollToBottomRequested = false;
 };
 
 } // namespace URay

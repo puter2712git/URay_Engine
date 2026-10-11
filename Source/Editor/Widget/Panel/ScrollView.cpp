@@ -16,7 +16,16 @@ void ScrollView::Arrange(const Rect& rect)
         content->GetPreferredHeight().value_or(content->GetDesiredSize().y);
 
     maxScrollOffsetY = std::max(0.0f, contentHeight - rect.size.y);
-    scrollOffsetY = std::clamp(scrollOffsetY, 0.0f, maxScrollOffsetY);
+
+    if (scrollToBottomRequested)
+    {
+        scrollOffsetY = maxScrollOffsetY;
+        scrollToBottomRequested = false;
+    }
+    else
+    {
+        scrollOffsetY = std::clamp(scrollOffsetY, 0.0f, maxScrollOffsetY);
+    }
 
     Rect contentRect;
     contentRect.position = Vector2(rect.position.x, rect.position.y - scrollOffsetY);
