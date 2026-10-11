@@ -1,47 +1,94 @@
-#include <Editor/Widget/Panel/Filesystem/FileSystemPanel.h>
-#include <Editor/Widget/Style/EditorStyles.h>
+#include "FileSystemPanel.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
+#include <Editor/Widget/Panel/FileSystem/FileGridView.h>
+#include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
-#include <Engine/Scene/Scene.h>
-#include <Engine/Scene/SceneSystem.h>
-
-#include <Core/File/VirtualFilesystem.h>
-
-#include <imgui/imgui.h>
 
 namespace URay
 {
 
 FileSystemPanel::FileSystemPanel() : Panel("File System")
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    fileSystem = &assetSystem.GetFileSystem();
+    VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
 
-    SetBackgroundColor(EditorStyle::Surface);
-    SetOutlineWidth(2.0f);
-    SetOutlineColor(EditorStyle::Border);
+    directoryScroll = AddChild<ScrollView>();
+    directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://"));
 
-    layout = AddChild<HorizontalLayout>();
+    // breadcrumbBar = AddChild<BreadcrumbBar>();
 
-    // auto sourceAssetDirectory = std::make_unique<DirectoryEntryWidget>("Project://Asset/Source");
-    // layout->AddChild(std::move(sourceAssetDirectory));
+    contentScroll = AddChild<ScrollView>();
+    fileGrid = contentScroll->SetContent<FileGridView>();
+
+    NavigateTo(currentPath);
+
+    fileGrid->GetOnEntryActivatedRay().Register(
+        this,
+        [this](const VirtualFileEntry& entry)
+        {
+            if (entry.isDirectory)
+                pendingPath = entry.path;
+        });
+
+    directoryTree->GetOnDirectoryActivatedRay().Register(
+        this,
+        [this](const VirtualPath& path)
+        {
+            pendingPath = path;
+        });
 }
 
 void FileSystemPanel::Arrange(const Rect& rect)
 {
     Panel::Arrange(rect);
 
-    Rect layoutRect = {};
-    layoutRect.position = rect.position;
-    layoutRect.size = Vector2(rect.size.x, 100.0f);
+    const Rect contentRect = GetContentRect();
 
-    layout->Arrange(layoutRect);
+    constexpr float directoryWidth = 200.0f;
+    constexpr float breadcrumbHeight = 28.0f;
+
+    const float leftWidth = std::min(directoryWidth, contentRect.size.x);
+
+    Rect leftRect;
+    leftRect.position = Vector2(contentRect.position.x, contentRect.position.y);
+    leftRect.size = Vector2(leftWidth, contentRect.size.y);
+
+    Rect rightRect;
+    rightRect.position = Vector2(contentRect.position.x + leftWidth, contentRect.position.y);
+    rightRect.size = Vector2(std::max(0.0f, contentRect.size.x - leftWidth), contentRect.size.y);
+
+    Rect breadcrumbRect;
+    breadcrumbRect.position = rightRect.position;
+    breadcrumbRect.size = Vector2(rightRect.size.x, std::min(breadcrumbHeight, rightRect.size.y));
+
+    Rect gridRect;
+    gridRect.position = Vector2(rightRect.position.x, rightRect.position.y + breadcrumbRect.size.y);
+    gridRect.size = Vector2(rightRect.size.x, std::max(0.0f, rightRect.size.y - breadcrumbRect.size.y));
+
+    directoryScroll->Arrange(leftRect);
+    // breadcrumbBar->Arrange(breadcrumbRect);
+    contentScroll->Arrange(gridRect);
 }
 
-void FileSystemPanel::OnPaint(Render::UIDrawContext& context)
+void FileSystemPanel::NavigateTo(const VirtualPath& path)
 {
-    Panel::OnPaint(context);
+    VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
+
+    currentPath = path;
+    directoryTree->SetSelectedPath(currentPath);
+    fileGrid->SetDirectory(fileSystem, currentPath);
+}
+
+void FileSystemPanel::OnUpdate(float deltaTime)
+{
+    if (!pendingPath.has_value())
+        return;
+
+    NavigateTo(*pendingPath);
+    pendingPath.reset();
 }
 
 } // namespace URay

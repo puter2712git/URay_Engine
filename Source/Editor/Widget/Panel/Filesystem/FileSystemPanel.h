@@ -1,17 +1,18 @@
 #pragma once
 
-#include <Editor/Widget/Layout/HorizontalLayout.h>
-#include <Editor/Widget/Panel/FileSystem/DirectoryEntryWidget.h>
+#include <Core/File/VirtualPath.h>
 #include <Editor/Widget/Panel/Panel.h>
 
-#include <Core/File/VirtualPath.h>
-
+#include <optional>
 #include <vector>
 
 namespace URay
 {
 
-class VirtualFileSystem;
+class ScrollView;
+class DirectoryTreeView;
+class BreadcrumbBar;
+class FileGridView;
 
 class FileSystemPanel final : public Panel
 {
@@ -23,15 +24,22 @@ public:
 public:
     void Arrange(const Rect& rect) override;
 
+    void NavigateTo(const VirtualPath& path);
+
 protected:
-    void OnPaint(Render::UIDrawContext& context) override;
+    void OnUpdate(float deltaTime) override;
 
 private:
-    VirtualFileSystem* fileSystem = nullptr;
+    VirtualPath currentPath = "Project://Asset/Source";
+    std::optional<VirtualPath> pendingPath = std::nullopt;
 
-    HorizontalLayout* layout = nullptr;
+    ScrollView* directoryScroll = nullptr;
+    DirectoryTreeView* directoryTree = nullptr;
 
-    std::vector<DirectoryEntryWidget*> directoryEntries;
+    BreadcrumbBar* breadcrumbBar = nullptr;
+
+    ScrollView* contentScroll = nullptr;
+    FileGridView* fileGrid = nullptr;
 };
 
 } // namespace URay
