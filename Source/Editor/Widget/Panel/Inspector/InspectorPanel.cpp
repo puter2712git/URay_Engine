@@ -2,6 +2,7 @@
 
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/Element/AssetField.h>
 #include <Editor/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float3Field.h>
@@ -13,6 +14,9 @@
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 
+#include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Component/Component.h>
 #include <Engine/Object/Object.h>
 #include <Engine/Object/Property/Property.h>
@@ -127,6 +131,12 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
         AddStringProperty(targetLayout, object, property, name);
         break;
 
+    case PropertyType::Mesh:
+    case PropertyType::Texture:
+    case PropertyType::Material:
+        AddAssetProperty(targetLayout, object, property, name);
+        break;
+
     default:
         break;
     }
@@ -230,6 +240,51 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
         [&object, property, value, field]()
         {
             *value = field->GetText();
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+{
+    Class* assetClass = nullptr;
+
+    switch (property.type)
+    {
+    case PropertyType::Mesh:
+        assetClass = Mesh::StaticClass();
+        break;
+
+    case PropertyType::Texture:
+        assetClass = Texture::StaticClass();
+        break;
+
+    case PropertyType::Material:
+        assetClass = Material::StaticClass();
+        break;
+
+    default:
+        return;
+    }
+
+    auto* value = reinterpret_cast<AssetHandle*>(
+        reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
+
+    AssetField* field = row->SetValueWidget<AssetField>(assetClass);
+    field->SetValue(*value);
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](AssetHandle newValue)
+        {
+            if (*value == newValue)
+                return;
+
+            *value = newValue;
             object.NotifyPropertyChanged(property);
 
             if (property.OnChangedCallback)
