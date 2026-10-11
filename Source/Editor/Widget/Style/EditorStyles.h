@@ -7,8 +7,8 @@
 namespace URay::EditorStyle
 {
 
-inline const Color Surface = Color::FromRGB(0x20, 0x20, 0x20);
-inline const Color SurfaceHeader = Color::FromRGB(0x10, 0x10, 0x10);
+inline const Color Surface = Color::FromRGB(0x10, 0x10, 0x10);
+inline const Color SurfaceHeader = Color::FromRGB(0x05, 0x05, 0x05);
 inline const Color Border = Color::FromRGB(0x00, 0x00, 0x00);
 
 inline const Color TextPrimary = Color::FromRGB(0xFF, 0xFF, 0xFF);
