@@ -18,8 +18,54 @@ void Component::RegisterClass()
                                  .size = sizeof(bool) });
 }
 
+void Component::Initialize()
+{
+    if (initialized || finalized)
+        return;
+
+    initialized = true;
+    OnInitialize();
+}
+
+void Component::Load()
+{
+    if (!initialized || loaded || finalized)
+        return;
+
+    loaded = true;
+    OnLoad();
+}
+
 void Component::Update(float deltaTime)
 {
+    if (!initialized || !enabled || finalized)
+        return;
+
+    OnUpdate(deltaTime);
+}
+
+void Component::Unload()
+{
+    if (!loaded)
+        return;
+
+    OnUnload();
+    loaded = false;
+}
+
+void Component::Finalize()
+{
+    if (finalized)
+        return;
+
+    Unload();
+
+    if (initialized)
+    {
+        OnFinalize();
+    }
+
+    finalized = true;
 }
 
 void Component::NotifyPropertyChanged(const Property& property)

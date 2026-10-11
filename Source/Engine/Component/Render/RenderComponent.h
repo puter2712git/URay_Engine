@@ -18,8 +18,6 @@ public:
     virtual ~RenderComponent() override;
 
 public:
-    virtual void Update(float deltaTime) override;
-
     virtual void NotifyPropertyChanged(const Property& property);
 
     virtual Render::RenderObject* CreateRenderObject() = 0;
@@ -29,6 +27,8 @@ public:
     Render::RenderObject* GetRenderObject() const { return renderObject; }
 
 protected:
+    void OnUpdate(float deltaTime) override;
+
     virtual void UpdateRenderObject() = 0;
 
 protected:

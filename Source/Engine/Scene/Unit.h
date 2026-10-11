@@ -20,7 +20,7 @@ class Unit : public Object
 
 public:
     Unit();
-    virtual ~Unit() override;
+    ~Unit() override;
 
 public:
     virtual void Update(float deltaTime);

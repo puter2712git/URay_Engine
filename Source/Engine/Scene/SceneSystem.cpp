@@ -16,7 +16,10 @@ bool SceneSystem::Initialize()
 
 void SceneSystem::Finalize()
 {
-    scenes.clear();
+    while (!scenes.empty())
+    {
+        UnloadScene(scenes.back()->GetType());
+    }
 }
 
 void SceneSystem::Update(float deltaTime)
@@ -61,6 +64,11 @@ void SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
             componentAddRay.Emit(scenePtr, unit.get(), component.get());
         }
     }
+
+    if (scenePtr->GetType() == SceneType::Play)
+    {
+        scenePtr->Load();
+    }
 }
 
 void SceneSystem::UnloadScene(SceneType type)
@@ -69,6 +77,12 @@ void SceneSystem::UnloadScene(SceneType type)
 
     if (targetScene)
     {
+        if (type == SceneType::Play)
+        {
+            targetScene->Unload();
+        }
+
+        targetScene->DestroyAllUnits();
         sceneDestroyRay.Emit(targetScene);
         scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
                                     [targetScene](const std::unique_ptr<Scene>& scene)

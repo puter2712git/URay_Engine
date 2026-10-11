@@ -31,17 +31,6 @@ void TransformComponent::RegisterClass()
           .size = sizeof(Vector3) });
 }
 
-void TransformComponent::Update(float deltaTime)
-{
-    Component::Update(deltaTime);
-
-    if (isDirty)
-    {
-        UpdateWorldMatrix();
-        isDirty = false;
-    }
-}
-
 void TransformComponent::NotifyPropertyChanged(const Property& property)
 {
     Super::NotifyPropertyChanged(property);
@@ -196,6 +185,15 @@ void TransformComponent::SetDirty(bool dirty)
                 transform->SetDirty(true);
             }
         }
+    }
+}
+
+void TransformComponent::OnUpdate(float deltaTime)
+{
+    if (isDirty)
+    {
+        UpdateWorldMatrix();
+        isDirty = false;
     }
 }
 

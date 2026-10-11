@@ -18,13 +18,36 @@ namespace URay
 Scene::Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath)
     : sceneSystem(sceneSystem), type(type), filePath(filePath) {}
 
-Scene::~Scene()
+void Scene::Load()
 {
-    for (auto& unit : units)
+    if (loaded)
+        return;
+
+    loaded = true;
+
+    for (const auto& unit : units)
     {
-        sceneSystem.GetUnitRemoveRay().Emit(this, unit.get());
+        for (const auto& comp : unit->GetComponents())
+        {
+            comp->Load();
+        }
     }
-    units.clear();
+}
+
+void Scene::Unload()
+{
+    if (!loaded)
+        return;
+
+    for (const auto& unit : units)
+    {
+        for (const auto& comp : unit->GetComponents())
+        {
+            comp->Unload();
+        }
+    }
+
+    loaded = false;
 }
 
 void Scene::Update(float deltaTime)
@@ -213,7 +236,13 @@ void Scene::AddUnit(std::unique_ptr<Unit> unit)
     const auto& components = unitPtr->GetComponents();
     for (const auto& component : components)
     {
+        component->Initialize();
         sceneSystem.GetComponentAddRay().Emit(this, unitPtr, component.get());
+
+        if (IsLoaded())
+        {
+            component->Load();
+        }
     }
 }
 
@@ -222,20 +251,31 @@ void Scene::DestroyUnit(Unit* unit)
     if (!unit)
         return;
 
-    const auto& components = unit->GetComponents();
-    for (const auto& component : components)
-    {
-        sceneSystem.GetComponentDestroyRay().Emit(this, unit, component.get());
-    }
-
-    sceneSystem.GetUnitRemoveRay().Emit(this, unit);
-
     auto it = std::find_if(units.begin(), units.end(),
                            [unit](const std::unique_ptr<Unit>& candidate)
                            { return candidate.get() == unit; });
-    if (it != units.end())
+
+    if (it == units.end())
+        return;
+
+    Unit* targetUnit = it->get();
+
+    for (const auto& component : targetUnit->GetComponents())
     {
-        units.erase(it);
+        component->Unload();
+        sceneSystem.GetComponentDestroyRay().Emit(this, unit, component.get());
+        component->Finalize();
+    }
+
+    sceneSystem.GetUnitRemoveRay().Emit(this, unit);
+    units.erase(it);
+}
+
+void Scene::DestroyAllUnits()
+{
+    while (!units.empty())
+    {
+        DestroyUnit(units.back().get());
     }
 }
 

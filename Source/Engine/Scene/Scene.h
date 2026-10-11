@@ -37,9 +37,11 @@ class Scene : public Object
 {
 public:
     Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath);
-    ~Scene();
 
 public:
+    void Load();
+    void Unload();
+
     void Update(float deltaTime);
 
     virtual YAML::Node Serialize() const override;
@@ -47,11 +49,14 @@ public:
 
     void AddUnit(std::unique_ptr<Unit> unit);
     void DestroyUnit(Unit* unit);
+    void DestroyAllUnits();
 
     SceneSystem& GetSceneSystem() { return sceneSystem; }
 
     const VirtualPath& GetFilePath() const { return filePath; }
     void SetFilePath(const VirtualPath& filePath) { this->filePath = filePath; }
+
+    bool IsLoaded() const { return loaded; }
 
     SceneType GetType() const { return type; }
     const std::vector<std::unique_ptr<Unit>>& GetUnits() const { return units; }
@@ -59,6 +64,8 @@ public:
 private:
     SceneSystem& sceneSystem;
     VirtualPath filePath;
+
+    bool loaded = false;
 
     SceneType type = SceneType::Game;
     std::vector<std::unique_ptr<Unit>> units;

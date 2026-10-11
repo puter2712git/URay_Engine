@@ -17,17 +17,6 @@ void RenderComponent::RegisterClass()
 {
 }
 
-void RenderComponent::Update(float deltaTime)
-{
-    Super::Update(deltaTime);
-
-    if (renderObject && renderObject->IsDirty())
-    {
-        UpdateRenderObject();
-        renderObject->SetDirty(false);
-    }
-}
-
 void RenderComponent::NotifyPropertyChanged(const Property& property)
 {
     Super::NotifyPropertyChanged(property);
@@ -40,6 +29,15 @@ void RenderComponent::MarkDirty()
     if (renderObject)
     {
         renderObject->SetDirty(true);
+    }
+}
+
+void RenderComponent::OnUpdate(float deltaTime)
+{
+    if (renderObject && renderObject->IsDirty())
+    {
+        UpdateRenderObject();
+        renderObject->SetDirty(false);
     }
 }
 

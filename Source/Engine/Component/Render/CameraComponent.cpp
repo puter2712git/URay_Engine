@@ -19,14 +19,6 @@ void CameraComponent::RegisterClass()
 {
 }
 
-void CameraComponent::Update(float deltaTime)
-{
-    Super::Update(deltaTime);
-
-    UpdateViewMatrix();
-    UpdateProjMatrix();
-}
-
 Render::RenderObject* CameraComponent::CreateRenderObject()
 {
     Unit* owner = GetOwner();
@@ -76,6 +68,12 @@ void CameraComponent::SetViewportExtent(const Extent2D& extent)
     }
 
     viewportExtent = extent;
+    UpdateProjMatrix();
+}
+
+void CameraComponent::OnUpdate(float deltaTime)
+{
+    UpdateViewMatrix();
     UpdateProjMatrix();
 }
 

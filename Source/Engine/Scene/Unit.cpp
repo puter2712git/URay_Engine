@@ -20,7 +20,10 @@ Unit::Unit() = default;
 
 Unit::~Unit()
 {
-    components.clear();
+    for (const auto& component : components)
+    {
+        component->Finalize();
+    }
 }
 
 void Unit::RegisterClass()
@@ -99,8 +102,15 @@ Component* Unit::AddComponent(std::unique_ptr<Component> component)
 
     if (scene)
     {
+        componentPtr->Initialize();
+
         SceneSystem& sceneSystem = scene->GetSceneSystem();
         sceneSystem.GetComponentAddRay().Emit(scene, this, componentPtr);
+
+        if (scene->IsLoaded())
+        {
+            componentPtr->Load();
+        }
     }
 
     return componentPtr;

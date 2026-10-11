@@ -18,7 +18,11 @@ public:
     virtual ~Component() = default;
 
 public:
-    virtual void Update(float deltaTime);
+    void Initialize();
+    void Load();
+    void Update(float deltaTime);
+    void Unload();
+    void Finalize();
 
     virtual void NotifyPropertyChanged(const Property& property);
 
@@ -29,9 +33,20 @@ public:
     void SetEnabled(bool isEnabled) { enabled = isEnabled; }
 
 protected:
-    Unit* owner = nullptr;
+    virtual void OnInitialize() {}
+    virtual void OnLoad() {}
+    virtual void OnUpdate(float deltaTime) {}
+    virtual void OnUnload() {}
+    virtual void OnFinalize() {}
 
+protected:
+    Unit* owner = nullptr;
     bool enabled = true;
+
+private:
+    bool initialized = false;
+    bool loaded = false;
+    bool finalized = false;
 };
 
 #define URAY_REGISTER_COMPONENT(Type)                       \

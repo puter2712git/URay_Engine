@@ -17,8 +17,6 @@ class CameraComponent : public RenderComponent
     URAY_CLASS(CameraComponent, RenderComponent)
 
 public:
-    void Update(float deltaTime) override;
-
     Render::RenderObject* CreateRenderObject() override;
 
     Vector3 ScreenToWorld(const Vector3& screenPos) const;
@@ -35,6 +33,8 @@ public:
     bool IsPerspective() const { return isPerspective; }
 
 protected:
+    void OnUpdate(float deltaTime) override;
+
     void UpdateRenderObject() override;
 
 private:

@@ -15,8 +15,6 @@ class TransformComponent : public Component
     URAY_CLASS(TransformComponent, Component)
 
 public:
-    void Update(float deltaTime) override;
-
     void NotifyPropertyChanged(const Property& property) override;
 
     void UpdateWorldMatrix();
@@ -58,6 +56,9 @@ public:
     void SetDirty(bool dirty);
 
     const Matrix& GetWorldMatrix() const { return worldMatrix; }
+
+protected:
+    void OnUpdate(float deltaTime) override;
 
 private:
     TransformComponent* FindRelativeTransform(Unit* parentUnit) const;
