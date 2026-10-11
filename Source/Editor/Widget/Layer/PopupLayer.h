@@ -15,7 +15,9 @@ public:
     template <typename T, typename... Args>
     T* OpenPopup(const Rect& anchorRect, Args&&... args)
     {
-        ClosePopup();
+        ClearChildren();
+        activePopup = nullptr;
+        closeRequested = false;
 
         this->anchorRect = anchorRect;
         activePopup = AddChild<T>(std::forward<Args>(args)...);
@@ -27,9 +29,14 @@ public:
 
     bool CanHit() const override { return activePopup != nullptr; }
 
+protected:
+    void OnUpdate(float deltaTime) override;
+
 private:
     Widget* activePopup = nullptr;
     Rect anchorRect = {};
+
+    bool closeRequested = false;
 };
 
 } // namespace URay

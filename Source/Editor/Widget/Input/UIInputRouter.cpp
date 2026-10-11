@@ -20,7 +20,7 @@ void UIInputRouter::Process(Widget& root, const InputSystem& input)
     {
         if (const auto* keyEvent = std::get_if<KeyEvent>(&inputEvent))
         {
-            DispatchKeyEvent(*keyEvent);
+            DispatchKeyEvent(root, *keyEvent);
         }
         else if (const auto* pointerEvent = std::get_if<PointerEvent>(&inputEvent))
         {
@@ -32,13 +32,14 @@ void UIInputRouter::Process(Widget& root, const InputSystem& input)
         }
         else if (const auto* textEvent = std::get_if<TextInputEvent>(&inputEvent))
         {
-            DispatchTextInputEvent(*textEvent);
+            DispatchTextInputEvent(root, *textEvent);
         }
     }
 }
 
-void UIInputRouter::DispatchKeyEvent(const KeyEvent& event)
+void UIInputRouter::DispatchKeyEvent(Widget& root, const KeyEvent& event)
 {
+    Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
     if (!focusedWidget)
         return;
 
@@ -55,7 +56,9 @@ void UIInputRouter::DispatchKeyEvent(const KeyEvent& event)
 void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event)
 {
     Widget* hitWidget = FindTopWidget(root, event.position);
-    UpdateHoveredWidget(hitWidget);
+    UpdateHoveredWidget(root, hitWidget);
+
+    Widget* pointerCapturedWidget = FindWidgetById(root, pointerCapturedWidgetId);
 
     Widget* target = pointerCapturedWidget ? pointerCapturedWidget : hitWidget;
     if (!target)
@@ -66,19 +69,17 @@ void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event
     switch (event.action)
     {
     case PointerAction::Moved:
-        BubblePointerEvent(target, event, &Widget::OnPointerMove);
+        BubblePointerEvent(root, target, event, &Widget::OnPointerMove);
         return;
 
     case PointerAction::Pressed:
-        BubblePointerEvent(target, event, &Widget::OnPointerDown);
+        BubblePointerEvent(root, target, event, &Widget::OnPointerDown);
         break;
 
     case PointerAction::Released:
-        BubblePointerEvent(target, event, &Widget::OnPointerUp);
+        BubblePointerEvent(root, target, event, &Widget::OnPointerUp);
         break;
     }
-
-    ApplyReply(target, reply);
 }
 
 void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
@@ -88,76 +89,84 @@ void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
     for (Widget* widget = target; widget; widget = widget->GetParent())
     {
         const EventReply reply = widget->OnScroll(event);
-        ApplyReply(widget, reply);
+        ApplyReply(root, widget, reply);
 
         if (reply.handled)
             return;
     }
 }
 
-void UIInputRouter::DispatchTextInputEvent(const TextInputEvent& event)
+void UIInputRouter::DispatchTextInputEvent(Widget& root, const TextInputEvent& event)
 {
+    Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
+
     if (focusedWidget)
     {
-        ApplyReply(focusedWidget, focusedWidget->OnTextInput(event));
+        ApplyReply(root, focusedWidget, focusedWidget->OnTextInput(event));
     }
 }
 
-void UIInputRouter::BubblePointerEvent(Widget* target, const PointerEvent& event, PointerEventHandler handler)
+void UIInputRouter::BubblePointerEvent(Widget& root, Widget* target, const PointerEvent& event, PointerEventHandler handler)
 {
     for (Widget* widget = target; widget; widget = widget->GetParent())
     {
         const EventReply reply = (widget->*handler)(event);
-        ApplyReply(widget, reply);
+        ApplyReply(root, widget, reply);
 
         if (reply.handled)
             return;
     }
 }
 
-void UIInputRouter::UpdateHoveredWidget(Widget* hitWidget)
+void UIInputRouter::UpdateHoveredWidget(Widget& root, Widget* hitWidget)
 {
+    Widget* hoveredWidget = FindWidgetById(root, hoveredWidgetId);
+
     if (hitWidget == hoveredWidget)
         return;
 
     if (hoveredWidget)
     {
         hoveredWidget->hovered = false;
-        ApplyReply(hoveredWidget, hoveredWidget->OnPointerLeave());
+        ApplyReply(root, hoveredWidget, hoveredWidget->OnPointerLeave());
     }
 
-    hoveredWidget = hitWidget;
+    hoveredWidgetId = hitWidget ? hitWidget->GetId() : InvalidWidgetId;
 
-    if (hoveredWidget)
+    if (hitWidget)
     {
-        hoveredWidget->hovered = true;
-        ApplyReply(hoveredWidget, hoveredWidget->OnPointerEnter());
+        hitWidget->hovered = true;
+        ApplyReply(root, hitWidget, hitWidget->OnPointerEnter());
     }
 }
 
-void UIInputRouter::ApplyReply(Widget* target, const EventReply& reply)
+void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& reply)
 {
     if (reply.capturePointer)
     {
-        pointerCapturedWidget = target;
+        pointerCapturedWidgetId = target->GetId();
         target->pointerCaptured = true;
     }
 
-    if (reply.releasePointer && pointerCapturedWidget)
+    if (reply.releasePointer)
     {
-        pointerCapturedWidget->pointerCaptured = false;
-        pointerCapturedWidget = nullptr;
-    }
-
-    if (reply.requestFocus && focusedWidget != target)
-    {
-        if (focusedWidget)
+        if (Widget* captured = FindWidgetById(root, pointerCapturedWidgetId))
         {
-            focusedWidget->focused = false;
+            captured->pointerCaptured = false;
         }
 
-        focusedWidget = target;
-        focusedWidget->focused = true;
+        pointerCapturedWidgetId = InvalidWidgetId;
+    }
+
+    if (reply.requestFocus && focusedWidgetId != target->GetId())
+    {
+        if (Widget* previous = FindWidgetById(root, focusedWidgetId))
+        {
+            previous->focused = false;
+        }
+
+        focusedWidgetId = target->GetId();
+        target->focused = true;
     }
 
     if (reply.cursor.has_value())
@@ -185,6 +194,23 @@ Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) cons
         return nullptr;
 
     return &root;
+}
+
+Widget* UIInputRouter::FindWidgetById(Widget& root, WidgetId id) const
+{
+    if (id == InvalidWidgetId)
+        return nullptr;
+
+    if (root.GetId() == id)
+        return &root;
+
+    for (const auto& child : root.GetChildren())
+    {
+        if (Widget* found = FindWidgetById(*child, id))
+            return found;
+    }
+
+    return nullptr;
 }
 
 } // namespace URay

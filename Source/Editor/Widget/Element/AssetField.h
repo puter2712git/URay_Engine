@@ -20,6 +20,8 @@ public:
 public:
     void Arrange(const Rect& rect) override;
 
+    EventReply OnPointerDown(const PointerEvent& event) override;
+
     void SetValue(AssetHandle handle);
     AssetHandle GetValue() const { return value; }
 

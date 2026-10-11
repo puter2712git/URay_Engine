@@ -18,6 +18,10 @@ class UIDrawContext;
 namespace URay
 {
 
+using WidgetId = uint64;
+
+inline constexpr WidgetId InvalidWidgetId = 0;
+
 class Widget
 {
     URAY_ROOT_TYPE(Widget)
@@ -25,9 +29,12 @@ class Widget
     friend class UIInputRouter;
 
 public:
+    Widget();
     virtual ~Widget() = default;
 
 public:
+    WidgetId GetId() const { return id; }
+
     void Update(float deltaTime);
     void Draw();
     void Paint(Render::UIDrawContext& context);
@@ -110,6 +117,9 @@ protected:
     bool hovered = false;
     bool focused = false;
     bool pointerCaptured = false;
+
+private:
+    WidgetId id = InvalidWidgetId;
 };
 
 } // namespace URay

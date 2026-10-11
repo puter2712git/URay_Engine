@@ -42,6 +42,15 @@ EventReply PopupLayer::OnPointerDown(const PointerEvent& event)
 
 void PopupLayer::ClosePopup()
 {
+    closeRequested = true;
+}
+
+void PopupLayer::OnUpdate(float deltaTime)
+{
+    if (!closeRequested)
+        return;
+
+    closeRequested = false;
     ClearChildren();
     activePopup = nullptr;
 }

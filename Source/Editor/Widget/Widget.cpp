@@ -4,8 +4,14 @@
 
 #include <imgui/imgui.h>
 
+#include <atomic>
+
 namespace URay
 {
+
+std::atomic<WidgetId> nextWidgetId = 1;
+
+Widget::Widget() : id(nextWidgetId.fetch_add(1, std::memory_order_relaxed)) {}
 
 void Widget::Update(float deltaTime)
 {
