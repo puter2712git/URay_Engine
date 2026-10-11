@@ -9,6 +9,7 @@ namespace URay
 
 class SelectionSystem;
 class VerticalLayout;
+class ScrollView;
 class Object;
 struct Property;
 
@@ -41,6 +42,8 @@ private:
 
 private:
     SelectionSystem& selectionSystem;
+
+    ScrollView* scrollView = nullptr;
     VerticalLayout* layout = nullptr;
 
     bool isDirty = true;

@@ -92,6 +92,17 @@ void InputSystem::OnTextInput(char32_t codepoint)
         .codepoint = codepoint });
 }
 
+void InputSystem::OnScroll(Vector2 delta)
+{
+    scrollX += delta.x;
+    scrollY += delta.y;
+
+    events.push_back(ScrollEvent{
+        .position = Vector2(mouseX, mouseY),
+        .delta = delta,
+        .modifiers = GetCurrentModifiers() });
+}
+
 bool InputSystem::GetKey(KeyCode key) const
 {
     const size_t keyIndex = static_cast<size_t>(key);

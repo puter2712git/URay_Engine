@@ -10,6 +10,7 @@
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
+#include <Editor/Widget/Panel/ScrollView.h>
 
 #include <Engine/Component/Component.h>
 #include <Engine/Object/Object.h>
@@ -31,7 +32,9 @@ InspectorPanel::InspectorPanel()
     SetOutlineColor(EditorStyle::Border);
     SetPadding(Padding(5.0f, 5.0f));
 
-    layout = AddChild<VerticalLayout>();
+    scrollView = AddChild<ScrollView>();
+
+    layout = scrollView->SetContent<VerticalLayout>();
     layout->SetGap(2.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
@@ -49,7 +52,7 @@ InspectorPanel::~InspectorPanel()
 void InspectorPanel::Arrange(const Rect& rect)
 {
     Panel::Arrange(rect);
-    layout->Arrange(GetContentRect());
+    scrollView->Arrange(GetContentRect());
 }
 
 EventReply InspectorPanel::OnPointerDown(const PointerEvent& event)

@@ -83,6 +83,16 @@ void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event
 
 void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
 {
+    Widget* target = FindTopWidget(root, event.position);
+
+    for (Widget* widget = target; widget; widget = widget->GetParent())
+    {
+        const EventReply reply = widget->OnScroll(event);
+        ApplyReply(widget, reply);
+
+        if (reply.handled)
+            return;
+    }
 }
 
 void UIInputRouter::DispatchTextInputEvent(const TextInputEvent& event)
