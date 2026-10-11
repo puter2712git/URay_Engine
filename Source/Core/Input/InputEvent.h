@@ -40,6 +40,16 @@ constexpr ModifierKey operator&(ModifierKey lhs, ModifierKey rhs)
         static_cast<uint8>(lhs) & static_cast<uint8>(rhs));
 }
 
+inline ModifierKey& operator|=(ModifierKey& lhs, ModifierKey rhs)
+{
+    return lhs = lhs | rhs;
+}
+
+inline ModifierKey& operator&=(ModifierKey& lhs, ModifierKey rhs)
+{
+    return lhs = lhs & rhs;
+}
+
 enum class KeyCode : uint16
 {
     Unknown = 0,

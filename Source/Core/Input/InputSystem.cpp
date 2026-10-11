@@ -83,7 +83,7 @@ void InputSystem::OnCursorMoved(Vector2 position)
         .delta = delta,
         .changedButton = MouseButton::None,
         .pressedButtons = currMouseButtons,
-    });
+        .modifiers = GetCurrentModifiers() });
 }
 
 void InputSystem::OnTextInput(char32_t codepoint)
@@ -135,6 +135,25 @@ bool InputSystem::GetMouseUp(MouseButton button) const
 {
     const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
     return button != MouseButton::None && (currMouseButtons & mask) == 0 && (prevMouseButtons & mask) != 0;
+}
+
+ModifierKey InputSystem::GetCurrentModifiers() const
+{
+    ModifierKey modifiers = ModifierKey::None;
+
+    if (GetKey(KeyCode::LeftShift) || GetKey(KeyCode::RightShift))
+        modifiers |= ModifierKey::Shift;
+
+    if (GetKey(KeyCode::LeftControl) || GetKey(KeyCode::RightControl))
+        modifiers |= ModifierKey::Ctrl;
+
+    if (GetKey(KeyCode::LeftAlt) || GetKey(KeyCode::RightAlt))
+        modifiers |= ModifierKey::Alt;
+
+    if (GetKey(KeyCode::LeftSuper) || GetKey(KeyCode::RightSuper))
+        modifiers |= ModifierKey::Super;
+
+    return modifiers;
 }
 
 } // namespace URay

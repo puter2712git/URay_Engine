@@ -26,6 +26,8 @@ public:
     bool GetMouseDown(MouseButton button) const;
     bool GetMouseUp(MouseButton button) const;
 
+    ModifierKey GetCurrentModifiers() const;
+
     float GetMouseX() const { return static_cast<float>(mouseX); }
     float GetMouseY() const { return static_cast<float>(mouseY); }
 
