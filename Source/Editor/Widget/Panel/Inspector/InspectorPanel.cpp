@@ -6,6 +6,7 @@
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float3Field.h>
 #include <Editor/Widget/Element/NumberField.h>
+#include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
@@ -80,6 +81,8 @@ void InspectorPanel::RebuildProperties()
         AddProperty(*selectedUnit, property, property.name);
     }
 
+    layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
+
     const auto& components = selectedUnit->GetComponents();
     for (const auto& comp : components)
     {
@@ -88,6 +91,8 @@ void InspectorPanel::RebuildProperties()
         {
             AddProperty(*comp, property, componentName + "." + property.name);
         }
+
+        layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
     }
 }
 
