@@ -35,7 +35,7 @@ void SpriteComponent::RegisterClass()
         { .type = PropertyType::Texture,
           .name = "Texture",
           .offset = offsetof(SpriteComponent, textureHandle),
-          .size = sizeof(Texture*) });
+          .size = sizeof(AssetHandle) });
 }
 
 Render::RenderObject* SpriteComponent::CreateRenderObject()

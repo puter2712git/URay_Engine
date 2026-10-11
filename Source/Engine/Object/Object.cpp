@@ -92,6 +92,12 @@ YAML::Node Object::Serialize() const
             node[prop.name] = textureHandle.ToString();
             break;
         }
+        case PropertyType::Material:
+        {
+            AssetHandle materialHandle = prop.GetValue<AssetHandle>(this);
+            node[prop.name] = materialHandle.ToString();
+            break;
+        }
         default:
             break;
         }
@@ -169,6 +175,12 @@ void Object::Deserialize(const YAML::Node& node)
             break;
         }
         case PropertyType::Texture:
+        {
+            const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
+            *static_cast<AssetHandle*>(valueAddress) = handle;
+            break;
+        }
+        case PropertyType::Material:
         {
             const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
             *static_cast<AssetHandle*>(valueAddress) = handle;

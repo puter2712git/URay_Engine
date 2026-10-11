@@ -35,7 +35,7 @@ void DecalComponent::RegisterClass()
         { .type = PropertyType::Material,
           .name = "Material",
           .offset = offsetof(DecalComponent, materialHandle),
-          .size = sizeof(Material*) });
+          .size = sizeof(AssetHandle) });
 }
 
 Render::RenderObject* DecalComponent::CreateRenderObject()
