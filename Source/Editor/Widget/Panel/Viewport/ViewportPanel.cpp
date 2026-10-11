@@ -91,6 +91,19 @@ ViewportPanel::ViewportPanel()
                                                      });
     bool gizmoIsLocal = gizmo->IsLocal();
 
+    toolbar->GetPlayButton()->GetOnClickRay().Register(
+        this,
+        []()
+        {
+            gEditor->StartGame();
+        });
+    toolbar->GetStopButton()->GetOnClickRay().Register(
+        this,
+        []()
+        {
+            gEditor->StopGame();
+        });
+
     auto& content = gizmoSpaceToggleButton->GetChildren()[0];
     Image* image = static_cast<Image*>(content.get());
 

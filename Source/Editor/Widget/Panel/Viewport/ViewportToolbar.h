@@ -27,11 +27,19 @@ public:
     const std::array<Button*, static_cast<size_t>(GizmoMode::Count)>& GetGizmoModeButtons() const { return gizmoModeButtons; }
     Button* GetGizmoSpaceToggleButton() const { return gizmoSpaceToggleButton; }
 
+    Button* GetPlayButton() const { return playButton; }
+    Button* GetStopButton() const { return stopButton; }
+
 private:
     HorizontalLayout* gizmoModeButtonLayout = nullptr;
+    HorizontalLayout* playControlLayout = nullptr;
+
     std::array<Button*, static_cast<size_t>(GizmoMode::Count)> gizmoModeButtons;
     Button* gizmoSpaceToggleButton = nullptr;
     Button* viewModeToggleButton = nullptr;
+
+    Button* playButton = nullptr;
+    Button* stopButton = nullptr;
 };
 
 } // namespace URay

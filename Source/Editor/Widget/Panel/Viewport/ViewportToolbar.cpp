@@ -10,38 +10,34 @@ namespace URay
 
 ViewportToolbar::ViewportToolbar()
 {
-    auto gizmoHorizontalLayout = std::make_unique<HorizontalLayout>();
-    gizmoModeButtonLayout = gizmoHorizontalLayout.get();
+    gizmoModeButtonLayout = AddChild<HorizontalLayout>();
     gizmoModeButtonLayout->SetPadding(Padding(5.0f, 5.0f));
     gizmoModeButtonLayout->SetGap(5.0f);
 
-    auto translationButton = std::make_unique<Button>(EngineAsset::TranslationGizmoIconTexture);
-    gizmoModeButtons[0] = translationButton.get();
+    gizmoModeButtons[0] = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::TranslationGizmoIconTexture);
     gizmoModeButtons[0]->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    auto rotationButton = std::make_unique<Button>(EngineAsset::RotationGizmoIconTexture);
-    gizmoModeButtons[1] = rotationButton.get();
+    gizmoModeButtons[1] = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::RotationGizmoIconTexture);
     gizmoModeButtons[1]->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    auto scaleButton = std::make_unique<Button>(EngineAsset::ScaleGizmoIconTexture);
-    gizmoModeButtons[2] = scaleButton.get();
+    gizmoModeButtons[2] = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::ScaleGizmoIconTexture);
     gizmoModeButtons[2]->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    auto spaceToggleButton = std::make_unique<Button>(EngineAsset::GizmoWorldSpaceIconTexture);
-    gizmoSpaceToggleButton = spaceToggleButton.get();
+    gizmoSpaceToggleButton = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::GizmoLocalSpaceIconTexture);
     gizmoSpaceToggleButton->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    auto viewToggleButton = std::make_unique<Button>(EngineAsset::ViewModeIconTexture);
-    viewModeToggleButton = viewToggleButton.get();
+    viewModeToggleButton = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::ViewModeIconTexture);
     viewModeToggleButton->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    AddChild(std::move(gizmoHorizontalLayout));
+    playControlLayout = AddChild<HorizontalLayout>();
+    playControlLayout->SetPadding(Padding(5.0f, 5.0f));
+    playControlLayout->SetGap(5.0f);
 
-    gizmoModeButtonLayout->AddChild(std::move(translationButton));
-    gizmoModeButtonLayout->AddChild(std::move(rotationButton));
-    gizmoModeButtonLayout->AddChild(std::move(scaleButton));
-    gizmoModeButtonLayout->AddChild(std::move(spaceToggleButton));
-    gizmoModeButtonLayout->AddChild(std::move(viewToggleButton));
+    playButton = playControlLayout->AddChild<Button>("Play");
+    playButton->SetPreferredSize(Vector2(60.0f, 30.0f));
+
+    stopButton = playControlLayout->AddChild<Button>("Stop");
+    stopButton->SetPreferredSize(Vector2(60.0f, 30.0f));
 }
 
 ViewportToolbar::~ViewportToolbar() = default;
@@ -51,6 +47,17 @@ void ViewportToolbar::Arrange(const Rect& rect)
     Widget::Arrange(rect);
 
     gizmoModeButtonLayout->Arrange(rect);
+
+    const Vector2 controlSize = playControlLayout->GetDesiredSize();
+
+    Rect controlRect;
+    controlRect.position = {
+        rect.position.x + (rect.size.x - controlSize.x) * 0.5f,
+        rect.position.y + (rect.size.y - controlSize.y) * 0.5f,
+    };
+    controlRect.size = controlSize;
+
+    playControlLayout->Arrange(controlRect);
 }
 
 } // namespace URay
