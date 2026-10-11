@@ -19,14 +19,24 @@ public:
     const Color& GetBackgroundColor() const { return backgroundColor; }
     void SetBackgroundColor(const Color& color) { backgroundColor = color; }
 
+    const Color& GetOutlineColor() const { return outlineColor; }
+    void SetOutlineColor(const Color& color) { outlineColor = color; }
+
+    float GetOutlineWidth() const { return outlineWidth; }
+    void SetOutlineWidth(float width) { outlineWidth = width; }
+
     const Padding& GetPadding() const { return padding; }
     void SetPadding(const Padding& padding) { this->padding = padding; }
 
 protected:
+    Vector2 OnMeasure() override;
+
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
     Color backgroundColor = {};
+    Color outlineColor = Color::Black;
+    float outlineWidth = 0.0f;
     Padding padding = {};
 };
 
