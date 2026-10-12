@@ -35,3 +35,7 @@ Sandbox/Config/EditorLayout.ini
 Sandbox/Config/Editor.ini
 
 *.asset
+
+# .NET build outputs for the Script API generator
+Tool/ScriptAPIGenerator/bin/
+Tool/ScriptAPIGenerator/obj/
