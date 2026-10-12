@@ -2,6 +2,7 @@
 
 #include <Core/Ray/EventRay.h>
 #include <Editor/Widget/Widget.h>
+#include <Engine/Asset/Asset.h>
 
 #include <string>
 
@@ -13,6 +14,19 @@ class Surface;
 class VerticalLayout;
 class Button;
 
+enum class ComponentPickerItemKind
+{
+    NativeComponent,
+    ScriptAsset
+};
+
+struct ComponentPickerSelection
+{
+    ComponentPickerItemKind kind = ComponentPickerItemKind::NativeComponent;
+    std::string componentTypeName;
+    AssetHandle scriptHandle = {};
+};
+
 class ComponentPickerPopup final : public Widget
 {
 public:
@@ -21,7 +35,7 @@ public:
 public:
     void Arrange(const Rect& rect) override;
 
-    EventRay<const std::string&>& GetComponentSelectedRay() { return componentSelectedRay; }
+    EventRay<const ComponentPickerSelection&>& GetComponentSelectedRay() { return componentSelectedRay; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -30,7 +44,7 @@ private:
     Surface* surface = nullptr;
     VerticalLayout* layout = nullptr;
 
-    EventRay<const std::string&> componentSelectedRay;
+    EventRay<const ComponentPickerSelection&> componentSelectedRay;
 };
 
 } // namespace URay

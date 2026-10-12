@@ -1,9 +1,15 @@
 #include "ComponentPickerPopup.h"
 
 #include <Editor/Widget/Element/Button.h>
+#include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/Surface.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Script/ScriptAsset.h>
 #include <Engine/Component/ComponentFactory.h>
+#include <Engine/Component/ScriptComponent.h>
+#include <Engine/Engine.h>
 
 namespace URay
 {
@@ -24,6 +30,9 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 
     for (const auto& [name, constructor] : ComponentFactory::GetRegisteredComponents())
     {
+        if (name == ScriptComponent::StaticRuntimeType().name)
+            continue;
+
         componentNames.push_back(name);
     }
 
@@ -34,11 +43,51 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
         Button* button = layout->AddChild<Button>(typeName);
         button->SetPreferredHeight(24.0f);
 
+        const ComponentPickerSelection selection = {
+            .kind = ComponentPickerItemKind::NativeComponent,
+            .componentTypeName = typeName
+        };
+
         button->GetOnClickRay().Register(
             this,
-            [this, typeName]
+            [this, selection]
             {
-                componentSelectedRay.Emit(typeName);
+                componentSelectedRay.Emit(selection);
+            });
+    }
+
+    AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
+
+    std::vector<ScriptAsset*> scripts = database.GetAssets<ScriptAsset>();
+
+    std::sort(
+        scripts.begin(),
+        scripts.end(),
+        [](const ScriptAsset* lhs, const ScriptAsset* rhs)
+        {
+            return lhs->GetName() < rhs->GetName();
+        });
+
+    if (!componentNames.empty() && !scripts.empty())
+    {
+        layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
+    }
+
+    for (ScriptAsset* script : scripts)
+    {
+        Button* button = layout->AddChild<Button>(script->GetName());
+        button->SetPreferredHeight(24.0f);
+
+        const ComponentPickerSelection selection = {
+            .kind = ComponentPickerItemKind::ScriptAsset,
+            .scriptHandle = script->GetHandle()
+        };
+
+        button->GetOnClickRay().Register(
+            this,
+            [this, selection]
+            {
+                componentSelectedRay.Emit(selection);
             });
     }
 }

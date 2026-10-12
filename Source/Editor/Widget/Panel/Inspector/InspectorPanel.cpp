@@ -174,16 +174,37 @@ void InspectorPanel::RebuildProperties()
             ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *selectedUnit);
             popup->GetComponentSelectedRay().Register(
                 popup,
-                [this, &popupLayer](const std::string& typeName)
+                [this, &popupLayer](const ComponentPickerSelection& selection)
                 {
                     Unit* targetUnit = selectionSystem.GetSelectedUnit();
 
-                    if (targetUnit)
+                    if (!targetUnit)
                     {
-                        if (auto component = ComponentFactory::Create(typeName))
+                        popupLayer.ClosePopup();
+                        return;
+                    }
+
+                    switch (selection.kind)
+                    {
+                    case ComponentPickerItemKind::NativeComponent:
+                    {
+                        auto component = ComponentFactory::Create(selection.componentTypeName);
+                        if (component)
                         {
                             targetUnit->AddComponent(std::move(component));
                         }
+                        break;
+                    }
+
+                    case ComponentPickerItemKind::ScriptAsset:
+                    {
+                        auto component = std::make_unique<ScriptComponent>();
+                        component->SetScript(selection.scriptHandle);
+
+                        targetUnit->AddComponent(std::move(component));
+
+                        break;
+                    }
                     }
 
                     popupLayer.ClosePopup();
