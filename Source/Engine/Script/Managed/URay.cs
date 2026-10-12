@@ -3,7 +3,7 @@ using System.Text;
 
 namespace URay.ScriptHost;
 
-public static unsafe class URay
+public static unsafe partial class URay
 {
     private static NativeAPI nativeAPI;
     private static bool isInitialized;
@@ -126,47 +126,4 @@ public static unsafe class URay
         }
     }
 
-    internal static bool TryGetTransformPosition(
-        ulong instanceId,
-        out Vector3 position)
-    {
-        position = default;
-
-        if (!isInitialized ||
-            instanceId == 0 ||
-            nativeAPI.Runtime.GetTransformPosition == null)
-        {
-            return false;
-        }
-
-        Vector3 nativePosition = default;
-
-        if (nativeAPI.Runtime.GetTransformPosition(
-            nativeAPI.UserData,
-            instanceId,
-            &nativePosition) == 0)
-        {
-            return false;
-        }
-
-        position = nativePosition;
-        return true;
-    }
-
-    internal static bool TrySetTransformPosition(
-        ulong instanceId,
-        Vector3 position)
-    {
-        if (!isInitialized ||
-            instanceId == 0 ||
-            nativeAPI.Runtime.SetTransformPosition == null)
-        {
-            return false;
-        }
-
-        return nativeAPI.Runtime.SetTransformPosition(
-            nativeAPI.UserData,
-            instanceId,
-            &position) != 0;
-    }
 }

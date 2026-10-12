@@ -43,8 +43,182 @@ public static class CSharpNativeAPIEmitter
         }
 
         builder.AppendLine("}");
+        builder.AppendLine();
+
+        AppendURayWrappers(builder, document);
 
         return builder.ToString();
+    }
+
+    private static void AppendURayWrappers(
+        StringBuilder builder,
+        RuntimeAPIDocument document)
+    {
+        builder.AppendLine("public static unsafe partial class URay");
+        builder.AppendLine("{");
+
+        foreach (RuntimeAPIDefinition api in document.APIs)
+        {
+            AppendURayWrapper(builder, api);
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("}");
+    }
+
+    private static void AppendURayWrapper(
+        StringBuilder builder,
+        RuntimeAPIDefinition api)
+    {
+        RuntimeAPIParameter? outParameter = GetOutParameter(api);
+
+        builder.Append("    internal static bool Try");
+        builder.Append(api.Name);
+        builder.AppendLine("(");
+
+        for (int index = 0; index < api.Parameters.Count; ++index)
+        {
+            RuntimeAPIParameter parameter = api.Parameters[index];
+
+            builder.Append("        ");
+            builder.Append(GetWrapperParameterDeclaration(parameter));
+
+            if (index < api.Parameters.Count - 1)
+                builder.Append(',');
+
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("    )");
+        builder.AppendLine("    {");
+
+        if (outParameter is not null)
+        {
+            builder.Append("        ");
+            builder.Append(outParameter.Name);
+            builder.AppendLine(" = default;");
+            builder.AppendLine();
+        }
+
+        builder.AppendLine("        if (!isInitialized ||");
+        builder.AppendLine("            instanceId == 0 ||");
+        builder.Append("            nativeAPI.Runtime.");
+        builder.Append(api.Name);
+        builder.AppendLine(" == null)");
+        builder.AppendLine("        {");
+        builder.AppendLine("            return false;");
+        builder.AppendLine("        }");
+        builder.AppendLine();
+
+        if (outParameter is not null)
+        {
+            builder.Append("        Vector3 native");
+            builder.Append(ToPascalCase(outParameter.Name));
+            builder.AppendLine(" = default;");
+            builder.AppendLine();
+            builder.Append("        if (nativeAPI.Runtime.");
+            builder.Append(api.Name);
+            builder.AppendLine("(");
+            AppendRuntimeCallArguments(builder, api, outParameter);
+            builder.AppendLine("            ) == 0)");
+            builder.AppendLine("        {");
+            builder.AppendLine("            return false;");
+            builder.AppendLine("        }");
+            builder.AppendLine();
+            builder.Append("        ");
+            builder.Append(outParameter.Name);
+            builder.Append(" = native");
+            builder.Append(ToPascalCase(outParameter.Name));
+            builder.AppendLine(";");
+            builder.AppendLine("        return true;");
+        }
+        else
+        {
+            builder.Append("        return nativeAPI.Runtime.");
+            builder.Append(api.Name);
+            builder.AppendLine("(");
+            AppendRuntimeCallArguments(builder, api, null);
+            builder.AppendLine("            ) != 0;");
+        }
+
+        builder.AppendLine("    }");
+    }
+
+    private static RuntimeAPIParameter? GetOutParameter(
+        RuntimeAPIDefinition api)
+    {
+        RuntimeAPIParameter? outParameter = null;
+
+        foreach (RuntimeAPIParameter parameter in api.Parameters)
+        {
+            if (parameter.Direction != "out")
+                continue;
+
+            if (outParameter is not null)
+            {
+                throw new InvalidOperationException(
+                    $"API '{api.Name}' has multiple out parameters.");
+            }
+
+            outParameter = parameter;
+        }
+
+        return outParameter;
+    }
+
+    private static string GetWrapperParameterDeclaration(
+        RuntimeAPIParameter parameter)
+    {
+        return parameter.Type switch
+        {
+            "u64" => $"ulong {parameter.Name}",
+            "Vector3" when parameter.Direction == "in" =>
+                $"Vector3 {parameter.Name}",
+            "Vector3" when parameter.Direction == "out" =>
+                $"out Vector3 {parameter.Name}",
+            _ => throw new InvalidOperationException(
+                $"Unsupported C# parameter: " +
+                $"'{parameter.Direction} {parameter.Type} {parameter.Name}'.")
+        };
+    }
+
+    private static void AppendRuntimeCallArguments(
+        StringBuilder builder,
+        RuntimeAPIDefinition api,
+        RuntimeAPIParameter? outParameter)
+    {
+        builder.AppendLine("                nativeAPI.UserData,");
+
+        for (int index = 0; index < api.Parameters.Count; ++index)
+        {
+            RuntimeAPIParameter parameter = api.Parameters[index];
+
+            builder.Append("                ");
+
+            if (parameter.Type == "Vector3")
+            {
+                builder.Append('&');
+
+                if (ReferenceEquals(parameter, outParameter))
+                {
+                    builder.Append("native");
+                    builder.Append(ToPascalCase(parameter.Name));
+                }
+                else
+                {
+                    builder.Append(parameter.Name);
+                }
+            }
+            else
+            {
+                builder.Append(parameter.Name);
+            }
+
+            if (index < api.Parameters.Count - 1)
+                builder.Append(',');
+
+            builder.AppendLine();
+        }
     }
 
     private static string GetResultType(string resultType)
@@ -66,5 +240,13 @@ public static class CSharpNativeAPIEmitter
             _ => throw new InvalidOperationException(
                 $"Unsupported parameter type '{parameter.Type}'.")
         };
+    }
+
+    private static string ToPascalCase(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+
+        return char.ToUpperInvariant(value[0]) + value[1..];
     }
 }

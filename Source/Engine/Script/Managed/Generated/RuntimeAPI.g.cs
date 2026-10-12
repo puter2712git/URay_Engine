@@ -22,3 +22,50 @@ public unsafe struct RuntimeAPI
         int> SetTransformPosition;
 
 }
+
+public static unsafe partial class URay
+{
+    internal static bool TryGetTransformPosition(
+        ulong instanceId,
+        out Vector3 position)
+    {
+        position = default;
+
+        if (!isInitialized ||
+            instanceId == 0 ||
+            nativeAPI.Runtime.GetTransformPosition == null)
+        {
+            return false;
+        }
+
+        Vector3 nativePosition = default;
+
+        if (nativeAPI.Runtime.GetTransformPosition(
+            nativeAPI.UserData,
+            instanceId,
+            &nativePosition) == 0)
+        {
+            return false;
+        }
+
+        position = nativePosition;
+        return true;
+    }
+
+    internal static bool TrySetTransformPosition(
+        ulong instanceId,
+        Vector3 position)
+    {
+        if (!isInitialized ||
+            instanceId == 0 ||
+            nativeAPI.Runtime.SetTransformPosition == null)
+        {
+            return false;
+        }
+
+        return nativeAPI.Runtime.SetTransformPosition(
+            nativeAPI.UserData,
+            instanceId,
+            &position) != 0;
+    }
+}

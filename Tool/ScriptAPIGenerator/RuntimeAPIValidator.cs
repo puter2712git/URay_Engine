@@ -135,6 +135,7 @@ public static class RuntimeAPIValidator
         }
 
         HashSet<string> parameterNames = new(StringComparer.Ordinal);
+        int outParameterCount = 0;
 
         foreach (RuntimeAPIParameter parameter in api.Parameters)
         {
@@ -171,6 +172,13 @@ public static class RuntimeAPIValidator
                 errors.Add(
                     $"API '{apiName}' parameter '{parameter.Name}' uses " +
                     $"'out', but only 'Vector3' supports 'out'.");
+            }
+
+            if (parameter.Direction == "out" && ++outParameterCount > 1)
+            {
+                errors.Add(
+                    $"API '{apiName}' has multiple out parameters. " +
+                    "Only one out Vector3 is currently supported.");
             }
         }
     }
