@@ -4,7 +4,10 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Script/ScriptAsset.h>
+#include <Engine/Component/ScriptComponent.h>
+#include <Engine/Component/TransformComponent.h>
 #include <Engine/Engine.h>
+#include <Engine/Scene/Unit.h>
 #include <Engine/Script/NativeAPI.h>
 
 #include <algorithm>
@@ -32,7 +35,9 @@ bool ScriptSystem::Initialize(const std::filesystem::path& projectPath)
         .userData = this,
         .LogUTF8 = &ScriptSystem::LogUTF8,
         .RegisterScriptType = &ScriptSystem::RegisterScriptTypeUTF8,
-        .RegisterScriptField = &ScriptSystem::RegisterScriptFieldUTF8
+        .RegisterScriptField = &ScriptSystem::RegisterScriptFieldUTF8,
+        .GetTransformPosition = &ScriptSystem::GetTransformPosition,
+        .SetTransformPosition = &ScriptSystem::SetTransformPosition
     };
 
     if (!dotnetHost.InitializeManagedAPI(nativeAPI))
@@ -45,6 +50,7 @@ bool ScriptSystem::Initialize(const std::filesystem::path& projectPath)
 void ScriptSystem::Finalize()
 {
     scriptTypes.clear();
+    managedInstances.clear();
     isInitialized = false;
 }
 
@@ -112,63 +118,39 @@ void ScriptSystem::DestroyScriptInstance(uint64 instanceId)
     dotnetHost.DestroyScriptInstance(instanceId);
 }
 
-void ScriptSystem::LogUTF8(void* userData, const uint8* message, int32 byteCount)
+bool ScriptSystem::BindManagedInstance(uint64 instanceId, ScriptComponent& component)
 {
-    if (message == nullptr || byteCount < 0)
+    if (instanceId == 0)
+        return false;
+
+    const auto it = managedInstances.find(instanceId);
+    if (it != managedInstances.end())
+        return false;
+
+    if (!component.GetOwner())
+        return false;
+
+    managedInstances.emplace(instanceId, &component);
+    return true;
+}
+
+void ScriptSystem::UnbindManagedInstance(uint64 instanceId, const ScriptComponent& component)
+{
+    const auto it = managedInstances.find(instanceId);
+
+    if (it == managedInstances.end() || it->second != &component)
         return;
 
-    const char* text = reinterpret_cast<const char*>(message);
-    URAY_LOG("%s", std::string(text, byteCount).c_str());
+    managedInstances.erase(it);
 }
 
-int32 ScriptSystem::RegisterScriptTypeUTF8(
-    void* userData,
-    const uint8* className,
-    int32 classNameLength)
+ScriptComponent* ScriptSystem::FindManagedInstance(uint64 instanceId) const
 {
-    if (!userData || !className || classNameLength <= 0)
-        return 0;
+    const auto it = managedInstances.find(instanceId);
 
-    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
-
-    ScriptTypeDefinition definition;
-    definition.className = std::string(
-        reinterpret_cast<const char*>(className),
-        classNameLength);
-
-    return scriptSystem.RegisterScriptType(std::move(definition)) ? 1 : 0;
-}
-
-int32 ScriptSystem::RegisterScriptFieldUTF8(
-    void* userData,
-    const uint8* className,
-    int32 classNameLength,
-    const uint8* fieldName,
-    int32 fieldNameLength,
-    int32 fieldType,
-    const void* defaultValue,
-    int32 defaultValueSize)
-{
-    if (!userData || !className || classNameLength <= 0 ||
-        !fieldName || fieldNameLength <= 0 ||
-        defaultValueSize < 0)
-    {
-        return 0;
-    }
-
-    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
-
-    const std::string classNameString(reinterpret_cast<const char*>(className), classNameLength);
-    const std::string fieldNameString(reinterpret_cast<const char*>(fieldName), fieldNameLength);
-
-    return scriptSystem.RegisterScriptField(
-               classNameString,
-               fieldNameString,
-               static_cast<ScriptFieldType>(fieldType),
-               defaultValue,
-               defaultValueSize)
-               ? 1
-               : 0;
+    return it != managedInstances.end()
+               ? it->second
+               : nullptr;
 }
 
 bool ScriptSystem::RegisterScriptField(
@@ -367,6 +349,115 @@ bool ScriptSystem::SyncScriptAsset(const ScriptTypeDefinition& definition) const
     asset->SetFields(definition.fields);
 
     return true;
+}
+
+TransformComponent* ScriptSystem::ResolveTransform(uint64 instanceId) const
+{
+    ScriptComponent* scriptComponent = FindManagedInstance(instanceId);
+
+    if (!scriptComponent)
+        return nullptr;
+
+    Unit* unit = scriptComponent->GetOwner();
+
+    return unit ? unit->GetTransform() : nullptr;
+}
+
+void ScriptSystem::LogUTF8(void* userData, const uint8* message, int32 byteCount)
+{
+    if (message == nullptr || byteCount < 0)
+        return;
+
+    const char* text = reinterpret_cast<const char*>(message);
+    URAY_LOG("%s", std::string(text, byteCount).c_str());
+}
+
+int32 ScriptSystem::RegisterScriptTypeUTF8(
+    void* userData,
+    const uint8* className,
+    int32 classNameLength)
+{
+    if (!userData || !className || classNameLength <= 0)
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    ScriptTypeDefinition definition;
+    definition.className = std::string(
+        reinterpret_cast<const char*>(className),
+        classNameLength);
+
+    return scriptSystem.RegisterScriptType(std::move(definition)) ? 1 : 0;
+}
+
+int32 ScriptSystem::RegisterScriptFieldUTF8(
+    void* userData,
+    const uint8* className,
+    int32 classNameLength,
+    const uint8* fieldName,
+    int32 fieldNameLength,
+    int32 fieldType,
+    const void* defaultValue,
+    int32 defaultValueSize)
+{
+    if (!userData || !className || classNameLength <= 0 ||
+        !fieldName || fieldNameLength <= 0 ||
+        defaultValueSize < 0)
+    {
+        return 0;
+    }
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    const std::string classNameString(reinterpret_cast<const char*>(className), classNameLength);
+    const std::string fieldNameString(reinterpret_cast<const char*>(fieldName), fieldNameLength);
+
+    return scriptSystem.RegisterScriptField(
+               classNameString,
+               fieldNameString,
+               static_cast<ScriptFieldType>(fieldType),
+               defaultValue,
+               defaultValueSize)
+               ? 1
+               : 0;
+}
+
+int32 ScriptSystem::GetTransformPosition(
+    void* userData,
+    uint64 instanceId,
+    Vector3* outPosition)
+{
+    if (!userData || !outPosition)
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    TransformComponent* transform = scriptSystem.ResolveTransform(instanceId);
+
+    if (!transform)
+        return 0;
+
+    *outPosition = transform->GetPosition();
+    return 1;
+}
+
+int32 ScriptSystem::SetTransformPosition(
+    void* userData,
+    uint64 instanceId,
+    const Vector3* position)
+{
+    if (!userData || !position)
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    TransformComponent* transform = scriptSystem.ResolveTransform(instanceId);
+
+    if (!transform)
+        return 0;
+
+    transform->SetPosition(*position);
+    return 1;
 }
 
 } // namespace URay

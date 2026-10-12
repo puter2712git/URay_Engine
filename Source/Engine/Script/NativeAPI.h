@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Math/Vector3.h>
 #include <Core/Type/Types.h>
 
 namespace URay
@@ -25,6 +26,16 @@ struct NativeAPI
         int32 fieldType,
         const void* defaultValue,
         int32 defaultValueSize) = nullptr;
+
+    int32(__cdecl* GetTransformPosition)(
+        void* userData,
+        uint64 instanceId,
+        Vector3* outPosition) = nullptr;
+
+    int32(__cdecl* SetTransformPosition)(
+        void* userData,
+        uint64 instanceId,
+        const Vector3* position) = nullptr;
 };
 
 } // namespace URay

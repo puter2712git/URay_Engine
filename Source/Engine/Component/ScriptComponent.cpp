@@ -319,6 +319,31 @@ void ScriptComponent::OnLoad()
         return;
     }
 
+    if (!scriptSystem.BindManagedInstance(instanceId, *this))
+    {
+        URAY_LOG(
+            "Failed to bind managed script instance: %s",
+            script->GetManagedClassName().c_str());
+
+        scriptSystem.DestroyScriptInstance(instanceId);
+        return;
+    }
+
+    const auto releaseInstance =
+        [&](bool invokeFinalize)
+    {
+        if (invokeFinalize)
+        {
+            scriptSystem.InvokeScriptLifecycle(
+                instanceId,
+                ScriptLifecycle::Finalize,
+                0.0f);
+        }
+
+        scriptSystem.UnbindManagedInstance(instanceId, *this);
+        scriptSystem.DestroyScriptInstance(instanceId);
+    };
+
     for (const ScriptFieldValue& field : fields)
     {
         if (scriptSystem.SetScriptFieldValue(
@@ -335,7 +360,7 @@ void ScriptComponent::OnLoad()
             script->GetManagedClassName().c_str(),
             field.name.c_str());
 
-        scriptSystem.DestroyScriptInstance(instanceId);
+        releaseInstance(false);
         return;
     }
 
@@ -344,7 +369,7 @@ void ScriptComponent::OnLoad()
             ScriptLifecycle::Initialize,
             0.0f))
     {
-        scriptSystem.DestroyScriptInstance(instanceId);
+        releaseInstance(false);
         return;
     }
 
@@ -353,12 +378,7 @@ void ScriptComponent::OnLoad()
             ScriptLifecycle::Load,
             0.0f))
     {
-        scriptSystem.InvokeScriptLifecycle(
-            instanceId,
-            ScriptLifecycle::Finalize,
-            0.0f);
-
-        scriptSystem.DestroyScriptInstance(instanceId);
+        releaseInstance(true);
         return;
     }
 
@@ -409,6 +429,7 @@ void ScriptComponent::OnFinalize()
         ScriptLifecycle::Finalize,
         0.0f);
 
+    scriptSystem.UnbindManagedInstance(instanceId, *this);
     scriptSystem.DestroyScriptInstance(instanceId);
 }
 

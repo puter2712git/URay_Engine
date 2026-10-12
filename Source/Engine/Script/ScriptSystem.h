@@ -13,6 +13,8 @@ namespace URay
 {
 
 class ScriptAsset;
+class ScriptComponent;
+class TransformComponent;
 
 class ScriptSystem
 {
@@ -35,7 +37,23 @@ public:
         float deltaTime);
     void DestroyScriptInstance(uint64 instanceId);
 
+    bool BindManagedInstance(uint64 instanceId, ScriptComponent& component);
+    void UnbindManagedInstance(uint64 instanceId, const ScriptComponent& component);
+    ScriptComponent* FindManagedInstance(uint64 instanceId) const;
+
 private:
+    bool RegisterScriptField(
+        const std::string& className,
+        const std::string& fieldName,
+        ScriptFieldType fieldType,
+        const void* defaultValue,
+        int32 defaultValueSize);
+
+    ScriptAsset* FindScriptAssetByClassName(const std::string& className) const;
+    bool SyncScriptAsset(const ScriptTypeDefinition& definition) const;
+
+    TransformComponent* ResolveTransform(uint64 instanceId) const;
+
     static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);
     static int32 __cdecl RegisterScriptTypeUTF8(void* userData, const uint8* className, int32 classNameLength);
     static int32 __cdecl RegisterScriptFieldUTF8(
@@ -48,21 +66,21 @@ private:
         const void* defaultValue,
         int32 defaultValueSize);
 
-    bool RegisterScriptField(
-        const std::string& className,
-        const std::string& fieldName,
-        ScriptFieldType fieldType,
-        const void* defaultValue,
-        int32 defaultValueSize);
-
-    ScriptAsset* FindScriptAssetByClassName(const std::string& className) const;
-    bool SyncScriptAsset(const ScriptTypeDefinition& definition) const;
+    static int32 __cdecl GetTransformPosition(
+        void* userData,
+        uint64 instanceId,
+        Vector3* outPosition);
+    static int32 __cdecl SetTransformPosition(
+        void* userData,
+        uint64 instanceId,
+        const Vector3* position);
 
 private:
     DotnetHost dotnetHost;
     bool isInitialized = false;
 
     std::unordered_map<std::string, ScriptTypeDefinition> scriptTypes;
+    std::unordered_map<uint64, ScriptComponent*> managedInstances;
 };
 
 } // namespace URay
