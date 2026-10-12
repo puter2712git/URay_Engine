@@ -1,5 +1,8 @@
 #include "ScriptComponent.h"
 
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Script/ScriptAsset.h>
 #include <Engine/Engine.h>
 #include <Engine/Script/ScriptSystem.h>
 
@@ -15,20 +18,13 @@ URAY_REGISTER_COMPONENT(ScriptComponent)
 
 void ScriptComponent::RegisterClass()
 {
-    StaticClass()->AddProperty(
-        { .type = PropertyType::String,
-          .name = "Script Class",
-          .offset = offsetof(ScriptComponent, scriptClassName),
-          .size = sizeof(std::string),
-          .OnChangedCallback = [](Object& object, const Property&)
-          {
-              static_cast<ScriptComponent&>(object).RefreshFieldsFromSchema();
-          } });
 }
 
 YAML::Node ScriptComponent::Serialize() const
 {
     YAML::Node node = Component::Serialize();
+
+    node["Script"] = scriptHandle.ToString();
 
     YAML::Node fieldsNode(YAML::NodeType::Map);
 
@@ -118,6 +114,16 @@ void ScriptComponent::Deserialize(const YAML::Node& node)
 {
     Component::Deserialize(node);
 
+    const YAML::Node scriptNode = node["Script"];
+
+    if (!scriptNode)
+    {
+        SetScript(AssetHandle{});
+        return;
+    }
+
+    SetScript(AssetHandle::FromString(scriptNode.as<std::string>()));
+
     const YAML::Node fieldsNode = node["Fields"];
 
     if (!fieldsNode || !fieldsNode.IsMap())
@@ -203,12 +209,22 @@ void ScriptComponent::Deserialize(const YAML::Node& node)
     }
 }
 
-void ScriptComponent::SetScriptClassName(std::string className)
+ScriptAsset* ScriptComponent::GetScript() const
 {
-    if (scriptClassName == className)
+    if (!scriptHandle.IsValid())
+        return nullptr;
+
+    AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
+
+    return database.Find<ScriptAsset>(scriptHandle);
+}
+
+void ScriptComponent::SetScript(AssetHandle handle)
+{
+    if (scriptHandle == handle)
         return;
 
-    scriptClassName = std::move(className);
+    scriptHandle = handle;
     RefreshFieldsFromSchema();
 }
 
@@ -231,19 +247,20 @@ bool ScriptComponent::SetFieldValue(const std::string& name, const ScriptValue& 
 
 void ScriptComponent::RefreshFieldsFromSchema()
 {
-    ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
-    const ScriptTypeDefinition* scriptType = scriptSystem.FindScriptType(scriptClassName);
+    ScriptAsset* script = GetScript();
 
-    if (!scriptType)
+    if (!script)
     {
         fields.clear();
         return;
     }
 
-    std::vector<ScriptFieldValue> refreshedFields;
-    refreshedFields.reserve(scriptType->fields.size());
+    const std::vector<ScriptFieldDefinition>& definitions = script->GetFields();
 
-    for (const ScriptFieldDefinition& definition : scriptType->fields)
+    std::vector<ScriptFieldValue> refreshedFields;
+    refreshedFields.reserve(definitions.size());
+
+    for (const ScriptFieldDefinition& definition : script->GetFields())
     {
         ScriptFieldValue value;
         value.name = definition.name;

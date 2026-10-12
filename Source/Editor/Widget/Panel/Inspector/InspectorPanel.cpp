@@ -26,6 +26,7 @@
 #include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Script/ScriptAsset.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Component/Component.h>
 #include <Engine/Component/ScriptComponent.h>
@@ -122,16 +123,29 @@ void InspectorPanel::RebuildProperties()
     const auto& components = selectedUnit->GetComponents();
     for (const auto& comp : components)
     {
-        const std::string title(comp->GetClass()->GetType().name);
+        ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get());
+
+        std::string title(comp->GetClass()->GetType().name);
+
+        if (scriptComponent)
+        {
+            ScriptAsset* script = scriptComponent->GetScript();
+            title = script ? script->GetName() : "Missing Script";
+        }
 
         ComponentSection* section = layout->AddChild<ComponentSection>(title);
+
+        if (scriptComponent)
+        {
+            AddScriptProperty(*section->GetContent(), *scriptComponent);
+        }
 
         for (const Property& property : comp->GetClass()->GetAllProperties())
         {
             AddProperty(*section->GetContent(), *comp, property, property.name);
         }
 
-        if (ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get()))
+        if (scriptComponent)
         {
             for (const ScriptFieldValue& field : scriptComponent->GetFields())
             {
@@ -615,14 +629,6 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
             if (property.OnChangedCallback)
                 property.OnChangedCallback(object, property);
         });
-
-    if (Cast<ScriptComponent>(&object) && property.name == "Script Class")
-    {
-        field->GetValueCommittedRay().Register(
-            this,
-            [this]()
-            { isDirty = true; });
-    }
 }
 
 void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
@@ -667,6 +673,28 @@ void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& obje
 
             if (property.OnChangedCallback)
                 property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddScriptProperty(VerticalLayout& targetLayout, ScriptComponent& component)
+{
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>("Script");
+
+    AssetField* field = row->SetValueWidget<AssetField>(ScriptAsset::StaticClass());
+    field->SetValue(component.GetScriptHandle());
+
+    ScriptComponent* scriptComponent = &component;
+
+    field->GetValueChangedRay().Register(
+        this,
+        [this, scriptComponent](AssetHandle handle)
+        {
+            if (scriptComponent->GetScriptHandle() == handle)
+                return;
+
+            scriptComponent->SetScript(handle);
+
+            isDirty = true;
         });
 }
 

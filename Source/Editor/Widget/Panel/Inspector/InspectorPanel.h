@@ -46,6 +46,7 @@ private:
     void AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
+    void AddScriptProperty(VerticalLayout& targetLayout, ScriptComponent& component);
 
 private:
     SelectionSystem& selectionSystem;

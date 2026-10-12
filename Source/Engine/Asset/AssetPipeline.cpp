@@ -4,6 +4,7 @@
 #include <Engine/Asset/Importer/FontImporter.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
+#include <Engine/Asset/Importer/ScriptImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
 #include <Engine/Asset/Importer/TextureImporter.h>
 #include <Engine/Engine.h>
@@ -20,6 +21,7 @@ AssetPipeline::AssetPipeline()
     importers.push_back(std::make_unique<MaterialImporter>());
     importers.push_back(std::make_unique<FontImporter>());
     importers.push_back(std::make_unique<OBJImporter>());
+    importers.push_back(std::make_unique<ScriptImporter>());
 }
 
 AssetPipeline::~AssetPipeline() = default;

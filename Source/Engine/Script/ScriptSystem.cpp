@@ -1,11 +1,16 @@
 #include "ScriptSystem.h"
 
 #include <Core/Log/LogSystem.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Script/ScriptAsset.h>
+#include <Engine/Engine.h>
 #include <Engine/Script/NativeAPI.h>
 
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace URay
@@ -58,8 +63,9 @@ bool ScriptSystem::RegisterScriptType(ScriptTypeDefinition definition)
 
     const std::string className = definition.className;
 
-    scriptTypes.insert_or_assign(className, std::move(definition));
-    return true;
+    auto [it, inserted] = scriptTypes.insert_or_assign(className, std::move(definition));
+
+    return SyncScriptAsset(it->second);
 }
 
 const ScriptTypeDefinition* ScriptSystem::FindScriptType(const std::string& className) const
@@ -269,6 +275,59 @@ bool ScriptSystem::RegisterScriptField(
     }
 
     scriptType.fields.push_back(std::move(definition));
+
+    return SyncScriptAsset(scriptType);
+}
+
+ScriptAsset* ScriptSystem::FindScriptAssetByClassName(const std::string& className) const
+{
+    const size_t separator = className.rfind('.');
+
+    const std::string_view simpleName =
+        separator == std::string::npos
+            ? std::string_view(className)
+            : std::string_view(className).substr(separator + 1);
+
+    AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
+
+    ScriptAsset* found = nullptr;
+
+    for (ScriptAsset* asset : database.GetAssets<ScriptAsset>())
+    {
+        if (asset->GetName() != simpleName)
+            continue;
+
+        if (found)
+        {
+            URAY_LOG(
+                "Multiple ScriptAssets match managed type: %s",
+                className.c_str());
+
+            return nullptr;
+        }
+
+        found = asset;
+    }
+
+    return found;
+}
+
+bool ScriptSystem::SyncScriptAsset(const ScriptTypeDefinition& definition) const
+{
+    ScriptAsset* asset = FindScriptAssetByClassName(definition.className);
+
+    if (!asset)
+    {
+        URAY_LOG(
+            "ScriptAsset was not found for managed type: %s",
+            definition.className.c_str());
+
+        return false;
+    }
+
+    asset->SetClassName(definition.className);
+    asset->SetFields(definition.fields);
+
     return true;
 }
 

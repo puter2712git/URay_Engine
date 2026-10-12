@@ -11,6 +11,8 @@
 namespace URay
 {
 
+class ScriptAsset;
+
 class ScriptSystem
 {
 public:
@@ -41,6 +43,9 @@ private:
         ScriptFieldType fieldType,
         const void* defaultValue,
         int32 defaultValueSize);
+
+    ScriptAsset* FindScriptAssetByClassName(const std::string& className) const;
+    bool SyncScriptAsset(const ScriptTypeDefinition& definition) const;
 
 private:
     DotnetHost dotnetHost;
