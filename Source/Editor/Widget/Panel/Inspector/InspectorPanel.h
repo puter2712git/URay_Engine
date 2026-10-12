@@ -11,7 +11,9 @@ class SelectionSystem;
 class VerticalLayout;
 class ScrollView;
 class Object;
+class ScriptComponent;
 struct Property;
+struct ScriptFieldValue;
 
 class InspectorPanel final : public Panel
 {
@@ -33,6 +35,7 @@ private:
     void RebuildProperties();
 
     void AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
+    void AddScriptField(VerticalLayout& targetLayout, ScriptComponent& component, const ScriptFieldValue& field);
 
     void AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);

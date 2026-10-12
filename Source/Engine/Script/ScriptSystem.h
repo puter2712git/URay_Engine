@@ -14,10 +14,6 @@ namespace URay
 class ScriptSystem
 {
 public:
-    ScriptSystem();
-    ~ScriptSystem();
-
-public:
     bool Initialize(const std::filesystem::path& projectPath);
     void Finalize();
 
@@ -27,7 +23,24 @@ public:
     const ScriptTypeDefinition* FindScriptType(const std::string& className) const;
 
 private:
-    static void __cdecl LogUTF8(const uint8* message, int32 byteCount);
+    static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);
+    static int32 __cdecl RegisterScriptTypeUTF8(void* userData, const uint8* className, int32 classNameLength);
+    static int32 __cdecl RegisterScriptFieldUTF8(
+        void* userData,
+        const uint8* className,
+        int32 classNameLength,
+        const uint8* fieldName,
+        int32 fieldNameLength,
+        int32 fieldType,
+        const void* defaultValue,
+        int32 defaultValueSize);
+
+    bool RegisterScriptField(
+        const std::string& className,
+        const std::string& fieldName,
+        ScriptFieldType fieldType,
+        const void* defaultValue,
+        int32 defaultValueSize);
 
 private:
     DotnetHost dotnetHost;

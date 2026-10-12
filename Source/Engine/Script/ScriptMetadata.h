@@ -24,6 +24,18 @@ using ScriptValue = std::variant<
     Color,
     std::string>;
 
+enum class ScriptFieldType : int32
+{
+    Bool = 0,
+    Int = 1,
+    Float = 2,
+    Vector2 = 3,
+    Vector3 = 4,
+    Vector4 = 5,
+    Color = 6,
+    String = 7
+};
+
 struct ScriptFieldDefinition
 {
     std::string name;
@@ -35,6 +47,13 @@ struct ScriptTypeDefinition
 {
     std::string className;
     std::vector<ScriptFieldDefinition> fields;
+};
+
+struct ScriptFieldValue
+{
+    std::string name;
+    PropertyType type = PropertyType::Bool;
+    ScriptValue value = false;
 };
 
 } // namespace URay

@@ -7,7 +7,24 @@ namespace URay
 
 struct NativeAPI
 {
-    void(__cdecl* LogUTF8)(const uint8* message, int32 byteCount);
+    void* userData = nullptr;
+
+    void(__cdecl* LogUTF8)(void* userData, const uint8* message, int32 byteCount) = nullptr;
+
+    int32(__cdecl* RegisterScriptType)(
+        void* userData,
+        const uint8* className,
+        int32 classNameLength) = nullptr;
+
+    int32(__cdecl* RegisterScriptField)(
+        void* userData,
+        const uint8* className,
+        int32 classNameLength,
+        const uint8* fieldName,
+        int32 fieldNameLength,
+        int32 fieldType,
+        const void* defaultValue,
+        int32 defaultValueSize) = nullptr;
 };
 
 } // namespace URay

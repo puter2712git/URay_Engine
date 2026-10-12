@@ -12,4 +12,11 @@ void StringField::OnTextChanged(
     valueChangedRay.Emit();
 }
 
+void StringField::OnTextCommitted(
+    const std::string& prevText,
+    const std::string& committedText)
+{
+    valueCommittedRay.Emit();
+}
+
 } // namespace URay

@@ -1,5 +1,9 @@
 #include "InspectorPanel.h"
 
+#include <Core/Math/Color.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Math/Vector3.h>
+#include <Core/Math/Vector4.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/AssetField.h>
@@ -20,21 +24,18 @@
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/ComponentPickerPopup.h>
 #include <Editor/Widget/WidgetSystem.h>
-
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Component/Component.h>
+#include <Engine/Component/ScriptComponent.h>
 #include <Engine/Engine.h>
 #include <Engine/Object/Object.h>
 #include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 
-#include <Core/Math/Color.h>
-#include <Core/Math/Vector2.h>
-#include <Core/Math/Vector3.h>
-#include <Core/Math/Vector4.h>
+#include <variant>
 
 namespace URay
 {
@@ -129,6 +130,17 @@ void InspectorPanel::RebuildProperties()
         {
             AddProperty(*section->GetContent(), *comp, property, property.name);
         }
+
+        if (ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get()))
+        {
+            for (const ScriptFieldValue& field : scriptComponent->GetFields())
+            {
+                AddScriptField(
+                    *section->GetContent(),
+                    *scriptComponent,
+                    field);
+            }
+        }
     }
 
     layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
@@ -206,6 +218,231 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
     case PropertyType::Material:
         AddAssetProperty(targetLayout, object, property, name);
         break;
+
+    default:
+        break;
+    }
+}
+
+void InspectorPanel::AddScriptField(
+    VerticalLayout& targetLayout,
+    ScriptComponent& component,
+    const ScriptFieldValue& field)
+{
+    const std::string fieldName = field.name;
+    ScriptComponent* const scriptComponent = &component;
+
+    switch (field.type)
+    {
+    case PropertyType::Bool:
+    {
+        const bool* value = std::get_if<bool>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        Checkbox* checkbox =
+            row->SetValueWidget<Checkbox>();
+
+        checkbox->SetChecked(*value);
+
+        checkbox->GetValueChangeRay().Register(
+            this,
+            [scriptComponent, fieldName](bool newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::Int:
+    {
+        const int32* value = std::get_if<int32>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        IntField* intField =
+            row->SetValueWidget<IntField>();
+
+        intField->SetValue(*value);
+
+        intField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName](int32 newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::Float:
+    {
+        const float* value = std::get_if<float>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        NumberField* numberField =
+            row->SetValueWidget<NumberField>();
+
+        numberField->SetValue(*value);
+
+        numberField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName](float newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::Vector2:
+    {
+        const Vector2* value = std::get_if<Vector2>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        Float2Field* vectorField =
+            row->SetValueWidget<Float2Field>();
+
+        vectorField->SetValue(*value);
+
+        vectorField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName](const Vector2& newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::Vector3:
+    {
+        const Vector3* value = std::get_if<Vector3>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        Float3Field* vectorField =
+            row->SetValueWidget<Float3Field>();
+
+        vectorField->SetValue(*value);
+
+        vectorField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName](const Vector3& newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::Vector4:
+    {
+        const Vector4* value = std::get_if<Vector4>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        Float4Field* vectorField =
+            row->SetValueWidget<Float4Field>();
+
+        vectorField->SetValue(*value);
+
+        vectorField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName](const Vector4& newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::Color:
+    {
+        const Color* value = std::get_if<Color>(&field.value);
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        ColorField* colorField =
+            row->SetValueWidget<ColorField>();
+
+        colorField->SetValue(*value);
+
+        colorField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName](const Color& newValue)
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(newValue));
+            });
+
+        break;
+    }
+
+    case PropertyType::String:
+    {
+        const std::string* value =
+            std::get_if<std::string>(&field.value);
+
+        if (!value)
+            return;
+
+        PropertyRow* row =
+            targetLayout.AddChild<PropertyRow>(fieldName);
+
+        StringField* stringField =
+            row->SetValueWidget<StringField>();
+
+        stringField->SetText(*value);
+
+        stringField->GetValueChangedRay().Register(
+            this,
+            [scriptComponent, fieldName, stringField]()
+            {
+                scriptComponent->SetFieldValue(
+                    fieldName,
+                    ScriptValue(stringField->GetText()));
+            });
+
+        break;
+    }
 
     default:
         break;
@@ -378,6 +615,14 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
             if (property.OnChangedCallback)
                 property.OnChangedCallback(object, property);
         });
+
+    if (Cast<ScriptComponent>(&object) && property.name == "Script Class")
+    {
+        field->GetValueCommittedRay().Register(
+            this,
+            [this]()
+            { isDirty = true; });
+    }
 }
 
 void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
