@@ -153,6 +153,11 @@ ScriptComponent* ScriptSystem::FindManagedInstance(uint64 instanceId) const
                : nullptr;
 }
 
+TransformComponent* ScriptSystem::FindTransformForManagedInstance(uint64 instanceId) const
+{
+    return ResolveTransform(instanceId);
+}
+
 bool ScriptSystem::RegisterScriptField(
     const std::string& className,
     const std::string& fieldName,

@@ -1,0 +1,43 @@
+{
+  "apiVersion": 1,
+  "apis": [
+    {
+      "id": 1,
+      "module": "Transform",
+      "name": "GetTransformPosition",
+      "result": "bool",
+      "parameters": [
+        {
+          "name": "instanceId",
+          "type": "u64",
+          "direction": "in"
+        },
+        {
+          "name": "position",
+          "type": "Vector3",
+          "direction": "out"
+        }
+      ],
+      "nativeImplementation": "ScriptBindings::GetTransformPosition"
+    },
+    {
+      "id": 2,
+      "module": "Transform",
+      "name": "SetTransformPosition",
+      "result": "bool",
+      "parameters": [
+        {
+          "name": "instanceId",
+          "type": "u64",
+          "direction": "in"
+        },
+        {
+          "name": "position",
+          "type": "Vector3",
+          "direction": "in"
+        }
+      ],
+      "nativeImplementation": "ScriptBindings::SetTransformPosition"
+    }
+  ]
+}

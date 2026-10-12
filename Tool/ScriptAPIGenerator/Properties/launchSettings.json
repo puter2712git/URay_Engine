@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ScriptAPIGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "--input \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Binding\\RuntimeAPI.json\"\n--csharp-output \"C:\\Users\\puter\\repos\\URay_Engine\\Sandbox\\Managed\\TestManaged\\Generated\\RuntimeAPI.g.cs\"\n--cpp-fields-output \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Generated\\RuntimeAPI.Fields.gen.inl\"\n--cpp-assignments-output \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Generated\\RuntimeAPI.Assignments.gen.inl\""
+    }
+  }
+}

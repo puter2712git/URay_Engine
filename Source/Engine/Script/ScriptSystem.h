@@ -41,6 +41,8 @@ public:
     void UnbindManagedInstance(uint64 instanceId, const ScriptComponent& component);
     ScriptComponent* FindManagedInstance(uint64 instanceId) const;
 
+    TransformComponent* FindTransformForManagedInstance(uint64 instanceId) const;
+
 private:
     bool RegisterScriptField(
         const std::string& className,
