@@ -1,4 +1,3 @@
-﻿using System.Numerics;
 using System.Text.Json;
 
 namespace ScriptAPIGenerator;
@@ -12,16 +11,17 @@ internal static class Program
             Console.Error.WriteLine(
                 "Usage: ScriptAPIGenerator " +
                 "--input <RuntimeAPI.json path> " +
-                "--csharp-output <Runtime.g.cs path> " +
-                "--cpp-fields-output <RuntimeAPI.Fields.gen.inl path>" +
-                "--cpp-assignments-output <RuntimeAPI.Assignments.gen.inl path>");
+                "--csharp-output <RuntimeAPI.g.cs path> " +
+                "--cpp-output <RuntimeAPI.gen.h path>");
 
             return 1;
         }
 
         if (!File.Exists(options.InputPath))
         {
-            Console.Error.WriteLine($"Input file was not found: {options.InputPath}");
+            Console.Error.WriteLine(
+                $"Input file was not found: {options.InputPath}");
+
             return 1;
         }
 
@@ -40,13 +40,24 @@ internal static class Program
         }
         catch (JsonException exception)
         {
-            Console.Error.WriteLine($"Failed to parse JSON: {exception.Message}");
+            Console.Error.WriteLine(
+                $"Failed to parse JSON: {exception.Message}");
+
+            return 1;
+        }
+        catch (IOException exception)
+        {
+            Console.Error.WriteLine(
+                $"Failed to read input file: {exception.Message}");
+
             return 1;
         }
 
         if (document is null)
         {
-            Console.Error.WriteLine("Input JSON did not contain a document.");
+            Console.Error.WriteLine(
+                "Input JSON did not contain a document.");
+
             return 1;
         }
 
@@ -63,31 +74,23 @@ internal static class Program
         }
 
         string csharpSource;
-        string cppFieldsSource;
-        string cppAssignmentsSource;
+        string cppHeaderSource;
 
         try
         {
             csharpSource = CSharpNativeAPIEmitter.Generate(document);
-            cppFieldsSource = CppRuntimeAPIFieldsEmitter.Generate(document);
-            cppAssignmentsSource = CppRuntimeAPIAssignmentsEmitter.Generate(document);
+            cppHeaderSource = CppRuntimeAPIHeaderEmitter.Generate(document);
         }
         catch (InvalidOperationException exception)
         {
             Console.Error.WriteLine(
                 $"Failed to generate source: {exception.Message}");
+
             return 1;
         }
 
-        if (!TryWriteOutput(
-                options.CSharpOutputPath,
-                csharpSource) ||
-            !TryWriteOutput(
-                options.CppFieldsOutputPath,
-                cppFieldsSource) ||
-            !TryWriteOutput(
-                options.CppAssignmentsOutputPath,
-                cppAssignmentsSource))
+        if (!TryWriteOutput(options.CSharpOutputPath, csharpSource) ||
+            !TryWriteOutput(options.CppOutputPath, cppHeaderSource))
         {
             return 1;
         }
@@ -97,7 +100,7 @@ internal static class Program
         foreach (RuntimeAPIDefinition api in document.APIs)
             Console.WriteLine($"[{api.Id}] {api.Module}.{api.Name}");
 
-        Console.WriteLine("Validation succeeded.");
+        Console.WriteLine("Generation succeeded.");
         return 0;
     }
 
@@ -117,12 +120,16 @@ internal static class Program
         }
         catch (IOException exception)
         {
-            Console.Error.WriteLine($"Failed to write '{outputPath}': {exception.Message}");
+            Console.Error.WriteLine(
+                $"Failed to write '{outputPath}': {exception.Message}");
+
             return false;
         }
         catch (UnauthorizedAccessException exception)
         {
-            Console.Error.WriteLine($"Access denied for '{outputPath}': {exception.Message}");
+            Console.Error.WriteLine(
+                $"Access denied for '{outputPath}': {exception.Message}");
+
             return false;
         }
     }
@@ -133,24 +140,21 @@ internal static class Program
     {
         options = null;
 
-        if (args.Length != 8 ||
+        if (args.Length != 6 ||
             args[0] != "--input" ||
             args[2] != "--csharp-output" ||
-            args[4] != "--cpp-fields-output" ||
-            args[6] != "--cpp-assignments-output")
+            args[4] != "--cpp-output")
         {
             return false;
         }
 
         string inputPath = args[1];
         string csharpOutputPath = args[3];
-        string cppFieldsOutputPath = args[5];
-        string cppAssignmentsOutputPath = args[7];
+        string cppOutputPath = args[5];
 
         if (string.IsNullOrWhiteSpace(inputPath) ||
             string.IsNullOrWhiteSpace(csharpOutputPath) ||
-            string.IsNullOrWhiteSpace(cppFieldsOutputPath) ||
-            string.IsNullOrWhiteSpace(cppAssignmentsOutputPath))
+            string.IsNullOrWhiteSpace(cppOutputPath))
         {
             return false;
         }
@@ -158,8 +162,7 @@ internal static class Program
         options = new GenerationOptions(
             inputPath,
             csharpOutputPath,
-            cppFieldsOutputPath,
-            cppAssignmentsOutputPath);
+            cppOutputPath);
 
         return true;
     }
@@ -167,6 +170,5 @@ internal static class Program
     private sealed record GenerationOptions(
         string InputPath,
         string CSharpOutputPath,
-        string CppFieldsOutputPath,
-        string CppAssignmentsOutputPath);
+        string CppOutputPath);
 }

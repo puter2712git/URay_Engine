@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ScriptAPIGenerator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f3c44b2a92099b2e5bad58a8dffbbba6d1070225")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1ebec0fdeb7d0e6eb23f05f0de3bd2295366524b")]
 [assembly: System.Reflection.AssemblyProductAttribute("ScriptAPIGenerator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ScriptAPIGenerator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
