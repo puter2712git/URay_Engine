@@ -44,14 +44,19 @@ void Unit::Update(float deltaTime)
 
 YAML::Node Unit::Serialize() const
 {
-    YAML::Node node;
+    YAML::Node componentsNode(YAML::NodeType::Sequence);
 
     for (const auto& component : components)
     {
-        node[component->GetClass()->GetType().name] = component->Serialize();
+        YAML::Node componentNode(YAML::NodeType::Map);
+
+        componentNode["Type"] = component->GetClass()->GetType().name;
+        componentNode["Data"] = component->Serialize();
+
+        componentsNode.push_back(componentNode);
     }
 
-    return node;
+    return componentsNode;
 }
 
 void Unit::Deserialize(const YAML::Node& node)

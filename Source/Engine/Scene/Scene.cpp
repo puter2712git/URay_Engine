@@ -92,7 +92,7 @@ void Scene::Update(float deltaTime)
 YAML::Node Scene::Serialize() const
 {
     YAML::Node sceneNode;
-    sceneNode["Version"] = 1;
+    sceneNode["Version"] = 2;
 
     YAML::Node unitNodes(YAML::NodeType::Sequence);
 
@@ -182,17 +182,42 @@ void Scene::Deserialize(const YAML::Node& node)
             newUnit->SetName(nameNode.as<std::string>());
 
         const YAML::Node componentsNode = unitNode["Components"];
-        if (componentsNode && componentsNode.IsMap())
-        {
-            for (const auto& compNode : componentsNode)
-            {
-                std::unique_ptr<Component> component = ComponentFactory::Create(compNode.first.as<std::string>());
-                if (!component)
-                    continue;
 
-                component->Deserialize(compNode.second);
-                newUnit->AddComponent(std::move(component));
+        for (const YAML::Node componentNode : componentsNode)
+        {
+            if (!componentNode.IsMap())
+            {
+                URAY_LOG(
+                    "Failed to deserialize scene: "
+                    "Component entry must be a map.");
+                continue;
             }
+
+            const YAML::Node typeNode = componentNode["Type"];
+            const YAML::Node dataNode = componentNode["Data"];
+
+            if (!typeNode || !typeNode.IsScalar() ||
+                !dataNode || !dataNode.IsMap())
+            {
+                URAY_LOG(
+                    "Failed to deserialize scene: "
+                    "Component entry requires Type and Data.");
+                continue;
+            }
+
+            const std::string typeName = typeNode.as<std::string>();
+
+            auto component = ComponentFactory::Create(typeName);
+            if (!component)
+            {
+                URAY_LOG(
+                    "Failed to deserialize component: %s",
+                    typeName.c_str());
+                continue;
+            }
+
+            component->Deserialize(dataNode);
+            newUnit->AddComponent(std::move(component));
         }
 
         const YAML::Node parentIdNode = unitNode["ParentId"];
