@@ -56,4 +56,13 @@ struct ScriptFieldValue
     ScriptValue value = false;
 };
 
+enum class ScriptLifecycle : int32
+{
+    Initialize = 0,
+    Load = 1,
+    Update = 2,
+    Unload = 3,
+    Finalize = 4
+};
+
 } // namespace URay

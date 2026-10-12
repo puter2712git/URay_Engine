@@ -48,14 +48,6 @@ void ScriptSystem::Finalize()
     isInitialized = false;
 }
 
-bool ScriptSystem::RunSample()
-{
-    if (!isInitialized)
-        return false;
-
-    return dotnetHost.RunSample();
-}
-
 bool ScriptSystem::RegisterScriptType(ScriptTypeDefinition definition)
 {
     if (definition.className.empty())
@@ -72,6 +64,52 @@ const ScriptTypeDefinition* ScriptSystem::FindScriptType(const std::string& clas
 {
     const auto it = scriptTypes.find(className);
     return it != scriptTypes.end() ? &it->second : nullptr;
+}
+
+uint64 ScriptSystem::CreateScriptInstance(std::string_view className)
+{
+    if (!isInitialized)
+        return 0;
+
+    return dotnetHost.CreateScriptInstance(className);
+}
+
+bool ScriptSystem::SetScriptFieldValue(
+    uint64 instanceId,
+    std::string_view fieldName,
+    PropertyType type,
+    const ScriptValue& value)
+{
+    if (!isInitialized)
+        return false;
+
+    return dotnetHost.SetScriptFieldValue(
+        instanceId,
+        fieldName,
+        type,
+        value);
+}
+
+bool ScriptSystem::InvokeScriptLifecycle(
+    uint64 instanceId,
+    ScriptLifecycle lifecycle,
+    float deltaTime)
+{
+    if (!isInitialized)
+        return false;
+
+    return dotnetHost.InvokeScriptLifecycle(
+        instanceId,
+        lifecycle,
+        deltaTime);
+}
+
+void ScriptSystem::DestroyScriptInstance(uint64 instanceId)
+{
+    if (!isInitialized)
+        return;
+
+    dotnetHost.DestroyScriptInstance(instanceId);
 }
 
 void ScriptSystem::LogUTF8(void* userData, const uint8* message, int32 byteCount)
@@ -325,7 +363,7 @@ bool ScriptSystem::SyncScriptAsset(const ScriptTypeDefinition& definition) const
         return false;
     }
 
-    asset->SetClassName(definition.className);
+    asset->SetManagedClassName(definition.className);
     asset->SetFields(definition.fields);
 
     return true;

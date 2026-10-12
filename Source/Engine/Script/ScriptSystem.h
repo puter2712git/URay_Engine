@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 namespace URay
@@ -19,10 +20,20 @@ public:
     bool Initialize(const std::filesystem::path& projectPath);
     void Finalize();
 
-    bool RunSample();
-
     bool RegisterScriptType(ScriptTypeDefinition definition);
     const ScriptTypeDefinition* FindScriptType(const std::string& className) const;
+
+    uint64 CreateScriptInstance(std::string_view className);
+    bool SetScriptFieldValue(
+        uint64 instanceId,
+        std::string_view fieldName,
+        PropertyType type,
+        const ScriptValue& value);
+    bool InvokeScriptLifecycle(
+        uint64 instanceId,
+        ScriptLifecycle lifecycle,
+        float deltaTime);
+    void DestroyScriptInstance(uint64 instanceId);
 
 private:
     static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);

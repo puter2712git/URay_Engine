@@ -1,5 +1,6 @@
 #include "ScriptComponent.h"
 
+#include <Core/Log/LogSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Script/ScriptAsset.h>
@@ -239,6 +240,17 @@ bool ScriptComponent::SetFieldValue(const std::string& name, const ScriptValue& 
             return false;
 
         field.value = value;
+
+        if (managedInstanceId != 0)
+        {
+            gEngine->GetScriptSystem()
+                .SetScriptFieldValue(
+                    managedInstanceId,
+                    field.name,
+                    field.type,
+                    field.value);
+        }
+
         return true;
     }
 
@@ -283,6 +295,121 @@ void ScriptComponent::RefreshFieldsFromSchema()
     }
 
     fields = std::move(refreshedFields);
+}
+
+void ScriptComponent::OnLoad()
+{
+    if (managedInstanceId != 0)
+        return;
+
+    ScriptAsset* script = GetScript();
+
+    if (!script || script->GetManagedClassName().empty())
+    {
+        URAY_LOG("ScriptComponent has no valid ScriptAsset.");
+        return;
+    }
+
+    ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+
+    const uint64 instanceId = scriptSystem.CreateScriptInstance(script->GetManagedClassName());
+    if (instanceId == 0)
+    {
+        URAY_LOG("Failed to create script instance: %s", script->GetManagedClassName().c_str());
+        return;
+    }
+
+    for (const ScriptFieldValue& field : fields)
+    {
+        if (scriptSystem.SetScriptFieldValue(
+                instanceId,
+                field.name,
+                field.type,
+                field.value))
+        {
+            continue;
+        }
+
+        URAY_LOG(
+            "Failed to set script field: %s.%s",
+            script->GetManagedClassName().c_str(),
+            field.name.c_str());
+
+        scriptSystem.DestroyScriptInstance(instanceId);
+        return;
+    }
+
+    if (!scriptSystem.InvokeScriptLifecycle(
+            instanceId,
+            ScriptLifecycle::Initialize,
+            0.0f))
+    {
+        scriptSystem.DestroyScriptInstance(instanceId);
+        return;
+    }
+
+    if (!scriptSystem.InvokeScriptLifecycle(
+            instanceId,
+            ScriptLifecycle::Load,
+            0.0f))
+    {
+        scriptSystem.InvokeScriptLifecycle(
+            instanceId,
+            ScriptLifecycle::Finalize,
+            0.0f);
+
+        scriptSystem.DestroyScriptInstance(instanceId);
+        return;
+    }
+
+    managedInstanceId = instanceId;
+}
+
+void ScriptComponent::OnUpdate(float deltaTime)
+{
+    if (managedInstanceId == 0)
+        return;
+
+    ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+
+    if (scriptSystem.InvokeScriptLifecycle(
+            managedInstanceId,
+            ScriptLifecycle::Update,
+            deltaTime))
+    {
+        return;
+    }
+
+    URAY_LOG("Failed to update managed script instance.");
+
+    SetEnabled(false);
+}
+
+void ScriptComponent::OnUnload()
+{
+    if (managedInstanceId == 0)
+        return;
+
+    ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+
+    scriptSystem.InvokeScriptLifecycle(managedInstanceId, ScriptLifecycle::Unload, 0.0f);
+}
+
+void ScriptComponent::OnFinalize()
+{
+    const uint64 instanceId = std::exchange(managedInstanceId, 0);
+
+    if (instanceId == 0)
+        return;
+
+    ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+
+    scriptSystem.InvokeScriptLifecycle(
+        instanceId,
+        ScriptLifecycle::Finalize,
+        0.0f);
+
+    scriptSystem.DestroyScriptInstance(instanceId);
 }
 
 } // namespace URay

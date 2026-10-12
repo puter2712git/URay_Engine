@@ -31,9 +31,17 @@ public:
 
     void RefreshFieldsFromSchema();
 
+protected:
+    void OnLoad() override;
+    void OnUpdate(float deltaTime) override;
+    void OnUnload() override;
+    void OnFinalize() override;
+
 private:
     AssetHandle scriptHandle = {};
     std::vector<ScriptFieldValue> fields;
+
+    uint64 managedInstanceId = 0;
 };
 
 } // namespace URay

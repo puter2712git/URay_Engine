@@ -123,6 +123,15 @@ void Engine::Finalize()
     if (renderSystem)
     {
         renderSystem->WaitIdle();
+
+        renderSystem->Finalize();
+        renderSystem.reset();
+    }
+
+    if (sceneSystem)
+    {
+        sceneSystem->Finalize();
+        sceneSystem.reset();
     }
 
     if (scriptSystem)
@@ -135,18 +144,6 @@ void Engine::Finalize()
     {
         assetSystem->Finalize();
         assetSystem.reset();
-    }
-
-    if (renderSystem)
-    {
-        renderSystem->Finalize();
-        renderSystem.reset();
-    }
-
-    if (sceneSystem)
-    {
-        sceneSystem->Finalize();
-        sceneSystem.reset();
     }
 
     if (performanceAnalytics)
