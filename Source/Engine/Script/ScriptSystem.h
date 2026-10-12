@@ -68,15 +68,6 @@ private:
         const void* defaultValue,
         int32 defaultValueSize);
 
-    static int32 __cdecl GetTransformPosition(
-        void* userData,
-        uint64 instanceId,
-        Vector3* outPosition);
-    static int32 __cdecl SetTransformPosition(
-        void* userData,
-        uint64 instanceId,
-        const Vector3* position);
-
 private:
     DotnetHost dotnetHost;
     bool isInitialized = false;

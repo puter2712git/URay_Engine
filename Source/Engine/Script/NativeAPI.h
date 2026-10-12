@@ -2,6 +2,7 @@
 
 #include <Core/Math/Vector3.h>
 #include <Core/Type/Types.h>
+#include <Engine/Script/Generated/RuntimeAPI.gen.h>
 
 namespace URay
 {
@@ -24,21 +25,11 @@ struct BootstrapAPI
         int32 defaultValueSize) = nullptr;
 };
 
-struct RuntimeAPI
-{
-    int32(__cdecl* GetTransformPosition)(
-        void* userData,
-        uint64 instanceId,
-        Vector3* outPosition) = nullptr;
-    int32(__cdecl* SetTransformPosition)(
-        void* userData,
-        uint64 instanceId,
-        const Vector3* position) = nullptr;
-};
-
 struct NativeAPI
 {
     void* userData = nullptr;
+    BootstrapAPI bootstrap = {};
+    RuntimeAPI runtime = {};
 };
 
 } // namespace URay

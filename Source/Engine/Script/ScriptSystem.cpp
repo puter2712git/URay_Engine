@@ -33,11 +33,11 @@ bool ScriptSystem::Initialize(const std::filesystem::path& projectPath)
 
     NativeAPI nativeAPI = {
         .userData = this,
-        .LogUTF8 = &ScriptSystem::LogUTF8,
-        .RegisterScriptType = &ScriptSystem::RegisterScriptTypeUTF8,
-        .RegisterScriptField = &ScriptSystem::RegisterScriptFieldUTF8,
-        .GetTransformPosition = &ScriptSystem::GetTransformPosition,
-        .SetTransformPosition = &ScriptSystem::SetTransformPosition
+        .bootstrap = {
+            .LogUTF8 = &ScriptSystem::LogUTF8,
+            .RegisterScriptType = &ScriptSystem::RegisterScriptTypeUTF8,
+            .RegisterScriptField = &ScriptSystem::RegisterScriptFieldUTF8 },
+        .runtime = CreateRuntimeAPI()
     };
 
     if (!dotnetHost.InitializeManagedAPI(nativeAPI))
@@ -425,44 +425,6 @@ int32 ScriptSystem::RegisterScriptFieldUTF8(
                defaultValueSize)
                ? 1
                : 0;
-}
-
-int32 ScriptSystem::GetTransformPosition(
-    void* userData,
-    uint64 instanceId,
-    Vector3* outPosition)
-{
-    if (!userData || !outPosition)
-        return 0;
-
-    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
-
-    TransformComponent* transform = scriptSystem.ResolveTransform(instanceId);
-
-    if (!transform)
-        return 0;
-
-    *outPosition = transform->GetPosition();
-    return 1;
-}
-
-int32 ScriptSystem::SetTransformPosition(
-    void* userData,
-    uint64 instanceId,
-    const Vector3* position)
-{
-    if (!userData || !position)
-        return 0;
-
-    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
-
-    TransformComponent* transform = scriptSystem.ResolveTransform(instanceId);
-
-    if (!transform)
-        return 0;
-
-    transform->SetPosition(*position);
-    return 1;
 }
 
 } // namespace URay
