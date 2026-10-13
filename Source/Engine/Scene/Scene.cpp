@@ -92,44 +92,19 @@ void Scene::Update(float deltaTime)
 YAML::Node Scene::Serialize() const
 {
     YAML::Node sceneNode;
-    sceneNode["Version"] = 2;
+    sceneNode["Version"] = 3;
 
     YAML::Node unitNodes(YAML::NodeType::Sequence);
-
-    std::unordered_map<const Unit*, uint64> ids;
-    uint64 nextId = 1;
-
-    for (const auto& unit : units)
-    {
-        if (unit)
-        {
-            ids.emplace(unit.get(), nextId++);
-        }
-    }
 
     for (const auto& unit : units)
     {
         YAML::Node unitNode;
-        unitNode["Id"] = ids.at(unit.get());
+        unitNode["Id"] = unit->GetPersistentId().ToString();
 
-        const Unit* parent = unit->GetParent();
-        if (parent)
-        {
-            const auto parentIter = ids.find(parent);
-
-            if (parentIter != ids.end())
-            {
-                unitNode["ParentId"] = parentIter->second;
-            }
-            else
-            {
-                unitNode["ParentId"] = YAML::Node(YAML::NodeType::Null);
-            }
-        }
+        if (const Unit* parent = unit->GetParent())
+            unitNode["ParentId"] = parent->GetPersistentId().ToString();
         else
-        {
             unitNode["ParentId"] = YAML::Node(YAML::NodeType::Null);
-        }
 
         unitNode["Name"] = unit->GetName();
         unitNode["Components"] = unit->Serialize();
@@ -154,10 +129,10 @@ void Scene::Deserialize(const YAML::Node& node)
     struct ParentLink
     {
         Unit* child = nullptr;
-        uint64 parentId = 0;
+        UUID parentId = {};
     };
 
-    std::unordered_map<uint64, Unit*> unitsById;
+    std::unordered_map<UUID, Unit*, UUIDHash> unitsById;
     std::vector<ParentLink> pendingParentLinks;
 
     for (const YAML::Node& unitNode : unitNodes)
@@ -168,15 +143,18 @@ void Scene::Deserialize(const YAML::Node& node)
             continue;
         }
 
-        const uint64 id = unitNode["Id"].as<uint64>();
+        const UUID id = UUID::FromString(unitNode["Id"].as<std::string>());
 
-        if (unitsById.contains(id))
+        if (!id.IsValid() || unitsById.contains(id))
         {
-            URAY_LOG("Failed to deserialize scene: Duplicate Unit Id.");
+            URAY_LOG("Failed to deserialize unit: %s", unitNode["Name"].as<std::string>());
             continue;
         }
 
-        std::unique_ptr<Unit> newUnit = std::make_unique<Unit>();
+        auto newUnit = std::make_unique<Unit>();
+
+        newUnit->SetPersistentId(id);
+        unitsById.emplace(id, newUnit.get());
 
         if (const YAML::Node nameNode = unitNode["Name"])
             newUnit->SetName(nameNode.as<std::string>());
@@ -225,10 +203,9 @@ void Scene::Deserialize(const YAML::Node& node)
         {
             pendingParentLinks.push_back(ParentLink{
                 .child = newUnit.get(),
-                .parentId = parentIdNode.as<uint64>() });
+                .parentId = UUID::FromString(parentIdNode.as<std::string>()) });
         }
 
-        unitsById.emplace(id, newUnit.get());
         AddUnit(std::move(newUnit));
     }
 

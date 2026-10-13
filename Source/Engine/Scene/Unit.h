@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/UUID.h>
 #include <Engine/Object/Object.h>
 
 #include <functional>
@@ -48,6 +49,9 @@ public:
     const std::string& GetName() const { return name; }
     void SetName(const std::string& newName) { name = newName; }
 
+    const UUID& GetPersistentId() const { return persistentId; }
+    void SetPersistentId(const UUID& id) { persistentId = id; }
+
     Unit* GetParent() const { return parent; }
     bool SetParent(Unit* unit);
 
@@ -58,6 +62,8 @@ public:
 
 private:
     std::string name;
+
+    UUID persistentId = UUID::Generate();
 
     Unit* parent = nullptr;
     std::vector<Unit*> children;
