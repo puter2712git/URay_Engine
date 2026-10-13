@@ -19,6 +19,7 @@ public:
     void OnCursorMoved(Vector2 position);
     void OnTextInput(char32_t codepoint);
     void OnScroll(Vector2 delta);
+    void OnWindowFocusChanged(bool focused);
 
     const InputSnapshot& GetSnapshot() const { return publishedSnapshot; }
 

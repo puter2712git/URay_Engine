@@ -38,6 +38,8 @@ public:
     const Vector2& GetScrollDelta() const { return scrollDelta; }
     const std::vector<InputEvent>& GetEvents() const { return events; }
 
+    bool IsWindowFocused() const { return windowFocused; }
+
     ModifierKey GetHeldModifiers() const;
 
 private:
@@ -58,6 +60,8 @@ private:
     Vector2 scrollDelta = Vector2::Zero;
 
     std::vector<InputEvent> events;
+
+    bool windowFocused = true;
 };
 
 } // namespace URay

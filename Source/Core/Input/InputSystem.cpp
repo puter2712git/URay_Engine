@@ -135,6 +135,20 @@ void InputSystem::OnScroll(Vector2 delta)
         .modifiers = pendingSnapshot.GetHeldModifiers() });
 }
 
+void InputSystem::OnWindowFocusChanged(bool focused)
+{
+    pendingSnapshot.windowFocused = focused;
+
+    if (!focused)
+    {
+        pendingSnapshot.mouseDelta = Vector2::Zero;
+        pendingSnapshot.scrollDelta = Vector2::Zero;
+    }
+
+    pendingSnapshot.events.push_back(WindowFocusEvent{
+        .focused = focused });
+}
+
 MouseButtonMask InputSystem::BuildPressedMouseButtonMask() const
 {
     MouseButtonMask mask = 0;

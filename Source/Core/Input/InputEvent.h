@@ -233,6 +233,11 @@ struct TextInputEvent
     char32_t codepoint = U'\0';
 };
 
-using InputEvent = std::variant<KeyEvent, PointerEvent, ScrollEvent, TextInputEvent>;
+struct WindowFocusEvent
+{
+    bool focused = true;
+};
+
+using InputEvent = std::variant<KeyEvent, PointerEvent, ScrollEvent, TextInputEvent, WindowFocusEvent>;
 
 } // namespace URay
