@@ -8,6 +8,9 @@
 #include <Core/Type/Types.h>
 #include <Engine/Script/Binding/TransformBindings.h>
 #include <Engine/Script/Binding/InputBindings.h>
+#include <Engine/Script/Binding/LogBindings.h>
+#include <cstddef>
+#include <string_view>
 
 namespace URay
 {
@@ -39,6 +42,12 @@ struct RuntimeAPI
     int32(__cdecl* GetKeyUp)(
         void* userData,
         uint16 keyCode
+    ) = nullptr;
+
+    int32(__cdecl* Log)(
+        void* userData,
+        const uint8* messageData,
+        int32 messageLength
     ) = nullptr;
 
 };
@@ -139,6 +148,25 @@ inline int32 __cdecl GetKeyUp(
         : 0;
 }
 
+inline int32 __cdecl Log(
+    void* userData,
+    const uint8* messageData,
+    int32 messageLength
+)
+{
+    if (!userData || messageLength < 0 || (messageLength > 0 && !messageData))
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    return ScriptBindings::Log(
+        scriptSystem,
+        std::string_view(messageData ? reinterpret_cast<const char*>(messageData) : "", static_cast<std::size_t>(messageLength))
+        )
+        ? 1
+        : 0;
+}
+
 } // namespace RuntimeAPIBridge
 
 inline RuntimeAPI CreateRuntimeAPI()
@@ -149,6 +177,7 @@ inline RuntimeAPI CreateRuntimeAPI()
         .GetKey = &RuntimeAPIBridge::GetKey,
         .GetKeyDown = &RuntimeAPIBridge::GetKeyDown,
         .GetKeyUp = &RuntimeAPIBridge::GetKeyUp,
+        .Log = &RuntimeAPIBridge::Log,
     };
 }
 

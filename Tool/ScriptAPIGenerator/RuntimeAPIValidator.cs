@@ -13,7 +13,8 @@ public static class RuntimeAPIValidator
         {
             "u16",
             "u64",
-            "Vector3"
+            "Vector3",
+            "string"
         };
 
     private static readonly HashSet<string> SupportedDirections =
@@ -117,6 +118,7 @@ public static class RuntimeAPIValidator
     {
         HashSet<string> parameterNames = new(StringComparer.Ordinal);
         int outParameterCount = 0;
+        int stringParameterCount = 0;
 
         int instanceIdIndex = -1;
 
@@ -168,6 +170,32 @@ public static class RuntimeAPIValidator
                     $"API '{apiName}' has multiple out parameters. " +
                     "Only one out Vector3 is currently supported.");
             }
+
+            if (parameter.Type == "string")
+            {
+                ++stringParameterCount;
+
+                if (parameter.Direction != "in")
+                {
+                    errors.Add(
+                        $"API '{apiName}' parameter '{parameter.Name}' uses " +
+                        $"'string', but only 'in string' is currently supported.");
+                }
+            }
+        }
+
+        if (stringParameterCount > 1)
+        {
+            errors.Add(
+                $"API '{apiName}' has multiple string parameters. " +
+                "Only one in string is currently supported.");
+        }
+
+        if (stringParameterCount > 0 && outParameterCount > 0)
+        {
+            errors.Add(
+                $"API '{apiName}' mixes string and out parameters. " +
+                "This combination is not currently supported.");
         }
 
         if (instanceIdIndex >= 0)

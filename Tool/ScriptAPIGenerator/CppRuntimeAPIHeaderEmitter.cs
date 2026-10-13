@@ -56,6 +56,9 @@ public static class CppRuntimeAPIHeaderEmitter
             }
         }
 
+        builder.AppendLine("#include <cstddef>");
+        builder.AppendLine("#include <string_view>");
+
         builder.AppendLine();
     }
 
@@ -98,6 +101,18 @@ public static class CppRuntimeAPIHeaderEmitter
                 {
                     builder.Append(" || !");
                     builder.Append(GetABIParameterName(parameter));
+                }
+                else if (parameter.Type == "string")
+                {
+                    builder.Append(" || ");
+                    builder.Append(parameter.Name);
+                    builder.Append("Length < 0");
+
+                    builder.Append(" || (");
+                    builder.Append(parameter.Name);
+                    builder.Append("Length > 0 && !");
+                    builder.Append(parameter.Name);
+                    builder.Append("Data)");
                 }
             }
 
@@ -170,15 +185,15 @@ public static class CppRuntimeAPIHeaderEmitter
         builder.Append(indentation);
         builder.AppendLine("    void* userData,");
 
-        for (int index = 0; index < api.Parameters.Count; ++index)
-        {
-            RuntimeAPIParameter parameter = api.Parameters[index];
+        List<string> declarations = GetAllABIParameterDeclarations(api);
 
+        for (int index = 0; index < declarations.Count; ++index)
+        {
             builder.Append(indentation);
             builder.Append("    ");
-            builder.Append(GetABIParameterDeclaration(parameter));
+            builder.Append(declarations[index]);
 
-            if (index < api.Parameters.Count - 1)
+            if (index < declarations.Count - 1)
                 builder.Append(',');
 
             builder.AppendLine();
@@ -197,14 +212,14 @@ public static class CppRuntimeAPIHeaderEmitter
         builder.AppendLine("(");
         builder.AppendLine("    void* userData,");
 
-        for (int index = 0; index < api.Parameters.Count; ++index)
+        List<string> declarations = GetAllABIParameterDeclarations(api);
+
+        for (int index = 0; index < declarations.Count; ++index)
         {
-            RuntimeAPIParameter parameter = api.Parameters[index];
-
             builder.Append("    ");
-            builder.Append(GetABIParameterDeclaration(parameter));
+            builder.Append(declarations[index]);
 
-            if (index < api.Parameters.Count - 1)
+            if (index < declarations.Count - 1)
                 builder.Append(',');
 
             builder.AppendLine();
@@ -213,19 +228,46 @@ public static class CppRuntimeAPIHeaderEmitter
         builder.Append(')');
     }
 
-    private static string GetABIParameterDeclaration(
+    private static List<string> GetAllABIParameterDeclarations(RuntimeAPIDefinition api)
+    {
+        List<string> declarations = [];
+
+        foreach (RuntimeAPIParameter parameter in api.Parameters)
+            declarations.AddRange(GetABIParameterDeclarations(parameter));
+
+        return declarations;
+    }
+
+    private static IReadOnlyList<string> GetABIParameterDeclarations(
         RuntimeAPIParameter parameter)
     {
         return parameter.Type switch
         {
-            "u16" => $"uint16 {parameter.Name}",
-            "u64" => $"uint64 {parameter.Name}",
+            "u16" =>
+            [
+                $"uint16 {parameter.Name}"
+            ],
+
+            "u64" =>
+            [
+                $"uint64 {parameter.Name}"
+            ],
 
             "Vector3" when parameter.Direction == "in" =>
+            [
                 $"const Vector3* {parameter.Name}",
+            ],
 
             "Vector3" when parameter.Direction == "out" =>
+            [
                 $"Vector3* {GetABIParameterName(parameter)}",
+            ],
+
+            "string" when parameter.Direction == "in" =>
+            [
+                $"const uint8* {parameter.Name}Data",
+                $"int32 {parameter.Name}Length"
+            ],
 
             _ => throw new InvalidOperationException(
                 $"Unsupported C++ parameter: " +
@@ -242,9 +284,20 @@ public static class CppRuntimeAPIHeaderEmitter
 
     private static string GetHandlerArgument(RuntimeAPIParameter parameter)
     {
-        return parameter.Type == "Vector3"
-            ? $"*{GetABIParameterName(parameter)}"
-            : parameter.Name;
+        return parameter.Type switch
+        {
+            "Vector3" =>
+                $"*{GetABIParameterName(parameter)}",
+
+            "string" =>
+                $"std::string_view(" +
+                $"{parameter.Name}Data " +
+                $"? reinterpret_cast<const char*>({parameter.Name}Data) " +
+                $": \"\", " +
+                $"static_cast<std::size_t>({parameter.Name}Length))",
+
+            _ => parameter.Name
+        };
     }
 
     private static string ToPascalCase(string value)

@@ -14,21 +14,6 @@ public static unsafe partial class URay
         URay.isInitialized = true;
     }
 
-    public static void Log(string message)
-    {
-        if (!isInitialized)
-            throw new InvalidOperationException("URay API is not initialized.");
-
-        ArgumentNullException.ThrowIfNull(message);
-
-        byte[] utf8 = Encoding.UTF8.GetBytes(message);
-
-        fixed (byte* text = utf8)
-        {
-            nativeAPI.Bootstrap.LogUTF8(nativeAPI.UserData, text, utf8.Length);
-        }
-    }
-
     internal static bool RegisterScriptType(string className)
     {
         if (!isInitialized || string.IsNullOrEmpty(className))

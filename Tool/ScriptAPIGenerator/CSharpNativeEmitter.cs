@@ -15,6 +15,14 @@ public static class CSharpNativeAPIEmitter
         builder.AppendLine("// Do not edit manually.");
         builder.AppendLine();
         builder.AppendLine("using System.Runtime.InteropServices;");
+
+        bool hasStringParameter = document.APIs.Any(api =>
+            api.Parameters.Any(parameter =>
+                parameter.Type == "string"));
+
+        if (hasStringParameter)
+            builder.AppendLine("using System.Text;");
+
         builder.AppendLine();
         builder.AppendLine("namespace URay.ScriptHost;");
         builder.AppendLine();
@@ -29,9 +37,12 @@ public static class CSharpNativeAPIEmitter
 
             foreach (RuntimeAPIParameter parameter in api.Parameters)
             {
-                builder.Append("        ");
-                builder.Append(GetParameterType(parameter));
-                builder.AppendLine(",");
+                foreach (string type in GetFunctionPointerParameterTypes(parameter))
+                {
+                    builder.Append("        ");
+                    builder.Append(type);
+                    builder.AppendLine(",");
+                }
             }
 
             builder.Append("        ");
@@ -71,6 +82,7 @@ public static class CSharpNativeAPIEmitter
         RuntimeAPIDefinition api)
     {
         RuntimeAPIParameter? outParameter = GetOutParameter(api);
+        RuntimeAPIParameter? stringParameter = GetStringParameter(api);
 
         builder.Append("    internal static bool Try");
         builder.Append(api.Name);
@@ -98,6 +110,28 @@ public static class CSharpNativeAPIEmitter
             builder.Append(outParameter.Name);
             builder.AppendLine(" = default;");
             builder.AppendLine();
+        }
+
+        if (stringParameter is not null)
+        {
+            builder.Append("        ArgumentNullException.ThrowIfNull(");
+            builder.Append(stringParameter.Name);
+            builder.AppendLine(");");
+            builder.AppendLine();
+
+            builder.Append("        byte[] ");
+            builder.Append(stringParameter.Name);
+            builder.Append("Utf8 = Encoding.UTF8.GetBytes(");
+            builder.Append(stringParameter.Name);
+            builder.AppendLine(");");
+            builder.AppendLine();
+
+            builder.Append("        fixed (byte* ");
+            builder.Append(stringParameter.Name);
+            builder.Append("Data = ");
+            builder.Append(stringParameter.Name);
+            builder.AppendLine("Utf8)");
+            builder.AppendLine("        {");
         }
 
         builder.AppendLine("        if (!isInitialized ||");
@@ -146,6 +180,11 @@ public static class CSharpNativeAPIEmitter
             builder.AppendLine("            ) != 0;");
         }
 
+        if (stringParameter is not null)
+        {
+            builder.AppendLine("        }");
+        }
+
         builder.AppendLine("    }");
     }
 
@@ -171,6 +210,26 @@ public static class CSharpNativeAPIEmitter
         return outParameter;
     }
 
+    private static IReadOnlyList<string> GetFunctionPointerParameterTypes(RuntimeAPIParameter parameter)
+    {
+        return parameter.Type switch
+        {
+            "u16" => ["ushort"],
+            "u64" => ["ulong"],
+            "Vector3" => ["Vector3*"],
+
+            "string" when parameter.Direction == "in" =>
+            [
+                "byte*",
+                "int"
+            ],
+
+            _ => throw new InvalidOperationException(
+                $"Unsupported C# parameter: " +
+                $"'{parameter.Direction} {parameter.Type} {parameter.Name}'.")
+        };
+    }
+
     private static string GetWrapperParameterDeclaration(
         RuntimeAPIParameter parameter)
     {
@@ -182,6 +241,8 @@ public static class CSharpNativeAPIEmitter
                 $"Vector3 {parameter.Name}",
             "Vector3" when parameter.Direction == "out" =>
                 $"out Vector3 {parameter.Name}",
+            "string" when parameter.Direction == "in" =>
+                $"string {parameter.Name}",
             _ => throw new InvalidOperationException(
                 $"Unsupported C# parameter: " +
                 $"'{parameter.Direction} {parameter.Type} {parameter.Name}'.")
@@ -201,7 +262,17 @@ public static class CSharpNativeAPIEmitter
 
             builder.Append("                ");
 
-            if (parameter.Type == "Vector3")
+            if (parameter.Type == "string")
+            {
+                builder.Append(parameter.Name);
+                builder.Append("Data,");
+                builder.AppendLine();
+
+                builder.Append("                ");
+                builder.Append(parameter.Name);
+                builder.Append("Utf8.Length");
+            }
+            else if (parameter.Type == "Vector3")
             {
                 builder.Append('&');
 
@@ -237,23 +308,17 @@ public static class CSharpNativeAPIEmitter
         };
     }
 
-    private static string GetParameterType(RuntimeAPIParameter parameter)
-    {
-        return parameter.Type switch
-        {
-            "u16" => "ushort",
-            "u64" => "ulong",
-            "Vector3" => "Vector3*",
-            _ => throw new InvalidOperationException(
-                $"Unsupported parameter type '{parameter.Type}'.")
-        };
-    }
-
     private static string ToPascalCase(string value)
     {
         if (string.IsNullOrEmpty(value))
             return value;
 
         return char.ToUpperInvariant(value[0]) + value[1..];
+    }
+
+    private static RuntimeAPIParameter? GetStringParameter(RuntimeAPIDefinition api)
+    {
+        return api.Parameters.SingleOrDefault(parameter =>
+            parameter.Type == "string");
     }
 }

@@ -1,6 +1,5 @@
 #include "ScriptSystem.h"
 
-#include <Core/Log/LogSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/ScriptComponent.h>
 #include <Engine/Engine.h>
@@ -39,7 +38,6 @@ bool ScriptSystem::Initialize(
     NativeAPI nativeAPI = {
         .userData = this,
         .bootstrap = {
-            .LogUTF8 = &ScriptSystem::LogUTF8,
             .RegisterScriptType = &ScriptSystem::RegisterScriptTypeUTF8,
             .RegisterScriptField = &ScriptSystem::RegisterScriptFieldUTF8 },
         .runtime = CreateRuntimeAPI()
@@ -111,15 +109,6 @@ void ScriptSystem::UnbindManagedInstance(uint64 instanceId, const ScriptComponen
 ScriptComponent* ScriptSystem::FindManagedInstance(uint64 instanceId) const
 {
     return instanceRegistry.Find(instanceId);
-}
-
-void ScriptSystem::LogUTF8(void* userData, const uint8* message, int32 byteCount)
-{
-    if (message == nullptr || byteCount < 0)
-        return;
-
-    const char* text = reinterpret_cast<const char*>(message);
-    URAY_LOG("%s", std::string(text, byteCount).c_str());
 }
 
 int32 ScriptSystem::RegisterScriptTypeUTF8(

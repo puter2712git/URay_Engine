@@ -5,8 +5,6 @@ namespace URay.ScriptHost;
 [StructLayout(LayoutKind.Sequential)]
 public unsafe struct BootstrapAPI
 {
-    public delegate* unmanaged[Cdecl]<nint, byte*, int, void> LogUTF8;
-
     public delegate* unmanaged[Cdecl]<
         nint, byte*, int, int> RegisterScriptType;
 

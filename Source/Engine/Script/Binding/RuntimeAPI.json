@@ -80,6 +80,20 @@
         }
       ],
       "nativeImplementation": "ScriptBindings::GetKeyUp"
+    },
+    {
+      "id": 6,
+      "module": "Log",
+      "name": "Log",
+      "result": "bool",
+      "parameters": [
+        {
+          "name": "message",
+          "type": "string",
+          "direction": "in"
+        }
+      ],
+      "nativeImplementation": "ScriptBindings::Log"
     }
   ]
 }

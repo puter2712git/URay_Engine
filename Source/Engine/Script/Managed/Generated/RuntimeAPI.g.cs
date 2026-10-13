@@ -3,6 +3,7 @@
 // Do not edit manually.
 
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace URay.ScriptHost;
 
@@ -35,6 +36,12 @@ public unsafe struct RuntimeAPI
         nint,
         ushort,
         int> GetKeyUp;
+
+    public delegate* unmanaged[Cdecl]<
+        nint,
+        byte*,
+        int,
+        int> Log;
 
 }
 
@@ -134,6 +141,30 @@ public static unsafe partial class URay
                 nativeAPI.UserData,
                 keyCode
             ) != 0;
+    }
+
+    internal static bool TryLog(
+        string message
+    )
+    {
+        ArgumentNullException.ThrowIfNull(message);
+
+        byte[] messageUtf8 = Encoding.UTF8.GetBytes(message);
+
+        fixed (byte* messageData = messageUtf8)
+        {
+        if (!isInitialized ||
+            nativeAPI.Runtime.Log == null)
+        {
+            return false;
+        }
+
+        return nativeAPI.Runtime.Log(
+                nativeAPI.UserData,
+                messageData,
+                messageUtf8.Length
+            ) != 0;
+        }
     }
 
 }

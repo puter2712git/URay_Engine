@@ -31,7 +31,7 @@ internal static class ScriptTypeRegistry
         }
         catch (Exception exception)
         {
-            URay.Log($"Failed to register script types: {exception}");
+            Core.Log($"Failed to register script types: {exception}");
             return false;
         }
     }
@@ -53,13 +53,13 @@ internal static class ScriptTypeRegistry
 
         if (defaultInstance is null)
         {
-            URay.Log($"Failed to create default instance: {className}");
+            Core.Log($"Failed to create default instance: {className}");
             return false;
         }
 
         if (!URay.RegisterScriptType(className))
         {
-            URay.Log($"Failed to register script type: {className}");
+            Core.Log($"Failed to register script type: {className}");
             return false;
         }
 
@@ -133,7 +133,7 @@ internal static class ScriptTypeRegistry
                 value as string ?? string.Empty);
         }
 
-        URay.Log(
+        Core.Log(
             $"Unsupported serialized script field: " +
             $"{className}.{field.Name} ({field.FieldType.FullName})");
 

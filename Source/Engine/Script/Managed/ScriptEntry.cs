@@ -71,7 +71,7 @@ public static unsafe class ScriptEntry
         }
         catch (Exception exception)
         {
-            URay.Log($"Failed to load game scripts: {exception}");
+            Core.Log($"Failed to load game scripts: {exception}");
             return -4;
         }
     }
@@ -106,7 +106,7 @@ public static unsafe class ScriptEntry
                 type.IsAbstract ||
                 !typeof(ScriptComponent).IsAssignableFrom(type))
             {
-                URay.Log($"Script type was not found: {className}");
+                Core.Log($"Script type was not found: {className}");
                 return 0;
             }
 
@@ -132,7 +132,7 @@ public static unsafe class ScriptEntry
         }
         catch (Exception exception)
         {
-            URay.Log($"Failed to create script instance: {exception}");
+            Core.Log($"Failed to create script instance: {exception}");
             return 0;
         }
     }
@@ -194,7 +194,7 @@ public static unsafe class ScriptEntry
         }
         catch (Exception exception)
         {
-            URay.Log(
+            Core.Log(
                 $"Failed to set script field: {exception}");
 
             return 0;
@@ -237,7 +237,7 @@ public static unsafe class ScriptEntry
         }
         catch (Exception exception)
         {
-            URay.Log($"Script lifecycle invocation failed: {exception}");
+            Core.Log($"Script lifecycle invocation failed: {exception}");
             return 0;
         }
     }

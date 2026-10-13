@@ -9,7 +9,6 @@ namespace URay
 
 struct BootstrapAPI
 {
-    void(__cdecl* LogUTF8)(void* userData, const uint8* message, int32 byteCount) = nullptr;
     int32(__cdecl* RegisterScriptType)(
         void* userData,
         const uint8* className,

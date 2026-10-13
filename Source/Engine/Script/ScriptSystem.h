@@ -32,7 +32,6 @@ public:
     ScriptComponent* FindManagedInstance(uint64 instanceId) const;
 
 private:
-    static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);
     static int32 __cdecl RegisterScriptTypeUTF8(void* userData, const uint8* className, int32 classNameLength);
     static int32 __cdecl RegisterScriptFieldUTF8(
         void* userData,
