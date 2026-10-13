@@ -3,9 +3,7 @@
 #include <Core/Log/LogSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/ScriptComponent.h>
-#include <Engine/Component/TransformComponent.h>
 #include <Engine/Engine.h>
-#include <Engine/Scene/Unit.h>
 #include <Engine/Script/ScriptMetadataRegistry.h>
 #include <Engine/Script/NativeAPI.h>
 
@@ -64,7 +62,7 @@ bool ScriptSystem::Initialize(
 void ScriptSystem::Finalize()
 {
     metadataRegistry.reset();
-    managedInstances.clear();
+    instanceRegistry.Clear();
     isInitialized = false;
 }
 
@@ -73,19 +71,13 @@ bool ScriptSystem::ReloadGameScripts()
     if (!isInitialized || gameAssemblyPath.empty())
         return false;
 
-    std::vector<ScriptComponent*> components;
-    components.reserve(managedInstances.size());
-
-    for (const auto& [instnaceId, component] : managedInstances)
-    {
-        if (component)
-            components.push_back(component);
-    }
+    const std::vector<ScriptComponent*> components =
+        instanceRegistry.GetBoundComponents();
 
     for (ScriptComponent* component : components)
         component->ReleaseManagedInstance();
 
-    if (!managedInstances.empty())
+    if (!instanceRegistry.Empty())
         return false;
 
     if (!dotnetHost.UnloadGameScripts())
@@ -153,54 +145,17 @@ void ScriptSystem::DestroyScriptInstance(uint64 instanceId)
 
 bool ScriptSystem::BindManagedInstance(uint64 instanceId, ScriptComponent& component)
 {
-    if (instanceId == 0)
-        return false;
-
-    const auto it = managedInstances.find(instanceId);
-    if (it != managedInstances.end())
-        return false;
-
-    if (!component.GetOwner())
-        return false;
-
-    managedInstances.emplace(instanceId, &component);
-    return true;
+    return instanceRegistry.Bind(instanceId, component);
 }
 
 void ScriptSystem::UnbindManagedInstance(uint64 instanceId, const ScriptComponent& component)
 {
-    const auto it = managedInstances.find(instanceId);
-
-    if (it == managedInstances.end() || it->second != &component)
-        return;
-
-    managedInstances.erase(it);
+    instanceRegistry.Unbind(instanceId, component);
 }
 
 ScriptComponent* ScriptSystem::FindManagedInstance(uint64 instanceId) const
 {
-    const auto it = managedInstances.find(instanceId);
-
-    return it != managedInstances.end()
-               ? it->second
-               : nullptr;
-}
-
-TransformComponent* ScriptSystem::FindTransformForManagedInstance(uint64 instanceId) const
-{
-    return ResolveTransform(instanceId);
-}
-
-TransformComponent* ScriptSystem::ResolveTransform(uint64 instanceId) const
-{
-    ScriptComponent* scriptComponent = FindManagedInstance(instanceId);
-
-    if (!scriptComponent)
-        return nullptr;
-
-    Unit* unit = scriptComponent->GetOwner();
-
-    return unit ? unit->GetTransform() : nullptr;
+    return instanceRegistry.Find(instanceId);
 }
 
 void ScriptSystem::LogUTF8(void* userData, const uint8* message, int32 byteCount)

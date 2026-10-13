@@ -2,20 +2,19 @@
 
 #include <Core/Type/Types.h>
 #include <Engine/Script/DotnetHost.h>
+#include <Engine/Script/ScriptInstanceRegistry.h>
 #include <Engine/Script/ScriptMetadata.h>
 
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <unordered_map>
 
 namespace URay
 {
 
 class ScriptComponent;
 class ScriptMetadataRegistry;
-class TransformComponent;
 
 class ScriptSystem
 {
@@ -44,11 +43,6 @@ public:
     void UnbindManagedInstance(uint64 instanceId, const ScriptComponent& component);
     ScriptComponent* FindManagedInstance(uint64 instanceId) const;
 
-    TransformComponent* FindTransformForManagedInstance(uint64 instanceId) const;
-
-private:
-    TransformComponent* ResolveTransform(uint64 instanceId) const;
-
     static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);
     static int32 __cdecl RegisterScriptTypeUTF8(void* userData, const uint8* className, int32 classNameLength);
     static int32 __cdecl RegisterScriptFieldUTF8(
@@ -68,7 +62,7 @@ private:
     std::filesystem::path gameAssemblyPath;
 
     std::unique_ptr<ScriptMetadataRegistry> metadataRegistry;
-    std::unordered_map<uint64, ScriptComponent*> managedInstances;
+    ScriptInstanceRegistry instanceRegistry;
 };
 
 } // namespace URay
