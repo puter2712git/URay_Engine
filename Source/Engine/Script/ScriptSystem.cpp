@@ -4,16 +4,17 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/ScriptComponent.h>
 #include <Engine/Engine.h>
-#include <Engine/Script/ScriptMetadataRegistry.h>
 #include <Engine/Script/NativeAPI.h>
+#include <Engine/Script/ScriptMetadataRegistry.h>
 
 #include <memory>
 #include <string>
-#include <string_view>
 #include <vector>
 
 namespace URay
 {
+
+ScriptSystem::ScriptSystem() = default;
 
 ScriptSystem::~ScriptSystem() = default;
 
@@ -35,9 +36,6 @@ bool ScriptSystem::Initialize(
     metadataRegistry = std::make_unique<ScriptMetadataRegistry>(
         gEngine->GetAssetSystem().GetDatabase());
 
-    if (!dotnetHost.Initialize(runtimeConfigPath, hostAssemblyPath))
-        return false;
-
     NativeAPI nativeAPI = {
         .userData = this,
         .bootstrap = {
@@ -47,15 +45,17 @@ bool ScriptSystem::Initialize(
         .runtime = CreateRuntimeAPI()
     };
 
-    if (!dotnetHost.InitializeManagedAPI(nativeAPI))
+    if (!runtime.Initialize(
+            runtimeConfigPath,
+            hostAssemblyPath,
+            nativeAPI))
         return false;
 
-    if (!dotnetHost.LoadGameScripts(gameAssemblyPath))
+    if (!runtime.LoadGameScripts(gameAssemblyPath))
         return false;
 
     this->gameAssemblyPath = gameAssemblyPath;
 
-    isInitialized = true;
     return true;
 }
 
@@ -63,12 +63,13 @@ void ScriptSystem::Finalize()
 {
     metadataRegistry.reset();
     instanceRegistry.Clear();
-    isInitialized = false;
+    runtime.Finalize();
+    gameAssemblyPath.clear();
 }
 
 bool ScriptSystem::ReloadGameScripts()
 {
-    if (!isInitialized || gameAssemblyPath.empty())
+    if (!runtime.IsInitialized() || gameAssemblyPath.empty())
         return false;
 
     const std::vector<ScriptComponent*> components =
@@ -80,12 +81,12 @@ bool ScriptSystem::ReloadGameScripts()
     if (!instanceRegistry.Empty())
         return false;
 
-    if (!dotnetHost.UnloadGameScripts())
+    if (!runtime.UnloadGameScripts())
         return false;
 
     metadataRegistry->Clear();
 
-    if (!dotnetHost.LoadGameScripts(gameAssemblyPath))
+    if (!runtime.LoadGameScripts(gameAssemblyPath))
         return false;
 
     for (ScriptComponent* component : components)
@@ -95,52 +96,6 @@ bool ScriptSystem::ReloadGameScripts()
     }
 
     return true;
-}
-
-uint64 ScriptSystem::CreateScriptInstance(std::string_view className)
-{
-    if (!isInitialized)
-        return 0;
-
-    return dotnetHost.CreateScriptInstance(className);
-}
-
-bool ScriptSystem::SetScriptFieldValue(
-    uint64 instanceId,
-    std::string_view fieldName,
-    PropertyType type,
-    const ScriptValue& value)
-{
-    if (!isInitialized)
-        return false;
-
-    return dotnetHost.SetScriptFieldValue(
-        instanceId,
-        fieldName,
-        type,
-        value);
-}
-
-bool ScriptSystem::InvokeScriptLifecycle(
-    uint64 instanceId,
-    ScriptLifecycle lifecycle,
-    float deltaTime)
-{
-    if (!isInitialized)
-        return false;
-
-    return dotnetHost.InvokeScriptLifecycle(
-        instanceId,
-        lifecycle,
-        deltaTime);
-}
-
-void ScriptSystem::DestroyScriptInstance(uint64 instanceId)
-{
-    if (!isInitialized)
-        return;
-
-    dotnetHost.DestroyScriptInstance(instanceId);
 }
 
 bool ScriptSystem::BindManagedInstance(uint64 instanceId, ScriptComponent& component)

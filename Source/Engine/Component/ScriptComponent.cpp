@@ -5,6 +5,7 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Script/ScriptAsset.h>
 #include <Engine/Engine.h>
+#include <Engine/Script/ScriptRuntime.h>
 #include <Engine/Script/ScriptSystem.h>
 
 #ifdef RegisterClass
@@ -244,7 +245,8 @@ bool ScriptComponent::SetFieldValue(const std::string& name, const ScriptValue& 
         if (managedInstanceId != 0)
         {
             gEngine->GetScriptSystem()
-                .SetScriptFieldValue(
+                .GetRuntime()
+                .SetFieldValue(
                     managedInstanceId,
                     field.name,
                     field.type,
@@ -311,8 +313,9 @@ void ScriptComponent::OnLoad()
     }
 
     ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+    ScriptRuntime& runtime = scriptSystem.GetRuntime();
 
-    const uint64 instanceId = scriptSystem.CreateScriptInstance(script->GetManagedClassName());
+    const uint64 instanceId = runtime.CreateInstance(script->GetManagedClassName());
     if (instanceId == 0)
     {
         URAY_LOG("Failed to create script instance: %s", script->GetManagedClassName().c_str());
@@ -325,7 +328,7 @@ void ScriptComponent::OnLoad()
             "Failed to bind managed script instance: %s",
             script->GetManagedClassName().c_str());
 
-        scriptSystem.DestroyScriptInstance(instanceId);
+        runtime.DestroyInstance(instanceId);
         return;
     }
 
@@ -334,19 +337,19 @@ void ScriptComponent::OnLoad()
     {
         if (invokeFinalize)
         {
-            scriptSystem.InvokeScriptLifecycle(
+            runtime.InvokeLifecycle(
                 instanceId,
                 ScriptLifecycle::Finalize,
                 0.0f);
         }
 
         scriptSystem.UnbindManagedInstance(instanceId, *this);
-        scriptSystem.DestroyScriptInstance(instanceId);
+        runtime.DestroyInstance(instanceId);
     };
 
     for (const ScriptFieldValue& field : fields)
     {
-        if (scriptSystem.SetScriptFieldValue(
+        if (runtime.SetFieldValue(
                 instanceId,
                 field.name,
                 field.type,
@@ -364,7 +367,7 @@ void ScriptComponent::OnLoad()
         return;
     }
 
-    if (!scriptSystem.InvokeScriptLifecycle(
+    if (!runtime.InvokeLifecycle(
             instanceId,
             ScriptLifecycle::Initialize,
             0.0f))
@@ -373,7 +376,7 @@ void ScriptComponent::OnLoad()
         return;
     }
 
-    if (!scriptSystem.InvokeScriptLifecycle(
+    if (!runtime.InvokeLifecycle(
             instanceId,
             ScriptLifecycle::Load,
             0.0f))
@@ -391,8 +394,9 @@ void ScriptComponent::OnUpdate(float deltaTime)
         return;
 
     ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+    ScriptRuntime& runtime = scriptSystem.GetRuntime();
 
-    if (scriptSystem.InvokeScriptLifecycle(
+    if (runtime.InvokeLifecycle(
             managedInstanceId,
             ScriptLifecycle::Update,
             deltaTime))
@@ -411,8 +415,9 @@ void ScriptComponent::OnUnload()
         return;
 
     ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+    ScriptRuntime& runtime = scriptSystem.GetRuntime();
 
-    scriptSystem.InvokeScriptLifecycle(managedInstanceId, ScriptLifecycle::Unload, 0.0f);
+    runtime.InvokeLifecycle(managedInstanceId, ScriptLifecycle::Unload, 0.0f);
 }
 
 void ScriptComponent::OnFinalize()
@@ -423,14 +428,15 @@ void ScriptComponent::OnFinalize()
         return;
 
     ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+    ScriptRuntime& runtime = scriptSystem.GetRuntime();
 
-    scriptSystem.InvokeScriptLifecycle(
+    runtime.InvokeLifecycle(
         instanceId,
         ScriptLifecycle::Finalize,
         0.0f);
 
     scriptSystem.UnbindManagedInstance(instanceId, *this);
-    scriptSystem.DestroyScriptInstance(instanceId);
+    runtime.DestroyInstance(instanceId);
 }
 
 void ScriptComponent::ReleaseManagedInstance()

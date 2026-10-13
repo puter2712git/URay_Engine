@@ -1,14 +1,11 @@
 #pragma once
 
 #include <Core/Type/Types.h>
-#include <Engine/Script/DotnetHost.h>
 #include <Engine/Script/ScriptInstanceRegistry.h>
-#include <Engine/Script/ScriptMetadata.h>
+#include <Engine/Script/ScriptRuntime.h>
 
 #include <filesystem>
 #include <memory>
-#include <string>
-#include <string_view>
 
 namespace URay
 {
@@ -19,7 +16,7 @@ class ScriptMetadataRegistry;
 class ScriptSystem
 {
 public:
-    ScriptSystem() = default;
+    ScriptSystem();
     ~ScriptSystem();
 
     bool Initialize(const std::filesystem::path& enginePath, const std::filesystem::path& projectPath);
@@ -27,22 +24,14 @@ public:
 
     bool ReloadGameScripts();
 
-    uint64 CreateScriptInstance(std::string_view className);
-    bool SetScriptFieldValue(
-        uint64 instanceId,
-        std::string_view fieldName,
-        PropertyType type,
-        const ScriptValue& value);
-    bool InvokeScriptLifecycle(
-        uint64 instanceId,
-        ScriptLifecycle lifecycle,
-        float deltaTime);
-    void DestroyScriptInstance(uint64 instanceId);
+    ScriptRuntime& GetRuntime() { return runtime; }
+    const ScriptRuntime& GetRuntime() const { return runtime; }
 
     bool BindManagedInstance(uint64 instanceId, ScriptComponent& component);
     void UnbindManagedInstance(uint64 instanceId, const ScriptComponent& component);
     ScriptComponent* FindManagedInstance(uint64 instanceId) const;
 
+private:
     static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);
     static int32 __cdecl RegisterScriptTypeUTF8(void* userData, const uint8* className, int32 classNameLength);
     static int32 __cdecl RegisterScriptFieldUTF8(
@@ -56,8 +45,7 @@ public:
         int32 defaultValueSize);
 
 private:
-    DotnetHost dotnetHost;
-    bool isInitialized = false;
+    ScriptRuntime runtime;
 
     std::filesystem::path gameAssemblyPath;
 
