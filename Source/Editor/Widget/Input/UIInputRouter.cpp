@@ -1,9 +1,7 @@
 #include "UIInputRouter.h"
 
+#include <Core/Input/InputSnapshot.h>
 #include <Editor/Widget/Widget.h>
-
-#include <Core/Input/InputSystem.h>
-
 #include <Platform/Window/Window.h>
 
 namespace URay
@@ -14,7 +12,7 @@ UIInputRouter::UIInputRouter(Window& window)
 {
 }
 
-void UIInputRouter::Process(Widget& root, const InputSystem& input)
+void UIInputRouter::Process(Widget& root, const InputSnapshot& input)
 {
     for (const InputEvent& inputEvent : input.GetEvents())
     {

@@ -1,5 +1,6 @@
 #include "WidgetSystem.h"
 
+#include <Core/Input/InputSystem.h>
 #include <Editor/Widget/Element/Splitter.h>
 #include <Editor/Widget/Input/UIInputRouter.h>
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
@@ -9,15 +10,12 @@
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Editor/Widget/RootWidget.h>
-
 #include <Engine/Engine.h>
-
+#include <Platform/Window/Window.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
-
-#include <Platform/Window/Window.h>
 
 namespace URay
 {
@@ -54,7 +52,7 @@ void WidgetSystem::Finalize()
 
 void WidgetSystem::Update(float deltaTime)
 {
-    inputRouter->Process(*root, gEngine->GetInputSystem());
+    inputRouter->Process(*root, gEngine->GetInputSystem().GetSnapshot());
 
     root->Update(deltaTime);
 }

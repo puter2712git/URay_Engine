@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Performance/ScopeTimer.h>
+#include <Core/Type/Types.h>
 
 #include <string>
 #include <vector>
@@ -55,6 +56,8 @@ public:
     Render::RenderSystem& GetRenderSystem() const { return *renderSystem; }
 
 private:
+    uint64 frameIndex = 0;
+
     std::unique_ptr<LogSystem> logSystem = nullptr;
     std::unique_ptr<StdErrLogSink> stdErrLogSink = nullptr;
     std::unique_ptr<FileLogSink> fileLogSink = nullptr;

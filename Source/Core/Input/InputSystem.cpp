@@ -1,30 +1,33 @@
 #include "InputSystem.h"
 
-#include <Core/Log/LogSystem.h>
-
-#include <cstring>
-
 namespace URay
 {
 
-void InputSystem::Update()
+void InputSystem::BeginFrame()
 {
-    std::memcpy(prevKeys, currKeys, sizeof(currKeys));
-    prevMouseButtons = currMouseButtons;
+    pendingSnapshot = publishedSnapshot;
 
-    mouseDeltaX = 0.0;
-    mouseDeltaY = 0.0;
+    for (InputButtonState& state : pendingSnapshot.keys)
+    {
+        state.pressed = false;
+        state.released = false;
+    }
 
-    prevMouseX = mouseX;
-    prevMouseY = mouseY;
+    for (InputButtonState& state : pendingSnapshot.mouseButtons)
+    {
+        state.pressed = false;
+        state.released = false;
+    }
 
-    scrollX = 0.0;
-    scrollY = 0.0;
+    pendingSnapshot.mouseDelta = Vector2::Zero;
+    pendingSnapshot.scrollDelta = Vector2::Zero;
+    pendingSnapshot.events.clear();
 }
 
-void InputSystem::ClearEvents()
+void InputSystem::PublishSnapshot(uint64 frameIndex)
 {
-    events.clear();
+    pendingSnapshot.frameIndex = frameIndex;
+    publishedSnapshot = pendingSnapshot;
 }
 
 void InputSystem::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
@@ -33,9 +36,28 @@ void InputSystem::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
     if (keyIndex >= static_cast<size_t>(KeyCode::Count))
         return;
 
-    currKeys[keyIndex] = action != KeyAction::Released;
+    InputButtonState& state = pendingSnapshot.keys[keyIndex];
 
-    events.push_back(KeyEvent{
+    switch (action)
+    {
+    case KeyAction::Pressed:
+        if (!state.held)
+            state.pressed = true;
+        state.held = true;
+        break;
+
+    case KeyAction::Repeated:
+        state.held = true;
+        break;
+
+    case KeyAction::Released:
+        if (state.held)
+            state.released = true;
+        state.held = false;
+        break;
+    }
+
+    pendingSnapshot.events.push_back(KeyEvent{
         .key = key,
         .modifiers = modifiers,
         .action = action,
@@ -44,127 +66,86 @@ void InputSystem::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
 
 void InputSystem::OnMouseButton(MouseButton button, KeyAction action, ModifierKey modifiers)
 {
-    const MouseButtonMask buttonMask = static_cast<MouseButtonMask>(button);
+    const std::optional<size_t> buttonIndex = InputSnapshot::GetMouseButtonIndex(button);
+    if (!buttonIndex)
+        return;
 
-    if (action == KeyAction::Released)
+    InputButtonState& state = pendingSnapshot.mouseButtons[*buttonIndex];
+
+    switch (action)
     {
-        currMouseButtons &= static_cast<MouseButtonMask>(~buttonMask);
-    }
-    else
-    {
-        currMouseButtons |= buttonMask;
+    case KeyAction::Pressed:
+        if (!state.held)
+            state.pressed = true;
+        state.held = true;
+        break;
+
+    case KeyAction::Repeated:
+        state.held = true;
+        break;
+
+    case KeyAction::Released:
+        if (state.held)
+            state.released = true;
+        state.held = false;
+        break;
     }
 
-    events.push_back(PointerEvent{
+    pendingSnapshot.events.push_back(PointerEvent{
         .action = action == KeyAction::Released
                       ? PointerAction::Released
                       : PointerAction::Pressed,
-        .position = Vector2(mouseX, mouseY),
+        .position = pendingSnapshot.mousePosition,
         .delta = Vector2::Zero,
         .changedButton = button,
-        .pressedButtons = currMouseButtons,
+        .pressedButtons = BuildPressedMouseButtonMask(),
         .modifiers = modifiers,
     });
 }
 
 void InputSystem::OnCursorMoved(Vector2 position)
 {
-    const Vector2 delta = Vector2(position.x - mouseX, position.y - mouseY);
+    const Vector2 delta = position - pendingSnapshot.mousePosition;
 
-    mouseDeltaX += delta.x;
-    mouseDeltaY += delta.y;
+    pendingSnapshot.mouseDelta += delta;
+    pendingSnapshot.mousePosition = position;
 
-    mouseX = position.x;
-    mouseY = position.y;
-
-    events.push_back(PointerEvent{
+    pendingSnapshot.events.push_back(PointerEvent{
         .action = PointerAction::Moved,
         .position = position,
         .delta = delta,
         .changedButton = MouseButton::None,
-        .pressedButtons = currMouseButtons,
-        .modifiers = GetCurrentModifiers() });
+        .pressedButtons = BuildPressedMouseButtonMask(),
+        .modifiers = pendingSnapshot.GetHeldModifiers() });
 }
 
 void InputSystem::OnTextInput(char32_t codepoint)
 {
-    events.push_back(TextInputEvent{
+    pendingSnapshot.events.push_back(TextInputEvent{
         .codepoint = codepoint });
 }
 
 void InputSystem::OnScroll(Vector2 delta)
 {
-    scrollX += delta.x;
-    scrollY += delta.y;
+    pendingSnapshot.scrollDelta += delta;
 
-    events.push_back(ScrollEvent{
-        .position = Vector2(mouseX, mouseY),
+    pendingSnapshot.events.push_back(ScrollEvent{
+        .position = pendingSnapshot.mousePosition,
         .delta = delta,
-        .modifiers = GetCurrentModifiers() });
+        .modifiers = pendingSnapshot.GetHeldModifiers() });
 }
 
-bool InputSystem::GetKey(KeyCode key) const
+MouseButtonMask InputSystem::BuildPressedMouseButtonMask() const
 {
-    const size_t keyIndex = static_cast<size_t>(key);
-    if (keyIndex >= static_cast<size_t>(KeyCode::Count))
-        return false;
+    MouseButtonMask mask = 0;
 
-    return currKeys[keyIndex];
-}
+    for (size_t index = 0; index < pendingSnapshot.mouseButtons.size(); ++index)
+    {
+        if (pendingSnapshot.mouseButtons[index].held)
+            mask |= static_cast<MouseButtonMask>(InputSnapshot::GetMouseButtonByIndex(index));
+    }
 
-bool InputSystem::GetKeyDown(KeyCode key) const
-{
-    const size_t keyIndex = static_cast<size_t>(key);
-    if (keyIndex >= static_cast<size_t>(KeyCode::Count))
-        return false;
-
-    return currKeys[keyIndex] && !prevKeys[keyIndex];
-}
-
-bool InputSystem::GetKeyUp(KeyCode key) const
-{
-    const size_t keyIndex = static_cast<size_t>(key);
-    if (keyIndex >= static_cast<size_t>(KeyCode::Count))
-        return false;
-
-    return !currKeys[keyIndex] && prevKeys[keyIndex];
-}
-
-bool InputSystem::GetMouse(MouseButton button) const
-{
-    const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
-    return button != MouseButton::None && (currMouseButtons & mask) != 0;
-}
-
-bool InputSystem::GetMouseDown(MouseButton button) const
-{
-    const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
-    return button != MouseButton::None && (currMouseButtons & mask) != 0 && (prevMouseButtons & mask) == 0;
-}
-
-bool InputSystem::GetMouseUp(MouseButton button) const
-{
-    const MouseButtonMask mask = static_cast<MouseButtonMask>(button);
-    return button != MouseButton::None && (currMouseButtons & mask) == 0 && (prevMouseButtons & mask) != 0;
-}
-
-ModifierKey InputSystem::GetCurrentModifiers() const
-{
-    ModifierKey modifiers = ModifierKey::None;
-
-    if (GetKey(KeyCode::LeftShift) || GetKey(KeyCode::RightShift))
-        modifiers |= ModifierKey::Shift;
-
-    if (GetKey(KeyCode::LeftControl) || GetKey(KeyCode::RightControl))
-        modifiers |= ModifierKey::Ctrl;
-
-    if (GetKey(KeyCode::LeftAlt) || GetKey(KeyCode::RightAlt))
-        modifiers |= ModifierKey::Alt;
-
-    if (GetKey(KeyCode::LeftSuper) || GetKey(KeyCode::RightSuper))
-        modifiers |= ModifierKey::Super;
-
-    return modifiers;
+    return mask;
 }
 
 } // namespace URay

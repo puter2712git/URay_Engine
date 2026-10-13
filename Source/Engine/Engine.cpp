@@ -190,10 +190,9 @@ void Engine::Update()
 {
     URAY_PROFILE_SCOPE("Engine::Update");
 
-    inputSystem->ClearEvents();
-    inputSystem->Update();
-
+    inputSystem->BeginFrame();
     glfwPollEvents();
+    inputSystem->PublishSnapshot(++frameIndex);
 
     timer->Tick();
     scheduler->Update(timer->GetDeltaTime());

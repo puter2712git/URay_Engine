@@ -47,13 +47,13 @@ void EditorApplication::Run()
 
         engine->Update();
 
-        InputSystem& inputSystem = engine->GetInputSystem();
+        const InputSnapshot& input = engine->GetInputSystem().GetSnapshot();
 
         const bool isControlDown =
-            inputSystem.GetKey(KeyCode::LeftControl) ||
-            inputSystem.GetKey(KeyCode::RightControl);
+            input.IsKeyHeld(KeyCode::LeftControl) ||
+            input.IsKeyHeld(KeyCode::RightControl);
 
-        if (isControlDown && inputSystem.GetKeyDown(KeyCode::R))
+        if (isControlDown && input.WasKeyPressed(KeyCode::R))
         {
             engine->GetScriptSystem().ReloadGameScripts();
         }
