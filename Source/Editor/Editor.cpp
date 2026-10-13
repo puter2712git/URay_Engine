@@ -1,11 +1,16 @@
 #include "Editor.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/File/VirtualPath.h>
+#include <Core/Input/Action/InputActionSystem.h>
+#include <Core/Log/LogSystem.h>
+#include <Core/TimeFlow/Timer.h>
+#include <Editor/Input/EditorInputActions.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Settings/EditorSettings.h>
 #include <Editor/Visual/VisualSystem.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Editor/Widget/WidgetSystem.h>
-
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
@@ -14,12 +19,6 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/File/VirtualPath.h>
-#include <Core/Log/LogSystem.h>
-#include <Core/TimeFlow/Timer.h>
-
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
@@ -119,11 +118,24 @@ bool Editor::Initialize()
         createEmptyGameScene();
     }
 
+    inputActionMap = CreateEditorInputActionMap();
+    if (!inputActionMap)
+    {
+        URAY_LOG("[Editor] Failed to create input action map.");
+        Finalize();
+        return false;
+    }
+
+    gEngine->GetInputActionSystem().SetActionMap(inputActionMap.get());
+
     return true;
 }
 
 void Editor::Finalize()
 {
+    gEngine->GetInputActionSystem().SetActionMap(nullptr);
+    inputActionMap.reset();
+
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
     Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);

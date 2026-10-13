@@ -14,6 +14,8 @@ class EditorSettings;
 class SelectionSystem;
 class VisualSystem;
 
+class InputActionMap;
+
 class Editor
 {
 public:
@@ -54,6 +56,8 @@ private:
 
     bool isPlaying = false;
     bool useEditorCamera = false;
+
+    std::unique_ptr<InputActionMap> inputActionMap = nullptr;
 };
 
 extern Editor* gEditor;

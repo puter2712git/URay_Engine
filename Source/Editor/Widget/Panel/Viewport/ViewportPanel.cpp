@@ -1,19 +1,19 @@
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/Input/Action/InputActionSystem.h>
+#include <Core/Log/LogSystem.h>
+#include <Core/Type/Types.h>
 #include <Editor/Editor.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Gizmo/TransformGizmo.h>
+#include <Editor/Input/EditorInputActions.h>
 #include <Editor/Pick/PickSystem.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Image.h>
 #include <Editor/Widget/Panel/Viewport/ViewportToolbar.h>
 #include <Editor/Widget/Style/EditorStyles.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
-
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Component/Render/CameraComponent.h>
@@ -21,7 +21,6 @@
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-
 #include <Render/RHI/Texture/Sampler.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
@@ -267,67 +266,6 @@ EventReply ViewportPanel::OnKeyDown(const KeyEvent& event)
         gEditor->SetUseEditorCamera(!gEditor->UsingEditorCamera());
     }
 
-    if (event.action == KeyAction::Pressed)
-    {
-        if (event.key == KeyCode::W)
-        {
-            cameraMoveAxis = cameraMoveAxis + Vector3::Forward;
-        }
-        if (event.key == KeyCode::S)
-        {
-            cameraMoveAxis = cameraMoveAxis - Vector3::Forward;
-        }
-        if (event.key == KeyCode::D)
-        {
-            cameraMoveAxis = cameraMoveAxis + Vector3::Right;
-        }
-        if (event.key == KeyCode::A)
-        {
-            cameraMoveAxis = cameraMoveAxis - Vector3::Right;
-        }
-        if (event.key == KeyCode::E)
-        {
-            cameraMoveAxis = cameraMoveAxis + Vector3::Up;
-        }
-        if (event.key == KeyCode::Q)
-        {
-            cameraMoveAxis = cameraMoveAxis - Vector3::Up;
-        }
-    }
-
-    return {};
-}
-
-EventReply ViewportPanel::OnKeyUp(const KeyEvent& event)
-{
-    if (event.action == KeyAction::Released)
-    {
-        if (event.key == KeyCode::W)
-        {
-            cameraMoveAxis = cameraMoveAxis - Vector3::Forward;
-        }
-        if (event.key == KeyCode::S)
-        {
-            cameraMoveAxis = cameraMoveAxis + Vector3::Forward;
-        }
-        if (event.key == KeyCode::D)
-        {
-            cameraMoveAxis = cameraMoveAxis - Vector3::Right;
-        }
-        if (event.key == KeyCode::A)
-        {
-            cameraMoveAxis = cameraMoveAxis + Vector3::Right;
-        }
-        if (event.key == KeyCode::E)
-        {
-            cameraMoveAxis = cameraMoveAxis - Vector3::Up;
-        }
-        if (event.key == KeyCode::Q)
-        {
-            cameraMoveAxis = cameraMoveAxis + Vector3::Up;
-        }
-    }
-
     return {};
 }
 
@@ -353,8 +291,22 @@ void ViewportPanel::OnUpdate(float deltaTime)
     gizmo->Update(cachedPosition, *editorCamera->GetCamera());
 
     EditorCameraInput input = {};
-    input.horizontalAxis = Vector3(cameraMoveAxis.x, cameraMoveAxis.y, 0.0f);
-    input.verticalAxis = Vector3(0.0f, 0.0f, cameraMoveAxis.z);
+
+    if (IsFocused())
+    {
+        const InputActionSnapshot& actions = gEngine->GetInputActionSystem().GetSnapshot();
+
+        if (const InputActionValue* move = actions.FindAction(EditorInputAction::ViewportMove))
+        {
+            input.horizontalAxis = Vector3(move->axis2D.x, move->axis2D.y, 0.0f);
+        }
+
+        if (const InputActionValue* elevate = actions.FindAction(EditorInputAction::ViewportElevate))
+        {
+            input.verticalAxis = Vector3(0.0f, 0.0f, elevate->axis1D);
+        }
+    }
+
     input.mouseDelta = cameraMouseDelta;
 
     editorCamera->Update(deltaTime, input);

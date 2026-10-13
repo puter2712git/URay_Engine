@@ -49,7 +49,6 @@ public:
     EventReply OnPointerUp(const PointerEvent& event) override;
 
     EventReply OnKeyDown(const KeyEvent& event) override;
-    EventReply OnKeyUp(const KeyEvent& event) override;
 
     void SetCamera(CameraComponent* camera);
 
@@ -74,7 +73,6 @@ private:
     std::unique_ptr<EditorCamera> editorCamera = nullptr;
 
     bool isCameraRotating = false;
-    Vector3 cameraMoveAxis = Vector3::Zero;
     Vector2 cameraMouseDelta = Vector2::Zero;
 
     std::unique_ptr<TransformGizmo> gizmo = nullptr;
