@@ -57,9 +57,6 @@ public:
     const std::vector<InputActionDefinition>& GetActions() const { return actions; }
 
 private:
-    bool IsBindingCompatible(InputActionValueType valueType, const InputBinding& binding) const;
-
-private:
     std::vector<InputActionDefinition> actions;
 };
 

@@ -5,6 +5,7 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Script/ScriptSystem.h>
 
+#include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Input/InputSystem.h>
 #include <Core/Log/FileLogSink.h>
 #include <Core/Log/LogSystem.h>
@@ -72,6 +73,8 @@ bool Engine::Initialize(
     scheduler = std::make_unique<Scheduler>();
 
     inputSystem = std::make_unique<InputSystem>();
+    inputActionSystem = std::make_unique<InputActionSystem>();
+
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
 
     sceneSystem = std::make_unique<SceneSystem>();
@@ -153,6 +156,11 @@ void Engine::Finalize()
         performanceAnalytics.reset();
     }
 
+    if (inputActionSystem)
+    {
+        inputActionSystem.reset();
+    }
+
     if (inputSystem)
     {
         inputSystem.reset();
@@ -195,6 +203,8 @@ void Engine::Update()
     inputSystem->BeginFrame();
     glfwPollEvents();
     inputSystem->PublishSnapshot(++frameIndex);
+
+    inputActionSystem->Update(inputSystem->GetSnapshot());
 
     timer->Tick();
     scheduler->Update(timer->GetDeltaTime());
