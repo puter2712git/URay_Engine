@@ -21,13 +21,29 @@ public unsafe struct RuntimeAPI
         Vector3*,
         int> SetTransformPosition;
 
+    public delegate* unmanaged[Cdecl]<
+        nint,
+        ushort,
+        int> GetKey;
+
+    public delegate* unmanaged[Cdecl]<
+        nint,
+        ushort,
+        int> GetKeyDown;
+
+    public delegate* unmanaged[Cdecl]<
+        nint,
+        ushort,
+        int> GetKeyUp;
+
 }
 
 public static unsafe partial class URay
 {
     internal static bool TryGetTransformPosition(
         ulong instanceId,
-        out Vector3 position)
+        out Vector3 position
+    )
     {
         position = default;
 
@@ -41,9 +57,10 @@ public static unsafe partial class URay
         Vector3 nativePosition = default;
 
         if (nativeAPI.Runtime.GetTransformPosition(
-            nativeAPI.UserData,
-            instanceId,
-            &nativePosition) == 0)
+                nativeAPI.UserData,
+                instanceId,
+                &nativePosition
+            ) == 0)
         {
             return false;
         }
@@ -54,7 +71,8 @@ public static unsafe partial class URay
 
     internal static bool TrySetTransformPosition(
         ulong instanceId,
-        Vector3 position)
+        Vector3 position
+    )
     {
         if (!isInitialized ||
             instanceId == 0 ||
@@ -64,8 +82,58 @@ public static unsafe partial class URay
         }
 
         return nativeAPI.Runtime.SetTransformPosition(
-            nativeAPI.UserData,
-            instanceId,
-            &position) != 0;
+                nativeAPI.UserData,
+                instanceId,
+                &position
+            ) != 0;
     }
+
+    internal static bool TryGetKey(
+        ushort keyCode
+    )
+    {
+        if (!isInitialized ||
+            nativeAPI.Runtime.GetKey == null)
+        {
+            return false;
+        }
+
+        return nativeAPI.Runtime.GetKey(
+                nativeAPI.UserData,
+                keyCode
+            ) != 0;
+    }
+
+    internal static bool TryGetKeyDown(
+        ushort keyCode
+    )
+    {
+        if (!isInitialized ||
+            nativeAPI.Runtime.GetKeyDown == null)
+        {
+            return false;
+        }
+
+        return nativeAPI.Runtime.GetKeyDown(
+                nativeAPI.UserData,
+                keyCode
+            ) != 0;
+    }
+
+    internal static bool TryGetKeyUp(
+        ushort keyCode
+    )
+    {
+        if (!isInitialized ||
+            nativeAPI.Runtime.GetKeyUp == null)
+        {
+            return false;
+        }
+
+        return nativeAPI.Runtime.GetKeyUp(
+                nativeAPI.UserData,
+                keyCode
+            ) != 0;
+    }
+
 }

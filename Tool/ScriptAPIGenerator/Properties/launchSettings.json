@@ -2,7 +2,7 @@
   "profiles": {
     "ScriptAPIGenerator": {
       "commandName": "Project",
-      "commandLineArgs": "--input \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Binding\\RuntimeAPI.json\" --csharp-output \"C:\\Users\\puter\\repos\\URay_Engine\\Sandbox\\Managed\\TestManaged\\Generated\\RuntimeAPI.g.cs\" --cpp-output \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Generated\\RuntimeAPI.gen.h\""
+      "commandLineArgs": "--input \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Binding\\RuntimeAPI.json\" --csharp-output \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Managed\\Generated\\RuntimeAPI.g.cs\" --cpp-output \"C:\\Users\\puter\\repos\\URay_Engine\\Source\\Engine\\Script\\Generated\\RuntimeAPI.gen.h\""
     }
   }
 }

@@ -218,6 +218,7 @@ public static class CppRuntimeAPIHeaderEmitter
     {
         return parameter.Type switch
         {
+            "u16" => $"uint16 {parameter.Name}",
             "u64" => $"uint64 {parameter.Name}",
 
             "Vector3" when parameter.Direction == "in" =>

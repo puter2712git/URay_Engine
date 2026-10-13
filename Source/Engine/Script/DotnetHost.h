@@ -34,6 +34,9 @@ public:
 
     bool InitializeManagedAPI(const NativeAPI& nativeAPI);
 
+    bool LoadGameScripts(const std::filesystem::path& assemblyPath);
+    bool UnloadGameScripts();
+
     uint64 CreateScriptInstance(std::string_view className);
 
     bool SetScriptFieldValue(
@@ -54,6 +57,8 @@ private:
 
 private:
     using InitializeFn = int(__cdecl*)(const NativeAPI*, int32);
+    using LoadGameScriptsFn = int32(__cdecl*)(const uint8* assemblyPath, int32 assemblyPathLength);
+    using UnloadGameScriptsFn = int32(__cdecl*)();
     using CreateScriptInstanceFn = uint64(__cdecl*)(const uint8* className, int32 classNameLength);
     using SetScriptFieldValueFn = int32(__cdecl*)(
         uint64 instanceId,
@@ -69,6 +74,8 @@ private:
     using DestroyScriptInstanceFn = void(__cdecl*)(uint64 instanceId);
 
     InitializeFn initializeManaged = nullptr;
+    LoadGameScriptsFn loadGameScripts = nullptr;
+    UnloadGameScriptsFn unloadGameScripts = nullptr;
     CreateScriptInstanceFn createScriptInstance = nullptr;
     SetScriptFieldValueFn setScriptFieldValue = nullptr;
     InvokeScriptLifecycleFn invokeScriptLifecycle = nullptr;

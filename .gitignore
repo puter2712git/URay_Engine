@@ -36,6 +36,9 @@ Sandbox/Config/Editor.ini
 
 *.asset
 
+Source/Engine/Script/Managed/bin/
+Source/Engine/Script/Managed/obj/
+
 # .NET build outputs for the Script API generator
 Tool/ScriptAPIGenerator/bin/
 Tool/ScriptAPIGenerator/obj/

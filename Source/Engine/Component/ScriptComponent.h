@@ -16,6 +16,8 @@ class ScriptComponent final : public Component
 {
     URAY_CLASS(ScriptComponent, Component)
 
+    friend class ScriptSystem;
+
 public:
     YAML::Node Serialize() const override;
     void Deserialize(const YAML::Node& node) override;
@@ -36,6 +38,10 @@ protected:
     void OnUpdate(float deltaTime) override;
     void OnUnload() override;
     void OnFinalize() override;
+
+private:
+    void ReleaseManagedInstance();
+    bool CreateManagedInstance();
 
 private:
     AssetHandle scriptHandle = {};

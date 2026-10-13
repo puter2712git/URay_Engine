@@ -22,6 +22,8 @@ public static unsafe class ScriptEntry
         public required Dictionary<string, FieldInfo> Fields;
     }
 
+    private static readonly GameScriptDomain gameScriptDomain = new();
+
     private static readonly Dictionary<ulong, ManagedScriptInstance> instances = [];
     private static ulong nextInstanceId = 1;
 
@@ -39,8 +41,48 @@ public static unsafe class ScriptEntry
 
         URay.Initialize(*nativeAPI);
 
+        return 0;
+    }
 
-        return ScriptTypeRegistry.RegisterAll()
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static int LoadGameScripts(
+        byte* assemblyPathData,
+        int assemblyPathLength)
+    {
+        try
+        {
+            if (assemblyPathData is null || assemblyPathLength <= 0)
+                return -1;
+
+            string assemblyPath = Encoding.UTF8.GetString(
+                new ReadOnlySpan<byte>(
+                    assemblyPathData,
+                    assemblyPathLength));
+
+            if (!gameScriptDomain.Load(assemblyPath))
+                return -2;
+
+            Assembly? assembly = gameScriptDomain.Assembly;
+
+            return assembly is not null &&
+                ScriptTypeRegistry.RegisterAll(assembly)
+                ? 0
+                : -3;
+        }
+        catch (Exception exception)
+        {
+            URay.Log($"Failed to load game scripts: {exception}");
+            return -4;
+        }
+    }
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static int UnloadGameScripts()
+    {
+        if (instances.Count != 0)
+            return -1;
+
+        return gameScriptDomain.Unload()
             ? 0
             : -2;
     }
@@ -58,7 +100,7 @@ public static unsafe class ScriptEntry
                     classNameData,
                     classNameLength));
 
-            Type? type = typeof(ScriptComponent).Assembly.GetType(className);
+            Type? type = gameScriptDomain.Assembly?.GetType(className);
 
             if (type is null ||
                 type.IsAbstract ||

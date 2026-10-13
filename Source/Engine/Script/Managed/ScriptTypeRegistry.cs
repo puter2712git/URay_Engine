@@ -10,12 +10,12 @@ internal static class ScriptTypeRegistry
         BindingFlags.NonPublic |
         BindingFlags.DeclaredOnly;
 
-    internal static bool RegisterAll()
+    internal static bool RegisterAll(Assembly assembly)
     {
+        ArgumentNullException.ThrowIfNull(assembly);
+
         try
         {
-            Assembly assembly = typeof(ScriptComponent).Assembly;
-
             IEnumerable<Type> scriptTypes = assembly
                 .GetTypes()
                 .Where(IsConcreteScriptType)

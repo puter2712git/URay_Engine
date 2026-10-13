@@ -7,6 +7,7 @@
 #include <Core/Math/Vector3.h>
 #include <Core/Type/Types.h>
 #include <Engine/Script/Binding/TransformBindings.h>
+#include <Engine/Script/Binding/InputBindings.h>
 
 namespace URay
 {
@@ -23,6 +24,21 @@ struct RuntimeAPI
         void* userData,
         uint64 instanceId,
         const Vector3* position
+    ) = nullptr;
+
+    int32(__cdecl* GetKey)(
+        void* userData,
+        uint16 keyCode
+    ) = nullptr;
+
+    int32(__cdecl* GetKeyDown)(
+        void* userData,
+        uint16 keyCode
+    ) = nullptr;
+
+    int32(__cdecl* GetKeyUp)(
+        void* userData,
+        uint16 keyCode
     ) = nullptr;
 
 };
@@ -69,6 +85,60 @@ inline int32 __cdecl SetTransformPosition(
         : 0;
 }
 
+inline int32 __cdecl GetKey(
+    void* userData,
+    uint16 keyCode
+)
+{
+    if (!userData)
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    return ScriptBindings::GetKey(
+        scriptSystem,
+        keyCode
+        )
+        ? 1
+        : 0;
+}
+
+inline int32 __cdecl GetKeyDown(
+    void* userData,
+    uint16 keyCode
+)
+{
+    if (!userData)
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    return ScriptBindings::GetKeyDown(
+        scriptSystem,
+        keyCode
+        )
+        ? 1
+        : 0;
+}
+
+inline int32 __cdecl GetKeyUp(
+    void* userData,
+    uint16 keyCode
+)
+{
+    if (!userData)
+        return 0;
+
+    auto& scriptSystem = *static_cast<ScriptSystem*>(userData);
+
+    return ScriptBindings::GetKeyUp(
+        scriptSystem,
+        keyCode
+        )
+        ? 1
+        : 0;
+}
+
 } // namespace RuntimeAPIBridge
 
 inline RuntimeAPI CreateRuntimeAPI()
@@ -76,6 +146,9 @@ inline RuntimeAPI CreateRuntimeAPI()
     return {
         .GetTransformPosition = &RuntimeAPIBridge::GetTransformPosition,
         .SetTransformPosition = &RuntimeAPIBridge::SetTransformPosition,
+        .GetKey = &RuntimeAPIBridge::GetKey,
+        .GetKeyDown = &RuntimeAPIBridge::GetKeyDown,
+        .GetKeyUp = &RuntimeAPIBridge::GetKeyUp,
     };
 }
 

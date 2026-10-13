@@ -433,4 +433,18 @@ void ScriptComponent::OnFinalize()
     scriptSystem.DestroyScriptInstance(instanceId);
 }
 
+void ScriptComponent::ReleaseManagedInstance()
+{
+    OnUnload();
+    OnFinalize();
+}
+
+bool ScriptComponent::CreateManagedInstance()
+{
+    RefreshFieldsFromSchema();
+    OnLoad();
+
+    return managedInstanceId != 0;
+}
+
 } // namespace URay

@@ -15,20 +15,27 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace URay
 {
 
-bool ScriptSystem::Initialize(const std::filesystem::path& projectPath)
+bool ScriptSystem::Initialize(
+    const std::filesystem::path& enginePath,
+    const std::filesystem::path& projectPath)
 {
-    const std::filesystem::path managedOutput =
-        projectPath / "Managed" / "TestManaged" / "bin" / "Debug" / "net10.0";
+    const std::filesystem::path hostOutput =
+        enginePath.parent_path() / "Source/Engine/Script/Managed/bin/Debug/net10.0";
 
-    const std::filesystem::path runtimeConfigPath = managedOutput / "URay.runtimeconfig.json";
+    const std::filesystem::path gameOutput =
+        projectPath / "Managed/TestManaged/bin/Debug/net10.0";
 
-    const std::filesystem::path assemblyPath = managedOutput / "URay.dll";
+    const std::filesystem::path runtimeConfigPath = hostOutput / "URay.ScriptHost.runtimeconfig.json";
 
-    if (!dotnetHost.Initialize(runtimeConfigPath, assemblyPath))
+    const std::filesystem::path hostAssemblyPath = hostOutput / "URay.ScriptHost.dll";
+    const std::filesystem::path gameAssemblyPath = gameOutput / "GameScripts.dll";
+
+    if (!dotnetHost.Initialize(runtimeConfigPath, hostAssemblyPath))
         return false;
 
     NativeAPI nativeAPI = {
@@ -43,6 +50,11 @@ bool ScriptSystem::Initialize(const std::filesystem::path& projectPath)
     if (!dotnetHost.InitializeManagedAPI(nativeAPI))
         return false;
 
+    if (!dotnetHost.LoadGameScripts(gameAssemblyPath))
+        return false;
+
+    this->gameAssemblyPath = gameAssemblyPath;
+
     isInitialized = true;
     return true;
 }
@@ -52,6 +64,43 @@ void ScriptSystem::Finalize()
     scriptTypes.clear();
     managedInstances.clear();
     isInitialized = false;
+}
+
+bool ScriptSystem::ReloadGameScripts()
+{
+    if (!isInitialized || gameAssemblyPath.empty())
+        return false;
+
+    std::vector<ScriptComponent*> components;
+    components.reserve(managedInstances.size());
+
+    for (const auto& [instnaceId, component] : managedInstances)
+    {
+        if (component)
+            components.push_back(component);
+    }
+
+    for (ScriptComponent* component : components)
+        component->ReleaseManagedInstance();
+
+    if (!managedInstances.empty())
+        return false;
+
+    if (!dotnetHost.UnloadGameScripts())
+        return false;
+
+    scriptTypes.clear();
+
+    if (!dotnetHost.LoadGameScripts(gameAssemblyPath))
+        return false;
+
+    for (ScriptComponent* component : components)
+    {
+        if (!component->CreateManagedInstance())
+            return false;
+    }
+
+    return true;
 }
 
 bool ScriptSystem::RegisterScriptType(ScriptTypeDefinition definition)

@@ -101,7 +101,12 @@ public static class CSharpNativeAPIEmitter
         }
 
         builder.AppendLine("        if (!isInitialized ||");
-        builder.AppendLine("            instanceId == 0 ||");
+
+        if (api.Parameters.Any(parameter => parameter.Name == "instanceId"))
+        {
+            builder.AppendLine("            instanceId == 0 ||");
+        }
+
         builder.Append("            nativeAPI.Runtime.");
         builder.Append(api.Name);
         builder.AppendLine(" == null)");
@@ -171,6 +176,7 @@ public static class CSharpNativeAPIEmitter
     {
         return parameter.Type switch
         {
+            "u16" => $"ushort {parameter.Name}",
             "u64" => $"ulong {parameter.Name}",
             "Vector3" when parameter.Direction == "in" =>
                 $"Vector3 {parameter.Name}",
@@ -235,6 +241,7 @@ public static class CSharpNativeAPIEmitter
     {
         return parameter.Type switch
         {
+            "u16" => "ushort",
             "u64" => "ulong",
             "Vector3" => "Vector3*",
             _ => throw new InvalidOperationException(

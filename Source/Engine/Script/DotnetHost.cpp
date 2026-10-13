@@ -2,6 +2,7 @@
 
 #include <Engine/Script/NativeAPI.h>
 
+#include <limits>
 #include <string>
 
 namespace URay
@@ -47,7 +48,7 @@ bool DotnetHost::Initialize(
 
     result = loadAssemblyAndGetFunctionPointer(
         assemblyPath.c_str(),
-        L"URay.ScriptHost.ScriptEntry, URay",
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
         L"Initialize",
         UNMANAGEDCALLERSONLY_METHOD,
         nullptr,
@@ -58,7 +59,29 @@ bool DotnetHost::Initialize(
 
     result = loadAssemblyAndGetFunctionPointer(
         assemblyPath.c_str(),
-        L"URay.ScriptHost.ScriptEntry, URay",
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
+        L"LoadGameScripts",
+        UNMANAGEDCALLERSONLY_METHOD,
+        nullptr,
+        reinterpret_cast<void**>(&loadGameScripts));
+
+    if (result != 0 || !loadGameScripts)
+        return false;
+
+    result = loadAssemblyAndGetFunctionPointer(
+        assemblyPath.c_str(),
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
+        L"UnloadGameScripts",
+        UNMANAGEDCALLERSONLY_METHOD,
+        nullptr,
+        reinterpret_cast<void**>(&unloadGameScripts));
+
+    if (result != 0 || !unloadGameScripts)
+        return false;
+
+    result = loadAssemblyAndGetFunctionPointer(
+        assemblyPath.c_str(),
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
         L"CreateScriptInstance",
         UNMANAGEDCALLERSONLY_METHOD,
         nullptr,
@@ -69,7 +92,7 @@ bool DotnetHost::Initialize(
 
     result = loadAssemblyAndGetFunctionPointer(
         assemblyPath.c_str(),
-        L"URay.ScriptHost.ScriptEntry, URay",
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
         L"SetScriptFieldValue",
         UNMANAGEDCALLERSONLY_METHOD,
         nullptr,
@@ -80,7 +103,7 @@ bool DotnetHost::Initialize(
 
     result = loadAssemblyAndGetFunctionPointer(
         assemblyPath.c_str(),
-        L"URay.ScriptHost.ScriptEntry, URay",
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
         L"InvokeScriptLifecycle",
         UNMANAGEDCALLERSONLY_METHOD,
         nullptr,
@@ -91,7 +114,7 @@ bool DotnetHost::Initialize(
 
     result = loadAssemblyAndGetFunctionPointer(
         assemblyPath.c_str(),
-        L"URay.ScriptHost.ScriptEntry, URay",
+        L"URay.ScriptHost.ScriptEntry, URay.ScriptHost",
         L"DestroyScriptInstance",
         UNMANAGEDCALLERSONLY_METHOD,
         nullptr,
@@ -113,6 +136,26 @@ bool DotnetHost::InitializeManagedAPI(const NativeAPI& nativeAPI)
         static_cast<int32>(sizeof(NativeAPI)));
 
     return result == 0;
+}
+
+bool DotnetHost::LoadGameScripts(const std::filesystem::path& assemblyPath)
+{
+    if (!loadGameScripts || assemblyPath.empty() || !std::filesystem::exists(assemblyPath))
+        return false;
+
+    const std::u8string pathUTF8 = assemblyPath.u8string();
+
+    if (pathUTF8.empty() || pathUTF8.size() > static_cast<size_t>(std::numeric_limits<int32>::max()))
+        return false;
+
+    return loadGameScripts(
+               reinterpret_cast<const uint8*>(pathUTF8.data()),
+               static_cast<int32>(pathUTF8.size())) == 0;
+}
+
+bool DotnetHost::UnloadGameScripts()
+{
+    return unloadGameScripts && unloadGameScripts() == 0;
 }
 
 uint64 DotnetHost::CreateScriptInstance(std::string_view className)

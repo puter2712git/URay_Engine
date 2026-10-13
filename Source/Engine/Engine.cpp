@@ -97,7 +97,7 @@ bool Engine::Initialize(
     }
 
     scriptSystem = std::make_unique<ScriptSystem>();
-    if (!scriptSystem->Initialize(projectPath))
+    if (!scriptSystem->Initialize(enginePath, projectPath))
     {
         URAY_LOG("[Engine] Failed to initialize script system.");
         Finalize();

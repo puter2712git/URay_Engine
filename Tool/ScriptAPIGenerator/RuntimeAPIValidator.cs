@@ -11,6 +11,7 @@ public static class RuntimeAPIValidator
     private static readonly HashSet<string> SupportedParameterTypes =
         new(StringComparer.Ordinal)
         {
+            "u16",
             "u64",
             "Vector3"
         };
@@ -114,31 +115,15 @@ public static class RuntimeAPIValidator
         string apiName,
         List<string> errors)
     {
-        if (api.Parameters.Count == 0)
-        {
-            errors.Add(
-                $"API '{apiName}' must begin with an " +
-                $"'instanceId' parameter.");
-
-            return;
-        }
-
-        RuntimeAPIParameter firstParameter = api.Parameters[0];
-
-        if (firstParameter.Name != "instanceId" ||
-            firstParameter.Type != "u64" ||
-            firstParameter.Direction != "in")
-        {
-            errors.Add(
-                $"API '{apiName}' first parameter must be " +
-                $"'instanceId' with type 'u64' and direction 'in'.");
-        }
-
         HashSet<string> parameterNames = new(StringComparer.Ordinal);
         int outParameterCount = 0;
 
-        foreach (RuntimeAPIParameter parameter in api.Parameters)
+        int instanceIdIndex = -1;
+
+        for (int index = 0; index < api.Parameters.Count; ++index)
         {
+            RuntimeAPIParameter parameter = api.Parameters[index];
+
             if (string.IsNullOrWhiteSpace(parameter.Name))
             {
                 errors.Add($"API '{apiName}' contains a parameter with an empty name.");
@@ -149,6 +134,9 @@ public static class RuntimeAPIValidator
                     $"API '{apiName}' has duplicate parameter name " +
                     $"'{parameter.Name}'.");
             }
+
+            if (parameter.Name == "instanceId")
+                instanceIdIndex = index;
 
             if (!SupportedParameterTypes.Contains(parameter.Type))
             {
@@ -179,6 +167,20 @@ public static class RuntimeAPIValidator
                 errors.Add(
                     $"API '{apiName}' has multiple out parameters. " +
                     "Only one out Vector3 is currently supported.");
+            }
+        }
+
+        if (instanceIdIndex >= 0)
+        {
+            RuntimeAPIParameter instanceId = api.Parameters[instanceIdIndex];
+
+            if (instanceIdIndex != 0 ||
+                instanceId.Type != "u64" ||
+                instanceId.Direction != "in")
+            {
+                errors.Add(
+                    $"API '{apiName}' parameter 'instanceId' must be " +
+                    $"the first parameter with type 'u64' and direction 'in'.");
             }
         }
     }

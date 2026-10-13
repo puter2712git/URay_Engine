@@ -19,8 +19,10 @@ class TransformComponent;
 class ScriptSystem
 {
 public:
-    bool Initialize(const std::filesystem::path& projectPath);
+    bool Initialize(const std::filesystem::path& enginePath, const std::filesystem::path& projectPath);
     void Finalize();
+
+    bool ReloadGameScripts();
 
     bool RegisterScriptType(ScriptTypeDefinition definition);
     const ScriptTypeDefinition* FindScriptType(const std::string& className) const;
@@ -71,6 +73,8 @@ private:
 private:
     DotnetHost dotnetHost;
     bool isInitialized = false;
+
+    std::filesystem::path gameAssemblyPath;
 
     std::unordered_map<std::string, ScriptTypeDefinition> scriptTypes;
     std::unordered_map<uint64, ScriptComponent*> managedInstances;

@@ -38,6 +38,48 @@
         }
       ],
       "nativeImplementation": "ScriptBindings::SetTransformPosition"
+    },
+    {
+      "id": 3,
+      "module": "Input",
+      "name": "GetKey",
+      "result": "bool",
+      "parameters": [
+        {
+          "name": "keyCode",
+          "type": "u16",
+          "direction": "in"
+        }
+      ],
+      "nativeImplementation": "ScriptBindings::GetKey"
+    },
+    {
+      "id": 4,
+      "module": "Input",
+      "name": "GetKeyDown",
+      "result": "bool",
+      "parameters": [
+        {
+          "name": "keyCode",
+          "type": "u16",
+          "direction": "in"
+        }
+      ],
+      "nativeImplementation": "ScriptBindings::GetKeyDown"
+    },
+    {
+      "id": 5,
+      "module": "Input",
+      "name": "GetKeyUp",
+      "result": "bool",
+      "parameters": [
+        {
+          "name": "keyCode",
+          "type": "u16",
+          "direction": "in"
+        }
+      ],
+      "nativeImplementation": "ScriptBindings::GetKeyUp"
     }
   ]
 }
