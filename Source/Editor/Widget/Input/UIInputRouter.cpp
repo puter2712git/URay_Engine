@@ -35,6 +35,12 @@ void UIInputRouter::Process(Widget& root, const InputSnapshot& input)
     }
 }
 
+bool UIInputRouter::IsTextInputActive(Widget& root) const
+{
+    Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
+    return focusedWidget && focusedWidget->IsTextInputActive();
+}
+
 void UIInputRouter::DispatchKeyEvent(Widget& root, const KeyEvent& event)
 {
     Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);

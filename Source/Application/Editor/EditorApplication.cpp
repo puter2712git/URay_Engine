@@ -1,11 +1,8 @@
 #include "EditorApplication.h"
 
-#include <Core/Input/InputEvent.h>
-#include <Core/Input/InputSystem.h>
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Editor/Editor.h>
 #include <Engine/Engine.h>
-#include <Engine/Script/ScriptSystem.h>
 
 #include <Platform/Window/Window.h>
 
@@ -46,17 +43,6 @@ void EditorApplication::Run()
         analytics.BeginFrame();
 
         engine->Update();
-
-        const InputSnapshot& input = engine->GetInputSystem().GetSnapshot();
-
-        const bool isControlDown =
-            input.IsKeyHeld(KeyCode::LeftControl) ||
-            input.IsKeyHeld(KeyCode::RightControl);
-
-        if (isControlDown && input.WasKeyPressed(KeyCode::R))
-        {
-            engine->GetScriptSystem().ReloadGameScripts();
-        }
 
         editor->Update();
 

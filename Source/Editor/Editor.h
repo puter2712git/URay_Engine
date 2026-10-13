@@ -44,6 +44,9 @@ public:
 
 private:
     CameraComponent& PrepareEditorScene();
+    void ProcessInputActions();
+    bool SaveCurrentScene();
+    void DeleteSelectedUnit();
 
 private:
     CameraComponent* editorCamera = nullptr;

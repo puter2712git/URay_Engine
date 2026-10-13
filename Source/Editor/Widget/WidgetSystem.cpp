@@ -57,6 +57,11 @@ void WidgetSystem::Update(float deltaTime)
     root->Update(deltaTime);
 }
 
+bool WidgetSystem::IsTextInputActive() const
+{
+    return inputRouter && root && inputRouter->IsTextInputActive(*root);
+}
+
 void WidgetSystem::PrepareRender()
 {
     Window& window = gEngine->GetWindow();

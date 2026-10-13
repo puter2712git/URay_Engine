@@ -284,6 +284,7 @@ void Scene::DestroyUnit(Unit* unit)
         return;
 
     Unit* targetUnit = it->get();
+    targetUnit->SetParent(nullptr);
 
     for (const auto& component : targetUnit->GetComponents())
     {

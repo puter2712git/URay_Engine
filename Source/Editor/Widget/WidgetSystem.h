@@ -32,6 +32,7 @@ public:
     Widget& GetRootWidget() const { return *root; }
     ViewportPanel& GetViewport() const { return *viewport; }
     PopupLayer& GetPopupLayer() const;
+    bool IsTextInputActive() const;
 
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }
 

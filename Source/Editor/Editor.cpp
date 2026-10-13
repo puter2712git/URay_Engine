@@ -19,6 +19,7 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
+#include <Engine/Script/ScriptSystem.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
@@ -195,6 +196,79 @@ void Editor::Update()
     float deltaTime = timer.GetDeltaTime();
 
     widgetSystem->Update(deltaTime);
+    ProcessInputActions();
+}
+
+void Editor::ProcessInputActions()
+{
+    const InputActionSnapshot& actions =
+        gEngine->GetInputActionSystem().GetSnapshot();
+
+    const auto wasPressed = [&actions](InputActionId id)
+    {
+        const InputActionValue* value = actions.FindAction(id);
+        return value && value->pressed;
+    };
+
+    if (wasPressed(EditorInputAction::ReloadGameScripts))
+    {
+        gEngine->GetScriptSystem().ReloadGameScripts();
+    }
+
+    if (widgetSystem->IsTextInputActive())
+        return;
+
+    if (wasPressed(EditorInputAction::SaveScene))
+    {
+        SaveCurrentScene();
+    }
+
+    if (wasPressed(EditorInputAction::DeleteSelection))
+    {
+        DeleteSelectedUnit();
+    }
+}
+
+bool Editor::SaveCurrentScene()
+{
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+
+    if (!scene)
+        return false;
+
+    const VirtualPath& scenePath = scene->GetFilePath();
+    if (scenePath.ToString().empty())
+    {
+        URAY_LOG("Failed to save scene: Scene Path is empty.");
+        return false;
+    }
+
+    VirtualFileSystem& filesystem =
+        gEngine->GetAssetSystem().GetFileSystem();
+    const std::string sceneText = YAML::Dump(scene->Serialize());
+
+    if (!filesystem.WriteText(scenePath, sceneText))
+    {
+        URAY_LOG("Failed to save scene: %s", scenePath.ToString().c_str());
+        return false;
+    }
+
+    URAY_LOG("Scene saved: %s", scenePath.ToString().c_str());
+    return true;
+}
+
+void Editor::DeleteSelectedUnit()
+{
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+    Unit* selectedUnit = selectionSystem->GetSelectedUnit();
+
+    if (!scene || !selectedUnit)
+        return;
+
+    selectionSystem->SelectUnit(nullptr);
+    scene->DestroyUnit(selectedUnit);
 }
 
 void Editor::PrepareRender()

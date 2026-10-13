@@ -224,51 +224,6 @@ EventReply ViewportPanel::OnPointerUp(const PointerEvent& event)
     };
 }
 
-EventReply ViewportPanel::OnKeyDown(const KeyEvent& event)
-{
-    if (event.key == KeyCode::S &&
-        event.action == KeyAction::Pressed &&
-        (event.modifiers & ModifierKey::Ctrl) != ModifierKey::None)
-    {
-        SaveCurrScene();
-        return {};
-    }
-
-    if (event.key == KeyCode::Delete)
-    {
-        SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-        Scene* currScene = sceneSystem.GetSceneByType(SceneType::Game);
-
-        Unit* selectedUnit = selectionSystem.GetSelectedUnit();
-
-        if (currScene && selectedUnit)
-        {
-            selectionSystem.SelectUnit(nullptr);
-            currScene->DestroyUnit(selectedUnit);
-        }
-    }
-
-    if (event.key == KeyCode::Space && event.action == KeyAction::Pressed)
-    {
-        if (gizmo)
-        {
-            GizmoMode mode = gizmo->GetMode();
-            int modeIndex = static_cast<int>(mode);
-            modeIndex = (modeIndex + 1) % static_cast<int>(GizmoMode::Count);
-
-            GizmoMode newMode = static_cast<GizmoMode>(modeIndex);
-            gizmo->SetMode(newMode);
-        }
-    }
-
-    if (event.key == KeyCode::GraveAccent && gEditor->IsPlaying())
-    {
-        gEditor->SetUseEditorCamera(!gEditor->UsingEditorCamera());
-    }
-
-    return {};
-}
-
 void ViewportPanel::SetCamera(CameraComponent* camera)
 {
     editorCamera->SetCamera(camera);
@@ -288,13 +243,28 @@ void ViewportPanel::OnUpdate(float deltaTime)
         gizmo->SetHoveredHandle(pickResult.gizmoHandle);
     }
 
-    gizmo->Update(cachedPosition, *editorCamera->GetCamera());
-
     EditorCameraInput input = {};
 
     if (IsFocused())
     {
         const InputActionSnapshot& actions = gEngine->GetInputActionSystem().GetSnapshot();
+
+        const auto wasPressed = [&actions](InputActionId id)
+        {
+            const InputActionValue* value = actions.FindAction(id);
+            return value && value->pressed;
+        };
+
+        if (wasPressed(EditorInputAction::CycleGizmoMode))
+        {
+            CycleGizmoMode();
+        }
+
+        if (wasPressed(EditorInputAction::ToggleEditorCamera) &&
+            gEditor->IsPlaying())
+        {
+            gEditor->SetUseEditorCamera(!gEditor->UsingEditorCamera());
+        }
 
         if (const InputActionValue* move = actions.FindAction(EditorInputAction::ViewportMove))
         {
@@ -306,6 +276,8 @@ void ViewportPanel::OnUpdate(float deltaTime)
             input.verticalAxis = Vector3(0.0f, 0.0f, elevate->axis1D);
         }
     }
+
+    gizmo->Update(cachedPosition, *editorCamera->GetCamera());
 
     input.mouseDelta = cameraMouseDelta;
 
@@ -395,34 +367,17 @@ std::optional<Vector2> ViewportPanel::WindowToRenderTarget(const Vector2& window
         viewportPosition.y / imageRect.size.y * targetExtent.height);
 }
 
-bool ViewportPanel::SaveCurrScene()
+void ViewportPanel::CycleGizmoMode()
 {
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+    if (!gizmo)
+        return;
 
-    if (!scene)
-        return false;
+    GizmoMode mode = gizmo->GetMode();
+    const int modeIndex = static_cast<int>(mode);
+    const GizmoMode newMode = static_cast<GizmoMode>(
+        (modeIndex + 1) % static_cast<int>(GizmoMode::Count));
 
-    const VirtualPath& scenePath = scene->GetFilePath();
-
-    if (scenePath.ToString().empty())
-    {
-        URAY_LOG("Failed to save scene: Scene Path is empty.");
-        return false;
-    }
-
-    VirtualFileSystem& filesystem = gEngine->GetAssetSystem().GetFileSystem();
-
-    const std::string sceneText = YAML::Dump(scene->Serialize());
-
-    if (!filesystem.WriteText(scenePath, sceneText))
-    {
-        URAY_LOG("Failed to save scene: %s", scenePath.ToString().c_str());
-        return false;
-    }
-
-    URAY_LOG("Scene saved: %s", scenePath.ToString().c_str());
-    return true;
+    gizmo->SetMode(newMode);
 }
 
 } // namespace URay

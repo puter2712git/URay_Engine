@@ -79,6 +79,7 @@ public:
     bool IsHovered() const { return hovered; }
     bool IsFocused() const { return focused; }
     bool HasPointerCapture() const { return pointerCaptured; }
+    virtual bool IsTextInputActive() const { return false; }
 
     bool HitTest(const Vector2& position) const;
     virtual bool CanHit() const { return true; }

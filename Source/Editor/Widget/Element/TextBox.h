@@ -29,6 +29,7 @@ public:
     void SetOutlineWidth(float width) { outlineWidth = width; }
 
     bool IsEditing() const { return isEditing; }
+    bool IsTextInputActive() const override { return isEditing; }
 
     bool IsReadonly() const { return isReadonly; }
     void SetReadonly(bool value) { isReadonly = value; }

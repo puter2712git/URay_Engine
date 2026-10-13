@@ -21,6 +21,7 @@ public:
 
 public:
     void Process(Widget& root, const InputSnapshot& input);
+    bool IsTextInputActive(Widget& root) const;
 
 private:
     void DispatchKeyEvent(Widget& root, const KeyEvent& event);

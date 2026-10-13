@@ -48,8 +48,6 @@ public:
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
-    EventReply OnKeyDown(const KeyEvent& event) override;
-
     void SetCamera(CameraComponent* camera);
 
     const Extent2D& GetTargetExtent() const { return targetExtent; }
@@ -63,7 +61,7 @@ protected:
 private:
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
 
-    bool SaveCurrScene();
+    void CycleGizmoMode();
 
 private:
     Render::Renderer& renderer;
