@@ -1,6 +1,7 @@
 #include "ComponentPickerPopup.h"
 
 #include <Editor/Widget/Element/Button.h>
+#include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/Surface.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
@@ -26,6 +27,8 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
     layout->SetGap(2.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
+    Render::TextStyle labelStyle = EditorStyle::SmallText();
+
     std::vector<std::string> componentNames;
 
     for (const auto& [name, constructor] : ComponentFactory::GetRegisteredComponents())
@@ -41,7 +44,9 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
     for (const std::string& typeName : componentNames)
     {
         Button* button = layout->AddChild<Button>(typeName);
-        button->SetPreferredHeight(24.0f);
+        Label* buttonLabel = Cast<Label>(button->GetChildren()[0].get());
+        buttonLabel->SetTextStyle(labelStyle);
+        button->SetPreferredHeight(18.0f);
 
         const ComponentPickerSelection selection = {
             .kind = ComponentPickerItemKind::NativeComponent,
@@ -76,7 +81,9 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
     for (ScriptAsset* script : scripts)
     {
         Button* button = layout->AddChild<Button>(script->GetName());
-        button->SetPreferredHeight(24.0f);
+        Label* buttonLabel = Cast<Label>(button->GetChildren()[0].get());
+        buttonLabel->SetTextStyle(labelStyle);
+        button->SetPreferredHeight(18.0f);
 
         const ComponentPickerSelection selection = {
             .kind = ComponentPickerItemKind::ScriptAsset,

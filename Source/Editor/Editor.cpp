@@ -82,6 +82,11 @@ bool Editor::Initialize()
     auto createEmptyGameScene = [&]()
     {
         sceneSystem.SwitchScene(sceneSystem.CreateScene(SceneType::Game, ""));
+        Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
+
+        auto unit = std::make_unique<Unit>();
+        unit->SetName("New Unit");
+        gameScene->AddUnit(std::move(unit));
     };
 
     if (editorSettings->Load(settingsContext))

@@ -1,6 +1,7 @@
 #include "AssetPickerPopup.h"
 
 #include <Editor/Widget/Element/Button.h>
+#include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -18,8 +19,12 @@ AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
     layout->SetGap(2.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
+    Render::TextStyle labelStyle = EditorStyle::SmallText();
+
     Button* noneButton = layout->AddChild<Button>("None");
-    noneButton->SetPreferredHeight(24.0f);
+    Label* buttonLabel = Cast<Label>(noneButton->GetChildren()[0].get());
+    buttonLabel->SetTextStyle(labelStyle);
+    noneButton->SetPreferredHeight(18.0f);
     noneButton->GetOnClickRay().Register(
         this,
         [this]
@@ -41,7 +46,9 @@ AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
     for (Asset* asset : assets)
     {
         Button* button = layout->AddChild<Button>(asset->GetName());
-        button->SetPreferredHeight(24.0f);
+        buttonLabel = Cast<Label>(button->GetChildren()[0].get());
+        buttonLabel->SetTextStyle(labelStyle);
+        button->SetPreferredHeight(18.0f);
 
         const AssetHandle handle = asset->GetHandle();
 
