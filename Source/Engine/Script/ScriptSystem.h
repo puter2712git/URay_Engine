@@ -5,6 +5,7 @@
 #include <Engine/Script/ScriptMetadata.h>
 
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -12,20 +13,20 @@
 namespace URay
 {
 
-class ScriptAsset;
 class ScriptComponent;
+class ScriptMetadataRegistry;
 class TransformComponent;
 
 class ScriptSystem
 {
 public:
+    ScriptSystem() = default;
+    ~ScriptSystem();
+
     bool Initialize(const std::filesystem::path& enginePath, const std::filesystem::path& projectPath);
     void Finalize();
 
     bool ReloadGameScripts();
-
-    bool RegisterScriptType(ScriptTypeDefinition definition);
-    const ScriptTypeDefinition* FindScriptType(const std::string& className) const;
 
     uint64 CreateScriptInstance(std::string_view className);
     bool SetScriptFieldValue(
@@ -46,16 +47,6 @@ public:
     TransformComponent* FindTransformForManagedInstance(uint64 instanceId) const;
 
 private:
-    bool RegisterScriptField(
-        const std::string& className,
-        const std::string& fieldName,
-        ScriptFieldType fieldType,
-        const void* defaultValue,
-        int32 defaultValueSize);
-
-    ScriptAsset* FindScriptAssetByClassName(const std::string& className) const;
-    bool SyncScriptAsset(const ScriptTypeDefinition& definition) const;
-
     TransformComponent* ResolveTransform(uint64 instanceId) const;
 
     static void __cdecl LogUTF8(void* userData, const uint8* message, int32 byteCount);
@@ -76,7 +67,7 @@ private:
 
     std::filesystem::path gameAssemblyPath;
 
-    std::unordered_map<std::string, ScriptTypeDefinition> scriptTypes;
+    std::unique_ptr<ScriptMetadataRegistry> metadataRegistry;
     std::unordered_map<uint64, ScriptComponent*> managedInstances;
 };
 
