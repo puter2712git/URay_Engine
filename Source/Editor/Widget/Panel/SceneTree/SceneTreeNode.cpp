@@ -94,9 +94,13 @@ void SceneTreeNode::OnUpdate(float deltaTime)
 {
     Color surfaceColor = EditorStyle::Surface;
 
-    if (IsHovered())
+    if (selectionSystem->GetSelectedUnit() == &unit)
     {
-        surfaceColor = EditorStyle::SurfaceHeader;
+        surfaceColor = EditorStyle::ControlPressed;
+    }
+    else if (IsHovered())
+    {
+        surfaceColor = EditorStyle::ControlHovered;
     }
 
     surface->SetBackgroundColor(surfaceColor);
