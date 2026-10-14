@@ -396,7 +396,11 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .viewMode = viewport.GetViewMode()
         };
 
-        request.selectedUnit = nullptr;
+        Unit* selectedUnit = selectionSystem->GetSelectedUnit();
+
+        request.selectedUnit = selectedUnit && selectedUnit->GetOwner()->GetType() == SceneType::Play
+                                   ? selectedUnit
+                                   : nullptr;
     }
     else
     {
