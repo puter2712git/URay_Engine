@@ -91,6 +91,34 @@ void InputSystem::OnMouseButton(MouseButton button, KeyAction action, ModifierKe
         break;
     }
 
+    uint8 clickCount = 0;
+
+    if (action == KeyAction::Pressed)
+    {
+        constexpr auto multiClickInterval = std::chrono::milliseconds(500);
+        constexpr float multiClickMaxDistance = 4.0f;
+
+        const auto currentTime = std::chrono::steady_clock::now();
+
+        const float deltaX = pendingSnapshot.mousePosition.x - lastClickPosition.x;
+        const float deltaY = pendingSnapshot.mousePosition.y - lastClickPosition.y;
+
+        const bool isSameClickSequence = button == lastClickButton &&
+                                         currentTime - lastClickTime <= multiClickInterval &&
+                                         deltaX * deltaX + deltaY * deltaY <= multiClickMaxDistance * multiClickMaxDistance;
+
+        if (isSameClickSequence)
+            ++consecutiveClickCount;
+        else
+            consecutiveClickCount = 1;
+
+        lastClickTime = currentTime;
+        lastClickPosition = pendingSnapshot.mousePosition;
+        lastClickButton = button;
+
+        clickCount = consecutiveClickCount;
+    }
+
     pendingSnapshot.events.push_back(PointerEvent{
         .action = action == KeyAction::Released
                       ? PointerAction::Released
@@ -100,7 +128,7 @@ void InputSystem::OnMouseButton(MouseButton button, KeyAction action, ModifierKe
         .changedButton = button,
         .pressedButtons = BuildPressedMouseButtonMask(),
         .modifiers = modifiers,
-    });
+        .clickCount = clickCount });
 }
 
 void InputSystem::OnCursorMoved(Vector2 position)
@@ -143,6 +171,9 @@ void InputSystem::OnWindowFocusChanged(bool focused)
     {
         pendingSnapshot.mouseDelta = Vector2::Zero;
         pendingSnapshot.scrollDelta = Vector2::Zero;
+
+        lastClickButton = MouseButton::None;
+        consecutiveClickCount = 0;
     }
 
     pendingSnapshot.events.push_back(WindowFocusEvent{

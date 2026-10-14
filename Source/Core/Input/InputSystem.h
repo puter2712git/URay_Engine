@@ -3,6 +3,7 @@
 #include <Core/Input/InputEvent.h>
 #include <Core/Input/InputSnapshot.h>
 
+#include <chrono>
 #include <vector>
 
 namespace URay
@@ -29,6 +30,11 @@ private:
 private:
     InputSnapshot pendingSnapshot = {};
     InputSnapshot publishedSnapshot = {};
+
+    std::chrono::steady_clock::time_point lastClickTime = {};
+    Vector2 lastClickPosition = Vector2::Zero;
+    MouseButton lastClickButton = MouseButton::None;
+    uint8 consecutiveClickCount = 0;
 };
 
 } // namespace URay

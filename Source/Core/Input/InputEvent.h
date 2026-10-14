@@ -211,6 +211,8 @@ struct PointerEvent
     MouseButton changedButton = MouseButton::None;
     MouseButtonMask pressedButtons = 0;
     ModifierKey modifiers = ModifierKey::None;
+
+    uint8 clickCount = 0;
 };
 
 struct ScrollEvent
