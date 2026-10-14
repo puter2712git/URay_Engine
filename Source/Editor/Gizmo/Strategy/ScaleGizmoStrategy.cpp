@@ -50,10 +50,10 @@ void ScaleGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId id
     if (!transform || !cameraTransform)
         return;
     selectedHandle = id;
-    startWorldPosition = cameraTransform->GetPosition();
+    startWorldPosition = cameraTransform->GetLocalPosition();
     startLineDirection = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition;
-    targetInitPosition = transform->GetPosition();
-    targetInitScale = transform->GetScale();
+    targetInitPosition = transform->GetLocalPosition();
+    targetInitScale = transform->GetLocalScale();
 
     xAxis = transform->TransformVectorNoScale(Vector3::Right).GetNormalized();
     yAxis = transform->TransformVectorNoScale(Vector3::Forward).GetNormalized();
@@ -115,6 +115,6 @@ void ScaleGizmoStrategy::UpdateDragging(const Vector2& position, const CameraCom
         scale.y = std::max(minimumScale, targetInitScale.y + amount);
     if (selectedHandle == GizmoHandleId::Z || selectedHandle == GizmoHandleId::XZ || selectedHandle == GizmoHandleId::YZ || selectedHandle == GizmoHandleId::XYZ)
         scale.z = std::max(minimumScale, targetInitScale.z + amount);
-    transform->SetScale(scale);
+    transform->SetLocalScale(scale);
 }
 } // namespace URay

@@ -26,19 +26,19 @@ void EditorCamera::Update(float deltaTime, const EditorCameraInput& input)
     if (!cameraTransform)
         return;
 
-    const Vector3 cameraPosition = cameraTransform->GetPosition();
+    const Vector3 cameraPosition = cameraTransform->GetLocalPosition();
     const Vector3 moveDelta = (cameraTransform->TransformVectorNoScale(input.horizontalAxis) + input.verticalAxis) * moveSpeed * deltaTime;
 
     const Vector3 movedPosition = cameraPosition + moveDelta;
-    cameraTransform->SetPosition(movedPosition);
+    cameraTransform->SetLocalPosition(movedPosition);
 
-    Vector3 rotation = cameraTransform->GetRotation();
+    Vector3 rotation = cameraTransform->GetLocalRotation();
     rotation.x -= input.mouseDelta.y * rotationSpeed;
     rotation.z -= input.mouseDelta.x * rotationSpeed;
 
     rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
 
-    cameraTransform->SetRotation(rotation);
+    cameraTransform->SetLocalRotation(rotation);
 }
 
 } // namespace URay

@@ -94,8 +94,8 @@ bool Editor::Initialize()
     if (editorSettings->Load(settingsContext))
     {
         TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
-        cameraTransform->SetPosition(settingsContext.cameraSettings.position);
-        cameraTransform->SetRotation(settingsContext.cameraSettings.rotation);
+        cameraTransform->SetLocalPosition(settingsContext.cameraSettings.position);
+        cameraTransform->SetLocalRotation(settingsContext.cameraSettings.rotation);
 
         const VirtualPath& path = settingsContext.startScenePath;
         const std::string sceneText = filesystem.ReadText(path);
@@ -156,8 +156,8 @@ void Editor::Finalize()
             .rootWidget = widgetSystem->GetRootWidget(),
             .startScenePath = gameScene->GetFilePath().ToString(),
             .cameraSettings = {
-                .position = cameraTransform->GetPosition(),
-                .rotation = cameraTransform->GetRotation(),
+                .position = cameraTransform->GetLocalPosition(),
+                .rotation = cameraTransform->GetLocalRotation(),
             },
         };
 
@@ -387,7 +387,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
               .height = viewport.GetTargetExtent().height });
 
         request.view = {
-            .cameraPosition = transform ? transform->GetPosition() : Vector3::Zero,
+            .cameraPosition = transform ? transform->GetLocalPosition() : Vector3::Zero,
             .cameraDirection = transform ? transform->GetForward() : Vector3::Forward,
             .nearPlane = camera ? camera->GetNearPlane() : 0.1f,
             .farPlane = camera ? camera->GetFarPlane() : 1000.0f,
@@ -409,7 +409,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         TransformComponent* transform = editorCamera->GetOwner()->GetTransform();
 
         request.view = {
-            .cameraPosition = transform ? transform->GetPosition() : Vector3::Zero,
+            .cameraPosition = transform ? transform->GetLocalPosition() : Vector3::Zero,
             .cameraDirection = transform ? transform->GetForward() : Vector3::Forward,
             .nearPlane = editorCamera ? editorCamera->GetNearPlane() : 0.1f,
             .farPlane = editorCamera ? editorCamera->GetFarPlane() : 1000.0f,
@@ -435,7 +435,7 @@ CameraComponent& Editor::PrepareEditorScene()
     cameraUnit->SetName("Editor Camera");
 
     std::unique_ptr<TransformComponent> cameraTransform = std::make_unique<TransformComponent>();
-    cameraTransform->SetPosition(Vector3(0.0f, -5.0f, 0.0f));
+    cameraTransform->SetLocalPosition(Vector3(0.0f, -5.0f, 0.0f));
     std::unique_ptr<CameraComponent> camera = std::make_unique<CameraComponent>();
     CameraComponent* cameraPtr = camera.get();
     cameraUnit->AddComponent(std::move(cameraTransform));

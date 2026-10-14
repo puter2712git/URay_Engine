@@ -88,7 +88,7 @@ Render::LineObjectState PointLightVisualizer::MakeLineState(
     TransformComponent* transform = unit.GetTransform();
     PointLightComponent& pointLight = static_cast<PointLightComponent&>(component);
 
-    const Vector3 center = transform ? transform->GetPosition() : Vector3::Zero;
+    const Vector3 center = transform ? transform->GetLocalPosition() : Vector3::Zero;
     const Vector3 axisA = transform ? transform->GetRight() : Vector3::Right;
     const Vector3 axisB = transform ? transform->GetForward() : Vector3::Forward;
     const Vector3 axisC = transform ? transform->GetUp() : Vector3::Up;

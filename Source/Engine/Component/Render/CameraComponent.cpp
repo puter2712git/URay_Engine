@@ -99,10 +99,11 @@ void CameraComponent::UpdateViewMatrix()
     Unit* owner = GetOwner();
     TransformComponent* transform = owner->GetTransform();
 
-    Vector3 forward = transform->TransformVectorNoScale(Vector3::Forward);
-    Vector3 up = transform->TransformVectorNoScale(Vector3::Up);
+    Vector3 position = transform->GetWorldPosition();
+    Vector3 forward = transform->GetWorldForward();
+    Vector3 up = transform->GetWorldUp();
 
-    viewMatrix = Matrix::MakeView(transform->GetPosition(), transform->GetPosition() + forward, up);
+    viewMatrix = Matrix::MakeView(position, position + forward, up);
 }
 
 void CameraComponent::UpdateProjMatrix()

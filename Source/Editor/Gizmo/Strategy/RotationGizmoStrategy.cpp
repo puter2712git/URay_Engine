@@ -33,10 +33,10 @@ void RotationGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId
     if (!transform || !cameraTransform)
         return;
     selectedHandle = id;
-    startWorldPosition = cameraTransform->GetPosition();
+    startWorldPosition = cameraTransform->GetLocalPosition();
     startLineDirection = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition;
-    targetInitPosition = transform->GetPosition();
-    targetInitRotation = transform->GetRotation();
+    targetInitPosition = transform->GetLocalPosition();
+    targetInitRotation = transform->GetLocalRotation();
 
     if (gizmo.IsLocal())
     {
@@ -93,7 +93,7 @@ void RotationGizmoStrategy::UpdateDragging(const Vector2& position, const Camera
 
     const Matrix result = gizmo.IsLocal() ? delta * initial : initial * delta;
 
-    transform->SetRotation(MatrixToEulerXYZ(result));
+    transform->SetLocalRotation(MatrixToEulerXYZ(result));
 }
 
 Matrix RotationGizmoStrategy::GetAxisRotationMatrix(GizmoHandleId handleId, float angle)

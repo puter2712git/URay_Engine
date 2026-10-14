@@ -37,7 +37,7 @@ bool GetTransformPosition(
     if (!transform)
         return false;
 
-    position = transform->GetPosition();
+    position = transform->GetLocalPosition();
     return true;
 }
 
@@ -51,7 +51,7 @@ bool SetTransformPosition(
     if (!transform)
         return false;
 
-    transform->SetPosition(position);
+    transform->SetLocalPosition(position);
     return true;
 }
 

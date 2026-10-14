@@ -33,7 +33,7 @@ Render::RenderObject* PointLightComponent::CreateRenderObject()
     TransformComponent* transform = unit->GetTransform();
 
     Render::PointLightObjectState state = {};
-    state.position = transform ? transform->GetPosition() : Vector3::Zero;
+    state.position = transform ? transform->GetWorldPosition() : Vector3::Zero;
     state.radius = radius;
     state.intensity = intensity;
     state.color = color;
@@ -53,7 +53,7 @@ void PointLightComponent::UpdateRenderObject()
     TransformComponent* transform = unit->GetTransform();
 
     Render::PointLightObjectState state = {};
-    state.position = transform ? transform->GetPosition() : Vector3::Zero;
+    state.position = transform ? transform->GetWorldPosition() : Vector3::Zero;
     state.radius = radius;
     state.intensity = intensity;
     state.color = color;

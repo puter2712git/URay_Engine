@@ -19,35 +19,35 @@ public:
 
     void UpdateWorldMatrix();
 
-    Vector3 TransformPoint(const Vector3& point) const;
+    Vector3 TransformPoint(const Vector3& localPoint) const;
     Vector3 InvTransformPoint(const Vector3& worldPoint) const;
 
-    Vector3 TransformVector(const Vector3& vector) const;
+    Vector3 TransformVector(const Vector3& localVector) const;
     Vector3 InvTransformVector(const Vector3& worldVector) const;
 
-    Vector3 TransformVectorNoScale(const Vector3& vector) const;
+    Vector3 TransformVectorNoScale(const Vector3& localVector) const;
     Vector3 InvTransformVectorNoScale(const Vector3& worldVector) const;
 
     Vector3 GetForward() const;
     Vector3 GetRight() const;
     Vector3 GetUp() const;
 
-    const Vector3& GetPosition() const { return position; }
-    void SetPosition(const Vector3& inPosition)
+    const Vector3& GetLocalPosition() const { return position; }
+    void SetLocalPosition(const Vector3& value)
     {
-        position = inPosition;
+        position = value;
         SetDirty(true);
     }
 
-    const Vector3& GetRotation() const { return rotation; }
-    void SetRotation(const Vector3& inRotation)
+    const Vector3& GetLocalRotation() const { return rotation; }
+    void SetLocalRotation(const Vector3& inRotation)
     {
         rotation = inRotation;
         SetDirty(true);
     }
 
-    const Vector3& GetScale() const { return scale; }
-    void SetScale(const Vector3& inScale)
+    const Vector3& GetLocalScale() const { return scale; }
+    void SetLocalScale(const Vector3& inScale)
     {
         scale = inScale;
         SetDirty(true);
@@ -56,6 +56,11 @@ public:
     void SetDirty(bool dirty);
 
     const Matrix& GetWorldMatrix() const { return worldMatrix; }
+
+    Vector3 GetWorldPosition() const;
+    Vector3 GetWorldForward() const;
+    Vector3 GetWorldRight() const;
+    Vector3 GetWorldUp() const;
 
 protected:
     void OnUpdate(float deltaTime) override;

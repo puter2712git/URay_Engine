@@ -87,9 +87,9 @@ void TranslationGizmoStrategy::StartDragging(
     const Vector3 farPosition = camera.ScreenToWorld(
         Vector3(position.x, position.y, 1.0f));
 
-    startWorldPosition = cameraTransform->GetPosition();
+    startWorldPosition = cameraTransform->GetLocalPosition();
     startLineDirection = farPosition - startWorldPosition;
-    targetInitPosition = targetTransform->GetPosition();
+    targetInitPosition = targetTransform->GetLocalPosition();
     selectedHandle = handleId;
 
     if (gizmo.IsLocal())
@@ -189,7 +189,7 @@ void TranslationGizmoStrategy::UpdateDragging(
         return;
     }
 
-    targetTransform->SetPosition(targetInitPosition + move);
+    targetTransform->SetLocalPosition(targetInitPosition + move);
 }
 
 void TranslationGizmoStrategy::EndDragging()

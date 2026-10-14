@@ -74,62 +74,30 @@ void TransformComponent::UpdateWorldMatrix()
     }
 }
 
-Vector3 TransformComponent::TransformPoint(const Vector3& point) const
+Vector3 TransformComponent::TransformPoint(const Vector3& localPoint) const
 {
-    Matrix T = Matrix::MakeTranslation(position);
-    Matrix R = Matrix::MakeRotation(rotation);
-    Matrix S = Matrix::MakeScale(scale);
-
-    Matrix worldMatrix = S * R * T;
-    Vector4 vec4 = Vector4(point.x, point.y, point.z, 1.0f);
-
-    Vector4 result = vec4 * worldMatrix;
-
-    return Vector3(result.x, result.y, result.z);
+    return worldMatrix.TransformPoint(localPoint);
 }
 
 Vector3 TransformComponent::InvTransformPoint(const Vector3& worldPoint) const
 {
-    Matrix T = Matrix::MakeTranslation(position);
-    Matrix R = Matrix::MakeRotation(rotation);
-    Matrix S = Matrix::MakeScale(scale);
-
-    Matrix invWorldMatrix = (S * R * T).Inverse();
-    Vector4 vec4 = Vector4(worldPoint.x, worldPoint.y, worldPoint.z, 1.0f);
-
-    Vector4 result = vec4 * invWorldMatrix;
-
-    return Vector3(result.x, result.y, result.z);
+    return worldMatrix.Inverse().TransformPoint(worldPoint);
 }
 
-Vector3 TransformComponent::TransformVector(const Vector3& vector) const
+Vector3 TransformComponent::TransformVector(const Vector3& localVector) const
 {
-    Matrix rotationMatrix = Matrix::MakeRotation(rotation);
-    Matrix scaleMatrix = Matrix::MakeScale(scale);
-    Vector4 vec4 = Vector4(vector, 0.0f);
-
-    Vector4 result = vec4 * scaleMatrix * rotationMatrix;
-
-    return Vector3(result);
+    return worldMatrix.TransformVector(localVector);
 }
 
 Vector3 TransformComponent::InvTransformVector(const Vector3& worldVector) const
 {
-    Matrix rotationMatrix = Matrix::MakeRotation(rotation);
-    Matrix scaleMatrix = Matrix::MakeScale(scale);
-    Matrix invMatrix = (scaleMatrix * rotationMatrix).Inverse();
-
-    Vector4 vec4 = Vector4(worldVector, 0.0f);
-
-    Vector4 result = vec4 * invMatrix;
-
-    return Vector3(result);
+    return worldMatrix.Inverse().TransformVector(worldVector);
 }
 
-Vector3 TransformComponent::TransformVectorNoScale(const Vector3& vector) const
+Vector3 TransformComponent::TransformVectorNoScale(const Vector3& localVector) const
 {
     Matrix rotationMatrix = Matrix::MakeRotation(rotation);
-    Vector4 vec4 = Vector4(vector.x, vector.y, vector.z, 0.0f);
+    Vector4 vec4 = Vector4(localVector.x, localVector.y, localVector.z, 0.0f);
 
     Vector4 result = vec4 * rotationMatrix;
 
@@ -186,6 +154,26 @@ void TransformComponent::SetDirty(bool dirty)
             }
         }
     }
+}
+
+Vector3 TransformComponent::GetWorldPosition() const
+{
+    return worldMatrix.TransformPoint(Vector3::Zero);
+}
+
+Vector3 TransformComponent::GetWorldForward() const
+{
+    return worldMatrix.TransformVector(Vector3::Forward).GetNormalized();
+}
+
+Vector3 TransformComponent::GetWorldRight() const
+{
+    return worldMatrix.TransformVector(Vector3::Right).GetNormalized();
+}
+
+Vector3 TransformComponent::GetWorldUp() const
+{
+    return worldMatrix.TransformVector(Vector3::Up).GetNormalized();
 }
 
 void TransformComponent::OnUpdate(float deltaTime)

@@ -50,7 +50,7 @@ Render::LineObjectState SpotLightVisualizer::MakeLineState(Unit& unit, Component
     TransformComponent* transform = unit.GetTransform();
     SpotLightComponent& spotLight = static_cast<SpotLightComponent&>(component);
 
-    const Vector3 origin = transform ? transform->GetPosition() : Vector3::Zero;
+    const Vector3 origin = transform ? transform->GetLocalPosition() : Vector3::Zero;
     const Vector3 direction = transform ? transform->GetForward() : Vector3::Forward;
     const Vector3 right = transform ? transform->GetRight() : Vector3::Right;
     const Vector3 up = transform ? transform->GetUp() : Vector3::Up;

@@ -43,8 +43,8 @@ Render::RenderObject* SpotLightComponent::CreateRenderObject()
     TransformComponent* transform = unit->GetTransform();
 
     Render::SpotLightObjectState state = {};
-    state.position = transform ? transform->GetPosition() : Vector3::Zero;
-    state.direction = transform ? transform->GetForward() : Vector3::Forward;
+    state.position = transform ? transform->GetWorldPosition() : Vector3::Zero;
+    state.direction = transform ? transform->GetWorldForward() : Vector3::Forward;
     state.range = range;
     state.innerConeAngle = innerConeAngle;
     state.outerConeAngle = outerConeAngle;
@@ -66,8 +66,8 @@ void SpotLightComponent::UpdateRenderObject()
     TransformComponent* transform = unit->GetTransform();
 
     Render::SpotLightObjectState state = {};
-    state.position = transform ? transform->GetPosition() : Vector3::Zero;
-    state.direction = transform ? transform->GetForward() : Vector3::Forward;
+    state.position = transform ? transform->GetWorldPosition() : Vector3::Zero;
+    state.direction = transform ? transform->GetWorldForward() : Vector3::Forward;
     state.range = range;
     state.innerConeAngle = innerConeAngle;
     state.outerConeAngle = outerConeAngle;

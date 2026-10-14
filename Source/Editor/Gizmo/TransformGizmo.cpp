@@ -78,10 +78,10 @@ void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
 
     UpdateDragging(position, camera);
 
-    const Vector3 targetPosition = GetTargetTransform()->GetPosition();
-    const Vector3 targetRotation = GetTargetTransform()->GetRotation();
+    const Vector3 targetPosition = GetTargetTransform()->GetLocalPosition();
+    const Vector3 targetRotation = GetTargetTransform()->GetLocalRotation();
 
-    const float distance = (camera.GetOwner()->GetTransform()->GetPosition() - GetTargetTransform()->GetPosition()).GetLength();
+    const float distance = (camera.GetOwner()->GetTransform()->GetLocalPosition() - GetTargetTransform()->GetLocalPosition()).GetLength();
     const float scale = std::clamp(distance * scaleFactor, minScale, maxScale);
 
     if (isLocal || GetMode() == GizmoMode::Scale)
