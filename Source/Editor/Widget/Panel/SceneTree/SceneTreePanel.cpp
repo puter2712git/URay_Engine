@@ -1,8 +1,12 @@
 #include "SceneTreePanel.h"
 
+#include <Editor/Editor.h>
+#include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/SceneTree/SceneTreeNode.h>
-
+#include <Editor/Widget/Popup/UnitPopup.h>
+#include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
@@ -42,6 +46,41 @@ void SceneTreePanel::Arrange(const Rect& rect)
 
     const Rect contentRect = GetContentRect();
     layout->Arrange(contentRect);
+}
+
+EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
+{
+    if (event.changedButton != MouseButton::Right)
+        return {};
+
+    PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+    UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
+
+    popup->GetUnitSelectedRay().Register(
+        popup,
+        [this, &popupLayer](UnitPopupSelection selection)
+        {
+            if (selection != UnitPopupSelection::EmptyUnit)
+                return;
+
+            Scene* gameScene = sceneSystem->GetSceneByType(SceneType::Game);
+            if (!gameScene)
+            {
+                popupLayer.ClosePopup();
+                return;
+            }
+
+            Unit* emptyUnit = gameScene->CreateEmptyUnit("Empty Unit", nullptr);
+
+            gEditor->GetSelectionSystem().SelectUnit(emptyUnit);
+
+            popupLayer.ClosePopup();
+        });
+
+    return EventReply{
+        .handled = true,
+        .requestFocus = true
+    };
 }
 
 void SceneTreePanel::OnUpdate(float deltaTime)

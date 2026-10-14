@@ -75,6 +75,11 @@ ButtonState Button::GetState() const
     return ButtonState::Normal;
 }
 
+Vector2 Button::OnMeasure()
+{
+    return content->GetDesiredSize();
+}
+
 void Button::OnPaint(Render::UIDrawContext& context)
 {
     Color color = normalColor;

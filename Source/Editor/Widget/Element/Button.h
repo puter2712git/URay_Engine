@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Editor/Widget/Widget.h>
 #include <Editor/Widget/Style/EditorStyles.h>
+#include <Editor/Widget/Widget.h>
 
 #include <Engine/Asset/Asset.h>
 
@@ -42,6 +42,8 @@ public:
     EventRay<>& GetOnClickRay() { return onClickRay; }
 
 protected:
+    Vector2 OnMeasure() override;
+
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:

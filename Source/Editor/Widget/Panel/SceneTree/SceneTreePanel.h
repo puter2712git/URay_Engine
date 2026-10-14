@@ -20,6 +20,8 @@ public:
 public:
     void Arrange(const Rect& rect) override;
 
+    EventReply OnPointerDown(const PointerEvent& event) override;
+
 protected:
     void OnUpdate(float deltaTime) override;
 

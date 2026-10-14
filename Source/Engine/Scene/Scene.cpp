@@ -282,4 +282,20 @@ void Scene::DestroyAllUnits()
     }
 }
 
+Unit* Scene::CreateEmptyUnit(const std::string& name, Unit* parent)
+{
+    auto unit = std::make_unique<Unit>();
+    unit->SetName(name);
+
+    Unit* unitPtr = unit.get();
+    AddUnit(std::move(unit));
+
+    if (parent)
+    {
+        unitPtr->SetParent(parent);
+    }
+
+    return unitPtr;
+}
+
 } // namespace URay

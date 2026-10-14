@@ -25,9 +25,24 @@ public:
         return static_cast<T*>(activePopup);
     }
 
-    void ClosePopup();
+    template <typename T, typename... Args>
+    T* OpenPopup(const Vector2& position, Args&&... args)
+    {
+        const Rect anchorRect = {
+            .position = position,
+            .size = Vector2::Zero
+        };
 
-    bool CanHit() const override { return activePopup != nullptr; }
+        return OpenPopup<T>(anchorRect, std::forward<Args>(args)...);
+    }
+
+    void
+    ClosePopup();
+
+    bool CanHit() const override
+    {
+        return activePopup != nullptr;
+    }
 
 protected:
     void OnUpdate(float deltaTime) override;
@@ -37,6 +52,6 @@ private:
     Rect anchorRect = {};
 
     bool closeRequested = false;
-};
+}; // namespace URay
 
 } // namespace URay

@@ -4,7 +4,10 @@
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Editor/Widget/Popup/UnitPopup.h>
+#include <Editor/Widget/WidgetSystem.h>
 
 #include <Engine/Scene/Unit.h>
 
@@ -38,11 +41,28 @@ void SceneTreeNode::Arrange(const Rect& rect)
 
 EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 {
-    selectionSystem->SelectUnit(&unit);
+    if (event.changedButton == MouseButton::Right)
+    {
+        PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+        popupLayer.OpenPopup<UnitPopup>(event.position);
 
-    return EventReply{
-        .handled = true
-    };
+        return EventReply{
+            .handled = true,
+            .requestFocus = true
+        };
+    }
+
+    if (event.changedButton == MouseButton::Left)
+    {
+        selectionSystem->SelectUnit(&unit);
+
+        return EventReply{
+            .handled = true,
+            .requestFocus = true
+        };
+    }
+
+    return {};
 }
 
 void SceneTreeNode::OnUpdate(float deltaTime)

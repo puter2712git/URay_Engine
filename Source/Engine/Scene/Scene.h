@@ -51,6 +51,8 @@ public:
     void DestroyUnit(Unit* unit);
     void DestroyAllUnits();
 
+    Unit* CreateEmptyUnit(const std::string& name, Unit* parent);
+
     SceneSystem& GetSceneSystem() { return sceneSystem; }
 
     const VirtualPath& GetFilePath() const { return filePath; }
