@@ -87,16 +87,16 @@ void TranslationGizmoStrategy::StartDragging(
     const Vector3 farPosition = camera.ScreenToWorld(
         Vector3(position.x, position.y, 1.0f));
 
-    startWorldPosition = cameraTransform->GetLocalPosition();
+    startWorldPosition = cameraTransform->GetWorldPosition();
     startLineDirection = farPosition - startWorldPosition;
-    targetInitPosition = targetTransform->GetLocalPosition();
+    targetInitWorldPosition = targetTransform->GetWorldPosition();
     selectedHandle = handleId;
 
     if (gizmo.IsLocal())
     {
-        xAxis = targetTransform->TransformVectorNoScale(Vector3::Right).GetNormalized();
-        yAxis = targetTransform->TransformVectorNoScale(Vector3::Forward).GetNormalized();
-        zAxis = targetTransform->TransformVectorNoScale(Vector3::Up).GetNormalized();
+        xAxis = targetTransform->GetWorldRight();
+        yAxis = targetTransform->GetWorldForward();
+        zAxis = targetTransform->GetWorldUp();
     }
     else
     {
@@ -108,13 +108,13 @@ void TranslationGizmoStrategy::StartDragging(
     switch (selectedHandle)
     {
     case GizmoHandleId::X:
-        planeNormal = Vector3::Cross(xAxis, Vector3::Cross(cameraTransform->GetForward(), xAxis).GetNormalized()).GetNormalized();
+        planeNormal = Vector3::Cross(xAxis, Vector3::Cross(cameraTransform->GetWorldForward(), xAxis).GetNormalized()).GetNormalized();
         break;
     case GizmoHandleId::Y:
-        planeNormal = Vector3::Cross(yAxis, Vector3::Cross(cameraTransform->GetForward(), yAxis).GetNormalized()).GetNormalized();
+        planeNormal = Vector3::Cross(yAxis, Vector3::Cross(cameraTransform->GetWorldForward(), yAxis).GetNormalized()).GetNormalized();
         break;
     case GizmoHandleId::Z:
-        planeNormal = Vector3::Cross(zAxis, Vector3::Cross(cameraTransform->GetForward(), zAxis).GetNormalized()).GetNormalized();
+        planeNormal = Vector3::Cross(zAxis, Vector3::Cross(cameraTransform->GetWorldForward(), zAxis).GetNormalized()).GetNormalized();
         break;
     case GizmoHandleId::XY:
         planeNormal = zAxis;
@@ -126,7 +126,7 @@ void TranslationGizmoStrategy::StartDragging(
         planeNormal = yAxis;
         break;
     case GizmoHandleId::XYZ:
-        planeNormal = cameraTransform->GetForward();
+        planeNormal = cameraTransform->GetWorldForward();
         break;
     default:
         return;
@@ -156,8 +156,8 @@ void TranslationGizmoStrategy::UpdateDragging(
     const Vector3 farPosition = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f));
     Vector3 startHit;
     Vector3 currentHit;
-    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitPosition, planeNormal, startHit) ||
-        !Math::IntersectLinePlane(startWorldPosition, farPosition - startWorldPosition, targetInitPosition, planeNormal, currentHit))
+    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitWorldPosition, planeNormal, startHit) ||
+        !Math::IntersectLinePlane(startWorldPosition, farPosition - startWorldPosition, targetInitWorldPosition, planeNormal, currentHit))
         return;
 
     const Vector3 delta = currentHit - startHit;
@@ -189,7 +189,7 @@ void TranslationGizmoStrategy::UpdateDragging(
         return;
     }
 
-    targetTransform->SetLocalPosition(targetInitPosition + move);
+    targetTransform->SetWorldPosition(targetInitWorldPosition + move);
 }
 
 void TranslationGizmoStrategy::EndDragging()

@@ -15,6 +15,12 @@ class Component;
 class TransformComponent;
 class Scene;
 
+enum class ReparentMode
+{
+    KeepLocal,
+    KeepWorld
+};
+
 class Unit : public Object
 {
     URAY_CLASS(Unit, Object)
@@ -53,12 +59,19 @@ public:
     void SetPersistentId(const UUID& id) { persistentId = id; }
 
     Unit* GetParent() const { return parent; }
-    bool SetParent(Unit* unit);
+    bool SetParent(Unit* unit, ReparentMode mode = ReparentMode::KeepLocal);
 
     const std::vector<Unit*>& GetChildren() const { return children; }
 
     Scene* GetOwner() const { return scene; }
     void SetOwner(Scene* scene) { this->scene = scene; }
+
+private:
+    static TransformComponent* FindClosestTransform(Unit* unit);
+
+    void CollectTransformRoots(std::vector<TransformComponent*>& results, bool hasTransformAncestor) const;
+
+    void MarkTransformHierarchyDirty();
 
 private:
     std::string name;

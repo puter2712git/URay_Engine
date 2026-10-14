@@ -6,6 +6,8 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 
+#include <vector>
+
 namespace URay
 {
 
@@ -142,23 +144,62 @@ void TransformComponent::SetDirty(bool dirty)
 
     isDirty = dirty;
 
+    if (!dirty)
+        return;
+
     Unit* owner = GetOwner();
-    if (owner)
+    if (!owner)
+        return;
+
+    std::vector<Unit*> pendingUnits(owner->GetChildren().begin(), owner->GetChildren().end());
+
+    while (!pendingUnits.empty())
     {
-        for (Unit* unit : owner->GetChildren())
-        {
-            TransformComponent* transform = unit->GetTransform();
-            if (transform)
-            {
-                transform->SetDirty(true);
-            }
-        }
+        Unit* unit = pendingUnits.back();
+        pendingUnits.pop_back();
+
+        if (TransformComponent* transform = unit->GetTransform())
+            transform->isDirty = true;
+
+        const auto& children = unit->GetChildren();
+        pendingUnits.insert(pendingUnits.end(), children.begin(), children.end());
     }
 }
 
 Vector3 TransformComponent::GetWorldPosition() const
 {
-    return worldMatrix.TransformPoint(Vector3::Zero);
+    return worldMatrix.GetPosition();
+}
+
+void TransformComponent::SetWorldPosition(const Vector3& worldPosition)
+{
+    Unit* owner = GetOwner();
+
+    TransformComponent* relativeTransform = owner ? FindRelativeTransform(owner->GetParent()) : nullptr;
+    position = relativeTransform ? relativeTransform->InvTransformPoint(worldPosition) : worldPosition;
+
+    SetDirty(true);
+}
+
+Vector3 TransformComponent::GetWorldRotation() const
+{
+    return worldMatrix.GetRotation();
+}
+
+void TransformComponent::SetWorldRotation(const Vector3& worldRotation)
+{
+    Matrix localRotation = Matrix::MakeRotation(worldRotation);
+
+    Unit* owner = GetOwner();
+
+    TransformComponent* relativeTransform = owner ? FindRelativeTransform(owner->GetParent()) : nullptr;
+    if (relativeTransform)
+    {
+        const Matrix parentWorldRotation = Matrix::MakeRotation(relativeTransform->GetWorldRotation());
+        localRotation = localRotation * parentWorldRotation.Inverse();
+    }
+
+    SetLocalRotation(localRotation.GetRotation());
 }
 
 Vector3 TransformComponent::GetWorldForward() const

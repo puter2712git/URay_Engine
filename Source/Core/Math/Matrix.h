@@ -40,6 +40,10 @@ struct Matrix
     Vector3 TransformPoint(const Vector3& point) const;
     Vector3 TransformVector(const Vector3& vector) const;
 
+    Vector3 GetPosition() const;
+    Vector3 GetRotation() const;
+    Vector3 GetScale() const;
+
     static Matrix MakeTranslation(const Vector3& position);
 
     static Matrix MakeRotation(const Vector3& rotation);

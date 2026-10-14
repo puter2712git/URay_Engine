@@ -63,7 +63,7 @@ void Unit::Deserialize(const YAML::Node& node)
 {
 }
 
-bool Unit::SetParent(Unit* unit)
+bool Unit::SetParent(Unit* unit, ReparentMode mode)
 {
     if (unit == this)
         return false;
@@ -76,6 +76,26 @@ bool Unit::SetParent(Unit* unit)
 
     if (parent == unit)
         return true;
+
+    std::vector<TransformComponent*> transformRoots;
+    std::vector<Matrix> localMatrices;
+
+    if (mode == ReparentMode::KeepWorld)
+    {
+        CollectTransformRoots(transformRoots, false);
+
+        TransformComponent* newRelativeTransform = FindClosestTransform(unit);
+
+        const Matrix newRelativeWorld = newRelativeTransform ? newRelativeTransform->GetWorldMatrix() : Matrix::Identity;
+        const Matrix inverseNewRelativeWorld = newRelativeWorld.Inverse();
+
+        localMatrices.reserve(transformRoots.size());
+
+        for (TransformComponent* transform : transformRoots)
+        {
+            localMatrices.push_back(transform->GetWorldMatrix() * inverseNewRelativeWorld);
+        }
+    }
 
     if (parent)
     {
@@ -90,6 +110,16 @@ bool Unit::SetParent(Unit* unit)
         parent->children.push_back(this);
     }
 
+    for (size_t i = 0; i < transformRoots.size(); ++i)
+    {
+        const Matrix& local = localMatrices[i];
+
+        transformRoots[i]->SetLocalPosition(local.GetPosition());
+        transformRoots[i]->SetLocalRotation(local.GetRotation());
+        transformRoots[i]->SetLocalScale(local.GetScale());
+    }
+
+    MarkTransformHierarchyDirty();
     return true;
 }
 
@@ -119,6 +149,43 @@ Component* Unit::AddComponent(std::unique_ptr<Component> component)
     }
 
     return componentPtr;
+}
+
+TransformComponent* Unit::FindClosestTransform(Unit* unit)
+{
+    for (; unit; unit = unit->parent)
+    {
+        if (unit->transform)
+            return unit->transform;
+    }
+
+    return nullptr;
+}
+
+void Unit::CollectTransformRoots(
+    std::vector<TransformComponent*>& results,
+    bool hasTransformAncestor) const
+{
+    const bool hasTransform = transform != nullptr;
+
+    if (hasTransform && !hasTransformAncestor)
+        results.push_back(transform);
+
+    for (Unit* child : children)
+    {
+        child->CollectTransformRoots(
+            results,
+            hasTransformAncestor || hasTransform);
+    }
+}
+
+void Unit::MarkTransformHierarchyDirty()
+{
+    if (transform)
+        transform->SetDirty(true);
+
+    for (Unit* child : children)
+        child->MarkTransformHierarchyDirty();
 }
 
 } // namespace URay

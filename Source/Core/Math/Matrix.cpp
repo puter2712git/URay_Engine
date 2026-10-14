@@ -2,6 +2,7 @@
 
 #include <Core/Math/Math.h>
 
+#include <algorithm>
 #include <cmath>
 
 namespace URay
@@ -114,6 +115,62 @@ Vector3 Matrix::TransformVector(const Vector3& vector) const
 {
     const Vector4 result = Vector4(vector.x, vector.y, vector.z, 0.0f) * *this;
     return Vector3(result.x, result.y, result.z);
+}
+
+Vector3 Matrix::GetPosition() const
+{
+    return Vector3(m30, m31, m32);
+}
+
+Vector3 Matrix::GetRotation() const
+{
+    constexpr float epsilon = 1e-5f;
+
+    const Vector3 scale = GetScale();
+
+    if (scale.x < epsilon || scale.y < epsilon || scale.z < epsilon)
+        return Vector3::Zero;
+
+    Matrix rotation = Matrix::Identity;
+    rotation.m00 = m00 / scale.x;
+    rotation.m01 = m01 / scale.x;
+    rotation.m02 = m02 / scale.x;
+
+    rotation.m10 = m10 / scale.y;
+    rotation.m11 = m11 / scale.y;
+    rotation.m12 = m12 / scale.y;
+
+    rotation.m20 = m20 / scale.z;
+    rotation.m21 = m21 / scale.z;
+    rotation.m22 = m22 / scale.z;
+
+    const float sinY = std::clamp(-rotation.m02, -1.0f, 1.0f);
+    const float y = std::asin(sinY);
+    const float cosY = std::sqrt(std::max(0.0f, 1.0f - sinY * sinY));
+
+    float x = 0.0f;
+    float z = 0.0f;
+
+    if (cosY > epsilon)
+    {
+        x = std::atan2(rotation.m12, rotation.m22);
+        z = std::atan2(rotation.m01, rotation.m00);
+    }
+    else
+    {
+        x = std::atan2(sinY >= 0.0f ? rotation.m10 : -rotation.m10, rotation.m11);
+    }
+
+    return Vector3(Math::RadToDeg(x), Math::RadToDeg(y), Math::RadToDeg(z));
+}
+
+Vector3 Matrix::GetScale() const
+{
+    const Vector3 xAxis(m00, m01, m02);
+    const Vector3 yAxis(m10, m11, m12);
+    const Vector3 zAxis(m20, m21, m22);
+
+    return Vector3(xAxis.GetLength(), yAxis.GetLength(), zAxis.GetLength());
 }
 
 Matrix Matrix::MakeTranslation(const Vector3& position)

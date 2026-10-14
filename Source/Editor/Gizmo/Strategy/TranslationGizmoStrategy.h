@@ -27,7 +27,7 @@ private:
 
     Vector3 startWorldPosition = Vector3::Zero;
     Vector3 startLineDirection = Vector3::Forward;
-    Vector3 targetInitPosition = Vector3::Zero;
+    Vector3 targetInitWorldPosition = Vector3::Zero;
     GizmoHandleId selectedHandle = GizmoHandleId::None;
     Vector3 xAxis = Vector3::Right;
     Vector3 yAxis = Vector3::Forward;

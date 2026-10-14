@@ -20,15 +20,15 @@ public:
 
 private:
     Matrix GetAxisRotationMatrix(GizmoHandleId selectedHandle, float angle);
-    Vector3 MatrixToEulerXYZ(const Matrix& matrix);
 
 private:
     TransformGizmo& gizmo;
     GizmoHandleId selectedHandle = GizmoHandleId::None;
     Vector3 startWorldPosition = Vector3::Zero;
     Vector3 startLineDirection = Vector3::Forward;
-    Vector3 targetInitPosition = Vector3::Zero;
-    Vector3 targetInitRotation = Vector3::Zero;
+    Vector3 targetInitWorldPosition = Vector3::Zero;
+    Vector3 targetInitLocalRotation = Vector3::Zero;
+    Vector3 targetInitWorldRotation = Vector3::Zero;
     Vector3 axisDirection = Vector3::Forward;
 };
 } // namespace URay

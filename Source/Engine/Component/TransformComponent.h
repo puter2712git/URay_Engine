@@ -58,6 +58,11 @@ public:
     const Matrix& GetWorldMatrix() const { return worldMatrix; }
 
     Vector3 GetWorldPosition() const;
+    void SetWorldPosition(const Vector3& worldPosition);
+
+    Vector3 GetWorldRotation() const;
+    void SetWorldRotation(const Vector3& worldRotation);
+
     Vector3 GetWorldForward() const;
     Vector3 GetWorldRight() const;
     Vector3 GetWorldUp() const;

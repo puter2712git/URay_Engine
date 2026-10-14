@@ -33,23 +33,24 @@ void RotationGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId
     if (!transform || !cameraTransform)
         return;
     selectedHandle = id;
-    startWorldPosition = cameraTransform->GetLocalPosition();
+    startWorldPosition = cameraTransform->GetWorldPosition();
     startLineDirection = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition;
-    targetInitPosition = transform->GetLocalPosition();
-    targetInitRotation = transform->GetLocalRotation();
+    targetInitWorldPosition = transform->GetWorldPosition();
+    targetInitLocalRotation = transform->GetLocalRotation();
+    targetInitWorldRotation = transform->GetWorldRotation();
 
     if (gizmo.IsLocal())
     {
         switch (id)
         {
         case GizmoHandleId::X:
-            axisDirection = transform->TransformVectorNoScale(Vector3::Right).GetNormalized();
+            axisDirection = transform->GetWorldRight();
             break;
         case GizmoHandleId::Y:
-            axisDirection = transform->TransformVectorNoScale(Vector3::Forward).GetNormalized();
+            axisDirection = transform->GetWorldForward();
             break;
         case GizmoHandleId::Z:
-            axisDirection = transform->TransformVectorNoScale(Vector3::Up).GetNormalized();
+            axisDirection = transform->GetWorldUp();
             break;
         }
     }
@@ -77,23 +78,33 @@ void RotationGizmoStrategy::UpdateDragging(const Vector2& position, const Camera
         return;
 
     Vector3 startHit, currentHit;
-    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitPosition, axisDirection, startHit) ||
-        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, targetInitPosition, axisDirection, currentHit))
+    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitWorldPosition, axisDirection, startHit) ||
+        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, targetInitWorldPosition, axisDirection, currentHit))
         return;
 
-    const Vector3 a = (startHit - targetInitPosition).GetNormalized();
-    const Vector3 b = (currentHit - targetInitPosition).GetNormalized();
+    const Vector3 a = (startHit - targetInitWorldPosition).GetNormalized();
+    const Vector3 b = (currentHit - targetInitWorldPosition).GetNormalized();
     if (a.GetSquaredLength() < Math::EPSILON || b.GetSquaredLength() < Math::EPSILON)
         return;
 
     const float angle = Math::RadToDeg(std::atan2(Vector3::Dot(axisDirection, Vector3::Cross(a, b)), Vector3::Dot(a, b)));
 
-    const Matrix initial = Matrix::MakeRotation(targetInitRotation);
     const Matrix delta = GetAxisRotationMatrix(selectedHandle, angle);
 
-    const Matrix result = gizmo.IsLocal() ? delta * initial : initial * delta;
+    if (gizmo.IsLocal())
+    {
+        const Matrix initialLocal = Matrix::MakeRotation(targetInitLocalRotation);
+        const Matrix resultLocal = delta * initialLocal;
 
-    transform->SetLocalRotation(MatrixToEulerXYZ(result));
+        transform->SetLocalRotation(resultLocal.GetRotation());
+    }
+    else
+    {
+        const Matrix initialWorld = Matrix::MakeRotation(targetInitWorldRotation);
+        const Matrix resultWorld = initialWorld * delta;
+
+        transform->SetWorldRotation(resultWorld.GetRotation());
+    }
 }
 
 Matrix RotationGizmoStrategy::GetAxisRotationMatrix(GizmoHandleId handleId, float angle)
@@ -109,32 +120,6 @@ Matrix RotationGizmoStrategy::GetAxisRotationMatrix(GizmoHandleId handleId, floa
     default:
         return Matrix::Identity;
     }
-}
-
-Vector3 RotationGizmoStrategy::MatrixToEulerXYZ(const Matrix& matrix)
-{
-    constexpr float gimbalLockEpsilon = 1e-5f;
-
-    const float sinY = std::clamp(-matrix.m02, -1.0f, 1.0f);
-    const float y = std::asin(sinY);
-    const float cosY = std::sqrt(std::max(0.0f, 1.0f - sinY * sinY));
-
-    float x = 0.0f;
-    float z = 0.0f;
-
-    if (cosY > gimbalLockEpsilon)
-    {
-        x = std::atan2(matrix.m12, matrix.m22);
-        z = std::atan2(matrix.m01, matrix.m00);
-    }
-    else
-    {
-        x = std::atan2(
-            sinY >= 0.0f ? matrix.m10 : -matrix.m10,
-            matrix.m11);
-    }
-
-    return Vector3(Math::RadToDeg(x), Math::RadToDeg(y), Math::RadToDeg(z));
 }
 
 } // namespace URay
