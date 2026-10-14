@@ -56,6 +56,8 @@ protected:
 
     void RefreshText();
 
+    void ApplyTextClick(const Vector2& position, uint8 clickCount);
+
     void SelectAll();
 
 private:

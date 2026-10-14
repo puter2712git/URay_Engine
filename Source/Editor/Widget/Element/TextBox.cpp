@@ -54,28 +54,7 @@ EventReply TextBox::OnPointerDown(const PointerEvent& event)
     if (event.changedButton != MouseButton::Left || isReadonly)
         return {};
 
-    BeginEdit();
-
-    if (event.clickCount == 3)
-    {
-        SelectAll();
-    }
-    else
-    {
-        const Rect content = GetContentRect();
-        const float contentX = event.position.x - content.position.x;
-        const size_t clickedCaretIndex = GetCaretIndexAtX(contentX);
-
-        if (event.clickCount == 1)
-        {
-            caretIndex = clickedCaretIndex;
-            ClearSelection();
-        }
-        else if (event.clickCount == 2)
-        {
-            SelectWordAt(clickedCaretIndex);
-        }
-    }
+    ApplyTextClick(event.position, event.clickCount);
 
     return EventReply{
         .handled = true,
@@ -355,6 +334,31 @@ void TextBox::RefreshText()
 
     SetText(currText);
     OnTextChanged(prevText, currText);
+}
+
+void TextBox::ApplyTextClick(const Vector2& position, uint8 clickCount)
+{
+    BeginEdit();
+
+    if (clickCount >= 3)
+    {
+        SelectAll();
+        return;
+    }
+
+    const Rect content = GetContentRect();
+    const float contentX = position.x - content.position.x;
+    const size_t clickedCaretIndex = GetCaretIndexAtX(contentX);
+
+    if (clickCount == 1)
+    {
+        caretIndex = clickedCaretIndex;
+        ClearSelection();
+    }
+    else if (clickCount == 2)
+    {
+        SelectWordAt(clickedCaretIndex);
+    }
 }
 
 void TextBox::SelectAll()

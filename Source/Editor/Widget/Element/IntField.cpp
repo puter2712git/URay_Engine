@@ -14,6 +14,8 @@ EventReply IntField::OnPointerDown(const PointerEvent& event)
     if (event.changedButton != MouseButton::Left || IsReadonly())
         return {};
 
+    pendingClickCount = event.clickCount;
+
     isPointerDown = true;
     isDragging = false;
     initPointerPosition = event.position;
@@ -74,7 +76,11 @@ EventReply IntField::OnPointerUp(const PointerEvent& event)
     isDragging = false;
 
     if (!wasDragging && IsHovered())
-        BeginEdit();
+    {
+        ApplyTextClick(event.position, pendingClickCount);
+    }
+
+    pendingClickCount = 0;
 
     return EventReply{
         .handled = true,

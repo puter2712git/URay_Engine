@@ -12,6 +12,8 @@ EventReply NumberField::OnPointerDown(const PointerEvent& event)
     if (event.changedButton != MouseButton::Left || IsReadonly())
         return {};
 
+    pendingClickCount = event.clickCount;
+
     isPointerDown = true;
     isDragging = false;
 
@@ -77,8 +79,10 @@ EventReply NumberField::OnPointerUp(const PointerEvent& event)
 
     if (!wasDragging && IsHovered())
     {
-        BeginEdit();
+        ApplyTextClick(event.position, pendingClickCount);
     }
+
+    pendingClickCount = 0;
 
     return EventReply{
         .handled = true,

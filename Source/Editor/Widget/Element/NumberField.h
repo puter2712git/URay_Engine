@@ -39,6 +39,8 @@ private:
 
     bool isPointerDown = false;
     bool isDragging = false;
+
+    uint8 pendingClickCount = 0;
 };
 
 } // namespace URay
