@@ -50,6 +50,12 @@ bool Window::Initialize()
         return false;
     }
 
+    GLFWcursor* textCursor = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+    if (!textCursor)
+    {
+        URAY_LOG("[Window] Failed to create IBEAM_CURSOR.");
+    }
+
     GLFWcursor* hresizeCursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
     if (!hresizeCursor)
     {
@@ -63,6 +69,7 @@ bool Window::Initialize()
     }
 
     cursors.insert({ CursorType::ARROW, nullptr });
+    cursors.insert({ CursorType::TEXT, textCursor });
     cursors.insert({ CursorType::HRESIZE, hresizeCursor });
     cursors.insert({ CursorType::VRESIZE, vresizeCursor });
 

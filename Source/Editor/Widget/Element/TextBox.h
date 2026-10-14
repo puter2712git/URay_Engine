@@ -16,6 +16,8 @@ public:
     explicit TextBox(const std::string& text = {});
 
 public:
+    EventReply OnPointerEnter() override;
+    EventReply OnPointerLeave() override;
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnTextInput(const TextInputEvent& event) override;
     EventReply OnKeyDown(const KeyEvent& event) override;
@@ -61,6 +63,9 @@ private:
 
     void ClearSelection();
     void DeleteSelection();
+
+    float GetPrefixWidth(size_t characterCount) const;
+    size_t GetCaretIndexAtX(float contentX) const;
 
 private:
     std::string text;

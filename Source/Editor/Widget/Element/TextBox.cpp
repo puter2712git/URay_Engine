@@ -13,12 +13,37 @@ namespace URay
 
 TextBox::TextBox(const std::string& text) : text(text) {}
 
+EventReply TextBox::OnPointerEnter()
+{
+    return EventReply{
+        .cursor = isReadonly
+                      ? CursorType::ARROW
+                      : CursorType::TEXT
+    };
+}
+
+EventReply TextBox::OnPointerLeave()
+{
+    return EventReply{
+        .cursor = CursorType::ARROW
+    };
+}
+
 EventReply TextBox::OnPointerDown(const PointerEvent& event)
 {
     if (event.changedButton != MouseButton::Left || isReadonly)
         return {};
 
     BeginEdit();
+
+    if (event.clickCount == 1)
+    {
+        const Rect content = GetContentRect();
+        const float contentX = event.position.x - content.position.x;
+
+        caretIndex = GetCaretIndexAtX(contentX);
+        ClearSelection();
+    }
 
     return EventReply{
         .handled = true,
@@ -331,6 +356,44 @@ void TextBox::DeleteSelection()
     editingText.erase(start, count);
     caretIndex = start;
     selectionAnchor = start;
+}
+
+float TextBox::GetPrefixWidth(size_t characterCount) const
+{
+    const size_t clampedCount = std::min(characterCount, editingText.size());
+
+    const std::string prefix = UTF8::Encode(editingText.substr(0, clampedCount));
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
+
+    Vector2 prefixSize = fontSystem.MeasureText(
+        prefix,
+        textStyle.fontHandle,
+        textStyle.pixelHeight);
+
+    return prefixSize.x;
+}
+
+size_t TextBox::GetCaretIndexAtX(float contentX) const
+{
+    if (contentX <= 0.0f)
+        return 0;
+
+    float previousBoundaryX = 0.0f;
+
+    for (size_t index = 1; index <= editingText.size(); ++index)
+    {
+        const float currentBoundaryX = GetPrefixWidth(index);
+        const float midpointX = (previousBoundaryX + currentBoundaryX) * 0.5f;
+
+        if (contentX < midpointX)
+            return index - 1;
+
+        previousBoundaryX = currentBoundaryX;
+    }
+
+    return editingText.size();
 }
 
 } // namespace URay
