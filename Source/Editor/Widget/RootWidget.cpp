@@ -1,5 +1,6 @@
 #include "RootWidget.h"
 
+#include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 
 namespace URay
@@ -11,6 +12,7 @@ RootWidget::RootWidget(std::unique_ptr<Widget> mainContent)
     AddChild(std::move(mainContent));
 
     popupLayer = AddChild<PopupLayer>();
+    dialogLayer = AddChild<DialogLayer>();
 }
 
 void RootWidget::Arrange(const Rect& rect)
@@ -19,6 +21,7 @@ void RootWidget::Arrange(const Rect& rect)
 
     mainContent->Arrange(rect);
     popupLayer->Arrange(rect);
+    dialogLayer->Arrange(rect);
 }
 
 } // namespace URay

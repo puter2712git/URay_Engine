@@ -13,6 +13,7 @@ namespace URay
 class Widget;
 class ViewportPanel;
 class PopupLayer;
+class DialogLayer;
 class UIInputRouter;
 
 class WidgetSystem
@@ -32,6 +33,7 @@ public:
     Widget& GetRootWidget() const { return *root; }
     ViewportPanel& GetViewport() const { return *viewport; }
     PopupLayer& GetPopupLayer() const;
+    DialogLayer& GetDialogLayer() const;
     bool IsTextInputActive() const;
 
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }

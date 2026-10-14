@@ -8,6 +8,7 @@ namespace URay
 {
 
 class PopupLayer;
+class DialogLayer;
 
 class RootWidget final : public Widget
 {
@@ -18,10 +19,12 @@ public:
     void Arrange(const Rect& rect) override;
 
     PopupLayer& GetPopupLayer() const { return *popupLayer; }
+    DialogLayer& GetDialogLayer() const { return *dialogLayer; }
 
 private:
     Widget* mainContent = nullptr;
     PopupLayer* popupLayer = nullptr;
+    DialogLayer* dialogLayer = nullptr;
 };
 
 } // namespace URay

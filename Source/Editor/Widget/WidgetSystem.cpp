@@ -90,6 +90,12 @@ PopupLayer& WidgetSystem::GetPopupLayer() const
     return rootWidget->GetPopupLayer();
 }
 
+DialogLayer& WidgetSystem::GetDialogLayer() const
+{
+    RootWidget* rootWidget = static_cast<RootWidget*>(root.get());
+    return rootWidget->GetDialogLayer();
+}
+
 void WidgetSystem::CreateDefaultWidgets()
 {
     std::unique_ptr<SceneTreePanel> sceneTree = std::make_unique<SceneTreePanel>();

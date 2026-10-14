@@ -36,8 +36,7 @@ public:
         return OpenPopup<T>(anchorRect, std::forward<Args>(args)...);
     }
 
-    void
-    ClosePopup();
+    void ClosePopup();
 
     bool CanHit() const override
     {
@@ -52,6 +51,6 @@ private:
     Rect anchorRect = {};
 
     bool closeRequested = false;
-}; // namespace URay
+};
 
 } // namespace URay
