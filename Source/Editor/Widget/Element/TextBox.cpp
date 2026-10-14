@@ -11,6 +11,26 @@
 namespace URay
 {
 
+namespace
+{
+bool IsWordCharacter(char32_t codepoint)
+{
+    if (codepoint >= U'a' && codepoint <= U'z')
+        return true;
+
+    if (codepoint >= U'A' && codepoint <= U'Z')
+        return true;
+
+    if (codepoint >= U'0' && codepoint <= U'9')
+        return true;
+
+    if (codepoint == U'_')
+        return true;
+
+    return codepoint > 0x7F;
+}
+} // namespace
+
 TextBox::TextBox(const std::string& text) : text(text) {}
 
 EventReply TextBox::OnPointerEnter()
@@ -36,13 +56,18 @@ EventReply TextBox::OnPointerDown(const PointerEvent& event)
 
     BeginEdit();
 
+    const Rect content = GetContentRect();
+    const float contentX = event.position.x - content.position.x;
+    const size_t clickedCaretIndex = GetCaretIndexAtX(contentX);
+
     if (event.clickCount == 1)
     {
-        const Rect content = GetContentRect();
-        const float contentX = event.position.x - content.position.x;
-
-        caretIndex = GetCaretIndexAtX(contentX);
+        caretIndex = clickedCaretIndex;
         ClearSelection();
+    }
+    else if (event.clickCount == 2)
+    {
+        SelectWordAt(clickedCaretIndex);
     }
 
     return EventReply{
@@ -394,6 +419,47 @@ size_t TextBox::GetCaretIndexAtX(float contentX) const
     }
 
     return editingText.size();
+}
+
+void TextBox::SelectWordAt(size_t caretPosition)
+{
+    if (editingText.empty())
+    {
+        caretIndex = 0;
+        selectionAnchor = 0;
+        return;
+    }
+
+    size_t characterIndex = std::min(caretPosition, editingText.size() - 1);
+
+    if (!IsWordCharacter(editingText[characterIndex]))
+    {
+        if (characterIndex > 0 && IsWordCharacter(editingText[characterIndex - 1]))
+        {
+            --characterIndex;
+        }
+        else
+        {
+            caretIndex = caretPosition;
+            ClearSelection();
+            return;
+        }
+    }
+
+    size_t selectionStart = characterIndex;
+    while (selectionStart > 0 && IsWordCharacter(editingText[selectionStart - 1]))
+    {
+        --selectionStart;
+    }
+
+    size_t selectionEnd = characterIndex + 1;
+    while (selectionEnd < editingText.size() && IsWordCharacter(editingText[selectionEnd]))
+    {
+        ++selectionEnd;
+    }
+
+    selectionAnchor = selectionStart;
+    caretIndex = selectionEnd;
 }
 
 } // namespace URay

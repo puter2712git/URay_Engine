@@ -67,6 +67,8 @@ private:
     float GetPrefixWidth(size_t characterCount) const;
     size_t GetCaretIndexAtX(float contentX) const;
 
+    void SelectWordAt(size_t caretPosition);
+
 private:
     std::string text;
 
