@@ -1,12 +1,14 @@
 #include "VisualSystem.h"
 
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Visual/Visualizer/CameraVisualizer.h>
 #include <Editor/Visual/Visualizer/DecalVisualizer.h>
 #include <Editor/Visual/Visualizer/DirectionalLightVisualizer.h>
 #include <Editor/Visual/Visualizer/PointLightVisualizer.h>
 #include <Editor/Visual/Visualizer/SpotLightVisualizer.h>
 
 #include <Engine/Component/Component.h>
+#include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/DecalComponent.h>
 #include <Engine/Component/Render/Light/DirectionalLightComponent.h>
 #include <Engine/Component/Render/Light/PointLightComponent.h>
@@ -30,6 +32,8 @@ VisualSystem::~VisualSystem() = default;
 
 bool VisualSystem::Initialize()
 {
+    visualizerRegistry.Register<CameraComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
+                                                 { return std::make_unique<CameraVisualizer>(context, unit, component, selectionSystem); });
     visualizerRegistry.Register<DirectionalLightComponent>([](EditorVisualContext& context, Unit& unit, Component& component)
                                                            { return std::make_unique<DirectionalLightVisualizer>(context, unit, component); });
     visualizerRegistry.Register<PointLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)

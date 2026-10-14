@@ -31,6 +31,8 @@ public:
     float GetNearPlane() const { return near; }
     float GetFarPlane() const { return far; }
     bool IsPerspective() const { return isPerspective; }
+    float GetOrthoSize() const { return orthoSize; }
+    const Extent2D& GetViewportExtent() const { return viewportExtent; }
 
 protected:
     void OnUpdate(float deltaTime) override;
