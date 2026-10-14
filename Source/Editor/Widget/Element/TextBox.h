@@ -55,6 +55,14 @@ protected:
     void RefreshText();
 
 private:
+    size_t GetSelectionStart() const;
+    size_t GetSelectionEnd() const;
+    bool HasSelection() const;
+
+    void ClearSelection();
+    void DeleteSelection();
+
+private:
     std::string text;
 
     std::u32string editingText;
@@ -67,6 +75,9 @@ private:
 
     Color outlineColor = EditorStyle::Border;
     float outlineWidth = 1.0f;
+
+    size_t caretIndex = 0;
+    size_t selectionAnchor = 0;
 };
 
 } // namespace URay

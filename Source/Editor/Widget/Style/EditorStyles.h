@@ -14,6 +14,7 @@ inline const Color Separator = Color::FromRGB(0x30, 0x30, 0x30);
 
 inline const Color TextPrimary = Color::FromRGB(0xFF, 0xFF, 0xFF);
 inline const Color TextOnButton = Color::FromRGB(0x00, 0x00, 0x00);
+inline const Color TextSelection = Color::FromRGB(0x26, 0x5D, 0xAB);
 
 inline const Color ControlNormal = Color::FromRGB(0x20, 0x20, 0x20);
 inline const Color ControlHovered = Color::FromRGB(0x60, 0x60, 0x60);

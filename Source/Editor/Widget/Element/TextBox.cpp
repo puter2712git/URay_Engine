@@ -1,12 +1,12 @@
 #include "TextBox.h"
 
+#include <Core/Type/String.h>
 #include <Engine/Engine.h>
-
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Font/FontSystem.h>
 #include <Render/ResourceManager.h>
 
-#include <Core/Type/String.h>
+#include <algorithm>
 
 namespace URay
 {
@@ -31,7 +31,13 @@ EventReply TextBox::OnTextInput(const TextInputEvent& event)
     if (!isEditing)
         return {};
 
-    editingText.push_back(event.codepoint);
+    if (HasSelection())
+        DeleteSelection();
+
+    editingText.insert(caretIndex, 1, event.codepoint);
+    ++caretIndex;
+    ClearSelection();
+
     RefreshText();
 
     return EventReply{
@@ -44,10 +50,23 @@ EventReply TextBox::OnKeyDown(const KeyEvent& event)
     if (!isEditing)
         return {};
 
-    if (event.key == KeyCode::Backspace && !editingText.empty())
+    const bool extendSelection =
+        (event.modifiers & ModifierKey::Shift) != ModifierKey::None;
+
+    if (event.key == KeyCode::Backspace)
     {
-        editingText.pop_back();
-        RefreshText();
+        if (HasSelection())
+        {
+            DeleteSelection();
+            RefreshText();
+        }
+        else if (caretIndex > 0)
+        {
+            editingText.erase(caretIndex - 1, 1);
+            --caretIndex;
+            ClearSelection();
+            RefreshText();
+        }
 
         return EventReply{
             .handled = true
@@ -65,6 +84,51 @@ EventReply TextBox::OnKeyDown(const KeyEvent& event)
     if (event.key == KeyCode::Escape)
     {
         CancelEdit();
+        return EventReply{
+            .handled = true
+        };
+    }
+
+    if (event.key == KeyCode::Left)
+    {
+        if (extendSelection)
+        {
+            if (caretIndex > 0)
+                --caretIndex;
+        }
+        else if (HasSelection())
+        {
+            caretIndex = GetSelectionStart();
+            ClearSelection();
+        }
+        else if (caretIndex > 0)
+        {
+            --caretIndex;
+            ClearSelection();
+        }
+
+        return EventReply{
+            .handled = true
+        };
+    }
+    if (event.key == KeyCode::Right)
+    {
+        if (extendSelection)
+        {
+            if (caretIndex < editingText.size())
+                ++caretIndex;
+        }
+        else if (HasSelection())
+        {
+            caretIndex = GetSelectionEnd();
+            ClearSelection();
+        }
+        else if (caretIndex < editingText.size())
+        {
+            ++caretIndex;
+            ClearSelection();
+        }
+
         return EventReply{
             .handled = true
         };
@@ -115,6 +179,40 @@ void TextBox::OnPaint(Render::UIDrawContext& context)
     context.AddOutlineRect(rect, outlineWidth, EditorStyle::Border);
 
     const Rect content = GetContentRect();
+
+    if (IsEditing() && IsFocused() && HasSelection())
+    {
+        Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+        Render::FontSystem& fontSystem =
+            renderSystem.GetResourceManager().GetFontSystem();
+
+        const std::string prefixBeforeSelection =
+            UTF8::Encode(editingText.substr(0, GetSelectionStart()));
+
+        const std::string prefixThroughSelection =
+            UTF8::Encode(editingText.substr(0, GetSelectionEnd()));
+
+        const Vector2 selectionStartSize = fontSystem.MeasureText(
+            prefixBeforeSelection,
+            textStyle.fontHandle,
+            textStyle.pixelHeight);
+
+        const Vector2 selectionEndSize = fontSystem.MeasureText(
+            prefixThroughSelection,
+            textStyle.fontHandle,
+            textStyle.pixelHeight);
+
+        Rect selectionRect;
+        selectionRect.position = Vector2(
+            content.position.x + selectionStartSize.x,
+            content.position.y);
+        selectionRect.size = Vector2(
+            selectionEndSize.x - selectionStartSize.x,
+            static_cast<float>(textStyle.pixelHeight));
+
+        context.AddFilledRect(selectionRect, EditorStyle::TextSelection);
+    }
+
     context.AddText(content.position, text, textStyle);
 }
 
@@ -128,10 +226,11 @@ void TextBox::OnPaintForeground(Render::UIDrawContext& context)
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
 
-    const Vector2 textSize = fontSystem.MeasureText(text, textStyle.fontHandle, textStyle.pixelHeight);
+    const std::string prefix = UTF8::Encode(editingText.substr(0, caretIndex));
+    const Vector2 prefixSize = fontSystem.MeasureText(prefix, textStyle.fontHandle, textStyle.pixelHeight);
 
     Rect caretRect;
-    caretRect.position = Vector2(content.position.x + textSize.x, content.position.y);
+    caretRect.position = Vector2(content.position.x + prefixSize.x, content.position.y);
     caretRect.size = Vector2(1.0f, static_cast<float>(textStyle.pixelHeight));
 
     context.AddFilledRect(caretRect, EditorStyle::TextPrimary);
@@ -145,6 +244,9 @@ void TextBox::BeginEdit()
     isEditing = true;
     originalText = GetText();
     editingText = UTF8::Decode(originalText);
+
+    caretIndex = editingText.size();
+    selectionAnchor = caretIndex;
 }
 
 void TextBox::CommitEdit()
@@ -196,6 +298,39 @@ void TextBox::RefreshText()
 
     SetText(currText);
     OnTextChanged(prevText, currText);
+}
+
+size_t TextBox::GetSelectionStart() const
+{
+    return std::min(caretIndex, selectionAnchor);
+}
+
+size_t TextBox::GetSelectionEnd() const
+{
+    return std::max(caretIndex, selectionAnchor);
+}
+
+bool TextBox::HasSelection() const
+{
+    return caretIndex != selectionAnchor;
+}
+
+void TextBox::ClearSelection()
+{
+    selectionAnchor = caretIndex;
+}
+
+void TextBox::DeleteSelection()
+{
+    if (!HasSelection())
+        return;
+
+    const size_t start = GetSelectionStart();
+    const size_t count = GetSelectionEnd() - start;
+
+    editingText.erase(start, count);
+    caretIndex = start;
+    selectionAnchor = start;
 }
 
 } // namespace URay
