@@ -56,6 +56,8 @@ protected:
 
     void RefreshText();
 
+    void SelectAll();
+
 private:
     size_t GetSelectionStart() const;
     size_t GetSelectionEnd() const;
