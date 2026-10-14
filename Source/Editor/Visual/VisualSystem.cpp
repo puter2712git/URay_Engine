@@ -88,6 +88,9 @@ void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 
 void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* component)
 {
+    if (scene->GetType() == SceneType::Play)
+        return;
+
     Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
     Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 

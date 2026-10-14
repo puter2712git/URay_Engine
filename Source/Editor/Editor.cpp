@@ -387,8 +387,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
               .height = viewport.GetTargetExtent().height });
 
         request.view = {
-            .cameraPosition = transform ? transform->GetLocalPosition() : Vector3::Zero,
-            .cameraDirection = transform ? transform->GetForward() : Vector3::Forward,
+            .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
+            .cameraDirection = transform ? transform->GetWorldForward() : Vector3::Forward,
             .nearPlane = camera ? camera->GetNearPlane() : 0.1f,
             .farPlane = camera ? camera->GetFarPlane() : 1000.0f,
             .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
@@ -409,8 +409,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         TransformComponent* transform = editorCamera->GetOwner()->GetTransform();
 
         request.view = {
-            .cameraPosition = transform ? transform->GetLocalPosition() : Vector3::Zero,
-            .cameraDirection = transform ? transform->GetForward() : Vector3::Forward,
+            .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
+            .cameraDirection = transform ? transform->GetWorldForward() : Vector3::Forward,
             .nearPlane = editorCamera ? editorCamera->GetNearPlane() : 0.1f,
             .farPlane = editorCamera ? editorCamera->GetFarPlane() : 1000.0f,
             .viewMatrix = editorCamera->GetViewMatrix(),
