@@ -15,7 +15,7 @@ class WidgetSystem;
 class EditorSettings;
 class SelectionSystem;
 class VisualSystem;
-
+class PlaySession;
 class InputActionMap;
 
 class Editor
@@ -31,11 +31,6 @@ public:
     void Update();
     void PrepareRender();
 
-    void StartGame();
-    void StopGame();
-
-    bool IsPlaying() const { return isPlaying; }
-
     void SetUseEditorCamera(bool value) { useEditorCamera = value; }
     bool UsingEditorCamera() const { return useEditorCamera; }
 
@@ -43,6 +38,8 @@ public:
 
     WidgetSystem& GetWidgetSystem() const { return *widgetSystem; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
+
+    PlaySession& GetPlaySession() const { return *playSession; }
 
 private:
     CameraComponent& PrepareEditorScene();
@@ -63,7 +60,7 @@ private:
 
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
 
-    bool isPlaying = false;
+    std::unique_ptr<PlaySession> playSession = nullptr;
     bool useEditorCamera = false;
 
     std::unique_ptr<InputActionMap> inputActionMap = nullptr;

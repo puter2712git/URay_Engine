@@ -9,6 +9,7 @@
 #include <Editor/Gizmo/TransformGizmo.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Pick/PickSystem.h>
+#include <Editor/Play/PlaySession.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Image.h>
@@ -94,13 +95,13 @@ ViewportPanel::ViewportPanel()
         this,
         []()
         {
-            gEditor->StartGame();
+            gEditor->GetPlaySession().Start();
         });
     toolbar->GetStopButton()->GetOnClickRay().Register(
         this,
         []()
         {
-            gEditor->StopGame();
+            gEditor->GetPlaySession().Stop();
         });
 
     auto& content = gizmoSpaceToggleButton->GetChildren()[0];
@@ -261,7 +262,7 @@ void ViewportPanel::OnUpdate(float deltaTime)
         }
 
         if (wasPressed(EditorInputAction::ToggleEditorCamera) &&
-            gEditor->IsPlaying())
+            gEditor->GetPlaySession().IsPlaying())
         {
             gEditor->SetUseEditorCamera(!gEditor->UsingEditorCamera());
         }

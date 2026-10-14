@@ -6,6 +6,7 @@
 #include <Core/Log/LogSystem.h>
 #include <Core/TimeFlow/Timer.h>
 #include <Editor/Input/EditorInputActions.h>
+#include <Editor/Play/PlaySession.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Settings/EditorSettings.h>
 #include <Editor/Visual/VisualSystem.h>
@@ -126,6 +127,8 @@ bool Editor::Initialize()
         createEmptyGameScene();
     }
 
+    playSession = std::make_unique<PlaySession>(sceneSystem);
+
     inputActionMap = CreateEditorInputActionMap();
     if (!inputActionMap)
     {
@@ -143,6 +146,12 @@ void Editor::Finalize()
 {
     gEngine->GetInputActionSystem().SetActionMap(nullptr);
     inputActionMap.reset();
+
+    if (playSession)
+    {
+        playSession->Stop();
+        playSession.reset();
+    }
 
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
@@ -312,36 +321,6 @@ void Editor::PrepareRender()
     widgetSystem->Paint();
 }
 
-void Editor::StartGame()
-{
-    if (isPlaying)
-        return;
-
-    isPlaying = true;
-    useEditorCamera = false;
-
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
-
-    YAML::Node gameSceneNode = gameScene->Serialize();
-
-    std::unique_ptr<Scene> playScene = sceneSystem.CreateScene(SceneType::Play, "");
-    playScene->Deserialize(gameSceneNode);
-
-    sceneSystem.LoadScene(std::move(playScene));
-}
-
-void Editor::StopGame()
-{
-    if (!isPlaying)
-        return;
-
-    isPlaying = false;
-
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.UnloadScene(SceneType::Play);
-}
-
 Render::RenderRequest Editor::BuildRenderRequest() const
 {
     Render::RenderRequest request = {};
@@ -351,26 +330,22 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
     ViewportPanel& viewport = widgetSystem->GetViewport();
 
-    if (isPlaying)
+    if (playSession->IsPlaying())
     {
         CameraComponent* camera = nullptr;
 
-        for (const auto& scene : sceneSystem.GetScenes())
-        {
-            if (scene->GetType() == SceneType::Play)
-            {
-                Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(scene.get());
-                request.scenes.push_back(renderScene);
+        Scene* playScene = playSession->GetScene();
 
-                for (const auto& unit : scene->GetUnits())
+        Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(playScene);
+        request.scenes.push_back(renderScene);
+
+        for (const auto& unit : playScene->GetUnits())
+        {
+            for (const auto& comp : unit->GetComponents())
+            {
+                if (CameraComponent* cameraComp = Cast<CameraComponent>(comp.get()))
                 {
-                    for (const auto& comp : unit->GetComponents())
-                    {
-                        if (CameraComponent* cameraComp = Cast<CameraComponent>(comp.get()))
-                        {
-                            camera = cameraComp;
-                        }
-                    }
+                    camera = cameraComp;
                 }
             }
         }
