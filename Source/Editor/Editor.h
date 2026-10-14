@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/File/VirtualPath.h>
 #include <Render/Rendering/RenderPipeline.h>
 
 #include <memory>
@@ -8,6 +9,7 @@ namespace URay
 {
 
 class CameraComponent;
+class Scene;
 
 class WidgetSystem;
 class EditorSettings;
@@ -45,7 +47,11 @@ public:
 private:
     CameraComponent& PrepareEditorScene();
     void ProcessInputActions();
+
     bool SaveCurrentScene();
+    bool SaveSceneToPath(Scene& scene, const VirtualPath& path);
+    void OpenSaveSceneDialog();
+
     void DeleteSelectedUnit();
 
 private:

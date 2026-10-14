@@ -9,6 +9,8 @@
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Settings/EditorSettings.h>
 #include <Editor/Visual/VisualSystem.h>
+#include <Editor/Widget/Dialog/SaveSceneDialog.h>
+#include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -242,25 +244,51 @@ bool Editor::SaveCurrentScene()
     if (!scene)
         return false;
 
-    const VirtualPath& scenePath = scene->GetFilePath();
-    if (scenePath.ToString().empty())
+    if (scene->GetFilePath().ToString().empty())
     {
-        URAY_LOG("Failed to save scene: Scene Path is empty.");
+        OpenSaveSceneDialog();
+        return true;
+    }
+
+    return SaveSceneToPath(*scene, scene->GetFilePath());
+}
+
+bool Editor::SaveSceneToPath(Scene& scene, const VirtualPath& path)
+{
+    VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
+
+    const std::string sceneText = YAML::Dump(scene.Serialize());
+
+    if (!fileSystem.WriteText(path, sceneText))
+    {
+        URAY_LOG("Failed to save scene: %s", path.ToString().c_str());
         return false;
     }
 
-    VirtualFileSystem& filesystem =
-        gEngine->GetAssetSystem().GetFileSystem();
-    const std::string sceneText = YAML::Dump(scene->Serialize());
+    scene.SetFilePath(path);
+    URAY_LOG("Scene saved: %s", path.ToString().c_str());
 
-    if (!filesystem.WriteText(scenePath, sceneText))
-    {
-        URAY_LOG("Failed to save scene: %s", scenePath.ToString().c_str());
-        return false;
-    }
-
-    URAY_LOG("Scene saved: %s", scenePath.ToString().c_str());
     return true;
+}
+
+void Editor::OpenSaveSceneDialog()
+{
+    VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
+
+    SaveSceneDialog* dialog = widgetSystem->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
+
+    dialog->GetClosedRay().Register(this, [this, dialog](DialogResult result)
+                                    {
+        if (result == DialogResult::Accepted)
+        {
+            Scene* scene = gEngine->GetSceneSystem().GetSceneByType(SceneType::Game);
+            if (scene)
+            {
+                SaveSceneToPath(*scene, dialog->GetSavePath());
+            }
+
+            widgetSystem->GetDialogLayer().CloseDialog();
+        } });
 }
 
 void Editor::DeleteSelectedUnit()
