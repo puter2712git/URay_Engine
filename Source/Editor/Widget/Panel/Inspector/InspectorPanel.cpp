@@ -56,7 +56,7 @@ InspectorPanel::InspectorPanel()
     layout->SetGap(4.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
-    selectionSystem.GetOnSelectionChangedRay().Register(
+    selectionSystem.GetOnActiveSelectionChangedRay().Register(
         this,
         [this](Unit*, Unit*)
         { isDirty = true; });
@@ -66,7 +66,7 @@ InspectorPanel::InspectorPanel()
         this,
         [this](Scene*, Unit* unit, Component*)
         {
-            if (unit == selectionSystem.GetSelectedUnit())
+            if (unit == selectionSystem.GetActiveUnit())
             {
                 isDirty = true;
             }
@@ -78,7 +78,7 @@ InspectorPanel::~InspectorPanel()
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     sceneSystem.GetComponentAddRay().UnregisterAll(this);
 
-    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
 }
 
 void InspectorPanel::Arrange(const Rect& rect)
@@ -107,7 +107,7 @@ void InspectorPanel::RebuildProperties()
 {
     layout->ClearChildren();
 
-    Unit* selectedUnit = selectionSystem.GetSelectedUnit();
+    Unit* selectedUnit = selectionSystem.GetActiveUnit();
     if (!selectedUnit)
         return;
 
@@ -165,7 +165,7 @@ void InspectorPanel::RebuildProperties()
         this,
         [this, addComponentButton]
         {
-            Unit* selectedUnit = selectionSystem.GetSelectedUnit();
+            Unit* selectedUnit = selectionSystem.GetActiveUnit();
             if (!selectedUnit)
                 return;
 
@@ -176,7 +176,7 @@ void InspectorPanel::RebuildProperties()
                 popup,
                 [this, &popupLayer](const ComponentPickerSelection& selection)
                 {
-                    Unit* targetUnit = selectionSystem.GetSelectedUnit();
+                    Unit* targetUnit = selectionSystem.GetActiveUnit();
 
                     if (!targetUnit)
                     {

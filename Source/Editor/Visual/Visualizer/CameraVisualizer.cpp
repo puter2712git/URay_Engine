@@ -25,19 +25,19 @@ namespace URay
 CameraVisualizer::CameraVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
     : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
-    selectionSystem.GetOnSelectionChangedRay().Register(
+    selectionSystem.GetOnActiveSelectionChangedRay().Register(
         this,
         [this](Unit* previousUnit, Unit* selectedUnit)
         { OnSelectionChanged(previousUnit, selectedUnit); });
 
     visual = { .unit = &unit, .component = &component };
-    if (selectionSystem.GetSelectedUnit() == &unit)
+    if (selectionSystem.GetActiveUnit() == &unit)
         CreateLine(context, component, visual);
 }
 
 CameraVisualizer::~CameraVisualizer()
 {
-    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
 
     EditorVisualContext context = {
         .engine = engine,
@@ -106,9 +106,7 @@ Render::LineObjectState CameraVisualizer::MakeLineState(Component& component)
     }
 
     constexpr uint32 edges[12][2] = {
-        { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 },
-        { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 },
-        { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 }
+        { 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 0 }, { 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 4 }, { 0, 4 }, { 1, 5 }, { 2, 6 }, { 3, 7 }
     };
 
     Render::LineObjectState state = {};

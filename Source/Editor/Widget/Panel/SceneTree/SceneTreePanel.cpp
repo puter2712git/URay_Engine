@@ -72,7 +72,7 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
 
             Unit* emptyUnit = gameScene->CreateEmptyUnit("Empty Unit", nullptr);
 
-            gEditor->GetSelectionSystem().SelectUnit(emptyUnit);
+            gEditor->GetSelectionSystem().SetSelection(emptyUnit);
 
             popupLayer.ClosePopup();
         });

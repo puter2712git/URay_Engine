@@ -304,13 +304,12 @@ void Editor::DeleteSelectedUnit()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
-    Unit* selectedUnit = selectionSystem->GetSelectedUnit();
+    Unit* activeUnit = selectionSystem->GetActiveUnit();
 
-    if (!scene || !selectedUnit)
+    if (!scene || !activeUnit)
         return;
 
-    selectionSystem->SelectUnit(nullptr);
-    scene->DestroyUnit(selectedUnit);
+    scene->DestroyUnit(activeUnit);
 }
 
 void Editor::PrepareRender()
@@ -371,11 +370,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .viewMode = viewport.GetViewMode()
         };
 
-        Unit* selectedUnit = selectionSystem->GetSelectedUnit();
-
-        request.selectedUnit = selectedUnit && selectedUnit->GetOwner()->GetType() == SceneType::Play
-                                   ? selectedUnit
-                                   : nullptr;
+        request.selectedUnits = selectionSystem->GetSelectedUnits();
     }
     else
     {
@@ -397,7 +392,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .viewMode = viewport.GetViewMode()
         };
 
-        request.selectedUnit = selectionSystem->GetSelectedUnit();
+        request.selectedUnits = selectionSystem->GetSelectedUnits();
     }
 
     request.uiDrawContext = &widgetSystem->GetDrawContext();

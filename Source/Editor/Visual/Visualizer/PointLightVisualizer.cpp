@@ -26,7 +26,7 @@ namespace URay
 PointLightVisualizer::PointLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
     : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
-    selectionSystem.GetOnSelectionChangedRay().Register(
+    selectionSystem.GetOnActiveSelectionChangedRay().Register(
         this,
         [this](Unit* previousUnit, Unit* selectedUnit)
         { OnSelectionChanged(previousUnit, selectedUnit); });
@@ -42,13 +42,13 @@ PointLightVisualizer::PointLightVisualizer(EditorVisualContext& context, Unit& u
     Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();
     sceneSystem.AddObject(context.renderScene, std::move(billboard), &component);
 
-    if (selectionSystem.GetSelectedUnit() == &unit)
+    if (selectionSystem.GetActiveUnit() == &unit)
         CreateLine(context, component, visual);
 }
 
 PointLightVisualizer::~PointLightVisualizer()
 {
-    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
     EditorVisualContext context = {
         .engine = engine,
         .renderScene = renderScene

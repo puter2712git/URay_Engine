@@ -34,7 +34,7 @@ struct RenderRequest
 {
     std::vector<RenderScene*> scenes;
     RenderView view = {};
-    Unit* selectedUnit = nullptr;
+    std::vector<Unit*> selectedUnits;
     const UIDrawContext* uiDrawContext = nullptr;
 };
 

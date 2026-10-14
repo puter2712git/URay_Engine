@@ -50,11 +50,11 @@ ViewportPanel::ViewportPanel()
 
     editorCamera = std::make_unique<EditorCamera>();
 
-    gEditor->GetSelectionSystem().GetOnSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
-                                                                      { gizmo->SetTarget(unit); });
+    gEditor->GetSelectionSystem().GetOnActiveSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
+                                                                            { gizmo->SetTarget(unit); });
 
     renderer.GetObjectIdReadbackRay().Register(this, [this](const Render::ObjectIdReadbackResult& result)
-                                               { selectionSystem.SelectUnit(pickSystem->FindTarget(result.objectId)); });
+                                               { selectionSystem.SetSelection(pickSystem->FindTarget(result.objectId)); });
 
     auto gizmoButtons = toolbar->GetGizmoModeButtons();
     for (size_t i = 0; i < gizmoButtons.size(); ++i)
@@ -120,7 +120,7 @@ ViewportPanel::ViewportPanel()
 ViewportPanel::~ViewportPanel()
 {
     renderer.GetObjectIdReadbackRay().UnregisterAll(this);
-    selectionSystem.GetOnSelectionChangedRay().UnregisterAll(this);
+    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
 
     if (pickSystem)
     {

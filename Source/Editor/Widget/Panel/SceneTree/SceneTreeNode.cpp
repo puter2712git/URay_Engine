@@ -66,7 +66,7 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
                     "New Unit",
                     &unit);
 
-                selectionSystem->SelectUnit(createdUnit);
+                selectionSystem->SetSelection(createdUnit);
 
                 popupLayer.ClosePopup();
             });
@@ -79,7 +79,7 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
     if (event.changedButton == MouseButton::Left)
     {
-        selectionSystem->SelectUnit(&unit);
+        selectionSystem->SetSelection(&unit);
 
         return EventReply{
             .handled = true,
@@ -94,7 +94,7 @@ void SceneTreeNode::OnUpdate(float deltaTime)
 {
     Color surfaceColor = EditorStyle::Surface;
 
-    if (selectionSystem->GetSelectedUnit() == &unit)
+    if (selectionSystem->GetActiveUnit() == &unit)
     {
         surfaceColor = EditorStyle::ControlPressed;
     }

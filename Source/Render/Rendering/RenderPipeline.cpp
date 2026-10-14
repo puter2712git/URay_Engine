@@ -224,14 +224,14 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     builder->FlushUI(*request.uiDrawContext);
 
-    if (request.selectedUnit)
+    for (Unit* selectedUnit : request.selectedUnits)
     {
         for (RenderScene* scene : request.scenes)
         {
             if (!scene)
                 continue;
 
-            for (RenderObject* renderObject : scene->GetObjects(request.selectedUnit))
+            for (RenderObject* renderObject : scene->GetObjects(selectedUnit))
             {
                 if (!renderObject || !renderObject->IsEnabled())
                     continue;
