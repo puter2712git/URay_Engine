@@ -53,8 +53,29 @@ ViewportPanel::ViewportPanel()
     gEditor->GetSelectionSystem().GetOnActiveSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
                                                                             { gizmo->SetTarget(unit); });
 
-    renderer.GetObjectIdReadbackRay().Register(this, [this](const Render::ObjectIdReadbackResult& result)
-                                               { selectionSystem.SetSelection(pickSystem->FindTarget(result.objectId)); });
+    renderer.GetObjectIdReadbackRay().Register(
+        this,
+        [this](const Render::ObjectIdReadbackResult& result)
+        {
+            if (!pendingSelectionRequest || pendingSelectionRequest->requestId != result.requestId)
+                return;
+
+            const SelectionOperation operation = pendingSelectionRequest->operation;
+
+            pendingSelectionRequest.reset();
+
+            Unit* unit = pickSystem->FindTarget(result.objectId);
+
+            if (operation == SelectionOperation::Toggle)
+            {
+                if (unit)
+                    selectionSystem.ToggleSelection(unit);
+
+                return;
+            }
+
+            selectionSystem.SetSelection(unit);
+        });
 
     auto gizmoButtons = toolbar->GetGizmoModeButtons();
     for (size_t i = 0; i < gizmoButtons.size(); ++i)
@@ -172,6 +193,23 @@ EventReply ViewportPanel::OnPointerDown(const PointerEvent& event)
         }
         else
         {
+            const bool isToggleSelection = (event.modifiers & ModifierKey::Ctrl) != ModifierKey::None;
+
+            const std::optional<uint64> requestId =
+                renderer.GetObjectIdReadback().Request(
+                    static_cast<uint32>(targetPosition->x),
+                    static_cast<uint32>(targetPosition->y));
+
+            if (requestId)
+            {
+                pendingSelectionRequest = PendingSelectionRequest{
+                    .requestId = *requestId,
+                    .operation = isToggleSelection
+                                     ? SelectionOperation::Toggle
+                                     : SelectionOperation::Replace
+                };
+            }
+
             renderer.GetObjectIdReadback().Request(
                 static_cast<uint32>(targetPosition->x),
                 static_cast<uint32>(targetPosition->y));

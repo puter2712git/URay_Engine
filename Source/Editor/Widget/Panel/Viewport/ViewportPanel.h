@@ -1,13 +1,11 @@
 #pragma once
 
-#include <Editor/Widget/Panel/Panel.h>
-
-#include <Core/Ray/EventRay.h>
-
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
-
+#include <Core/Ray/EventRay.h>
+#include <Core/Type/Types.h>
+#include <Editor/Widget/Panel/Panel.h>
 #include <Render/Rendering/View/ViewMode.h>
 
 #include <functional>
@@ -59,6 +57,19 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
+    enum class SelectionOperation
+    {
+        Replace,
+        Toggle
+    };
+
+    struct PendingSelectionRequest
+    {
+        uint64 requestId = 0;
+        SelectionOperation operation = SelectionOperation::Replace;
+    };
+
+private:
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
 
     void CycleGizmoMode();
@@ -77,6 +88,7 @@ private:
     std::unique_ptr<PickSystem> pickSystem = nullptr;
 
     SelectionSystem& selectionSystem;
+    std::optional<PendingSelectionRequest> pendingSelectionRequest = std::nullopt;
 
     Rect imageRect = {};
     Extent2D targetExtent = {};
