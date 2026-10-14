@@ -1,8 +1,5 @@
 #include "AssetPickerPopup.h"
 
-#include <Editor/Widget/Element/Button.h>
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -15,62 +12,22 @@ namespace URay
 
 AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
 {
-    layout = AddChild<VerticalLayout>();
-    layout->SetGap(2.0f);
-    layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
-
-    Render::TextStyle labelStyle = EditorStyle::SmallText();
-
-    Button* noneButton = layout->AddChild<Button>("None");
-    Label* buttonLabel = Cast<Label>(noneButton->GetChildren()[0].get());
-    buttonLabel->SetTextStyle(labelStyle);
-    noneButton->SetPreferredHeight(18.0f);
-    noneButton->GetOnClickRay().Register(
-        this,
-        [this]
-        {
-            valueSelectedRay.Emit(AssetHandle{});
-        });
+    AddMenuItem("<Null>", [this]
+                { valueSelectedRay.Emit(AssetHandle{}); });
 
     AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
     std::vector<Asset*> assets = database.GetAssets(assetClass);
 
-    std::sort(
-        assets.begin(),
-        assets.end(),
-        [](const Asset* lhs, const Asset* rhs)
-        {
-            return lhs->GetName() < rhs->GetName();
-        });
+    std::sort(assets.begin(), assets.end(), [](const Asset* lhs, const Asset* rhs)
+              { return lhs->GetName() < rhs->GetName(); });
 
     for (Asset* asset : assets)
     {
-        Button* button = layout->AddChild<Button>(asset->GetName());
-        buttonLabel = Cast<Label>(button->GetChildren()[0].get());
-        buttonLabel->SetTextStyle(labelStyle);
-        button->SetPreferredHeight(18.0f);
-
         const AssetHandle handle = asset->GetHandle();
 
-        button->GetOnClickRay().Register(
-            this,
-            [this, handle]
-            {
-                valueSelectedRay.Emit(handle);
-            });
+        AddMenuItem(asset->GetName(), [this, handle]
+                    { valueSelectedRay.Emit(handle); });
     }
-}
-
-void AssetPickerPopup::Arrange(const Rect& rect)
-{
-    Widget::Arrange(rect);
-
-    layout->Arrange(rect);
-}
-
-Vector2 AssetPickerPopup::OnMeasure()
-{
-    return layout->GetDesiredSize();
 }
 
 } // namespace URay

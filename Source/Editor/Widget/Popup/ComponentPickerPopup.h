@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Ray/EventRay.h>
-#include <Editor/Widget/Widget.h>
+#include <Editor/Widget/Popup/PopupMenu.h>
 #include <Engine/Asset/Asset.h>
 
 #include <string>
@@ -10,9 +10,6 @@ namespace URay
 {
 
 class Unit;
-class Surface;
-class VerticalLayout;
-class Button;
 
 enum class ComponentPickerItemKind
 {
@@ -27,23 +24,15 @@ struct ComponentPickerSelection
     AssetHandle scriptHandle = {};
 };
 
-class ComponentPickerPopup final : public Widget
+class ComponentPickerPopup final : public PopupMenu
 {
 public:
     explicit ComponentPickerPopup(const Unit& unit);
 
 public:
-    void Arrange(const Rect& rect) override;
-
     EventRay<const ComponentPickerSelection&>& GetComponentSelectedRay() { return componentSelectedRay; }
 
-protected:
-    Vector2 OnMeasure() override;
-
 private:
-    Surface* surface = nullptr;
-    VerticalLayout* layout = nullptr;
-
     EventRay<const ComponentPickerSelection&> componentSelectedRay;
 };
 
