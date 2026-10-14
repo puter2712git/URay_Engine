@@ -3,6 +3,8 @@
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 
+#include <algorithm>
+
 namespace URay
 {
 
@@ -27,18 +29,104 @@ void SelectionSystem::Finalize()
     sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
 }
 
-void SelectionSystem::SelectUnit(Unit* unit)
+void SelectionSystem::SetSelection(Unit* unit)
 {
-    Unit* previousUnit = selectedUnit;
-    selectedUnit = unit;
-    onSelectionChangedRay.Emit(previousUnit, selectedUnit);
+    const bool alreadyOnlySelected =
+        selectedUnits.size() == (unit ? 1u : 0u) &&
+        (!unit || selectedUnits.front() == unit) &&
+        activeUnit == unit;
+
+    if (alreadyOnlySelected)
+        return;
+
+    Unit* previousActive = activeUnit;
+
+    selectedUnits.clear();
+
+    if (unit)
+        selectedUnits.push_back(unit);
+
+    activeUnit = unit;
+
+    NotifySelectionChanged(previousActive);
+}
+
+void SelectionSystem::ToggleSelection(Unit* unit)
+{
+    if (!unit)
+        return;
+
+    const auto it = std::find(selectedUnits.begin(), selectedUnits.end(), unit);
+
+    Unit* previousActive = activeUnit;
+
+    if (it == selectedUnits.end())
+    {
+        selectedUnits.push_back(unit);
+        activeUnit = unit;
+    }
+    else
+    {
+        selectedUnits.erase(it);
+
+        if (activeUnit == unit)
+        {
+            activeUnit = selectedUnits.empty()
+                             ? nullptr
+                             : selectedUnits.back();
+        }
+    }
+
+    NotifySelectionChanged(previousActive);
+}
+
+void SelectionSystem::ClearSelection()
+{
+    if (selectedUnits.empty() && !activeUnit)
+        return;
+
+    Unit* previousActive = activeUnit;
+
+    selectedUnits.clear();
+    activeUnit = nullptr;
+
+    NotifySelectionChanged(previousActive);
+}
+
+bool SelectionSystem::IsSelected(const Unit* unit) const
+{
+    const auto it = std::find(selectedUnits.begin(), selectedUnits.end(), unit);
+    return it != selectedUnits.end();
 }
 
 void SelectionSystem::OnUnitRemoved(Scene* scene, Unit* unit)
 {
-    if (unit == selectedUnit)
+    const auto it = std::find(selectedUnits.begin(), selectedUnits.end(), unit);
+
+    if (it == selectedUnits.end())
+        return;
+
+    Unit* previousActive = activeUnit;
+
+    selectedUnits.erase(it);
+
+    if (activeUnit == unit)
     {
-        SelectUnit(nullptr);
+        activeUnit = selectedUnits.empty()
+                         ? nullptr
+                         : selectedUnits.back();
+    }
+
+    NotifySelectionChanged(previousActive);
+}
+
+void SelectionSystem::NotifySelectionChanged(Unit* previousActive)
+{
+    onSelectionSetChangedRay.Emit();
+
+    if (previousActive != activeUnit)
+    {
+        onActiveSelectionChangedRay.Emit(previousActive, activeUnit);
     }
 }
 

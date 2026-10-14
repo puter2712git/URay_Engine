@@ -2,6 +2,8 @@
 
 #include <Core/Ray/EventRay.h>
 
+#include <vector>
+
 namespace URay
 {
 
@@ -18,18 +20,28 @@ public:
     bool Initialize();
     void Finalize();
 
-    void SelectUnit(Unit* unit);
+    void SetSelection(Unit* unit);
+    void ToggleSelection(Unit* unit);
+    void ClearSelection();
 
-    EventRay<Unit*, Unit*>& GetOnSelectionChangedRay() { return onSelectionChangedRay; }
-    Unit* GetSelectedUnit() const { return selectedUnit; }
+    bool IsSelected(const Unit* unit) const;
+
+    EventRay<>& GetOnSelectionSetChangedRay() { return onSelectionSetChangedRay; }
+    EventRay<Unit*, Unit*>& GetOnActiveSelectionChangedRay() { return onActiveSelectionChangedRay; }
+
+    const std::vector<Unit*>& GetSelectedUnits() const { return selectedUnits; }
+    Unit* GetActiveUnit() const { return activeUnit; }
 
 private:
     void OnUnitRemoved(Scene* scene, Unit* unit);
+    void NotifySelectionChanged(Unit* previousActive);
 
 private:
-    EventRay<Unit*, Unit*> onSelectionChangedRay;
+    EventRay<> onSelectionSetChangedRay;
+    EventRay<Unit*, Unit*> onActiveSelectionChangedRay;
 
-    Unit* selectedUnit = nullptr;
+    std::vector<Unit*> selectedUnits;
+    Unit* activeUnit = nullptr;
 };
 
 } // namespace URay
