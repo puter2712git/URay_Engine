@@ -8,6 +8,7 @@
 #include <Editor/Widget/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
 #include <Editor/Widget/WidgetSystem.h>
+#include <Engine/Scene/Scene.h>
 
 #include <Engine/Scene/Unit.h>
 
@@ -44,7 +45,31 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
     if (event.changedButton == MouseButton::Right)
     {
         PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
-        popupLayer.OpenPopup<UnitPopup>(event.position);
+        UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
+
+        popup->GetUnitSelectedRay().Register(
+            popup,
+            [this, &popupLayer](UnitPopupSelection selection)
+            {
+                if (selection != UnitPopupSelection::EmptyUnit)
+                    return;
+
+                Scene* scene = unit.GetOwner();
+
+                if (!scene)
+                {
+                    popupLayer.ClosePopup();
+                    return;
+                }
+
+                Unit* createdUnit = scene->CreateEmptyUnit(
+                    "New Unit",
+                    &unit);
+
+                selectionSystem->SelectUnit(createdUnit);
+
+                popupLayer.ClosePopup();
+            });
 
         return EventReply{
             .handled = true,
