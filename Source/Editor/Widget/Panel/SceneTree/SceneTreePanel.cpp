@@ -25,6 +25,7 @@ SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
 
     layout = AddChild<VerticalLayout>();
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
+    layout->SetGap(1.0f);
 
     sceneSystem->GetUnitAddRay().Register(this, [this](Scene*, Unit*)
                                           { isTreeDirty = true; });

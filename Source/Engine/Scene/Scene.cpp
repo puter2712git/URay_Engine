@@ -260,6 +260,20 @@ void Scene::DestroyUnit(Unit* unit)
     if (it == units.end())
         return;
 
+    const std::vector<Unit*> children = unit->GetChildren();
+
+    for (Unit* child : children)
+    {
+        DestroyUnit(child);
+    }
+
+    it = std::find_if(units.begin(), units.end(),
+                      [unit](const std::unique_ptr<Unit>& candidate)
+                      { return candidate.get() == unit; });
+
+    if (it == units.end())
+        return;
+
     Unit* targetUnit = it->get();
     targetUnit->SetParent(nullptr);
 

@@ -30,6 +30,8 @@
 #include <Render/Rendering/Scene/SceneSystem.h>
 
 #include <memory>
+#include <unordered_set>
+#include <vector>
 
 namespace URay
 {
@@ -241,7 +243,7 @@ void Editor::ProcessInputActions()
 
     if (wasPressed(EditorInputAction::DeleteSelection))
     {
-        DeleteSelectedUnit();
+        DeleteSelectedUnits();
     }
 }
 
@@ -300,16 +302,54 @@ void Editor::OpenSaveSceneDialog()
         } });
 }
 
-void Editor::DeleteSelectedUnit()
+void Editor::DeleteSelectedUnits()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
-    Unit* activeUnit = selectionSystem->GetActiveUnit();
 
-    if (!scene || !activeUnit)
+    if (!scene)
         return;
 
-    scene->DestroyUnit(activeUnit);
+    const std::vector<Unit*> selectedUnits = selectionSystem->GetSelectedUnits();
+
+    std::unordered_set<Unit*> selectedGameUnits;
+
+    for (Unit* unit : selectedUnits)
+    {
+        if (!unit || unit->GetOwner() != scene)
+            continue;
+
+        selectedGameUnits.insert(unit);
+    }
+
+    std::vector<Unit*> selectedRoots;
+
+    for (Unit* unit : selectedUnits)
+    {
+        if (!selectedGameUnits.contains(unit))
+            continue;
+
+        bool hasSelectedAncestor = false;
+
+        for (Unit* ancestor = unit->GetParent(); ancestor; ancestor = ancestor->GetParent())
+        {
+            if (selectedGameUnits.contains(ancestor))
+            {
+                hasSelectedAncestor = true;
+                break;
+            }
+        }
+
+        if (!hasSelectedAncestor)
+        {
+            selectedRoots.push_back(unit);
+        }
+    }
+
+    for (Unit* root : selectedRoots)
+    {
+        scene->DestroyUnit(root);
+    }
 }
 
 void Editor::PrepareRender()

@@ -49,7 +49,7 @@ private:
     bool SaveSceneToPath(Scene& scene, const VirtualPath& path);
     void OpenSaveSceneDialog();
 
-    void DeleteSelectedUnit();
+    void DeleteSelectedUnits();
 
 private:
     CameraComponent* editorCamera = nullptr;

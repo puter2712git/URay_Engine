@@ -94,7 +94,7 @@ void SceneTreeNode::OnUpdate(float deltaTime)
 {
     Color surfaceColor = EditorStyle::Surface;
 
-    if (selectionSystem->GetActiveUnit() == &unit)
+    if (selectionSystem->IsSelected(&unit))
     {
         surfaceColor = EditorStyle::ControlPressed;
     }
