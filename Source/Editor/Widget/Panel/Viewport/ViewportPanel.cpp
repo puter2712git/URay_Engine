@@ -50,8 +50,13 @@ ViewportPanel::ViewportPanel()
 
     editorCamera = std::make_unique<EditorCamera>();
 
-    gEditor->GetSelectionSystem().GetOnActiveSelectionChangedRay().Register(this, [this](Unit*, Unit* unit)
-                                                                            { gizmo->SetTarget(unit); });
+    selectionSystem.GetOnSelectionSetChangedRay().Register(
+        this,
+        [this]()
+        {
+            gizmo->SetTargets(selectionSystem.GetSelectedUnits(), selectionSystem.GetActiveUnit());
+        });
+    gizmo->SetTargets(selectionSystem.GetSelectedUnits(), selectionSystem.GetActiveUnit());
 
     renderer.GetObjectIdReadbackRay().Register(
         this,
@@ -141,7 +146,7 @@ ViewportPanel::ViewportPanel()
 ViewportPanel::~ViewportPanel()
 {
     renderer.GetObjectIdReadbackRay().UnregisterAll(this);
-    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
+    selectionSystem.GetOnSelectionSetChangedRay().UnregisterAll(this);
 
     if (pickSystem)
     {
@@ -209,10 +214,6 @@ EventReply ViewportPanel::OnPointerDown(const PointerEvent& event)
                                      : SelectionOperation::Replace
                 };
             }
-
-            renderer.GetObjectIdReadback().Request(
-                static_cast<uint32>(targetPosition->x),
-                static_cast<uint32>(targetPosition->y));
         }
     }
 

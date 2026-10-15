@@ -4,9 +4,12 @@
 
 #include <Core/Math/Vector3.h>
 
+#include <vector>
+
 namespace URay
 {
 class TransformGizmo;
+class TransformComponent;
 
 class RotationGizmoStrategy final : public GizmoStrategy
 {
@@ -16,9 +19,17 @@ public:
     void UpdateHandles(const Matrix& gizmoWorld) override;
     void StartDragging(const Vector2& position, GizmoHandleId handleId, const CameraComponent& camera) override;
     void UpdateDragging(const Vector2& position, const CameraComponent& camera) override;
-    void EndDragging() override { selectedHandle = GizmoHandleId::None; }
+    void EndDragging() override;
 
 private:
+    struct TargetState
+    {
+        TransformComponent* transform = nullptr;
+        Vector3 initialWorldPosition = Vector3::Zero;
+        Vector3 initialLocalRotation = Vector3::Zero;
+        Vector3 initialWorldRotation = Vector3::Zero;
+    };
+
     Matrix GetAxisRotationMatrix(GizmoHandleId selectedHandle, float angle);
 
 private:
@@ -26,9 +37,9 @@ private:
     GizmoHandleId selectedHandle = GizmoHandleId::None;
     Vector3 startWorldPosition = Vector3::Zero;
     Vector3 startLineDirection = Vector3::Forward;
-    Vector3 targetInitWorldPosition = Vector3::Zero;
-    Vector3 targetInitLocalRotation = Vector3::Zero;
-    Vector3 targetInitWorldRotation = Vector3::Zero;
+    Vector3 pivotPosition = Vector3::Zero;
+    Vector3 activeInitWorldRotation = Vector3::Zero;
     Vector3 axisDirection = Vector3::Forward;
+    std::vector<TargetState> targets;
 };
 } // namespace URay

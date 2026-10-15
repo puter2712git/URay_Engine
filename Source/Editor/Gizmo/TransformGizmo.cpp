@@ -20,6 +20,7 @@
 #include <Render/Rendering/Scene/SceneSystem.h>
 
 #include <algorithm>
+#include <unordered_set>
 
 namespace URay
 {
@@ -44,14 +45,67 @@ TransformGizmo::TransformGizmo()
 
 TransformGizmo::~TransformGizmo() = default;
 
-TransformComponent* TransformGizmo::GetTargetTransform()
+void TransformGizmo::SetTargets(const std::vector<Unit*>& units, Unit* newActiveUnit)
 {
-    return targetUnit ? targetUnit->GetTransform() : nullptr;
+    if (dragging)
+        EndDragging();
+
+    selectedUnits = units;
+    activeUnit = newActiveUnit;
 }
 
-const TransformComponent* TransformGizmo::GetTargetTransform() const
+TransformComponent* TransformGizmo::GetActiveTransform()
 {
-    return targetUnit ? targetUnit->GetTransform() : nullptr;
+    return activeUnit ? activeUnit->GetTransform() : nullptr;
+}
+
+const TransformComponent* TransformGizmo::GetActiveTransform() const
+{
+    return activeUnit ? activeUnit->GetTransform() : nullptr;
+}
+
+std::vector<TransformComponent*> TransformGizmo::GetTargetTransforms() const
+{
+    std::unordered_set<Unit*> selectedSet;
+    selectedSet.reserve(selectedUnits.size());
+    for (Unit* unit : selectedUnits)
+        if (unit)
+            selectedSet.insert(unit);
+
+    std::vector<TransformComponent*> transforms;
+    transforms.reserve(selectedSet.size());
+    for (Unit* unit : selectedUnits)
+    {
+        if (!unit)
+            continue;
+
+        bool hasSelectedAncestor = false;
+        for (Unit* ancestor = unit->GetParent(); ancestor; ancestor = ancestor->GetParent())
+        {
+            if (selectedSet.contains(ancestor))
+            {
+                hasSelectedAncestor = true;
+                break;
+            }
+        }
+
+        if (!hasSelectedAncestor)
+            if (TransformComponent* transform = unit->GetTransform())
+                transforms.push_back(transform);
+    }
+    return transforms;
+}
+
+Vector3 TransformGizmo::GetPivotPosition() const
+{
+    const std::vector<TransformComponent*> transforms = GetTargetTransforms();
+    if (transforms.empty())
+        return Vector3::Zero;
+
+    Vector3 position = Vector3::Zero;
+    for (const TransformComponent* transform : transforms)
+        position = position + transform->GetWorldPosition();
+    return position / static_cast<float>(transforms.size());
 }
 
 void TransformGizmo::SetMode(GizmoMode newMode)
@@ -69,7 +123,7 @@ GizmoMode TransformGizmo::GetMode() const
 
 void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
 {
-    if (!targetUnit || !GetTargetTransform())
+    if (!HasTargets() || !GetActiveTransform())
     {
         if (renderObject)
             renderObject->SetEnabled(false);
@@ -78,10 +132,10 @@ void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
 
     UpdateDragging(position, camera);
 
-    const Vector3 targetPosition = GetTargetTransform()->GetWorldPosition();
-    const Vector3 targetRotation = GetTargetTransform()->GetWorldRotation();
+    const Vector3 targetPosition = GetPivotPosition();
+    const Vector3 targetRotation = GetActiveTransform()->GetWorldRotation();
 
-    const float distance = (camera.GetOwner()->GetTransform()->GetWorldPosition() - GetTargetTransform()->GetWorldPosition()).GetLength();
+    const float distance = (camera.GetOwner()->GetTransform()->GetWorldPosition() - targetPosition).GetLength();
     const float scale = std::clamp(distance * scaleFactor, minScale, maxScale);
 
     if (isLocal || GetMode() == GizmoMode::Scale)

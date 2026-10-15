@@ -45,15 +45,21 @@ void ScaleGizmoStrategy::UpdateHandles(const Matrix& world)
 
 void ScaleGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId id, const CameraComponent& camera)
 {
-    TransformComponent* transform = gizmo.GetTargetTransform();
+    TransformComponent* transform = gizmo.GetActiveTransform();
     TransformComponent* cameraTransform = camera.GetOwner() ? camera.GetOwner()->GetTransform() : nullptr;
     if (!transform || !cameraTransform)
         return;
     selectedHandle = id;
     startWorldPosition = cameraTransform->GetWorldPosition();
     startLineDirection = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition;
-    targetInitWorldPosition = transform->GetWorldPosition();
-    targetInitScale = transform->GetLocalScale();
+    targets.clear();
+    for (TransformComponent* target : gizmo.GetTargetTransforms())
+        targets.push_back({ .transform = target, .initialWorldPosition = target->GetWorldPosition(), .initialLocalScale = target->GetLocalScale() });
+    if (targets.empty())
+        return;
+
+    pivotPosition = gizmo.GetPivotPosition();
+    activeInitScale = transform->GetLocalScale();
 
     xAxis = transform->GetWorldRight();
     yAxis = transform->GetWorldForward();
@@ -89,12 +95,11 @@ void ScaleGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId id
 
 void ScaleGizmoStrategy::UpdateDragging(const Vector2& position, const CameraComponent& camera)
 {
-    TransformComponent* transform = gizmo.GetTargetTransform();
-    if (!transform)
+    if (targets.empty())
         return;
     Vector3 startHit, currentHit;
-    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitWorldPosition, planeNormal, startHit) ||
-        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, targetInitWorldPosition, planeNormal, currentHit))
+    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, pivotPosition, planeNormal, startHit) ||
+        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, pivotPosition, planeNormal, currentHit))
         return;
     const Vector3 delta = currentHit - startHit;
     float amount = 0.0f;
@@ -108,13 +113,38 @@ void ScaleGizmoStrategy::UpdateDragging(const Vector2& position, const CameraCom
         amount = (Vector3::Dot(delta, xAxis) + Vector3::Dot(delta, yAxis) + Vector3::Dot(delta, zAxis)) / 3.0f;
 
     constexpr float minimumScale = 0.01f;
-    Vector3 scale = targetInitScale;
+    Vector3 activeScale = activeInitScale;
     if (selectedHandle == GizmoHandleId::X || selectedHandle == GizmoHandleId::XY || selectedHandle == GizmoHandleId::XZ || selectedHandle == GizmoHandleId::XYZ)
-        scale.x = std::max(minimumScale, targetInitScale.x + amount);
+        activeScale.x = std::max(minimumScale, activeInitScale.x + amount);
     if (selectedHandle == GizmoHandleId::Y || selectedHandle == GizmoHandleId::XY || selectedHandle == GizmoHandleId::YZ || selectedHandle == GizmoHandleId::XYZ)
-        scale.y = std::max(minimumScale, targetInitScale.y + amount);
+        activeScale.y = std::max(minimumScale, activeInitScale.y + amount);
     if (selectedHandle == GizmoHandleId::Z || selectedHandle == GizmoHandleId::XZ || selectedHandle == GizmoHandleId::YZ || selectedHandle == GizmoHandleId::XYZ)
-        scale.z = std::max(minimumScale, targetInitScale.z + amount);
-    transform->SetLocalScale(scale);
+        activeScale.z = std::max(minimumScale, activeInitScale.z + amount);
+
+    const Vector3 factors(
+        activeInitScale.x != 0.0f ? activeScale.x / activeInitScale.x : 1.0f,
+        activeInitScale.y != 0.0f ? activeScale.y / activeInitScale.y : 1.0f,
+        activeInitScale.z != 0.0f ? activeScale.z / activeInitScale.z : 1.0f);
+
+    for (const TargetState& target : targets)
+    {
+        const Vector3 offset = target.initialWorldPosition - pivotPosition;
+        const Vector3 scaledOffset =
+            xAxis * Vector3::Dot(offset, xAxis) * factors.x +
+            yAxis * Vector3::Dot(offset, yAxis) * factors.y +
+            zAxis * Vector3::Dot(offset, zAxis) * factors.z;
+
+        target.transform->SetWorldPosition(pivotPosition + scaledOffset);
+        target.transform->SetLocalScale(Vector3(
+            std::max(minimumScale, target.initialLocalScale.x * factors.x),
+            std::max(minimumScale, target.initialLocalScale.y * factors.y),
+            std::max(minimumScale, target.initialLocalScale.z * factors.z)));
+    }
+}
+
+void ScaleGizmoStrategy::EndDragging()
+{
+    selectedHandle = GizmoHandleId::None;
+    targets.clear();
 }
 } // namespace URay

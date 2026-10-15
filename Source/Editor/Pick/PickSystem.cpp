@@ -131,10 +131,10 @@ PickResult PickSystem::Pick(
 
 bool PickSystem::PickGizmo(const Ray& worldRay, GizmoHandleId& outHandle) const
 {
-    if (!gizmo.GetTargetUnit())
+    if (!gizmo.HasTargets())
         return false;
 
-    const TransformComponent* targetTransform = gizmo.GetTargetTransform();
+    const TransformComponent* targetTransform = gizmo.GetActiveTransform();
     if (!targetTransform)
         return false;
 

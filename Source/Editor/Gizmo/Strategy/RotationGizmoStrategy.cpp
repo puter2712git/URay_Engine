@@ -28,16 +28,27 @@ void RotationGizmoStrategy::UpdateHandles(const Matrix& world)
 
 void RotationGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId id, const CameraComponent& camera)
 {
-    TransformComponent* transform = gizmo.GetTargetTransform();
+    TransformComponent* transform = gizmo.GetActiveTransform();
     TransformComponent* cameraTransform = camera.GetOwner() ? camera.GetOwner()->GetTransform() : nullptr;
     if (!transform || !cameraTransform)
         return;
     selectedHandle = id;
     startWorldPosition = cameraTransform->GetWorldPosition();
     startLineDirection = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition;
-    targetInitWorldPosition = transform->GetWorldPosition();
-    targetInitLocalRotation = transform->GetLocalRotation();
-    targetInitWorldRotation = transform->GetWorldRotation();
+    targets.clear();
+    for (TransformComponent* target : gizmo.GetTargetTransforms())
+    {
+        targets.push_back({
+            .transform = target,
+            .initialWorldPosition = target->GetWorldPosition(),
+            .initialLocalRotation = target->GetLocalRotation(),
+            .initialWorldRotation = target->GetWorldRotation() });
+    }
+    if (targets.empty())
+        return;
+
+    pivotPosition = gizmo.GetPivotPosition();
+    activeInitWorldRotation = transform->GetWorldRotation();
 
     if (gizmo.IsLocal())
     {
@@ -73,38 +84,51 @@ void RotationGizmoStrategy::StartDragging(const Vector2& position, GizmoHandleId
 
 void RotationGizmoStrategy::UpdateDragging(const Vector2& position, const CameraComponent& camera)
 {
-    TransformComponent* transform = gizmo.GetTargetTransform();
-    if (!transform)
+    if (targets.empty())
         return;
 
     Vector3 startHit, currentHit;
-    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitWorldPosition, axisDirection, startHit) ||
-        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, targetInitWorldPosition, axisDirection, currentHit))
+    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, pivotPosition, axisDirection, startHit) ||
+        !Math::IntersectLinePlane(startWorldPosition, camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f)) - startWorldPosition, pivotPosition, axisDirection, currentHit))
         return;
 
-    const Vector3 a = (startHit - targetInitWorldPosition).GetNormalized();
-    const Vector3 b = (currentHit - targetInitWorldPosition).GetNormalized();
+    const Vector3 a = (startHit - pivotPosition).GetNormalized();
+    const Vector3 b = (currentHit - pivotPosition).GetNormalized();
     if (a.GetSquaredLength() < Math::EPSILON || b.GetSquaredLength() < Math::EPSILON)
         return;
 
     const float angle = Math::RadToDeg(std::atan2(Vector3::Dot(axisDirection, Vector3::Cross(a, b)), Vector3::Dot(a, b)));
 
     const Matrix delta = GetAxisRotationMatrix(selectedHandle, angle);
-
+    Matrix worldDelta = delta;
     if (gizmo.IsLocal())
     {
-        const Matrix initialLocal = Matrix::MakeRotation(targetInitLocalRotation);
-        const Matrix resultLocal = delta * initialLocal;
-
-        transform->SetLocalRotation(resultLocal.GetRotation());
+        const Matrix activeRotation = Matrix::MakeRotation(activeInitWorldRotation);
+        worldDelta = activeRotation.Inverse() * delta * activeRotation;
     }
-    else
+
+    for (const TargetState& target : targets)
     {
-        const Matrix initialWorld = Matrix::MakeRotation(targetInitWorldRotation);
-        const Matrix resultWorld = initialWorld * delta;
+        const Vector3 rotatedOffset = worldDelta.TransformVector(target.initialWorldPosition - pivotPosition);
+        target.transform->SetWorldPosition(pivotPosition + rotatedOffset);
 
-        transform->SetWorldRotation(resultWorld.GetRotation());
+        if (gizmo.IsLocal())
+        {
+            const Matrix initialLocal = Matrix::MakeRotation(target.initialLocalRotation);
+            target.transform->SetLocalRotation((delta * initialLocal).GetRotation());
+        }
+        else
+        {
+            const Matrix initialWorld = Matrix::MakeRotation(target.initialWorldRotation);
+            target.transform->SetWorldRotation((initialWorld * delta).GetRotation());
+        }
     }
+}
+
+void RotationGizmoStrategy::EndDragging()
+{
+    selectedHandle = GizmoHandleId::None;
+    targets.clear();
 }
 
 Matrix RotationGizmoStrategy::GetAxisRotationMatrix(GizmoHandleId handleId, float angle)

@@ -4,10 +4,13 @@
 
 #include <Core/Math/Vector3.h>
 
+#include <vector>
+
 namespace URay
 {
 
 class TransformGizmo;
+class TransformComponent;
 
 class TranslationGizmoStrategy final : public GizmoStrategy
 {
@@ -23,11 +26,18 @@ public:
     void EndDragging() override;
 
 private:
+    struct TargetState
+    {
+        TransformComponent* transform = nullptr;
+        Vector3 initialWorldPosition = Vector3::Zero;
+    };
+
     TransformGizmo& gizmo;
 
     Vector3 startWorldPosition = Vector3::Zero;
     Vector3 startLineDirection = Vector3::Forward;
-    Vector3 targetInitWorldPosition = Vector3::Zero;
+    Vector3 pivotPosition = Vector3::Zero;
+    std::vector<TargetState> targets;
     GizmoHandleId selectedHandle = GizmoHandleId::None;
     Vector3 xAxis = Vector3::Right;
     Vector3 yAxis = Vector3::Forward;

@@ -68,12 +68,8 @@ void TranslationGizmoStrategy::StartDragging(
     GizmoHandleId handleId,
     const CameraComponent& camera)
 {
-    Unit* targetUnit = gizmo.GetTargetUnit();
-    if (!targetUnit)
-        return;
-
-    TransformComponent* targetTransform = targetUnit->GetTransform();
-    if (!targetTransform)
+    TransformComponent* activeTransform = gizmo.GetActiveTransform();
+    if (!activeTransform)
         return;
 
     Unit* cameraUnit = camera.GetOwner();
@@ -89,14 +85,20 @@ void TranslationGizmoStrategy::StartDragging(
 
     startWorldPosition = cameraTransform->GetWorldPosition();
     startLineDirection = farPosition - startWorldPosition;
-    targetInitWorldPosition = targetTransform->GetWorldPosition();
+    targets.clear();
+    for (TransformComponent* transform : gizmo.GetTargetTransforms())
+        targets.push_back({ .transform = transform, .initialWorldPosition = transform->GetWorldPosition() });
+    if (targets.empty())
+        return;
+
+    pivotPosition = gizmo.GetPivotPosition();
     selectedHandle = handleId;
 
     if (gizmo.IsLocal())
     {
-        xAxis = targetTransform->GetWorldRight();
-        yAxis = targetTransform->GetWorldForward();
-        zAxis = targetTransform->GetWorldUp();
+        xAxis = activeTransform->GetWorldRight();
+        yAxis = activeTransform->GetWorldForward();
+        zAxis = activeTransform->GetWorldUp();
     }
     else
     {
@@ -137,12 +139,7 @@ void TranslationGizmoStrategy::UpdateDragging(
     const Vector2& position,
     const CameraComponent& camera)
 {
-    Unit* targetUnit = gizmo.GetTargetUnit();
-    if (!targetUnit)
-        return;
-
-    TransformComponent* targetTransform = targetUnit->GetTransform();
-    if (!targetTransform)
+    if (targets.empty())
         return;
 
     Unit* cameraUnit = camera.GetOwner();
@@ -156,8 +153,8 @@ void TranslationGizmoStrategy::UpdateDragging(
     const Vector3 farPosition = camera.ScreenToWorld(Vector3(position.x, position.y, 1.0f));
     Vector3 startHit;
     Vector3 currentHit;
-    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, targetInitWorldPosition, planeNormal, startHit) ||
-        !Math::IntersectLinePlane(startWorldPosition, farPosition - startWorldPosition, targetInitWorldPosition, planeNormal, currentHit))
+    if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, pivotPosition, planeNormal, startHit) ||
+        !Math::IntersectLinePlane(startWorldPosition, farPosition - startWorldPosition, pivotPosition, planeNormal, currentHit))
         return;
 
     const Vector3 delta = currentHit - startHit;
@@ -189,12 +186,14 @@ void TranslationGizmoStrategy::UpdateDragging(
         return;
     }
 
-    targetTransform->SetWorldPosition(targetInitWorldPosition + move);
+    for (const TargetState& target : targets)
+        target.transform->SetWorldPosition(target.initialWorldPosition + move);
 }
 
 void TranslationGizmoStrategy::EndDragging()
 {
     selectedHandle = GizmoHandleId::None;
+    targets.clear();
 }
 
 } // namespace URay

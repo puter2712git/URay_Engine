@@ -27,10 +27,13 @@ public:
     ~TransformGizmo();
 
 public:
-    void SetTarget(Unit* unit) { targetUnit = unit; }
-    Unit* GetTargetUnit() const { return targetUnit; }
-    TransformComponent* GetTargetTransform();
-    const TransformComponent* GetTargetTransform() const;
+    void SetTargets(const std::vector<Unit*>& units, Unit* activeUnit);
+    bool HasTargets() const { return !selectedUnits.empty(); }
+    Unit* GetActiveUnit() const { return activeUnit; }
+    TransformComponent* GetActiveTransform();
+    const TransformComponent* GetActiveTransform() const;
+    std::vector<TransformComponent*> GetTargetTransforms() const;
+    Vector3 GetPivotPosition() const;
 
     void SetMode(GizmoMode newMode);
     GizmoMode GetMode() const;
@@ -63,7 +66,8 @@ private:
 
     bool isLocal = false;
 
-    Unit* targetUnit = nullptr;
+    std::vector<Unit*> selectedUnits;
+    Unit* activeUnit = nullptr;
     Material* material = nullptr;
     Render::GizmoObject* renderObject = nullptr;
 
