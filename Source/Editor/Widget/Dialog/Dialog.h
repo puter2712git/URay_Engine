@@ -23,6 +23,8 @@ public:
     EventRay<DialogResult>& GetClosedRay() { return closedRay; }
 
 protected:
+    std::optional<Rect> GetClipRect() const override { return rect; }
+
     virtual bool CanAccept() const { return true; }
 
 private:

@@ -23,7 +23,9 @@ void Widget::Update(float deltaTime)
 
 void Widget::Paint(Render::UIDrawContext& context)
 {
-    context.PushClipRect(rect);
+    const std::optional<Rect> clipRect = GetClipRect();
+    if (clipRect)
+        context.PushClipRect(*clipRect);
 
     OnPaint(context);
 
@@ -34,7 +36,8 @@ void Widget::Paint(Render::UIDrawContext& context)
 
     OnPaintForeground(context);
 
-    context.PopClipRect();
+    if (clipRect)
+        context.PopClipRect();
 }
 
 void Widget::AddChild(std::unique_ptr<Widget> child)

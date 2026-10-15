@@ -27,6 +27,8 @@ protected:
 
     void OnPaintForeground(Render::UIDrawContext& context) override {}
 
+    std::optional<Rect> GetClipRect() const override { return rect; }
+
 private:
     Widget* content = nullptr;
 

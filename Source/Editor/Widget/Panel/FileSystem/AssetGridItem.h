@@ -32,7 +32,10 @@ public:
 
 protected:
     Vector2 OnMeasure() override;
+
     void OnUpdate(float deltaTime) override;
+
+    std::optional<Rect> GetClipRect() const override { return rect; }
 
 private:
     AssetEntry entry = {};

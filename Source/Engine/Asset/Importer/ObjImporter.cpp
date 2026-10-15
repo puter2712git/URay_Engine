@@ -65,7 +65,7 @@ AssetMetadata OBJImporter::CreateMetadata(const VirtualPath& sourcePath) const
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
     ret.handle = AssetHandle::Generate();
-    ret.type = AssetType::Material;
+    ret.type = AssetType::Mesh;
     ret.sourcePath = sourcePath;
 
     const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);

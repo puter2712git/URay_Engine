@@ -21,6 +21,9 @@ public:
     PopupLayer& GetPopupLayer() const { return *popupLayer; }
     DialogLayer& GetDialogLayer() const { return *dialogLayer; }
 
+protected:
+    std::optional<Rect> GetClipRect() const override { return rect; }
+
 private:
     Widget* mainContent = nullptr;
     PopupLayer* popupLayer = nullptr;

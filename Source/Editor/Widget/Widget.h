@@ -101,6 +101,8 @@ protected:
     virtual void OnPaint(Render::UIDrawContext& context) {}
     virtual void OnPaintForeground(Render::UIDrawContext& context) {}
 
+    virtual std::optional<Rect> GetClipRect() const { return std::nullopt; }
+
 protected:
     Widget* parent = nullptr;
     std::vector<std::unique_ptr<Widget>> children;

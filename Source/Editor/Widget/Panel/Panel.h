@@ -43,6 +43,8 @@ protected:
     virtual void OnPaint(Render::UIDrawContext& context) override;
     virtual void OnPaintForeground(Render::UIDrawContext& context) override;
 
+    std::optional<Rect> GetClipRect() const override { return rect; }
+
 protected:
     PanelHeader* header = nullptr;
 
