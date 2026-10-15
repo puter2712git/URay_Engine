@@ -79,7 +79,16 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
     if (event.changedButton == MouseButton::Left)
     {
-        selectionSystem->SetSelection(&unit);
+        const bool isToggleSelection = (event.modifiers & ModifierKey::Ctrl) != ModifierKey::None;
+
+        if (isToggleSelection)
+        {
+            selectionSystem->ToggleSelection(&unit);
+        }
+        else
+        {
+            selectionSystem->SetSelection(&unit);
+        }
 
         return EventReply{
             .handled = true,
