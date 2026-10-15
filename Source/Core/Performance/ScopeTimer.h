@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Type/Types.h>
+
 #include <chrono>
 #include <string>
 
@@ -16,6 +18,9 @@ public:
 
 private:
     PerformanceAnalytics& analytics;
+
+    double startMs = 0.0;
+    uint32 depth = 0;
 
     std::string_view name;
     std::chrono::steady_clock::time_point begin;

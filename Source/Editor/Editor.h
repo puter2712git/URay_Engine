@@ -19,6 +19,7 @@ class InspectSystem;
 class PlaySession;
 class InputActionMap;
 class ViewportController;
+class PerformanceViewModel;
 
 class Editor
 {
@@ -44,6 +45,8 @@ public:
 
     PlaySession& GetPlaySession() const { return *playSession; }
 
+    const PerformanceViewModel& GetPerformanceViewModel() const { return *performanceViewModel; }
+
 private:
     CameraComponent& PrepareEditorScene();
     void ProcessInputActions();
@@ -53,6 +56,8 @@ private:
     void OpenSaveSceneDialog();
 
     void DeleteSelectedUnits();
+
+    void UpdatePerformanceViewModel();
 
 private:
     CameraComponent* editorCamera = nullptr;
@@ -69,6 +74,9 @@ private:
     bool useEditorCamera = false;
 
     std::unique_ptr<InputActionMap> inputActionMap = nullptr;
+
+    std::unique_ptr<PerformanceViewModel> performanceViewModel = nullptr;
+    uint64 lastProfileFrameNumber = 0;
 };
 
 extern Editor* gEditor;

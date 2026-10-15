@@ -159,16 +159,32 @@ void Renderer::Finalize()
 
 bool Renderer::BeginFrame()
 {
-    vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
+    URAY_PROFILE_SCOPE("Renderer::BeginFrame");
 
-    if (const auto result = objectIdReadback->ConsumeCompleted(currentFrame))
     {
-        objectIdReadbackRay.Emit(*result);
+        URAY_PROFILE_SCOPE("Renderer::WaitForInFlightFence");
+        vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
     }
 
-    ProcessPendingSceneRenderTargetResize();
+    {
+        URAY_PROFILE_SCOPE("Renderer::ConsumeObjectIdReadback");
 
-    VkResult result = swapChain->AcquireNextImage(frameResources[currentFrame].imageAvailableSemaphore, imageIndex);
+        if (const auto result = objectIdReadback->ConsumeCompleted(currentFrame))
+        {
+            objectIdReadbackRay.Emit(*result);
+        }
+    }
+
+    {
+        URAY_PROFILE_SCOPE("Renderer::ProcessPendingResize");
+        ProcessPendingSceneRenderTargetResize();
+    }
+
+    VkResult result = VK_SUCCESS;
+    {
+        URAY_PROFILE_SCOPE("Renderer::AcquireSwapChainImage");
+        result = swapChain->AcquireNextImage(frameResources[currentFrame].imageAvailableSemaphore, imageIndex);
+    }
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_NOT_READY)
     {
@@ -180,21 +196,38 @@ bool Renderer::BeginFrame()
         throw std::runtime_error("Failed to acquire swap chain image.");
     }
 
-    vkResetFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence);
+    {
+        URAY_PROFILE_SCOPE("Renderer::ResetInFlightFence");
+        vkResetFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence);
+    }
 
-    if (!frameResources[currentFrame].commandBuffer->Reset())
-        return false;
+    {
+        URAY_PROFILE_SCOPE("Renderer::ResetCommandBuffer");
 
-    if (!frameResources[currentFrame].commandBuffer->Begin(CommandBufferUsage::None))
-        return false;
+        if (!frameResources[currentFrame].commandBuffer->Reset())
+            return false;
+    }
+
+    {
+        URAY_PROFILE_SCOPE("Renderer::BeginCommandBuffer");
+
+        if (!frameResources[currentFrame].commandBuffer->Begin(CommandBufferUsage::None))
+            return false;
+    }
 
     return true;
 }
 
 void Renderer::EndFrame()
 {
-    if (!frameResources[currentFrame].commandBuffer->End())
-        return;
+    URAY_PROFILE_SCOPE("Renderer::EndFrame");
+
+    {
+        URAY_PROFILE_SCOPE("Renderer::EndCommandBuffer");
+
+        if (!frameResources[currentFrame].commandBuffer->End())
+            return;
+    }
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -213,8 +246,12 @@ void Renderer::EndFrame()
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
-    if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, frameResources[currentFrame].inFlightFence) != VK_SUCCESS)
-        return;
+    {
+        URAY_PROFILE_SCOPE("Renderer::QueueSubmit");
+
+        if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, frameResources[currentFrame].inFlightFence) != VK_SUCCESS)
+            return;
+    }
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -227,7 +264,11 @@ void Renderer::EndFrame()
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr;
 
-    VkResult result = vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
+    VkResult result = VK_SUCCESS;
+    {
+        URAY_PROFILE_SCOPE("Renderer::QueuePresent");
+        result = vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
+    }
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
     {

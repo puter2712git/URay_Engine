@@ -4,13 +4,14 @@
 #include <Core/File/VirtualPath.h>
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Log/LogSystem.h>
+#include <Core/Performance/PerformanceViewModel.h>
 #include <Core/TimeFlow/Timer.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Play/PlaySession.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Settings/EditorSettings.h>
-#include <Editor/Visual/VisualSystem.h>
 #include <Editor/Viewport/ViewportController.h>
+#include <Editor/Visual/VisualSystem.h>
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
@@ -96,6 +97,8 @@ bool Editor::Initialize()
         *playSession,
         *editorCamera,
         useEditorCamera);
+
+    performanceViewModel = std::make_unique<PerformanceViewModel>();
 
     widgetSystem = std::make_unique<WidgetSystem>(*viewportController);
     if (!widgetSystem->Initialize())
@@ -201,6 +204,12 @@ void Editor::Finalize()
         widgetSystem.reset();
     }
 
+    if (performanceViewModel)
+    {
+        performanceViewModel.reset();
+    }
+    lastProfileFrameNumber = 0;
+
     viewportController.reset();
 
     if (playSession)
@@ -233,6 +242,8 @@ void Editor::Finalize()
 
 void Editor::Update()
 {
+    UpdatePerformanceViewModel();
+
     URAY_PROFILE_SCOPE("Editor::Update")
 
     Timer& timer = gEngine->GetTimer();
@@ -488,6 +499,22 @@ CameraComponent& Editor::PrepareEditorScene()
     sceneSystem.LoadScene(std::move(editorScene));
 
     return *cameraPtr;
+}
+
+void Editor::UpdatePerformanceViewModel()
+{
+    PerformanceAnalytics& analytics = gEngine->GetPerformanceAnalytics();
+
+    const uint64 completedFrameNumber = analytics.GetCompletedFrameNumber();
+
+    if (completedFrameNumber == 0 || completedFrameNumber == lastProfileFrameNumber)
+        return;
+
+    performanceViewModel->AddCompletedFrame(
+        completedFrameNumber,
+        analytics.GetCompletedSamples());
+
+    lastProfileFrameNumber = completedFrameNumber;
 }
 
 } // namespace URay
