@@ -2,7 +2,7 @@
 
 #include <Core/Ray/EventRay.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 namespace URay
 {

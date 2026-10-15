@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 #include <Engine/Asset/AssetType.h>
 
 #include <string>

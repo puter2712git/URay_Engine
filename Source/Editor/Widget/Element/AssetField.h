@@ -2,7 +2,7 @@
 
 #include <Editor/Widget/Widget.h>
 
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <Core/Ray/EventRay.h>
 

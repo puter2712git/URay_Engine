@@ -3,7 +3,7 @@
 #include <Render/Rendering/Font/FontAtlas.h>
 #include <Render/Rendering/Font/FontFace.h>
 
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

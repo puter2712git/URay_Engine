@@ -4,7 +4,7 @@
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Type/Types.h>
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <string>
 #include <variant>

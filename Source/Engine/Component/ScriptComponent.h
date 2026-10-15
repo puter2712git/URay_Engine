@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 #include <Engine/Component/Component.h>
 #include <Engine/Script/ScriptMetadata.h>
 

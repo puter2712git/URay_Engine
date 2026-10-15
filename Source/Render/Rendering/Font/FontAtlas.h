@@ -2,7 +2,7 @@
 
 #include <Render/RHI/Texture/Texture.h>
 
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <Core/Math/Rect.h>
 #include <Core/Math/Vector2.h>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Engine/Component/Render/RenderComponent.h>
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <Core/Math/AABB.h>
 

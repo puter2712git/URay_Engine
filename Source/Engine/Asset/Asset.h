@@ -2,13 +2,10 @@
 
 #include <Engine/Object/Object.h>
 
-#include <Core/UUID.h>
+#include <Engine/Asset/AssetHandle.h>
 
 namespace URay
 {
-
-using AssetHandle = UUID;
-using AssetHandleHash = UUIDHash;
 
 class Asset : public Object
 {

@@ -3,7 +3,7 @@
 #include <Engine/Asset/AssetType.h>
 
 #include <Core/File/VirtualPath.h>
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <yaml-cpp/yaml.h>
 

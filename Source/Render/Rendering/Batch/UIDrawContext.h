@@ -2,7 +2,7 @@
 
 #include <Render/RHI/Vertex/Vertex.h>
 
-#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetHandle.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Rect.h>
