@@ -43,6 +43,8 @@ void MaterialImporter::Import(const VirtualPath& sourcePath)
         fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
+    assetSystem.RegisterMetadata(metadata);
+
     const std::string materialText = fileSystem.ReadText(metadata.sourcePath);
     const YAML::Node materialNode = YAML::Load(materialText);
 

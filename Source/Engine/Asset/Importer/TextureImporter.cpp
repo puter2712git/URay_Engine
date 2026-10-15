@@ -43,6 +43,8 @@ void TextureImporter::Import(const VirtualPath& sourcePath)
         fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
+    assetSystem.RegisterMetadata(metadata);
+
     int32 width, height, channels;
     std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);
 

@@ -46,6 +46,8 @@ void OBJImporter::Import(const VirtualPath& sourcePath)
         fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
+    assetSystem.RegisterMetadata(metadata);
+
     OBJ::OBJInfo objInfo = ParseOBJ(sourcePath);
 
     const VirtualPath objDirectory = sourcePath.GetDirectory();

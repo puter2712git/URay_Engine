@@ -40,6 +40,8 @@ void FontImporter::Import(const VirtualPath& sourcePath)
         fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
+    assetSystem.RegisterMetadata(metadata);
+
     std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);
 
     std::unique_ptr<Font> font = std::make_unique<Font>(fileBytes);

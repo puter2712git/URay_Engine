@@ -34,6 +34,8 @@ void ScriptImporter::Import(const VirtualPath& sourcePath)
         fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
+    assetSystem.RegisterMetadata(metadata);
+
     auto script = std::make_unique<ScriptAsset>();
     script->SetName(metadata.sourcePath.GetStem());
     script->SetHandle(metadata.handle);

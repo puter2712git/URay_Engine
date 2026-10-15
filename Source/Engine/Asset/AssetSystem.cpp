@@ -49,6 +49,7 @@ void AssetSystem::Finalize()
 {
     pipeline.reset();
     database.reset();
+    metadataBySourcePath.clear();
 
     fileSystem.reset();
 }
@@ -103,6 +104,24 @@ VirtualPath AssetSystem::GetImportAssetPath(const VirtualPath& sourcePath) const
         importDirectory);
 
     return VirtualPath(importPath);
+}
+
+void AssetSystem::RegisterMetadata(const AssetMetadata& metadata)
+{
+    if (!metadata.handle.IsValid() || metadata.sourcePath.ToString().empty())
+        return;
+
+    metadataBySourcePath.insert_or_assign(metadata.sourcePath.ToString(), metadata);
+}
+
+const AssetMetadata* AssetSystem::FindMetadataBySourcePath(
+    const VirtualPath& sourcePath) const
+{
+    const auto it = metadataBySourcePath.find(sourcePath.ToString());
+    if (it == metadataBySourcePath.end())
+        return nullptr;
+
+    return &it->second;
 }
 
 void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)

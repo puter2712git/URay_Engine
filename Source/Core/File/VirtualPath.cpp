@@ -33,11 +33,14 @@ VirtualPath::VirtualPath(const std::string& path) : path(path) {}
 
 VirtualPath VirtualPath::GetDirectory() const
 {
+    const size_t separatorPos = path.find(MountSeparator);
+    if (separatorPos != std::string::npos && path.size() == separatorPos + 3)
+        return VirtualPath("");
+
     const size_t slashPos = path.find_last_of('/');
     if (slashPos == std::string::npos)
         return VirtualPath("");
 
-    const size_t separatorPos = path.find(MountSeparator);
     if (separatorPos != std::string::npos && slashPos == separatorPos + 2)
         return VirtualPath(path.substr(0, slashPos + 1));
 

@@ -39,6 +39,8 @@ void ShaderImporter::Import(const VirtualPath& sourcePath)
         fileSystem.WriteText(metadataPath, YAML::Dump(node));
     }
 
+    assetSystem.RegisterMetadata(metadata);
+
     std::unique_ptr<Shader> shader = std::make_unique<Shader>(sourcePath);
     shader->SetName(metadata.sourcePath.GetStem());
     shader->SetHandle(metadata.handle);

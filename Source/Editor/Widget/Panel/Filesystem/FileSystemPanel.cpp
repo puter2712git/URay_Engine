@@ -5,7 +5,7 @@
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
-#include <Editor/Widget/Panel/FileSystem/FileGridView.h>
+#include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -18,23 +18,23 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
     VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
 
     directoryScroll = AddChild<ScrollView>();
-    directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://"));
+    directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://Asset/Source"));
 
     breadcrumbBar = AddChild<BreadcrumbBar>();
 
     contentScroll = AddChild<ScrollView>();
-    fileGrid = contentScroll->SetContent<FileGridView>();
+    assetGrid = contentScroll->SetContent<AssetGridView>();
 
     verticalSeparator = AddChild<Separator>(SeparatorOrientation::Vertical);
     horizontalSeparator = AddChild<Separator>(SeparatorOrientation::Horizontal);
 
     NavigateTo(currentPath);
 
-    fileGrid->GetOnEntryActivatedRay().Register(
+    assetGrid->GetOnEntryActivatedRay().Register(
         this,
-        [this](const VirtualFileEntry& entry)
+        [this](const AssetEntry& entry)
         {
-            if (entry.isDirectory)
+            if (entry.kind == AssetEntryKind::Directory)
                 pendingPath = entry.path;
         });
 
@@ -108,12 +108,12 @@ void FileSystemPanel::Arrange(const Rect& rect)
 
 void FileSystemPanel::NavigateTo(const VirtualPath& path)
 {
-    VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
     currentPath = path;
     directoryTree->SetSelectedPath(currentPath);
     breadcrumbBar->SetPath(currentPath);
-    fileGrid->SetDirectory(fileSystem, currentPath);
+    assetGrid->SetDirectory(assetSystem, currentPath);
 }
 
 void FileSystemPanel::OnUpdate(float deltaTime)

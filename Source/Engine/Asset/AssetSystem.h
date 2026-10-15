@@ -38,6 +38,9 @@ public:
 
     VirtualPath GetImportAssetPath(const VirtualPath& sourcePath) const;
 
+    void RegisterMetadata(const AssetMetadata& metadata);
+    const AssetMetadata* FindMetadataBySourcePath(const VirtualPath& sourcePath) const;
+
     VirtualFileSystem& GetFileSystem() const { return *fileSystem; }
     AssetDatabase& GetDatabase() const { return *database; }
 
@@ -49,6 +52,8 @@ private:
 
     std::unique_ptr<AssetDatabase> database = nullptr;
     std::unique_ptr<AssetPipeline> pipeline = nullptr;
+
+    std::unordered_map<std::string, AssetMetadata> metadataBySourcePath;
 };
 
 } // namespace URay
