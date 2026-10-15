@@ -18,7 +18,7 @@ namespace URay
 
 class CameraComponent;
 class EditorCamera;
-class PickSystem;
+class ObjectIdTargetRegistry;
 class PlaySession;
 class SelectionSystem;
 class TransformGizmo;
@@ -31,6 +31,7 @@ namespace Render
 class Renderer;
 class ResourceManager;
 class Sampler;
+class SceneSystem;
 class TextureView;
 }
 
@@ -46,6 +47,7 @@ public:
     ViewportController(
         Render::Renderer& renderer,
         Render::ResourceManager& resourceManager,
+        Render::SceneSystem& renderSceneSystem,
         Window& window,
         InputActionSystem& inputActionSystem,
         SelectionSystem& selectionSystem,
@@ -88,6 +90,9 @@ private:
 
 private:
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
+    std::optional<GizmoHandleId> HitTestGizmo(
+        const CameraComponent& camera,
+        const Vector2& targetPosition) const;
     void CycleGizmoMode();
 
 private:
@@ -101,7 +106,7 @@ private:
 
     std::unique_ptr<EditorCamera> editorCamera = nullptr;
     std::unique_ptr<TransformGizmo> gizmo = nullptr;
-    std::unique_ptr<PickSystem> pickSystem = nullptr;
+    std::unique_ptr<ObjectIdTargetRegistry> objectIdTargets = nullptr;
 
     bool isCameraRotating = false;
     Vector2 cameraMouseDelta = Vector2::Zero;

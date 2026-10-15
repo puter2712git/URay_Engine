@@ -7,6 +7,7 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
+#include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/TransformComponent.h>
 #include <Engine/Engine.h>
@@ -18,8 +19,12 @@
 #include <Render/Rendering/Object/Drawable/GizmoObject.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
+#include <Render/RHI/Vertex/Vertex.h>
 
 #include <algorithm>
+#include <Core/Math/Math.h>
+#include <Core/Math/Ray.h>
+#include <limits>
 #include <unordered_set>
 
 namespace URay
@@ -114,6 +119,50 @@ void TransformGizmo::SetMode(GizmoMode newMode)
         EndDragging();
 
     currentStrategy = FindStrategy(newMode);
+}
+
+std::optional<GizmoHandleId> TransformGizmo::HitTest(const Ray& worldRay) const
+{
+    if (!HasTargets() || !GetActiveTransform())
+        return std::nullopt;
+
+    float nearestDistance = std::numeric_limits<float>::max();
+    std::optional<GizmoHandleId> hitHandle = std::nullopt;
+
+    for (const GizmoHandle& handle : GetHandles())
+    {
+        const Mesh* mesh = handle.mesh;
+        if (!mesh)
+            continue;
+
+        const Matrix inverseWorld = handle.worldMatrix.Inverse();
+        const Ray localRay{
+            .origin = inverseWorld.TransformPoint(worldRay.origin),
+            .direction = inverseWorld.TransformVector(worldRay.direction),
+        };
+
+        const std::vector<Render::VertexPNT>& vertices = mesh->GetVertices();
+        const std::vector<uint32>& indices = mesh->GetIndices();
+
+        for (size_t index = 0; index + 2 < indices.size(); index += 3)
+        {
+            const Vector3 p0 = vertices[indices[index]].position;
+            const Vector3 p1 = vertices[indices[index + 1]].position;
+            const Vector3 p2 = vertices[indices[index + 2]].position;
+
+            float distance = 0.0f;
+            if (!Math::IntersectLineTriangle(localRay, p0, p1, p2, distance) ||
+                distance >= nearestDistance)
+            {
+                continue;
+            }
+
+            nearestDistance = distance;
+            hitHandle = handle.id;
+        }
+    }
+
+    return hitHandle;
 }
 
 GizmoMode TransformGizmo::GetMode() const

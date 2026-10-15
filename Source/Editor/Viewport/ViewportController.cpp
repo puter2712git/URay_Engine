@@ -4,18 +4,20 @@
 #include <Editor/EditorCamera.h>
 #include <Editor/Gizmo/TransformGizmo.h>
 #include <Editor/Input/EditorInputActions.h>
-#include <Editor/Pick/PickSystem.h>
+#include <Editor/Pick/ObjectIdTargetRegistry.h>
 #include <Editor/Play/PlaySession.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Scene/Unit.h>
 #include <Platform/Window/Window.h>
 #include <Render/RHI/Texture/Sampler.h>
-#include <Render/RenderSystem.h>
 #include <Render/Rendering/ObjectIdReadback.h>
 #include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/Rendering/Renderer.h>
+#include <Render/Rendering/Scene/SceneSystem.h>
 #include <Render/ResourceManager.h>
+
+#include <Core/Math/Ray.h>
 
 #include <cmath>
 
@@ -25,6 +27,7 @@ namespace URay
 ViewportController::ViewportController(
     Render::Renderer& renderer,
     Render::ResourceManager& resourceManager,
+    Render::SceneSystem& renderSceneSystem,
     Window& window,
     InputActionSystem& inputActionSystem,
     SelectionSystem& selectionSystem,
@@ -40,8 +43,7 @@ ViewportController::ViewportController(
       useEditorCamera(useEditorCamera)
 {
     gizmo = std::make_unique<TransformGizmo>();
-    pickSystem = std::make_unique<PickSystem>(*gizmo);
-    pickSystem->Initialize();
+    objectIdTargets = std::make_unique<ObjectIdTargetRegistry>(renderSceneSystem);
 
     this->editorCamera = std::make_unique<EditorCamera>();
     this->editorCamera->SetCamera(&editorCamera);
@@ -66,7 +68,7 @@ ViewportController::ViewportController(
             const SelectionOperation operation = pendingSelectionRequest->operation;
             pendingSelectionRequest.reset();
 
-            Unit* unit = pickSystem->FindTarget(result.objectId);
+            Unit* unit = objectIdTargets->FindUnit(result.objectId);
 
             if (operation == SelectionOperation::Toggle)
             {
@@ -85,11 +87,7 @@ ViewportController::~ViewportController()
     renderer.GetObjectIdReadbackRay().UnregisterAll(this);
     selectionSystem.GetOnSelectionSetChangedRay().UnregisterAll(this);
 
-    if (pickSystem)
-    {
-        pickSystem->Finalize();
-        pickSystem.reset();
-    }
+    objectIdTargets.reset();
 }
 
 void ViewportController::Update(float deltaTime, bool isFocused)
@@ -98,9 +96,8 @@ void ViewportController::Update(float deltaTime, bool isFocused)
     if (!camera)
         return;
 
-    PickResult pickResult = pickSystem->Pick(camera, cachedPosition.x, cachedPosition.y);
     gizmo->SetHoveredHandle(
-        pickResult.isHit ? pickResult.gizmoHandle : GizmoHandleId::None);
+        HitTestGizmo(*camera, cachedPosition).value_or(GizmoHandleId::None));
 
     EditorCameraInput input = {};
 
@@ -188,10 +185,9 @@ EventReply ViewportController::OnPointerDown(const PointerEvent& event)
         if (!targetPosition || !camera)
             return {};
 
-        const PickResult pickResult = pickSystem->Pick(camera, targetPosition->x, targetPosition->y);
-        if (pickResult.isHit && pickResult.gizmoHandle != GizmoHandleId::None)
+        if (const std::optional<GizmoHandleId> gizmoHandle = HitTestGizmo(*camera, *targetPosition))
         {
-            gizmo->StartDragging(*targetPosition, pickResult.gizmoHandle, *camera);
+            gizmo->StartDragging(*targetPosition, *gizmoHandle, *camera);
         }
         else
         {
@@ -286,6 +282,19 @@ std::optional<Vector2> ViewportController::WindowToRenderTarget(const Vector2& w
     return Vector2(
         viewportPosition.x / displayRect.size.x * targetExtent.width,
         viewportPosition.y / displayRect.size.y * targetExtent.height);
+}
+
+std::optional<GizmoHandleId> ViewportController::HitTestGizmo(
+    const CameraComponent& camera,
+    const Vector2& targetPosition) const
+{
+    const Vector3 nearPosition(targetPosition.x, targetPosition.y, 0.0f);
+    const Vector3 farPosition(targetPosition.x, targetPosition.y, 1.0f);
+
+    const Vector3 origin = camera.ScreenToWorld(nearPosition);
+    const Vector3 direction = (camera.ScreenToWorld(farPosition) - origin).GetNormalized();
+
+    return gizmo->HitTest({ .origin = origin, .direction = direction });
 }
 
 void ViewportController::CycleGizmoMode()

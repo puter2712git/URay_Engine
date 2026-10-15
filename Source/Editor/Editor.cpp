@@ -89,6 +89,7 @@ bool Editor::Initialize()
     viewportController = std::make_unique<ViewportController>(
         renderSystem.GetRenderer(),
         renderSystem.GetResourceManager(),
+        renderSystem.GetSceneSystem(),
         gEngine->GetWindow(),
         gEngine->GetInputActionSystem(),
         *selectionSystem,

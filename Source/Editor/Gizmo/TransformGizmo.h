@@ -5,6 +5,7 @@
 #include <Core/Math/Vector2.h>
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace URay
@@ -14,6 +15,7 @@ class CameraComponent;
 class Unit;
 class Material;
 class TransformComponent;
+struct Ray;
 
 namespace Render
 {
@@ -43,6 +45,8 @@ public:
 
     bool IsLocal() const { return isLocal; }
     void SetIsLocal(bool local) { isLocal = local; }
+
+    std::optional<GizmoHandleId> HitTest(const Ray& worldRay) const;
 
     void Update(const Vector2& position, CameraComponent& camera);
     void StartDragging(const Vector2& position, GizmoHandleId handleId, const CameraComponent& camera);
