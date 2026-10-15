@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Type/Types.h>
+
 #include <vulkan/vulkan.h>
 
 #include <memory>
@@ -11,10 +13,20 @@ class Buffer;
 class CommandBuffer;
 class DescriptorSet;
 
+struct GPUTimeStampState
+{
+    VkQueryPool queryPool = VK_NULL_HANDLE;
+
+    bool hasPendingResults = false;
+    uint64 submissionFrameNumber = 0;
+};
+
 struct FrameResource
 {
     VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
     VkFence inFlightFence = VK_NULL_HANDLE;
+
+    GPUTimeStampState gpuTimeStamps = {};
 
     std::unique_ptr<CommandBuffer> commandBuffer = nullptr;
     std::unique_ptr<Buffer> uniformBuffer = nullptr;

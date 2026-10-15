@@ -524,6 +524,17 @@ bool Renderer::CreateFrameResources()
             return false;
         }
 
+        VkQueryPoolCreateInfo poolCreateInfo = {};
+        poolCreateInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+        poolCreateInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+        poolCreateInfo.queryCount = 2 * static_cast<uint32>(RenderPassId::Count);
+
+        if (vkCreateQueryPool(device.GetVKDevice(), &poolCreateInfo, nullptr,
+                              &frameResources[i].gpuTimeStamps.queryPool) != VK_SUCCESS)
+        {
+            return false;
+        }
+
         frameResources[i].commandBuffer.reset(commandPool->Allocate());
 
         UniformBufferDesc uniformBufferDesc = {};
@@ -594,6 +605,18 @@ void Renderer::DestroyFrameResources()
         frameResources[i].uniformBuffer.reset();
 
         frameResources[i].commandBuffer.reset();
+
+        if (frameResources[i].gpuTimeStamps.queryPool != VK_NULL_HANDLE)
+        {
+            vkDestroyQueryPool(
+                device.GetVKDevice(),
+                frameResources[i].gpuTimeStamps.queryPool,
+                nullptr);
+
+            frameResources[i].gpuTimeStamps.queryPool = VK_NULL_HANDLE;
+        }
+        frameResources[i].gpuTimeStamps.hasPendingResults = false;
+        frameResources[i].gpuTimeStamps.submissionFrameNumber = 0;
 
         if (frameResources[i].inFlightFence != VK_NULL_HANDLE)
         {
