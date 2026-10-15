@@ -1,11 +1,14 @@
 #include "FileSystemPanel.h"
 
 #include <Core/File/VirtualFileSystem.h>
+#include <Editor/Editor.h>
+#include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
-#include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
+#include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -35,7 +38,15 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
         [this](const AssetEntry& entry)
         {
             if (entry.kind == AssetEntryKind::Directory)
+            {
+                gEditor->GetInspectSystem().ClearTarget();
                 pendingPath = entry.path;
+            }
+            else if (entry.kind == AssetEntryKind::Asset)
+            {
+                gEditor->GetSelectionSystem().ClearSelection();
+                gEditor->GetInspectSystem().SetTarget(InspectTarget::FromAsset(entry.assetHandle));
+            }
         });
 
     breadcrumbBar->GetOnPathActivatedRay().Register(

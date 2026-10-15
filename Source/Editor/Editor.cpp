@@ -12,6 +12,7 @@
 #include <Editor/Visual/VisualSystem.h>
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
+#include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -61,6 +62,18 @@ bool Editor::Initialize()
         Finalize();
         return false;
     }
+
+    inspectSystem = std::make_unique<InspectSystem>();
+
+    selectionSystem->GetOnActiveSelectionChangedRay().Register(
+        this,
+        [this](Unit*, Unit* activeUnit)
+        {
+            if (activeUnit)
+                inspectSystem->SetTarget(InspectTarget::FromUnit(activeUnit));
+            else
+                inspectSystem->ClearTarget();
+        });
 
     visualSystem = std::make_unique<VisualSystem>(*gEngine, *selectionSystem);
     if (!visualSystem->Initialize())

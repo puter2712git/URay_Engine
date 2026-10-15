@@ -15,6 +15,7 @@ class WidgetSystem;
 class EditorSettings;
 class SelectionSystem;
 class VisualSystem;
+class InspectSystem;
 class PlaySession;
 class InputActionMap;
 
@@ -38,6 +39,7 @@ public:
 
     WidgetSystem& GetWidgetSystem() const { return *widgetSystem; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
+    InspectSystem& GetInspectSystem() const { return *inspectSystem; }
 
     PlaySession& GetPlaySession() const { return *playSession; }
 
@@ -57,6 +59,7 @@ private:
     std::unique_ptr<WidgetSystem> widgetSystem = nullptr;
     std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
     std::unique_ptr<VisualSystem> visualSystem = nullptr;
+    std::unique_ptr<InspectSystem> inspectSystem = nullptr;
 
     std::unique_ptr<EditorSettings> editorSettings = nullptr;
 

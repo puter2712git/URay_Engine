@@ -7,11 +7,12 @@
 namespace URay
 {
 
-class SelectionSystem;
 class VerticalLayout;
 class ScrollView;
 class Object;
+class Unit;
 class ScriptComponent;
+class InspectSystem;
 struct Property;
 struct ScriptFieldValue;
 
@@ -34,6 +35,9 @@ protected:
 private:
     void RebuildProperties();
 
+    void RebuildUnitProperties(Unit& unit);
+    void RebuildAssetProperties(AssetHandle handle);
+
     void AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddScriptField(VerticalLayout& targetLayout, ScriptComponent& component, const ScriptFieldValue& field);
 
@@ -49,7 +53,7 @@ private:
     void AddScriptProperty(VerticalLayout& targetLayout, ScriptComponent& component);
 
 private:
-    SelectionSystem& selectionSystem;
+    InspectSystem& inspectSystem;
 
     ScrollView* scrollView = nullptr;
     VerticalLayout* layout = nullptr;

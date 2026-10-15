@@ -20,10 +20,14 @@
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
+#include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/ComponentPickerPopup.h>
 #include <Editor/Widget/WidgetSystem.h>
+#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Script/ScriptAsset.h>
@@ -41,9 +45,7 @@
 namespace URay
 {
 
-InspectorPanel::InspectorPanel()
-    : Panel("Inspector"),
-      selectionSystem(gEditor->GetSelectionSystem())
+InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->GetInspectSystem())
 {
     SetBackgroundColor(EditorStyle::Surface);
     SetOutlineWidth(2.0f);
@@ -56,29 +58,15 @@ InspectorPanel::InspectorPanel()
     layout->SetGap(4.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
-    selectionSystem.GetOnActiveSelectionChangedRay().Register(
+    inspectSystem.GetOnTargetChangedRay().Register(
         this,
-        [this](Unit*, Unit*)
+        [this](const InspectTarget&, const InspectTarget&)
         { isDirty = true; });
-
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetComponentAddRay().Register(
-        this,
-        [this](Scene*, Unit* unit, Component*)
-        {
-            if (unit == selectionSystem.GetActiveUnit())
-            {
-                isDirty = true;
-            }
-        });
 }
 
 InspectorPanel::~InspectorPanel()
 {
-    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetComponentAddRay().UnregisterAll(this);
-
-    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
+    inspectSystem.GetOnTargetChangedRay().UnregisterAll(this);
 }
 
 void InspectorPanel::Arrange(const Rect& rect)
@@ -107,20 +95,35 @@ void InspectorPanel::RebuildProperties()
 {
     layout->ClearChildren();
 
-    Unit* selectedUnit = selectionSystem.GetActiveUnit();
-    if (!selectedUnit)
-        return;
+    const InspectTarget& target = inspectSystem.GetTarget();
 
+    if (const auto* unitTarget = std::get_if<UnitInspectTarget>(&target.data))
+    {
+        if (unitTarget->unit)
+            RebuildUnitProperties(*unitTarget->unit);
+
+        return;
+    }
+
+    if (const auto* assetTarget = std::get_if<AssetInspectTarget>(&target.data))
+    {
+        RebuildAssetProperties(assetTarget->handle);
+        return;
+    }
+}
+
+void InspectorPanel::RebuildUnitProperties(Unit& unit)
+{
     ComponentSection* unitSection = layout->AddChild<ComponentSection>("Unit");
 
-    for (const Property& property : selectedUnit->GetClass()->GetAllProperties())
+    for (const Property& property : unit.GetClass()->GetAllProperties())
     {
-        AddProperty(*unitSection->GetContent(), *selectedUnit, property, property.name);
+        AddProperty(*unitSection->GetContent(), unit, property, property.name);
     }
 
     layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
 
-    const auto& components = selectedUnit->GetComponents();
+    const auto& components = unit.GetComponents();
     for (const auto& comp : components)
     {
         ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get());
@@ -159,31 +162,21 @@ void InspectorPanel::RebuildProperties()
 
     layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
 
+    Unit* inspectedUnit = &unit;
+
     Button* addComponentButton = layout->AddChild<Button>("Add Component");
     addComponentButton->SetPreferredHeight(26.0f);
     addComponentButton->GetOnClickRay().Register(
         this,
-        [this, addComponentButton]
+        [this, addComponentButton, inspectedUnit]
         {
-            Unit* selectedUnit = selectionSystem.GetActiveUnit();
-            if (!selectedUnit)
-                return;
-
             PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
 
-            ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *selectedUnit);
+            ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *inspectedUnit);
             popup->GetComponentSelectedRay().Register(
                 popup,
-                [this, &popupLayer](const ComponentPickerSelection& selection)
+                [this, &popupLayer, inspectedUnit](const ComponentPickerSelection& selection)
                 {
-                    Unit* targetUnit = selectionSystem.GetActiveUnit();
-
-                    if (!targetUnit)
-                    {
-                        popupLayer.ClosePopup();
-                        return;
-                    }
-
                     switch (selection.kind)
                     {
                     case ComponentPickerItemKind::NativeComponent:
@@ -191,7 +184,7 @@ void InspectorPanel::RebuildProperties()
                         auto component = ComponentFactory::Create(selection.componentTypeName);
                         if (component)
                         {
-                            targetUnit->AddComponent(std::move(component));
+                            inspectedUnit->AddComponent(std::move(component));
                         }
                         break;
                     }
@@ -201,7 +194,7 @@ void InspectorPanel::RebuildProperties()
                         auto component = std::make_unique<ScriptComponent>();
                         component->SetScript(selection.scriptHandle);
 
-                        targetUnit->AddComponent(std::move(component));
+                        inspectedUnit->AddComponent(std::move(component));
 
                         break;
                     }
@@ -210,6 +203,24 @@ void InspectorPanel::RebuildProperties()
                     popupLayer.ClosePopup();
                 });
         });
+}
+
+void InspectorPanel::RebuildAssetProperties(AssetHandle handle)
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    Asset* asset = assetDatabase.Find<Asset>(handle);
+
+    if (!asset)
+        return;
+
+    ComponentSection* section = layout->AddChild<ComponentSection>(asset->GetName());
+
+    for (const Property& property : asset->GetClass()->GetAllProperties())
+    {
+        AddProperty(*section->GetContent(), *asset, property, property.name);
+    }
 }
 
 void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
