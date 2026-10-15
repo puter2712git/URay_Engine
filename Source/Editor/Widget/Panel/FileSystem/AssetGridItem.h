@@ -10,6 +10,7 @@ namespace URay
 class Surface;
 class VerticalLayout;
 class Label;
+class Image;
 
 class AssetGridItem final : public Widget
 {
@@ -41,6 +42,7 @@ private:
     Surface* surface = nullptr;
     VerticalLayout* layout = nullptr;
     Surface* thumbnailSurface = nullptr;
+    Image* thumbnailImage = nullptr;
     Label* nameLabel = nullptr;
 
     EventRay<const AssetEntry&> onSelectedRay;

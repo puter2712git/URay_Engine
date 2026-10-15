@@ -1,5 +1,6 @@
 #include "AssetGridItem.h"
 
+#include <Editor/Widget/Element/Image.h>
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/Surface.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
@@ -23,10 +24,18 @@ AssetGridItem::AssetGridItem(AssetEntry entry) : entry(std::move(entry))
 
     thumbnailSurface = layout->AddChild<Surface>();
     thumbnailSurface->SetPreferredSize(Vector2(64.0f, 64.0f));
+
+    const bool isTexture =
+        this->entry.kind == AssetEntryKind::Asset &&
+        this->entry.assetType == AssetType::Texture;
+
     thumbnailSurface->SetBackgroundColor(
         this->entry.kind == AssetEntryKind::Directory
             ? Color::FromRGB(0xC0, 0x90, 0x30)
             : EditorStyle::Separator);
+
+    if (isTexture)
+        thumbnailImage = thumbnailSurface->AddChild<Image>(this->entry.assetHandle);
 
     nameLabel = layout->AddChild<Label>(this->entry.displayName);
     nameLabel->SetTextStyle(EditorStyle::SmallText());
@@ -81,9 +90,9 @@ void AssetGridItem::OnUpdate(float)
 {
     const Color background = selected
                                  ? EditorStyle::ControlPressed
-                                 : IsHovered()
-                                       ? EditorStyle::ControlHovered
-                                       : EditorStyle::ControlNormal;
+                             : IsHovered()
+                                 ? EditorStyle::ControlHovered
+                                 : EditorStyle::ControlNormal;
 
     surface->SetBackgroundColor(background);
 }
