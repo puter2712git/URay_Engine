@@ -68,6 +68,7 @@ public:
     Vector3 GetWorldUp() const;
 
 protected:
+    void OnInitialize() override;
     void OnUpdate(float deltaTime) override;
 
     bool CanUpdateWhenUnloaded() const override { return true; }

@@ -217,6 +217,11 @@ Vector3 TransformComponent::GetWorldUp() const
     return worldMatrix.TransformVector(Vector3::Up).GetNormalized();
 }
 
+void TransformComponent::OnInitialize()
+{
+    isDirty = true;
+}
+
 void TransformComponent::OnUpdate(float deltaTime)
 {
     if (isDirty)
