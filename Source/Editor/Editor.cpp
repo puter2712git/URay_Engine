@@ -10,10 +10,10 @@
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Settings/EditorSettings.h>
 #include <Editor/Visual/VisualSystem.h>
+#include <Editor/Viewport/ViewportController.h>
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
-#include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
@@ -83,15 +83,26 @@ bool Editor::Initialize()
         return false;
     }
 
-    widgetSystem = std::make_unique<WidgetSystem>();
+    playSession = std::make_unique<PlaySession>(sceneSystem);
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    viewportController = std::make_unique<ViewportController>(
+        renderSystem.GetRenderer(),
+        renderSystem.GetResourceManager(),
+        gEngine->GetWindow(),
+        gEngine->GetInputActionSystem(),
+        *selectionSystem,
+        *playSession,
+        *editorCamera,
+        useEditorCamera);
+
+    widgetSystem = std::make_unique<WidgetSystem>(*viewportController);
     if (!widgetSystem->Initialize())
     {
         URAY_LOG("[Editor] Failed to initialize widget system.");
         Finalize();
         return false;
     }
-
-    widgetSystem->GetViewport().SetCamera(editorCamera);
 
     EditorSettingsContext settingsContext = {
         .rootWidget = widgetSystem->GetRootWidget()
@@ -142,8 +153,6 @@ bool Editor::Initialize()
         createEmptyGameScene();
     }
 
-    playSession = std::make_unique<PlaySession>(sceneSystem);
-
     inputActionMap = CreateEditorInputActionMap();
     if (!inputActionMap)
     {
@@ -161,12 +170,6 @@ void Editor::Finalize()
 {
     gEngine->GetInputActionSystem().SetActionMap(nullptr);
     inputActionMap.reset();
-
-    if (playSession)
-    {
-        playSession->Stop();
-        playSession.reset();
-    }
 
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
@@ -195,6 +198,14 @@ void Editor::Finalize()
     {
         widgetSystem->Finalize();
         widgetSystem.reset();
+    }
+
+    viewportController.reset();
+
+    if (playSession)
+    {
+        playSession->Stop();
+        playSession.reset();
     }
 
     if (visualSystem)
@@ -380,8 +391,6 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
 
-    ViewportPanel& viewport = widgetSystem->GetViewport();
-
     if (playSession->IsPlaying())
     {
         CameraComponent* camera = nullptr;
@@ -410,8 +419,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         TransformComponent* transform = camera->GetOwner()->GetTransform();
 
         camera->SetViewportExtent(
-            { .width = viewport.GetTargetExtent().width,
-              .height = viewport.GetTargetExtent().height });
+            viewportController->GetTargetExtent());
 
         request.view = {
             .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
@@ -420,7 +428,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .farPlane = camera ? camera->GetFarPlane() : 1000.0f,
             .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
             .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity,
-            .viewMode = viewport.GetViewMode()
+            .viewMode = viewportController->GetViewMode()
         };
 
         request.selectedUnits = selectionSystem->GetSelectedUnits();
@@ -442,7 +450,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .farPlane = editorCamera ? editorCamera->GetFarPlane() : 1000.0f,
             .viewMatrix = editorCamera->GetViewMatrix(),
             .projMatrix = editorCamera->GetProjMatrix(),
-            .viewMode = viewport.GetViewMode()
+            .viewMode = viewportController->GetViewMode()
         };
 
         request.selectedUnits = selectionSystem->GetSelectedUnits();

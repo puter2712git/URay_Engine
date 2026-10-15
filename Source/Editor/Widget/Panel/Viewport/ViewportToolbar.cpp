@@ -1,6 +1,7 @@
 #include "ViewportToolbar.h"
 
 #include <Editor/Widget/Element/Button.h>
+#include <Editor/Widget/Element/Image.h>
 #include <Editor/Widget/Layout/HorizontalLayout.h>
 
 #include <Engine/Asset/EngineAsset.h>
@@ -25,6 +26,7 @@ ViewportToolbar::ViewportToolbar()
 
     gizmoSpaceToggleButton = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::GizmoLocalSpaceIconTexture);
     gizmoSpaceToggleButton->SetPreferredSize(Vector2(30.0f, 30.0f));
+    gizmoSpaceImage = static_cast<Image*>(gizmoSpaceToggleButton->GetChildren()[0].get());
 
     viewModeToggleButton = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::ViewModeIconTexture);
     viewModeToggleButton->SetPreferredSize(Vector2(30.0f, 30.0f));
@@ -41,6 +43,12 @@ ViewportToolbar::ViewportToolbar()
 }
 
 ViewportToolbar::~ViewportToolbar() = default;
+
+void ViewportToolbar::SetGizmoSpaceLocal(bool isLocal)
+{
+    gizmoSpaceImage->SetTexture(
+        isLocal ? EngineAsset::GizmoLocalSpaceIconTexture : EngineAsset::GizmoWorldSpaceIconTexture);
+}
 
 void ViewportToolbar::Arrange(const Rect& rect)
 {

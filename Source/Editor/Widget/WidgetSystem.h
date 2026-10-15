@@ -11,7 +11,7 @@ namespace URay
 {
 
 class Widget;
-class ViewportPanel;
+class ViewportController;
 class PopupLayer;
 class DialogLayer;
 class UIInputRouter;
@@ -19,7 +19,7 @@ class UIInputRouter;
 class WidgetSystem
 {
 public:
-    WidgetSystem();
+    explicit WidgetSystem(ViewportController& viewportController);
     ~WidgetSystem();
 
 public:
@@ -31,7 +31,6 @@ public:
     void Paint();
 
     Widget& GetRootWidget() const { return *root; }
-    ViewportPanel& GetViewport() const { return *viewport; }
     PopupLayer& GetPopupLayer() const;
     DialogLayer& GetDialogLayer() const;
     bool IsTextInputActive() const;
@@ -47,8 +46,7 @@ private:
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
 
     std::unique_ptr<Render::UIDrawContext> drawContext = nullptr;
-
-    ViewportPanel* viewport = nullptr;
+    ViewportController& viewportController;
 };
 
 } // namespace URay

@@ -12,6 +12,7 @@ namespace URay
 
 class Button;
 class HorizontalLayout;
+class Image;
 
 class ViewportToolbar final : public Widget
 {
@@ -26,6 +27,7 @@ public:
 
     const std::array<Button*, static_cast<size_t>(GizmoMode::Count)>& GetGizmoModeButtons() const { return gizmoModeButtons; }
     Button* GetGizmoSpaceToggleButton() const { return gizmoSpaceToggleButton; }
+    void SetGizmoSpaceLocal(bool isLocal);
 
     Button* GetPlayButton() const { return playButton; }
     Button* GetStopButton() const { return stopButton; }
@@ -36,6 +38,7 @@ private:
 
     std::array<Button*, static_cast<size_t>(GizmoMode::Count)> gizmoModeButtons;
     Button* gizmoSpaceToggleButton = nullptr;
+    Image* gizmoSpaceImage = nullptr;
     Button* viewModeToggleButton = nullptr;
 
     Button* playButton = nullptr;
