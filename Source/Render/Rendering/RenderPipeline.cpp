@@ -109,11 +109,32 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
 void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
 {
-    FogObject* fog = FindFog(sceneInfo.scenes);
-    AmbientLightObject* ambientLight = FindAmbientLight(sceneInfo.scenes);
-    DirectionalLightObject* directionalLight = FindDirectionalLight(sceneInfo.scenes);
-    std::vector<PointLightObject*> pointLights = FindPointLights(sceneInfo.scenes);
-    std::vector<SpotLightObject*> spotLights = FindSpotLights(sceneInfo.scenes);
+    FogObject* fog = nullptr;
+    AmbientLightObject* ambientLight = nullptr;
+    DirectionalLightObject* directionalLight = nullptr;
+    std::vector<PointLightObject*> pointLights;
+    std::vector<SpotLightObject*> spotLights;
+
+    for (RenderScene* scene : sceneInfo.scenes)
+    {
+        if (!scene)
+            continue;
+
+        if (!fog)
+            fog = scene->GetFog();
+
+        if (!ambientLight)
+            ambientLight = scene->GetAmbientLight();
+
+        if (!directionalLight)
+            directionalLight = scene->GetDirectionalLight();
+
+        const std::vector<PointLightObject*>& scenePointLights = scene->GetPointLights();
+        pointLights.insert(pointLights.end(), scenePointLights.begin(), scenePointLights.end());
+
+        const std::vector<SpotLightObject*>& sceneSpotLights = scene->GetSpotLights();
+        spotLights.insert(spotLights.end(), sceneSpotLights.begin(), sceneSpotLights.end());
+    }
 
     Renderer& renderer = renderSystem.GetRenderer();
     RenderTargetRegistry& renderTargetRegistry = renderer.GetRenderTargetRegistry();
@@ -403,115 +424,6 @@ void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
 void RenderPipeline::AddRenderPass(std::unique_ptr<RenderPass> pass)
 {
     passes.push_back(std::move(pass));
-}
-
-FogObject* RenderPipeline::FindFog(
-    const std::vector<RenderScene*>& scenes) const
-{
-    for (const RenderScene* scene : scenes)
-    {
-        size_t objCount = scene->GetObjectCount();
-
-        for (size_t i = 0; i < objCount; ++i)
-        {
-            RenderObject* robj = scene->GetObject(i);
-
-            if (FogObject* fog = Cast<FogObject>(robj))
-            {
-                return fog;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-AmbientLightObject* RenderPipeline::FindAmbientLight(
-    const std::vector<RenderScene*>& scenes) const
-{
-    for (const RenderScene* scene : scenes)
-    {
-        size_t objCount = scene->GetObjectCount();
-
-        for (size_t i = 0; i < objCount; ++i)
-        {
-            RenderObject* robj = scene->GetObject(i);
-
-            if (AmbientLightObject* light = Cast<AmbientLightObject>(robj))
-            {
-                return light;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-DirectionalLightObject* RenderPipeline::FindDirectionalLight(
-    const std::vector<RenderScene*>& scenes) const
-{
-    for (const RenderScene* scene : scenes)
-    {
-        size_t objCount = scene->GetObjectCount();
-
-        for (size_t i = 0; i < objCount; ++i)
-        {
-            RenderObject* robj = scene->GetObject(i);
-
-            if (DirectionalLightObject* light = Cast<DirectionalLightObject>(robj))
-            {
-                return light;
-            }
-        }
-    }
-
-    return nullptr;
-}
-
-std::vector<PointLightObject*> RenderPipeline::FindPointLights(
-    const std::vector<RenderScene*>& scenes) const
-{
-    std::vector<PointLightObject*> pointLights;
-
-    for (const RenderScene* scene : scenes)
-    {
-        size_t objCount = scene->GetObjectCount();
-
-        for (size_t i = 0; i < objCount; ++i)
-        {
-            RenderObject* robj = scene->GetObject(i);
-
-            if (PointLightObject* light = Cast<PointLightObject>(robj))
-            {
-                pointLights.push_back(light);
-            }
-        }
-    }
-
-    return pointLights;
-}
-
-std::vector<SpotLightObject*> RenderPipeline::FindSpotLights(
-    const std::vector<RenderScene*>& scenes) const
-{
-    std::vector<SpotLightObject*> spotLights;
-
-    for (const RenderScene* scene : scenes)
-    {
-        size_t objCount = scene->GetObjectCount();
-
-        for (size_t i = 0; i < objCount; ++i)
-        {
-            RenderObject* robj = scene->GetObject(i);
-
-            if (SpotLightObject* light = Cast<SpotLightObject>(robj))
-            {
-                spotLights.push_back(light);
-            }
-        }
-    }
-
-    return spotLights;
 }
 
 } // namespace URay::Render

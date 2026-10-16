@@ -4,6 +4,11 @@
 #include <Engine/Spatial/Octree.h>
 
 #include <Render/Rendering/Object/BoundedObject.h>
+#include <Render/Rendering/Object/FogObject.h>
+#include <Render/Rendering/Object/Light/AmbientLightObject.h>
+#include <Render/Rendering/Object/Light/DirectionalLightObject.h>
+#include <Render/Rendering/Object/Light/PointLightObject.h>
+#include <Render/Rendering/Object/Light/SpotLightObject.h>
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Object/ViewObject.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
@@ -27,6 +32,48 @@ const std::vector<RenderObject*>& RenderScene::GetObjects(const Unit* unit) cons
     return it != objectsByUnit.end() ? it->second : emptyObjects;
 }
 
+void RenderScene::AddToTypeIndexes(RenderObject* object)
+{
+    if (ViewObject* viewObject = Cast<ViewObject>(object))
+        viewObjects.push_back(viewObject);
+
+    if (FogObject* fogObject = Cast<FogObject>(object))
+        fogObjects.push_back(fogObject);
+
+    if (AmbientLightObject* ambientLightObject = Cast<AmbientLightObject>(object))
+        ambientLightObjects.push_back(ambientLightObject);
+
+    if (DirectionalLightObject* directionalLightObject = Cast<DirectionalLightObject>(object))
+        directionalLightObjects.push_back(directionalLightObject);
+
+    if (PointLightObject* pointLightObject = Cast<PointLightObject>(object))
+        pointLightObjects.push_back(pointLightObject);
+
+    if (SpotLightObject* spotLightObject = Cast<SpotLightObject>(object))
+        spotLightObjects.push_back(spotLightObject);
+}
+
+void RenderScene::RemoveFromTypeIndexes(RenderObject* object)
+{
+    if (ViewObject* viewObject = Cast<ViewObject>(object))
+        std::erase(viewObjects, viewObject);
+
+    if (FogObject* fogObject = Cast<FogObject>(object))
+        std::erase(fogObjects, fogObject);
+
+    if (AmbientLightObject* ambientLightObject = Cast<AmbientLightObject>(object))
+        std::erase(ambientLightObjects, ambientLightObject);
+
+    if (DirectionalLightObject* directionalLightObject = Cast<DirectionalLightObject>(object))
+        std::erase(directionalLightObjects, directionalLightObject);
+
+    if (PointLightObject* pointLightObject = Cast<PointLightObject>(object))
+        std::erase(pointLightObjects, pointLightObject);
+
+    if (SpotLightObject* spotLightObject = Cast<SpotLightObject>(object))
+        std::erase(spotLightObjects, spotLightObject);
+}
+
 void RenderScene::Add(std::unique_ptr<RenderObject> object, Unit* unit)
 {
     if (!object)
@@ -34,11 +81,7 @@ void RenderScene::Add(std::unique_ptr<RenderObject> object, Unit* unit)
 
     RenderObject* renderObject = object.get();
     renderObject->SetScene(this);
-
-    if (ViewObject* viewObj = Cast<ViewObject>(object.get()))
-    {
-        viewObjects.push_back(viewObj);
-    }
+    AddToTypeIndexes(renderObject);
 
     if (unit)
     {
@@ -54,10 +97,7 @@ void RenderScene::Destroy(RenderObject* object)
     if (!object)
         return;
 
-    if (ViewObject* viewObject = Cast<ViewObject>(object))
-    {
-        std::erase(viewObjects, viewObject);
-    }
+    RemoveFromTypeIndexes(object);
 
     const auto ownerIt = unitByObject.find(object);
     if (ownerIt != unitByObject.end())

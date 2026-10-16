@@ -65,12 +65,6 @@ private:
     void ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo);
     void ExecuteUI(const UIDrawContext& context, RenderView& view);
 
-    FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;
-    AmbientLightObject* FindAmbientLight(const std::vector<RenderScene*>& scenes) const;
-    DirectionalLightObject* FindDirectionalLight(const std::vector<RenderScene*>& scenes) const;
-    std::vector<PointLightObject*> FindPointLights(const std::vector<RenderScene*>& scenes) const;
-    std::vector<SpotLightObject*> FindSpotLights(const std::vector<RenderScene*>& scenes) const;
-
 private:
     AssetSystem& assetSystem;
     RenderSystem& renderSystem;
