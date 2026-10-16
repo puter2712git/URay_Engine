@@ -27,12 +27,11 @@ public:
 
     std::unique_ptr<Scene> CreateScene(SceneType type, const VirtualPath& filePath);
 
-    void SwitchScene(std::unique_ptr<Scene> scene);
+    Scene* LoadScene(std::unique_ptr<Scene> scene);
+    bool UnloadScene(SceneId id);
 
-    void LoadScene(std::unique_ptr<Scene> scene);
-    void UnloadScene(SceneType type);
-
-    Scene* GetSceneByType(SceneType type) const;
+    Scene* GetScene(SceneId id) const;
+    std::vector<Scene*> GetScenes(SceneType type) const;
 
     const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
 
@@ -48,6 +47,8 @@ public:
     EventRay<Scene*, Unit*, Component*, const Property&>& GetComponentPropertyChangeRay() { return componentPropertyChangedRay; }
 
 private:
+    SceneId nextSceneId = 1;
+
     std::vector<std::unique_ptr<Scene>> scenes;
 
     EventRay<Scene*> sceneAddRay;

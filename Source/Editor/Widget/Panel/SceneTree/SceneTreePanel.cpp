@@ -64,7 +64,9 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
             if (selection != UnitPopupSelection::EmptyUnit)
                 return;
 
-            Scene* gameScene = sceneSystem->GetSceneByType(SceneType::Game);
+            auto scenes = sceneSystem->GetScenes(SceneType::Game);
+            Scene* gameScene = scenes.empty() ? nullptr : scenes[0];
+
             if (!gameScene)
             {
                 popupLayer.ClosePopup();
@@ -98,7 +100,9 @@ void SceneTreePanel::UpdateTree()
 {
     layout->ClearChildren();
 
-    Scene* gameScene = sceneSystem->GetSceneByType(SceneType::Game);
+    auto scenes = sceneSystem->GetScenes(SceneType::Game);
+    Scene* gameScene = scenes.empty() ? nullptr : scenes[0];
+
     if (!gameScene)
         return;
 

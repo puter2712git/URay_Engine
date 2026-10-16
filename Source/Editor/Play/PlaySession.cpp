@@ -13,7 +13,9 @@ bool PlaySession::Start()
     if (IsPlaying())
         return false;
 
-    Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
+    auto scenes = sceneSystem.GetScenes(SceneType::Game);
+    Scene* gameScene = scenes.empty() ? nullptr : scenes[0];
+
     if (!gameScene)
         return false;
 
@@ -22,9 +24,7 @@ bool PlaySession::Start()
     auto newPlayScene = sceneSystem.CreateScene(SceneType::Play, "");
     newPlayScene->Deserialize(gameSceneNode);
 
-    playScene = newPlayScene.get();
-
-    sceneSystem.LoadScene(std::move(newPlayScene));
+    playScene = sceneSystem.LoadScene(std::move(newPlayScene));
 
     return true;
 }
@@ -34,7 +34,7 @@ void PlaySession::Stop()
     if (!IsPlaying())
         return;
 
-    sceneSystem.UnloadScene(SceneType::Play);
+    sceneSystem.UnloadScene(playScene->GetId());
     playScene = nullptr;
 }
 

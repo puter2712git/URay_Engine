@@ -2,6 +2,8 @@
 
 #include <Engine/Scene/Unit.h>
 
+#include <cassert>
+
 namespace URay
 {
 
@@ -18,7 +20,7 @@ void SceneSystem::Finalize()
 {
     while (!scenes.empty())
     {
-        UnloadScene(scenes.back()->GetType());
+        UnloadScene(scenes.back()->GetId());
     }
 }
 
@@ -32,23 +34,17 @@ void SceneSystem::Update(float deltaTime)
 
 std::unique_ptr<Scene> SceneSystem::CreateScene(SceneType type, const VirtualPath& filePath)
 {
-    std::unique_ptr<Scene> newScene = std::make_unique<Scene>(*this, type, filePath);
+    assert(nextSceneId != InvalidSceneId);
+
+    const SceneId id = nextSceneId++;
+    std::unique_ptr<Scene> newScene = std::make_unique<Scene>(*this, id, type, filePath);
     return newScene;
 }
 
-void SceneSystem::SwitchScene(std::unique_ptr<Scene> scene)
+Scene* SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
 {
     if (!scene)
-        return;
-
-    UnloadScene(scene->GetType());
-    LoadScene(std::move(scene));
-}
-
-void SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
-{
-    if (!scene)
-        return;
+        return nullptr;
 
     Scene* scenePtr = scene.get();
 
@@ -69,41 +65,60 @@ void SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
     {
         scenePtr->Load();
     }
+
+    return scenePtr;
 }
 
-void SceneSystem::UnloadScene(SceneType type)
+bool SceneSystem::UnloadScene(SceneId id)
 {
-    Scene* targetScene = GetSceneByType(type);
+    Scene* targetScene = GetScene(id);
 
-    if (targetScene)
+    if (!targetScene)
+        return false;
+
+    if (targetScene->GetType() == SceneType::Play)
     {
-        if (type == SceneType::Play)
-        {
-            targetScene->Unload();
-        }
-
-        targetScene->DestroyAllUnits();
-        sceneDestroyRay.Emit(targetScene);
-        scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
-                                    [targetScene](const std::unique_ptr<Scene>& scene)
-                                    {
-                                        return scene.get() == targetScene;
-                                    }),
-                     scenes.end());
+        targetScene->Unload();
     }
+
+    targetScene->DestroyAllUnits();
+    sceneDestroyRay.Emit(targetScene);
+    scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
+                                [targetScene](const std::unique_ptr<Scene>& scene)
+                                {
+                                    return scene.get() == targetScene;
+                                }),
+                 scenes.end());
+
+    return true;
 }
 
-Scene* SceneSystem::GetSceneByType(SceneType type) const
+Scene* SceneSystem::GetScene(SceneId id) const
 {
     for (const auto& scene : scenes)
     {
-        if (scene->GetType() == type)
+        if (scene->GetId() == id)
         {
             return scene.get();
         }
     }
 
     return nullptr;
+}
+
+std::vector<Scene*> SceneSystem::GetScenes(SceneType type) const
+{
+    std::vector<Scene*> matchingScenes;
+
+    for (const auto& scene : scenes)
+    {
+        if (scene->GetType() == type)
+        {
+            matchingScenes.push_back(scene.get());
+        }
+    }
+
+    return matchingScenes;
 }
 
 } // namespace URay

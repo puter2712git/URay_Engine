@@ -41,8 +41,15 @@ TransformGizmo::TransformGizmo()
     strategies.push_back(std::make_unique<ScaleGizmoStrategy>(*this));
     currentStrategy = FindStrategy(GizmoMode::Translation);
 
-    Scene* editorScene = gEngine->GetSceneSystem().GetSceneByType(SceneType::Editor);
+    const std::vector<Scene*> editorScenes = gEngine->GetSceneSystem().GetScenes(SceneType::Editor);
+    Scene* editorScene = editorScenes.empty() ? nullptr : editorScenes.front();
+    if (!editorScene)
+        return;
+
     Render::RenderScene* renderScene = gEngine->GetRenderSystem().GetSceneSystem().GetRenderScene(editorScene);
+    if (!renderScene)
+        return;
+
     auto renderGizmo = std::make_unique<Render::GizmoObject>(Render::GizmoObjectState{});
     renderObject = renderGizmo.get();
     gEngine->GetRenderSystem().GetSceneSystem().AddObject(*renderScene, std::move(renderGizmo), nullptr);

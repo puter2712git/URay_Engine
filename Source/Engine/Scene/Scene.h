@@ -3,6 +3,7 @@
 #include <Engine/Object/Object.h>
 
 #include <Core/File/VirtualPath.h>
+#include <Core/Type/Types.h>
 
 #include <functional>
 #include <map>
@@ -27,6 +28,9 @@ enum class SceneType
     Play
 };
 
+using SceneId = uint64;
+constexpr SceneId InvalidSceneId = 0;
+
 struct UpdateGroup
 {
     int priority = 0;
@@ -36,7 +40,7 @@ struct UpdateGroup
 class Scene : public Object
 {
 public:
-    Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath);
+    Scene(SceneSystem& sceneSystem, SceneId id, SceneType type, const VirtualPath& filePath);
 
 public:
     void Load();
@@ -55,6 +59,8 @@ public:
 
     SceneSystem& GetSceneSystem() { return sceneSystem; }
 
+    SceneId GetId() const { return id; }
+
     const VirtualPath& GetFilePath() const { return filePath; }
     void SetFilePath(const VirtualPath& filePath) { this->filePath = filePath; }
 
@@ -65,6 +71,7 @@ public:
 
 private:
     SceneSystem& sceneSystem;
+    SceneId id = InvalidSceneId;
     VirtualPath filePath;
 
     bool loaded = false;

@@ -15,8 +15,8 @@
 namespace URay
 {
 
-Scene::Scene(SceneSystem& sceneSystem, SceneType type, const VirtualPath& filePath)
-    : sceneSystem(sceneSystem), type(type), filePath(filePath) {}
+Scene::Scene(SceneSystem& sceneSystem, SceneId id, SceneType type, const VirtualPath& filePath)
+    : sceneSystem(sceneSystem), id(id), type(type), filePath(filePath) {}
 
 void Scene::Load()
 {

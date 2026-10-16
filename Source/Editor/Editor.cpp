@@ -116,8 +116,7 @@ bool Editor::Initialize()
 
     auto createEmptyGameScene = [&]()
     {
-        sceneSystem.SwitchScene(sceneSystem.CreateScene(SceneType::Game, ""));
-        Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
+        Scene* gameScene = sceneSystem.LoadScene(sceneSystem.CreateScene(SceneType::Game, ""));
 
         auto unit = std::make_unique<Unit>();
         unit->SetName("New Unit");
@@ -145,7 +144,8 @@ bool Editor::Initialize()
                 YAML::Node sceneNode = YAML::Load(sceneText);
                 auto scene = sceneSystem.CreateScene(SceneType::Game, path);
                 scene->Deserialize(sceneNode);
-                sceneSystem.SwitchScene(std::move(scene));
+
+                sceneSystem.LoadScene(std::move(scene));
             }
             catch (const YAML::Exception& exception)
             {
@@ -178,8 +178,9 @@ void Editor::Finalize()
     inputActionMap.reset();
 
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+    auto gameScenes = sceneSystem.GetScenes(SceneType::Game);
 
-    Scene* gameScene = sceneSystem.GetSceneByType(SceneType::Game);
+    Scene* gameScene = gameScenes.empty() ? nullptr : gameScenes[0];
 
     if (editorSettings && editorCamera && widgetSystem && gameScene)
     {
@@ -289,18 +290,20 @@ void Editor::ProcessInputActions()
 bool Editor::SaveCurrentScene()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+    auto gameScenes = sceneSystem.GetScenes(SceneType::Game);
 
-    if (!scene)
+    Scene* gameScene = gameScenes.empty() ? nullptr : gameScenes[0];
+
+    if (!gameScene)
         return false;
 
-    if (scene->GetFilePath().ToString().empty())
+    if (gameScene->GetFilePath().ToString().empty())
     {
         OpenSaveSceneDialog();
         return true;
     }
 
-    return SaveSceneToPath(*scene, scene->GetFilePath());
+    return SaveSceneToPath(*gameScene, gameScene->GetFilePath());
 }
 
 bool Editor::SaveSceneToPath(Scene& scene, const VirtualPath& path)
@@ -323,18 +326,21 @@ bool Editor::SaveSceneToPath(Scene& scene, const VirtualPath& path)
 
 void Editor::OpenSaveSceneDialog()
 {
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
+
+    auto gameScenes = sceneSystem.GetScenes(SceneType::Game);
+    Scene* gameScene = gameScenes.empty() ? nullptr : gameScenes[0];
 
     SaveSceneDialog* dialog = widgetSystem->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
 
-    dialog->GetClosedRay().Register(this, [this, dialog](DialogResult result)
+    dialog->GetClosedRay().Register(this, [this, dialog, gameScene](DialogResult result)
                                     {
         if (result == DialogResult::Accepted)
         {
-            Scene* scene = gEngine->GetSceneSystem().GetSceneByType(SceneType::Game);
-            if (scene)
+            if (gameScene)
             {
-                SaveSceneToPath(*scene, dialog->GetSavePath());
+                SaveSceneToPath(*gameScene, dialog->GetSavePath());
             }
 
             widgetSystem->GetDialogLayer().CloseDialog();
@@ -344,9 +350,10 @@ void Editor::OpenSaveSceneDialog()
 void Editor::DeleteSelectedUnits()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    Scene* scene = sceneSystem.GetSceneByType(SceneType::Game);
+    auto gameScenes = sceneSystem.GetScenes(SceneType::Game);
+    Scene* gameScene = gameScenes.empty() ? nullptr : gameScenes[0];
 
-    if (!scene)
+    if (!gameScene)
         return;
 
     const std::vector<Unit*> selectedUnits = selectionSystem->GetSelectedUnits();
@@ -355,7 +362,7 @@ void Editor::DeleteSelectedUnits()
 
     for (Unit* unit : selectedUnits)
     {
-        if (!unit || unit->GetOwner() != scene)
+        if (!unit || unit->GetOwner() != gameScene)
             continue;
 
         selectedGameUnits.insert(unit);
@@ -387,7 +394,7 @@ void Editor::DeleteSelectedUnits()
 
     for (Unit* root : selectedRoots)
     {
-        scene->DestroyUnit(root);
+        gameScene->DestroyUnit(root);
     }
 }
 
