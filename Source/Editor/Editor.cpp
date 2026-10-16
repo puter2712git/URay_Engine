@@ -33,6 +33,7 @@
 
 #include <memory>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace URay
@@ -401,6 +402,7 @@ void Editor::PrepareRender()
 Render::RenderRequest Editor::BuildRenderRequest() const
 {
     Render::RenderRequest request = {};
+    Render::SceneRenderInfo sceneRenderInfo = {};
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
@@ -412,7 +414,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         Scene* playScene = playSession->GetScene();
 
         Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(playScene);
-        request.scenes.push_back(renderScene);
+        sceneRenderInfo.scenes.push_back(renderScene);
 
         for (const auto& unit : playScene->GetUnits())
         {
@@ -435,7 +437,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         camera->SetViewportExtent(
             viewportController->GetTargetExtent());
 
-        request.view = {
+        sceneRenderInfo.view = {
             .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
             .cameraDirection = transform ? transform->GetWorldForward() : Vector3::Forward,
             .nearPlane = camera ? camera->GetNearPlane() : 0.1f,
@@ -445,19 +447,19 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .viewMode = viewportController->GetViewMode()
         };
 
-        request.selectedUnits = selectionSystem->GetSelectedUnits();
+        sceneRenderInfo.selectedUnits = selectionSystem->GetSelectedUnits();
     }
     else
     {
         for (const auto& scene : sceneSystem.GetScenes())
         {
             Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(scene.get());
-            request.scenes.push_back(renderScene);
+            sceneRenderInfo.scenes.push_back(renderScene);
         }
 
         TransformComponent* transform = editorCamera->GetOwner()->GetTransform();
 
-        request.view = {
+        sceneRenderInfo.view = {
             .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
             .cameraDirection = transform ? transform->GetWorldForward() : Vector3::Forward,
             .nearPlane = editorCamera ? editorCamera->GetNearPlane() : 0.1f,
@@ -467,9 +469,10 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             .viewMode = viewportController->GetViewMode()
         };
 
-        request.selectedUnits = selectionSystem->GetSelectedUnits();
+        sceneRenderInfo.selectedUnits = selectionSystem->GetSelectedUnits();
     }
 
+    request.sceneRenderInfos.push_back(std::move(sceneRenderInfo));
     request.uiDrawContext = &widgetSystem->GetDrawContext();
 
     return request;

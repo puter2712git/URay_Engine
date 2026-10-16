@@ -33,15 +33,13 @@ class UIDrawContext;
 struct SceneRenderInfo
 {
     std::vector<RenderScene*> scenes;
-
     RenderView view = {};
+    std::vector<Unit*> selectedUnits;
 };
 
 struct RenderRequest
 {
-    std::vector<RenderScene*> scenes;
-    RenderView view = {};
-    std::vector<Unit*> selectedUnits;
+    std::vector<SceneRenderInfo> sceneRenderInfos;
     const UIDrawContext* uiDrawContext = nullptr;
 };
 
@@ -64,6 +62,9 @@ public:
     DrawCommandBuilder& GetBuilder() const { return *builder; }
 
 private:
+    void ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo);
+    void ExecuteUI(const UIDrawContext& context, RenderView& view);
+
     FogObject* FindFog(const std::vector<RenderScene*>& scenes) const;
     AmbientLightObject* FindAmbientLight(const std::vector<RenderScene*>& scenes) const;
     DirectionalLightObject* FindDirectionalLight(const std::vector<RenderScene*>& scenes) const;

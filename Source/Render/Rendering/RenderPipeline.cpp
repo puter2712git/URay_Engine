@@ -90,18 +90,37 @@ void RenderPipeline::Reset()
 
 void RenderPipeline::Execute(const RenderRequest& request)
 {
-    FogObject* fog = FindFog(request.scenes);
-    AmbientLightObject* ambientLight = FindAmbientLight(request.scenes);
-    DirectionalLightObject* directionalLight = FindDirectionalLight(request.scenes);
-    std::vector<PointLightObject*> pointLights = FindPointLights(request.scenes);
-    std::vector<SpotLightObject*> spotLights = FindSpotLights(request.scenes);
+    for (const SceneRenderInfo& sceneInfo : request.sceneRenderInfos)
+    {
+        Reset();
+        ExecuteSceneRenderInfo(sceneInfo);
+    }
+
+    if (!request.uiDrawContext)
+        return;
+
+    Reset();
+
+    RenderView uiView = request.sceneRenderInfos.empty()
+                            ? RenderView{}
+                            : request.sceneRenderInfos.back().view;
+    ExecuteUI(*request.uiDrawContext, uiView);
+}
+
+void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
+{
+    FogObject* fog = FindFog(sceneInfo.scenes);
+    AmbientLightObject* ambientLight = FindAmbientLight(sceneInfo.scenes);
+    DirectionalLightObject* directionalLight = FindDirectionalLight(sceneInfo.scenes);
+    std::vector<PointLightObject*> pointLights = FindPointLights(sceneInfo.scenes);
+    std::vector<SpotLightObject*> spotLights = FindSpotLights(sceneInfo.scenes);
 
     Renderer& renderer = renderSystem.GetRenderer();
     RenderTargetRegistry& renderTargetRegistry = renderer.GetRenderTargetRegistry();
 
     const Extent2D extent = renderer.GetSceneRenderTargetExtent();
 
-    RenderView view = request.view;
+    RenderView view = sceneInfo.view;
 
     const DrawCommandParams drawCommandParams = {
         .viewMode = view.viewMode
@@ -166,7 +185,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
     renderer.GetFrameResource().pointLightStorageBuffer->Update(pointLightConstants.data(), sizeof(PointLightConstants) * pointLightConstants.size());
     renderer.GetFrameResource().spotLightStorageBuffer->Update(spotLightConstants.data(), sizeof(SpotLightConstants) * spotLightConstants.size());
 
-    for (const RenderScene* scene : request.scenes)
+    for (const RenderScene* scene : sceneInfo.scenes)
     {
         size_t objectCount = scene->GetObjectCount();
 
@@ -228,11 +247,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
     {
     }
 
-    builder->FlushUI(*request.uiDrawContext);
-
-    for (Unit* selectedUnit : request.selectedUnits)
+    for (Unit* selectedUnit : sceneInfo.selectedUnits)
     {
-        for (RenderScene* scene : request.scenes)
+        for (RenderScene* scene : sceneInfo.scenes)
         {
             if (!scene)
                 continue;
@@ -285,6 +302,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
     {
         RenderPassId passId = pass->GetPassId();
 
+        if (passId == RenderPassId::UI)
+            continue;
+
         const uint32 passIndex = static_cast<uint32>(passId);
 
         const uint32 beginQuery = passIndex * 2;
@@ -315,6 +335,69 @@ void RenderPipeline::Execute(const RenderRequest& request)
         passContext.commandBuffer,
         *sceneRT.GetColorTexture(1),
         currentFrame);
+}
+
+void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
+{
+    builder->FlushUI(context);
+
+    for (const DrawCommand& cmd : builder->GetCommands())
+    {
+        const size_t passIdIndex = static_cast<size_t>(cmd.passId);
+        drawCmds[passIdIndex].push_back(cmd);
+    }
+
+    Renderer& renderer = renderSystem.GetRenderer();
+    RenderTargetRegistry& renderTargetRegistry = renderer.GetRenderTargetRegistry();
+    std::vector<SpotLightObject*> spotLights;
+    std::vector<PointLightObject*> pointLights;
+
+    const RenderPassContext passContext = {
+        .commandBuffer = *renderer.GetFrameResource().commandBuffer,
+        .resourceManager = renderSystem.GetResourceManager(),
+        .renderView = view,
+
+        .frameResource = renderer.GetFrameResource(),
+        .renderTargetRegistry = renderTargetRegistry,
+
+        .swapChainImage = renderer.GetSwapChainImage(),
+        .swapChainImageView = renderer.GetSwapChainImageView(),
+        .swapChainExtent = renderer.GetSwapChainExtent(),
+
+        .fogObject = nullptr,
+        .directionalLight = nullptr,
+        .spotLights = spotLights,
+        .pointLights = pointLights
+    };
+
+    const VkCommandBuffer vkCommandBuffer = passContext.commandBuffer.GetHandle();
+    const VkQueryPool queryPool = passContext.frameResource.gpuTimeStamps.queryPool;
+
+    for (auto& pass : passes)
+    {
+        if (pass->GetPassId() != RenderPassId::UI)
+            continue;
+
+        const uint32 passIndex = static_cast<uint32>(RenderPassId::UI);
+        const uint32 beginQuery = passIndex * 2;
+        const uint32 endQuery = beginQuery + 1;
+
+        vkCmdWriteTimestamp2(
+            vkCommandBuffer,
+            VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
+            queryPool,
+            beginQuery);
+
+        pass->Begin(passContext);
+        pass->Execute(passContext, drawCmds[passIndex]);
+        pass->End(passContext);
+
+        vkCmdWriteTimestamp2(
+            vkCommandBuffer,
+            VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
+            queryPool,
+            endQuery);
+    }
 }
 
 void RenderPipeline::AddRenderPass(std::unique_ptr<RenderPass> pass)
