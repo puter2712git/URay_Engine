@@ -76,7 +76,10 @@ void DrawCommandBuilder::FlushUI(const UIDrawContext& context)
     drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 
-void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPassId passId)
+void DrawCommandBuilder::BuildMesh(
+    const MeshCommandContext& context,
+    RenderPassId passId,
+    const DrawCommandParams& params)
 {
     context.material->PrepareDescriptorSet(currentFrame);
 
@@ -84,7 +87,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
 
     std::vector<ShaderDefine> defines;
 
-    switch (viewMode)
+    switch (params.viewMode)
     {
     case ViewMode::Lit:
     case ViewMode::Wireframe:
@@ -122,7 +125,7 @@ void DrawCommandBuilder::BuildMesh(const MeshCommandContext& context, RenderPass
 
     stateDesc.colorBlendAttachments = colorBlendAttachments;
 
-    stateDesc.rasterizer.polygonMode = viewMode == ViewMode::Wireframe
+    stateDesc.rasterizer.polygonMode = params.viewMode == ViewMode::Wireframe
                                            ? PolygonMode::Line
                                            : PolygonMode::Fill;
 

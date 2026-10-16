@@ -21,7 +21,7 @@ void BillboardObject::Update(const BillboardObjectState& state)
     NotifyUpdated();
 }
 
-void BillboardObject::Submit(DrawCommandBuilder& builder) const
+void BillboardObject::Submit(DrawCommandBuilder& builder, const DrawCommandParams&) const
 {
     if (!state.mesh)
         return;
@@ -44,7 +44,7 @@ void BillboardObject::Submit(DrawCommandBuilder& builder) const
     }
 }
 
-void BillboardObject::SubmitSelectionMask(DrawCommandBuilder& builder) const
+void BillboardObject::SubmitSelectionMask(DrawCommandBuilder& builder, const DrawCommandParams&) const
 {
     if (!state.mesh)
         return;

@@ -21,7 +21,7 @@ void MeshObject::Update(const MeshObjectState& state)
     NotifyUpdated();
 }
 
-void MeshObject::Submit(DrawCommandBuilder& builder) const
+void MeshObject::Submit(DrawCommandBuilder& builder, const DrawCommandParams& params) const
 {
     if (!state.mesh)
         return;
@@ -40,7 +40,8 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
               .material = state.materials[section.materialIndex],
               .indexOffset = section.indexOffset,
               .indexCount = section.indexCount },
-            RenderPassId::Opaque);
+            RenderPassId::Opaque,
+            params);
 
         if (state.castsShadow)
         {
@@ -52,12 +53,13 @@ void MeshObject::Submit(DrawCommandBuilder& builder) const
                   .material = state.materials[section.materialIndex],
                   .indexOffset = section.indexOffset,
                   .indexCount = section.indexCount },
-                RenderPassId::Shadow);
+                RenderPassId::Shadow,
+                params);
         }
     }
 }
 
-void MeshObject::SubmitSelectionMask(DrawCommandBuilder& builder) const
+void MeshObject::SubmitSelectionMask(DrawCommandBuilder& builder, const DrawCommandParams& params) const
 {
     if (!state.mesh)
         return;
@@ -75,7 +77,8 @@ void MeshObject::SubmitSelectionMask(DrawCommandBuilder& builder) const
               .material = state.materials[section.materialIndex],
               .indexOffset = section.indexOffset,
               .indexCount = section.indexCount },
-            RenderPassId::SelectionMask);
+            RenderPassId::SelectionMask,
+            params);
     }
 }
 

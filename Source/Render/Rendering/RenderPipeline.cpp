@@ -103,7 +103,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
     RenderView view = request.view;
 
-    builder->SetViewMode(view.viewMode);
+    const DrawCommandParams drawCommandParams = {
+        .viewMode = view.viewMode
+    };
 
     FrameConstants frameConstants = {};
     frameConstants.view = view.viewMatrix;
@@ -190,7 +192,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
             if (DrawableObject* drawableObj = Cast<DrawableObject>(robj))
             {
-                drawableObj->Submit(*builder);
+                drawableObj->Submit(*builder, drawCommandParams);
             }
         }
 
@@ -242,7 +244,7 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
                 if (DrawableObject* drawableObject = Cast<DrawableObject>(renderObject))
                 {
-                    drawableObject->SubmitSelectionMask(*builder);
+                    drawableObject->SubmitSelectionMask(*builder, drawCommandParams);
                 }
             }
         }

@@ -38,7 +38,7 @@ public:
 
 public:
     void Update(const GizmoObjectState& state);
-    void Submit(DrawCommandBuilder& builder) const override;
+    void Submit(DrawCommandBuilder& builder, const DrawCommandParams& params) const override;
 
 private:
     GizmoObjectState state;

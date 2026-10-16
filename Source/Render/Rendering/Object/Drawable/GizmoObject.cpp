@@ -20,7 +20,7 @@ void GizmoObject::Update(const GizmoObjectState& state)
     NotifyUpdated();
 }
 
-void GizmoObject::Submit(DrawCommandBuilder& builder) const
+void GizmoObject::Submit(DrawCommandBuilder& builder, const DrawCommandParams&) const
 {
     if (!state.material)
         return;

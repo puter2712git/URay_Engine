@@ -5,8 +5,6 @@
 
 #include <Render/RHI/Vertex/Vertex.h>
 #include <Render/Rendering/RenderPass/RenderPassId.h>
-#include <Render/Rendering/View/ViewMode.h>
-
 #include <Core/Math/AABB.h>
 
 #include <memory>
@@ -43,7 +41,7 @@ public:
     void FlushLines();
     void FlushUI(const UIDrawContext& context);
 
-    void BuildMesh(const MeshCommandContext& context, RenderPassId passId);
+    void BuildMesh(const MeshCommandContext& context, RenderPassId passId, const DrawCommandParams& params);
     void BuildBillboard(const BillboardCommandContext& context, RenderPassId passId);
 
     void BuildDecal(const DecalCommandContext& context);
@@ -56,8 +54,6 @@ public:
 
     const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
 
-    void SetViewMode(ViewMode newViewMode) { viewMode = newViewMode; }
-
 private:
     AssetSystem& assetSystem;
     Device& device;
@@ -69,7 +65,6 @@ private:
     std::unique_ptr<LineBatcher> lineBatcher = nullptr;
     std::unique_ptr<UIBatcher> uiBatcher = nullptr;
 
-    ViewMode viewMode = ViewMode::Lit;
 };
 
 } // namespace URay::Render

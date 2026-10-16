@@ -30,6 +30,13 @@ class PointLightObject;
 class SpotLightObject;
 class UIDrawContext;
 
+struct SceneRenderInfo
+{
+    std::vector<RenderScene*> scenes;
+
+    RenderView view = {};
+};
+
 struct RenderRequest
 {
     std::vector<RenderScene*> scenes;

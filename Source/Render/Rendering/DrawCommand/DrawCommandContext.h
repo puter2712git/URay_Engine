@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Render/Rendering/View/ViewMode.h>
+
 #include <Core/Math/AABB.h>
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
@@ -15,6 +17,11 @@ class Mesh;
 
 namespace URay::Render
 {
+
+struct DrawCommandParams
+{
+    ViewMode viewMode = ViewMode::Lit;
+};
 
 struct MeshCommandContext
 {

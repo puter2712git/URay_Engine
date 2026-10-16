@@ -16,7 +16,7 @@ void LineObject::Update(const LineObjectState& state)
     NotifyUpdated();
 }
 
-void LineObject::Submit(DrawCommandBuilder& builder) const
+void LineObject::Submit(DrawCommandBuilder& builder, const DrawCommandParams&) const
 {
     for (const Line& line : state.lines)
     {

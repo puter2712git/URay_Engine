@@ -6,6 +6,7 @@ namespace URay::Render
 {
 
 class DrawCommandBuilder;
+struct DrawCommandParams;
 
 class DrawableObject : public RenderObject
 {
@@ -15,8 +16,8 @@ public:
     ~DrawableObject() override = default;
 
 public:
-    virtual void Submit(DrawCommandBuilder& builder) const = 0;
-    virtual void SubmitSelectionMask(DrawCommandBuilder& builder) const {}
+    virtual void Submit(DrawCommandBuilder& builder, const DrawCommandParams& params) const = 0;
+    virtual void SubmitSelectionMask(DrawCommandBuilder& builder, const DrawCommandParams& params) const {}
 };
 
 } // namespace URay::Render

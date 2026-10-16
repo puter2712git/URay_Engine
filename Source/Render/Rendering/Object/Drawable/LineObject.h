@@ -32,7 +32,7 @@ public:
 
 public:
     void Update(const LineObjectState& state);
-    void Submit(DrawCommandBuilder& builder) const override;
+    void Submit(DrawCommandBuilder& builder, const DrawCommandParams& params) const override;
 
 private:
     LineObjectState state;
