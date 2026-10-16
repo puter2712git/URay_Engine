@@ -8,7 +8,6 @@
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/RenderConstants.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/ResourceManager.h>
 
 #include <vulkan/vulkan.h>
@@ -24,7 +23,7 @@ SelectionMaskPass::~SelectionMaskPass() = default;
 
 void SelectionMaskPass::Begin(const RenderPassContext& context)
 {
-    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+    RenderTarget& selectionMaskRT = *context.sceneTargets->selectionMask;
     const Extent2D& extent = selectionMaskRT.GetExtent();
 
     const std::array colorAttachments = {
@@ -72,7 +71,7 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
 
 void SelectionMaskPass::End(const RenderPassContext& context)
 {
-    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+    RenderTarget& selectionMaskRT = *context.sceneTargets->selectionMask;
 
     context.commandBuffer.EndRendering();
 

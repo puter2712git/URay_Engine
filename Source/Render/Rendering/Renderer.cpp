@@ -56,16 +56,26 @@ static std::string_view GetRenderPassName(RenderPassId passId)
 {
     switch (passId)
     {
-    case RenderPassId::Shadow: return "Shadow";
-    case RenderPassId::Opaque: return "Opaque";
-    case RenderPassId::SelectionMask: return "Selection Mask";
-    case RenderPassId::Decal: return "Decal";
-    case RenderPassId::Overlay: return "Overlay";
-    case RenderPassId::Gizmo: return "Gizmo";
-    case RenderPassId::Fog: return "Fog";
-    case RenderPassId::SelectionOutline: return "Selection Outline";
-    case RenderPassId::UI: return "UI";
-    case RenderPassId::Count: break;
+    case RenderPassId::Shadow:
+        return "Shadow";
+    case RenderPassId::Opaque:
+        return "Opaque";
+    case RenderPassId::SelectionMask:
+        return "Selection Mask";
+    case RenderPassId::Decal:
+        return "Decal";
+    case RenderPassId::Overlay:
+        return "Overlay";
+    case RenderPassId::Gizmo:
+        return "Gizmo";
+    case RenderPassId::Fog:
+        return "Fog";
+    case RenderPassId::SelectionOutline:
+        return "Selection Outline";
+    case RenderPassId::UI:
+        return "UI";
+    case RenderPassId::Count:
+        break;
     }
 
     return "Unknown";
@@ -376,6 +386,17 @@ Extent2D Renderer::GetSceneRenderTargetExtent() const
 {
     RenderTarget& sceneRT = renderTargetRegistry->Get(RenderTargetId::Scene);
     return sceneRT.GetExtent();
+}
+
+SceneRenderTargets Renderer::GetViewportSceneRenderTargets() const
+{
+    SceneRenderTargets renderTargets = {};
+    renderTargets.scene = &renderTargetRegistry->Get(RenderTargetId::Scene);
+    renderTargets.postProcess = &renderTargetRegistry->Get(RenderTargetId::PostProcess);
+    renderTargets.selectionMask = &renderTargetRegistry->Get(RenderTargetId::SelectionMask);
+    renderTargets.gizmoDepth = &renderTargetRegistry->Get(RenderTargetId::GizmoDepth);
+
+    return renderTargets;
 }
 
 VkImage Renderer::GetSwapChainImage() const

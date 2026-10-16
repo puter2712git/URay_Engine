@@ -9,7 +9,6 @@
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/RenderConstants.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/ResourceManager.h>
 
 #include <vulkan/vulkan.h>
@@ -25,7 +24,7 @@ OpaquePass::~OpaquePass() = default;
 
 void OpaquePass::Begin(const RenderPassContext& context)
 {
-    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
+    RenderTarget& sceneRT = *context.sceneTargets->scene;
 
     const Extent2D& extent = sceneRT.GetExtent();
 

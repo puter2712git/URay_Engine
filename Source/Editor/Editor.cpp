@@ -479,6 +479,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
         sceneRenderInfo.selectedUnits = selectionSystem->GetSelectedUnits();
     }
 
+    sceneRenderInfo.targets = renderSystem.GetRenderer().GetViewportSceneRenderTargets();
+
     request.sceneRenderInfos.push_back(std::move(sceneRenderInfo));
     request.uiDrawContext = &widgetSystem->GetDrawContext();
 

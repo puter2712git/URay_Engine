@@ -27,7 +27,6 @@
 #include <Render/Rendering/RenderPass/SelectionMaskPass.h>
 #include <Render/Rendering/RenderPass/SelectionOutlinePass.h>
 #include <Render/Rendering/RenderPass/ShadowPass.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/RenderEnvironment.h>
 #include <Render/Rendering/Scene/RenderScene.h>
@@ -110,6 +109,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
 
 void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
 {
+    if (!sceneInfo.targets.IsValid())
+        return;
+
     FogObject* fog = nullptr;
     AmbientLightObject* ambientLight = nullptr;
     DirectionalLightObject* directionalLight = nullptr;
@@ -140,9 +142,8 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
     }
 
     Renderer& renderer = renderSystem.GetRenderer();
-    RenderTargetRegistry& renderTargetRegistry = renderer.GetRenderTargetRegistry();
 
-    const Extent2D extent = renderer.GetSceneRenderTargetExtent();
+    const Extent2D extent = sceneInfo.targets.scene->GetExtent();
 
     RenderView view = sceneInfo.view;
 
@@ -307,7 +308,7 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
         .renderView = view,
 
         .frameResource = renderer.GetFrameResource(),
-        .renderTargetRegistry = renderTargetRegistry,
+        .sceneTargets = &sceneInfo.targets,
 
         .swapChainImage = renderer.GetSwapChainImage(),
         .swapChainImageView = renderer.GetSwapChainImageView(),
@@ -353,11 +354,10 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
             endQuery);
     }
 
-    RenderTarget& sceneRT = renderTargetRegistry.Get(RenderTargetId::Scene);
-
+    Texture* idTexture = sceneInfo.targets.scene->GetColorTexture(1);
     renderer.GetObjectIdReadback().Record(
         passContext.commandBuffer,
-        *sceneRT.GetColorTexture(1),
+        *idTexture,
         currentFrame);
 }
 
@@ -372,7 +372,6 @@ void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
     }
 
     Renderer& renderer = renderSystem.GetRenderer();
-    RenderTargetRegistry& renderTargetRegistry = renderer.GetRenderTargetRegistry();
     std::vector<SpotLightObject*> spotLights;
     std::vector<PointLightObject*> pointLights;
 
@@ -382,7 +381,7 @@ void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
         .renderView = view,
 
         .frameResource = renderer.GetFrameResource(),
-        .renderTargetRegistry = renderTargetRegistry,
+        .sceneTargets = nullptr,
 
         .swapChainImage = renderer.GetSwapChainImage(),
         .swapChainImageView = renderer.GetSwapChainImageView(),

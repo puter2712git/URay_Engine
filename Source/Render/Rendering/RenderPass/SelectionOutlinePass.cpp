@@ -15,7 +15,6 @@
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/RenderConstants.h>
 #include <Render/Rendering/RenderInfo.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/ResourceManager.h>
 #include <Render/Shader/Shader.h>
 
@@ -38,8 +37,8 @@ SelectionOutlinePass::~SelectionOutlinePass() = default;
 
 void SelectionOutlinePass::Begin(const RenderPassContext& context)
 {
-    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
-    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+    RenderTarget& postProcessRT = *context.sceneTargets->postProcess;
+    RenderTarget& selectionMaskRT = *context.sceneTargets->selectionMask;
 
     EnsureResources(context);
 
@@ -76,7 +75,7 @@ void SelectionOutlinePass::Begin(const RenderPassContext& context)
 
 void SelectionOutlinePass::End(const RenderPassContext& context)
 {
-    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+    RenderTarget& postProcessRT = *context.sceneTargets->postProcess;
 
     context.commandBuffer.EndRendering();
 
@@ -87,7 +86,7 @@ void SelectionOutlinePass::Execute(
     const RenderPassContext& context,
     const std::vector<DrawCommand>& drawCmds)
 {
-    RenderTarget& selectionMaskRT = context.renderTargetRegistry.Get(RenderTargetId::SelectionMask);
+    RenderTarget& selectionMaskRT = *context.sceneTargets->selectionMask;
 
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

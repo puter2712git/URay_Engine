@@ -2,6 +2,7 @@
 
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/RenderPass/RenderPassId.h>
+#include <Render/Rendering/SceneRenderTargets.h>
 
 #include <Core/Math/Matrix.h>
 
@@ -15,13 +16,11 @@ namespace URay::Render
 class CommandBuffer;
 class ResourceManager;
 class DescriptorSet;
-class RenderTarget;
 class Framebuffer;
 class FogObject;
 class DirectionalLightObject;
 class SpotLightObject;
 class PointLightObject;
-class RenderTargetRegistry;
 struct RenderView;
 struct FrameResource;
 
@@ -34,7 +33,8 @@ struct RenderPassContext
     RenderView& renderView;
 
     FrameResource& frameResource;
-    RenderTargetRegistry& renderTargetRegistry;
+
+    const SceneRenderTargets* sceneTargets = nullptr;
 
     VkImage swapChainImage = VK_NULL_HANDLE;
     VkImageView swapChainImageView = VK_NULL_HANDLE;

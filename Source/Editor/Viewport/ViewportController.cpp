@@ -10,9 +10,9 @@
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Scene/Unit.h>
 #include <Platform/Window/Window.h>
+#include <Render/RHI/RenderTarget.h>
 #include <Render/RHI/Texture/Sampler.h>
 #include <Render/Rendering/ObjectIdReadback.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 #include <Render/ResourceManager.h>
@@ -153,8 +153,11 @@ void ViewportController::SetDisplayRect(const Rect& rect)
 
 std::optional<ViewportImage> ViewportController::GetDisplayImage()
 {
-    Render::RenderTarget& postProcessRT = renderer.GetRenderTargetRegistry().Get(
-        Render::RenderTargetId::PostProcess);
+    const Render::SceneRenderTargets targets = renderer.GetViewportSceneRenderTargets();
+    if (!targets.postProcess)
+        return std::nullopt;
+
+    Render::RenderTarget& postProcessRT = *targets.postProcess;
 
     Render::TextureView* view = postProcessRT.GetColorView(0);
     Render::Sampler* sampler = resourceManager.GetOrCreateSampler({});

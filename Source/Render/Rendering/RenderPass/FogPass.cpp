@@ -14,7 +14,6 @@
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/Object/FogObject.h>
 #include <Render/Rendering/RenderInfo.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/ResourceManager.h>
 #include <Render/Shader/Shader.h>
 
@@ -35,7 +34,7 @@ FogPass::~FogPass() = default;
 
 void FogPass::Begin(const RenderPassContext& context)
 {
-    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+    RenderTarget& postProcessRT = *context.sceneTargets->postProcess;
 
     EnsureResources(context);
 
@@ -67,7 +66,7 @@ void FogPass::Begin(const RenderPassContext& context)
 
 void FogPass::End(const RenderPassContext& context)
 {
-    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+    RenderTarget& postProcessRT = *context.sceneTargets->postProcess;
 
     context.commandBuffer.EndRendering();
 
@@ -78,7 +77,7 @@ void FogPass::Execute(
     const RenderPassContext& context,
     const std::vector<DrawCommand>&)
 {
-    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
+    RenderTarget& sceneRT = *context.sceneTargets->scene;
 
     FogConstants constants = {};
     constants.enabled = 0;

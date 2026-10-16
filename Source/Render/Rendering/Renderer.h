@@ -1,22 +1,22 @@
 #pragma once
 
+#include <Core/Math/Extent2D.h>
+#include <Core/Math/Matrix.h>
+#include <Core/Ray/EventRay.h>
+#include <Core/TimeFlow/Schedule/Scheduler.h>
+#include <Core/Type/Types.h>
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/ObjectIdReadback.h>
 #include <Render/Rendering/RenderInfo.h>
+#include <Render/Rendering/SceneRenderTargets.h>
 
-#include <Core/Math/Extent2D.h>
-#include <Core/Math/Matrix.h>
-#include <Core/TimeFlow/Schedule/Scheduler.h>
-#include <Core/Type/Types.h>
-
-#include <Core/Ray/EventRay.h>
+#include <vulkan/vulkan.h>
 
 #include <memory>
 #include <optional>
 #include <vector>
-#include <vulkan/vulkan.h>
 
 namespace URay
 {
@@ -57,6 +57,8 @@ public:
 
     void RequestSceneRenderTargetResize(const Extent2D& extent);
     Extent2D GetSceneRenderTargetExtent() const;
+
+    SceneRenderTargets GetViewportSceneRenderTargets() const;
 
     VkImage GetSwapChainImage() const;
     VkImageView GetSwapChainImageView() const;

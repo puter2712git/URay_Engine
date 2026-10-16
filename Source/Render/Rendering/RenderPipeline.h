@@ -3,6 +3,7 @@
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/RenderPass/RenderPass.h>
 #include <Render/Rendering/RenderPass/RenderPassId.h>
+#include <Render/Rendering/SceneRenderTargets.h>
 #include <Render/Rendering/View/RenderView.h>
 
 #include <Core/Type/Types.h>
@@ -35,6 +36,7 @@ struct SceneRenderInfo
     std::vector<RenderScene*> scenes;
     RenderView view = {};
     std::vector<Unit*> selectedUnits;
+    SceneRenderTargets targets = {};
 };
 
 struct RenderRequest

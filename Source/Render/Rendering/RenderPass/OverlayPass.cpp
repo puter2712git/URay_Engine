@@ -8,7 +8,6 @@
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/RenderConstants.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/ResourceManager.h>
 
 #include <vulkan/vulkan.h>
@@ -28,7 +27,7 @@ void OverlayPass::Begin(const RenderPassContext& context)
 
 void OverlayPass::End(const RenderPassContext& context)
 {
-    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
+    RenderTarget& sceneRT = *context.sceneTargets->scene;
 
     context.commandBuffer.EndRendering();
 

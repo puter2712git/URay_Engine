@@ -8,7 +8,7 @@
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/Rendering/FrameResource.h>
 #include <Render/Rendering/RenderConstants.h>
-#include <Render/Rendering/RenderTargetRegistry.h>
+#include <Render/Rendering/SceneRenderTargets.h>
 #include <Render/ResourceManager.h>
 
 #include <vulkan/vulkan.h>
@@ -24,9 +24,9 @@ GizmoPass::~GizmoPass() = default;
 
 void GizmoPass::Begin(const RenderPassContext& context)
 {
-    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
-    RenderTarget& sceneRT = context.renderTargetRegistry.Get(RenderTargetId::Scene);
-    RenderTarget& gizmoDepthRT = context.renderTargetRegistry.Get(RenderTargetId::GizmoDepth);
+    RenderTarget& postProcessRT = *context.sceneTargets->postProcess;
+    RenderTarget& sceneRT = *context.sceneTargets->scene;
+    RenderTarget& gizmoDepthRT = *context.sceneTargets->gizmoDepth;
 
     const Extent2D& extent = postProcessRT.GetExtent();
 
@@ -79,7 +79,7 @@ void GizmoPass::Begin(const RenderPassContext& context)
 
 void GizmoPass::End(const RenderPassContext& context)
 {
-    RenderTarget& postProcessRT = context.renderTargetRegistry.Get(RenderTargetId::PostProcess);
+    RenderTarget& postProcessRT = *context.sceneTargets->postProcess;
 
     context.commandBuffer.EndRendering();
     postProcessRT.TransitionColor(context.commandBuffer, 0, ImageLayout::ShaderReadOnly);
