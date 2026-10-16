@@ -22,6 +22,7 @@ namespace URay
 {
 class Window;
 class VirtualFileSystem;
+class PerformanceViewModel;
 } // namespace URay
 
 namespace URay::Render
@@ -70,6 +71,8 @@ public:
     ObjectIdReadback& GetObjectIdReadback() { return *objectIdReadback; }
     EventRay<const ObjectIdReadbackResult&>& GetObjectIdReadbackRay() { return objectIdReadbackRay; }
 
+    void SetPerformanceViewModel(PerformanceViewModel* viewModel) { performanceViewModel = viewModel; }
+
 private:
     bool CreateSceneRenderTarget();
     bool CreatePostProcessRenderTarget();
@@ -86,6 +89,8 @@ private:
     void DestroyFrameResources();
 
     void ProcessPendingSceneRenderTargetResize();
+
+    bool ConsumeGPUTimestampResults(FrameResource& frameResource);
 
     Format FindDepthFormat() const;
     bool HasStencilComponent(VkFormat format) const;
@@ -117,9 +122,13 @@ private:
 
     std::unique_ptr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
     std::array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;
+    uint64 gpuTimestampSubmissionSequence = 0;
+    PerformanceViewModel* performanceViewModel = nullptr;
 
     std::unique_ptr<ObjectIdReadback> objectIdReadback = nullptr;
     EventRay<const ObjectIdReadbackResult&> objectIdReadbackRay;
 };
+
+constexpr uint32 GpuTimestampQueryCount = 2 * static_cast<uint32>(RenderPassId::Count);
 
 } // namespace URay::Render

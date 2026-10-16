@@ -28,14 +28,18 @@ private:
     static constexpr float ScopeRefreshInterval = 1.0f;
 
     void UpdateCpuFrameLabel();
-    void UpdateScopeLabels();
+    void UpdateGpuFrameLabel();
+    void UpdateCpuScopeLabels();
+    void UpdateGpuScopeLabels();
 
 private:
     VerticalLayout* layout = nullptr;
 
     Label* fpsLabel = nullptr;
     Label* cpuFrameLabel = nullptr;
-    std::array<Label*, MaxScopeRows> scopeLabels = {};
+    Label* gpuFrameLabel = nullptr;
+    std::array<Label*, MaxScopeRows> cpuScopeLabels = {};
+    std::array<Label*, MaxScopeRows> gpuScopeLabels = {};
 
     float scopeRefreshElapsed = ScopeRefreshInterval;
 };

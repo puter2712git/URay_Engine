@@ -99,6 +99,7 @@ bool Editor::Initialize()
         useEditorCamera);
 
     performanceViewModel = std::make_unique<PerformanceViewModel>();
+    renderSystem.GetRenderer().SetPerformanceViewModel(performanceViewModel.get());
 
     widgetSystem = std::make_unique<WidgetSystem>(*viewportController);
     if (!widgetSystem->Initialize())
@@ -206,6 +207,7 @@ void Editor::Finalize()
 
     if (performanceViewModel)
     {
+        gEngine->GetRenderSystem().GetRenderer().SetPerformanceViewModel(nullptr);
         performanceViewModel.reset();
     }
     lastProfileFrameNumber = 0;
@@ -510,7 +512,7 @@ void Editor::UpdatePerformanceViewModel()
     if (completedFrameNumber == 0 || completedFrameNumber == lastProfileFrameNumber)
         return;
 
-    performanceViewModel->AddCompletedFrame(
+    performanceViewModel->AddCPUFrame(
         completedFrameNumber,
         analytics.GetCompletedSamples());
 

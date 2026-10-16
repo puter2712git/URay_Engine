@@ -12,12 +12,43 @@ namespace URay
 PerformanceViewModel::PerformanceViewModel(size_t historyCapacity)
     : historyCapacity(std::max<size_t>(1, historyCapacity)) {}
 
-void PerformanceViewModel::AddCompletedFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples)
+void PerformanceViewModel::AddCPUFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples)
 {
-    std::vector<ScopeSample> orderedSamples = samples;
+    std::vector<ProfileSample> profileSamples;
+    profileSamples.reserve(samples.size());
+
+    for (const ScopeSample& sample : samples)
+    {
+        profileSamples.push_back(ProfileSample{
+            .name = std::string(sample.name),
+            .startMs = sample.startMs,
+            .durationMs = sample.durationMs,
+            .depth = sample.depth });
+    }
+
+    AddFrame(ProfileDomain::CPU, frameNumber, profileSamples);
+}
+
+void PerformanceViewModel::AddGPUFrame(uint64 submissionNumber, const std::vector<ProfileSample>& samples)
+{
+    AddFrame(ProfileDomain::GPU, submissionNumber, samples);
+}
+
+const ProfileFrame* PerformanceViewModel::GetLatestFrame(ProfileDomain domain) const
+{
+    const ProfileChannel& channel = channels[static_cast<size_t>(domain)];
+    return channel.frames.empty() ? nullptr : &channel.frames.back();
+}
+
+void PerformanceViewModel::AddFrame(
+    ProfileDomain domain,
+    uint64 frameNumber,
+    const std::vector<ProfileSample>& samples)
+{
+    std::vector<ProfileSample> orderedSamples = samples;
 
     std::sort(orderedSamples.begin(), orderedSamples.end(),
-              [](const ScopeSample& lhs, const ScopeSample& rhs)
+              [](const ProfileSample& lhs, const ProfileSample& rhs)
               {
                   if (lhs.startMs != rhs.startMs)
                       return lhs.startMs < rhs.startMs;
@@ -31,7 +62,7 @@ void PerformanceViewModel::AddCompletedFrame(uint64 frameNumber, const std::vect
     std::vector<size_t> scopeStack;
     std::vector<double> directChildDuration;
 
-    for (const ScopeSample& sample : orderedSamples)
+    for (const ProfileSample& sample : orderedSamples)
     {
         while (!scopeStack.empty() && frame.scopes[scopeStack.back()].depth >= sample.depth)
         {
@@ -41,7 +72,7 @@ void PerformanceViewModel::AddCompletedFrame(uint64 frameNumber, const std::vect
         const size_t rowIndex = frame.scopes.size();
 
         frame.scopes.push_back(ProfileScopeRow{
-            .name = std::string(sample.name),
+            .name = sample.name,
             .startMs = sample.startMs,
             .durationMs = sample.durationMs,
             .selfMs = sample.durationMs,
@@ -49,8 +80,8 @@ void PerformanceViewModel::AddCompletedFrame(uint64 frameNumber, const std::vect
 
         directChildDuration.push_back(0.0);
 
-        frame.capturedCpuMs = std::max(
-            frame.capturedCpuMs,
+        frame.capturedMs = std::max(
+            frame.capturedMs,
             sample.startMs + sample.durationMs);
 
         if (sample.depth > 0 && !scopeStack.empty())
@@ -73,17 +104,18 @@ void PerformanceViewModel::AddCompletedFrame(uint64 frameNumber, const std::vect
             frame.scopes[index].durationMs - directChildDuration[index]);
     }
 
-    frames.push_back(std::move(frame));
+    ProfileChannel& channel = channels[static_cast<size_t>(domain)];
+    channel.frames.push_back(std::move(frame));
 
-    while (frames.size() > historyCapacity)
+    while (channel.frames.size() > historyCapacity)
     {
-        frames.pop_front();
+        channel.frames.pop_front();
     }
 
-    RebuildStatistics();
+    RebuildStatistics(channel);
 }
 
-void PerformanceViewModel::RebuildStatistics()
+void PerformanceViewModel::RebuildStatistics(ProfileChannel& channel)
 {
     struct ScopeValues
     {
@@ -93,22 +125,22 @@ void PerformanceViewModel::RebuildStatistics()
 
     std::unordered_map<std::string, ScopeValues> valuesByName;
 
-    for (const ProfileFrame& frame : frames)
+    for (const ProfileFrame& frame : channel.frames)
     {
         for (const ProfileScopeRow& scope : frame.scopes)
         {
             ScopeValues& values = valuesByName[scope.name];
             values.durations.push_back(scope.durationMs);
 
-            if (&frame == &frames.back())
+            if (&frame == &channel.frames.back())
             {
                 values.latestMs += scope.durationMs;
             }
         }
     }
 
-    statistics.clear();
-    statistics.reserve(valuesByName.size());
+    channel.statistics.clear();
+    channel.statistics.reserve(valuesByName.size());
 
     for (auto& [name, values] : valuesByName)
     {
@@ -122,7 +154,7 @@ void PerformanceViewModel::RebuildStatistics()
         const size_t count = values.durations.size();
         const size_t p95Index = static_cast<size_t>(std::ceil(static_cast<double>(count) * 0.95)) - 1;
 
-        statistics.push_back(ProfileScopeStatistics{
+        channel.statistics.push_back(ProfileScopeStatistics{
             .name = std::move(name),
             .sampleCount = static_cast<uint32>(count),
             .latestMs = values.latestMs,
@@ -132,8 +164,8 @@ void PerformanceViewModel::RebuildStatistics()
     }
 
     std::sort(
-        statistics.begin(),
-        statistics.end(),
+        channel.statistics.begin(),
+        channel.statistics.end(),
         [](const ProfileScopeStatistics& lhs, const ProfileScopeStatistics& rhs)
         {
             if (lhs.latestMs != rhs.latestMs)

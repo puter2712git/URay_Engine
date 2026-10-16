@@ -24,6 +24,31 @@
 namespace URay
 {
 
+template <size_t Count>
+void UpdateScopeLabels(
+    const std::vector<ProfileScopeStatistics>& statistics,
+    const std::array<Label*, Count>& labels)
+{
+    for (size_t index = 0; index < labels.size(); ++index)
+    {
+        Label* label = labels[index];
+
+        if (index >= statistics.size())
+        {
+            label->SetText({});
+            continue;
+        }
+
+        const ProfileScopeStatistics& scope = statistics[index];
+        label->SetText(std::format(
+            "{}  {:.2f} ms  avg {:.2f}  p95 {:.2f}",
+            scope.name,
+            scope.latestMs,
+            scope.averageMs,
+            scope.p95Ms));
+    }
+}
+
 StatusPanel::StatusPanel() : Panel("Status")
 {
     SetBackgroundColor(EditorStyle::Surface);
@@ -43,7 +68,26 @@ StatusPanel::StatusPanel() : Panel("Status")
     cpuFrameLabel->SetPreferredHeight(20.0f);
     cpuFrameLabel->SetTextStyle(EditorStyle::SmallText());
 
-    for (Label*& scopeLabel : scopeLabels)
+    Label* cpuScopesHeader = layout->AddChild<Label>("CPU scopes:");
+    cpuScopesHeader->SetPreferredHeight(18.0f);
+    cpuScopesHeader->SetTextStyle(EditorStyle::SmallText());
+
+    for (Label*& scopeLabel : cpuScopeLabels)
+    {
+        scopeLabel = layout->AddChild<Label>();
+        scopeLabel->SetPreferredHeight(18.0f);
+        scopeLabel->SetTextStyle(EditorStyle::SmallText());
+    }
+
+    gpuFrameLabel = layout->AddChild<Label>("GPU: collecting...");
+    gpuFrameLabel->SetPreferredHeight(20.0f);
+    gpuFrameLabel->SetTextStyle(EditorStyle::SmallText());
+
+    Label* gpuPassesHeader = layout->AddChild<Label>("GPU passes:");
+    gpuPassesHeader->SetPreferredHeight(18.0f);
+    gpuPassesHeader->SetTextStyle(EditorStyle::SmallText());
+
+    for (Label*& scopeLabel : gpuScopeLabels)
     {
         scopeLabel = layout->AddChild<Label>();
         scopeLabel->SetPreferredHeight(18.0f);
@@ -64,6 +108,7 @@ void StatusPanel::OnUpdate(float deltaTime)
     fpsLabel->SetText(std::format("FPS: {} ({:.2f} ms)", timer.GetFPS(), timer.GetDeltaTime() * 1000.0));
 
     UpdateCpuFrameLabel();
+    UpdateGpuFrameLabel();
 
     scopeRefreshElapsed += deltaTime;
 
@@ -71,13 +116,14 @@ void StatusPanel::OnUpdate(float deltaTime)
         return;
 
     scopeRefreshElapsed = 0.0f;
-    UpdateScopeLabels();
+    UpdateCpuScopeLabels();
+    UpdateGpuScopeLabels();
 }
 
 void StatusPanel::UpdateCpuFrameLabel()
 {
     const PerformanceViewModel& viewModel = gEditor->GetPerformanceViewModel();
-    const ProfileFrame* frame = viewModel.GetLatestFrame();
+    const ProfileFrame* frame = viewModel.GetLatestFrame(ProfileDomain::CPU);
 
     if (!frame)
     {
@@ -85,33 +131,37 @@ void StatusPanel::UpdateCpuFrameLabel()
     }
     else
     {
-        cpuFrameLabel->SetText(std::format("CPU: {:.2f} ms", frame->capturedCpuMs));
+        cpuFrameLabel->SetText(std::format("CPU: {:.2f} ms", frame->capturedMs));
     }
 }
 
-void StatusPanel::UpdateScopeLabels()
+void StatusPanel::UpdateGpuFrameLabel()
 {
     const PerformanceViewModel& viewModel = gEditor->GetPerformanceViewModel();
-    const std::vector<ProfileScopeStatistics>& statistics = viewModel.GetStatistics();
+    const ProfileFrame* frame = viewModel.GetLatestFrame(ProfileDomain::GPU);
 
-    for (size_t index = 0; index < scopeLabels.size(); ++index)
+    if (!frame)
     {
-        Label* label = scopeLabels[index];
-
-        if (index >= statistics.size())
-        {
-            label->SetText({});
-            continue;
-        }
-
-        const ProfileScopeStatistics& scope = statistics[index];
-        label->SetText(std::format(
-            "{}  {:.2f} ms  avg {:.2f}  p95 {:.2f}",
-            scope.name,
-            scope.latestMs,
-            scope.averageMs,
-            scope.p95Ms));
+        gpuFrameLabel->SetText("GPU: collecting...");
+        return;
     }
+
+    gpuFrameLabel->SetText(std::format(
+        "GPU: {:.2f} ms (submission {})",
+        frame->capturedMs,
+        frame->frameNumber));
+}
+
+void StatusPanel::UpdateCpuScopeLabels()
+{
+    const PerformanceViewModel& viewModel = gEditor->GetPerformanceViewModel();
+    UpdateScopeLabels(viewModel.GetStatistics(ProfileDomain::CPU), cpuScopeLabels);
+}
+
+void StatusPanel::UpdateGpuScopeLabels()
+{
+    const PerformanceViewModel& viewModel = gEditor->GetPerformanceViewModel();
+    UpdateScopeLabels(viewModel.GetStatistics(ProfileDomain::GPU), gpuScopeLabels);
 }
 
 } // namespace URay

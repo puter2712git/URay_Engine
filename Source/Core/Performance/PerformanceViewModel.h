@@ -3,12 +3,28 @@
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/Type/Types.h>
 
+#include <array>
 #include <deque>
 #include <string>
 #include <vector>
 
 namespace URay
 {
+
+enum class ProfileDomain : uint8
+{
+    CPU,
+    GPU,
+    Count
+};
+
+struct ProfileSample
+{
+    std::string name;
+    double startMs = 0.0;
+    double durationMs = 0.0;
+    uint32 depth = 0;
+};
 
 struct ProfileScopeRow
 {
@@ -22,7 +38,7 @@ struct ProfileScopeRow
 struct ProfileFrame
 {
     uint64 frameNumber = 0;
-    double capturedCpuMs = 0.0;
+    double capturedMs = 0.0;
     std::vector<ProfileScopeRow> scopes;
 };
 
@@ -37,25 +53,32 @@ struct ProfileScopeStatistics
     double p95Ms = 0.0;
 };
 
+struct ProfileChannel
+{
+    std::deque<ProfileFrame> frames;
+    std::vector<ProfileScopeStatistics> statistics;
+};
+
 class PerformanceViewModel
 {
 public:
     explicit PerformanceViewModel(size_t historyCapacity = 120);
 
 public:
-    void AddCompletedFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples);
+    void AddCPUFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples);
+    void AddGPUFrame(uint64 submissionNumber, const std::vector<ProfileSample>& samples);
 
-    const ProfileFrame* GetLatestFrame() const { return frames.empty() ? nullptr : &frames.back(); }
-    const std::deque<ProfileFrame>& GetFrames() const { return frames; }
-    const std::vector<ProfileScopeStatistics>& GetStatistics() const { return statistics; }
+    const ProfileFrame* GetLatestFrame(ProfileDomain domain) const;
+    const std::vector<ProfileScopeStatistics>& GetStatistics(ProfileDomain domain) const { return channels[static_cast<size_t>(domain)].statistics; }
 
 private:
-    void RebuildStatistics();
+    void AddFrame(ProfileDomain domain, uint64 frameNumber, const std::vector<ProfileSample>& samples);
+
+    void RebuildStatistics(ProfileChannel& channel);
 
 private:
     size_t historyCapacity = 120;
-    std::deque<ProfileFrame> frames;
-    std::vector<ProfileScopeStatistics> statistics;
+    std::array<ProfileChannel, static_cast<size_t>(ProfileDomain::Count)> channels;
 };
 
 } // namespace URay

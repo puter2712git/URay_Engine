@@ -1,6 +1,7 @@
 #include <Render/Rendering/RenderPipeline.h>
 
 #include <Render/RHI/Buffer/Buffer.h>
+#include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/RenderTarget.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
@@ -272,14 +273,35 @@ void RenderPipeline::Execute(const RenderRequest& request)
         .pointLights = pointLights
     };
 
+    const VkCommandBuffer vkCommandBuffer = passContext.commandBuffer.GetHandle();
+    const VkQueryPool queryPool = passContext.frameResource.gpuTimeStamps.queryPool;
+
     for (auto& pass : passes)
     {
         RenderPassId passId = pass->GetPassId();
-        size_t passIdIndex = static_cast<size_t>(passId);
+
+        const uint32 passIndex = static_cast<uint32>(passId);
+
+        const uint32 beginQuery = passIndex * 2;
+        const uint32 endQuery = beginQuery + 1;
+
+        vkCmdWriteTimestamp2(
+            vkCommandBuffer,
+            VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
+            queryPool,
+            beginQuery);
+
+        const size_t passIdIndex = static_cast<size_t>(passId);
 
         pass->Begin(passContext);
         pass->Execute(passContext, drawCmds[passIdIndex]);
         pass->End(passContext);
+
+        vkCmdWriteTimestamp2(
+            vkCommandBuffer,
+            VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
+            queryPool,
+            endQuery);
     }
 
     RenderTarget& sceneRT = renderTargetRegistry.Get(RenderTargetId::Scene);

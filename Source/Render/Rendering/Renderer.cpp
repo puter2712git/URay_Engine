@@ -27,6 +27,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
+#include <Core/Performance/PerformanceViewModel.h>
 #include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetSystem.h>
@@ -45,10 +46,30 @@
 #include <iostream>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace URay::Render
 {
+
+static std::string_view GetRenderPassName(RenderPassId passId)
+{
+    switch (passId)
+    {
+    case RenderPassId::Shadow: return "Shadow";
+    case RenderPassId::Opaque: return "Opaque";
+    case RenderPassId::SelectionMask: return "Selection Mask";
+    case RenderPassId::Decal: return "Decal";
+    case RenderPassId::Overlay: return "Overlay";
+    case RenderPassId::Gizmo: return "Gizmo";
+    case RenderPassId::Fog: return "Fog";
+    case RenderPassId::SelectionOutline: return "Selection Outline";
+    case RenderPassId::UI: return "UI";
+    case RenderPassId::Count: break;
+    }
+
+    return "Unknown";
+}
 
 static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
@@ -161,9 +182,17 @@ bool Renderer::BeginFrame()
 {
     URAY_PROFILE_SCOPE("Renderer::BeginFrame");
 
+    FrameResource& frameResource = frameResources[currentFrame];
+
     {
         URAY_PROFILE_SCOPE("Renderer::WaitForInFlightFence");
         vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
+    }
+
+    if (frameResource.gpuTimeStamps.hasPendingResults)
+    {
+        if (!ConsumeGPUTimestampResults(frameResource))
+            return false;
     }
 
     {
@@ -211,8 +240,14 @@ bool Renderer::BeginFrame()
     {
         URAY_PROFILE_SCOPE("Renderer::BeginCommandBuffer");
 
-        if (!frameResources[currentFrame].commandBuffer->Begin(CommandBufferUsage::None))
+        if (!frameResource.commandBuffer->Begin(CommandBufferUsage::None))
             return false;
+
+        vkCmdResetQueryPool(
+            frameResource.commandBuffer->GetHandle(),
+            frameResource.gpuTimeStamps.queryPool,
+            0,
+            GpuTimestampQueryCount);
     }
 
     return true;
@@ -222,19 +257,22 @@ void Renderer::EndFrame()
 {
     URAY_PROFILE_SCOPE("Renderer::EndFrame");
 
+    FrameResource& frameResource = frameResources[currentFrame];
+    CommandBuffer& commandBuffer = *frameResource.commandBuffer;
+
     {
         URAY_PROFILE_SCOPE("Renderer::EndCommandBuffer");
 
-        if (!frameResources[currentFrame].commandBuffer->End())
+        if (!commandBuffer.End())
             return;
     }
 
     VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkCommandBuffer vkCommandBuffer = frameResources[currentFrame].commandBuffer->GetHandle();
+    VkCommandBuffer vkCommandBuffer = commandBuffer.GetHandle();
 
-    VkSemaphore waitSemaphores[] = { frameResources[currentFrame].imageAvailableSemaphore };
+    VkSemaphore waitSemaphores[] = { frameResource.imageAvailableSemaphore };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -249,9 +287,12 @@ void Renderer::EndFrame()
     {
         URAY_PROFILE_SCOPE("Renderer::QueueSubmit");
 
-        if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, frameResources[currentFrame].inFlightFence) != VK_SUCCESS)
+        if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, frameResource.inFlightFence) != VK_SUCCESS)
             return;
     }
+
+    frameResource.gpuTimeStamps.hasPendingResults = true;
+    frameResource.gpuTimeStamps.submissionFrameNumber = ++gpuTimestampSubmissionSequence;
 
     VkPresentInfoKHR presentInfo = {};
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -527,7 +568,7 @@ bool Renderer::CreateFrameResources()
         VkQueryPoolCreateInfo poolCreateInfo = {};
         poolCreateInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
         poolCreateInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
-        poolCreateInfo.queryCount = 2 * static_cast<uint32>(RenderPassId::Count);
+        poolCreateInfo.queryCount = GpuTimestampQueryCount;
 
         if (vkCreateQueryPool(device.GetVKDevice(), &poolCreateInfo, nullptr,
                               &frameResources[i].gpuTimeStamps.queryPool) != VK_SUCCESS)
@@ -653,6 +694,66 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
     renderTargetRegistry->RecreateViewportRelative(extent);
 
     viewportRenderTargetsRecreatedRay.Emit();
+}
+
+bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
+{
+    std::array<uint64, GpuTimestampQueryCount> timestamps = {};
+
+    const VkResult result = vkGetQueryPoolResults(
+        device.GetVKDevice(),
+        frameResource.gpuTimeStamps.queryPool,
+        0,
+        GpuTimestampQueryCount,
+        sizeof(timestamps),
+        timestamps.data(),
+        sizeof(uint64),
+        VK_QUERY_RESULT_64_BIT);
+
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG(
+            "[Renderer] Failed to read GPU timestamp queries. (VkResult: %d)",
+            static_cast<int>(result));
+        return false;
+    }
+
+    if (performanceViewModel)
+    {
+        VkPhysicalDeviceProperties properties = {};
+        vkGetPhysicalDeviceProperties(device.GetPhysicalDevice(), &properties);
+
+        const double tickToMs = static_cast<double>(properties.limits.timestampPeriod) / 1'000'000.0;
+
+        uint64 firstTimestamp = timestamps[0];
+        for (uint32 passIndex = 1; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
+        {
+            firstTimestamp = std::min(firstTimestamp, timestamps[passIndex * 2]);
+        }
+
+        std::vector<ProfileSample> samples;
+        samples.reserve(static_cast<size_t>(RenderPassId::Count));
+
+        for (uint32 passIndex = 0; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
+        {
+            const uint64 beginTimestamp = timestamps[passIndex * 2];
+            const uint64 endTimestamp = timestamps[passIndex * 2 + 1];
+            const RenderPassId passId = static_cast<RenderPassId>(passIndex);
+
+            samples.push_back(ProfileSample{
+                .name = std::string(GetRenderPassName(passId)),
+                .startMs = static_cast<double>(beginTimestamp - firstTimestamp) * tickToMs,
+                .durationMs = static_cast<double>(endTimestamp - beginTimestamp) * tickToMs,
+                .depth = 0 });
+        }
+
+        performanceViewModel->AddGPUFrame(
+            frameResource.gpuTimeStamps.submissionFrameNumber,
+            samples);
+    }
+
+    frameResource.gpuTimeStamps.hasPendingResults = false;
+    return true;
 }
 
 Format Renderer::FindDepthFormat() const
