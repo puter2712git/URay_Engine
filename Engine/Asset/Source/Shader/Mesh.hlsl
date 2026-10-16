@@ -90,13 +90,13 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
         : 1.0;
     lighting += EvaluateDirectional(frame.directionalLight, normal) * shadowVisibility;
         
-    for (uint i = 0; i < 256; ++i)
+    for (uint i = 0; i < frame.pointLightCount; ++i)
     {
         float pointShadow = GetPointShadowVisibility(pointLights[i], worldPosition);
         lighting += EvaluatePoint(pointLights[i], worldPosition, normal) * pointShadow;
     }
    
-    for (uint i = 0; i < 256; ++i)
+    for (uint i = 0; i < frame.spotLightCount; ++i)
     {
         float spotShadow = GetSpotShadowVisibility(spotLights[i], worldPosition);
         lighting += EvaluateSpot(spotLights[i], worldPosition, normal) * spotShadow;

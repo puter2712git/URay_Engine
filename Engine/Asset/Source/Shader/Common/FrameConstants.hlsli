@@ -17,6 +17,10 @@ struct FrameConstants
     
     AmbientLightConstants ambientLight;
     DirectionalLightConstants directionalLight;
+    
+    uint pointLightCount;
+    uint spotLightCount;
+    float2 padding;
 };
 [[vk::binding(0, 0)]] ConstantBuffer<FrameConstants> frame;
 

@@ -81,6 +81,10 @@ struct FrameConstants
 
     AmbientLightConstants ambientLight = {};
     DirectionalLightConstants directionalLight = {};
+
+    uint32 pointLightCount = 0;
+    uint32 spotLightCount = 0;
+    uint32 padding[2] = {};
 };
 
 struct ShadowMapConstants

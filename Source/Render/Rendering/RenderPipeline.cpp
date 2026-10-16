@@ -130,6 +130,9 @@ void RenderPipeline::Execute(const RenderRequest& request)
         frameConstants.directionalLight.castShadow = directionalLight->CastsShadow();
     }
 
+    frameConstants.pointLightCount = static_cast<uint32>(pointLights.size());
+    frameConstants.spotLightCount = static_cast<uint32>(spotLights.size());
+
     std::vector<PointLightConstants> pointLightConstants;
     uint32 shadowIndex = 0;
     for (size_t i = 0; i < pointLights.size(); ++i)
