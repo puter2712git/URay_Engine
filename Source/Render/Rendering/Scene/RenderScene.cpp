@@ -16,6 +16,7 @@
 #include <Core/Math/AABB.h>
 
 #include <algorithm>
+#include <cassert>
 
 namespace URay::Render
 {
@@ -38,13 +39,25 @@ void RenderScene::AddToTypeIndexes(RenderObject* object)
         viewObjects.push_back(viewObject);
 
     if (FogObject* fogObject = Cast<FogObject>(object))
-        fogObjects.push_back(fogObject);
+    {
+        assert(!environment.GetFog());
+        if (!environment.GetFog())
+            environment.SetFog(fogObject);
+    }
 
     if (AmbientLightObject* ambientLightObject = Cast<AmbientLightObject>(object))
-        ambientLightObjects.push_back(ambientLightObject);
+    {
+        assert(!environment.GetAmbientLight());
+        if (!environment.GetAmbientLight())
+            environment.SetAmbientLight(ambientLightObject);
+    }
 
     if (DirectionalLightObject* directionalLightObject = Cast<DirectionalLightObject>(object))
-        directionalLightObjects.push_back(directionalLightObject);
+    {
+        assert(!environment.GetDirectionalLight());
+        if (!environment.GetDirectionalLight())
+            environment.SetDirectionalLight(directionalLightObject);
+    }
 
     if (PointLightObject* pointLightObject = Cast<PointLightObject>(object))
         pointLightObjects.push_back(pointLightObject);
@@ -58,14 +71,14 @@ void RenderScene::RemoveFromTypeIndexes(RenderObject* object)
     if (ViewObject* viewObject = Cast<ViewObject>(object))
         std::erase(viewObjects, viewObject);
 
-    if (FogObject* fogObject = Cast<FogObject>(object))
-        std::erase(fogObjects, fogObject);
+    if (FogObject* fogObject = Cast<FogObject>(object); environment.GetFog() == fogObject)
+        environment.SetFog(nullptr);
 
-    if (AmbientLightObject* ambientLightObject = Cast<AmbientLightObject>(object))
-        std::erase(ambientLightObjects, ambientLightObject);
+    if (AmbientLightObject* ambientLightObject = Cast<AmbientLightObject>(object); environment.GetAmbientLight() == ambientLightObject)
+        environment.SetAmbientLight(nullptr);
 
-    if (DirectionalLightObject* directionalLightObject = Cast<DirectionalLightObject>(object))
-        std::erase(directionalLightObjects, directionalLightObject);
+    if (DirectionalLightObject* directionalLightObject = Cast<DirectionalLightObject>(object); environment.GetDirectionalLight() == directionalLightObject)
+        environment.SetDirectionalLight(nullptr);
 
     if (PointLightObject* pointLightObject = Cast<PointLightObject>(object))
         std::erase(pointLightObjects, pointLightObject);

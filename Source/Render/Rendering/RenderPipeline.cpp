@@ -29,6 +29,7 @@
 #include <Render/Rendering/RenderPass/ShadowPass.h>
 #include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/Rendering/Renderer.h>
+#include <Render/Rendering/Scene/RenderEnvironment.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/ResourceManager.h>
 
@@ -120,14 +121,16 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
         if (!scene)
             continue;
 
+        const RenderEnvironment& environment = scene->GetEnvironment();
+
         if (!fog)
-            fog = scene->GetFog();
+            fog = environment.GetFog();
 
         if (!ambientLight)
-            ambientLight = scene->GetAmbientLight();
+            ambientLight = environment.GetAmbientLight();
 
         if (!directionalLight)
-            directionalLight = scene->GetDirectionalLight();
+            directionalLight = environment.GetDirectionalLight();
 
         const std::vector<PointLightObject*>& scenePointLights = scene->GetPointLights();
         pointLights.insert(pointLights.end(), scenePointLights.begin(), scenePointLights.end());
