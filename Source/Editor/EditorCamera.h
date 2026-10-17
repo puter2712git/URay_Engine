@@ -3,10 +3,20 @@
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 
+#include <optional>
+
 namespace URay
 {
 
 class CameraComponent;
+
+struct FocusTransition
+{
+    Vector3 startPosition = Vector3::Zero;
+    Vector3 targetPosition = Vector3::Zero;
+    float elapsed = 0.0f;
+    float duration = 0.5f;
+};
 
 struct EditorCameraInput
 {
@@ -24,6 +34,8 @@ public:
 public:
     void Update(float deltaTime, const EditorCameraInput& input);
 
+    bool FocusAt(const Vector3& targetPosition, float distance);
+
     CameraComponent* GetCamera() const { return camera; }
     void SetCamera(CameraComponent* camera) { this->camera = camera; }
 
@@ -32,6 +44,8 @@ private:
 
     float moveSpeed = 5.0f;
     float rotationSpeed = 0.1f;
+
+    std::optional<FocusTransition> focusTransition = std::nullopt;
 };
 
 } // namespace URay

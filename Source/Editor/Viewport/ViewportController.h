@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Rect.h>
 #include <Core/Math/Vector2.h>
@@ -7,7 +8,6 @@
 #include <Core/Type/Types.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Editor/Widget/Input/EventReply.h>
-#include <Core/Input/InputEvent.h>
 #include <Render/Rendering/View/ViewMode.h>
 
 #include <memory>
@@ -33,7 +33,7 @@ class ResourceManager;
 class Sampler;
 class SceneSystem;
 class TextureView;
-}
+} // namespace Render
 
 struct ViewportImage
 {
@@ -94,6 +94,8 @@ private:
         const CameraComponent& camera,
         const Vector2& targetPosition) const;
     void CycleGizmoMode();
+
+    void FocusActiveUnit();
 
 private:
     Render::Renderer& renderer;

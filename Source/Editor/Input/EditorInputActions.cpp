@@ -60,13 +60,19 @@ std::unique_ptr<InputActionMap> CreateEditorInputActionMap()
           .valueType = InputActionValueType::Button,
           .bindings = { KeyBinding{ .key = KeyCode::GraveAccent } } });
 
+    const bool addedFocusActiveUnit = actionMap->AddAction(
+        { .id = EditorInputAction::FocusActiveUnit,
+          .valueType = InputActionValueType::Button,
+          .bindings = { KeyBinding{ .key = KeyCode::F } } });
+
     if (!addedViewportMove ||
         !addedViewportElevate ||
         !addedReloadGameScripts ||
         !addedSaveScene ||
         !addedDeleteSelection ||
         !addedCycleGizmoMode ||
-        !addedToggleEditorCamera)
+        !addedToggleEditorCamera ||
+        !addedFocusActiveUnit)
         return nullptr;
 
     return actionMap;

@@ -20,6 +20,7 @@ inline constexpr InputActionId SaveScene = { 4 };
 inline constexpr InputActionId DeleteSelection = { 5 };
 inline constexpr InputActionId CycleGizmoMode = { 6 };
 inline constexpr InputActionId ToggleEditorCamera = { 7 };
+inline constexpr InputActionId FocusActiveUnit = { 8 };
 
 } // namespace EditorInputAction
 

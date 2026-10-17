@@ -8,6 +8,7 @@
 #include <Editor/Play/PlaySession.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
+#include <Engine/Component/TransformComponent.h>
 #include <Engine/Scene/Unit.h>
 #include <Platform/Window/Window.h>
 #include <Render/RHI/RenderTarget.h>
@@ -122,6 +123,9 @@ void ViewportController::Update(float deltaTime, bool isFocused)
 
         if (const InputActionValue* elevate = actions.FindAction(EditorInputAction::ViewportElevate))
             input.verticalAxis = Vector3(0.0f, 0.0f, elevate->axis1D);
+
+        if (wasPressed(EditorInputAction::FocusActiveUnit))
+            FocusActiveUnit();
     }
 
     gizmo->Update(cachedPosition, *camera);
@@ -306,6 +310,20 @@ void ViewportController::CycleGizmoMode()
     const GizmoMode newMode = static_cast<GizmoMode>(
         (modeIndex + 1) % static_cast<int>(GizmoMode::Count));
     gizmo->SetMode(newMode);
+}
+
+void ViewportController::FocusActiveUnit()
+{
+    Unit* activeUnit = selectionSystem.GetActiveUnit();
+    if (!activeUnit)
+        return;
+
+    TransformComponent* transform = activeUnit->GetTransform();
+    if (!transform)
+        return;
+
+    constexpr float FocusDistance = 5.0f;
+    editorCamera->FocusAt(transform->GetWorldPosition(), FocusDistance);
 }
 
 } // namespace URay
