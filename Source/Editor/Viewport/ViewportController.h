@@ -7,6 +7,7 @@
 #include <Core/Ray/EventRay.h>
 #include <Core/Type/Types.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
+#include <Editor/Viewport/EditorView.h>
 #include <Editor/Widget/Input/EventReply.h>
 #include <Render/Rendering/View/ViewMode.h>
 
@@ -16,7 +17,6 @@
 namespace URay
 {
 
-class CameraComponent;
 class EditorCamera;
 class ObjectIdTargetRegistry;
 class PlaySession;
@@ -52,7 +52,6 @@ public:
         InputActionSystem& inputActionSystem,
         SelectionSystem& selectionSystem,
         PlaySession& playSession,
-        CameraComponent& editorCamera,
         bool& useEditorCamera);
     ~ViewportController();
 
@@ -75,6 +74,8 @@ public:
     const Extent2D& GetTargetExtent() const { return targetExtent; }
     Render::ViewMode GetViewMode() const { return viewMode; }
 
+    EditorCamera& GetEditorCamera() { return *editorCamera; }
+
 private:
     enum class SelectionOperation
     {
@@ -90,9 +91,7 @@ private:
 
 private:
     std::optional<Vector2> WindowToRenderTarget(const Vector2& windowPosition) const;
-    std::optional<GizmoHandleId> HitTestGizmo(
-        const CameraComponent& camera,
-        const Vector2& targetPosition) const;
+    std::optional<GizmoHandleId> HitTestGizmo(const EditorView& view, const Vector2& targetPosition) const;
     void CycleGizmoMode();
 
     void FocusActiveUnit();

@@ -2,13 +2,12 @@
 
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
+#include <Editor/Viewport/EditorView.h>
 
 #include <optional>
 
 namespace URay
 {
-
-class CameraComponent;
 
 struct FocusTransition
 {
@@ -36,11 +35,11 @@ public:
 
     bool FocusAt(const Vector3& targetPosition, float distance);
 
-    CameraComponent* GetCamera() const { return camera; }
-    void SetCamera(CameraComponent* camera) { this->camera = camera; }
+    const EditorView& GetView() const { return view; }
+    EditorView& GetView() { return view; }
 
 private:
-    CameraComponent* camera = nullptr;
+    EditorView view = {};
 
     float moveSpeed = 5.0f;
     float rotationSpeed = 0.1f;

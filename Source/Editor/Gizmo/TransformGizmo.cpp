@@ -8,22 +8,21 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Mesh/Mesh.h>
-#include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/TransformComponent.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 
+#include <Render/RHI/Vertex/Vertex.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/GizmoObject.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
-#include <Render/RHI/Vertex/Vertex.h>
 
-#include <algorithm>
 #include <Core/Math/Math.h>
 #include <Core/Math/Ray.h>
+#include <algorithm>
 #include <limits>
 #include <unordered_set>
 
@@ -177,7 +176,7 @@ GizmoMode TransformGizmo::GetMode() const
     return currentStrategy ? currentStrategy->GetMode() : GizmoMode::Translation;
 }
 
-void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
+void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
 {
     if (!HasTargets() || !GetActiveTransform())
     {
@@ -186,12 +185,12 @@ void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
         return;
     }
 
-    UpdateDragging(position, camera);
+    UpdateDragging(cursorRay);
 
     const Vector3 targetPosition = GetPivotPosition();
     const Vector3 targetRotation = GetActiveTransform()->GetWorldRotation();
 
-    const float distance = (camera.GetOwner()->GetTransform()->GetWorldPosition() - targetPosition).GetLength();
+    const float distance = (view.position - targetPosition).GetLength();
     const float scale = std::clamp(distance * scaleFactor, minScale, maxScale);
 
     if (isLocal || GetMode() == GizmoMode::Scale)
@@ -212,26 +211,25 @@ void TransformGizmo::Update(const Vector2& position, CameraComponent& camera)
 }
 
 void TransformGizmo::StartDragging(
-    const Vector2& position,
     GizmoHandleId handleId,
-    const CameraComponent& camera)
+    const Ray& cursorRay,
+    const EditorView& view)
 {
     if (!currentStrategy)
         return;
 
     selectedHandle = handleId;
     dragging = true;
-    currentStrategy->StartDragging(position, handleId, camera);
+    currentStrategy->StartDragging(handleId, cursorRay, view);
 }
 
 void TransformGizmo::UpdateDragging(
-    const Vector2& position,
-    const CameraComponent& camera)
+    const Ray& cursorRay)
 {
     if (!currentStrategy || !dragging)
         return;
 
-    currentStrategy->UpdateDragging(position, camera);
+    currentStrategy->UpdateDragging(cursorRay);
 }
 
 void TransformGizmo::EndDragging()

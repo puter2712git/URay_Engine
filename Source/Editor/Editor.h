@@ -48,7 +48,7 @@ public:
     const PerformanceViewModel& GetPerformanceViewModel() const { return *performanceViewModel; }
 
 private:
-    CameraComponent& PrepareEditorScene();
+    void PrepareEditorScene();
     void ProcessInputActions();
 
     bool SaveCurrentScene();
@@ -60,8 +60,6 @@ private:
     void UpdatePerformanceViewModel();
 
 private:
-    CameraComponent* editorCamera = nullptr;
-
     std::unique_ptr<WidgetSystem> widgetSystem = nullptr;
     std::unique_ptr<ViewportController> viewportController = nullptr;
     std::unique_ptr<SelectionSystem> selectionSystem = nullptr;

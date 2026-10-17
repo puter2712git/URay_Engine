@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
-
+#include <Core/Math/Ray.h>
 #include <Core/Math/Vector2.h>
+#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
+#include <Editor/Viewport/EditorView.h>
 
 #include <memory>
 #include <optional>
@@ -11,7 +12,6 @@
 namespace URay
 {
 
-class CameraComponent;
 class Unit;
 class Material;
 class TransformComponent;
@@ -48,9 +48,9 @@ public:
 
     std::optional<GizmoHandleId> HitTest(const Ray& worldRay) const;
 
-    void Update(const Vector2& position, CameraComponent& camera);
-    void StartDragging(const Vector2& position, GizmoHandleId handleId, const CameraComponent& camera);
-    void UpdateDragging(const Vector2& position, const CameraComponent& camera);
+    void Update(const Ray& cursorRay, const EditorView& view);
+    void StartDragging(GizmoHandleId handleId, const Ray& cursorRay, const EditorView& view);
+    void UpdateDragging(const Ray& cursorRay);
     void EndDragging();
 
     const std::vector<GizmoHandle>& GetHandles() const;

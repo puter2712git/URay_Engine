@@ -6,6 +6,7 @@
 #include <Core/Log/LogSystem.h>
 #include <Core/Performance/PerformanceViewModel.h>
 #include <Core/TimeFlow/Timer.h>
+#include <Editor/EditorCamera.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Play/PlaySession.h>
 #include <Editor/Selection/SelectionSystem.h>
@@ -55,7 +56,7 @@ bool Editor::Initialize()
 
     editorSettings = std::make_unique<EditorSettings>(filesystem);
 
-    editorCamera = &PrepareEditorScene();
+    PrepareEditorScene();
 
     selectionSystem = std::make_unique<SelectionSystem>();
     if (!selectionSystem->Initialize())
@@ -96,7 +97,6 @@ bool Editor::Initialize()
         gEngine->GetInputActionSystem(),
         *selectionSystem,
         *playSession,
-        *editorCamera,
         useEditorCamera);
 
     performanceViewModel = std::make_unique<PerformanceViewModel>();
@@ -125,9 +125,9 @@ bool Editor::Initialize()
 
     if (editorSettings->Load(settingsContext))
     {
-        TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
-        cameraTransform->SetLocalPosition(settingsContext.cameraSettings.position);
-        cameraTransform->SetLocalRotation(settingsContext.cameraSettings.rotation);
+        EditorView& editorView = viewportController->GetEditorCamera().GetView();
+        editorView.position = settingsContext.cameraSettings.position;
+        editorView.rotation = settingsContext.cameraSettings.rotation;
 
         const VirtualPath& path = settingsContext.startScenePath;
         const std::string sceneText = filesystem.ReadText(path);
@@ -182,16 +182,16 @@ void Editor::Finalize()
 
     Scene* gameScene = gameScenes.empty() ? nullptr : gameScenes[0];
 
-    if (editorSettings && editorCamera && widgetSystem && gameScene)
-    {
-        TransformComponent* cameraTransform = editorCamera->GetOwner()->GetTransform();
+    EditorView editorView = viewportController->GetEditorCamera().GetView();
 
+    if (editorSettings && widgetSystem && gameScene)
+    {
         EditorSettingsContext settingsContext = {
             .rootWidget = widgetSystem->GetRootWidget(),
             .startScenePath = gameScene->GetFilePath().ToString(),
             .cameraSettings = {
-                .position = cameraTransform->GetLocalPosition(),
-                .rotation = cameraTransform->GetLocalRotation(),
+                .position = editorView.position,
+                .rotation = editorView.rotation,
             },
         };
 
@@ -233,8 +233,6 @@ void Editor::Finalize()
         selectionSystem->Finalize();
         selectionSystem.reset();
     }
-
-    editorCamera = nullptr;
 
     if (editorSettings)
     {
@@ -414,6 +412,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::SceneSystem& renderSceneSystem = renderSystem.GetSceneSystem();
 
+    EditorView editorView = viewportController->GetEditorCamera().GetView();
+
     if (playSession->IsPlaying())
     {
         CameraComponent* camera = nullptr;
@@ -436,23 +436,32 @@ Render::RenderRequest Editor::BuildRenderRequest() const
 
         if (!camera || useEditorCamera)
         {
-            camera = editorCamera;
+            sceneRenderInfo.view = {
+                .cameraPosition = editorView.position,
+                .cameraDirection = editorView.GetForward(),
+                .nearPlane = editorView.nearPlane,
+                .farPlane = editorView.farPlane,
+                .viewMatrix = editorView.GetViewMatrix(),
+                .projMatrix = editorView.GetProjMatrix(viewportController->GetTargetExtent()),
+                .viewMode = viewportController->GetViewMode()
+            };
         }
+        else
+        {
+            camera->SetViewportExtent(viewportController->GetTargetExtent());
 
-        TransformComponent* transform = camera->GetOwner()->GetTransform();
+            TransformComponent* transform = camera->GetOwner()->GetTransform();
 
-        camera->SetViewportExtent(
-            viewportController->GetTargetExtent());
-
-        sceneRenderInfo.view = {
-            .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
-            .cameraDirection = transform ? transform->GetWorldForward() : Vector3::Forward,
-            .nearPlane = camera ? camera->GetNearPlane() : 0.1f,
-            .farPlane = camera ? camera->GetFarPlane() : 1000.0f,
-            .viewMatrix = camera ? camera->GetViewMatrix() : Matrix::Identity,
-            .projMatrix = camera ? camera->GetProjMatrix() : Matrix::Identity,
-            .viewMode = viewportController->GetViewMode()
-        };
+            sceneRenderInfo.view = {
+                .cameraPosition = transform->GetWorldPosition(),
+                .cameraDirection = transform->GetWorldForward(),
+                .nearPlane = camera->GetNearPlane(),
+                .farPlane = camera->GetFarPlane(),
+                .viewMatrix = camera->GetViewMatrix(),
+                .projMatrix = camera->GetProjMatrix(),
+                .viewMode = viewportController->GetViewMode()
+            };
+        }
 
         sceneRenderInfo.selectedUnits = selectionSystem->GetSelectedUnits();
     }
@@ -464,15 +473,13 @@ Render::RenderRequest Editor::BuildRenderRequest() const
             sceneRenderInfo.scenes.push_back(renderScene);
         }
 
-        TransformComponent* transform = editorCamera->GetOwner()->GetTransform();
-
         sceneRenderInfo.view = {
-            .cameraPosition = transform ? transform->GetWorldPosition() : Vector3::Zero,
-            .cameraDirection = transform ? transform->GetWorldForward() : Vector3::Forward,
-            .nearPlane = editorCamera ? editorCamera->GetNearPlane() : 0.1f,
-            .farPlane = editorCamera ? editorCamera->GetFarPlane() : 1000.0f,
-            .viewMatrix = editorCamera->GetViewMatrix(),
-            .projMatrix = editorCamera->GetProjMatrix(),
+            .cameraPosition = editorView.position,
+            .cameraDirection = editorView.GetForward(),
+            .nearPlane = editorView.nearPlane,
+            .farPlane = editorView.farPlane,
+            .viewMatrix = editorView.GetViewMatrix(),
+            .projMatrix = editorView.GetProjMatrix(viewportController->GetTargetExtent()),
             .viewMode = viewportController->GetViewMode()
         };
 
@@ -487,32 +494,19 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     return request;
 }
 
-CameraComponent& Editor::PrepareEditorScene()
+void Editor::PrepareEditorScene()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     std::unique_ptr<Scene> editorScene = sceneSystem.CreateScene(SceneType::Editor, "");
-
-    std::unique_ptr<Unit> cameraUnit = std::make_unique<Unit>();
-    cameraUnit->SetName("Editor Camera");
-
-    std::unique_ptr<TransformComponent> cameraTransform = std::make_unique<TransformComponent>();
-    cameraTransform->SetLocalPosition(Vector3(0.0f, -5.0f, 0.0f));
-    std::unique_ptr<CameraComponent> camera = std::make_unique<CameraComponent>();
-    CameraComponent* cameraPtr = camera.get();
-    cameraUnit->AddComponent(std::move(cameraTransform));
-    cameraUnit->AddComponent(std::move(camera));
 
     std::unique_ptr<Unit> gridUnit = std::make_unique<Unit>();
     gridUnit->SetName("Grid");
     std::unique_ptr<GridComponent> gridComponent = std::make_unique<GridComponent>();
     gridUnit->AddComponent(std::move(gridComponent));
 
-    editorScene->AddUnit(std::move(cameraUnit));
     editorScene->AddUnit(std::move(gridUnit));
 
     sceneSystem.LoadScene(std::move(editorScene));
-
-    return *cameraPtr;
 }
 
 void Editor::UpdatePerformanceViewModel()

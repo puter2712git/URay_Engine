@@ -21,8 +21,8 @@ public:
 public:
     GizmoMode GetMode() const override { return GizmoMode::Translation; }
     void UpdateHandles(const Matrix& gizmoWorld) override;
-    void StartDragging(const Vector2& position, GizmoHandleId handleId, const CameraComponent& camera) override;
-    void UpdateDragging(const Vector2& position, const CameraComponent& camera) override;
+    void StartDragging(GizmoHandleId handleId, const Ray& cursorRay, const EditorView& view) override;
+    void UpdateDragging(const Ray& cursorRay) override;
     void EndDragging() override;
 
 private:

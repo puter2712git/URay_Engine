@@ -15,17 +15,6 @@ EditorCamera::~EditorCamera() = default;
 
 void EditorCamera::Update(float deltaTime, const EditorCameraInput& input)
 {
-    if (!camera)
-        return;
-
-    Unit* cameraUnit = camera->GetOwner();
-    if (!cameraUnit)
-        return;
-
-    TransformComponent* cameraTransform = cameraUnit->GetTransform();
-    if (!cameraTransform)
-        return;
-
     if (focusTransition)
     {
         FocusTransition& transition = *focusTransition;
@@ -36,7 +25,7 @@ void EditorCamera::Update(float deltaTime, const EditorCameraInput& input)
 
         const Vector3 position = transition.startPosition + (transition.targetPosition - transition.startPosition) * easedT;
 
-        cameraTransform->SetWorldPosition(position);
+        view.position = position;
 
         if (t >= 1.0f)
             focusTransition.reset();
@@ -44,34 +33,29 @@ void EditorCamera::Update(float deltaTime, const EditorCameraInput& input)
         return;
     }
 
-    const Vector3 cameraPosition = cameraTransform->GetLocalPosition();
-    const Vector3 moveDelta = (cameraTransform->TransformVectorNoScale(input.horizontalAxis) + input.verticalAxis) * moveSpeed * deltaTime;
+    const Matrix rotationMatrix = Matrix::MakeRotation(view.rotation);
+
+    const Vector3 cameraPosition = view.position;
+    const Vector3 moveDelta = (rotationMatrix.TransformVector(input.horizontalAxis) + input.verticalAxis) * moveSpeed * deltaTime;
 
     const Vector3 movedPosition = cameraPosition + moveDelta;
-    cameraTransform->SetLocalPosition(movedPosition);
+    view.position = movedPosition;
 
-    Vector3 rotation = cameraTransform->GetLocalRotation();
+    Vector3 rotation = view.rotation;
     rotation.x -= input.mouseDelta.y * rotationSpeed;
     rotation.z -= input.mouseDelta.x * rotationSpeed;
 
     rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
 
-    cameraTransform->SetLocalRotation(rotation);
+    view.rotation = rotation;
 }
 
 bool EditorCamera::FocusAt(const Vector3& targetPosition, float distance)
 {
-    if (!camera || !camera->GetOwner())
-        return false;
-
-    TransformComponent* transform = camera->GetOwner()->GetTransform();
-    if (!transform)
-        return false;
-
-    const Vector3 endPosition = targetPosition - transform->GetWorldForward() * distance;
+    const Vector3 endPosition = targetPosition - view.GetForward() * distance;
 
     focusTransition = FocusTransition{
-        .startPosition = transform->GetWorldPosition(),
+        .startPosition = view.position,
         .targetPosition = endPosition,
         .duration = 0.5f
     };

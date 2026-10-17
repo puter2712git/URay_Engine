@@ -33,7 +33,6 @@ ViewportController::ViewportController(
     InputActionSystem& inputActionSystem,
     SelectionSystem& selectionSystem,
     PlaySession& playSession,
-    CameraComponent& editorCamera,
     bool& useEditorCamera)
     : renderer(renderer),
       resourceManager(resourceManager),
@@ -47,7 +46,6 @@ ViewportController::ViewportController(
     objectIdTargets = std::make_unique<ObjectIdTargetRegistry>(renderSceneSystem);
 
     this->editorCamera = std::make_unique<EditorCamera>();
-    this->editorCamera->SetCamera(&editorCamera);
 
     selectionSystem.GetOnSelectionSetChangedRay().Register(
         this,
@@ -93,12 +91,8 @@ ViewportController::~ViewportController()
 
 void ViewportController::Update(float deltaTime, bool isFocused)
 {
-    CameraComponent* camera = editorCamera->GetCamera();
-    if (!camera)
-        return;
-
     gizmo->SetHoveredHandle(
-        HitTestGizmo(*camera, cachedPosition).value_or(GizmoHandleId::None));
+        HitTestGizmo(editorCamera->GetView(), cachedPosition).value_or(GizmoHandleId::None));
 
     EditorCameraInput input = {};
 
@@ -128,7 +122,9 @@ void ViewportController::Update(float deltaTime, bool isFocused)
             FocusActiveUnit();
     }
 
-    gizmo->Update(cachedPosition, *camera);
+    const Ray cursorRay = editorCamera->GetView().ScreenPointToRay(cachedPosition, targetExtent);
+
+    gizmo->Update(cursorRay, editorCamera->GetView());
 
     input.mouseDelta = cameraMouseDelta;
     editorCamera->Update(deltaTime, input);
@@ -171,9 +167,6 @@ std::optional<ViewportImage> ViewportController::GetDisplayImage()
 
     targetExtent = postProcessRT.GetExtent();
 
-    if (CameraComponent* camera = editorCamera->GetCamera())
-        camera->SetViewportExtent(targetExtent);
-
     return ViewportImage{ .view = view, .sampler = sampler };
 }
 
@@ -188,13 +181,15 @@ EventReply ViewportController::OnPointerDown(const PointerEvent& event)
     if (event.changedButton == MouseButton::Left)
     {
         const auto targetPosition = WindowToRenderTarget(event.position);
-        CameraComponent* camera = editorCamera->GetCamera();
-        if (!targetPosition || !camera)
+        const EditorView& view = editorCamera->GetView();
+        if (!targetPosition)
             return {};
 
-        if (const std::optional<GizmoHandleId> gizmoHandle = HitTestGizmo(*camera, *targetPosition))
+        const Ray cursorRay = view.ScreenPointToRay(*targetPosition, targetExtent);
+
+        if (const std::optional<GizmoHandleId> gizmoHandle = HitTestGizmo(view, *targetPosition))
         {
-            gizmo->StartDragging(*targetPosition, *gizmoHandle, *camera);
+            gizmo->StartDragging(*gizmoHandle, cursorRay, editorCamera->GetView());
         }
         else
         {
@@ -292,16 +287,12 @@ std::optional<Vector2> ViewportController::WindowToRenderTarget(const Vector2& w
 }
 
 std::optional<GizmoHandleId> ViewportController::HitTestGizmo(
-    const CameraComponent& camera,
+    const EditorView& view,
     const Vector2& targetPosition) const
 {
-    const Vector3 nearPosition(targetPosition.x, targetPosition.y, 0.0f);
-    const Vector3 farPosition(targetPosition.x, targetPosition.y, 1.0f);
+    const Ray screenRay = view.ScreenPointToRay(targetPosition, targetExtent);
 
-    const Vector3 origin = camera.ScreenToWorld(nearPosition);
-    const Vector3 direction = (camera.ScreenToWorld(farPosition) - origin).GetNormalized();
-
-    return gizmo->HitTest({ .origin = origin, .direction = direction });
+    return gizmo->HitTest(screenRay);
 }
 
 void ViewportController::CycleGizmoMode()
