@@ -9,10 +9,6 @@
 namespace URay
 {
 
-VirtualFileSystem::VirtualFileSystem() = default;
-
-VirtualFileSystem::~VirtualFileSystem() = default;
-
 bool VirtualFileSystem::Initialize(
     const std::string& enginePath,
     const std::string& projectPath)

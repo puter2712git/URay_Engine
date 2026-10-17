@@ -21,10 +21,6 @@ struct VirtualFileEntry
 class VirtualFileSystem
 {
 public:
-    VirtualFileSystem();
-    ~VirtualFileSystem();
-
-public:
     bool Initialize(const std::string& enginePath, const std::string& projectPath);
     void Finalize();
 
