@@ -24,7 +24,6 @@ class RenderScene;
 enum class SceneType
 {
     Game,
-    Editor,
     Play
 };
 
