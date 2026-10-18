@@ -42,7 +42,7 @@ ViewportController::ViewportController(
       playSession(playSession),
       useEditorCamera(useEditorCamera)
 {
-    gizmo = std::make_unique<TransformGizmo>();
+    gizmo = std::make_unique<TransformGizmo>(playSession);
     objectIdTargets = std::make_unique<ObjectIdTargetRegistry>(renderSceneSystem);
 
     this->editorCamera = std::make_unique<EditorCamera>();
@@ -260,6 +260,7 @@ void ViewportController::Play()
 
 void ViewportController::Stop()
 {
+    gizmo->Deactivate();
     playSession.Stop();
 }
 

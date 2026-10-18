@@ -48,7 +48,7 @@ public:
     const PerformanceViewModel& GetPerformanceViewModel() const { return *performanceViewModel; }
 
 private:
-    void PrepareEditorScene();
+    void PrepareGrid();
     void ProcessInputActions();
 
     bool SaveCurrentScene();

@@ -3,6 +3,7 @@
 #include <Editor/Gizmo/Strategy/RotationGizmoStrategy.h>
 #include <Editor/Gizmo/Strategy/ScaleGizmoStrategy.h>
 #include <Editor/Gizmo/Strategy/TranslationGizmoStrategy.h>
+#include <Editor/Play/PlaySession.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -29,7 +30,8 @@
 namespace URay
 {
 
-TransformGizmo::TransformGizmo()
+TransformGizmo::TransformGizmo(PlaySession& playSession)
+    : playSession(playSession)
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
@@ -39,22 +41,12 @@ TransformGizmo::TransformGizmo()
     strategies.push_back(std::make_unique<RotationGizmoStrategy>(*this));
     strategies.push_back(std::make_unique<ScaleGizmoStrategy>(*this));
     currentStrategy = FindStrategy(GizmoMode::Translation);
-
-    const std::vector<Scene*> editorScenes = gEngine->GetSceneSystem().GetScenes(SceneType::Editor);
-    Scene* editorScene = editorScenes.empty() ? nullptr : editorScenes.front();
-    if (!editorScene)
-        return;
-
-    Render::RenderScene* renderScene = gEngine->GetRenderSystem().GetSceneSystem().GetRenderScene(editorScene);
-    if (!renderScene)
-        return;
-
-    auto renderGizmo = std::make_unique<Render::GizmoObject>(Render::GizmoObjectState{});
-    renderObject = renderGizmo.get();
-    gEngine->GetRenderSystem().GetSceneSystem().AddObject(*renderScene, std::move(renderGizmo), nullptr);
 }
 
-TransformGizmo::~TransformGizmo() = default;
+TransformGizmo::~TransformGizmo()
+{
+    Deactivate();
+}
 
 void TransformGizmo::SetTargets(const std::vector<Unit*>& units, Unit* newActiveUnit)
 {
@@ -180,10 +172,13 @@ void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
 {
     if (!HasTargets() || !GetActiveTransform())
     {
-        if (renderObject)
-            renderObject->SetEnabled(false);
+        Deactivate();
         return;
     }
+
+    Activate();
+    if (!renderObject)
+        return;
 
     UpdateDragging(cursorRay);
 
@@ -254,6 +249,43 @@ GizmoStrategy* TransformGizmo::FindStrategy(GizmoMode mode) const
         if (strategy->GetMode() == mode)
             return strategy.get();
     return nullptr;
+}
+
+void TransformGizmo::Activate()
+{
+    Render::RenderScene* targetRenderScene = FindTargetRenderScene();
+    if (!targetRenderScene || targetRenderScene == renderScene)
+        return;
+
+    Deactivate();
+
+    auto renderGizmo = std::make_unique<Render::GizmoObject>(Render::GizmoObjectState{});
+    renderObject = renderGizmo.get();
+    renderScene = targetRenderScene;
+    renderScene->GetSceneSystem().AddObject(*renderScene, std::move(renderGizmo), nullptr);
+}
+
+void TransformGizmo::Deactivate()
+{
+    if (renderScene && renderObject)
+        renderScene->GetSceneSystem().DestroyObject(*renderScene, renderObject);
+
+    renderObject = nullptr;
+    renderScene = nullptr;
+}
+
+Render::RenderScene* TransformGizmo::FindTargetRenderScene() const
+{
+    Scene* targetScene = playSession.IsPlaying() ? playSession.GetScene() : nullptr;
+    if (!targetScene)
+    {
+        const std::vector<Scene*> gameScenes = gEngine->GetSceneSystem().GetScenes(SceneType::Game);
+        targetScene = gameScenes.empty() ? nullptr : gameScenes.front();
+    }
+
+    return targetScene
+               ? gEngine->GetRenderSystem().GetSceneSystem().GetRenderScene(targetScene)
+               : nullptr;
 }
 
 void TransformGizmo::UpdateRenderObject()

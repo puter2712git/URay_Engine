@@ -15,17 +15,19 @@ namespace URay
 class Unit;
 class Material;
 class TransformComponent;
+class PlaySession;
 struct Ray;
 
 namespace Render
 {
 class GizmoObject;
+class RenderScene;
 }
 
 class TransformGizmo
 {
 public:
-    TransformGizmo();
+    explicit TransformGizmo(PlaySession& playSession);
     ~TransformGizmo();
 
 public:
@@ -52,11 +54,14 @@ public:
     void StartDragging(GizmoHandleId handleId, const Ray& cursorRay, const EditorView& view);
     void UpdateDragging(const Ray& cursorRay);
     void EndDragging();
+    void Deactivate();
 
     const std::vector<GizmoHandle>& GetHandles() const;
 
 private:
     GizmoStrategy* FindStrategy(GizmoMode mode) const;
+    void Activate();
+    Render::RenderScene* FindTargetRenderScene() const;
     void UpdateRenderObject();
 
 private:
@@ -72,7 +77,9 @@ private:
 
     std::vector<Unit*> selectedUnits;
     Unit* activeUnit = nullptr;
+    PlaySession& playSession;
     Material* material = nullptr;
+    Render::RenderScene* renderScene = nullptr;
     Render::GizmoObject* renderObject = nullptr;
 
     const float scaleFactor = 0.1f;

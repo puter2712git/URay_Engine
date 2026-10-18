@@ -27,9 +27,11 @@
 #include <Engine/Scene/Unit.h>
 #include <Engine/Script/ScriptSystem.h>
 #include <Render/RenderSystem.h>
+#include <Render/Rendering/Object/Drawable/LineObject.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
+#include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 
 #include <memory>
@@ -55,8 +57,6 @@ bool Editor::Initialize()
     VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
 
     editorSettings = std::make_unique<EditorSettings>(filesystem);
-
-    PrepareEditorScene();
 
     selectionSystem = std::make_unique<SelectionSystem>();
     if (!selectionSystem->Initialize())
@@ -168,6 +168,8 @@ bool Editor::Initialize()
     }
 
     gEngine->GetInputActionSystem().SetActionMap(inputActionMap.get());
+
+    PrepareGrid();
 
     return true;
 }
@@ -494,19 +496,46 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     return request;
 }
 
-void Editor::PrepareEditorScene()
+void Editor::PrepareGrid()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    std::unique_ptr<Scene> editorScene = sceneSystem.CreateScene(SceneType::Editor, "");
+    Render::SceneSystem& renderSceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
 
-    std::unique_ptr<Unit> gridUnit = std::make_unique<Unit>();
-    gridUnit->SetName("Grid");
-    std::unique_ptr<GridComponent> gridComponent = std::make_unique<GridComponent>();
-    gridUnit->AddComponent(std::move(gridComponent));
+    auto gameScenes = sceneSystem.GetScenes(SceneType::Game);
+    if (gameScenes.empty())
+        return;
 
-    editorScene->AddUnit(std::move(gridUnit));
+    Scene* gameScene = gameScenes[0];
+    if (!gameScene)
+        return;
 
-    sceneSystem.LoadScene(std::move(editorScene));
+    Render::RenderScene* renderGameScene = renderSceneSystem.GetRenderScene(gameScene);
+    if (!renderGameScene)
+        return;
+
+    Render::Line xCoordLine;
+    xCoordLine.start = Vector3(-100.0f, 0.0f, 0.0f);
+    xCoordLine.end = Vector3(100.0f, 0.0f, 0.0f);
+    xCoordLine.color = Color::Red;
+
+    Render::Line yCoordLine;
+    yCoordLine.start = Vector3(0.0f, -100.0f, 0.0f);
+    yCoordLine.end = Vector3(0.0f, 100.0f, 0.0f);
+    yCoordLine.color = Color::Green;
+
+    Render::Line zCoordLine;
+    zCoordLine.start = Vector3(0.0f, 0.0f, -100.0f);
+    zCoordLine.end = Vector3(0.0f, 0.0f, 100.0f);
+    zCoordLine.color = Color::Blue;
+
+    Render::LineObjectState lineObjectState;
+    lineObjectState.lines = { xCoordLine,
+                              yCoordLine,
+                              zCoordLine };
+
+    auto lineObject = std::make_unique<Render::LineObject>(lineObjectState);
+
+    renderSceneSystem.AddObject(*renderGameScene, std::move(lineObject), nullptr);
 }
 
 void Editor::UpdatePerformanceViewModel()
