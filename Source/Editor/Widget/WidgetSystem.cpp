@@ -1,15 +1,15 @@
 #include "WidgetSystem.h"
 
 #include <Core/Input/InputSystem.h>
+#include <Editor/Viewport/ViewportController.h>
 #include <Editor/Widget/Element/Splitter.h>
 #include <Editor/Widget/Input/UIInputRouter.h>
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
-#include <Editor/Widget/Panel/Filesystem/FileSystemPanel.h>
+#include <Editor/Widget/Panel/FileSystem/FileSystemPanel.h>
 #include <Editor/Widget/Panel/Inspector/InspectorPanel.h>
 #include <Editor/Widget/Panel/SceneTree/SceneTreePanel.h>
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
-#include <Editor/Viewport/ViewportController.h>
 #include <Editor/Widget/RootWidget.h>
 #include <Engine/Engine.h>
 #include <Platform/Window/Window.h>
