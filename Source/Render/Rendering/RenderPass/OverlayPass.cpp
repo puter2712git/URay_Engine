@@ -80,10 +80,9 @@ void OverlayPass::Execute(
 
         if (pso->GetLayout()->SupportsPushConstants())
         {
-            vkCmdPushConstants(
-                commandBuffer.GetHandle(),
-                pso->GetLayout()->GetHandle(),
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            commandBuffer.PushConstants(
+                *pso->GetLayout(),
+                0,
                 0,
                 sizeof(objConstants),
                 &objConstants);

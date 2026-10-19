@@ -497,16 +497,15 @@ PipelineLayout* Device::CreatePipelineLayout(const PipelineLayoutDesc& desc)
     if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &handle) != VK_SUCCESS)
         return nullptr;
 
-    PipelineLayout* pipelineLayout = new PipelineLayout(device, handle);
-    pipelineLayout->SetSupportPushConstants(pushConstantRanges.size() > 0);
+    PipelineLayout* pipelineLayout = new PipelineLayout(device, handle, desc.pushConstantRanges);
 
     return pipelineLayout;
 }
 
 PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout)
 {
-    VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetVertexShaderCode());
-    VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetFragmentShaderCode());
+    VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetStageData(ShaderStageFlags::Vertex)->code);
+    VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetStageData(ShaderStageFlags::Fragment)->code);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -539,7 +538,7 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     }
 
     const VertexInputLayout& inputLayout = *desc.vertexInputLayout;
-    const auto& shaderInputs = desc.shader->GetVertexReflection().vertexInputs;
+    const auto& shaderInputs = desc.shader->GetStageData(ShaderStageFlags::Vertex)->reflection.vertexInputs;
 
     for (const ShaderVertexInput& shaderInput : shaderInputs)
     {
@@ -1303,52 +1302,52 @@ DescriptorSetLayoutDesc Device::MakeFrameDescriptorSetLayoutDescription() const
         .binding = 0,
         .resourceType = ResourceType::UniformBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 1,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 2,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 3,
         .resourceType = ResourceType::UniformBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 4,
         .resourceType = ResourceType::SampledImage,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 5,
         .resourceType = ResourceType::Sampler,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 6,
         .resourceType = ResourceType::SampledImage,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 7,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 8,
         .resourceType = ResourceType::SampledImage,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
     description.bindings.push_back(ResourceBinding{
         .binding = 9,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::All });
+        .stageFlags = ShaderStageFlags::Graphics });
 
     return description;
 }

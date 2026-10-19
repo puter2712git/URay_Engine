@@ -159,6 +159,35 @@ void CommandBuffer::BindDescriptorSet(
         nullptr);
 }
 
+void CommandBuffer::PushConstants(
+    const PipelineLayout& layout,
+    uint32 rangeIndex,
+    uint32 offset,
+    uint32 size,
+    const void* data)
+{
+    const std::span<const PushConstantRange> pushConstantRanges = layout.GetPushConstantRanges();
+
+    if (rangeIndex >= pushConstantRanges.size())
+        return;
+
+    const PushConstantRange& range = pushConstantRanges[rangeIndex];
+
+    if (offset < range.offset ||
+        size > range.offset + range.size - offset)
+    {
+        return;
+    }
+
+    vkCmdPushConstants(
+        handle,
+        layout.GetHandle(),
+        ToVkShaderStageFlags(range.stages),
+        offset,
+        size,
+        data);
+}
+
 void CommandBuffer::PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers)
 {
     if (imageBarriers.empty())

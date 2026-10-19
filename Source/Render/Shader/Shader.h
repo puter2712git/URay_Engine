@@ -1,32 +1,40 @@
 #pragma once
 
+#include <Core/Type/Types.h>
 #include <Render/RHI/Descriptor/DescriptorSetLayoutDesc.h>
 #include <Render/RHI/PushConstantRange.h>
 #include <Render/Shader/Reflection/ShaderReflection.h>
 
-#include <Core/Type/Types.h>
-
 #include <map>
+#include <memory>
+#include <string>
 #include <vector>
 
 namespace URay::Render
 {
 
+struct ShaderStageData
+{
+    ShaderStageFlags stage = ShaderStageFlags::None;
+    std::string entryPoint;
+    std::vector<uint8> code;
+    ShaderReflection reflection = {};
+};
+
 class Shader
 {
 public:
-    Shader(const std::vector<uint8>& vertexShaderCode,
-           const std::vector<uint8>& fragmentShaderCode,
-           const ShaderReflection& vertexReflection,
-           const ShaderReflection& fragmentReflection);
+    Shader(std::vector<ShaderStageData> stages);
     ~Shader();
 
 public:
-    const std::vector<uint8>& GetVertexShaderCode() const { return vertexShaderCode; }
-    const std::vector<uint8>& GetFragmentShaderCode() const { return fragmentShaderCode; }
+    bool HasStage(ShaderStageFlags stage) const;
 
-    const ShaderReflection& GetVertexReflection() const { return vertexReflection; }
-    const ShaderReflection& GetFragmentReflection() const { return fragmentReflection; }
+    const ShaderStageData* GetStageData(ShaderStageFlags stage) const;
+
+    bool IsGraphics() const;
+    bool IsCompute() const;
+
     const ShaderReflection& GetMergedReflection() const { return mergedReflection; }
 
     const std::map<uint32, DescriptorSetLayoutDesc>& GetLayoutDescriptions() const { return layoutDescriptions; }
@@ -49,11 +57,10 @@ private:
     void CreateSetLayoutDescriptions();
 
 private:
-    std::vector<uint8> vertexShaderCode;
-    std::vector<uint8> fragmentShaderCode;
+    std::unique_ptr<ShaderStageData> vertexStageData = nullptr;
+    std::unique_ptr<ShaderStageData> fragmentStageData = nullptr;
+    std::unique_ptr<ShaderStageData> computeStageData = nullptr;
 
-    ShaderReflection vertexReflection = {};
-    ShaderReflection fragmentReflection = {};
     ShaderReflection mergedReflection = {};
 
     std::map<uint32, DescriptorSetLayoutDesc> layoutDescriptions;

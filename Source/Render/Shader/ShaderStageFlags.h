@@ -13,7 +13,10 @@ enum class ShaderStageFlags : uint32
     None = 0,
     Vertex = 1 << 0,
     Fragment = 1 << 1,
-    All = (1 << 0) | (1 << 1)
+    Compute = 1 << 2,
+
+    Graphics = (1 << 0) | (1 << 1),
+    All = (1 << 0) | (1 << 1) | (1 << 2)
 };
 
 inline ShaderStageFlags operator|(ShaderStageFlags lhs, ShaderStageFlags rhs)
@@ -47,11 +50,14 @@ inline VkShaderStageFlags ToVkShaderStageFlags(ShaderStageFlags flags)
 {
     VkShaderStageFlags result = 0;
 
-    if ((flags & ShaderStageFlags::Vertex) != ShaderStageFlags{})
+    if ((flags & ShaderStageFlags::Vertex) != ShaderStageFlags::None)
         result |= VK_SHADER_STAGE_VERTEX_BIT;
 
-    if ((flags & ShaderStageFlags::Fragment) != ShaderStageFlags{})
+    if ((flags & ShaderStageFlags::Fragment) != ShaderStageFlags::None)
         result |= VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    if ((flags & ShaderStageFlags::Compute) != ShaderStageFlags::None)
+        result |= VK_SHADER_STAGE_COMPUTE_BIT;
 
     return result;
 };

@@ -50,8 +50,10 @@ ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
         return ShaderStageFlags::Vertex;
     case SPV_REFLECT_SHADER_STAGE_FRAGMENT_BIT:
         return ShaderStageFlags::Fragment;
+    case SPV_REFLECT_SHADER_STAGE_COMPUTE_BIT:
+        return ShaderStageFlags::Compute;
     default:
-        return ShaderStageFlags{};
+        return ShaderStageFlags::None;
     }
 }
 
@@ -236,6 +238,7 @@ bool ShaderReflector::ReflectPushConstants(
 
         pushConstant.offset = block->offset;
         pushConstant.size = block->size;
+        pushConstant.stageFlags = ToShaderStageFlags(module.shader_stage);
 
         for (uint32 i = 0; i < block->member_count; ++i)
         {

@@ -46,6 +46,8 @@ struct ShaderParameter
 
     uint32 arrayStride = 0;
     uint32 matrixStride = 0;
+
+    bool operator==(const ShaderParameter&) const = default;
 };
 
 struct ShaderUniformBuffer
@@ -66,6 +68,8 @@ struct ShaderPushConstant
 {
     uint32 offset = 0;
     uint32 size = 0;
+
+    ShaderStageFlags stageFlags = ShaderStageFlags::None;
 
     std::vector<ShaderParameter> parameters;
 };

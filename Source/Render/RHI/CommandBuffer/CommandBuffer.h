@@ -52,6 +52,13 @@ public:
         const DescriptorSet& descriptorSet,
         uint32 set);
 
+    void PushConstants(
+        const PipelineLayout& layout,
+        uint32 rangeIndex,
+        uint32 offset,
+        uint32 size,
+        const void* data);
+
     void PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers);
 
     void CopyTextureToBuffer(const Texture& texture, Buffer& buffer, const TextureRegion& region);

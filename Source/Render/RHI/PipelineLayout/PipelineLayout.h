@@ -1,6 +1,11 @@
 #pragma once
 
+#include <Render/RHI/PushConstantRange.h>
+
 #include <vulkan/vulkan.h>
+
+#include <span>
+#include <vector>
 
 namespace URay::Render
 {
@@ -8,20 +13,20 @@ namespace URay::Render
 class PipelineLayout
 {
 public:
-    PipelineLayout(VkDevice device, VkPipelineLayout handle);
+    PipelineLayout(VkDevice device, VkPipelineLayout handle, std::vector<PushConstantRange> pushConstantRanges);
     ~PipelineLayout();
 
 public:
-    bool SupportsPushConstants() const { return isSupportingPushConstants; }
-    void SetSupportPushConstants(bool value) { isSupportingPushConstants = value; }
-
     VkPipelineLayout GetHandle() const { return handle; }
+
+    std::span<const PushConstantRange> GetPushConstantRanges() const { return pushConstantRanges; }
+    bool SupportsPushConstants() const { return !pushConstantRanges.empty(); }
 
 private:
     VkDevice device = VK_NULL_HANDLE;
     VkPipelineLayout handle = VK_NULL_HANDLE;
 
-    bool isSupportingPushConstants = false;
+    std::vector<PushConstantRange> pushConstantRanges;
 };
 
 } // namespace URay::Render

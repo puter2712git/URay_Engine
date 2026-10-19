@@ -163,10 +163,9 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
 
         if (pso->GetLayout()->SupportsPushConstants())
         {
-            vkCmdPushConstants(
-                commandBuffer.GetHandle(),
-                pso->GetLayout()->GetHandle(),
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            commandBuffer.PushConstants(
+                *pso->GetLayout(),
+                0,
                 0,
                 sizeof(shadowMapConstants),
                 &shadowMapConstants);
@@ -286,10 +285,9 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
 
             if (pso->GetLayout()->SupportsPushConstants())
             {
-                vkCmdPushConstants(
-                    commandBuffer.GetHandle(),
-                    pso->GetLayout()->GetHandle(),
-                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                commandBuffer.PushConstants(
+                    *pso->GetLayout(),
+                    0,
                     0,
                     sizeof(shadowMapConstants),
                     &shadowMapConstants);
@@ -432,10 +430,9 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
 
                 if (pso->GetLayout()->SupportsPushConstants())
                 {
-                    vkCmdPushConstants(
-                        context.commandBuffer.GetHandle(),
-                        pso->GetLayout()->GetHandle(),
-                        VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                    context.commandBuffer.PushConstants(
+                        *pso->GetLayout(),
+                        0,
                         0,
                         sizeof(shadowMapConstants),
                         &shadowMapConstants);

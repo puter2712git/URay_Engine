@@ -8,26 +8,71 @@
 namespace URay::Render
 {
 
-Shader::Shader(
-    const std::vector<uint8>& vertexShaderCode, const std::vector<uint8>& fragmentShaderCode,
-    const ShaderReflection& vertexReflection, const ShaderReflection& fragmentReflection)
-    : vertexShaderCode(vertexShaderCode), fragmentShaderCode(fragmentShaderCode),
-      vertexReflection(vertexReflection), fragmentReflection(fragmentReflection)
+Shader::Shader(std::vector<ShaderStageData> stages)
 {
+    for (const ShaderStageData& stage : stages)
+    {
+        if (stage.stage == ShaderStageFlags::Vertex)
+        {
+            vertexStageData = std::make_unique<ShaderStageData>(stage);
+        }
+        else if (stage.stage == ShaderStageFlags::Fragment)
+        {
+            fragmentStageData = std::make_unique<ShaderStageData>(stage);
+        }
+        else if (stage.stage == ShaderStageFlags::Compute)
+        {
+            computeStageData = std::make_unique<ShaderStageData>(stage);
+        }
+    }
+
     MergeReflection();
     CreateSetLayoutDescriptions();
 
-    // TODO: Need fix (ShaderStageFlags)
     if (mergedReflection.pushConstant.size > 0)
     {
         pushConstantRanges.push_back(PushConstantRange{
             .offset = mergedReflection.pushConstant.offset,
             .size = mergedReflection.pushConstant.size,
-            .stages = ShaderStageFlags::All });
+            .stages = mergedReflection.pushConstant.stageFlags });
     }
 }
 
 Shader::~Shader() = default;
+
+bool Shader::HasStage(ShaderStageFlags stage) const
+{
+    if (stage == ShaderStageFlags::Vertex)
+        return vertexStageData != nullptr;
+    else if (stage == ShaderStageFlags::Fragment)
+        return fragmentStageData != nullptr;
+    else if (stage == ShaderStageFlags::Compute)
+        return computeStageData != nullptr;
+
+    return false;
+}
+
+const ShaderStageData* Shader::GetStageData(ShaderStageFlags stage) const
+{
+    if (stage == ShaderStageFlags::Vertex)
+        return vertexStageData.get();
+    else if (stage == ShaderStageFlags::Fragment)
+        return fragmentStageData.get();
+    else if (stage == ShaderStageFlags::Compute)
+        return computeStageData.get();
+
+    return nullptr;
+}
+
+bool Shader::IsGraphics() const
+{
+    return vertexStageData != nullptr && fragmentStageData != nullptr;
+}
+
+bool Shader::IsCompute() const
+{
+    return computeStageData != nullptr;
+}
 
 const DescriptorSetLayoutDesc* Shader::GetLayoutDescription(uint32 set) const
 {
@@ -49,8 +94,20 @@ void Shader::MergeReflection()
 
 void Shader::MergeDescriptorBindings()
 {
-    std::vector<ShaderReflection*> reflections = { &vertexReflection,
-                                                   &fragmentReflection };
+    std::vector<ShaderReflection*> reflections;
+
+    if (vertexStageData)
+    {
+        reflections.push_back(&vertexStageData->reflection);
+    }
+    if (fragmentStageData)
+    {
+        reflections.push_back(&fragmentStageData->reflection);
+    }
+    if (computeStageData)
+    {
+        reflections.push_back(&computeStageData->reflection);
+    }
 
     for (const ShaderReflection* reflection : reflections)
     {
@@ -73,8 +130,20 @@ void Shader::MergeDescriptorBindings()
 
 void Shader::MergeUniformBuffers()
 {
-    std::vector<ShaderReflection*> reflections = { &vertexReflection,
-                                                   &fragmentReflection };
+    std::vector<ShaderReflection*> reflections;
+
+    if (vertexStageData)
+    {
+        reflections.push_back(&vertexStageData->reflection);
+    }
+    if (fragmentStageData)
+    {
+        reflections.push_back(&fragmentStageData->reflection);
+    }
+    if (computeStageData)
+    {
+        reflections.push_back(&computeStageData->reflection);
+    }
 
     for (const ShaderReflection* reflection : reflections)
     {
@@ -94,16 +163,38 @@ void Shader::MergeUniformBuffers()
 
 void Shader::MergePushConstant()
 {
-    mergedReflection.pushConstant = vertexReflection.pushConstant;
+    const ShaderStageData* stages[] = { vertexStageData.get(), fragmentStageData.get(), computeStageData.get() };
+
+    for (const ShaderStageData* stageData : stages)
+    {
+        if (!stageData)
+            continue;
+
+        const ShaderPushConstant& pushConstant = stageData->reflection.pushConstant;
+
+        if (pushConstant.size == 0)
+            continue;
+
+        if (mergedReflection.pushConstant.size == 0)
+        {
+            mergedReflection.pushConstant = pushConstant;
+        }
+        else
+        {
+            assert(mergedReflection.pushConstant.offset == pushConstant.offset);
+            assert(mergedReflection.pushConstant.size == pushConstant.size);
+            assert(mergedReflection.pushConstant.parameters == pushConstant.parameters);
+        }
+
+        mergedReflection.pushConstant.stageFlags |= pushConstant.stageFlags;
+    }
 }
 
 ShaderDescriptorBinding* Shader::FindBinding(uint32 set, uint32 binding)
 {
-    for (ShaderDescriptorBinding& descriptorBinding :
-         mergedReflection.descriptorBindings)
+    for (ShaderDescriptorBinding& descriptorBinding : mergedReflection.descriptorBindings)
     {
-        if (descriptorBinding.set == set &&
-            descriptorBinding.binding == binding)
+        if (descriptorBinding.set == set && descriptorBinding.binding == binding)
         {
             return &descriptorBinding;
         }

@@ -3,8 +3,8 @@
 namespace URay::Render
 {
 
-PipelineLayout::PipelineLayout(VkDevice device, VkPipelineLayout handle)
-    : device(device), handle(handle)
+PipelineLayout::PipelineLayout(VkDevice device, VkPipelineLayout handle, std::vector<PushConstantRange> pushConstantRanges)
+    : device(device), handle(handle), pushConstantRanges(std::move(pushConstantRanges))
 {
 }
 

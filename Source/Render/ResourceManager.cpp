@@ -340,11 +340,18 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
         return nullptr;
     }
 
-    Shader* newShader = new Shader(
-        vertexShaderCode,
-        fragmentShaderCode,
-        vertexShaderReflection,
-        fragmentShaderReflection);
+    std::vector<ShaderStageData> shaderStages = {
+        { .stage = ShaderStageFlags::Vertex,
+          .entryPoint = "VSMain",
+          .code = std::move(vertexShaderCode),
+          .reflection = std::move(vertexShaderReflection) },
+        { .stage = ShaderStageFlags::Fragment,
+          .entryPoint = "PSMain",
+          .code = std::move(fragmentShaderCode),
+          .reflection = std::move(fragmentShaderReflection) }
+    };
+
+    Shader* newShader = new Shader(std::move(shaderStages));
     shaders.insert({ key, newShader });
 
     return newShader;
