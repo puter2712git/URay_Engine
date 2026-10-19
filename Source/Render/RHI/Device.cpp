@@ -1302,52 +1302,52 @@ DescriptorSetLayoutDesc Device::MakeFrameDescriptorSetLayoutDescription() const
         .binding = 0,
         .resourceType = ResourceType::UniformBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 1,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 2,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 3,
         .resourceType = ResourceType::UniformBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 4,
         .resourceType = ResourceType::SampledImage,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 5,
         .resourceType = ResourceType::Sampler,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 6,
         .resourceType = ResourceType::SampledImage,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 7,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 8,
         .resourceType = ResourceType::SampledImage,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 9,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
-        .stageFlags = ShaderStageFlags::Graphics });
+        .stageFlags = ShaderStageFlags::All });
 
     return description;
 }

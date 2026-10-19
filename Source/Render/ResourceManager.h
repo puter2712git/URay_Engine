@@ -61,6 +61,8 @@ public:
     void DestroySamplers();
 
     Render::Shader* GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
+    Render::Shader* GetOrCreateComputeShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
+
     void DestroyShaders();
 
     DescriptorSetLayout* GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);

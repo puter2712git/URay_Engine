@@ -12,10 +12,17 @@ class Shader;
 namespace URay::Render
 {
 
+enum class ShaderKind : uint8
+{
+    Graphics,
+    Compute
+};
+
 struct ShaderPermutationKey
 {
     const URay::Shader* shader = nullptr;
     std::vector<ShaderDefine> defines;
+    ShaderKind kind = ShaderKind::Graphics;
 
     bool operator==(const ShaderPermutationKey&) const = default;
 };
@@ -39,6 +46,8 @@ struct ShaderPermutationKeyHash
             combine(define.name);
             combine(define.value);
         }
+
+        combine(key.kind);
 
         return hash;
     }

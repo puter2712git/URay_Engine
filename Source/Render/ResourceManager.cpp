@@ -252,7 +252,8 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
 
     const ShaderPermutationKey key = {
         .shader = shader,
-        .defines = defines
+        .defines = defines,
+        .kind = ShaderKind::Graphics
     };
 
     auto it = shaders.find(key);
@@ -349,6 +350,81 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
           .entryPoint = "PSMain",
           .code = std::move(fragmentShaderCode),
           .reflection = std::move(fragmentShaderReflection) }
+    };
+
+    Shader* newShader = new Shader(std::move(shaderStages));
+    shaders.insert({ key, newShader });
+
+    return newShader;
+}
+
+Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines)
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+
+    const ShaderPermutationKey key = {
+        .shader = shader,
+        .defines = defines,
+        .kind = ShaderKind::Compute
+    };
+
+    auto it = shaders.find(key);
+    if (it != shaders.end())
+    {
+        return it->second;
+    }
+
+    VirtualPath shaderPath = shader->GetFilePath();
+
+    const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
+
+    std::vector<std::wstring> compilerDefines;
+    compilerDefines.reserve(defines.size());
+
+    for (const ShaderDefine& define : defines)
+    {
+        compilerDefines.push_back(define.name + L"=" + define.value);
+    }
+
+    VirtualPath importAssetPath = VirtualPath(
+        "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".cs.spv");
+
+    if (!shaderCompiler.Compile(
+            shader->GetFilePath(),
+            importAssetPath,
+            L"cs_6_0",
+            L"CSMain",
+            includeDirectory,
+            compilerDefines))
+    {
+        URAY_LOG(
+            "[ResourceManager] Compute shader compilation failed: %s",
+            shaderPath.ToString().c_str());
+        return nullptr;
+    }
+
+    const VirtualPath computeShaderPath = importAssetPath;
+
+    std::vector<uint8> computeShaderCode = fileSystem.ReadBinary(computeShaderPath);
+    if (computeShaderCode.empty())
+    {
+        URAY_LOG("[ResourceManager] Failed to read compute SPIR-V: %s", computeShaderPath.ToString().c_str());
+        return nullptr;
+    }
+
+    ShaderReflection computeShaderReflection = {};
+    if (!ShaderReflector::Reflect(computeShaderCode, "CSMain", computeShaderReflection))
+    {
+        URAY_LOG("[ResourceManager] Failed to reflect compute SPIR-V: %s", computeShaderPath.ToString().c_str());
+        return nullptr;
+    }
+
+    std::vector<ShaderStageData> shaderStages = {
+        { .stage = ShaderStageFlags::Compute,
+          .entryPoint = "CSMain",
+          .code = std::move(computeShaderCode),
+          .reflection = std::move(computeShaderReflection) }
     };
 
     Shader* newShader = new Shader(std::move(shaderStages));
