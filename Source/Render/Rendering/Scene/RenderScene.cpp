@@ -1,9 +1,7 @@
 #include "RenderScene.h"
 
 #include <Engine/Component/Component.h>
-#include <Engine/Spatial/Octree.h>
 
-#include <Render/Rendering/Object/BoundedObject.h>
 #include <Render/Rendering/Object/FogObject.h>
 #include <Render/Rendering/Object/Light/AmbientLightObject.h>
 #include <Render/Rendering/Object/Light/DirectionalLightObject.h>
@@ -12,8 +10,6 @@
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Object/ViewObject.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
-
-#include <Core/Math/AABB.h>
 
 #include <algorithm>
 #include <cassert>

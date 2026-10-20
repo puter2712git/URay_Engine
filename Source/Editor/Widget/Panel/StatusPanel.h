@@ -27,6 +27,7 @@ private:
     static constexpr size_t MaxScopeRows = 5;
     static constexpr float ScopeRefreshInterval = 1.0f;
 
+    void UpdateCullingStatsLabel();
     void UpdateCpuFrameLabel();
     void UpdateGpuFrameLabel();
     void UpdateCpuScopeLabels();
@@ -36,6 +37,7 @@ private:
     VerticalLayout* layout = nullptr;
 
     Label* fpsLabel = nullptr;
+    Label* cullingStatsLabel = nullptr;
     Label* cpuFrameLabel = nullptr;
     Label* gpuFrameLabel = nullptr;
     std::array<Label*, MaxScopeRows> cpuScopeLabels = {};

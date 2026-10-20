@@ -10,15 +10,14 @@
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Style/EditorStyles.h>
-
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
-
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
+#include <Render/Rendering/RenderPipeline.h>
 #include <Render/ResourceManager.h>
 
 namespace URay
@@ -64,6 +63,10 @@ StatusPanel::StatusPanel() : Panel("Status")
     fpsLabel->SetPreferredHeight(20.0f);
     fpsLabel->SetTextStyle(EditorStyle::SmallText());
 
+    cullingStatsLabel = layout->AddChild<Label>("Cull: collecting...");
+    cullingStatsLabel->SetPreferredHeight(20.0f);
+    cullingStatsLabel->SetTextStyle(EditorStyle::SmallText());
+
     cpuFrameLabel = layout->AddChild<Label>("CPU: collecting...");
     cpuFrameLabel->SetPreferredHeight(20.0f);
     cpuFrameLabel->SetTextStyle(EditorStyle::SmallText());
@@ -107,6 +110,7 @@ void StatusPanel::OnUpdate(float deltaTime)
     const Timer& timer = gEngine->GetTimer();
     fpsLabel->SetText(std::format("FPS: {} ({:.2f} ms)", timer.GetFPS(), timer.GetDeltaTime() * 1000.0));
 
+    UpdateCullingStatsLabel();
     UpdateCpuFrameLabel();
     UpdateGpuFrameLabel();
 
@@ -118,6 +122,32 @@ void StatusPanel::OnUpdate(float deltaTime)
     scopeRefreshElapsed = 0.0f;
     UpdateCpuScopeLabels();
     UpdateGpuScopeLabels();
+}
+
+void StatusPanel::UpdateCullingStatsLabel()
+{
+    const Render::RenderFrameStats& stats =
+        gEngine->GetRenderSystem()
+            .GetPipeline()
+            .GetLatestStats();
+
+    const auto& culling = stats.frustumCullingStats;
+
+    const uint32 boundedCount =
+        culling.visibleCount + culling.culledCount;
+
+    const float culledPercent = boundedCount == 0
+                                    ? 0.0f
+                                    : static_cast<float>(culling.culledCount) * 100.0f /
+                                          static_cast<float>(boundedCount);
+
+    cullingStatsLabel->SetText(std::format(
+        "Cull: {} visible / {} bounded | {} culled ({:.1f}%) | {} unbounded",
+        culling.visibleCount,
+        boundedCount,
+        culling.culledCount,
+        culledPercent,
+        culling.unboundedCount));
 }
 
 void StatusPanel::UpdateCpuFrameLabel()

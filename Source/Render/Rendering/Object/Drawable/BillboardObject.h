@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Render/RHI/Vertex/Vertex.h>
-#include <Render/Rendering/Object/BoundedObject.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 
 #include <Engine/Asset/Mesh/Mesh.h>
@@ -27,7 +26,7 @@ struct BillboardObjectState
     std::vector<Material*> materials;
 };
 
-class BillboardObject : public DrawableObject, public BoundedObject
+class BillboardObject : public DrawableObject
 {
     URAY_TYPE(BillboardObject, DrawableObject)
 
@@ -42,7 +41,8 @@ public:
 
     const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
     Mesh* GetMesh() const { return state.mesh; }
-    const AABB& GetWorldBounds() const override { return worldBounds; }
+    const AABB& GetWorldBounds() const { return worldBounds; }
+    const AABB* TryGetWorldBounds() const override { return &worldBounds; }
 
 private:
     BillboardObjectState state;

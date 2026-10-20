@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Render/Rendering/Object/BoundedObject.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
@@ -28,7 +27,7 @@ struct MeshObjectState
     bool castsShadow = true;
 };
 
-class MeshObject : public DrawableObject, public BoundedObject
+class MeshObject : public DrawableObject
 {
     URAY_TYPE(MeshObject, DrawableObject)
 
@@ -44,7 +43,8 @@ public:
     const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
     Mesh* GetMesh() const { return state.mesh; }
     bool CastsShadow() const { return state.castsShadow; }
-    const AABB& GetWorldBounds() const override { return worldBounds; }
+    const AABB& GetWorldBounds() const { return worldBounds; }
+    const AABB* TryGetWorldBounds() const override { return &worldBounds; }
 
 private:
     MeshObjectState state;

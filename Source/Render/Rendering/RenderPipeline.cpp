@@ -10,7 +10,6 @@
 #include <Engine/Engine.h>
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/Unit.h>
-#include <Engine/Spatial/Octree.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/RenderTarget.h>
@@ -18,7 +17,6 @@
 #include <Render/Rendering/Batch/UIDrawContext.h>
 #include <Render/Rendering/DrawCommand/DrawCommandBuilder.h>
 #include <Render/Rendering/Font/FontSystem.h>
-#include <Render/Rendering/Object/BoundedObject.h>
 #include <Render/Rendering/Object/DecalObject.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 #include <Render/Rendering/Object/Drawable/MeshObject.h>
@@ -89,6 +87,8 @@ void RenderPipeline::Reset()
 
 void RenderPipeline::Execute(const RenderRequest& request)
 {
+    workingStats = {};
+
     for (const SceneRenderInfo& sceneInfo : request.sceneRenderInfos)
     {
         Reset();
@@ -104,6 +104,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
                             ? RenderView{}
                             : request.sceneRenderInfos.back().view;
     ExecuteUI(*request.uiDrawContext, uiView);
+
+    latestStats = workingStats;
 }
 
 void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
@@ -145,6 +147,8 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
     const Extent2D extent = sceneInfo.targets.scene->GetExtent();
 
     RenderView view = sceneInfo.view;
+
+    const Frustum mainFrustum = Frustum::FromViewProjection(view.viewMatrix * view.projMatrix);
 
     const DrawCommandParams drawCommandParams = {
         .viewMode = view.viewMode
@@ -223,6 +227,24 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
             if (!robj->IsEnabled())
                 continue;
 
+            ++workingStats.frustumCullingStats.candidateCount;
+
+            const AABB* bounds = robj->TryGetWorldBounds();
+
+            if (!bounds)
+            {
+                ++workingStats.frustumCullingStats.unboundedCount;
+            }
+            else if (mainFrustum.Intersects(*bounds) == FrustumIntersection::Outside)
+            {
+                ++workingStats.frustumCullingStats.culledCount;
+                continue;
+            }
+            else
+            {
+                ++workingStats.frustumCullingStats.visibleCount;
+            }
+
             if (MeshObject* mesh = Cast<MeshObject>(robj))
             {
                 meshReceivers.push_back(mesh);
@@ -292,6 +314,10 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
     }
 
     const std::vector<DrawCommand>& cmds = builder->GetCommands();
+
+    workingStats.opaqueCommandCount = static_cast<uint32>(drawCmds[static_cast<size_t>(RenderPassId::Opaque)].size());
+    workingStats.decalCommandCount = static_cast<uint32>(drawCmds[static_cast<size_t>(RenderPassId::Decal)].size());
+    workingStats.shadowCommandCount = static_cast<uint32>(drawCmds[static_cast<size_t>(RenderPassId::Shadow)].size());
 
     for (const DrawCommand& cmd : cmds)
     {

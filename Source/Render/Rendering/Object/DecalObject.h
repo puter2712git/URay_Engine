@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Render/Rendering/Object/BoundedObject.h>
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/RenderInfo.h>
 
@@ -36,7 +35,7 @@ struct DecalObjectState
     Material* material = nullptr;
 };
 
-class DecalObject : public RenderObject, public BoundedObject
+class DecalObject : public RenderObject
 {
     URAY_TYPE(DecalObject, RenderObject)
 
@@ -48,7 +47,8 @@ public:
     void Update(const DecalObjectState& state);
 
     const Matrix& GetWorldMatrix() const { return state.worldMatrix; }
-    const AABB& GetWorldBounds() const override { return worldBounds; }
+    const AABB& GetWorldBounds() const { return worldBounds; }
+    const AABB* TryGetWorldBounds() const override { return &worldBounds; }
     const Vector3& GetExtent() const { return state.extent; }
     Material* GetMaterial() const { return state.material; }
 

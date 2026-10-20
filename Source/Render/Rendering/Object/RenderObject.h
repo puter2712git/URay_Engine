@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Math/AABB.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Type/RuntimeType.h>
 #include <Core/Type/Types.h>
@@ -27,6 +28,8 @@ public:
 
     uint32 GetId() const { return id; }
     void SetId(uint32 id) { this->id = id; }
+
+    virtual const AABB* TryGetWorldBounds() const { return nullptr; }
 
 protected:
     void NotifyUpdated();
