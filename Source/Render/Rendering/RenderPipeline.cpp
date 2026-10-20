@@ -19,6 +19,7 @@
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Object/ViewObject.h>
 #include <Render/Rendering/RenderConstants.h>
+#include <Render/Rendering/RenderPass/ComputeTestPass.h>
 #include <Render/Rendering/RenderPass/DecalPass.h>
 #include <Render/Rendering/RenderPass/FogPass.h>
 #include <Render/Rendering/RenderPass/GizmoPass.h>
@@ -60,6 +61,7 @@ bool RenderPipeline::Initialize()
     if (!builder->Initialize())
         return false;
 
+    passes.push_back(std::make_unique<ComputeTestPass>());
     passes.push_back(std::make_unique<ShadowPass>());
     passes.push_back(std::make_unique<OpaquePass>());
     passes.push_back(std::make_unique<DecalPass>());

@@ -16,6 +16,7 @@ class CommandPool;
 class Buffer;
 class Texture;
 class PipelineState;
+class ComputePipelineState;
 class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
