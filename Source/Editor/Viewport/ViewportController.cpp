@@ -253,6 +253,14 @@ bool ViewportController::IsGizmoSpaceLocal() const
     return gizmo->IsLocal();
 }
 
+void ViewportController::CycleViewMode()
+{
+    const uint8 nextMode =
+        (static_cast<uint8>(viewMode) + 1u) % static_cast<uint8>(Render::ViewMode::Count);
+
+    viewMode = static_cast<Render::ViewMode>(nextMode);
+}
+
 void ViewportController::Play()
 {
     playSession.Start();

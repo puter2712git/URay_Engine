@@ -40,6 +40,13 @@ ViewportPanel::ViewportPanel(ViewportController& controller)
         });
     toolbar->SetGizmoSpaceLocal(controller.IsGizmoSpaceLocal());
 
+    toolbar->GetViewModeToggleButton()->GetOnClickRay().Register(
+        this,
+        [this, &controller]()
+        {
+            controller.CycleViewMode();
+        });
+
     toolbar->GetPlayButton()->GetOnClickRay().Register(
         this,
         [this, &controller]()

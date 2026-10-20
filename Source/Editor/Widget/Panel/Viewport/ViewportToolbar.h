@@ -27,6 +27,7 @@ public:
 
     const std::array<Button*, static_cast<size_t>(GizmoMode::Count)>& GetGizmoModeButtons() const { return gizmoModeButtons; }
     Button* GetGizmoSpaceToggleButton() const { return gizmoSpaceToggleButton; }
+    Button* GetViewModeToggleButton() const { return viewModeToggleButton; }
     void SetGizmoSpaceLocal(bool isLocal);
 
     Button* GetPlayButton() const { return playButton; }

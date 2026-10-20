@@ -10,7 +10,8 @@ enum class ViewMode : uint8
     Lit,
     Unlit,
     Wireframe,
-    ClusterLightHeatmap
+    ClusterLightHeatmap,
+    Count
 };
 
 }

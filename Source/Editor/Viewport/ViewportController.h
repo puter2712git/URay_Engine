@@ -68,6 +68,7 @@ public:
     void SetGizmoMode(GizmoMode mode);
     bool ToggleGizmoSpace();
     bool IsGizmoSpaceLocal() const;
+    void CycleViewMode();
     void Play();
     void Stop();
 
