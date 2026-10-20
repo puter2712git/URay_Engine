@@ -111,6 +111,13 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal, uint
             float pointShadow = GetPointShadowVisibility(pointLights[i], worldPosition);
             lighting += EvaluatePoint(pointLights[i], worldPosition, normal) * pointShadow;
         }
+        
+        for (uint i = 0; i < frame.spotLightCount; ++i)
+        {
+            float spotShadow = GetSpotShadowVisibility(spotLights[i], worldPosition);
+            lighting += EvaluateSpot(spotLights[i], worldPosition, normal) * spotShadow;
+        }
+
     }
     else
     {
@@ -119,19 +126,21 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal, uint
         for (uint i = 0; i < entry.lightCount; ++i)
         {
             const uint packedLightIndex = clusterLightIndexList[offset + i];
+            const uint lightIndex = GetLightIndex(packedLightIndex);
             
-            const uint pointLightIndex = GetLightIndex(packedLightIndex);
-            PointLight light = pointLights[pointLightIndex];
-
-            float pointShadow = GetPointShadowVisibility(light, worldPosition);
-            lighting += EvaluatePoint(light, worldPosition, normal) * pointShadow;
+            if (IsSpotLight(packedLightIndex))
+            {
+                const SpotLight light = spotLights[lightIndex];
+                const float shadow = GetSpotShadowVisibility(light, worldPosition);
+                lighting += EvaluateSpot(light, worldPosition, normal) * shadow;
+            }
+            else
+            {
+                const PointLight light = pointLights[lightIndex];
+                const float shadow = GetPointShadowVisibility(light, worldPosition);
+                lighting += EvaluatePoint(light, worldPosition, normal) * shadow;
+            }
         }
-    }
-   
-    for (uint i = 0; i < frame.spotLightCount; ++i)
-    {
-        float spotShadow = GetSpotShadowVisibility(spotLights[i], worldPosition);
-        lighting += EvaluateSpot(spotLights[i], worldPosition, normal) * spotShadow;
     }
     
     return albedo * lighting;
