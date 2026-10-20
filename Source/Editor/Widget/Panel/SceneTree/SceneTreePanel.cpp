@@ -3,16 +3,41 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/SceneTree/SceneTreeNode.h>
+#include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
 #include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 
+#include <algorithm>
+#include <cmath>
+
 namespace URay
 {
+
+namespace
+{
+constexpr float SceneTreeRowHeight = 20.0f;
+constexpr int32 SceneTreeRowOverscan = 3;
+} // namespace
+
+class SceneTreeVirtualContent final : public Widget
+{
+public:
+    explicit SceneTreeVirtualContent(SceneTreePanel& owner);
+
+public:
+    void Arrange(const Rect& rect) override;
+
+protected:
+    Vector2 OnMeasure() override;
+
+private:
+    SceneTreePanel& owner;
+    std::vector<SceneTreeNode*> nodePool;
+};
 
 SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
 {
@@ -23,9 +48,8 @@ SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
     SetOutlineColor(EditorStyle::Border);
     SetPadding(Padding(5.0f, 5.0f));
 
-    layout = AddChild<VerticalLayout>();
-    layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
-    layout->SetGap(1.0f);
+    scrollView = AddChild<ScrollView>();
+    virtualContent = scrollView->SetContent<SceneTreeVirtualContent>(*this);
 
     sceneSystem->GetUnitAddRay().Register(this, [this](Scene*, Unit*)
                                           { isTreeDirty = true; });
@@ -44,9 +68,7 @@ SceneTreePanel::~SceneTreePanel()
 void SceneTreePanel::Arrange(const Rect& rect)
 {
     Panel::Arrange(rect);
-
-    const Rect contentRect = GetContentRect();
-    layout->Arrange(contentRect);
+    scrollView->Arrange(GetContentRect());
 }
 
 EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
@@ -98,7 +120,7 @@ void SceneTreePanel::OnUpdate(float deltaTime)
 
 void SceneTreePanel::UpdateTree()
 {
-    layout->ClearChildren();
+    rows.clear();
 
     auto scenes = sceneSystem->GetScenes(SceneType::Game);
     Scene* gameScene = scenes.empty() ? nullptr : scenes[0];
@@ -106,9 +128,7 @@ void SceneTreePanel::UpdateTree()
     if (!gameScene)
         return;
 
-    const auto& units = gameScene->GetUnits();
-
-    for (const auto& unit : units)
+    for (const auto& unit : gameScene->GetUnits())
     {
         if (!unit->GetParent())
             AddSubtree(*unit, 0);
@@ -117,15 +137,83 @@ void SceneTreePanel::UpdateTree()
 
 void SceneTreePanel::AddSubtree(Unit& unit, uint32 depth)
 {
-    layout->AddChild<SceneTreeNode>(unit, depth);
+    rows.push_back(TreeRow{
+        .unit = &unit,
+        .depth = depth });
 
     for (Unit* child : unit.GetChildren())
     {
         if (child)
-        {
             AddSubtree(*child, depth + 1);
-        }
     }
+}
+
+SceneTreeVirtualContent::SceneTreeVirtualContent(SceneTreePanel& owner) : owner(owner) {}
+
+void SceneTreeVirtualContent::Arrange(const Rect& rect)
+{
+    Widget::Arrange(rect);
+
+    const int32 rowCount = static_cast<int32>(owner.rows.size());
+
+    if (rowCount == 0)
+    {
+        for (SceneTreeNode* node : nodePool)
+        {
+            node->Unbind();
+            node->Arrange({});
+        }
+
+        return;
+    }
+
+    const Rect viewportRect = GetParent()->GetRect();
+
+    const int32 firstVisible = std::max(
+        0,
+        static_cast<int32>(std::floor((viewportRect.position.y - rect.position.y) / SceneTreeRowHeight)));
+
+    const int32 lastVisibleExclusive = std::min(
+        rowCount,
+        static_cast<int32>(std::ceil((viewportRect.position.y + viewportRect.size.y - rect.position.y) / SceneTreeRowHeight)));
+
+    const int32 firstRow = std::max(0, firstVisible - SceneTreeRowOverscan);
+    const int32 lastRow = std::min(rowCount, lastVisibleExclusive + SceneTreeRowOverscan);
+    const int32 requiredNodeCount = lastRow - firstRow;
+
+    while (static_cast<int32>(nodePool.size()) < requiredNodeCount)
+    {
+        nodePool.push_back(AddChild<SceneTreeNode>());
+    }
+
+    for (int32 poolIndex = 0; poolIndex < requiredNodeCount; ++poolIndex)
+    {
+        const int32 rowIndex = firstRow + poolIndex;
+        const SceneTreePanel::TreeRow& row = owner.rows[rowIndex];
+
+        SceneTreeNode* node = nodePool[poolIndex];
+        node->Bind(*row.unit, row.depth);
+
+        Rect rowRect;
+        rowRect.position = Vector2(rect.position.x, rect.position.y + static_cast<float>(rowIndex) * SceneTreeRowHeight);
+        rowRect.size = Vector2(rect.size.x, SceneTreeRowHeight);
+
+        node->Arrange(rowRect);
+    }
+
+    for (size_t index = requiredNodeCount; index < nodePool.size(); ++index)
+    {
+        SceneTreeNode* node = nodePool[index];
+        node->Unbind();
+        node->Arrange({});
+    }
+}
+
+Vector2 SceneTreeVirtualContent::OnMeasure()
+{
+    return Vector2(
+        0.0f,
+        static_cast<float>(owner.rows.size()) * SceneTreeRowHeight);
 }
 
 } // namespace URay

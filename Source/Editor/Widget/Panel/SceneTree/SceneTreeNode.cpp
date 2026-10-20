@@ -15,22 +15,35 @@
 namespace URay
 {
 
-SceneTreeNode::SceneTreeNode(Unit& unit, uint32 depth)
-    : unit(unit), depth(depth)
+SceneTreeNode::SceneTreeNode()
 {
     selectionSystem = &gEditor->GetSelectionSystem();
 
     SetPreferredHeight(20.0f);
 
     surface = AddChild<Surface>();
-    surface->SetBackgroundColor(Color::Black);
     surface->SetPadding(Padding(5.0f, 2.0f));
 
     layout = surface->AddChild<HorizontalLayout>();
-    layout->SetPadding(Padding(depth * 16.0f, 0));
-
-    label = layout->AddChild<Label>(unit.GetName());
+    label = layout->AddChild<Label>();
     label->SetTextStyle(EditorStyle::SmallText());
+}
+
+void SceneTreeNode::Bind(Unit& unit, uint32 depth)
+{
+    this->unit = &unit;
+    this->depth = depth;
+
+    label->SetText(unit.GetName());
+    layout->SetPadding(Padding(depth * 16.0f, 0.0f));
+}
+
+void SceneTreeNode::Unbind()
+{
+    unit = nullptr;
+    depth = 0;
+    label->SetText({});
+    surface->SetBackgroundColor(EditorStyle::Surface);
 }
 
 void SceneTreeNode::Arrange(const Rect& rect)
@@ -42,19 +55,25 @@ void SceneTreeNode::Arrange(const Rect& rect)
 
 EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 {
+    if (!unit)
+        return {};
+
     if (event.changedButton == MouseButton::Right)
     {
         PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
         UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
+        Unit* targetUnit = unit;
+        SelectionSystem* targetSelectionSystem = selectionSystem;
+
         popup->GetUnitSelectedRay().Register(
             popup,
-            [this, &popupLayer](UnitPopupSelection selection)
+            [targetUnit, targetSelectionSystem, &popupLayer](UnitPopupSelection selection)
             {
                 if (selection != UnitPopupSelection::EmptyUnit)
                     return;
 
-                Scene* scene = unit.GetOwner();
+                Scene* scene = targetUnit->GetOwner();
 
                 if (!scene)
                 {
@@ -64,9 +83,9 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
                 Unit* createdUnit = scene->CreateEmptyUnit(
                     "New Unit",
-                    &unit);
+                    targetUnit);
 
-                selectionSystem->SetSelection(createdUnit);
+                targetSelectionSystem->SetSelection(createdUnit);
 
                 popupLayer.ClosePopup();
             });
@@ -83,11 +102,11 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
         if (isToggleSelection)
         {
-            selectionSystem->ToggleSelection(&unit);
+            selectionSystem->ToggleSelection(unit);
         }
         else
         {
-            selectionSystem->SetSelection(&unit);
+            selectionSystem->SetSelection(unit);
         }
 
         return EventReply{
@@ -101,9 +120,12 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
 void SceneTreeNode::OnUpdate(float deltaTime)
 {
+    if (!unit)
+        return;
+
     Color surfaceColor = EditorStyle::Surface;
 
-    if (selectionSystem->IsSelected(&unit))
+    if (selectionSystem->IsSelected(unit))
     {
         surfaceColor = EditorStyle::ControlPressed;
     }

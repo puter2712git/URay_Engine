@@ -1,17 +1,24 @@
 #pragma once
 
+#include <Core/Type/Types.h>
 #include <Editor/Widget/Panel/Panel.h>
+
+#include <vector>
 
 namespace URay
 {
 
+class ScrollView;
+class SceneTreeVirtualContent;
+class SceneTreeNode;
 class SceneSystem;
-class VerticalLayout;
 class Unit;
 
 class SceneTreePanel final : public Panel
 {
     URAY_TYPE(SceneTreePanel, Panel)
+
+    friend class SceneTreeVirtualContent;
 
 public:
     SceneTreePanel();
@@ -26,13 +33,23 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
+    struct TreeRow
+    {
+        Unit* unit = nullptr;
+        uint32 depth = 0;
+    };
+
+private:
     void UpdateTree();
     void AddSubtree(Unit& unit, uint32 depth);
 
 private:
     SceneSystem* sceneSystem = nullptr;
 
-    VerticalLayout* layout = nullptr;
+    ScrollView* scrollView = nullptr;
+    SceneTreeVirtualContent* virtualContent = nullptr;
+
+    std::vector<TreeRow> rows;
 
     bool isTreeDirty = false;
 };

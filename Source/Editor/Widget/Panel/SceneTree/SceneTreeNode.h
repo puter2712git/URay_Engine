@@ -16,9 +16,12 @@ class SelectionSystem;
 class SceneTreeNode final : public Widget
 {
 public:
-    SceneTreeNode(Unit& unit, uint32 depth);
+    SceneTreeNode();
 
 public:
+    void Bind(Unit& unit, uint32 depth);
+    void Unbind();
+
     void Arrange(const Rect& rect) override;
 
     EventReply OnPointerDown(const PointerEvent& event) override;
@@ -29,7 +32,7 @@ protected:
 private:
     SelectionSystem* selectionSystem = nullptr;
 
-    Unit& unit;
+    Unit* unit = nullptr;
     uint32 depth = 0;
 
     Surface* surface = nullptr;
