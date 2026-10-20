@@ -58,11 +58,14 @@ void UIDrawContext::AddOutlineRect(const Rect& rect, float thickness, const Colo
 
     AddFilledRect({ .position = rect.position, .size = Vector2(rect.size.x, clampedThickness) }, color);
     AddFilledRect({ .position = Vector2(rect.position.x, rect.position.y + rect.size.y - clampedThickness),
-                    .size = Vector2(rect.size.x, clampedThickness) }, color);
+                    .size = Vector2(rect.size.x, clampedThickness) },
+                  color);
     AddFilledRect({ .position = Vector2(rect.position.x, rect.position.y + clampedThickness),
-                    .size = Vector2(clampedThickness, rect.size.y - clampedThickness * 2.0f) }, color);
+                    .size = Vector2(clampedThickness, rect.size.y - clampedThickness * 2.0f) },
+                  color);
     AddFilledRect({ .position = Vector2(rect.position.x + rect.size.x - clampedThickness, rect.position.y + clampedThickness),
-                    .size = Vector2(clampedThickness, rect.size.y - clampedThickness * 2.0f) }, color);
+                    .size = Vector2(clampedThickness, rect.size.y - clampedThickness * 2.0f) },
+                  color);
 }
 
 void UIDrawContext::AddText(const Vector2& position, std::string_view utf8Text, const TextStyle& style)
@@ -116,7 +119,14 @@ void UIDrawContext::AddImage(const Rect& rect, const UIImage& image, const Color
 
 void UIDrawContext::AddQuad(const Rect& rect, const Vector2& uvMin, const Vector2& uvMax, const Color& color, TextureView* view, Sampler* sampler)
 {
+    const Rect& clipRect = clipStack.back();
+
     if (rect.size.x <= 0.0f || rect.size.y <= 0.0f)
+        return;
+
+    const Rect visibleRect = Intersect(rect, clipRect);
+
+    if (visibleRect.size.x <= 0.0f || visibleRect.size.y <= 0.0f)
         return;
 
     // TODO: 에러 처리 설계 필요 (Debug/Release 빌드에서의 ASSERT, FATAL_ERROR 등)
@@ -124,7 +134,6 @@ void UIDrawContext::AddQuad(const Rect& rect, const Vector2& uvMin, const Vector
     if (clipStack.empty())
         return;
 
-    const Rect& clipRect = clipStack.back();
     if (clipRect.size.x <= 0.0f || clipRect.size.y <= 0.0f)
         return;
 
