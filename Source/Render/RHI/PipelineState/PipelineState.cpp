@@ -16,4 +16,15 @@ PipelineState::~PipelineState()
     }
 }
 
+ComputePipelineState::ComputePipelineState(VkDevice device, VkPipeline handle, PipelineLayout* layout)
+    : device(device), handle(handle), layout(layout) {}
+
+ComputePipelineState::~ComputePipelineState()
+{
+    if (handle)
+    {
+        vkDestroyPipeline(device, handle, nullptr);
+    }
+}
+
 } // namespace URay::Render

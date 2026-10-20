@@ -34,6 +34,7 @@ class DescriptorSetLayout;
 class DescriptorSet;
 class PipelineLayout;
 class PipelineState;
+class ComputePipelineState;
 class Framebuffer;
 class SwapChain;
 class CommandPool;
@@ -51,6 +52,7 @@ struct SamplerDesc;
 struct DescriptorSetLayoutDesc;
 struct PipelineLayoutDesc;
 struct PipelineStateDesc;
+struct ComputePipelineStateDesc;
 struct FramebufferDesc;
 struct SwapChainDesc;
 
@@ -96,6 +98,7 @@ public:
 
     PipelineLayout* CreatePipelineLayout(const PipelineLayoutDesc& desc);
     PipelineState* CreatePSO(const PipelineStateDesc& pipelineState, PipelineLayout& layout);
+    ComputePipelineState* CreateComputePSO(const ComputePipelineStateDesc& pipelineState, PipelineLayout& layout);
 
     Framebuffer* CreateFramebuffer(const FramebufferDesc& desc);
     SwapChain* CreateSwapChain(const SwapChainDesc& desc);

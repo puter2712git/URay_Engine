@@ -74,6 +74,7 @@ void ResourceManager::Finalize()
         fontSystem.reset();
     }
 
+    DestroyComputePSOs();
     DestroyPSOs();
     DestroyPipelineLayouts();
     DestroyDescriptorSetLayouts();
@@ -551,6 +552,58 @@ void ResourceManager::DestroyPSOs()
     }
 
     pipelines.clear();
+}
+
+ComputePipelineState* ResourceManager::GetOrCreateComputePSO(const ComputePipelineStateDesc& psoDesc)
+{
+    auto it = computePipelines.find(psoDesc);
+    if (it != computePipelines.end())
+        return it->second;
+
+    PipelineLayoutDesc layoutDesc = {};
+
+    const auto& shaderLayouts = psoDesc.shader->GetLayoutDescriptions();
+    const uint32 maxSet = shaderLayouts.empty() ? 0 : shaderLayouts.rbegin()->first;
+
+    DescriptorSetLayoutDesc emptyLayoutDesc = {};
+
+    for (uint32 set = 0; set <= maxSet; ++set)
+    {
+        const auto it = shaderLayouts.find(set);
+        DescriptorSetLayoutDesc desc = it != shaderLayouts.end() ? it->second : emptyLayoutDesc;
+
+        if (set == 0)
+        {
+            desc = device.MakeFrameDescriptorSetLayoutDescription();
+        }
+
+        layoutDesc.setLayouts[set] = GetOrCreateDescriptorSetLayout(desc);
+    }
+
+    layoutDesc.pushConstantRanges = psoDesc.shader->GetPushConstantRanges();
+
+    PipelineLayout* layout = GetOrCreatePipelineLayout(layoutDesc);
+
+    ComputePipelineState* pso = device.CreateComputePSO(psoDesc, *layout);
+    if (!pso)
+        return nullptr;
+
+    computePipelines.insert({ psoDesc, pso });
+    return pso;
+}
+
+void ResourceManager::DestroyComputePSOs()
+{
+    for (auto& [key, pso] : computePipelines)
+    {
+        if (pso)
+        {
+            delete pso;
+            pso = nullptr;
+        }
+    }
+
+    computePipelines.clear();
 }
 
 } // namespace URay::Render

@@ -5,6 +5,10 @@ add_subdirectory("${URAY_SOURCE_DIR}/Thirdparty/freetype-2.14.3")
 
 include(FetchContent)
 
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+endif()
+
 set(URAY_DXC_VERSION "v1.9.2607")
 set(URAY_DXC_ARCHIVE_URL
     "https://github.com/microsoft/DirectXShaderCompiler/releases/download/${URAY_DXC_VERSION}/dxc_2026_07_29.zip"

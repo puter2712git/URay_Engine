@@ -34,6 +34,7 @@ class Shader;
 class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
+class ComputePipelineState;
 class ShadowSystem;
 class FontSystem;
 
@@ -74,6 +75,9 @@ public:
     PipelineState* GetOrCreatePSO(const PipelineStateDesc& psoDesc);
     void DestroyPSOs();
 
+    ComputePipelineState* GetOrCreateComputePSO(const ComputePipelineStateDesc& psoDesc);
+    void DestroyComputePSOs();
+
     FontSystem& GetFontSystem() { return *fontSystem; }
     ShadowSystem& GetShadowSystem() { return *shadowSystem; }
 
@@ -98,6 +102,7 @@ private:
     std::unordered_map<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
 
     std::unordered_map<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
+    std::unordered_map<ComputePipelineStateDesc, ComputePipelineState*, ComputePipelineStateDescHash> computePipelines;
 };
 
 } // namespace URay::Render

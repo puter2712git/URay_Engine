@@ -45,12 +45,21 @@ public:
     void EndRendering();
 
     void BindPipeline(const PipelineState& pso);
+    void BindComputePipeline(const ComputePipelineState& pso);
+
     void BindVertexBuffer(const Buffer& buffer);
     void BindIndexBuffer(const Buffer& buffer);
+
     void BindDescriptorSet(
         const PipelineLayout& layout,
         const DescriptorSet& descriptorSet,
         uint32 set);
+    void BindComputeDescriptorSet(
+        const PipelineLayout& layout,
+        const DescriptorSet& descriptorSet,
+        uint32 set);
+
+    void Dispatch(uint32 groupCountX, uint32 groupCountY, uint32 groupCountZ);
 
     void PushConstants(
         const PipelineLayout& layout,

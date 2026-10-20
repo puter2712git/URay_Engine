@@ -129,6 +129,11 @@ void CommandBuffer::BindPipeline(const PipelineState& pso)
     vkCmdBindPipeline(handle, VK_PIPELINE_BIND_POINT_GRAPHICS, pso.GetHandle());
 }
 
+void CommandBuffer::BindComputePipeline(const ComputePipelineState& pso)
+{
+    vkCmdBindPipeline(handle, VK_PIPELINE_BIND_POINT_COMPUTE, pso.GetHandle());
+}
+
 void CommandBuffer::BindVertexBuffer(const Buffer& buffer)
 {
     VkBuffer buffers[] = { buffer.GetHandle() };
@@ -157,6 +162,29 @@ void CommandBuffer::BindDescriptorSet(
         &vkDescriptorSet,
         0,
         nullptr);
+}
+
+void CommandBuffer::BindComputeDescriptorSet(
+    const PipelineLayout& layout,
+    const DescriptorSet& descriptorSet,
+    uint32 set)
+{
+    VkDescriptorSet vkDescriptorSet = descriptorSet.GetHandle();
+
+    vkCmdBindDescriptorSets(
+        handle,
+        VK_PIPELINE_BIND_POINT_COMPUTE,
+        layout.GetHandle(),
+        set,
+        1,
+        &vkDescriptorSet,
+        0,
+        nullptr);
+}
+
+void CommandBuffer::Dispatch(uint32 groupCountX, uint32 groupCountY, uint32 groupCountZ)
+{
+    vkCmdDispatch(handle, groupCountX, groupCountY, groupCountZ);
 }
 
 void CommandBuffer::PushConstants(

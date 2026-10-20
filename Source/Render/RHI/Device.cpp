@@ -504,20 +504,29 @@ PipelineLayout* Device::CreatePipelineLayout(const PipelineLayoutDesc& desc)
 
 PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& layout)
 {
-    VkShaderModule vertShaderModule = CreateShaderModule(desc.shader->GetStageData(ShaderStageFlags::Vertex)->code);
-    VkShaderModule fragShaderModule = CreateShaderModule(desc.shader->GetStageData(ShaderStageFlags::Fragment)->code);
+    const ShaderStageData* vertexStageData = desc.shader->GetStageData(ShaderStageFlags::Vertex);
+    const ShaderStageData* fragmentStageData = desc.shader->GetStageData(ShaderStageFlags::Fragment);
+
+    if (!vertexStageData || !fragmentStageData)
+    {
+        URAY_LOG("[Device] Graphics pipeline requires both vertex and fragment shader stages.");
+        return nullptr;
+    }
+
+    VkShaderModule vertShaderModule = CreateShaderModule(vertexStageData->code);
+    VkShaderModule fragShaderModule = CreateShaderModule(fragmentStageData->code);
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
     vertShaderStageInfo.module = vertShaderModule;
-    vertShaderStageInfo.pName = "VSMain";
+    vertShaderStageInfo.pName = vertexStageData->entryPoint.c_str();
 
     VkPipelineShaderStageCreateInfo fragShaderStageInfo = {};
     fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     fragShaderStageInfo.module = fragShaderModule;
-    fragShaderStageInfo.pName = "PSMain";
+    fragShaderStageInfo.pName = fragmentStageData->entryPoint.c_str();
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
@@ -794,6 +803,42 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
 
     PipelineState* pso = new PipelineState(device, pipeline, &layout);
+
+    return pso;
+}
+
+ComputePipelineState* Device::CreateComputePSO(const ComputePipelineStateDesc& desc, PipelineLayout& layout)
+{
+    const ShaderStageData* computeStageData = desc.shader->GetStageData(ShaderStageFlags::Compute);
+    if (!computeStageData)
+    {
+        URAY_LOG("[Device] Compute shader stage data is missing.");
+        return nullptr;
+    }
+
+    VkShaderModule computeShaderModule = CreateShaderModule(computeStageData->code);
+
+    VkPipelineShaderStageCreateInfo computeShaderStageInfo = {};
+    computeShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    computeShaderStageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
+    computeShaderStageInfo.module = computeShaderModule;
+    computeShaderStageInfo.pName = computeStageData->entryPoint.c_str();
+
+    VkComputePipelineCreateInfo pipelineInfo = {};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+    pipelineInfo.stage = computeShaderStageInfo;
+    pipelineInfo.layout = layout.GetHandle();
+
+    VkPipeline pipeline;
+    if (vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+    {
+        vkDestroyShaderModule(device, computeShaderModule, nullptr);
+        return nullptr;
+    }
+
+    vkDestroyShaderModule(device, computeShaderModule, nullptr);
+
+    ComputePipelineState* pso = new ComputePipelineState(device, pipeline, &layout);
 
     return pso;
 }
