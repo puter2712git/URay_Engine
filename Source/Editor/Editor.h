@@ -39,6 +39,8 @@ public:
 
     Render::RenderRequest BuildRenderRequest() const;
 
+    void LoadGameScene(const VirtualPath& scenePath);
+
     WidgetSystem& GetWidgetSystem() const { return *widgetSystem; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
     InspectSystem& GetInspectSystem() const { return *inspectSystem; }

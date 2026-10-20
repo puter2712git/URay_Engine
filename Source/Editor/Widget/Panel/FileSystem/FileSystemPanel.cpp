@@ -12,6 +12,7 @@
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
+#include <Engine/Scene/SceneSystem.h>
 
 namespace URay
 {
@@ -46,6 +47,10 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
             {
                 gEditor->GetSelectionSystem().ClearSelection();
                 gEditor->GetInspectSystem().SetTarget(InspectTarget::FromAsset(entry.assetHandle));
+            }
+            else if (entry.kind == AssetEntryKind::Scene)
+            {
+                gEditor->LoadGameScene(entry.path);
             }
         });
 

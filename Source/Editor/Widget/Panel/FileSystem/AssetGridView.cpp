@@ -46,6 +46,15 @@ void AssetGridView::SetDirectory(AssetSystem& assetSystem, const VirtualPath& pa
             continue;
         }
 
+        if (entry.path.GetExtension() == ".scene")
+        {
+            assetEntries.push_back(AssetEntry{
+                .kind = AssetEntryKind::Scene,
+                .path = entry.path,
+                .displayName = entry.path.GetStem() });
+            continue;
+        }
+
         const AssetMetadata* metadata = assetSystem.FindMetadataBySourcePath(entry.path);
         if (!metadata)
             continue;

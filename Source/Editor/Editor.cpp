@@ -496,6 +496,53 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     return request;
 }
 
+void Editor::LoadGameScene(const VirtualPath& scenePath)
+{
+    if (playSession->IsPlaying())
+    {
+        URAY_LOG("[Editor] Cannot load a game scene while playing.");
+        return;
+    }
+
+    VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
+    SceneSystem& sceneSystem = gEngine->GetSceneSystem();
+
+    const std::string sceneText = fileSystem.ReadText(scenePath);
+    if (sceneText.empty())
+    {
+        URAY_LOG("[Editor] Failed to read scene: %s", scenePath.ToString().c_str());
+        return;
+    }
+
+    std::unique_ptr<Scene> newScene = nullptr;
+
+    try
+    {
+        YAML::Node sceneNode = YAML::Load(sceneText);
+
+        newScene = sceneSystem.CreateScene(SceneType::Game, scenePath);
+        newScene->Deserialize(sceneNode);
+    }
+    catch (const YAML::Exception& exception)
+    {
+        URAY_LOG(
+            "[Editor] Failed to load game scene '%s': %s",
+            scenePath.ToString().c_str(),
+            exception.what());
+        return;
+    }
+
+    selectionSystem->ClearSelection();
+    inspectSystem->ClearTarget();
+
+    const std::vector<Scene*> gameScenes = sceneSystem.GetScenes(SceneType::Game);
+
+    for (Scene* scene : gameScenes)
+        sceneSystem.UnloadScene(scene->GetId());
+
+    sceneSystem.LoadScene(std::move(newScene));
+}
+
 void Editor::PrepareGrid()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();

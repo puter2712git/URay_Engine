@@ -12,7 +12,8 @@ namespace URay
 enum class AssetEntryKind
 {
     Directory,
-    Asset
+    Asset,
+    Scene
 };
 
 struct AssetEntry
