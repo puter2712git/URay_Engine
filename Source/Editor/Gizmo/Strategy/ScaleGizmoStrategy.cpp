@@ -63,8 +63,7 @@ void ScaleGizmoStrategy::StartDragging(GizmoHandleId id, const Ray& cursorRay, c
     yAxis = transform->GetWorldForward();
     zAxis = transform->GetWorldUp();
 
-    const Vector3 cameraForward =
-        view.GetViewMatrix().Inverse().TransformVector(Vector3::Forward).GetNormalized();
+    const Vector3 cameraForward = view.GetForward();
 
     switch (id)
     {

@@ -1,15 +1,13 @@
 #include "TranslationGizmoStrategy.h"
 
+#include <Core/Math/Math.h>
 #include <Editor/Gizmo/TransformGizmo.h>
-
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Component/TransformComponent.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/Unit.h>
-
-#include <Core/Math/Math.h>
 
 #include <algorithm>
 
@@ -95,8 +93,7 @@ void TranslationGizmoStrategy::StartDragging(
         zAxis = Vector3::Up;
     }
 
-    const Vector3 cameraForward =
-        view.GetViewMatrix().Inverse().TransformVector(Vector3::Forward).GetNormalized();
+    const Vector3 cameraForward = view.GetForward().GetNormalized();
 
     switch (selectedHandle)
     {
