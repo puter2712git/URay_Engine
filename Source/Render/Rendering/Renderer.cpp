@@ -1,5 +1,14 @@
-#include <Render/Rendering/Renderer.h>
+#include "Renderer.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/Log/LogSystem.h>
+#include <Core/Performance/PerformanceViewModel.h>
+#include <Core/Type/Types.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Material/Material.h>
+#include <Engine/Engine.h>
+#include <Engine/Scene/Scene.h>
+#include <Platform/Window/Window.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/Buffer/BufferDesc.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
@@ -16,6 +25,8 @@
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/RHI/Vulkan/VulkanContext.h>
 #include <Render/RHI/Vulkan/VulkanUtils.h>
+#include <Render/Rendering/Cluster/ClusterGrid.h>
+#include <Render/Rendering/Cluster/ClusterLightList.h>
 #include <Render/Rendering/RenderConstants.h>
 #include <Render/Rendering/RenderInfo.h>
 #include <Render/Rendering/RenderPass/RenderPass.h>
@@ -24,18 +35,6 @@
 #include <Render/Rendering/Shadow/ShadowSystem.h>
 #include <Render/ResourceManager.h>
 #include <Render/Shader/Shader.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/Log/LogSystem.h>
-#include <Core/Performance/PerformanceViewModel.h>
-#include <Core/Type/Types.h>
-
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Asset/Material/Material.h>
-#include <Engine/Engine.h>
-#include <Engine/Scene/Scene.h>
-
-#include <Platform/Window/Window.h>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -637,6 +636,18 @@ bool Renderer::CreateFrameResources()
         };
         frameResources[i].pointLightShadowStorageBuffer.reset(device.CreateStorageBuffer(pointLightShadowStorageBufferDesc));
 
+        StorageBufferDesc clusterLightListDesc = {
+            .elementCapacity = ClusterCount,
+            .elementStride = sizeof(ClusterLightListEntry)
+        };
+        frameResources[i].clusterLightListStorageBuffer.reset(device.CreateStorageBuffer(clusterLightListDesc));
+
+        StorageBufferDesc clusterLightIndexListDesc = {
+            .elementCapacity = ClusterCount * MaxLightsPerCluster,
+            .elementStride = sizeof(uint32)
+        };
+        frameResources[i].clusterLightIndexListStorageBuffer.reset(device.CreateStorageBuffer(clusterLightIndexListDesc));
+
         frameResources[i].descriptorSet.reset(device.CreateDescriptorSet(frameDescriptorSetLayout.get()));
         frameResources[i].descriptorSet->WriteUniformBuffer(0, *frameResources[i].uniformBuffer);
         frameResources[i].descriptorSet->WriteStorageBuffer(1, *frameResources[i].pointLightStorageBuffer);
@@ -648,6 +659,8 @@ bool Renderer::CreateFrameResources()
         frameResources[i].descriptorSet->WriteStorageBuffer(7, *frameResources[i].spotLightShadowStorageBuffer);
         frameResources[i].descriptorSet->WriteSampledImage(8, resourceManager.GetShadowSystem().GetPointShadowSamplingView(), VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_OPTIMAL);
         frameResources[i].descriptorSet->WriteStorageBuffer(9, *frameResources[i].pointLightShadowStorageBuffer);
+        frameResources[i].descriptorSet->WriteStorageBuffer(10, *frameResources[i].clusterLightListStorageBuffer);
+        frameResources[i].descriptorSet->WriteStorageBuffer(11, *frameResources[i].clusterLightIndexListStorageBuffer);
     }
 
     return true;
@@ -659,6 +672,8 @@ void Renderer::DestroyFrameResources()
     {
         frameResources[i].descriptorSet.reset();
 
+        frameResources[i].clusterLightIndexListStorageBuffer.reset();
+        frameResources[i].clusterLightListStorageBuffer.reset();
         frameResources[i].pointLightShadowStorageBuffer.reset();
         frameResources[i].spotLightShadowStorageBuffer.reset();
         frameResources[i].shadowUniformBuffer.reset();

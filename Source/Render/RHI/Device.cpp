@@ -1,5 +1,7 @@
 #include "Device.h"
 
+#include <Core/Log/LogSystem.h>
+#include <Core/Type/Types.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/Buffer/BufferDesc.h>
 #include <Render/RHI/Buffer/MeshBuffer.h>
@@ -26,9 +28,6 @@
 #include <Render/Rendering/Renderer.h>
 #include <Render/ResourceManager.h>
 #include <Render/Shader/Shader.h>
-
-#include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
 
 #include <algorithm>
 #include <cassert>
@@ -1390,6 +1389,20 @@ DescriptorSetLayoutDesc Device::MakeFrameDescriptorSetLayoutDescription() const
         .stageFlags = ShaderStageFlags::All });
     description.bindings.push_back(ResourceBinding{
         .binding = 9,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+
+    // Cluster Light List Entry
+    description.bindings.push_back(ResourceBinding{
+        .binding = 10,
+        .resourceType = ResourceType::StorageBuffer,
+        .arrayCount = 1,
+        .stageFlags = ShaderStageFlags::All });
+
+    // Cluster Light Index List
+    description.bindings.push_back(ResourceBinding{
+        .binding = 11,
         .resourceType = ResourceType::StorageBuffer,
         .arrayCount = 1,
         .stageFlags = ShaderStageFlags::All });

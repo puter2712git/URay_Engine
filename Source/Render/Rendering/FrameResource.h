@@ -35,6 +35,9 @@ struct FrameResource
     std::unique_ptr<Buffer> shadowUniformBuffer = nullptr;
     std::unique_ptr<Buffer> spotLightShadowStorageBuffer = nullptr;
     std::unique_ptr<Buffer> pointLightShadowStorageBuffer = nullptr;
+    std::unique_ptr<Buffer> clusterLightListStorageBuffer = nullptr;
+    std::unique_ptr<Buffer> clusterLightIndexListStorageBuffer = nullptr;
+
     std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
 };
 
