@@ -19,6 +19,7 @@ URay Engine is a work-in-progress game engine and scene editor built with C++20 
   - Vulkan 1.3
   - Multiple attachment rendering (scene color attachment, object id attachment, ...)
   - Shader relfection (SPIR-V)
+  - Clustered Light Culling
 - Engine Layer
   - Asset pipeline (texture, font, material, shader, script, mesh)
   - Component architecture
