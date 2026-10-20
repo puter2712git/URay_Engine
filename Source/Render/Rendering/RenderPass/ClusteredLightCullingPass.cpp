@@ -31,17 +31,23 @@ void ClusteredLightCullingPass::End(const RenderPassContext& context)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
 
-    const BufferBarrierDesc barrier = {
-        .buffer = context.frameResource.clusterLightListStorageBuffer->GetHandle(),
-        .srcStage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
-        .srcAccess = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT,
-        .dstStage = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
-        .dstAccess = VK_ACCESS_2_SHADER_STORAGE_READ_BIT,
+    const std::vector<BufferBarrierDesc> barriers = {
+        BufferBarrierDesc{
+            .buffer = context.frameResource.clusterLightListStorageBuffer->GetHandle(),
+            .srcStage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
+            .srcAccess = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT,
+            .dstStage = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
+            .dstAccess = VK_ACCESS_2_SHADER_STORAGE_READ_BIT },
+        BufferBarrierDesc{
+            .buffer = context.frameResource.clusterLightIndexListStorageBuffer->GetHandle(),
+            .srcStage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
+            .srcAccess = VK_ACCESS_2_SHADER_STORAGE_WRITE_BIT,
+            .dstStage = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT,
+            .dstAccess = VK_ACCESS_2_SHADER_STORAGE_READ_BIT }
     };
 
     commandBuffer.PipelineBarrier(PipelineBarrierDesc{
-        .bufferBarriers = std::span(&barrier, 1),
-    });
+        .bufferBarriers = barriers });
 }
 
 void ClusteredLightCullingPass::Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCommands)

@@ -1,5 +1,16 @@
 #include <Render/Rendering/RenderPipeline.h>
 
+#include <Core/Math/Frustum.h>
+#include <Core/Math/Math.h>
+#include <Editor/Editor.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Shader/Shader.h>
+#include <Engine/Component/Render/CameraComponent.h>
+#include <Engine/Engine.h>
+#include <Engine/Scene/Scene.h>
+#include <Engine/Scene/Unit.h>
+#include <Engine/Spatial/Octree.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/RenderTarget.h>
@@ -32,20 +43,6 @@
 #include <Render/Rendering/Scene/RenderEnvironment.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/ResourceManager.h>
-
-#include <Core/Math/Frustum.h>
-#include <Core/Math/Math.h>
-
-#include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Asset/Shader/Shader.h>
-#include <Engine/Component/Render/CameraComponent.h>
-#include <Engine/Engine.h>
-#include <Engine/Scene/Scene.h>
-#include <Engine/Scene/Unit.h>
-#include <Engine/Spatial/Octree.h>
-
-#include <Editor/Editor.h>
 
 namespace URay::Render
 {
@@ -178,12 +175,12 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
         frameConstants.directionalLight.castShadow = directionalLight->CastsShadow();
     }
 
-    frameConstants.pointLightCount = static_cast<uint32>(pointLights.size());
-    frameConstants.spotLightCount = static_cast<uint32>(spotLights.size());
+    frameConstants.pointLightCount = std::min(static_cast<uint32>(pointLights.size()), 256u);
+    frameConstants.spotLightCount = std::min(static_cast<uint32>(spotLights.size()), 256u);
 
     std::vector<PointLightConstants> pointLightConstants;
     uint32 shadowIndex = 0;
-    for (size_t i = 0; i < pointLights.size(); ++i)
+    for (size_t i = 0; i < frameConstants.pointLightCount; ++i)
     {
         pointLightConstants.push_back(PointLightConstants{
             .position = pointLights[i]->GetPosition(),
@@ -195,7 +192,7 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
 
     std::vector<SpotLightConstants> spotLightConstants;
     shadowIndex = 0;
-    for (size_t i = 0; i < spotLights.size(); ++i)
+    for (size_t i = 0; i < frameConstants.spotLightCount; ++i)
     {
         spotLightConstants.push_back(SpotLightConstants{
             .position = spotLights[i]->GetPosition(),
