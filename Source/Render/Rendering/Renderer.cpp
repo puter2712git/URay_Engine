@@ -57,6 +57,8 @@ static std::string_view GetRenderPassName(RenderPassId passId)
     {
     case RenderPassId::Shadow:
         return "Shadow";
+    case RenderPassId::ClusteredLightCulling:
+        return "Clustered Light Culling";
     case RenderPassId::Opaque:
         return "Opaque";
     case RenderPassId::SelectionMask:

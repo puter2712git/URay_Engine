@@ -20,7 +20,7 @@ class Texture;
 
 namespace Render
 {
-class DescriptorSetLayoutDesc;
+struct DescriptorSetLayoutDesc;
 class DescriptorSetLayout;
 class DescriptorSet;
 class Buffer;

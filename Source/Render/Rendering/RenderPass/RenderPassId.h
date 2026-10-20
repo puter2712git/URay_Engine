@@ -9,8 +9,8 @@ namespace URay::Render
 
 enum class RenderPassId : uint8
 {
-    ComputeTest,
     Shadow,
+    ClusteredLightCulling,
     Opaque,
     SelectionMask,
     Decal,

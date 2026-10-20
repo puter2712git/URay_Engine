@@ -2,21 +2,17 @@
 
 #include <Render/Rendering/RenderPass/RenderPass.h>
 
-#include <memory>
-
 namespace URay::Render
 {
 
-class Buffer;
 class ComputePipelineState;
-class DescriptorSetLayout;
-class DescriptorSet;
+class Shader;
 
-class ComputeTestPass : public RenderPass
+class ClusteredLightCullingPass final : public RenderPass
 {
 public:
-    ComputeTestPass();
-    ~ComputeTestPass() override;
+    ClusteredLightCullingPass();
+    ~ClusteredLightCullingPass() override;
 
 public:
     void Begin(const RenderPassContext& context) override;
@@ -24,7 +20,7 @@ public:
 
     void Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCommands) override;
 
-    RenderPassId GetPassId() const override { return RenderPassId::ComputeTest; }
+    RenderPassId GetPassId() const override { return RenderPassId::ClusteredLightCulling; }
 
 private:
     void EnsureResources(const RenderPassContext& context);
@@ -32,9 +28,6 @@ private:
 private:
     Shader* shader = nullptr;
     ComputePipelineState* pso = nullptr;
-    DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
-    std::unique_ptr<Buffer> outputBuffer = nullptr;
 };
 
 } // namespace URay::Render
