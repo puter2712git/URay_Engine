@@ -146,23 +146,52 @@ MeshFragOut PSMain(VertexPNTOut input)
 #if URAY_SELECTION_MASK
     output.outColor = float4(1, 1, 1, 1);
 #elif URAY_CLUSTER_LIGHT_HEATMAP
-    float3 viewPosition = mul(frame.view, float4(input.outWorldPosition, 1.0)).xyz;
-    
-    uint3 clusterCoord = GetClusterCoordFromPixel(input.outPosition.xy, -viewPosition.z);
-    
-    uint clusterIndex = GetClusterIndex(clusterCoord);
-    ClusterLightListEntry entry = clusterLightList[clusterIndex];
-    
+    float3 viewPosition =
+        mul(frame.view, float4(input.outWorldPosition, 1.0)).xyz;
+
+    const uint3 clusterCoord = GetClusterCoordFromPixel(
+        input.outPosition.xy,
+        -viewPosition.z);
+
+    const uint clusterIndex = GetClusterIndex(clusterCoord);
+    const ClusterLightListEntry entry = clusterLightList[clusterIndex];
+
+    float4 albedo =
+        diffuseColorTexture.Sample(diffuseColorSampler, input.outUV) *
+        obj.colorTint;
+
+    const float3 sceneColor = EvaluateLighting(
+        albedo.rgb,
+        input.outWorldPosition,
+        input.outNormal);
+
+    float3 heatColor = 0.0.xxx;
+    float heatOpacity = 0.0;
+
     if (entry.overflowCount > 0u)
-        output.outColor = float4(1.0, 0.0, 1.0, 1.0); // overflow: magenta
-    else if (entry.lightCount == 0u)
-        output.outColor = float4(0.0, 0.0, 0.0, 1.0);
-    else
     {
-        float intensity = log2(float(entry.lightCount) + 1.0) / log2(float(MaxLightsPerCluster) + 1.0);
-        output.outColor = float4(lerp(float3(0.0, 0.2, 1.0), float3(1.0, 0.0, 0.0), intensity), 1.0);
+        // capacity 초과는 반드시 보이도록 완전 표시
+        heatColor = float3(1.0, 0.0, 1.0);
+        heatOpacity = 1.0;
     }
-    
+    else if (entry.lightCount > 0u)
+    {
+        const float intensity =
+            log2(float(entry.lightCount) + 1.0) /
+            log2(float(MaxLightsPerCluster) + 1.0);
+
+        heatColor = lerp(
+            float3(0.0, 0.2, 1.0),
+            float3(1.0, 0.0, 0.0),
+            intensity);
+
+        heatOpacity = 0.55;
+    }
+
+    output.outColor = float4(
+        lerp(sceneColor, heatColor, heatOpacity),
+        albedo.a);
+
     output.outObjectId = obj.objectId;
 #else
     float4 albedo = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV) * obj.colorTint;
