@@ -2,7 +2,7 @@
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
-#include <Render/RHI/CommandBuffer/ImageBarrier.h>
+#include <Render/RHI/Barrier/ImageBarrier.h>
 #include <Render/RHI/PipelineLayout/PipelineLayout.h>
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/RenderTarget.h>

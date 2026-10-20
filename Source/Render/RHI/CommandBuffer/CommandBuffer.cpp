@@ -3,7 +3,7 @@
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/CommandBuffer/CommandPool.h>
-#include <Render/RHI/CommandBuffer/ImageBarrier.h>
+#include <Render/RHI/Barrier/ImageBarrier.h>
 #include <Render/RHI/Descriptor/DescriptorSet.h>
 #include <Render/RHI/Device.h>
 #include <Render/RHI/Framebuffer.h>

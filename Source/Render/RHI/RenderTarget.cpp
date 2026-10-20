@@ -1,7 +1,7 @@
 #include "RenderTarget.h"
 
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
-#include <Render/RHI/CommandBuffer/ImageBarrier.h>
+#include <Render/RHI/Barrier/ImageBarrier.h>
 #include <Render/RHI/Device.h>
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/RHI/Texture/TextureView.h>
