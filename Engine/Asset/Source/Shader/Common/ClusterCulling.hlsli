@@ -26,6 +26,28 @@ float3 ReconstructViewPosition(float2 ndcXY, float deviceDepth)
     return viewPosition.xyz / viewPosition.w;
 }
 
+uint GetClusterDepthSliceIndex(float linearViewDepth)
+{
+    const float normalizedDepth =
+        log(max(linearViewDepth, frame.nearPlane) / frame.nearPlane) /
+        log(frame.farPlane / frame.nearPlane);
+
+    return min(
+        uint(saturate(normalizedDepth) * float(ClusterGridCountZ)),
+        ClusterGridCountZ - 1u);
+}
+
+uint3 GetClusterCoordFromPixel(float2 pixelPosition, float linearViewDepth)
+{
+    const float2 normalizedPosition = pixelPosition / frame.renderTargetSize;
+    
+    const uint2 clusterXY = min(
+        uint2(normalizedPosition * float2(ClusterGridCountX, ClusterGridCountY)),
+        uint2(ClusterGridCountX - 1u, ClusterGridCountY - 1u));
+    
+    return uint3(clusterXY, GetClusterDepthSliceIndex(linearViewDepth));
+}
+
 void GetClusterViewAABB(uint3 clusterCoord, out float3 aabbMin, out float3 aabbMax)
 {
     const float2 ndcMin = float2(

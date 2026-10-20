@@ -96,6 +96,9 @@ void DrawCommandBuilder::BuildMesh(
     case ViewMode::Unlit:
         defines.push_back({ ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
         break;
+    case ViewMode::ClusterLightHeatmap:
+        defines.push_back({ ShaderDefine{ .name = L"URAY_CLUSTER_LIGHT_HEATMAP", .value = L"1" } });
+        break;
     }
 
     if (passId == RenderPassId::SelectionMask)

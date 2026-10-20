@@ -3,9 +3,15 @@
 #include "Common/ObjectConstants.hlsli"
 #include "Common/ShadowConstants.hlsli"
 #include "Common/VertexTypes.hlsli"
+#include "Common/ClusterLightList.hlsli"
+#include "Common/ClusterCulling.hlsli"
 
 #ifndef URAY_SHADING_MODEL
 #define URAY_SHADING_MODEL 1
+#endif
+
+#ifndef URAY_CLUSTER_LIGHT_HEATMAP
+#define URAY_CLUSTER_LIGHT_HEATMAP 0
 #endif
 
 #ifndef URAY_SELECTION_MASK
@@ -14,6 +20,9 @@
 
 [[vk::binding(0, 1)]] Texture2D<float4> diffuseColorTexture;
 [[vk::binding(1, 1)]] SamplerState diffuseColorSampler;
+
+[[vk::binding(10, 0)]]
+StructuredBuffer<ClusterLightListEntry> clusterLightList;
 
 float GetDirectionalShadowVisibility(float3 worldPosition, float3 normal)
 {
@@ -136,6 +145,25 @@ MeshFragOut PSMain(VertexPNTOut input)
     
 #if URAY_SELECTION_MASK
     output.outColor = float4(1, 1, 1, 1);
+#elif URAY_CLUSTER_LIGHT_HEATMAP
+    float3 viewPosition = mul(frame.view, float4(input.outWorldPosition, 1.0)).xyz;
+    
+    uint3 clusterCoord = GetClusterCoordFromPixel(input.outPosition.xy, -viewPosition.z);
+    
+    uint clusterIndex = GetClusterIndex(clusterCoord);
+    ClusterLightListEntry entry = clusterLightList[clusterIndex];
+    
+    if (entry.overflowCount > 0u)
+        output.outColor = float4(1.0, 0.0, 1.0, 1.0); // overflow: magenta
+    else if (entry.lightCount == 0u)
+        output.outColor = float4(0.0, 0.0, 0.0, 1.0);
+    else
+    {
+        float intensity = log2(float(entry.lightCount) + 1.0) / log2(float(MaxLightsPerCluster) + 1.0);
+        output.outColor = float4(lerp(float3(0.0, 0.2, 1.0), float3(1.0, 0.0, 0.0), intensity), 1.0);
+    }
+    
+    output.outObjectId = obj.objectId;
 #else
     float4 albedo = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV) * obj.colorTint;
     float3 finalColor = EvaluateLighting(albedo.rgb, input.outWorldPosition, input.outNormal);
