@@ -23,6 +23,8 @@
 
 [[vk::binding(10, 0)]]
 StructuredBuffer<ClusterLightListEntry> clusterLightList;
+[[vk::binding(11, 0)]]
+StructuredBuffer<uint> clusterLightIndexList;
 
 float GetDirectionalShadowVisibility(float3 worldPosition, float3 normal)
 {
@@ -89,20 +91,41 @@ float GetPointShadowVisibility(PointLight light, float3 worldPosition)
     return receiverDepth <= storedDepth + shadow.bias ? 1.0 : 0.0;
 }
 
-float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal)
+float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal, uint clusterIndex)
 {
 #if URAY_SHADING_MODEL == 1
+    ClusterLightListEntry entry = clusterLightList[clusterIndex];
+    
     float3 lighting = EvaluateAmbient(frame.ambientLight);
     
     float shadowVisibility = frame.directionalLight.castsShadow != 0
         ? GetDirectionalShadowVisibility(worldPosition, normal)
         : 1.0;
     lighting += EvaluateDirectional(frame.directionalLight, normal) * shadowVisibility;
-        
-    for (uint i = 0; i < frame.pointLightCount; ++i)
+    
+    if (entry.overflowCount > 0u)
     {
-        float pointShadow = GetPointShadowVisibility(pointLights[i], worldPosition);
-        lighting += EvaluatePoint(pointLights[i], worldPosition, normal) * pointShadow;
+        // Fallback. Apply all lights in the scene if cluster light list is overflowed.
+        for (uint i = 0; i < frame.pointLightCount; ++i)
+        {
+            float pointShadow = GetPointShadowVisibility(pointLights[i], worldPosition);
+            lighting += EvaluatePoint(pointLights[i], worldPosition, normal) * pointShadow;
+        }
+    }
+    else
+    {
+        const uint offset = GetClusterLightListOffset(clusterIndex);
+        
+        for (uint i = 0; i < entry.lightCount; ++i)
+        {
+            const uint packedLightIndex = clusterLightIndexList[offset + i];
+            
+            const uint pointLightIndex = GetLightIndex(packedLightIndex);
+            PointLight light = pointLights[pointLightIndex];
+
+            float pointShadow = GetPointShadowVisibility(light, worldPosition);
+            lighting += EvaluatePoint(light, worldPosition, normal) * pointShadow;
+        }
     }
    
     for (uint i = 0; i < frame.spotLightCount; ++i)
@@ -145,15 +168,15 @@ MeshFragOut PSMain(VertexPNTOut input)
     
 #if URAY_SELECTION_MASK
     output.outColor = float4(1, 1, 1, 1);
-#elif URAY_CLUSTER_LIGHT_HEATMAP
-    float3 viewPosition =
-        mul(frame.view, float4(input.outWorldPosition, 1.0)).xyz;
-
-    const uint3 clusterCoord = GetClusterCoordFromPixel(
-        input.outPosition.xy,
-        -viewPosition.z);
-
-    const uint clusterIndex = GetClusterIndex(clusterCoord);
+    return output;
+#else
+   
+    float3 viewPosition = mul(frame.view, float4(input.outWorldPosition, 1.0)).xyz;
+    
+    uint3 clusterCoord = GetClusterCoordFromPixel(input.outPosition.xy, -viewPosition.z);
+    uint clusterIndex = GetClusterIndex(clusterCoord);
+    
+#if URAY_CLUSTER_LIGHT_HEATMAP
     const ClusterLightListEntry entry = clusterLightList[clusterIndex];
 
     float4 albedo =
@@ -163,7 +186,8 @@ MeshFragOut PSMain(VertexPNTOut input)
     const float3 sceneColor = EvaluateLighting(
         albedo.rgb,
         input.outWorldPosition,
-        input.outNormal);
+        input.outNormal,
+        clusterIndex);
 
     float3 heatColor = 0.0.xxx;
     float heatOpacity = 0.0;
@@ -195,10 +219,11 @@ MeshFragOut PSMain(VertexPNTOut input)
     output.outObjectId = obj.objectId;
 #else
     float4 albedo = diffuseColorTexture.Sample(diffuseColorSampler, input.outUV) * obj.colorTint;
-    float3 finalColor = EvaluateLighting(albedo.rgb, input.outWorldPosition, input.outNormal);
+    float3 finalColor = EvaluateLighting(albedo.rgb, input.outWorldPosition, input.outNormal, clusterIndex);
     
     output.outColor = float4(finalColor, albedo.a);
     output.outObjectId = obj.objectId;
+#endif
 #endif
 
     return output;
