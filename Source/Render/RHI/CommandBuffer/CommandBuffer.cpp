@@ -1,9 +1,9 @@
 #include "CommandBuffer.h"
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
+#include <Render/RHI/Barrier/PipelineBarrierDesc.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/CommandBuffer/CommandPool.h>
-#include <Render/RHI/Barrier/ImageBarrier.h>
 #include <Render/RHI/Descriptor/DescriptorSet.h>
 #include <Render/RHI/Device.h>
 #include <Render/RHI/Framebuffer.h>
@@ -216,37 +216,70 @@ void CommandBuffer::PushConstants(
         data);
 }
 
-void CommandBuffer::PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers)
+void CommandBuffer::PipelineBarrier(const PipelineBarrierDesc& desc)
 {
-    if (imageBarriers.empty())
+    if (desc.bufferBarriers.empty() && desc.imageBarriers.empty())
         return;
 
+    std::vector<VkBufferMemoryBarrier2> vkBufferBarriers;
     std::vector<VkImageMemoryBarrier2> vkImageBarriers;
-    vkImageBarriers.reserve(imageBarriers.size());
 
-    for (const ImageBarrierDesc& desc : imageBarriers)
+    if (!desc.bufferBarriers.empty())
     {
-        VkImageMemoryBarrier2 barrier = {};
-        barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+        vkBufferBarriers.reserve(desc.bufferBarriers.size());
 
-        barrier.srcStageMask = desc.srcStage;
-        barrier.srcAccessMask = desc.srcAccess;
-        barrier.dstStageMask = desc.dstStage;
-        barrier.dstAccessMask = desc.dstAccess;
+        for (const BufferBarrierDesc& bdesc : desc.bufferBarriers)
+        {
+            VkBufferMemoryBarrier2 barrier = {};
+            barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
 
-        barrier.oldLayout = Vulkan::ToVkImageLayout(desc.oldLayout);
-        barrier.newLayout = Vulkan::ToVkImageLayout(desc.newLayout);
+            barrier.srcStageMask = bdesc.srcStage;
+            barrier.srcAccessMask = bdesc.srcAccess;
+            barrier.dstStageMask = bdesc.dstStage;
+            barrier.dstAccessMask = bdesc.dstAccess;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-        barrier.image = desc.image;
-        barrier.subresourceRange = desc.subresourceRange;
+            barrier.buffer = bdesc.buffer;
+            barrier.offset = bdesc.offset;
+            barrier.size = bdesc.size;
 
-        vkImageBarriers.push_back(barrier);
+            vkBufferBarriers.push_back(barrier);
+        }
+    }
+
+    if (!desc.imageBarriers.empty())
+    {
+        vkImageBarriers.reserve(desc.imageBarriers.size());
+
+        for (const ImageBarrierDesc& desc : desc.imageBarriers)
+        {
+            VkImageMemoryBarrier2 barrier = {};
+            barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+
+            barrier.srcStageMask = desc.srcStage;
+            barrier.srcAccessMask = desc.srcAccess;
+            barrier.dstStageMask = desc.dstStage;
+            barrier.dstAccessMask = desc.dstAccess;
+            barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+            barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+            barrier.oldLayout = Vulkan::ToVkImageLayout(desc.oldLayout);
+            barrier.newLayout = Vulkan::ToVkImageLayout(desc.newLayout);
+
+            barrier.image = desc.image;
+            barrier.subresourceRange = desc.subresourceRange;
+
+            vkImageBarriers.push_back(barrier);
+        }
     }
 
     VkDependencyInfo dependencyInfo = {};
     dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependencyInfo.bufferMemoryBarrierCount = static_cast<uint32>(vkBufferBarriers.size());
+    dependencyInfo.pBufferMemoryBarriers = vkBufferBarriers.empty() ? nullptr : vkBufferBarriers.data();
     dependencyInfo.imageMemoryBarrierCount = static_cast<uint32>(vkImageBarriers.size());
-    dependencyInfo.pImageMemoryBarriers = vkImageBarriers.data();
+    dependencyInfo.pImageMemoryBarriers = vkImageBarriers.empty() ? nullptr : vkImageBarriers.data();
 
     vkCmdPipelineBarrier2(handle, &dependencyInfo);
 }

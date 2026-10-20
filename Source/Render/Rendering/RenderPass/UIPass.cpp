@@ -1,8 +1,9 @@
 #include "UIPass.h"
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
-#include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/Barrier/ImageBarrier.h>
+#include <Render/RHI/Barrier/PipelineBarrierDesc.h>
+#include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/PipelineLayout/PipelineLayout.h>
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/RenderTarget.h>
@@ -62,8 +63,9 @@ void UIPass::BeginSwapChainPass(const RenderPassContext& context)
         .dstStage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
         .dstAccess = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
     };
-    context.commandBuffer.PipelineBarrier(
-        std::span(&toColorAttachment, 1));
+
+    context.commandBuffer.PipelineBarrier(PipelineBarrierDesc{
+        .imageBarriers = std::span(&toColorAttachment, 1) });
 
     RenderingAttachmentInfo colorAttachment = {};
     colorAttachment.imageView = context.swapChainImageView;
@@ -119,8 +121,8 @@ void UIPass::EndSwapChainPass(const RenderPassContext& context)
         .dstStage = VK_PIPELINE_STAGE_2_NONE,
         .dstAccess = VK_ACCESS_2_NONE,
     };
-    context.commandBuffer.PipelineBarrier(
-        std::span(&toPresent, 1));
+    context.commandBuffer.PipelineBarrier(PipelineBarrierDesc{
+        .imageBarriers = std::span(&toPresent, 1) });
 }
 
 void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)

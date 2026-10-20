@@ -21,7 +21,7 @@ class PipelineLayout;
 class DescriptorSet;
 class Framebuffer;
 struct RenderingInfo;
-struct ImageBarrierDesc;
+struct PipelineBarrierDesc;
 struct TextureRegion;
 
 class CommandBuffer
@@ -69,7 +69,7 @@ public:
         uint32 size,
         const void* data);
 
-    void PipelineBarrier(std::span<const ImageBarrierDesc> imageBarriers);
+    void PipelineBarrier(const PipelineBarrierDesc& desc);
 
     void CopyTextureToBuffer(const Texture& texture, Buffer& buffer, const TextureRegion& region);
 

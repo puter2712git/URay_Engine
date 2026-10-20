@@ -1,7 +1,8 @@
 #include "Texture.h"
 
-#include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/Barrier/ImageBarrier.h>
+#include <Render/RHI/Barrier/PipelineBarrierDesc.h>
+#include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/Device.h>
 
 #include <array>
@@ -64,7 +65,9 @@ void Texture::Transition(CommandBuffer& commandBuffer, ImageLayout newLayout)
             .dstAccess = dst.access }
     };
 
-    commandBuffer.PipelineBarrier(barriers);
+    commandBuffer.PipelineBarrier(PipelineBarrierDesc{
+        .imageBarriers = barriers });
+
     imageLayout = newLayout;
 }
 
