@@ -143,7 +143,7 @@ void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector
 
         commandBuffer.BindPipeline(*pso);
 
-        if (cmd.descriptorSets[1])
+        if (cmd.descriptorSets[1] && pso->GetLayout()->HasDescriptorSet(1))
         {
             commandBuffer.BindDescriptorSet(
                 *pso->GetLayout(),

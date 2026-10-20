@@ -111,7 +111,7 @@ void GizmoPass::Execute(
             *context.frameResource.descriptorSet,
             0);
 
-        if (cmd.descriptorSets[1])
+        if (cmd.descriptorSets[1] && pso->GetLayout()->HasDescriptorSet(1))
         {
             commandBuffer.BindDescriptorSet(
                 *pso->GetLayout(),

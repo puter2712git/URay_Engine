@@ -496,7 +496,11 @@ PipelineLayout* Device::CreatePipelineLayout(const PipelineLayoutDesc& desc)
     if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &handle) != VK_SUCCESS)
         return nullptr;
 
-    PipelineLayout* pipelineLayout = new PipelineLayout(device, handle, desc.pushConstantRanges);
+    PipelineLayout* pipelineLayout = new PipelineLayout(
+        device,
+        handle,
+        static_cast<uint32>(setLayouts.size()),
+        desc.pushConstantRanges);
 
     return pipelineLayout;
 }
