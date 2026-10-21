@@ -15,6 +15,7 @@ add_library(URay_ThirdParty STATIC)
 
 target_sources(URay_ThirdParty PRIVATE
     "${URAY_SOURCE_DIR}/ThirdParty/spirv/spirv_reflect.c"
+    "${URAY_SOURCE_DIR}/ThirdParty/ufbx/ufbx.c"
 )
 
 target_include_directories(URay_Engine PRIVATE
