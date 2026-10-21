@@ -89,4 +89,34 @@ struct VertexPNT
     }
 };
 
+struct VertexSkinnedPNT
+{
+    Vector3 position = Vector3::Zero;
+    Vector3 normal = Vector3::Up;
+    Vector2 uv = Vector2::Zero;
+
+    uint32 boneIndices[4] = { 0, 0, 0, 0 };
+    float boneWeights[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+
+    static const VertexInputLayout& GetInputLayout()
+    {
+        static const VertexInputLayout layout = []()
+        {
+            VertexInputLayout result;
+
+            result.AddBinding(0, sizeof(VertexSkinnedPNT));
+
+            result.AddAttribute(0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexSkinnedPNT, position));
+            result.AddAttribute(1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(VertexSkinnedPNT, normal));
+            result.AddAttribute(2, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexSkinnedPNT, uv));
+            result.AddAttribute(3, 0, VK_FORMAT_R32G32B32A32_UINT, offsetof(VertexSkinnedPNT, boneIndices));
+            result.AddAttribute(4, 0, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(VertexSkinnedPNT, boneWeights));
+
+            return result;
+        }();
+
+        return layout;
+    }
+};
+
 } // namespace URay::Render
