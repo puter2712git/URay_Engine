@@ -103,6 +103,12 @@ void MeshComponent::SetMaterial(const AssetHandle& newMaterialHandle, size_t ind
     MarkDirty();
 }
 
+void MeshComponent::SetMaterials(const std::vector<AssetHandle>& newMaterialHandles)
+{
+    materialHandles = newMaterialHandles;
+    MarkDirty();
+}
+
 void MeshComponent::UpdateRenderObject()
 {
     Unit* owner = GetOwner();

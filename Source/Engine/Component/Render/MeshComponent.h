@@ -1,21 +1,10 @@
 #pragma once
 
-#include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Asset/AssetHandle.h>
-
-#include <Core/Math/AABB.h>
-
-#include <vulkan/vulkan.h>
+#include <Engine/Component/Render/RenderComponent.h>
 
 namespace URay
 {
-
-class Mesh;
-class Material;
-
-namespace Render
-{
-}
 
 class MeshComponent : public RenderComponent
 {
@@ -23,7 +12,6 @@ class MeshComponent : public RenderComponent
 
 public:
     MeshComponent();
-    ~MeshComponent() = default;
 
 public:
     Render::RenderObject* CreateRenderObject() override;
@@ -35,7 +23,7 @@ public:
     const std::vector<AssetHandle>& GetMaterials() const { return materialHandles; }
 
     void SetMaterial(const AssetHandle& newMaterialHandle, size_t index = 0);
-    void SetMaterials(const std::vector<AssetHandle>& newMaterialHandles) { materialHandles = newMaterialHandles; }
+    void SetMaterials(const std::vector<AssetHandle>& newMaterialHandles);
 
 protected:
     void UpdateRenderObject() override;
