@@ -183,7 +183,7 @@ void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
     UpdateDragging(cursorRay);
 
     const Vector3 targetPosition = GetPivotPosition();
-    const Vector3 targetRotation = GetActiveTransform()->GetWorldRotation();
+    const Quaternion targetRotation = GetActiveTransform()->GetWorldRotation();
 
     const float distance = (view.position - targetPosition).GetLength();
     const float scale = std::clamp(distance * scaleFactor, minScale, maxScale);

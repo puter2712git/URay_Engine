@@ -3,6 +3,7 @@
 #include <Engine/Component/Component.h>
 
 #include <Core/Math/Matrix.h>
+#include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector3.h>
 
 namespace URay
@@ -39,10 +40,17 @@ public:
         SetDirty(true);
     }
 
-    const Vector3& GetLocalRotation() const { return rotation; }
-    void SetLocalRotation(const Vector3& inRotation)
+    const Quaternion& GetLocalRotation() const { return rotation; }
+    void SetLocalRotation(const Quaternion& inRotation)
     {
         rotation = inRotation;
+        SetDirty(true);
+    }
+
+    Vector3 GetLocalEulerAngles() const { return rotation.ToEulerDegrees(); }
+    void SetLocalEulerAngles(const Vector3& eulerAngles)
+    {
+        rotation = Quaternion::FromEulerDegrees(eulerAngles);
         SetDirty(true);
     }
 
@@ -60,8 +68,8 @@ public:
     Vector3 GetWorldPosition() const;
     void SetWorldPosition(const Vector3& worldPosition);
 
-    Vector3 GetWorldRotation() const;
-    void SetWorldRotation(const Vector3& worldRotation);
+    Quaternion GetWorldRotation() const;
+    void SetWorldRotation(const Quaternion& worldRotation);
 
     Vector3 GetWorldForward() const;
     Vector3 GetWorldRight() const;
@@ -78,7 +86,7 @@ private:
 
 private:
     Vector3 position = Vector3::Zero;
-    Vector3 rotation = Vector3::Zero;
+    Quaternion rotation = Quaternion::Identity;
     Vector3 scale = Vector3::One;
 
     Matrix worldMatrix = Matrix::Identity;

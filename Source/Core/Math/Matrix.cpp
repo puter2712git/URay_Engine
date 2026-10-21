@@ -1,6 +1,7 @@
 #include "Matrix.h"
 
 #include <Core/Math/Math.h>
+#include <Core/Math/Quaternion.h>
 
 #include <algorithm>
 #include <cmath>
@@ -122,46 +123,76 @@ Vector3 Matrix::GetPosition() const
     return Vector3(m30, m31, m32);
 }
 
-Vector3 Matrix::GetRotation() const
+Quaternion Matrix::GetRotation() const
 {
-    constexpr float epsilon = 1e-5f;
-
     const Vector3 scale = GetScale();
 
-    if (scale.x < epsilon || scale.y < epsilon || scale.z < epsilon)
-        return Vector3::Zero;
-
-    Matrix rotation = Matrix::Identity;
-    rotation.m00 = m00 / scale.x;
-    rotation.m01 = m01 / scale.x;
-    rotation.m02 = m02 / scale.x;
-
-    rotation.m10 = m10 / scale.y;
-    rotation.m11 = m11 / scale.y;
-    rotation.m12 = m12 / scale.y;
-
-    rotation.m20 = m20 / scale.z;
-    rotation.m21 = m21 / scale.z;
-    rotation.m22 = m22 / scale.z;
-
-    const float sinY = std::clamp(-rotation.m02, -1.0f, 1.0f);
-    const float y = std::asin(sinY);
-    const float cosY = std::sqrt(std::max(0.0f, 1.0f - sinY * sinY));
-
-    float x = 0.0f;
-    float z = 0.0f;
-
-    if (cosY > epsilon)
+    if (scale.x < Math::EPSILON ||
+        scale.y < Math::EPSILON ||
+        scale.z < Math::EPSILON)
     {
-        x = std::atan2(rotation.m12, rotation.m22);
-        z = std::atan2(rotation.m01, rotation.m00);
+        return Quaternion::Identity;
+    }
+
+    const float r00 = m00 / scale.x;
+    const float r01 = m01 / scale.x;
+    const float r02 = m02 / scale.x;
+
+    const float r10 = m10 / scale.y;
+    const float r11 = m11 / scale.y;
+    const float r12 = m12 / scale.y;
+
+    const float r20 = m20 / scale.z;
+    const float r21 = m21 / scale.z;
+    const float r22 = m22 / scale.z;
+
+    const float trace = r00 + r11 + r22;
+
+    Quaternion result;
+
+    if (trace > 0.0f)
+    {
+        const float s = 2.0f * std::sqrt(trace + 1.0f);
+
+        result.w = 0.25f * s;
+        result.x = (r12 - r21) / s;
+        result.y = (r20 - r02) / s;
+        result.z = (r01 - r10) / s;
+    }
+    else if (r00 > r11 && r00 > r22)
+    {
+        const float s = 2.0f * std::sqrt(1.0f + r00 - r11 - r22);
+
+        result.w = (r12 - r21) / s;
+        result.x = 0.25f * s;
+        result.y = (r01 + r10) / s;
+        result.z = (r02 + r20) / s;
+    }
+    else if (r11 > r22)
+    {
+        const float s = 2.0f * std::sqrt(1.0f + r11 - r00 - r22);
+
+        result.w = (r20 - r02) / s;
+        result.x = (r01 + r10) / s;
+        result.y = 0.25f * s;
+        result.z = (r12 + r21) / s;
     }
     else
     {
-        x = std::atan2(sinY >= 0.0f ? rotation.m10 : -rotation.m10, rotation.m11);
+        const float s = 2.0f * std::sqrt(1.0f + r22 - r00 - r11);
+
+        result.w = (r01 - r10) / s;
+        result.x = (r02 + r20) / s;
+        result.y = (r12 + r21) / s;
+        result.z = 0.25f * s;
     }
 
-    return Vector3(Math::RadToDeg(x), Math::RadToDeg(y), Math::RadToDeg(z));
+    return result.GetNormalized();
+}
+
+Vector3 Matrix::GetEulerAngles() const
+{
+    return GetRotation().ToEulerDegrees();
 }
 
 Vector3 Matrix::GetScale() const
@@ -182,6 +213,27 @@ Matrix Matrix::MakeTranslation(const Vector3& position)
     mat.elements[3][3] = 1.0f;
 
     return mat;
+}
+
+Matrix Matrix::MakeRotation(const Quaternion& rotation)
+{
+    const Quaternion q = rotation.GetNormalized();
+
+    const float xx = q.x * q.x;
+    const float yy = q.y * q.y;
+    const float zz = q.z * q.z;
+    const float xy = q.x * q.y;
+    const float xz = q.x * q.z;
+    const float yz = q.y * q.z;
+    const float xw = q.x * q.w;
+    const float yw = q.y * q.w;
+    const float zw = q.z * q.w;
+
+    return Matrix(
+        1.0f - 2.0f * (yy + zz), 2.0f * (xy + zw), 2.0f * (xz - yw), 0.0f,
+        2.0f * (xy - zw), 1.0f - 2.0f * (xx + zz), 2.0f * (yz + xw), 0.0f,
+        2.0f * (xz + yw), 2.0f * (yz - xw), 1.0f - 2.0f * (xx + yy), 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 Matrix Matrix::MakeRotation(const Vector3& rotation)

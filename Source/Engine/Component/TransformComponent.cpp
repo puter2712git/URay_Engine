@@ -181,12 +181,12 @@ void TransformComponent::SetWorldPosition(const Vector3& worldPosition)
     SetDirty(true);
 }
 
-Vector3 TransformComponent::GetWorldRotation() const
+Quaternion TransformComponent::GetWorldRotation() const
 {
     return worldMatrix.GetRotation();
 }
 
-void TransformComponent::SetWorldRotation(const Vector3& worldRotation)
+void TransformComponent::SetWorldRotation(const Quaternion& worldRotation)
 {
     Matrix localRotation = Matrix::MakeRotation(worldRotation);
 

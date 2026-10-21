@@ -8,6 +8,8 @@
 namespace URay
 {
 
+struct Quaternion;
+
 struct Matrix
 {
     union
@@ -41,11 +43,13 @@ struct Matrix
     Vector3 TransformVector(const Vector3& vector) const;
 
     Vector3 GetPosition() const;
-    Vector3 GetRotation() const;
+    Quaternion GetRotation() const;
+    Vector3 GetEulerAngles() const;
     Vector3 GetScale() const;
 
     static Matrix MakeTranslation(const Vector3& position);
 
+    static Matrix MakeRotation(const Quaternion& rotation);
     static Matrix MakeRotation(const Vector3& rotation);
     static Matrix MakeRotationX(float degree);
     static Matrix MakeRotationY(float degree);
