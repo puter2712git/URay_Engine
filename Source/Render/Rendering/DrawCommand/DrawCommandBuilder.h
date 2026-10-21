@@ -3,9 +3,9 @@
 #include "DrawCommand.h"
 #include "DrawCommandContext.h"
 
+#include <Core/Math/AABB.h>
 #include <Render/RHI/Vertex/Vertex.h>
 #include <Render/Rendering/RenderPass/RenderPassId.h>
-#include <Core/Math/AABB.h>
 
 #include <memory>
 #include <vector>
@@ -42,6 +42,8 @@ public:
     void FlushUI(const UIDrawContext& context);
 
     void BuildMesh(const MeshCommandContext& context, RenderPassId passId, const DrawCommandParams& params);
+    void BuildSkinnedMesh(const SkinnedMeshCommandContext& context, RenderPassId passId, const DrawCommandParams& params);
+
     void BuildBillboard(const BillboardCommandContext& context, RenderPassId passId);
 
     void BuildDecal(const DecalCommandContext& context);
@@ -64,7 +66,6 @@ private:
 
     std::unique_ptr<LineBatcher> lineBatcher = nullptr;
     std::unique_ptr<UIBatcher> uiBatcher = nullptr;
-
 };
 
 } // namespace URay::Render

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Render/Rendering/View/ViewMode.h>
-
 #include <Core/Math/AABB.h>
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Type/Types.h>
+#include <Render/Rendering/View/ViewMode.h>
 
 #include <cstdint>
 
@@ -13,6 +12,7 @@ namespace URay
 {
 class Material;
 class Mesh;
+class SkinnedMesh;
 } // namespace URay
 
 namespace URay::Render
@@ -30,6 +30,19 @@ struct MeshCommandContext
     uint32 objectId = 0;
 
     Mesh* mesh = nullptr;
+    Material* material = nullptr;
+
+    uint32 indexOffset = 0;
+    uint32 indexCount = 0;
+};
+
+struct SkinnedMeshCommandContext
+{
+    Matrix worldMatrix = Matrix::Identity;
+    Color colorTint = Color::White;
+    uint32 objectId = 0;
+
+    SkinnedMesh* skinnedMesh = nullptr;
     Material* material = nullptr;
 
     uint32 indexOffset = 0;

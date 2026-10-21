@@ -1,5 +1,12 @@
 #include "DrawCommandBuilder.h"
 
+#include <Core/Type/Types.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Mesh/SkinnedMesh.h>
+#include <Engine/Asset/Shader/Shader.h>
 #include <Render/RHI/Buffer/MeshBuffer.h>
 #include <Render/RHI/Device.h>
 #include <Render/RenderSystem.h>
@@ -8,14 +15,6 @@
 #include <Render/Rendering/RenderInfo.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/ResourceManager.h>
-
-#include <Core/Type/Types.h>
-
-#include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Asset/Material/Material.h>
-#include <Engine/Asset/Mesh/Mesh.h>
-#include <Engine/Asset/Shader/Shader.h>
 
 #include <cstring>
 
@@ -140,6 +139,80 @@ void DrawCommandBuilder::BuildMesh(
     cmd.writeObjectId = true;
     cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
     cmd.vertexCount = static_cast<uint32>(context.mesh->GetVertices().size());
+    cmd.indexBuffer = meshBuffer->GetIndexBuffer();
+    cmd.indexOffset = context.indexOffset;
+    cmd.indexCount = context.indexCount;
+    cmd.pipelineState = stateDesc;
+
+    if (passId != RenderPassId::SelectionMask)
+    {
+        cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+    }
+
+    drawCmds.push_back(cmd);
+}
+
+void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& context, RenderPassId passId, const DrawCommandParams& params)
+{
+    context.material->PrepareDescriptorSet(currentFrame);
+
+    MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.skinnedMesh);
+
+    std::vector<ShaderDefine> defines;
+
+    switch (params.viewMode)
+    {
+    case ViewMode::Lit:
+    case ViewMode::Wireframe:
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"1" } });
+        break;
+    case ViewMode::Unlit:
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
+        break;
+    case ViewMode::ClusterLightHeatmap:
+        defines.push_back({ ShaderDefine{ .name = L"URAY_CLUSTER_LIGHT_HEATMAP", .value = L"1" } });
+        break;
+    }
+
+    if (passId == RenderPassId::SelectionMask)
+    {
+        defines.push_back({ ShaderDefine{ .name = L"URAY_SELECTION_MASK", .value = L"1" } });
+    }
+
+    Render::Shader* shader = resourceManager.GetOrCreateShader(
+        context.material->GetShader(),
+        defines);
+
+    DepthStencilState depthStencil = {};
+    depthStencil.depthTestEnable = true;
+    depthStencil.depthWriteEnable = true;
+
+    RasterizerState rasterizer = {};
+    rasterizer.cullMode = CullMode::Back;
+    rasterizer.polygonMode = params.viewMode == ViewMode::Wireframe
+                                 ? PolygonMode::Line
+                                 : PolygonMode::Fill;
+
+    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    colorBlendAttachments.push_back(ColorBlendAttachmentState{
+        .mode = BlendMode::Opaque });
+
+    PipelineStateDesc stateDesc = {};
+    stateDesc.shader = shader;
+    stateDesc.topology = PrimitiveTopology::TriangleList;
+    stateDesc.vertexInputLayout = &VertexSkinnedPNT::GetInputLayout();
+    stateDesc.depthStencil = depthStencil;
+    stateDesc.rasterizer = rasterizer;
+    stateDesc.colorBlendAttachments = colorBlendAttachments;
+
+    DrawCommand cmd = {};
+    cmd.passId = passId;
+    cmd.worldMatrix = context.worldMatrix;
+    cmd.colorTint = context.colorTint;
+    cmd.objectId = context.objectId;
+    cmd.writeObjectId = true;
+    cmd.vertexBuffer = meshBuffer->GetVertexBuffer();
+    cmd.vertexCount = static_cast<uint32>(context.skinnedMesh->GetVertices().size());
     cmd.indexBuffer = meshBuffer->GetIndexBuffer();
     cmd.indexOffset = context.indexOffset;
     cmd.indexCount = context.indexCount;
