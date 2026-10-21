@@ -20,6 +20,7 @@ namespace URay
 {
 class VirtualFileSystem;
 class Mesh;
+class SkinnedMesh;
 class Texture;
 class Shader;
 } // namespace URay
@@ -50,6 +51,7 @@ public:
 
 public:
     MeshBuffer* GetOrCreateMeshBuffer(URay::Mesh* asset);
+    MeshBuffer* GetOrCreateMeshBuffer(URay::SkinnedMesh* asset);
     void DestroyMeshBuffers();
 
     Texture* GetOrCreateTexture(URay::Texture* texture);
@@ -89,9 +91,10 @@ private:
     std::unique_ptr<FontSystem> fontSystem = nullptr;
     std::unique_ptr<ShadowSystem> shadowSystem = nullptr;
 
-    std::unordered_map<::URay::Mesh*, MeshBuffer*> meshBuffers;
+    std::unordered_map<URay::Mesh*, MeshBuffer*> meshBuffers;
+    std::unordered_map<URay::SkinnedMesh*, MeshBuffer*> skinnedMeshBuffers;
 
-    std::unordered_map<::URay::Texture*, Texture*> textures;
+    std::unordered_map<URay::Texture*, Texture*> textures;
     std::unordered_map<TextureViewKey, TextureView*, TextureViewKeyHash> textureViews;
     std::unordered_map<SamplerDesc, std::unique_ptr<Sampler>, SamplerDescHash> textureSamplers;
 

@@ -1,5 +1,14 @@
 #include "ResourceManager.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/Log/LogSystem.h>
+#include <Core/Type/Types.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Mesh/SkinnedMesh.h>
+#include <Engine/Asset/Shader/Shader.h>
+#include <Engine/Asset/Texture/Texture.h>
+#include <Engine/Engine.h>
 #include <Render/RHI/Buffer/BufferDesc.h>
 #include <Render/RHI/Buffer/MeshBuffer.h>
 #include <Render/RHI/Descriptor/DescriptorSetLayout.h>
@@ -12,16 +21,6 @@
 #include <Render/Rendering/Font/FontSystem.h>
 #include <Render/Rendering/Shadow/ShadowSystem.h>
 #include <Render/Shader/Shader.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
-
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Asset/Mesh/Mesh.h>
-#include <Engine/Asset/Shader/Shader.h>
-#include <Engine/Asset/Texture/Texture.h>
-#include <Engine/Engine.h>
 
 #include <vulkan/vulkan.h>
 
@@ -85,7 +84,7 @@ void ResourceManager::Finalize()
     DestroyMeshBuffers();
 }
 
-MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
+MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(URay::Mesh* asset)
 {
     auto it = meshBuffers.find(asset);
     if (it != meshBuffers.end())
@@ -132,21 +131,69 @@ MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(::URay::Mesh* asset)
     return newMeshBuffer;
 }
 
-void ResourceManager::DestroyMeshBuffers()
+MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(URay::SkinnedMesh* asset)
 {
-    for (auto& [asset, meshBuffer] : meshBuffers)
+    auto it = skinnedMeshBuffers.find(asset);
+    if (it != skinnedMeshBuffers.end())
+        return it->second;
+
+    const std::vector<VertexSkinnedPNT>& vertices = asset->GetVertices();
+    const VertexBufferDesc vertexBufferDesc = {
+        .size = sizeof(VertexSkinnedPNT) * vertices.size(),
+        .vertexCount = static_cast<uint32>(vertices.size()),
+        .vertexStride = sizeof(VertexSkinnedPNT),
+        .initialData = vertices.data(),
+        .initialDataSize = sizeof(VertexSkinnedPNT) * vertices.size()
+    };
+
+    Buffer* vertexBuffer = device.CreateVertexBuffer(vertexBufferDesc);
+    if (!vertexBuffer)
+        return nullptr;
+
+    const std::vector<uint32>& indices = asset->GetIndices();
+    const IndexBufferDesc indexBufferDesc = {
+        .size = sizeof(uint32) * indices.size(),
+        .indexCount = static_cast<uint32>(indices.size()),
+        .indexType = IndexType::UInt32,
+        .initialData = indices.data(),
+        .initialDataSize = sizeof(uint32) * indices.size()
+    };
+
+    Buffer* indexBuffer = device.CreateIndexBuffer(indexBufferDesc);
+    if (!indexBuffer)
     {
-        if (meshBuffer)
-        {
-            delete meshBuffer;
-            meshBuffer = nullptr;
-        }
+        delete vertexBuffer;
+        return nullptr;
     }
 
+    MeshBuffer* newMeshBuffer = device.CreateMeshBuffer(vertexBuffer, indexBuffer);
+    if (!newMeshBuffer)
+    {
+        delete vertexBuffer;
+        delete indexBuffer;
+        return nullptr;
+    }
+
+    skinnedMeshBuffers.insert({ asset, newMeshBuffer });
+    return newMeshBuffer;
+}
+
+void ResourceManager::DestroyMeshBuffers()
+{
+    for (auto& [asset, meshBuffer] : skinnedMeshBuffers)
+    {
+        delete meshBuffer;
+    }
+    skinnedMeshBuffers.clear();
+
+    for (auto& [asset, meshBuffer] : meshBuffers)
+    {
+        delete meshBuffer;
+    }
     meshBuffers.clear();
 }
 
-Texture* ResourceManager::GetOrCreateTexture(::URay::Texture* texture)
+Texture* ResourceManager::GetOrCreateTexture(URay::Texture* texture)
 {
     if (!texture)
         return nullptr;
