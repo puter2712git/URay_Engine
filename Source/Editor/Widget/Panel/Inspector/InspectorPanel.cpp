@@ -1,6 +1,7 @@
 #include "InspectorPanel.h"
 
 #include <Core/Math/Color.h>
+#include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>
@@ -245,6 +246,10 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
 
     case PropertyType::Vector3:
         AddVector3Property(targetLayout, object, property, name);
+        break;
+
+    case PropertyType::Rotation:
+        AddRotationProperty(targetLayout, object, property, name);
         break;
 
     case PropertyType::Vector4:
@@ -593,6 +598,27 @@ void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& ob
         [&object, property, value](const Vector3& newValue)
         {
             *value = newValue;
+            object.NotifyPropertyChanged(property);
+
+            if (property.OnChangedCallback)
+                property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+{
+    Quaternion* value = reinterpret_cast<Quaternion*>(reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
+
+    Float3Field* field = row->SetValueWidget<Float3Field>();
+    field->SetValue(value->ToEulerDegrees());
+
+    field->GetValueChangedRay().Register(
+        this,
+        [&object, property, value](const Vector3& newValue)
+        {
+            *value = Quaternion::FromEulerDegrees(newValue);
             object.NotifyPropertyChanged(property);
 
             if (property.OnChangedCallback)

@@ -22,7 +22,7 @@ void TransformComponent::RegisterClass()
           .offset = offsetof(TransformComponent, position),
           .size = sizeof(Vector3) });
     StaticClass()->AddProperty(
-        { .type = PropertyType::Vector3,
+        { .type = PropertyType::Rotation,
           .name = "Rotation",
           .offset = offsetof(TransformComponent, rotation),
           .size = sizeof(Vector3) });

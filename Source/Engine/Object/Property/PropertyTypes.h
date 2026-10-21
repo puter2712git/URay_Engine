@@ -10,6 +10,7 @@ enum class PropertyType
     Float,
     Vector2,
     Vector3,
+    Rotation,
     Vector4,
     Color,
     String,

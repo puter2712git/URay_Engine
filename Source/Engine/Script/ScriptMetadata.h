@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/Color.h>
+#include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>

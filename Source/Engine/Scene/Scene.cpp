@@ -92,7 +92,7 @@ void Scene::Update(float deltaTime)
 YAML::Node Scene::Serialize() const
 {
     YAML::Node sceneNode;
-    sceneNode["Version"] = 3;
+    sceneNode["Version"] = 4;
 
     YAML::Node unitNodes(YAML::NodeType::Sequence);
 

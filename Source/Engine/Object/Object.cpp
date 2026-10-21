@@ -1,15 +1,15 @@
 #include "Object.h"
 
+#include <Core/Math/Quaternion.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Math/Vector3.h>
+#include <Core/Math/Vector4.h>
+#include <Core/Type/Types.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
-
-#include <Core/Math/Vector2.h>
-#include <Core/Math/Vector3.h>
-#include <Core/Math/Vector4.h>
-#include <Core/Type/Types.h>
 
 namespace URay
 {
@@ -52,6 +52,17 @@ YAML::Node Object::Serialize() const
             valueNode.push_back(value.x);
             valueNode.push_back(value.y);
             valueNode.push_back(value.z);
+            node[prop.name] = valueNode;
+            break;
+        }
+        case PropertyType::Rotation:
+        {
+            const Quaternion value = prop.GetValue<Quaternion>(this);
+            YAML::Node valueNode(YAML::NodeType::Sequence);
+            valueNode.push_back(value.x);
+            valueNode.push_back(value.y);
+            valueNode.push_back(value.z);
+            valueNode.push_back(value.w);
             node[prop.name] = valueNode;
             break;
         }
@@ -145,6 +156,15 @@ void Object::Deserialize(const YAML::Node& node)
             value.x = valueNode[0].as<float>();
             value.y = valueNode[1].as<float>();
             value.z = valueNode[2].as<float>();
+            break;
+        }
+        case PropertyType::Rotation:
+        {
+            Quaternion& value = *static_cast<Quaternion*>(valueAddress);
+            value.x = valueNode[0].as<float>();
+            value.y = valueNode[1].as<float>();
+            value.z = valueNode[2].as<float>();
+            value.w = valueNode[3].as<float>();
             break;
         }
         case PropertyType::Vector4:
