@@ -15,6 +15,7 @@ enum class PropertyType
     Color,
     String,
     Mesh,
+    SkinnedMesh,
     Texture,
     Material
 };

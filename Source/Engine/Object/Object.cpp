@@ -97,6 +97,12 @@ YAML::Node Object::Serialize() const
             node[prop.name] = meshHandle.ToString();
             break;
         }
+        case PropertyType::SkinnedMesh:
+        {
+            AssetHandle skinnedMeshHandle = prop.GetValue<AssetHandle>(this);
+            node[prop.name] = skinnedMeshHandle.ToString();
+            break;
+        }
         case PropertyType::Texture:
         {
             AssetHandle textureHandle = prop.GetValue<AssetHandle>(this);
@@ -189,6 +195,12 @@ void Object::Deserialize(const YAML::Node& node)
             *static_cast<std::string*>(valueAddress) = valueNode.as<std::string>();
             break;
         case PropertyType::Mesh:
+        {
+            const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
+            *static_cast<AssetHandle*>(valueAddress) = handle;
+            break;
+        }
+        case PropertyType::SkinnedMesh:
         {
             const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
             *static_cast<AssetHandle*>(valueAddress) = handle;

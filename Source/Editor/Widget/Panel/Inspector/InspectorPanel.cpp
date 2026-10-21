@@ -31,6 +31,7 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Mesh/SkinnedMesh.h>
 #include <Engine/Asset/Script/ScriptAsset.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Component/Component.h>
@@ -265,6 +266,7 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
         break;
 
     case PropertyType::Mesh:
+    case PropertyType::SkinnedMesh:
     case PropertyType::Texture:
     case PropertyType::Material:
         AddAssetProperty(targetLayout, object, property, name);
@@ -697,6 +699,10 @@ void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& obje
     {
     case PropertyType::Mesh:
         assetClass = Mesh::StaticClass();
+        break;
+
+    case PropertyType::SkinnedMesh:
+        assetClass = SkinnedMesh::StaticClass();
         break;
 
     case PropertyType::Texture:
