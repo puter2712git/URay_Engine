@@ -1,6 +1,7 @@
 #include "AssetPipeline.h"
 
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Importer/FBXImporter.h>
 #include <Engine/Asset/Importer/FontImporter.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
@@ -21,6 +22,7 @@ AssetPipeline::AssetPipeline()
     importers.push_back(std::make_unique<MaterialImporter>());
     importers.push_back(std::make_unique<FontImporter>());
     importers.push_back(std::make_unique<OBJImporter>());
+    importers.push_back(std::make_unique<FBXImporter>());
     importers.push_back(std::make_unique<ScriptImporter>());
 }
 
