@@ -15,8 +15,7 @@ public:
 
     static constexpr float EPSILON = 0.00001f;
 
-    static inline float
-    DegToRad(float degree)
+    static inline float DegToRad(float degree)
     {
         return degree * PI / 180;
     }
