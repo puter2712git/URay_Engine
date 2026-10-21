@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Engine/Asset/AssetHandle.h>
+#include <Engine/Asset/Importer/FBXInfo.h>
 #include <Engine/Asset/Importer/Importer.h>
 
 #include <vector>
@@ -21,6 +22,8 @@ public:
     bool CanImport(const std::string& extension) const override;
 
 private:
+    FBX::FBXInfo ParseFBXInfo(const ufbx_scene& sourceScene) const;
+
     bool CreateStaticMesh(const ufbx_scene& sourceScene, const AssetMetadata& metadata) const;
 
     std::vector<AssetHandle> CreateMaterials(const ufbx_mesh& sourceMesh, const AssetMetadata& metadata) const;

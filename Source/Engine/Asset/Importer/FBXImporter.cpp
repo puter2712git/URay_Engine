@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <unordered_map>
 
 namespace URay
 {
@@ -76,6 +77,33 @@ void FBXImporter::Import(const VirtualPath& sourcePath)
         return;
     }
 
+    const FBX::FBXInfo fbxInfo = ParseFBXInfo(*scene);
+
+    for (size_t meshIndex = 0;
+         meshIndex < fbxInfo.meshes.size();
+         ++meshIndex)
+    {
+        const FBX::MeshInfo& meshInfo =
+            fbxInfo.meshes[meshIndex];
+
+        const size_t mappedClusterCount =
+            static_cast<size_t>(std::count_if(
+                meshInfo.clusterToBoneIndices.begin(),
+                meshInfo.clusterToBoneIndices.end(),
+                [](uint32 boneIndex)
+                {
+                    return boneIndex != FBX::InvalidBoneIndex;
+                }));
+
+        URAY_LOG(
+            "[FBXImporter] MeshInfo[%zu] '%s': "
+            "%zu/%zu clusters mapped to skeleton bones.",
+            meshIndex,
+            meshInfo.name.c_str(),
+            mappedClusterCount,
+            meshInfo.clusterToBoneIndices.size());
+    }
+
     CreateStaticMesh(*scene, metadata);
 
     ufbx_free_scene(scene);
@@ -101,6 +129,167 @@ AssetMetadata FBXImporter::CreateMetadata(const VirtualPath& sourcePath) const
 bool FBXImporter::CanImport(const std::string& extension) const
 {
     return extension == ".fbx";
+}
+
+FBX::FBXInfo FBXImporter::ParseFBXInfo(const ufbx_scene& sourceScene) const
+{
+    FBX::FBXInfo fbxInfo = {};
+
+    std::unordered_map<const ufbx_node*, int32> boneIndices;
+
+    for (size_t nodeIndex = 0; nodeIndex < sourceScene.nodes.count; ++nodeIndex)
+    {
+        const ufbx_node* sourceNode = sourceScene.nodes.data[nodeIndex];
+
+        if (!sourceNode->bone)
+            continue;
+
+        FBX::BoneInfo bone = {};
+        bone.name = std::string(sourceNode->name.data, sourceNode->name.length);
+
+        const int32 boneIndex = static_cast<int32>(fbxInfo.bones.size());
+
+        fbxInfo.bones.push_back(std::move(bone));
+        boneIndices.emplace(sourceNode, boneIndex);
+    }
+
+    for (size_t nodeIndex = 0; nodeIndex < sourceScene.nodes.count; ++nodeIndex)
+    {
+        const ufbx_node* sourceNode = sourceScene.nodes.data[nodeIndex];
+
+        const auto boneIt = boneIndices.find(sourceNode);
+
+        if (boneIt == boneIndices.end())
+            continue;
+
+        FBX::BoneInfo& destinationBone = fbxInfo.bones[boneIt->second];
+        const ufbx_node* parentNode = sourceNode->parent;
+
+        while (parentNode)
+        {
+            const auto parentIt = boneIndices.find(parentNode);
+
+            if (parentIt != boneIndices.end())
+            {
+                destinationBone.parentIndex = parentIt->second;
+                break;
+            }
+
+            parentNode = parentNode->parent;
+        }
+    }
+
+    fbxInfo.meshes.reserve(sourceScene.meshes.count);
+
+    for (size_t meshIndex = 0; meshIndex < sourceScene.meshes.count; ++meshIndex)
+    {
+        const ufbx_mesh& sourceMesh = *sourceScene.meshes.data[meshIndex];
+
+        FBX::MeshInfo meshInfo = {};
+
+        meshInfo.name = std::string(sourceMesh.name.data, sourceMesh.name.length);
+
+        if (sourceMesh.skin_deformers.count == 0)
+        {
+            fbxInfo.meshes.push_back(std::move(meshInfo));
+            continue;
+        }
+
+        if (sourceMesh.skin_deformers.count > 1)
+        {
+            URAY_LOG(
+                "[FBXImporter] Mesh '%.*s' has %zu skin deformers; "
+                "only the first is currently used.",
+                static_cast<int>(sourceMesh.name.length),
+                sourceMesh.name.data,
+                sourceMesh.skin_deformers.count);
+        }
+
+        const ufbx_skin_deformer& skinDeformer = *sourceMesh.skin_deformers.data[0];
+
+        meshInfo.clusterToBoneIndices.assign(skinDeformer.clusters.count, FBX::InvalidBoneIndex);
+
+        for (size_t clusterIndex = 0; clusterIndex < skinDeformer.clusters.count; ++clusterIndex)
+        {
+            const ufbx_skin_cluster& cluster = *skinDeformer.clusters.data[clusterIndex];
+
+            const auto boneIt = boneIndices.find(cluster.bone_node);
+
+            if (boneIt == boneIndices.end())
+            {
+                URAY_LOG(
+                    "[FBXImporter] Mesh '%.*s': cluster %zu "
+                    "has no mapped skeleton bone.",
+                    static_cast<int>(sourceMesh.name.length),
+                    sourceMesh.name.data,
+                    clusterIndex);
+                continue;
+            }
+
+            meshInfo.clusterToBoneIndices[clusterIndex] = static_cast<uint32>(boneIt->second);
+        }
+
+        meshInfo.skinVertices.resize(sourceMesh.num_vertices);
+
+        const size_t skinVertexCount = std::min(sourceMesh.num_vertices, skinDeformer.vertices.count);
+
+        size_t weightedVertexCount = 0;
+        size_t truncatedVertexCount = 0;
+
+        for (size_t logicalVertexIndex = 0; logicalVertexIndex < skinVertexCount; ++logicalVertexIndex)
+        {
+            const ufbx_skin_vertex& sourceSkinVertex = skinDeformer.vertices.data[logicalVertexIndex];
+
+            FBX::SkinVertex& destinationVertex = meshInfo.skinVertices[logicalVertexIndex];
+
+            if (sourceSkinVertex.num_weights > 4)
+            {
+                ++truncatedVertexCount;
+            }
+
+            float weightSum = 0.0f;
+
+            for (size_t weightOffset = 0; weightOffset < sourceSkinVertex.num_weights && destinationVertex.count < 4; ++weightOffset)
+            {
+                const size_t sourceWeightIndex = static_cast<size_t>(sourceSkinVertex.weight_begin) + weightOffset;
+
+                if (sourceWeightIndex >= skinDeformer.weights.count)
+                    break;
+
+                const ufbx_skin_weight& sourceWeight = skinDeformer.weights.data[sourceWeightIndex];
+
+                if (sourceWeight.cluster_index >= meshInfo.clusterToBoneIndices.size())
+                    continue;
+
+                const uint32 boneIndex = meshInfo.clusterToBoneIndices[sourceWeight.cluster_index];
+
+                if (boneIndex == FBX::InvalidBoneIndex || sourceWeight.weight <= 0.0f)
+                    continue;
+
+                FBX::SkinInfluence& destinationInfluence = destinationVertex.influences[destinationVertex.count];
+
+                destinationInfluence.boneIndex = boneIndex;
+                destinationInfluence.weight = static_cast<float>(sourceWeight.weight);
+
+                weightSum += destinationInfluence.weight;
+                ++destinationVertex.count;
+            }
+
+            if (destinationVertex.count == 0)
+                continue;
+
+            ++weightedVertexCount;
+
+            for (uint32 influenceIndex = 0; influenceIndex < destinationVertex.count; ++influenceIndex)
+            {
+                destinationVertex.influences[influenceIndex].weight /= weightSum;
+            }
+        }
+
+        fbxInfo.meshes.push_back(std::move(meshInfo));
+    }
+
+    return fbxInfo;
 }
 
 bool FBXImporter::CreateStaticMesh(const ufbx_scene& sourceScene, const AssetMetadata& metadata) const
