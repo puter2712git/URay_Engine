@@ -48,7 +48,7 @@ Vector3 Quaternion::ToEulerDegrees() const
         1.0f);
 
     const float y = Math::Asin(sinY);
-    const float cosY = std::sqrt(Math::Max(0.0f, 1.0f - sinY * sinY));
+    const float cosY = Math::Sqrt(Math::Max(0.0f, 1.0f - sinY * sinY));
 
     float x = 0.0f;
     float z = 0.0f;
@@ -83,7 +83,7 @@ Quaternion Quaternion::GetNormalized() const
     if (lengthSquared < Math::EPSILON * Math::EPSILON)
         return Identity;
 
-    const float inverseLength = 1.0f / std::sqrt(lengthSquared);
+    const float inverseLength = 1.0f / Math::Sqrt(lengthSquared);
 
     return Quaternion(
         x * inverseLength,

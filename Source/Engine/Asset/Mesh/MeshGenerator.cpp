@@ -200,7 +200,7 @@ MeshInfo MeshGenerator::CreateCone() const
     const uint32 sliceCount = 20;
     const float halfHeight = height * 0.5f;
     const float dTheta = Math::TWO_PI / sliceCount;
-    const float normalLength = std::sqrt(height * height + radius * radius);
+    const float normalLength = Math::Sqrt(height * height + radius * radius);
 
     const uint32 sideBaseIndex = static_cast<uint32>(vertices.size());
     vertices.push_back(MakeVertex({ 0.0f, 0.0f, halfHeight }, { 0.0f, 0.0f, 1.0f }, { 0.5f, 1.0f }));

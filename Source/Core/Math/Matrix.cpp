@@ -152,7 +152,7 @@ Quaternion Matrix::GetRotation() const
 
     if (trace > 0.0f)
     {
-        const float s = 2.0f * std::sqrt(trace + 1.0f);
+        const float s = 2.0f * Math::Sqrt(trace + 1.0f);
 
         result.w = 0.25f * s;
         result.x = (r12 - r21) / s;
@@ -161,7 +161,7 @@ Quaternion Matrix::GetRotation() const
     }
     else if (r00 > r11 && r00 > r22)
     {
-        const float s = 2.0f * std::sqrt(1.0f + r00 - r11 - r22);
+        const float s = 2.0f * Math::Sqrt(1.0f + r00 - r11 - r22);
 
         result.w = (r12 - r21) / s;
         result.x = 0.25f * s;
@@ -170,7 +170,7 @@ Quaternion Matrix::GetRotation() const
     }
     else if (r11 > r22)
     {
-        const float s = 2.0f * std::sqrt(1.0f + r11 - r00 - r22);
+        const float s = 2.0f * Math::Sqrt(1.0f + r11 - r00 - r22);
 
         result.w = (r20 - r02) / s;
         result.x = (r01 + r10) / s;
@@ -179,7 +179,7 @@ Quaternion Matrix::GetRotation() const
     }
     else
     {
-        const float s = 2.0f * std::sqrt(1.0f + r22 - r00 - r11);
+        const float s = 2.0f * Math::Sqrt(1.0f + r22 - r00 - r11);
 
         result.w = (r01 - r10) / s;
         result.x = (r02 + r20) / s;

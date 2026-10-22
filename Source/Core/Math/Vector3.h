@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Math/Math.h>
+
 #include <cmath>
 
 namespace URay
@@ -24,7 +26,7 @@ struct Vector3
 
     inline float GetLength() const
     {
-        return std::sqrt(GetSquaredLength());
+        return Math::Sqrt(GetSquaredLength());
     }
 
     inline float GetSquaredLength() const

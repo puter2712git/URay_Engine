@@ -1,14 +1,15 @@
 #pragma once
 
-#include <Core/Math/AABB.h>
-#include <Core/Math/Ray.h>
-#include <Core/Math/Vector3.h>
-
 #include <algorithm>
+#include <cmath>
 #include <initializer_list>
 
 namespace URay
 {
+
+struct Ray;
+struct Vector3;
+struct AABB;
 
 class Math
 {
@@ -65,6 +66,8 @@ public:
     {
         return std::abs(value);
     }
+
+    static inline float Sqrt(float value) { return std::sqrt(value); }
 
     static bool IntersectLineTriangle(
         const Ray& ray,

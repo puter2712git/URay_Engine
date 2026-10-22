@@ -1,6 +1,9 @@
 #include "Math.h"
 
-#include <algorithm>
+#include <Core/Math/AABB.h>
+#include <Core/Math/Ray.h>
+#include <Core/Math/Vector3.h>
+
 #include <limits>
 
 namespace URay
