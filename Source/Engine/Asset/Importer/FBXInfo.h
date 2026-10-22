@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Math/Matrix.h>
 #include <Core/Type/Types.h>
 
 #include <array>
@@ -24,17 +25,25 @@ struct SkinVertex
     uint32 count = 0;
 };
 
+struct SkinClusterInfo
+{
+    uint32 boneIndex = InvalidBoneIndex;
+    Matrix inverseBindMatrix = Matrix::Identity;
+};
+
 struct BoneInfo
 {
     std::string name;
     int32 parentIndex = -1;
+
+    Matrix worldBindTransform = Matrix::Identity;
 };
 
 struct MeshInfo
 {
     std::string name;
     std::vector<SkinVertex> skinVertices;
-    std::vector<uint32> clusterToBoneIndices;
+    std::vector<SkinClusterInfo> clusters;
 };
 
 struct FBXInfo

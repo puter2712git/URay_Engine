@@ -14,7 +14,7 @@
 namespace URay
 {
 
-struct SkinnedMeshBone
+struct Bone
 {
     std::string name;
     int32 parentIndex = -1;
@@ -41,10 +41,10 @@ public:
     const std::vector<AssetHandle>& GetDefaultMaterials() const { return defaultMaterialHandles; }
     void SetDefaultMaterials(const std::vector<AssetHandle>& newMaterialHandles) { defaultMaterialHandles = newMaterialHandles; }
 
-    const std::vector<SkinnedMeshBone>& GetBones() const { return bones; }
-    void SetBones(const std::vector<SkinnedMeshBone>& newBones) { bones = newBones; }
+    const std::vector<Bone>& GetBones() const { return bones; }
+    void SetBones(const std::vector<Bone>& newBones) { bones = newBones; }
     uint32 GetBoneCount() const { return static_cast<uint32>(bones.size()); }
-    const SkinnedMeshBone& GetBone(uint32 index) const { return bones[index]; }
+    const Bone& GetBone(uint32 index) const { return bones[index]; }
 
     const AABB& GetLocalBounds() const { return localBounds; }
 
@@ -53,7 +53,7 @@ private:
     std::vector<uint32> indices;
     std::vector<MeshSection> sections;
     std::vector<AssetHandle> defaultMaterialHandles;
-    std::vector<SkinnedMeshBone> bones;
+    std::vector<Bone> bones;
 
     AABB localBounds = {};
 };

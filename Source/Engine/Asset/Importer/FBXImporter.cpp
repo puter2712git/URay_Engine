@@ -8,6 +8,7 @@
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Mesh/SkinnedMesh.h>
 #include <Engine/Engine.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
@@ -17,9 +18,15 @@
 #include <algorithm>
 #include <filesystem>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace URay
 {
+
+namespace
+{
+Matrix ToMatrix(const ufbx_matrix& source);
+} // namespace
 
 void FBXImporter::Import(const VirtualPath& sourcePath)
 {
@@ -79,32 +86,47 @@ void FBXImporter::Import(const VirtualPath& sourcePath)
 
     const FBX::FBXInfo fbxInfo = ParseFBXInfo(*scene);
 
-    for (size_t meshIndex = 0;
-         meshIndex < fbxInfo.meshes.size();
-         ++meshIndex)
+    size_t skinnedMeshCount = 0;
+    size_t staticMeshCount = 0;
+    for (size_t meshIndex = 0; meshIndex < scene->meshes.count; ++meshIndex)
     {
-        const FBX::MeshInfo& meshInfo =
-            fbxInfo.meshes[meshIndex];
+        const ufbx_mesh* sourceMesh = scene->meshes.data[meshIndex];
 
-        const size_t mappedClusterCount =
-            static_cast<size_t>(std::count_if(
-                meshInfo.clusterToBoneIndices.begin(),
-                meshInfo.clusterToBoneIndices.end(),
-                [](uint32 boneIndex)
-                {
-                    return boneIndex != FBX::InvalidBoneIndex;
-                }));
-
-        URAY_LOG(
-            "[FBXImporter] MeshInfo[%zu] '%s': "
-            "%zu/%zu clusters mapped to skeleton bones.",
-            meshIndex,
-            meshInfo.name.c_str(),
-            mappedClusterCount,
-            meshInfo.clusterToBoneIndices.size());
+        if (sourceMesh->skin_deformers.count > 0)
+        {
+            ++skinnedMeshCount;
+        }
+        else
+        {
+            ++staticMeshCount;
+        }
     }
 
-    CreateStaticMesh(*scene, metadata);
+    bool imported = false;
+
+    if (skinnedMeshCount == 0)
+    {
+        imported = CreateStaticMesh(*scene, metadata);
+    }
+    else
+    {
+        if (staticMeshCount > 0)
+        {
+            URAY_LOG(
+                "[FBXImporter] Skipping %zu static meshes in skinned FBX '%s'.",
+                staticMeshCount,
+                sourcePath.ToString().c_str());
+        }
+
+        imported = CreateSkinnedMesh(*scene, fbxInfo, metadata);
+    }
+
+    if (!imported)
+    {
+        URAY_LOG(
+            "[FBXImporter] Failed to create mesh asset for '%s'.",
+            sourcePath.ToString().c_str());
+    }
 
     ufbx_free_scene(scene);
 }
@@ -135,17 +157,49 @@ FBX::FBXInfo FBXImporter::ParseFBXInfo(const ufbx_scene& sourceScene) const
 {
     FBX::FBXInfo fbxInfo = {};
 
+    std::unordered_set<const ufbx_node*> skeletonNodes;
+
+    for (size_t meshIndex = 0;
+         meshIndex < sourceScene.meshes.count;
+         ++meshIndex)
+    {
+        const ufbx_mesh& sourceMesh =
+            *sourceScene.meshes.data[meshIndex];
+
+        if (sourceMesh.skin_deformers.count == 0)
+            continue;
+
+        const ufbx_skin_deformer& skinDeformer =
+            *sourceMesh.skin_deformers.data[0];
+
+        for (size_t clusterIndex = 0;
+             clusterIndex < skinDeformer.clusters.count;
+             ++clusterIndex)
+        {
+            const ufbx_skin_cluster& cluster =
+                *skinDeformer.clusters.data[clusterIndex];
+
+            for (const ufbx_node* node = cluster.bone_node;
+                 node;
+                 node = node->parent)
+            {
+                skeletonNodes.insert(node);
+            }
+        }
+    }
+
     std::unordered_map<const ufbx_node*, int32> boneIndices;
 
     for (size_t nodeIndex = 0; nodeIndex < sourceScene.nodes.count; ++nodeIndex)
     {
         const ufbx_node* sourceNode = sourceScene.nodes.data[nodeIndex];
 
-        if (!sourceNode->bone)
+        if (skeletonNodes.find(sourceNode) == skeletonNodes.end())
             continue;
 
         FBX::BoneInfo bone = {};
         bone.name = std::string(sourceNode->name.data, sourceNode->name.length);
+        bone.worldBindTransform = ToMatrix(sourceNode->node_to_world);
 
         const int32 boneIndex = static_cast<int32>(fbxInfo.bones.size());
 
@@ -207,7 +261,7 @@ FBX::FBXInfo FBXImporter::ParseFBXInfo(const ufbx_scene& sourceScene) const
 
         const ufbx_skin_deformer& skinDeformer = *sourceMesh.skin_deformers.data[0];
 
-        meshInfo.clusterToBoneIndices.assign(skinDeformer.clusters.count, FBX::InvalidBoneIndex);
+        meshInfo.clusters.resize(skinDeformer.clusters.count);
 
         for (size_t clusterIndex = 0; clusterIndex < skinDeformer.clusters.count; ++clusterIndex)
         {
@@ -226,7 +280,8 @@ FBX::FBXInfo FBXImporter::ParseFBXInfo(const ufbx_scene& sourceScene) const
                 continue;
             }
 
-            meshInfo.clusterToBoneIndices[clusterIndex] = static_cast<uint32>(boneIt->second);
+            meshInfo.clusters[clusterIndex].boneIndex = static_cast<uint32>(boneIt->second);
+            meshInfo.clusters[clusterIndex].inverseBindMatrix = ToMatrix(cluster.geometry_to_bone);
         }
 
         meshInfo.skinVertices.resize(sourceMesh.num_vertices);
@@ -258,10 +313,10 @@ FBX::FBXInfo FBXImporter::ParseFBXInfo(const ufbx_scene& sourceScene) const
 
                 const ufbx_skin_weight& sourceWeight = skinDeformer.weights.data[sourceWeightIndex];
 
-                if (sourceWeight.cluster_index >= meshInfo.clusterToBoneIndices.size())
+                if (sourceWeight.cluster_index >= meshInfo.clusters.size())
                     continue;
 
-                const uint32 boneIndex = meshInfo.clusterToBoneIndices[sourceWeight.cluster_index];
+                const uint32 boneIndex = meshInfo.clusters[sourceWeight.cluster_index].boneIndex;
 
                 if (boneIndex == FBX::InvalidBoneIndex || sourceWeight.weight <= 0.0f)
                     continue;
@@ -467,6 +522,330 @@ bool FBXImporter::CreateStaticMesh(const ufbx_scene& sourceScene, const AssetMet
     return true;
 }
 
+bool FBXImporter::CreateSkinnedMesh(
+    const ufbx_scene& sourceScene,
+    const FBX::FBXInfo& fbxInfo,
+    const AssetMetadata& metadata) const
+{
+    if (fbxInfo.bones.empty())
+    {
+        URAY_LOG(
+            "[FBXImporter] Skinned FBX '%s' has no skeleton bones.",
+            metadata.sourcePath.ToString().c_str());
+        return false;
+    }
+
+    int32 assetRootBoneIndex = -1;
+
+    for (const FBX::MeshInfo& meshInfo : fbxInfo.meshes)
+    {
+        for (const FBX::SkinClusterInfo& cluster : meshInfo.clusters)
+        {
+            if (cluster.boneIndex == FBX::InvalidBoneIndex ||
+                cluster.boneIndex >= fbxInfo.bones.size())
+            {
+                continue;
+            }
+
+            int32 rootBoneIndex = static_cast<int32>(cluster.boneIndex);
+
+            while (fbxInfo.bones[rootBoneIndex].parentIndex >= 0)
+            {
+                rootBoneIndex = fbxInfo.bones[rootBoneIndex].parentIndex;
+            }
+
+            assetRootBoneIndex = rootBoneIndex;
+            break;
+        }
+
+        if (assetRootBoneIndex >= 0)
+            break;
+    }
+
+    if (assetRootBoneIndex < 0)
+    {
+        URAY_LOG(
+            "[FBXImporter] Skinned FBX '%s' has no bone clusters.",
+            metadata.sourcePath.ToString().c_str());
+        return false;
+    }
+
+    const Matrix& assetRootWorldBind =
+        fbxInfo.bones[assetRootBoneIndex].worldBindTransform;
+    const Matrix assetRootWorldInverse = assetRootWorldBind.Inverse();
+
+    std::vector<Render::VertexSkinnedPNT> vertices;
+    std::vector<uint32> indices;
+    std::vector<MeshSection> sections;
+    std::vector<AssetHandle> defaultMaterials;
+
+    for (size_t meshIndex = 0; meshIndex < sourceScene.meshes.count; ++meshIndex)
+    {
+        const ufbx_mesh& sourceMesh = *sourceScene.meshes.data[meshIndex];
+        const FBX::MeshInfo& meshInfo = fbxInfo.meshes[meshIndex];
+
+        if (sourceMesh.skin_deformers.count == 0)
+            continue;
+
+        if (!sourceMesh.vertex_position.exists)
+        {
+            URAY_LOG(
+                "[FBXImporter] Skipping skinned mesh '%.*s' in '%s': no vertex positions.",
+                static_cast<int>(sourceMesh.name.length),
+                sourceMesh.name.data,
+                metadata.sourcePath.ToString().c_str());
+            continue;
+        }
+
+        const std::vector<AssetHandle> sourceMaterialHandles =
+            CreateMaterials(sourceMesh, metadata);
+        const size_t triangleIndexCapacity =
+            std::max<size_t>(3, sourceMesh.max_face_triangles * 3);
+        std::vector<uint32> triangleCornerIndices(triangleIndexCapacity);
+
+        for (size_t instanceIndex = 0;
+             instanceIndex < sourceMesh.instances.count;
+             ++instanceIndex)
+        {
+            const ufbx_node& sourceNode =
+                *sourceMesh.instances.data[instanceIndex];
+            const Matrix meshToAsset =
+                ToMatrix(sourceNode.geometry_to_world) * assetRootWorldInverse;
+            const Matrix normalToAsset = meshToAsset.Inverse().Transpose();
+
+            for (size_t partListIndex = 0;
+                 partListIndex < sourceMesh.material_parts.count;
+                 ++partListIndex)
+            {
+                const ufbx_mesh_part& materialPart =
+                    sourceMesh.material_parts.data[partListIndex];
+
+                MeshSection section = {};
+                section.indexOffset = static_cast<uint32>(indices.size());
+
+                for (size_t faceListIndex = 0;
+                     faceListIndex < materialPart.face_indices.count;
+                     ++faceListIndex)
+                {
+                    const uint32 faceIndex =
+                        materialPart.face_indices.data[faceListIndex];
+                    const ufbx_face face = sourceMesh.faces.data[faceIndex];
+
+                    if (face.num_indices < 3)
+                        continue;
+
+                    const uint32 triangleCount = ufbx_triangulate_face(
+                        triangleCornerIndices.data(),
+                        triangleCornerIndices.size(),
+                        &sourceMesh,
+                        face);
+
+                    if (triangleCount == 0)
+                    {
+                        URAY_LOG(
+                            "[FBXImporter] Failed to triangulate face %u in '%s'.",
+                            faceIndex,
+                            metadata.sourcePath.ToString().c_str());
+                        continue;
+                    }
+
+                    for (uint32 triangleIndex = 0;
+                         triangleIndex < triangleCount * 3;
+                         ++triangleIndex)
+                    {
+                        const uint32 cornerIndex =
+                            triangleCornerIndices[triangleIndex];
+
+                        if (cornerIndex >= sourceMesh.vertex_indices.count)
+                        {
+                            URAY_LOG(
+                                "[FBXImporter] Invalid vertex corner %u in '%s'.",
+                                cornerIndex,
+                                metadata.sourcePath.ToString().c_str());
+                            return false;
+                        }
+
+                        const uint32 logicalVertexIndex =
+                            sourceMesh.vertex_indices.data[cornerIndex];
+
+                        if (logicalVertexIndex >= meshInfo.skinVertices.size())
+                        {
+                            URAY_LOG(
+                                "[FBXImporter] Invalid skin vertex %u in '%s'.",
+                                logicalVertexIndex,
+                                metadata.sourcePath.ToString().c_str());
+                            return false;
+                        }
+
+                        const FBX::SkinVertex& skinVertex =
+                            meshInfo.skinVertices[logicalVertexIndex];
+
+                        if (skinVertex.count == 0)
+                        {
+                            URAY_LOG(
+                                "[FBXImporter] Vertex %u in '%s' has no valid skin influence.",
+                                logicalVertexIndex,
+                                metadata.sourcePath.ToString().c_str());
+                            return false;
+                        }
+
+                        Render::VertexSkinnedPNT vertex = {};
+
+                        const ufbx_vec3 sourcePosition =
+                            ufbx_get_vertex_vec3(
+                                &sourceMesh.vertex_position,
+                                cornerIndex);
+                        vertex.position = meshToAsset.TransformPoint(Vector3(
+                            static_cast<float>(sourcePosition.x),
+                            static_cast<float>(sourcePosition.y),
+                            static_cast<float>(sourcePosition.z)));
+
+                        if (sourceMesh.vertex_normal.exists)
+                        {
+                            const ufbx_vec3 sourceNormal =
+                                ufbx_get_vertex_vec3(
+                                    &sourceMesh.vertex_normal,
+                                    cornerIndex);
+                            vertex.normal = normalToAsset.TransformVector(Vector3(
+                                static_cast<float>(sourceNormal.x),
+                                static_cast<float>(sourceNormal.y),
+                                static_cast<float>(sourceNormal.z)))
+                                                .GetNormalized();
+                        }
+                        else
+                        {
+                            vertex.normal = Vector3::Up;
+                        }
+
+                        if (sourceMesh.vertex_uv.exists)
+                        {
+                            const ufbx_vec2 sourceUV =
+                                ufbx_get_vertex_vec2(
+                                    &sourceMesh.vertex_uv,
+                                    cornerIndex);
+                            vertex.uv = Vector2(
+                                static_cast<float>(sourceUV.x),
+                                1.0f - static_cast<float>(sourceUV.y));
+                        }
+                        else
+                        {
+                            vertex.uv = Vector2::Zero;
+                        }
+
+                        for (uint32 influenceIndex = 0;
+                             influenceIndex < skinVertex.count;
+                             ++influenceIndex)
+                        {
+                            const FBX::SkinInfluence& influence =
+                                skinVertex.influences[influenceIndex];
+
+                            if (influence.boneIndex >= fbxInfo.bones.size())
+                            {
+                                URAY_LOG(
+                                    "[FBXImporter] Vertex %u in '%s' references invalid bone %u.",
+                                    logicalVertexIndex,
+                                    metadata.sourcePath.ToString().c_str(),
+                                    influence.boneIndex);
+                                return false;
+                            }
+
+                            vertex.boneIndices[influenceIndex] = influence.boneIndex;
+                            vertex.boneWeights[influenceIndex] = influence.weight;
+                        }
+
+                        const uint32 vertexIndex =
+                            static_cast<uint32>(vertices.size());
+                        vertices.push_back(vertex);
+                        indices.push_back(vertexIndex);
+                    }
+                }
+
+                section.indexCount =
+                    static_cast<uint32>(indices.size()) - section.indexOffset;
+
+                if (section.indexCount == 0)
+                    continue;
+
+                section.materialIndex = defaultMaterials.size();
+                sections.push_back(section);
+
+                const uint32 sourceMaterialIndex = materialPart.index;
+
+                if (sourceMaterialIndex < sourceMaterialHandles.size())
+                {
+                    defaultMaterials.push_back(
+                        sourceMaterialHandles[sourceMaterialIndex]);
+                }
+                else
+                {
+                    defaultMaterials.push_back(EngineAsset::MeshMaterial);
+                }
+            }
+        }
+    }
+
+    if (vertices.empty() || indices.empty())
+    {
+        URAY_LOG(
+            "[FBXImporter] No renderable skinned triangles in '%s'.",
+            metadata.sourcePath.ToString().c_str());
+        return false;
+    }
+
+    auto mesh = std::make_unique<SkinnedMesh>();
+
+    mesh->SetHandle(metadata.handle);
+    mesh->SetName(metadata.sourcePath.GetStem());
+    mesh->SetVertices(vertices);
+    mesh->SetIndices(indices);
+    mesh->SetSections(sections);
+    mesh->SetDefaultMaterials(defaultMaterials);
+
+    std::vector<Bone> bones;
+    bones.reserve(fbxInfo.bones.size());
+
+    for (const FBX::BoneInfo& sourceBone : fbxInfo.bones)
+    {
+        Bone bone = {};
+        bone.name = sourceBone.name;
+        bone.parentIndex = sourceBone.parentIndex;
+
+        if (sourceBone.parentIndex >= 0)
+        {
+            bone.localBindTransform =
+                sourceBone.worldBindTransform *
+                fbxInfo.bones[sourceBone.parentIndex].worldBindTransform.Inverse();
+        }
+        else
+        {
+            bone.localBindTransform =
+                sourceBone.worldBindTransform * assetRootWorldInverse;
+        }
+
+        bone.inverseBindMatrix =
+            assetRootWorldBind * sourceBone.worldBindTransform.Inverse();
+
+        bones.push_back(std::move(bone));
+    }
+
+    mesh->SetBones(bones);
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    assetDatabase.Add(std::move(mesh));
+
+    URAY_LOG(
+        "[FBXImporter] Created skinned mesh '%s' "
+        "(%zu vertices, %zu indices, %zu sections).",
+        metadata.sourcePath.ToString().c_str(),
+        vertices.size(),
+        indices.size(),
+        sections.size());
+
+    return true;
+}
+
 std::vector<AssetHandle> FBXImporter::CreateMaterials(const ufbx_mesh& sourceMesh, const AssetMetadata& metadata) const
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
@@ -548,5 +927,32 @@ std::vector<AssetHandle> FBXImporter::CreateMaterials(const ufbx_mesh& sourceMes
 
     return materialHandles;
 }
+
+namespace
+{
+Matrix ToMatrix(const ufbx_matrix& source)
+{
+    return Matrix(
+        static_cast<float>(source.m00),
+        static_cast<float>(source.m10),
+        static_cast<float>(source.m20),
+        0.0f,
+
+        static_cast<float>(source.m01),
+        static_cast<float>(source.m11),
+        static_cast<float>(source.m21),
+        0.0f,
+
+        static_cast<float>(source.m02),
+        static_cast<float>(source.m12),
+        static_cast<float>(source.m22),
+        0.0f,
+
+        static_cast<float>(source.m03),
+        static_cast<float>(source.m13),
+        static_cast<float>(source.m23),
+        1.0f);
+}
+} // namespace
 
 } // namespace URay

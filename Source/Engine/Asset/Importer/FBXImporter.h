@@ -25,6 +25,7 @@ private:
     FBX::FBXInfo ParseFBXInfo(const ufbx_scene& sourceScene) const;
 
     bool CreateStaticMesh(const ufbx_scene& sourceScene, const AssetMetadata& metadata) const;
+    bool CreateSkinnedMesh(const ufbx_scene& sourceScene, const FBX::FBXInfo& fbxInfo, const AssetMetadata& metadata) const;
 
     std::vector<AssetHandle> CreateMaterials(const ufbx_mesh& sourceMesh, const AssetMetadata& metadata) const;
 };
