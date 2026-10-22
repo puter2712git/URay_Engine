@@ -15,15 +15,8 @@ public:
 
     static constexpr float EPSILON = 0.00001f;
 
-    static inline float DegToRad(float degree)
-    {
-        return degree * PI / 180;
-    }
-
-    static inline float RadToDeg(float radian)
-    {
-        return radian * 180 / PI;
-    }
+    static inline float DegToRad(float degree) { return degree * PI / 180; }
+    static inline float RadToDeg(float radian) { return radian * 180 / PI; }
 
     static bool IntersectLineTriangle(
         const Ray& ray,

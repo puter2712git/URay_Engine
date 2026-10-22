@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Editor/Visual/Visualizer/EditorComponentVisualizer.h>
-
 #include <Render/Rendering/Object/Drawable/LineObject.h>
 
 namespace URay

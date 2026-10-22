@@ -1,9 +1,8 @@
 #include "EditorLayout.h"
 
-#include <Editor/Widget/Element/Splitter.h>
-
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
+#include <Editor/Widget/Element/Splitter.h>
 
 namespace URay
 {

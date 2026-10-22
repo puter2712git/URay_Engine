@@ -4,7 +4,6 @@
 #include <Editor/Gizmo/Strategy/ScaleGizmoStrategy.h>
 #include <Editor/Gizmo/Strategy/TranslationGizmoStrategy.h>
 #include <Editor/Play/PlaySession.h>
-
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
@@ -14,7 +13,6 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-
 #include <Render/RHI/Vertex/Vertex.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/GizmoObject.h>

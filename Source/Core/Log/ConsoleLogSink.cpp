@@ -1,4 +1,4 @@
-#include <Core/Log/ConsoleLogSink.h>
+#include "ConsoleLogSink.h"
 
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
 

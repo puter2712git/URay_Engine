@@ -6,7 +6,6 @@
 #include <Editor/Visual/Visualizer/DirectionalLightVisualizer.h>
 #include <Editor/Visual/Visualizer/PointLightVisualizer.h>
 #include <Editor/Visual/Visualizer/SpotLightVisualizer.h>
-
 #include <Engine/Component/Component.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/DecalComponent.h>
@@ -17,7 +16,6 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Scene/SceneSystem.h>

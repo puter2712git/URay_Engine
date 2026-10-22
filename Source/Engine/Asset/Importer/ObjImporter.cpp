@@ -1,5 +1,8 @@
 #include "ObjImporter.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/Log/LogSystem.h>
+#include <Core/Type/Types.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
@@ -7,10 +10,6 @@
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
 
 #include <iostream>
 #include <sstream>

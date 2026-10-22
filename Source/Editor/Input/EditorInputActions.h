@@ -9,7 +9,11 @@ namespace URay
 
 class InputActionMap;
 
-namespace EditorInputAction
+std::unique_ptr<InputActionMap> CreateEditorInputActionMap();
+
+} // namespace URay
+
+namespace URay::EditorInputAction
 {
 
 inline constexpr InputActionId ViewportMove = { 1 };
@@ -22,8 +26,4 @@ inline constexpr InputActionId CycleGizmoMode = { 6 };
 inline constexpr InputActionId ToggleEditorCamera = { 7 };
 inline constexpr InputActionId FocusActiveUnit = { 8 };
 
-} // namespace EditorInputAction
-
-std::unique_ptr<InputActionMap> CreateEditorInputActionMap();
-
-} // namespace URay
+} // namespace URay::EditorInputAction

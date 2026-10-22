@@ -1,7 +1,7 @@
 #include "PointLightVisualizer.h"
 
+#include <Core/Math/Math.h>
 #include <Editor/Selection/SelectionSystem.h>
-
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
@@ -11,9 +11,6 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-
-#include <Core/Math/Math.h>
-
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/BillboardObject.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
-
 #include <Core/Math/Vector3.h>
+#include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 
 #include <vector>
 

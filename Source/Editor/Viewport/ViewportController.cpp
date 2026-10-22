@@ -1,6 +1,7 @@
 #include "ViewportController.h"
 
 #include <Core/Input/Action/InputActionSystem.h>
+#include <Core/Math/Ray.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Gizmo/TransformGizmo.h>
 #include <Editor/Input/EditorInputActions.h>
@@ -17,8 +18,6 @@
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 #include <Render/ResourceManager.h>
-
-#include <Core/Math/Ray.h>
 
 #include <cmath>
 

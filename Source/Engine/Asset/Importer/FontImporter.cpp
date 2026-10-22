@@ -1,13 +1,12 @@
 #include "FontImporter.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/File/VirtualPath.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetMetadata.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Font/Font.h>
 #include <Engine/Engine.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/File/VirtualPath.h>
 
 namespace URay
 {

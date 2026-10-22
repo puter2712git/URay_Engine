@@ -1,14 +1,13 @@
 #include "MaterialImporter.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/File/VirtualPath.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
-
-#include <Core/File/VirtualFileSystem.h>
-#include <Core/File/VirtualPath.h>
 
 #include <yaml-cpp/yaml.h>
 
