@@ -19,7 +19,7 @@ bool Math::IntersectLineTriangle(
     const Vector3 pvec = Vector3::Cross(ray.direction, edge2);
     const float det = Vector3::Dot(edge1, pvec);
 
-    if (std::fabs(det) < epsilon)
+    if (Math::Abs(det) < epsilon)
         return false;
 
     const float invDet = 1.0f / det;
@@ -49,7 +49,7 @@ bool Math::IntersectLinePlane(
 {
     float denominator = Vector3::Dot(dir, planeNormal);
 
-    if (std::abs(denominator) < EPSILON)
+    if (Math::Abs(denominator) < EPSILON)
         return false;
 
     float t = Vector3::Dot(planePoint - start, planeNormal) / denominator;
@@ -73,7 +73,7 @@ bool Math::IntersectRayAABB(
     auto intersectAxis = [&](float origin, float direction,
                              float minValue, float maxValue)
     {
-        if (std::abs(direction) < epsilon)
+        if (Math::Abs(direction) < epsilon)
         {
             return origin >= minValue && origin <= maxValue;
         }

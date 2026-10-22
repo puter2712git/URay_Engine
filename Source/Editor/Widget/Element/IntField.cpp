@@ -36,7 +36,7 @@ EventReply IntField::OnPointerMove(const PointerEvent& event)
 
     if (!isDragging)
     {
-        if (std::abs(event.position.x - initPointerPosition.x) < 4.0f)
+        if (Math::Abs(event.position.x - initPointerPosition.x) < 4.0f)
             return EventReply{ .handled = true };
 
         if (IsEditing())

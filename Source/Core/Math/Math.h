@@ -60,6 +60,12 @@ public:
     static inline float Atan(float value) { return std::atan(value); }
     static inline float Atan2(float y, float x) { return std::atan2(y, x); }
 
+    template <typename T>
+    static T Abs(T value)
+    {
+        return std::abs(value);
+    }
+
     static bool IntersectLineTriangle(
         const Ray& ray,
         const Vector3& p0, const Vector3& p1, const Vector3& p2,

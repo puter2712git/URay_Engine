@@ -128,7 +128,7 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
 
     const Vector3 lightEye = focus - lightDirection * 100.0f;
     const Vector3 target = lightEye + lightDirection;
-    const Vector3 lightUp = std::abs(Vector3::Dot(lightDirection, Vector3::Up)) > 0.99f
+    const Vector3 lightUp = Math::Abs(Vector3::Dot(lightDirection, Vector3::Up)) > 0.99f
                                 ? Vector3::Right
                                 : Vector3::Up;
 
@@ -260,7 +260,7 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
 
         const Vector3 eye = spotLight->GetPosition();
         const Vector3 target = eye + lightDirection;
-        const Vector3 up = std::abs(Vector3::Dot(lightDirection, Vector3::Up)) > 0.99f
+        const Vector3 up = Math::Abs(Vector3::Dot(lightDirection, Vector3::Up)) > 0.99f
                                ? Vector3::Right
                                : Vector3::Up;
 

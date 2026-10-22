@@ -1,5 +1,7 @@
 #include "AABB.h"
 
+#include <Core/Math/Math.h>
+
 namespace URay
 {
 
@@ -20,17 +22,17 @@ AABB AABB::Transform(const Matrix& worldMatrix) const
 
     const Vector3 newCenter = worldMatrix.TransformPoint(center);
     const Vector3 newExtent = Vector3(
-        std::abs(worldMatrix.m00) * extent.x +
-            std::abs(worldMatrix.m10) * extent.y +
-            std::abs(worldMatrix.m20) * extent.z,
+        Math::Abs(worldMatrix.m00) * extent.x +
+            Math::Abs(worldMatrix.m10) * extent.y +
+            Math::Abs(worldMatrix.m20) * extent.z,
 
-        std::abs(worldMatrix.m01) * extent.x +
-            std::abs(worldMatrix.m11) * extent.y +
-            std::abs(worldMatrix.m21) * extent.z,
+        Math::Abs(worldMatrix.m01) * extent.x +
+            Math::Abs(worldMatrix.m11) * extent.y +
+            Math::Abs(worldMatrix.m21) * extent.z,
 
-        std::abs(worldMatrix.m02) * extent.x +
-            std::abs(worldMatrix.m12) * extent.y +
-            std::abs(worldMatrix.m22) * extent.z);
+        Math::Abs(worldMatrix.m02) * extent.x +
+            Math::Abs(worldMatrix.m12) * extent.y +
+            Math::Abs(worldMatrix.m22) * extent.z);
 
     return AABB{
         .min = newCenter - newExtent,

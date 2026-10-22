@@ -92,7 +92,7 @@ Matrix Matrix::Inverse() const
 
     Matrix result;
 
-    if (std::abs(det) < 1e-9f)
+    if (Math::Abs(det) < 1e-9f)
     {
         return Matrix::Identity;
     }

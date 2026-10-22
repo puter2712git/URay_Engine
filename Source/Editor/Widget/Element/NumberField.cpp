@@ -1,5 +1,7 @@
 #include "NumberField.h"
 
+#include <Core/Math/Math.h>
+
 #include <charconv>
 #include <cmath>
 #include <format>
@@ -35,7 +37,7 @@ EventReply NumberField::OnPointerMove(const PointerEvent& event)
     {
         const float movedX = event.position.x - initPointerPosition.x;
 
-        if (std::abs(movedX) < 4.0f)
+        if (Math::Abs(movedX) < 4.0f)
         {
             return EventReply{
                 .handled = true
