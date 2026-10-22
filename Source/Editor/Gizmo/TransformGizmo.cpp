@@ -184,7 +184,7 @@ void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
     const Quaternion targetRotation = GetActiveTransform()->GetWorldRotation();
 
     const float distance = (view.position - targetPosition).GetLength();
-    const float scale = std::clamp(distance * scaleFactor, minScale, maxScale);
+    const float scale = Math::Clamp(distance * scaleFactor, minScale, maxScale);
 
     if (isLocal || GetMode() == GizmoMode::Scale)
     {

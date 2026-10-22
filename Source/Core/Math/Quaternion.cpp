@@ -42,7 +42,7 @@ Vector3 Quaternion::ToEulerDegrees() const
 {
     const Quaternion q = GetNormalized();
 
-    const float sinY = std::clamp(
+    const float sinY = Math::Clamp(
         2.0f * (q.w * q.y - q.z * q.x),
         -1.0f,
         1.0f);

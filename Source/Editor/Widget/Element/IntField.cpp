@@ -1,5 +1,7 @@
 #include "IntField.h"
 
+#include <Core/Math/Math.h>
+
 #include <algorithm>
 #include <charconv>
 #include <cmath>
@@ -50,7 +52,7 @@ EventReply IntField::OnPointerMove(const PointerEvent& event)
 
     dragValue += event.delta.x * GetModifiedDragSpeed(event.modifiers);
 
-    const double clampedValue = std::clamp(
+    const double clampedValue = Math::Clamp(
         std::round(dragValue),
         static_cast<double>(std::numeric_limits<int32>::min()),
         static_cast<double>(std::numeric_limits<int32>::max()));

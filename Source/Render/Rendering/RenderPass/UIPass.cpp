@@ -177,10 +177,10 @@ void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector
             const int maxX = static_cast<int>(context.swapChainExtent.width);
             const int maxY = static_cast<int>(context.swapChainExtent.height);
 
-            const int left = std::clamp(static_cast<int>(std::floor(rect.position.x)), 0, maxX);
-            const int top = std::clamp(static_cast<int>(std::floor(rect.position.y)), 0, maxY);
-            const int right = std::clamp(static_cast<int>(std::ceil(rect.position.x + rect.size.x)), 0, maxX);
-            const int bottom = std::clamp(static_cast<int>(std::ceil(rect.position.y + rect.size.y)), 0, maxY);
+            const int left = Math::Clamp(static_cast<int>(std::floor(rect.position.x)), 0, maxX);
+            const int top = Math::Clamp(static_cast<int>(std::floor(rect.position.y)), 0, maxY);
+            const int right = Math::Clamp(static_cast<int>(std::ceil(rect.position.x + rect.size.x)), 0, maxX);
+            const int bottom = Math::Clamp(static_cast<int>(std::ceil(rect.position.y + rect.size.y)), 0, maxY);
 
             commandBuffer.SetScissor(
                 left,

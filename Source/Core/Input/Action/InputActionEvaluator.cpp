@@ -1,5 +1,7 @@
 #include "InputActionEvaluator.h"
 
+#include <Core/Math/Math.h>
+
 #include <Core/Input/InputSnapshot.h>
 
 #include <algorithm>
@@ -124,13 +126,13 @@ InputActionSnapshot InputActionEvaluator::Evaluate(
             break;
 
         case InputActionValueType::Axis1D:
-            value.axis1D = std::clamp(value.axis1D, -1.0f, 1.0f);
+            value.axis1D = Math::Clamp(value.axis1D, -1.0f, 1.0f);
             value.held = value.axis1D != 0.0f;
             break;
 
         case InputActionValueType::Axis2D:
-            value.axis2D.x = std::clamp(value.axis2D.x, -1.0f, 1.0f);
-            value.axis2D.y = std::clamp(value.axis2D.y, -1.0f, 1.0f);
+            value.axis2D.x = Math::Clamp(value.axis2D.x, -1.0f, 1.0f);
+            value.axis2D.y = Math::Clamp(value.axis2D.y, -1.0f, 1.0f);
             value.held =
                 value.axis2D.x != 0.0f ||
                 value.axis2D.y != 0.0f;

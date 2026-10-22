@@ -1,5 +1,7 @@
 #include "SwapChain.h"
 
+#include <Core/Math/Math.h>
+
 #include <Render/RHI/Device.h>
 #include <Render/RHI/Vulkan/VulkanContext.h>
 #include <Render/RHI/Vulkan/VulkanSurfaceSupport.h>
@@ -220,11 +222,11 @@ VkExtent2D SwapChain::ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities,
         actualExtent.width = requestedExtent.width;
         actualExtent.height = requestedExtent.height;
 
-        actualExtent.width = std::clamp(
+        actualExtent.width = Math::Clamp(
             actualExtent.width,
             capabilities.minImageExtent.width,
             capabilities.maxImageExtent.width);
-        actualExtent.height = std::clamp(
+        actualExtent.height = Math::Clamp(
             actualExtent.height,
             capabilities.minImageExtent.height,
             capabilities.maxImageExtent.height);

@@ -46,7 +46,7 @@ void EditorCamera::Update(float deltaTime, const EditorCameraInput& input)
     rotation.x -= input.mouseDelta.y * rotationSpeed;
     rotation.z -= input.mouseDelta.x * rotationSpeed;
 
-    rotation.x = std::clamp(rotation.x, -89.0f, 89.0f);
+    rotation.x = Math::Clamp(rotation.x, -89.0f, 89.0f);
 
     view.rotation = rotation;
 }

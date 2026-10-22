@@ -45,6 +45,12 @@ public:
         return std::max(values);
     }
 
+    template <typename T>
+    static constexpr T Clamp(T value, T min, T max)
+    {
+        return std::clamp(value, min, max);
+    }
+
     static bool IntersectLineTriangle(
         const Ray& ray,
         const Vector3& p0, const Vector3& p1, const Vector3& p2,

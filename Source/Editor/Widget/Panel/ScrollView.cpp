@@ -25,7 +25,7 @@ void ScrollView::Arrange(const Rect& rect)
     }
     else
     {
-        scrollOffsetY = std::clamp(scrollOffsetY, 0.0f, maxScrollOffsetY);
+        scrollOffsetY = Math::Clamp(scrollOffsetY, 0.0f, maxScrollOffsetY);
     }
 
     Rect contentRect;
@@ -41,7 +41,7 @@ EventReply ScrollView::OnScroll(const ScrollEvent& event)
 
     const float previousOffset = scrollOffsetY;
 
-    scrollOffsetY = std::clamp(
+    scrollOffsetY = Math::Clamp(
         scrollOffsetY - event.delta.y * ScrollPixelsPerUnit,
         0.0f,
         maxScrollOffsetY);

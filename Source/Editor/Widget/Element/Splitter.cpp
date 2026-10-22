@@ -68,7 +68,7 @@ EventReply Splitter::OnPointerMove(const PointerEvent& event)
     uint32 contentLength = axis == SplitAxis::Horizontal ? rect.size.x : rect.size.y;
 
     const float firstLength = dragStartRatio * contentLength + movedPixels;
-    splitRatio = std::clamp(firstLength / contentLength, 0.0f, 1.0f);
+    splitRatio = Math::Clamp(firstLength / contentLength, 0.0f, 1.0f);
 
     return EventReply{ .handled = true };
 }
@@ -102,7 +102,7 @@ void Splitter::Arrange(const Rect& rect)
     const float actualHandleThickness = Math::Min(handleThickness, Math::Max(0.0f, totalLength));
 
     const float contentLength = Math::Max(0.0f, totalLength - actualHandleThickness);
-    const float ratio = std::clamp(splitRatio, 0.0f, 1.0f);
+    const float ratio = Math::Clamp(splitRatio, 0.0f, 1.0f);
 
     const float firstLength = contentLength * ratio;
     const float secondLength = contentLength - firstLength;
@@ -161,7 +161,7 @@ Rect Splitter::GetHandleRect() const
     const float totalLength = isHorizontal ? rect.size.x : rect.size.y;
     const float actualHandleThickness = Math::Min(handleThickness, Math::Max(0.0f, totalLength));
     const float contentLength = Math::Max(0.0f, totalLength - actualHandleThickness);
-    const float firstLength = contentLength * std::clamp(splitRatio, 0.0f, 1.0f);
+    const float firstLength = contentLength * Math::Clamp(splitRatio, 0.0f, 1.0f);
 
     Rect handleRect = {};
 
