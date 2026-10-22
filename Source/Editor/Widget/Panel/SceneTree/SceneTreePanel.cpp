@@ -172,11 +172,11 @@ void SceneTreeVirtualContent::Arrange(const Rect& rect)
 
     const int32 firstVisible = Math::Max(
         0,
-        static_cast<int32>(std::floor((viewportRect.position.y - rect.position.y) / SceneTreeRowHeight)));
+        static_cast<int32>(Math::Floor((viewportRect.position.y - rect.position.y) / SceneTreeRowHeight)));
 
     const int32 lastVisibleExclusive = Math::Min(
         rowCount,
-        static_cast<int32>(std::ceil((viewportRect.position.y + viewportRect.size.y - rect.position.y) / SceneTreeRowHeight)));
+        static_cast<int32>(Math::Ceil((viewportRect.position.y + viewportRect.size.y - rect.position.y) / SceneTreeRowHeight)));
 
     const int32 firstRow = Math::Max(0, firstVisible - SceneTreeRowOverscan);
     const int32 lastRow = Math::Min(rowCount, lastVisibleExclusive + SceneTreeRowOverscan);

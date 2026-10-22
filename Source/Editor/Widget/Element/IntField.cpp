@@ -53,7 +53,7 @@ EventReply IntField::OnPointerMove(const PointerEvent& event)
     dragValue += event.delta.x * GetModifiedDragSpeed(event.modifiers);
 
     const double clampedValue = Math::Clamp(
-        std::round(dragValue),
+        Math::Round(dragValue),
         static_cast<double>(std::numeric_limits<int32>::min()),
         static_cast<double>(std::numeric_limits<int32>::max()));
     const int32 newValue = static_cast<int32>(clampedValue);

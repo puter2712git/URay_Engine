@@ -153,7 +153,7 @@ void PerformanceViewModel::RebuildStatistics(ProfileChannel& channel)
             0.0);
 
         const size_t count = values.durations.size();
-        const size_t p95Index = static_cast<size_t>(std::ceil(static_cast<double>(count) * 0.95)) - 1;
+        const size_t p95Index = static_cast<size_t>(Math::Ceil(static_cast<double>(count) * 0.95)) - 1;
 
         channel.statistics.push_back(ProfileScopeStatistics{
             .name = std::move(name),

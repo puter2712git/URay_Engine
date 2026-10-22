@@ -68,6 +68,16 @@ public:
     }
 
     static inline float Sqrt(float value) { return std::sqrt(value); }
+    static inline double Sqrt(double value) { return std::sqrt(value); }
+
+    static inline float Ceil(float value) { return std::ceil(value); }
+    static inline double Ceil(double value) { return std::ceil(value); }
+
+    static inline float Floor(float value) { return std::floor(value); }
+    static inline double Floor(double value) { return std::floor(value); }
+
+    static inline float Round(float value) { return std::round(value); }
+    static inline double Round(double value) { return std::round(value); }
 
     static bool IntersectLineTriangle(
         const Ray& ray,

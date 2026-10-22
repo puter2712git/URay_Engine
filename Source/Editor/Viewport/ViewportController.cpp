@@ -1,5 +1,7 @@
 #include "ViewportController.h"
 
+#include <Core/Math/Math.h>
+
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Math/Ray.h>
 #include <Editor/EditorCamera.h>
@@ -145,8 +147,8 @@ void ViewportController::SetDisplayRect(const Rect& rect)
                              : 1.0f;
 
     renderer.RequestSceneRenderTargetResize({
-        .width = static_cast<uint32>(std::round(displayRect.size.x * scaleX)),
-        .height = static_cast<uint32>(std::round(displayRect.size.y * scaleY)),
+        .width = static_cast<uint32>(Math::Round(displayRect.size.x * scaleX)),
+        .height = static_cast<uint32>(Math::Round(displayRect.size.y * scaleY)),
     });
 }
 
