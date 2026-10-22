@@ -1,4 +1,5 @@
 #include "Float4Field.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/NumberField.h>
@@ -46,7 +47,7 @@ void Float4Field::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    const float componentWidth = std::max(0.0f, (rect.size.x - ComponentGap * 3.0f) / 4.0f);
+    const float componentWidth = Math::Max(0.0f, (rect.size.x - ComponentGap * 3.0f) / 4.0f);
 
     Rect componentRect{ .position = rect.position, .size = Vector2(componentWidth, rect.size.y) };
     ArrangeComponent(componentRect, *xLabel, *xField);
@@ -73,7 +74,7 @@ Vector2 Float4Field::OnMeasure()
         xLabelSize.x + xFieldSize.x + yLabelSize.x + yFieldSize.x +
             zLabelSize.x + zFieldSize.x + wLabelSize.x + wFieldSize.x +
             LabelFieldGap * 4.0f + ComponentGap * 3.0f,
-        std::max({
+        Math::Max({
             xLabelSize.y, xFieldSize.y, yLabelSize.y, yFieldSize.y,
             zLabelSize.y, zFieldSize.y, wLabelSize.y, wFieldSize.y,
         }));
@@ -90,7 +91,7 @@ void Float4Field::ArrangeComponent(const Rect& rect, Label& label, NumberField& 
 
     field.Arrange({
         .position = Vector2(rect.position.x + labelSize.x + LabelFieldGap, rect.position.y),
-        .size = Vector2(std::max(0.0f, rect.size.x - labelSize.x - LabelFieldGap), rect.size.y),
+        .size = Vector2(Math::Max(0.0f, rect.size.x - labelSize.x - LabelFieldGap), rect.size.y),
     });
 }
 

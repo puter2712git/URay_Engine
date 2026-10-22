@@ -1,4 +1,5 @@
 #include "Device.h"
+#include <Core/Math/Math.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Core/Type/Types.h>
@@ -468,7 +469,7 @@ PipelineLayout* Device::CreatePipelineLayout(const PipelineLayoutDesc& desc)
     uint32 maxSetNum = 0;
     for (auto& [set, layout] : desc.setLayouts)
     {
-        maxSetNum = std::max(maxSetNum, set);
+        maxSetNum = Math::Max(maxSetNum, set);
     }
 
     std::vector<VkDescriptorSetLayout> setLayouts(maxSetNum + 1, VK_NULL_HANDLE);

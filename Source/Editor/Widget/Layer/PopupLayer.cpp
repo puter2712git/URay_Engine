@@ -1,4 +1,5 @@
 #include "PopupLayer.h"
+#include <Core/Math/Math.h>
 
 namespace URay
 {
@@ -17,14 +18,14 @@ void PopupLayer::Arrange(const Rect& rect)
         anchorRect.position.x,
         anchorRect.position.y + anchorRect.size.y);
     popupRect.size = Vector2(
-        std::max(anchorRect.size.x, desiredSize.x),
+        Math::Max(anchorRect.size.x, desiredSize.x),
         desiredSize.y);
 
     // Clamping
-    popupRect.position.x = std::min(
+    popupRect.position.x = Math::Min(
         popupRect.position.x,
         rect.position.x + rect.size.x - popupRect.size.x);
-    popupRect.position.y = std::min(
+    popupRect.position.y = Math::Min(
         popupRect.position.y,
         rect.position.y + rect.size.y - popupRect.size.y);
 

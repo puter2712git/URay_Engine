@@ -1,4 +1,5 @@
 #include "SaveSceneDialog.h"
+#include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Widget/Element/Button.h>
@@ -151,7 +152,7 @@ void SaveSceneDialog::Arrange(const Rect& rect)
         filenameLabelRect.position.x + filenameLabelRect.size.x,
         filenameLabelRect.position.y);
     filenameFieldRect.size = Vector2(
-        std::max(0.0f, contentRect.size.x - FilenameLabelWidth),
+        Math::Max(0.0f, contentRect.size.x - FilenameLabelWidth),
         FieldHeight);
     filenameField->Arrange(filenameFieldRect);
 
@@ -161,7 +162,7 @@ void SaveSceneDialog::Arrange(const Rect& rect)
         breadcrumbRect.position.y + breadcrumbRect.size.y + Gap);
     gridRect.size = Vector2(
         contentRect.size.x,
-        std::max(0.0f, filenameLabelRect.position.y - Gap - gridRect.position.y));
+        Math::Max(0.0f, filenameLabelRect.position.y - Gap - gridRect.position.y));
     contentScroll->Arrange(gridRect);
 }
 

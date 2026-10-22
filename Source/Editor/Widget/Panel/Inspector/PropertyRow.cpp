@@ -1,4 +1,5 @@
 #include "PropertyRow.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Element/Label.h>
 
@@ -26,7 +27,7 @@ void PropertyRow::Arrange(const Rect& rect)
         rect.position.x + nameWidth + gap,
         rect.position.y);
     valueRect.size = Vector2(
-        std::max(0.0f, rect.size.x - nameWidth - gap),
+        Math::Max(0.0f, rect.size.x - nameWidth - gap),
         rect.size.y);
 
     nameLabel->Arrange(nameRect);
@@ -49,7 +50,7 @@ Vector2 PropertyRow::OnMeasure()
 
     return Vector2(
         nameWidth + gap + valueSize.x,
-        std::max(nameSize.y, valueSize.y));
+        Math::Max(nameSize.y, valueSize.y));
 }
 
 } // namespace URay

@@ -4,6 +4,9 @@
 #include <Core/Math/Ray.h>
 #include <Core/Math/Vector3.h>
 
+#include <algorithm>
+#include <initializer_list>
+
 namespace URay
 {
 
@@ -17,6 +20,30 @@ public:
 
     static inline float DegToRad(float degree) { return degree * PI / 180; }
     static inline float RadToDeg(float radian) { return radian * 180 / PI; }
+
+    template <typename T>
+    static constexpr T Min(T a, T b)
+    {
+        return std::min(a, b);
+    }
+
+    template <typename T>
+    static constexpr T Min(std::initializer_list<T> values)
+    {
+        return std::min(values);
+    }
+
+    template <typename T>
+    static constexpr T Max(T a, T b)
+    {
+        return std::max(a, b);
+    }
+
+    template <typename T>
+    static constexpr T Max(std::initializer_list<T> values)
+    {
+        return std::max(values);
+    }
 
     static bool IntersectLineTriangle(
         const Ray& ray,

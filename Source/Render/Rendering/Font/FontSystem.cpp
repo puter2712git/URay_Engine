@@ -1,4 +1,5 @@
 #include "FontSystem.h"
+#include <Core/Math/Math.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -266,7 +267,7 @@ const Glyph* FontSystem::GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint)
     }
 
     atlas->cursorX += packedWidth;
-    atlas->rowHeight = std::max(atlas->rowHeight, packedHeight);
+    atlas->rowHeight = Math::Max(atlas->rowHeight, packedHeight);
 
     atlas->isDirty = true;
 

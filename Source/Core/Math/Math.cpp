@@ -87,8 +87,8 @@ bool Math::IntersectRayAABB(
             std::swap(t0, t1);
         }
 
-        tEnter = std::max(tEnter, t0);
-        tExit = std::min(tExit, t1);
+        tEnter = Math::Max(tEnter, t0);
+        tExit = Math::Min(tExit, t1);
 
         return tEnter <= tExit;
     };

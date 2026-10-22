@@ -1,4 +1,5 @@
 #include "EditorCamera.h"
+#include <Core/Math/Math.h>
 
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/TransformComponent.h>
@@ -20,7 +21,7 @@ void EditorCamera::Update(float deltaTime, const EditorCameraInput& input)
         FocusTransition& transition = *focusTransition;
         transition.elapsed += deltaTime;
 
-        const float t = std::min(transition.elapsed / transition.duration, 1.0f);
+        const float t = Math::Min(transition.elapsed / transition.duration, 1.0f);
         const float easedT = t * t * (3.0f - 2.0f * t);
 
         const Vector3 position = transition.startPosition + (transition.targetPosition - transition.startPosition) * easedT;

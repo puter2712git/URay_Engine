@@ -179,8 +179,8 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
         frameConstants.directionalLight.castShadow = directionalLight->CastsShadow();
     }
 
-    frameConstants.pointLightCount = std::min(static_cast<uint32>(pointLights.size()), 256u);
-    frameConstants.spotLightCount = std::min(static_cast<uint32>(spotLights.size()), 256u);
+    frameConstants.pointLightCount = Math::Min(static_cast<uint32>(pointLights.size()), 256u);
+    frameConstants.spotLightCount = Math::Min(static_cast<uint32>(spotLights.size()), 256u);
 
     std::vector<PointLightConstants> pointLightConstants;
     uint32 shadowIndex = 0;

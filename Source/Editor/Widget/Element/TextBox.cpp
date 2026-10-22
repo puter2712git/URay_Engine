@@ -1,4 +1,5 @@
 #include "TextBox.h"
+#include <Core/Math/Math.h>
 
 #include <Core/Type/String.h>
 #include <Engine/Engine.h>
@@ -371,12 +372,12 @@ void TextBox::SelectAll()
 
 size_t TextBox::GetSelectionStart() const
 {
-    return std::min(caretIndex, selectionAnchor);
+    return Math::Min(caretIndex, selectionAnchor);
 }
 
 size_t TextBox::GetSelectionEnd() const
 {
-    return std::max(caretIndex, selectionAnchor);
+    return Math::Max(caretIndex, selectionAnchor);
 }
 
 bool TextBox::HasSelection() const
@@ -404,7 +405,7 @@ void TextBox::DeleteSelection()
 
 float TextBox::GetPrefixWidth(size_t characterCount) const
 {
-    const size_t clampedCount = std::min(characterCount, editingText.size());
+    const size_t clampedCount = Math::Min(characterCount, editingText.size());
 
     const std::string prefix = UTF8::Encode(editingText.substr(0, clampedCount));
 
@@ -449,7 +450,7 @@ void TextBox::SelectWordAt(size_t caretPosition)
         return;
     }
 
-    size_t characterIndex = std::min(caretPosition, editingText.size() - 1);
+    size_t characterIndex = Math::Min(caretPosition, editingText.size() - 1);
 
     if (!IsWordCharacter(editingText[characterIndex]))
     {

@@ -1,4 +1,5 @@
 #include "ScrollView.h"
+#include <Core/Math/Math.h>
 
 #include <algorithm>
 
@@ -15,7 +16,7 @@ void ScrollView::Arrange(const Rect& rect)
     const float contentHeight =
         content->GetPreferredHeight().value_or(content->GetDesiredSize().y);
 
-    maxScrollOffsetY = std::max(0.0f, contentHeight - rect.size.y);
+    maxScrollOffsetY = Math::Max(0.0f, contentHeight - rect.size.y);
 
     if (scrollToBottomRequested)
     {
@@ -29,7 +30,7 @@ void ScrollView::Arrange(const Rect& rect)
 
     Rect contentRect;
     contentRect.position = Vector2(rect.position.x, rect.position.y - scrollOffsetY);
-    contentRect.size = Vector2(rect.size.x, std::max(rect.size.y, contentHeight));
+    contentRect.size = Vector2(rect.size.x, Math::Max(rect.size.y, contentHeight));
 
     content->Arrange(contentRect);
 }

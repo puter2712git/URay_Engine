@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -766,7 +767,7 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
         uint64 firstTimestamp = timestamps[0];
         for (uint32 passIndex = 1; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
         {
-            firstTimestamp = std::min(firstTimestamp, timestamps[passIndex * 2]);
+            firstTimestamp = Math::Min(firstTimestamp, timestamps[passIndex * 2]);
         }
 
         std::vector<ProfileSample> samples;

@@ -1,4 +1,5 @@
 #include "SceneTreePanel.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
@@ -169,16 +170,16 @@ void SceneTreeVirtualContent::Arrange(const Rect& rect)
 
     const Rect viewportRect = GetParent()->GetRect();
 
-    const int32 firstVisible = std::max(
+    const int32 firstVisible = Math::Max(
         0,
         static_cast<int32>(std::floor((viewportRect.position.y - rect.position.y) / SceneTreeRowHeight)));
 
-    const int32 lastVisibleExclusive = std::min(
+    const int32 lastVisibleExclusive = Math::Min(
         rowCount,
         static_cast<int32>(std::ceil((viewportRect.position.y + viewportRect.size.y - rect.position.y) / SceneTreeRowHeight)));
 
-    const int32 firstRow = std::max(0, firstVisible - SceneTreeRowOverscan);
-    const int32 lastRow = std::min(rowCount, lastVisibleExclusive + SceneTreeRowOverscan);
+    const int32 firstRow = Math::Max(0, firstVisible - SceneTreeRowOverscan);
+    const int32 lastRow = Math::Min(rowCount, lastVisibleExclusive + SceneTreeRowOverscan);
     const int32 requiredNodeCount = lastRow - firstRow;
 
     while (static_cast<int32>(nodePool.size()) < requiredNodeCount)

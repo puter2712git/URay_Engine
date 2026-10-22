@@ -1,4 +1,5 @@
 #include "SkinnedMesh.h"
+#include <Core/Math/Math.h>
 
 namespace URay
 {
@@ -21,13 +22,13 @@ void SkinnedMesh::SetVertices(const std::vector<Render::VertexSkinnedPNT>& newVe
     {
         const Render::VertexSkinnedPNT& vertex = vertices[i];
 
-        localBounds.min.x = std::min(vertex.position.x, localBounds.min.x);
-        localBounds.min.y = std::min(vertex.position.y, localBounds.min.y);
-        localBounds.min.z = std::min(vertex.position.z, localBounds.min.z);
+        localBounds.min.x = Math::Min(vertex.position.x, localBounds.min.x);
+        localBounds.min.y = Math::Min(vertex.position.y, localBounds.min.y);
+        localBounds.min.z = Math::Min(vertex.position.z, localBounds.min.z);
 
-        localBounds.max.x = std::max(vertex.position.x, localBounds.max.x);
-        localBounds.max.y = std::max(vertex.position.y, localBounds.max.y);
-        localBounds.max.z = std::max(vertex.position.z, localBounds.max.z);
+        localBounds.max.x = Math::Max(vertex.position.x, localBounds.max.x);
+        localBounds.max.y = Math::Max(vertex.position.y, localBounds.max.y);
+        localBounds.max.z = Math::Max(vertex.position.z, localBounds.max.z);
     }
 }
 

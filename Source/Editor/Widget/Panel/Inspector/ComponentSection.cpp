@@ -1,4 +1,5 @@
 #include "ComponentSection.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
@@ -19,7 +20,7 @@ void ComponentSection::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    const float actualHeaderHeight = std::min(22.0f, rect.size.y);
+    const float actualHeaderHeight = Math::Min(22.0f, rect.size.y);
 
     headerRect.position = rect.position;
     headerRect.size = Vector2(rect.size.x, actualHeaderHeight);
@@ -39,7 +40,7 @@ void ComponentSection::Arrange(const Rect& rect)
         rect.position.y + actualHeaderHeight + 2.0f);
     contentRect.size = Vector2(
         rect.size.x,
-        std::max(0.0f, rect.size.y - actualHeaderHeight - 2.0f * 2.0f));
+        Math::Max(0.0f, rect.size.y - actualHeaderHeight - 2.0f * 2.0f));
 
     content->Arrange(contentRect);
 }
@@ -50,7 +51,7 @@ Vector2 ComponentSection::OnMeasure()
     const Vector2 contentSize = content->GetDesiredSize();
 
     return Vector2(
-        std::max(titleSize.x + 6.0f * 2.0f, contentSize.x),
+        Math::Max(titleSize.x + 6.0f * 2.0f, contentSize.x),
         22.0f + 2.0f * 2.0f + contentSize.y);
 }
 

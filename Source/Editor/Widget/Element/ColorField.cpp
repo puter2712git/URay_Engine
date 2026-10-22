@@ -1,5 +1,6 @@
 #include "ColorField.h"
 
+#include <Core/Math/Math.h>
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -24,7 +25,7 @@ Render::TextStyle MakeComponentLabelStyle(const Color& color)
     return style;
 }
 
-}
+} // namespace
 
 ColorField::ColorField()
 {
@@ -91,15 +92,15 @@ void ColorField::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    const float previewSide = std::min(PreviewSize, std::max(0.0f, rect.size.y));
+    const float previewSide = Math::Min(PreviewSize, Math::Max(0.0f, rect.size.y));
     previewRect.position = Vector2(
         rect.position.x,
         rect.position.y + (rect.size.y - previewSide) * 0.5f);
     previewRect.size = Vector2(previewSide, previewSide);
 
     const float fieldsStartX = rect.position.x + previewSide + PreviewGap;
-    const float availableWidth = std::max(0.0f, rect.size.x - previewSide - PreviewGap);
-    const float componentWidth = std::max(
+    const float availableWidth = Math::Max(0.0f, rect.size.x - previewSide - PreviewGap);
+    const float componentWidth = Math::Max(
         0.0f,
         (availableWidth - ComponentGap * 3.0f) / 4.0f);
 
@@ -134,7 +135,7 @@ Vector2 ColorField::OnMeasure()
     const float bWidth = bLabelSize.x + LabelFieldGap + bFieldSize.x;
     const float aWidth = aLabelSize.x + LabelFieldGap + aFieldSize.x;
 
-    const float height = std::max({
+    const float height = Math::Max({
         PreviewSize,
         rLabelSize.y,
         rFieldSize.y,
@@ -176,7 +177,7 @@ void ColorField::ArrangeComponent(
     Rect fieldRect;
     fieldRect.position = Vector2(rect.position.x + labelWidth + LabelFieldGap, rect.position.y);
     fieldRect.size = Vector2(
-        std::max(0.0f, rect.size.x - labelWidth - LabelFieldGap),
+        Math::Max(0.0f, rect.size.x - labelWidth - LabelFieldGap),
         rect.size.y);
     field.Arrange(fieldRect);
 }

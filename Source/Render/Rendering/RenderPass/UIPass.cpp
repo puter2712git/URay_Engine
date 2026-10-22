@@ -1,4 +1,5 @@
 #include "UIPass.h"
+#include <Core/Math/Math.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/Barrier/ImageBarrier.h>
@@ -184,8 +185,8 @@ void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector
             commandBuffer.SetScissor(
                 left,
                 top,
-                static_cast<uint32>(std::max(0, right - left)),
-                static_cast<uint32>(std::max(0, bottom - top)));
+                static_cast<uint32>(Math::Max(0, right - left)),
+                static_cast<uint32>(Math::Max(0, bottom - top)));
         }
         else
         {

@@ -1,4 +1,5 @@
 #include "VerticalLayout.h"
+#include <Core/Math/Math.h>
 
 #include <algorithm>
 
@@ -12,8 +13,8 @@ void VerticalLayout::Arrange(const Rect& rect)
     Rect contentRect;
     contentRect.position = Vector2(rect.position.x + padding.left, rect.position.y + padding.top);
     contentRect.size = {
-        std::max(0.0f, rect.size.x - padding.left - padding.right),
-        std::max(0.0f, rect.size.y - padding.top - padding.bottom),
+        Math::Max(0.0f, rect.size.x - padding.left - padding.right),
+        Math::Max(0.0f, rect.size.y - padding.top - padding.bottom),
     };
 
     float offsetY = CalculateStartOffsetY(contentRect);
@@ -42,7 +43,7 @@ Vector2 VerticalLayout::OnMeasure()
     {
         Widget& child = *children[index];
 
-        width = std::max(width, GetChildLayoutWidth(child));
+        width = Math::Max(width, GetChildLayoutWidth(child));
         height += GetChildLayoutHeight(child);
 
         if (index + 1 < children.size())
@@ -87,7 +88,7 @@ float VerticalLayout::CalculateTotalHeight() const
     }
 
     int32 childCount = static_cast<int32>(children.size());
-    int32 gapCount = std::max(0, childCount - 1);
+    int32 gapCount = Math::Max(0, childCount - 1);
 
     totalHeight += gap * gapCount;
 
@@ -134,12 +135,12 @@ float VerticalLayout::CalculateChildWidth(const Widget& child, const Rect& conte
 
 float VerticalLayout::GetChildLayoutWidth(const Widget& child) const
 {
-    return std::max(0.0f, child.GetPreferredWidth().value_or(child.GetDesiredSize().x));
+    return Math::Max(0.0f, child.GetPreferredWidth().value_or(child.GetDesiredSize().x));
 }
 
 float VerticalLayout::GetChildLayoutHeight(const Widget& child) const
 {
-    return std::max(0.0f, child.GetPreferredHeight().value_or(child.GetDesiredSize().y));
+    return Math::Max(0.0f, child.GetPreferredHeight().value_or(child.GetDesiredSize().y));
 }
 
 } // namespace URay

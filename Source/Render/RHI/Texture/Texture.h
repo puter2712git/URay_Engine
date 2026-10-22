@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Type/Types.h>
+#include <Core/Math/Math.h>
 
 #include <vulkan/vulkan.h>
 
@@ -106,11 +107,11 @@ struct TextureRegion
         if (region.IsEmpty())
             return *this;
 
-        const uint32 minX = std::min(x, region.x);
-        const uint32 minY = std::min(y, region.y);
+        const uint32 minX = Math::Min(x, region.x);
+        const uint32 minY = Math::Min(y, region.y);
 
-        const uint32 maxX = std::max(x + width, region.x + region.width);
-        const uint32 maxY = std::max(y + height, region.y + region.height);
+        const uint32 maxX = Math::Max(x + width, region.x + region.width);
+        const uint32 maxY = Math::Max(y + height, region.y + region.height);
 
         TextureRegion result = {};
         result.x = minX;

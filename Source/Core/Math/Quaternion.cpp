@@ -48,7 +48,7 @@ Vector3 Quaternion::ToEulerDegrees() const
         1.0f);
 
     const float y = std::asin(sinY);
-    const float cosY = std::sqrt(std::max(0.0f, 1.0f - sinY * sinY));
+    const float cosY = std::sqrt(Math::Max(0.0f, 1.0f - sinY * sinY));
 
     float x = 0.0f;
     float z = 0.0f;

@@ -1,4 +1,5 @@
 #include "FileSystemPanel.h"
+#include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Editor.h>
@@ -80,10 +81,10 @@ void FileSystemPanel::Arrange(const Rect& rect)
     constexpr float breadcrumbHeight = 28.0f;
     constexpr float separatorExtent = 8.0f;
 
-    const float leftWidth = std::min(directoryWidth, contentRect.size.x);
-    const float remainingWidth = std::max(0.0f, contentRect.size.x - leftWidth);
-    const float verticalSeparatorWidth = std::min(separatorExtent, remainingWidth);
-    const float rightWidth = std::max(0.0f, remainingWidth - verticalSeparatorWidth);
+    const float leftWidth = Math::Min(directoryWidth, contentRect.size.x);
+    const float remainingWidth = Math::Max(0.0f, contentRect.size.x - leftWidth);
+    const float verticalSeparatorWidth = Math::Min(separatorExtent, remainingWidth);
+    const float rightWidth = Math::Max(0.0f, remainingWidth - verticalSeparatorWidth);
 
     Rect leftRect;
     leftRect.position = contentRect.position;
@@ -97,9 +98,9 @@ void FileSystemPanel::Arrange(const Rect& rect)
     rightRect.position = Vector2(verticalSeparatorRect.position.x + verticalSeparatorRect.size.x, contentRect.position.y);
     rightRect.size = Vector2(rightWidth, contentRect.size.y);
 
-    const float actualBreadcrumbHeight = std::min(breadcrumbHeight, rightRect.size.y);
-    const float remainingHeight = std::max(0.0f, rightRect.size.y - actualBreadcrumbHeight);
-    const float horizontalSeparatorHeight = std::min(separatorExtent, remainingHeight);
+    const float actualBreadcrumbHeight = Math::Min(breadcrumbHeight, rightRect.size.y);
+    const float remainingHeight = Math::Max(0.0f, rightRect.size.y - actualBreadcrumbHeight);
+    const float horizontalSeparatorHeight = Math::Min(separatorExtent, remainingHeight);
 
     Rect breadcrumbRect;
     breadcrumbRect.position = rightRect.position;
@@ -111,7 +112,7 @@ void FileSystemPanel::Arrange(const Rect& rect)
 
     Rect gridRect;
     gridRect.position = Vector2(rightRect.position.x, horizontalSeparatorRect.position.y + horizontalSeparatorRect.size.y);
-    gridRect.size = Vector2(rightRect.size.x, std::max(0.0f, rightRect.size.y - breadcrumbRect.size.y - horizontalSeparatorRect.size.y));
+    gridRect.size = Vector2(rightRect.size.x, Math::Max(0.0f, rightRect.size.y - breadcrumbRect.size.y - horizontalSeparatorRect.size.y));
 
     directoryScroll->Arrange(leftRect);
     verticalSeparator->Arrange(verticalSeparatorRect);

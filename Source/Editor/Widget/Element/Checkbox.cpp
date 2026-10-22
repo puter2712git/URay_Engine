@@ -1,4 +1,5 @@
 #include "Checkbox.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -11,7 +12,7 @@ void Checkbox::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    const float side = std::max(0.0f, std::min(rect.size.x, rect.size.y));
+    const float side = Math::Max(0.0f, Math::Min(rect.size.x, rect.size.y));
 
     indicatorRect.position = Vector2(
         rect.position.x,
@@ -68,8 +69,8 @@ void Checkbox::OnPaint(Render::UIDrawContext& context)
     Rect markRect = {};
     markRect.position = indicatorRect.position + Vector2(inset, inset);
     markRect.size = Vector2(
-        std::max(0.0f, indicatorRect.size.x - inset * 2.0f),
-        std::max(0.0f, indicatorRect.size.y - inset * 2.0f));
+        Math::Max(0.0f, indicatorRect.size.x - inset * 2.0f),
+        Math::Max(0.0f, indicatorRect.size.y - inset * 2.0f));
 
     context.AddFilledRect(markRect, EditorStyle::TextPrimary);
 }

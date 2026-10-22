@@ -1,4 +1,5 @@
 #include "Float3Field.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/NumberField.h>
@@ -65,7 +66,7 @@ void Float3Field::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    const float componentWidth = std::max(
+    const float componentWidth = Math::Max(
         0.0f,
         (rect.size.x - ComponentGap * 2.0f) / 3.0f);
 
@@ -94,7 +95,7 @@ Vector2 Float3Field::OnMeasure()
     const float yWidth = yLabelSize.x + LabelFieldGap + yFieldSize.x;
     const float zWidth = zLabelSize.x + LabelFieldGap + zFieldSize.x;
 
-    const float height = std::max({
+    const float height = Math::Max({
         xLabelSize.y,
         xFieldSize.y,
         yLabelSize.y,
@@ -126,7 +127,7 @@ void Float3Field::ArrangeComponent(
     Rect fieldRect;
     fieldRect.position = Vector2(rect.position.x + labelWidth + LabelFieldGap, rect.position.y);
     fieldRect.size = Vector2(
-        std::max(0.0f, rect.size.x - labelWidth - LabelFieldGap),
+        Math::Max(0.0f, rect.size.x - labelWidth - LabelFieldGap),
         rect.size.y);
     field.Arrange(fieldRect);
 }

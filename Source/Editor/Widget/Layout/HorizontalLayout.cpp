@@ -1,4 +1,5 @@
 #include "HorizontalLayout.h"
+#include <Core/Math/Math.h>
 
 #include <algorithm>
 
@@ -12,8 +13,8 @@ void HorizontalLayout::Arrange(const Rect& rect)
     Rect contentRect;
     contentRect.position = Vector2(rect.position.x + padding.left, rect.position.y + padding.top);
     contentRect.size = contentRect.size = {
-        std::max(0.0f, rect.size.x - padding.left - padding.right),
-        std::max(0.0f, rect.size.y - padding.top - padding.bottom),
+        Math::Max(0.0f, rect.size.x - padding.left - padding.right),
+        Math::Max(0.0f, rect.size.y - padding.top - padding.bottom),
     };
 
     float offsetX = CalculateStartOffsetX(contentRect);
@@ -43,7 +44,7 @@ Vector2 HorizontalLayout::OnMeasure()
         Widget& child = *children[index];
 
         width += GetChildLayoutWidth(child);
-        height = std::max(height, GetChildLayoutHeight(child));
+        height = Math::Max(height, GetChildLayoutHeight(child));
 
         if (index + 1 < children.size())
             width += gap;
@@ -87,7 +88,7 @@ float HorizontalLayout::CalculateTotalWidth() const
     }
 
     int32 childCount = static_cast<int32>(children.size());
-    int32 gapCount = std::max(0, childCount - 1);
+    int32 gapCount = Math::Max(0, childCount - 1);
 
     totalWidth += gap * gapCount;
 
@@ -134,12 +135,12 @@ float HorizontalLayout::CalculateChildHeight(const Widget& child, const Rect& co
 
 float HorizontalLayout::GetChildLayoutWidth(const Widget& child) const
 {
-    return std::max(0.0f, child.GetPreferredWidth().value_or(child.GetDesiredSize().x));
+    return Math::Max(0.0f, child.GetPreferredWidth().value_or(child.GetDesiredSize().x));
 }
 
 float HorizontalLayout::GetChildLayoutHeight(const Widget& child) const
 {
-    return std::max(0.0f, child.GetPreferredHeight().value_or(child.GetDesiredSize().y));
+    return Math::Max(0.0f, child.GetPreferredHeight().value_or(child.GetDesiredSize().y));
 }
 
 } // namespace URay

@@ -115,11 +115,11 @@ void ScaleGizmoStrategy::UpdateDragging(const Ray& cursorRay)
     constexpr float minimumScale = 0.01f;
     Vector3 activeScale = activeInitScale;
     if (selectedHandle == GizmoHandleId::X || selectedHandle == GizmoHandleId::XY || selectedHandle == GizmoHandleId::XZ || selectedHandle == GizmoHandleId::XYZ)
-        activeScale.x = std::max(minimumScale, activeInitScale.x + amount);
+        activeScale.x = Math::Max(minimumScale, activeInitScale.x + amount);
     if (selectedHandle == GizmoHandleId::Y || selectedHandle == GizmoHandleId::XY || selectedHandle == GizmoHandleId::YZ || selectedHandle == GizmoHandleId::XYZ)
-        activeScale.y = std::max(minimumScale, activeInitScale.y + amount);
+        activeScale.y = Math::Max(minimumScale, activeInitScale.y + amount);
     if (selectedHandle == GizmoHandleId::Z || selectedHandle == GizmoHandleId::XZ || selectedHandle == GizmoHandleId::YZ || selectedHandle == GizmoHandleId::XYZ)
-        activeScale.z = std::max(minimumScale, activeInitScale.z + amount);
+        activeScale.z = Math::Max(minimumScale, activeInitScale.z + amount);
 
     const Vector3 factors(
         activeInitScale.x != 0.0f ? activeScale.x / activeInitScale.x : 1.0f,
@@ -136,9 +136,9 @@ void ScaleGizmoStrategy::UpdateDragging(const Ray& cursorRay)
 
         target.transform->SetWorldPosition(pivotPosition + scaledOffset);
         target.transform->SetLocalScale(Vector3(
-            std::max(minimumScale, target.initialLocalScale.x * factors.x),
-            std::max(minimumScale, target.initialLocalScale.y * factors.y),
-            std::max(minimumScale, target.initialLocalScale.z * factors.z)));
+            Math::Max(minimumScale, target.initialLocalScale.x * factors.x),
+            Math::Max(minimumScale, target.initialLocalScale.y * factors.y),
+            Math::Max(minimumScale, target.initialLocalScale.z * factors.z)));
     }
 }
 

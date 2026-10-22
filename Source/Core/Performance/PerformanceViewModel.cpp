@@ -1,4 +1,5 @@
 #include "PerformanceViewModel.h"
+#include <Core/Math/Math.h>
 
 #include <algorithm>
 #include <cmath>
@@ -10,7 +11,7 @@ namespace URay
 {
 
 PerformanceViewModel::PerformanceViewModel(size_t historyCapacity)
-    : historyCapacity(std::max<size_t>(1, historyCapacity)) {}
+    : historyCapacity(Math::Max<size_t>(1, historyCapacity)) {}
 
 void PerformanceViewModel::AddCPUFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples)
 {
@@ -80,7 +81,7 @@ void PerformanceViewModel::AddFrame(
 
         directChildDuration.push_back(0.0);
 
-        frame.capturedMs = std::max(
+        frame.capturedMs = Math::Max(
             frame.capturedMs,
             sample.startMs + sample.durationMs);
 
@@ -99,7 +100,7 @@ void PerformanceViewModel::AddFrame(
 
     for (size_t index = 0; index < frame.scopes.size(); ++index)
     {
-        frame.scopes[index].selfMs = std::max(
+        frame.scopes[index].selfMs = Math::Max(
             0.0,
             frame.scopes[index].durationMs - directChildDuration[index]);
     }

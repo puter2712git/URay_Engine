@@ -1,4 +1,5 @@
 #include "Splitter.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -98,9 +99,9 @@ void Splitter::Arrange(const Rect& rect)
     const bool isHorizontal = axis == SplitAxis::Horizontal;
 
     const float totalLength = isHorizontal ? rect.size.x : rect.size.y;
-    const float actualHandleThickness = std::min(handleThickness, std::max(0.0f, totalLength));
+    const float actualHandleThickness = Math::Min(handleThickness, Math::Max(0.0f, totalLength));
 
-    const float contentLength = std::max(0.0f, totalLength - actualHandleThickness);
+    const float contentLength = Math::Max(0.0f, totalLength - actualHandleThickness);
     const float ratio = std::clamp(splitRatio, 0.0f, 1.0f);
 
     const float firstLength = contentLength * ratio;
@@ -158,8 +159,8 @@ Rect Splitter::GetHandleRect() const
     const bool isHorizontal = axis == SplitAxis::Horizontal;
 
     const float totalLength = isHorizontal ? rect.size.x : rect.size.y;
-    const float actualHandleThickness = std::min(handleThickness, std::max(0.0f, totalLength));
-    const float contentLength = std::max(0.0f, totalLength - actualHandleThickness);
+    const float actualHandleThickness = Math::Min(handleThickness, Math::Max(0.0f, totalLength));
+    const float contentLength = Math::Max(0.0f, totalLength - actualHandleThickness);
     const float firstLength = contentLength * std::clamp(splitRatio, 0.0f, 1.0f);
 
     Rect handleRect = {};

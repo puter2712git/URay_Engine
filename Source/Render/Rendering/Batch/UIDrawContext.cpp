@@ -1,4 +1,5 @@
-﻿#include "UIDrawContext.h"
+#include "UIDrawContext.h"
+#include <Core/Math/Math.h>
 
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Font/FontSystem.h>
@@ -54,7 +55,7 @@ void UIDrawContext::AddOutlineRect(const Rect& rect, float thickness, const Colo
     if (rect.size.x <= 0.0f || rect.size.y <= 0.0f || thickness <= 0.0f)
         return;
 
-    const float clampedThickness = std::min(thickness, std::min(rect.size.x, rect.size.y) * 0.5f);
+    const float clampedThickness = Math::Min(thickness, Math::Min(rect.size.x, rect.size.y) * 0.5f);
 
     AddFilledRect({ .position = rect.position, .size = Vector2(rect.size.x, clampedThickness) }, color);
     AddFilledRect({ .position = Vector2(rect.position.x, rect.position.y + rect.size.y - clampedThickness),
@@ -193,14 +194,14 @@ Rect UIDrawContext::Intersect(const Rect& rectA, const Rect& rectB) const
 {
     Rect ret = {};
 
-    const float minX = std::max(rectA.position.x, rectB.position.x);
-    const float minY = std::max(rectA.position.y, rectB.position.y);
+    const float minX = Math::Max(rectA.position.x, rectB.position.x);
+    const float minY = Math::Max(rectA.position.y, rectB.position.y);
 
-    const float maxX = std::min(rectA.position.x + rectA.size.x, rectB.position.x + rectB.size.x);
-    const float maxY = std::min(rectA.position.y + rectA.size.y, rectB.position.y + rectB.size.y);
+    const float maxX = Math::Min(rectA.position.x + rectA.size.x, rectB.position.x + rectB.size.x);
+    const float maxY = Math::Min(rectA.position.y + rectA.size.y, rectB.position.y + rectB.size.y);
 
     ret.position = Vector2(minX, minY);
-    ret.size = Vector2(std::max(0.0f, maxX - minX), std::max(0.0f, maxY - minY));
+    ret.size = Vector2(Math::Max(0.0f, maxX - minX), Math::Max(0.0f, maxY - minY));
 
     return ret;
 }

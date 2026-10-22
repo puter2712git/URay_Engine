@@ -1,4 +1,5 @@
 #include "Panel.h"
+#include <Core/Math/Math.h>
 
 #include <Editor/Widget/Panel/PanelHeader.h>
 
@@ -32,7 +33,7 @@ void Panel::Arrange(const Rect& rect)
 
 Rect Panel::GetContentRect() const
 {
-    const float effectiveOutline = std::max(0.0f, std::min(outlineWidth, std::min(rect.size.x, rect.size.y) * 0.5f));
+    const float effectiveOutline = Math::Max(0.0f, Math::Min(outlineWidth, Math::Min(rect.size.x, rect.size.y) * 0.5f));
 
     Rect contentRect = rect;
 
@@ -43,12 +44,12 @@ Rect Panel::GetContentRect() const
 
     contentRect.position += Vector2(left, top);
     contentRect.size = Vector2(
-        std::max(0.0f, rect.size.x - left - right),
-        std::max(0.0f, rect.size.y - top - bottom));
+        Math::Max(0.0f, rect.size.x - left - right),
+        Math::Max(0.0f, rect.size.y - top - bottom));
 
     if (header)
     {
-        const float headerHeight = std::min(EditorStyle::PanelHeaderHeight, contentRect.size.y);
+        const float headerHeight = Math::Min(EditorStyle::PanelHeaderHeight, contentRect.size.y);
 
         contentRect.position.y += headerHeight;
         contentRect.size.y -= headerHeight;

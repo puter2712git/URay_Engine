@@ -1,4 +1,5 @@
 #include "Surface.h"
+#include <Core/Math/Math.h>
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
@@ -23,8 +24,8 @@ Rect Surface::GetContentRect() const
     Rect contentRect = rect;
     contentRect.position += Vector2(padding.left, padding.top);
     contentRect.size = Vector2(
-        std::max(0.0f, rect.size.x - padding.left - padding.right),
-        std::max(0.0f, rect.size.y - padding.top - padding.bottom));
+        Math::Max(0.0f, rect.size.x - padding.left - padding.right),
+        Math::Max(0.0f, rect.size.y - padding.top - padding.bottom));
 
     return contentRect;
 }
@@ -40,8 +41,8 @@ Vector2 Surface::OnMeasure()
             child->GetPreferredHeight().value_or(child->GetDesiredSize().y),
         };
 
-        contentSize.x = std::max(contentSize.x, childSize.x);
-        contentSize.y = std::max(contentSize.y, childSize.y);
+        contentSize.x = Math::Max(contentSize.x, childSize.x);
+        contentSize.y = Math::Max(contentSize.y, childSize.y);
     }
 
     return contentSize + Vector2(

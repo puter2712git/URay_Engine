@@ -1,4 +1,5 @@
 #include "FBXImporter.h"
+#include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -286,7 +287,7 @@ FBX::FBXInfo FBXImporter::ParseFBXInfo(const ufbx_scene& sourceScene) const
 
         meshInfo.skinVertices.resize(sourceMesh.num_vertices);
 
-        const size_t skinVertexCount = std::min(sourceMesh.num_vertices, skinDeformer.vertices.count);
+        const size_t skinVertexCount = Math::Min(sourceMesh.num_vertices, skinDeformer.vertices.count);
 
         size_t weightedVertexCount = 0;
         size_t truncatedVertexCount = 0;
@@ -369,7 +370,7 @@ bool FBXImporter::CreateStaticMesh(const ufbx_scene& sourceScene, const AssetMet
 
         const std::vector<AssetHandle> sourceMaterialHandles = CreateMaterials(sourceMesh, metadata);
 
-        const size_t triangleIndexCapacity = std::max<size_t>(3, sourceMesh.max_face_triangles * 3);
+        const size_t triangleIndexCapacity = Math::Max<size_t>(3, sourceMesh.max_face_triangles * 3);
 
         std::vector<uint32> triangleCornerIndices(triangleIndexCapacity);
 
@@ -600,7 +601,7 @@ bool FBXImporter::CreateSkinnedMesh(
         const std::vector<AssetHandle> sourceMaterialHandles =
             CreateMaterials(sourceMesh, metadata);
         const size_t triangleIndexCapacity =
-            std::max<size_t>(3, sourceMesh.max_face_triangles * 3);
+            Math::Max<size_t>(3, sourceMesh.max_face_triangles * 3);
         std::vector<uint32> triangleCornerIndices(triangleIndexCapacity);
 
         for (size_t instanceIndex = 0;
