@@ -3,7 +3,6 @@
 #include <Core/Math/Math.h>
 
 #include <charconv>
-#include <cmath>
 #include <format>
 
 namespace URay
@@ -136,7 +135,7 @@ bool NumberField::TryParse(const std::string& text, float& outValue)
 
     return error == std::errc{} &&
            endPtr == end &&
-           std::isfinite(outValue);
+           Math::IsFinite(outValue);
 }
 
 std::string NumberField::FormatValue(float value)

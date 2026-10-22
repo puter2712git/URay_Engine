@@ -79,6 +79,9 @@ public:
     static inline float Round(float value) { return std::round(value); }
     static inline double Round(double value) { return std::round(value); }
 
+    static inline bool IsFinite(float value) { return std::isfinite(value); }
+    static inline bool IsFinite(double value) { return std::isfinite(value); }
+
     static bool IntersectLineTriangle(
         const Ray& ray,
         const Vector3& p0, const Vector3& p1, const Vector3& p2,
