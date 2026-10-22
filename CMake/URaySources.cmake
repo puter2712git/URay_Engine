@@ -6,6 +6,8 @@ file(GLOB_RECURSE URAY_HEADERS CONFIGURE_DEPENDS
     "${URAY_SOURCE_DIR}/Source/*.h"
 )
 
+target_precompile_headers(URay_Engine PRIVATE Source/PCH.h)
+
 target_sources(URay_Engine PRIVATE
     ${URAY_HEADERS}
     ${URAY_SOURCES}
