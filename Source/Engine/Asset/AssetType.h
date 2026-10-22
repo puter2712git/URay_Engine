@@ -10,8 +10,7 @@ enum class AssetType
     Mesh,
     Material,
     Shader,
-    Font,
-    Script
+    Font
 };
 
 }

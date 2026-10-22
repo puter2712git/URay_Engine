@@ -21,7 +21,6 @@ class FileLogSink;
 
 class AssetSystem;
 class SceneSystem;
-class ScriptSystem;
 
 namespace Render
 {
@@ -54,7 +53,6 @@ public:
 
     AssetSystem& GetAssetSystem() const { return *assetSystem; }
     SceneSystem& GetSceneSystem() const { return *sceneSystem; }
-    ScriptSystem& GetScriptSystem() const { return *scriptSystem; }
     Render::RenderSystem& GetRenderSystem() const { return *renderSystem; }
 
 private:
@@ -74,7 +72,6 @@ private:
 
     std::unique_ptr<AssetSystem> assetSystem = nullptr;
     std::unique_ptr<SceneSystem> sceneSystem = nullptr;
-    std::unique_ptr<ScriptSystem> scriptSystem = nullptr;
     std::unique_ptr<Render::RenderSystem> renderSystem = nullptr;
 };
 

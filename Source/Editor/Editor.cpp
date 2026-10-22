@@ -25,7 +25,6 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-#include <Engine/Script/ScriptSystem.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
@@ -267,11 +266,6 @@ void Editor::ProcessInputActions()
         const InputActionValue* value = actions.FindAction(id);
         return value && value->pressed;
     };
-
-    if (wasPressed(EditorInputAction::ReloadGameScripts))
-    {
-        gEngine->GetScriptSystem().ReloadGameScripts();
-    }
 
     if (widgetSystem->IsTextInputActive())
         return;

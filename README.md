@@ -1,6 +1,6 @@
 # URay Engine
 
-URay Engine is a work-in-progress game engine and scene editor built with C++20 and Vulkan 1.3. It includes an editor workflow, an asset pipeline, a rendering pipeline, and C# scripting support.
+URay Engine is a work-in-progress game engine and scene editor built with C++20 and Vulkan 1.3. It includes an editor workflow, an asset pipeline, and a rendering pipeline.
 
 > This project is under active development. Features and APIs may change.
 
@@ -21,9 +21,8 @@ URay Engine is a work-in-progress game engine and scene editor built with C++20 
   - Shader relfection (SPIR-V)
   - Clustered Light Culling
 - Engine Layer
-  - Asset pipeline (texture, font, material, shader, script, mesh)
+  - Asset pipeline (texture, font, material, shader, mesh)
   - Component architecture
-  - C# scripting system
 - Editor Layer
   - Retained widget system
   - Pick system based object id
@@ -33,7 +32,7 @@ URay Engine is a work-in-progress game engine and scene editor built with C++20 
 
 | Area | Technology |
 | --- | --- |
-| Languages | C++20, C# |
+| Languages | C++20 |
 | Graphics API | Vulkan 1.3 |
 | Build System | CMake, Ninja |
 | Windowing / Input | GLFW |

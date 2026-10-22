@@ -31,13 +31,6 @@ std::unique_ptr<InputActionMap> CreateEditorInputActionMap()
           .valueType = InputActionValueType::Axis1D,
           .bindings = viewportElevateBindings });
 
-    const bool addedReloadGameScripts = actionMap->AddAction(
-        { .id = EditorInputAction::ReloadGameScripts,
-          .valueType = InputActionValueType::Button,
-          .bindings = { KeyBinding{
-              .key = KeyCode::R,
-              .requiredModifiers = ModifierKey::Ctrl } } });
-
     const bool addedSaveScene = actionMap->AddAction(
         { .id = EditorInputAction::SaveScene,
           .valueType = InputActionValueType::Button,
@@ -67,7 +60,6 @@ std::unique_ptr<InputActionMap> CreateEditorInputActionMap()
 
     if (!addedViewportMove ||
         !addedViewportElevate ||
-        !addedReloadGameScripts ||
         !addedSaveScene ||
         !addedDeleteSelection ||
         !addedCycleGizmoMode ||

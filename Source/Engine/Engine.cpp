@@ -3,7 +3,6 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Scene/SceneSystem.h>
-#include <Engine/Script/ScriptSystem.h>
 
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Input/InputSystem.h>
@@ -101,14 +100,6 @@ bool Engine::Initialize(
         return false;
     }
 
-    scriptSystem = std::make_unique<ScriptSystem>();
-    if (!scriptSystem->Initialize(enginePath, projectPath))
-    {
-        URAY_LOG("[Engine] Failed to initialize script system.");
-        Finalize();
-        return false;
-    }
-
     std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
     for (Material* material : materials)
     {
@@ -137,12 +128,6 @@ void Engine::Finalize()
     {
         sceneSystem->Finalize();
         sceneSystem.reset();
-    }
-
-    if (scriptSystem)
-    {
-        scriptSystem->Finalize();
-        scriptSystem.reset();
     }
 
     if (assetSystem)

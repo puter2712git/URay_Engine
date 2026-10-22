@@ -11,10 +11,8 @@ class VerticalLayout;
 class ScrollView;
 class Object;
 class Unit;
-class ScriptComponent;
 class InspectSystem;
 struct Property;
-struct ScriptFieldValue;
 
 class InspectorPanel final : public Panel
 {
@@ -39,7 +37,6 @@ private:
     void RebuildAssetProperties(AssetHandle handle);
 
     void AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
-    void AddScriptField(VerticalLayout& targetLayout, ScriptComponent& component, const ScriptFieldValue& field);
 
     void AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
@@ -51,7 +48,6 @@ private:
     void AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
     void AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name);
-    void AddScriptProperty(VerticalLayout& targetLayout, ScriptComponent& component);
 
 private:
     InspectSystem& inspectSystem;

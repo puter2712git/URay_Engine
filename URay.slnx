@@ -1,4 +1,2 @@
 <Solution>
-  <Project Path="Sandbox/Managed/TestManaged/GameScripts.csproj" />
-  <Project Path="Source/Engine/Script/Managed/URay.ScriptHost.csproj" />
 </Solution>

@@ -2,8 +2,6 @@
 
 #include <Core/Ray/EventRay.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
-#include <Engine/Asset/AssetHandle.h>
-
 #include <string>
 
 namespace URay
@@ -11,17 +9,9 @@ namespace URay
 
 class Unit;
 
-enum class ComponentPickerItemKind
-{
-    NativeComponent,
-    ScriptAsset
-};
-
 struct ComponentPickerSelection
 {
-    ComponentPickerItemKind kind = ComponentPickerItemKind::NativeComponent;
     std::string componentTypeName;
-    AssetHandle scriptHandle = {};
 };
 
 class ComponentPickerPopup final : public PopupMenu
