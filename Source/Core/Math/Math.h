@@ -18,8 +18,8 @@ public:
 
     static constexpr float EPSILON = 0.00001f;
 
-    static inline float DegToRad(float degree) { return degree * PI / 180; }
-    static inline float RadToDeg(float radian) { return radian * 180 / PI; }
+    static constexpr float DegToRad(float degree) { return degree * PI / 180; }
+    static constexpr float RadToDeg(float radian) { return radian * 180 / PI; }
 
     template <typename T>
     static constexpr T Min(T a, T b)
