@@ -23,7 +23,7 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
     VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
 
     directoryScroll = AddChild<ScrollView>();
-    directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://Asset/Source"));
+    directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://Asset"));
 
     breadcrumbBar = AddChild<BreadcrumbBar>();
 

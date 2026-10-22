@@ -35,8 +35,7 @@ void FBXImporter::Import(const VirtualPath& sourcePath)
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
     AssetMetadata metadata = {};
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    const VirtualPath metadataPath(importPath.ToString() + ".meta");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
     if (fileSystem.Exists(metadataPath))
     {
@@ -142,9 +141,9 @@ AssetMetadata FBXImporter::CreateMetadata(const VirtualPath& sourcePath) const
     metadata.type = AssetType::Mesh;
     metadata.sourcePath = sourcePath;
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    metadata.metadataPath = VirtualPath(importPath.ToString() + ".meta");
-    metadata.assetPath = VirtualPath(importPath.ToString() + ".asset");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    metadata.metadataPath = metadataPath;
+    metadata.assetPath = VirtualPath(metadataPath.ToString() + ".asset");
 
     return metadata;
 }
@@ -708,9 +707,9 @@ bool FBXImporter::CreateSkinnedMesh(
                                     &sourceMesh.vertex_normal,
                                     cornerIndex);
                             vertex.normal = normalToAsset.TransformVector(Vector3(
-                                static_cast<float>(sourceNormal.x),
-                                static_cast<float>(sourceNormal.y),
-                                static_cast<float>(sourceNormal.z)))
+                                                                              static_cast<float>(sourceNormal.x),
+                                                                              static_cast<float>(sourceNormal.y),
+                                                                              static_cast<float>(sourceNormal.z)))
                                                 .GetNormalized();
                         }
                         else
@@ -902,8 +901,7 @@ std::vector<AssetHandle> FBXImporter::CreateMaterials(const ufbx_mesh& sourceMes
             {
                 const VirtualPath diffuseTexturePath = directory.Join(relativeTexturePath);
 
-                const VirtualPath diffuseTextureImportPath = assetSystem.GetImportAssetPath(diffuseTexturePath);
-                const VirtualPath diffuseTextureMetadataPath(diffuseTextureImportPath.ToString() + ".meta");
+                const VirtualPath diffuseTextureMetadataPath = assetSystem.GetMetadataPath(diffuseTexturePath);
 
                 const std::string metadataText = fileSystem.ReadText(diffuseTextureMetadataPath);
 

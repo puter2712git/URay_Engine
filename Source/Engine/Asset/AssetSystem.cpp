@@ -37,8 +37,8 @@ bool AssetSystem::Initialize(
     database = std::make_unique<AssetDatabase>();
     pipeline = std::make_unique<AssetPipeline>();
 
-    ImportRecursive("Engine://Asset/Source");
-    ImportRecursive("Project://Asset/Source");
+    ImportRecursive("Engine://Asset");
+    ImportRecursive("Project://Asset");
 
     CreateDefaultAssets();
 
@@ -84,26 +84,9 @@ void AssetSystem::CreateDefaultAssets()
     CreateDefaultMesh(EngineAsset::ScaleGizmoMesh, "Scale Gizmo", meshGenerator.CreateScaleGizmo(), EngineAsset::MeshMaterial);
 }
 
-VirtualPath AssetSystem::GetImportAssetPath(const VirtualPath& sourcePath) const
+VirtualPath AssetSystem::GetMetadataPath(const VirtualPath& sourcePath) const
 {
-    if (sourcePath.GetMountName() == "RawAsset")
-        return VirtualPath("Asset://" + sourcePath.GetRelativePath());
-
-    constexpr const char* sourceDirectory = "/Source/";
-    constexpr const char* importDirectory = "/Imported/";
-
-    std::string importPath = sourcePath.ToString();
-    const size_t sourceDirectoryPos = importPath.find(sourceDirectory);
-
-    if (sourceDirectoryPos == std::string::npos)
-        return sourcePath;
-
-    importPath.replace(
-        sourceDirectoryPos,
-        std::char_traits<char>::length(sourceDirectory),
-        importDirectory);
-
-    return VirtualPath(importPath);
+    return VirtualPath(sourcePath.ToString() + ".meta");
 }
 
 void AssetSystem::RegisterMetadata(const AssetMetadata& metadata)

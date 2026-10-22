@@ -29,8 +29,7 @@ void OBJImporter::Import(const VirtualPath& sourcePath)
 
     AssetMetadata metadata = {};
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
     if (fileSystem.Exists(metadataPath))
     {
@@ -67,9 +66,8 @@ AssetMetadata OBJImporter::CreateMetadata(const VirtualPath& sourcePath) const
     ret.type = AssetType::Mesh;
     ret.sourcePath = sourcePath;
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
-    ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
+    ret.metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    ret.assetPath = VirtualPath(ret.metadataPath.ToString() + ".asset");
 
     return ret;
 }
@@ -109,8 +107,7 @@ std::vector<Material*> OBJImporter::CreateMaterials(
         if (!mtlData.diffuseTexturePath.empty())
         {
             const VirtualPath diffuseTexturePath = directory.Join(mtlData.diffuseTexturePath);
-            const VirtualPath diffuseTextureImportPath = assetSystem.GetImportAssetPath(diffuseTexturePath);
-            const VirtualPath diffuseTextureMetadataPath = VirtualPath(diffuseTextureImportPath.ToString() + ".meta");
+            const VirtualPath diffuseTextureMetadataPath = assetSystem.GetMetadataPath(diffuseTexturePath);
 
             const std::string metadataText = fileSystem.ReadText(diffuseTextureMetadataPath);
             if (!metadataText.empty())

@@ -1,5 +1,0 @@
-UUID: 00000000-0000-0000-0000-000000000011
-Type: Shader
-SourcePath: Engine://Asset/Source/Shader/ClusteredLightCulling.hlsl
-MetadataPath: Engine://Asset/Imported/Shader/ClusteredLightCulling.hlsl.meta
-AssetPath: Engine://Asset/Imported/Shader/ClusteredLightCulling.hlsl.asset

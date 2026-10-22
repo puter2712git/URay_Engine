@@ -31,7 +31,7 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
-    VirtualPath currentPath = "Project://Asset/Source";
+    VirtualPath currentPath = "Project://Asset";
     std::optional<VirtualPath> pendingPath = std::nullopt;
 
     ScrollView* directoryScroll = nullptr;

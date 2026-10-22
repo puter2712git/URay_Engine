@@ -23,8 +23,7 @@ void FontImporter::Import(const VirtualPath& sourcePath)
 
     AssetMetadata metadata = {};
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
     if (fileSystem.Exists(metadataPath))
     {
@@ -60,9 +59,8 @@ AssetMetadata FontImporter::CreateMetadata(const VirtualPath& sourcePath) const
     ret.type = AssetType::Font;
     ret.sourcePath = sourcePath;
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
-    ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
+    ret.metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    ret.assetPath = VirtualPath(ret.metadataPath.ToString() + ".asset");
 
     return ret;
 }

@@ -27,8 +27,7 @@ void TextureImporter::Import(const VirtualPath& sourcePath)
 
     AssetMetadata metadata = {};
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
     if (fileSystem.Exists(metadataPath))
     {
@@ -77,9 +76,8 @@ AssetMetadata TextureImporter::CreateMetadata(const VirtualPath& sourcePath) con
     ret.type = AssetType::Texture;
     ret.sourcePath = sourcePath;
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
-    ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
+    ret.metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    ret.assetPath = VirtualPath(ret.metadataPath.ToString() + ".asset");
 
     return ret;
 }

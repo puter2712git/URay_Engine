@@ -23,8 +23,7 @@ void ShaderImporter::Import(const VirtualPath& sourcePath)
 
     AssetMetadata metadata = {};
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    const VirtualPath metadataPath = VirtualPath(importPath.ToString() + ".meta");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
     if (fileSystem.Exists(metadataPath))
     {
@@ -58,9 +57,9 @@ AssetMetadata ShaderImporter::CreateMetadata(const VirtualPath& sourcePath) cons
     ret.type = AssetType::Shader;
     ret.sourcePath = sourcePath;
 
-    const VirtualPath importPath = assetSystem.GetImportAssetPath(sourcePath);
-    ret.metadataPath = VirtualPath(importPath.ToString() + ".meta");
-    ret.assetPath = VirtualPath(importPath.ToString() + ".asset");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    ret.metadataPath = metadataPath;
+    ret.assetPath = VirtualPath(metadataPath.ToString() + ".asset");
 
     return ret;
 }

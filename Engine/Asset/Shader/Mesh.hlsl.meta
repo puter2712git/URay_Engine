@@ -1,0 +1,5 @@
+UUID: 00000000-0000-0000-0000-000000000001
+Type: Shader
+SourcePath: Engine://Asset/Shader/Mesh.hlsl
+MetadataPath: Engine://Asset/Shader/Mesh.hlsl.meta
+AssetPath: Engine://Asset/Imported/Shader/Mesh.hlsl.asset

@@ -2,7 +2,6 @@
 
 #include <Engine/Asset/AssetMetadata.h>
 
-
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -36,7 +35,7 @@ public:
 
     void CreateDefaultAssets();
 
-    VirtualPath GetImportAssetPath(const VirtualPath& sourcePath) const;
+    VirtualPath GetMetadataPath(const VirtualPath& sourcePath) const;
 
     void RegisterMetadata(const AssetMetadata& metadata);
     const AssetMetadata* FindMetadataBySourcePath(const VirtualPath& sourcePath) const;

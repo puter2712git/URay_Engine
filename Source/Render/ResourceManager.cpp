@@ -313,7 +313,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
     // TODO: Fix for shader permutation
     VirtualPath shaderPath = shader->GetFilePath();
 
-    const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
+    const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Shader").wstring();
 
     std::vector<std::wstring> compilerDefines;
     compilerDefines.reserve(defines.size());
@@ -324,7 +324,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
     }
 
     VirtualPath importAssetPath = VirtualPath(
-        "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".vs.spv");
+        "Engine://Asset/Shader/" + shaderPath.GetStem() + ".vs.spv");
 
     if (!shaderCompiler.Compile(
             shader->GetFilePath(),
@@ -343,7 +343,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
     const VirtualPath vertexShaderPath = importAssetPath;
 
     importAssetPath = VirtualPath(
-        "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".fs.spv");
+        "Engine://Asset/Shader/" + shaderPath.GetStem() + ".fs.spv");
 
     if (!shaderCompiler.Compile(
             shader->GetFilePath(),
@@ -425,7 +425,7 @@ Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, 
 
     VirtualPath shaderPath = shader->GetFilePath();
 
-    const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Source/Shader").wstring();
+    const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Shader").wstring();
 
     std::vector<std::wstring> compilerDefines;
     compilerDefines.reserve(defines.size());
@@ -436,7 +436,7 @@ Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, 
     }
 
     VirtualPath importAssetPath = VirtualPath(
-        "Engine://Asset/Imported/Shader/" + shaderPath.GetStem() + ".cs.spv");
+        "Engine://Asset/Shader/" + shaderPath.GetStem() + ".cs.spv");
 
     if (!shaderCompiler.Compile(
             shader->GetFilePath(),
