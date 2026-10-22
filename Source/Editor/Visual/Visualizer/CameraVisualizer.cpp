@@ -84,10 +84,10 @@ Render::LineObjectState CameraVisualizer::MakeLineState(Component& component)
         const float nearDistance = camera.GetNearPlane();
         const float farDistance = camera.GetFarPlane();
         const float nearHalfHeight = camera.IsPerspective()
-                                         ? nearDistance * std::tan(Math::DegToRad(camera.GetFOV() * 0.5f))
+                                         ? nearDistance * Math::Tan(Math::DegToRad(camera.GetFOV() * 0.5f))
                                          : camera.GetOrthoSize() * 0.5f;
         const float farHalfHeight = camera.IsPerspective()
-                                        ? farDistance * std::tan(Math::DegToRad(camera.GetFOV() * 0.5f))
+                                        ? farDistance * Math::Tan(Math::DegToRad(camera.GetFOV() * 0.5f))
                                         : camera.GetOrthoSize() * 0.5f;
 
         const Vector3 nearCenter = origin + forward * nearDistance;

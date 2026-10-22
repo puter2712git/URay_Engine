@@ -89,13 +89,13 @@ void SpotLightVisualizer::AddCone(
     constexpr uint32 sideCount = 4;
 
     const Vector3 baseCenter = origin + direction * range;
-    const float radius = range * std::tan(Math::DegToRad(angleDegrees * 0.5f));
+    const float radius = range * Math::Tan(Math::DegToRad(angleDegrees * 0.5f));
 
     Vector3 points[segments];
     for (uint32 i = 0; i < segments; ++i)
     {
         const float angle = Math::TWO_PI * i / segments;
-        points[i] = baseCenter + radius * (right * std::cos(angle) + up * std::sin(angle));
+        points[i] = baseCenter + radius * (right * Math::Cos(angle) + up * Math::Sin(angle));
     }
 
     for (uint32 i = 0; i < segments; ++i)

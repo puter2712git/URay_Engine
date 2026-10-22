@@ -95,7 +95,7 @@ void RotationGizmoStrategy::UpdateDragging(const Ray& cursorRay)
     if (a.GetSquaredLength() < Math::EPSILON || b.GetSquaredLength() < Math::EPSILON)
         return;
 
-    const float angle = Math::RadToDeg(std::atan2(Vector3::Dot(axisDirection, Vector3::Cross(a, b)), Vector3::Dot(a, b)));
+    const float angle = Math::RadToDeg(Math::Atan2(Vector3::Dot(axisDirection, Vector3::Cross(a, b)), Vector3::Dot(a, b)));
 
     const Matrix delta = GetAxisRotationMatrix(selectedHandle, angle);
     Matrix worldDelta = delta;

@@ -19,8 +19,8 @@ Quaternion Quaternion::FromAxisAngle(const Vector3& axis, float degrees)
 
     const Vector3 normalizedAxis = axis.GetNormalized();
     const float halfRadians = Math::DegToRad(degrees) * 0.5f;
-    const float sinHalf = std::sin(halfRadians);
-    const float cosHalf = std::cos(halfRadians);
+    const float sinHalf = Math::Sin(halfRadians);
+    const float cosHalf = Math::Cos(halfRadians);
 
     return Quaternion(
         normalizedAxis.x * sinHalf,
@@ -47,7 +47,7 @@ Vector3 Quaternion::ToEulerDegrees() const
         -1.0f,
         1.0f);
 
-    const float y = std::asin(sinY);
+    const float y = Math::Asin(sinY);
     const float cosY = std::sqrt(Math::Max(0.0f, 1.0f - sinY * sinY));
 
     float x = 0.0f;
@@ -55,16 +55,16 @@ Vector3 Quaternion::ToEulerDegrees() const
 
     if (cosY > Math::EPSILON)
     {
-        x = std::atan2(
+        x = Math::Atan2(
             2.0f * (q.w * q.x + q.y * q.z),
             1.0f - 2.0f * (q.x * q.x + q.y * q.y));
-        z = std::atan2(
+        z = Math::Atan2(
             2.0f * (q.w * q.z + q.x * q.y),
             1.0f - 2.0f * (q.y * q.y + q.z * q.z));
     }
     else
     {
-        x = std::atan2(
+        x = Math::Atan2(
             sinY >= 0.0f
                 ? 2.0f * (q.x * q.y - q.z * q.w)
                 : -2.0f * (q.x * q.y - q.z * q.w),

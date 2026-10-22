@@ -51,6 +51,15 @@ public:
         return std::clamp(value, min, max);
     }
 
+    static inline float Sin(float radians) { return std::sin(radians); }
+    static inline float Cos(float radians) { return std::cos(radians); }
+    static inline float Tan(float radians) { return std::tan(radians); }
+
+    static inline float Asin(float value) { return std::asin(value); }
+    static inline float Acos(float value) { return std::acos(value); }
+    static inline float Atan(float value) { return std::atan(value); }
+    static inline float Atan2(float y, float x) { return std::atan2(y, x); }
+
     static bool IntersectLineTriangle(
         const Ray& ray,
         const Vector3& p0, const Vector3& p1, const Vector3& p2,

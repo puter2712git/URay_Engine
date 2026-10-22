@@ -131,8 +131,8 @@ void PointLightVisualizer::AddCircle(
         const float t0 = (Math::TWO_PI * i) / segments;
         const float t1 = (Math::TWO_PI * (i + 1)) / segments;
 
-        const Vector3 p0 = center + radius * (axisA * std::cos(t0) + axisB * std::sin(t0));
-        const Vector3 p1 = center + radius * (axisA * std::cos(t1) + axisB * std::sin(t1));
+        const Vector3 p0 = center + radius * (axisA * Math::Cos(t0) + axisB * Math::Sin(t0));
+        const Vector3 p1 = center + radius * (axisA * Math::Cos(t1) + axisB * Math::Sin(t1));
 
         lines.push_back(Render::Line{
             .start = p0,

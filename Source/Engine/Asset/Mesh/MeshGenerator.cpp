@@ -125,8 +125,8 @@ MeshInfo MeshGenerator::CreateCylinder() const
     for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
-        const float cosT = std::cos(theta);
-        const float sinT = std::sin(theta);
+        const float cosT = Math::Cos(theta);
+        const float sinT = Math::Sin(theta);
         const Vector3 normal(cosT, sinT, 0.0f);
 
         vertices.push_back(MakeVertex({ radius * cosT, radius * sinT, halfHeight }, normal,
@@ -150,8 +150,8 @@ MeshInfo MeshGenerator::CreateCylinder() const
     for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
-        const float x = radius * std::cos(theta);
-        const float y = radius * std::sin(theta);
+        const float x = radius * Math::Cos(theta);
+        const float y = radius * Math::Sin(theta);
         vertices.push_back(MakeVertex({ x, y, halfHeight }, { 0.0f, 0.0f, 1.0f },
                                       { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
@@ -165,8 +165,8 @@ MeshInfo MeshGenerator::CreateCylinder() const
     for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
-        const float x = radius * std::cos(theta);
-        const float y = radius * std::sin(theta);
+        const float x = radius * Math::Cos(theta);
+        const float y = radius * Math::Sin(theta);
         vertices.push_back(MakeVertex({ x, y, -halfHeight }, { 0.0f, 0.0f, -1.0f },
                                       { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
@@ -207,8 +207,8 @@ MeshInfo MeshGenerator::CreateCone() const
     for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
-        const float cosT = std::cos(theta);
-        const float sinT = std::sin(theta);
+        const float cosT = Math::Cos(theta);
+        const float sinT = Math::Sin(theta);
         const Vector3 sideNormal(height * cosT / normalLength, height * sinT / normalLength, radius / normalLength);
         vertices.push_back(MakeVertex({ radius * cosT, radius * sinT, -halfHeight }, sideNormal,
                                       { static_cast<float>(i) / sliceCount, 0.0f }));
@@ -223,8 +223,8 @@ MeshInfo MeshGenerator::CreateCone() const
     for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = i * dTheta;
-        const float x = radius * std::cos(theta);
-        const float y = radius * std::sin(theta);
+        const float x = radius * Math::Cos(theta);
+        const float y = radius * Math::Sin(theta);
         vertices.push_back(MakeVertex({ x, y, -halfHeight }, { 0.0f, 0.0f, -1.0f },
                                       { x / (radius * 2.0f) + 0.5f, y / (radius * 2.0f) + 0.5f }));
     }
@@ -307,8 +307,8 @@ MeshInfo MeshGenerator::CreateRotationGizmo() const
     for (uint32 i = 0; i <= sliceCount; ++i)
     {
         const float theta = static_cast<float>(i) * dTheta;
-        const float cosTheta = std::cos(theta);
-        const float sinTheta = std::sin(theta);
+        const float cosTheta = Math::Cos(theta);
+        const float sinTheta = Math::Sin(theta);
         const Vector3 normal(0.0f, 0.0f, -1.0f);
 
         vertices.push_back(MakeVertex({ outerRadius * cosTheta, outerRadius * sinTheta, 0.0f }, normal,

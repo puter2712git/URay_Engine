@@ -252,10 +252,10 @@ Matrix Matrix::MakeRotationX(float degree)
     Matrix mat = Matrix::Identity;
     float rad = Math::DegToRad(degree);
 
-    mat.elements[1][1] = std::cos(rad);
-    mat.elements[1][2] = std::sin(rad);
-    mat.elements[2][1] = -std::sin(rad);
-    mat.elements[2][2] = std::cos(rad);
+    mat.elements[1][1] = Math::Cos(rad);
+    mat.elements[1][2] = Math::Sin(rad);
+    mat.elements[2][1] = -Math::Sin(rad);
+    mat.elements[2][2] = Math::Cos(rad);
 
     return mat;
 }
@@ -265,10 +265,10 @@ Matrix Matrix::MakeRotationY(float degree)
     Matrix mat = Matrix::Identity;
     float rad = Math::DegToRad(degree);
 
-    mat.elements[0][0] = std::cos(rad);
-    mat.elements[0][2] = -std::sin(rad);
-    mat.elements[2][0] = std::sin(rad);
-    mat.elements[2][2] = std::cos(rad);
+    mat.elements[0][0] = Math::Cos(rad);
+    mat.elements[0][2] = -Math::Sin(rad);
+    mat.elements[2][0] = Math::Sin(rad);
+    mat.elements[2][2] = Math::Cos(rad);
 
     return mat;
 }
@@ -278,10 +278,10 @@ Matrix Matrix::MakeRotationZ(float degree)
     Matrix mat = Matrix::Identity;
     float rad = Math::DegToRad(degree);
 
-    mat.elements[0][0] = std::cos(rad);
-    mat.elements[0][1] = std::sin(rad);
-    mat.elements[1][0] = -std::sin(rad);
-    mat.elements[1][1] = std::cos(rad);
+    mat.elements[0][0] = Math::Cos(rad);
+    mat.elements[0][1] = Math::Sin(rad);
+    mat.elements[1][0] = -Math::Sin(rad);
+    mat.elements[1][1] = Math::Cos(rad);
 
     return mat;
 }
@@ -313,7 +313,7 @@ Matrix Matrix::MakeView(const Vector3& eye, const Vector3& target, const Vector3
 
 Matrix Matrix::MakePerspective(float fov, float aspect, float near, float far)
 {
-    const float tanHalfFov = std::tan(fov * 0.5f);
+    const float tanHalfFov = Math::Tan(fov * 0.5f);
 
     const float A = far / (near - far);
     const float B = near * far / (near - far);
