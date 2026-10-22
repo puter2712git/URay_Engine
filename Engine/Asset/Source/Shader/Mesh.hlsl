@@ -18,6 +18,10 @@
 #define URAY_SELECTION_MASK 0
 #endif
 
+#ifndef URAY_SKINNED_MESH
+#define URAY_SKINNED_MESH 0
+#endif
+
 [[vk::binding(0, 1)]] Texture2D<float4> diffuseColorTexture;
 [[vk::binding(1, 1)]] SamplerState diffuseColorSampler;
 
@@ -25,6 +29,11 @@
 StructuredBuffer<ClusterLightListEntry> clusterLightList;
 [[vk::binding(11, 0)]]
 StructuredBuffer<uint> clusterLightIndexList;
+
+#if URAY_SKINNED_MESH
+[[vk::binding(0, 2)]]
+StructuredBuffer<float4x4> skinMatrices;
+#endif
 
 float GetDirectionalShadowVisibility(float3 worldPosition, float3 normal)
 {
@@ -149,16 +158,43 @@ float3 EvaluateLighting(float3 albedo, float3 worldPosition, float3 normal, uint
 #endif
 }
 
-VertexPNTOut VSMain(VertexPNTIn input)
+VertexPNTOut VSMain(
+#if URAY_SKINNED_MESH
+    VertexSkinnedPNTIn input
+#else
+    VertexPNTIn input
+#endif
+)
 {
     VertexPNTOut output;
-    
-    float4 worldPosition = mul(obj.world, float4(input.inPosition, 1.0));
+
+    float4 localPosition = float4(input.inPosition, 1.0);
+    float3 localNormal = input.inNormal;
+
+#if URAY_SKINNED_MESH
+    localPosition = 0.0.xxxx;
+    localNormal = 0.0.xxx;
+
+    for (uint influenceIndex = 0; influenceIndex < 4; ++influenceIndex)
+    {
+        const uint boneIndex = input.inBoneIndices[influenceIndex];
+        const float boneWeight = input.inBoneWeights[influenceIndex];
+
+        if (boneWeight == 0.0)
+            continue;
+
+        const float4x4 skinMatrix = skinMatrices[boneIndex];
+        localPosition += boneWeight * mul(skinMatrix, float4(input.inPosition, 1.0));
+        localNormal += boneWeight * mul((float3x3)skinMatrix, input.inNormal);
+    }
+#endif
+
+    float4 worldPosition = mul(obj.world, localPosition);
 
     output.outPosition = mul(frame.viewProj, worldPosition);
     output.outWorldPosition = worldPosition.xyz;
     output.outUV = input.inUV;
-    output.outNormal = normalize(mul((float3x3) obj.world, input.inNormal));
+    output.outNormal = normalize(mul((float3x3) obj.world, localNormal));
 
     return output;
 }

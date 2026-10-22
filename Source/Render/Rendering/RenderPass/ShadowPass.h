@@ -39,6 +39,7 @@ private:
 
 private:
     Shader* shadowShader = nullptr;
+    Shader* skinnedShadowShader = nullptr;
 };
 
 } // namespace URay::Render

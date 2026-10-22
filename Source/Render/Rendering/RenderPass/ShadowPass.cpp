@@ -49,6 +49,9 @@ void ShadowPass::Begin(const RenderPassContext& context)
 
         URay::Shader* shaderAsset = assetDatabase.Find<URay::Shader>(EngineAsset::ShadowShader);
         shadowShader = resourceManager.GetOrCreateShader(shaderAsset, {});
+        skinnedShadowShader = resourceManager.GetOrCreateShader(
+            shaderAsset,
+            { ShaderDefine{ .name = L"URAY_SKINNED_MESH", .value = L"1" } });
     }
 }
 
@@ -145,7 +148,7 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
     for (const DrawCommand& cmd : drawCmds)
     {
         PipelineStateDesc psoDesc = cmd.pipelineState;
-        psoDesc.shader = shadowShader;
+        psoDesc.shader = cmd.descriptorSets[2] ? skinnedShadowShader : shadowShader;
         psoDesc.rendering = PipelineRenderingDesc{
             .colorAttachmentFormats = {},
             .depthAttachmentFormat = Format::D32_Float,
@@ -156,6 +159,14 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
         PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
         commandBuffer.BindPipeline(*pso);
+
+        if (cmd.descriptorSets[2] && pso->GetLayout()->HasDescriptorSet(2))
+        {
+            commandBuffer.BindDescriptorSet(
+                *pso->GetLayout(),
+                *cmd.descriptorSets[2],
+                2);
+        }
 
         ShadowMapConstants shadowMapConstants = {};
         shadowMapConstants.world = cmd.worldMatrix;
@@ -267,7 +278,7 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
         for (const DrawCommand& cmd : drawCmds)
         {
             PipelineStateDesc psoDesc = cmd.pipelineState;
-            psoDesc.shader = shadowShader;
+            psoDesc.shader = cmd.descriptorSets[2] ? skinnedShadowShader : shadowShader;
             psoDesc.rendering = PipelineRenderingDesc{
                 .colorAttachmentFormats = {},
                 .depthAttachmentFormat = Format::D32_Float,
@@ -278,6 +289,14 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
             PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
 
             commandBuffer.BindPipeline(*pso);
+
+            if (cmd.descriptorSets[2] && pso->GetLayout()->HasDescriptorSet(2))
+            {
+                commandBuffer.BindDescriptorSet(
+                    *pso->GetLayout(),
+                    *cmd.descriptorSets[2],
+                    2);
+            }
 
             ShadowMapConstants shadowMapConstants = {};
             shadowMapConstants.world = cmd.worldMatrix;
@@ -412,7 +431,7 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
             for (const DrawCommand& cmd : drawCmds)
             {
                 PipelineStateDesc psoDesc = cmd.pipelineState;
-                psoDesc.shader = shadowShader;
+                psoDesc.shader = cmd.descriptorSets[2] ? skinnedShadowShader : shadowShader;
                 psoDesc.rendering = PipelineRenderingDesc{
                     .colorAttachmentFormats = {},
                     .depthAttachmentFormat = Format::D32_Float,
@@ -423,6 +442,14 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
                 PipelineState* pso = context.resourceManager.GetOrCreatePSO(psoDesc);
 
                 context.commandBuffer.BindPipeline(*pso);
+
+                if (cmd.descriptorSets[2] && pso->GetLayout()->HasDescriptorSet(2))
+                {
+                    context.commandBuffer.BindDescriptorSet(
+                        *pso->GetLayout(),
+                        *cmd.descriptorSets[2],
+                        2);
+                }
 
                 ShadowMapConstants shadowMapConstants = {};
                 shadowMapConstants.world = cmd.worldMatrix;

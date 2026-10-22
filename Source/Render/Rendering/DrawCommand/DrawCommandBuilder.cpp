@@ -159,6 +159,7 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.skinnedMesh);
 
     std::vector<ShaderDefine> defines;
+    defines.push_back({ ShaderDefine{ .name = L"URAY_SKINNED_MESH", .value = L"1" } });
 
     switch (params.viewMode)
     {
@@ -222,6 +223,8 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
     {
         cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
     }
+
+    cmd.descriptorSets[2] = context.skinningDescriptorSet;
 
     drawCmds.push_back(cmd);
 }

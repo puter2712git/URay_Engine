@@ -112,6 +112,14 @@ void SelectionMaskPass::Execute(
                 1);
         }
 
+        if (cmd.descriptorSets[2] && pso->GetLayout()->HasDescriptorSet(2))
+        {
+            commandBuffer.BindDescriptorSet(
+                *pso->GetLayout(),
+                *cmd.descriptorSets[2],
+                2);
+        }
+
         ObjectConstants objConstants = {};
         objConstants.world = cmd.worldMatrix;
         objConstants.colorTint = cmd.colorTint;

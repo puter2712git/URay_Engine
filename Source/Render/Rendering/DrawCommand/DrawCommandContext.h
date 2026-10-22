@@ -18,6 +18,8 @@ class SkinnedMesh;
 namespace URay::Render
 {
 
+class DescriptorSet;
+
 struct DrawCommandParams
 {
     ViewMode viewMode = ViewMode::Lit;
@@ -44,6 +46,7 @@ struct SkinnedMeshCommandContext
 
     SkinnedMesh* skinnedMesh = nullptr;
     Material* material = nullptr;
+    DescriptorSet* skinningDescriptorSet = nullptr;
 
     uint32 indexOffset = 0;
     uint32 indexCount = 0;

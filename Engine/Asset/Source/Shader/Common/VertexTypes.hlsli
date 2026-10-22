@@ -48,4 +48,13 @@ struct VertexPNTOut
     [[vk::location(2)]] float3 outNormal : TEXCOORD2;
 };
 
+struct VertexSkinnedPNTIn
+{
+    [[vk::location(0)]] float3 inPosition : POSITION;
+    [[vk::location(1)]] float3 inNormal : NORMAL;
+    [[vk::location(2)]] float2 inUV : TEXCOORD0;
+    [[vk::location(3)]] uint4 inBoneIndices : BLENDINDICES;
+    [[vk::location(4)]] float4 inBoneWeights : BLENDWEIGHT;
+};
+
 #endif
