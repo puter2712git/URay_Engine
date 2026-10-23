@@ -63,6 +63,8 @@ ImportResult OBJImporter::Import(const VirtualPath& sourcePath)
         return ImportResult::Failure("Failed to import materials.");
     }
 
+    AssignFallbackMaterials(objInfo, importedMaterials);
+
     if (!ImportMesh(sourcePath, objInfo, importedMaterials, result))
     {
         return ImportResult::Failure("Failed to import mesh.");
@@ -186,6 +188,27 @@ bool OBJImporter::ImportMesh(
     outResult.metadatas.push_back(metadata);
 
     return true;
+}
+
+void OBJImporter::AssignFallbackMaterials(const OBJ::OBJInfo& objInfo, ImportedMaterials& materials) const
+{
+    std::optional<uint32> fallbackIndex = std::nullopt;
+
+    for (const auto& [mtlName, faces] : objInfo.mtlTofaces)
+    {
+        if (materials.indicesByName.contains(mtlName))
+            continue;
+
+        if (!fallbackIndex.has_value())
+        {
+            fallbackIndex = static_cast<uint32>(materials.handles.size());
+            materials.handles.push_back(EngineAsset::MeshMaterial);
+        }
+
+        materials.indicesByName.emplace(mtlName, *fallbackIndex);
+
+        URAY_LOG("[OBJImporter] Using default material for missing material '%s'.", mtlName.c_str());
+    }
 }
 
 OBJ::OBJInfo OBJImporter::ParseOBJ(const VirtualPath& objPath) const

@@ -38,6 +38,8 @@ private:
     bool ImportMaterials(const VirtualPath& sourcePath, const OBJ::MTLInfo& mtlInfo, ImportResult& outResult, ImportedMaterials& outMaterials) const;
     bool ImportMesh(const VirtualPath& sourcePath, const OBJ::OBJInfo& objInfo, const ImportedMaterials& materials, ImportResult& outResult) const;
 
+    void AssignFallbackMaterials(const OBJ::OBJInfo& objInfo, ImportedMaterials& materials) const;
+
     OBJ::OBJInfo ParseOBJ(const VirtualPath& objPath) const;
     OBJ::MTLInfo ParseMTL(const VirtualPath& mtlPath) const;
 
