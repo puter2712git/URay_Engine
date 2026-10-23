@@ -7,21 +7,24 @@
 namespace URay
 {
 
+class AssetSystem;
+class VirtualFileSystem;
 class VirtualPath;
 class Texture;
+struct TextureAssetData;
 
 class TextureImporter final : public Importer
 {
 public:
-    TextureImporter();
+    TextureImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem);
     ~TextureImporter() override;
 
 public:
     void Import(const VirtualPath& sourcePath) override;
-
-    AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const;
-
     bool CanImport(const std::string& extension) const override;
+
+private:
+    bool DecodeTexture(TextureAssetData& outTexture, const VirtualPath& sourcePath) const;
 };
 
 } // namespace URay

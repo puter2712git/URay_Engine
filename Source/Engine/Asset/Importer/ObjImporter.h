@@ -22,14 +22,11 @@ class VirtualFileSystem;
 class OBJImporter : public Importer
 {
 public:
-    OBJImporter();
+    OBJImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem);
     ~OBJImporter();
 
 public:
     void Import(const VirtualPath& sourcePath) override;
-
-    AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const override;
-
     bool CanImport(const std::string& extension) const override;
 
 private:

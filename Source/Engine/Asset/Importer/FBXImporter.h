@@ -15,10 +15,11 @@ namespace URay
 class FBXImporter : public Importer
 {
 public:
+    FBXImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem);
+    ~FBXImporter() override;
+
+public:
     void Import(const VirtualPath& sourcePath) override;
-
-    AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const override;
-
     bool CanImport(const std::string& extension) const override;
 
 private:

@@ -11,7 +11,8 @@
 namespace URay
 {
 
-FontImporter::FontImporter() = default;
+FontImporter::FontImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
+    : Importer(assetSystem, fileSystem) {}
 
 FontImporter::~FontImporter() = default;
 
@@ -21,22 +22,8 @@ void FontImporter::Import(const VirtualPath& sourcePath)
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
-    AssetMetadata metadata = {};
-
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-
-    if (fileSystem.Exists(metadataPath))
-    {
-        const std::string fileText = fileSystem.ReadText(metadataPath);
-        const YAML::Node node = YAML::Load(fileText);
-        metadata.Deserialize(node);
-    }
-    else
-    {
-        metadata = CreateMetadata(sourcePath);
-        const YAML::Node node = metadata.Serialize();
-        fileSystem.WriteText(metadataPath, YAML::Dump(node));
-    }
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Font);
 
     assetSystem.RegisterMetadata(metadata);
 
@@ -47,22 +34,6 @@ void FontImporter::Import(const VirtualPath& sourcePath)
     font->SetHandle(metadata.handle);
 
     assetDatabase.Add(std::move(font));
-}
-
-AssetMetadata FontImporter::CreateMetadata(const VirtualPath& sourcePath) const
-{
-    AssetMetadata ret = {};
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-
-    ret.handle = AssetHandle::Generate();
-    ret.type = AssetType::Font;
-    ret.sourcePath = sourcePath;
-
-    ret.metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    ret.assetPath = VirtualPath(ret.metadataPath.ToString() + ".asset");
-
-    return ret;
 }
 
 bool FontImporter::CanImport(const std::string& extension) const

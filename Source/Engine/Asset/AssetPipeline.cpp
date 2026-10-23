@@ -14,14 +14,15 @@
 namespace URay
 {
 
-AssetPipeline::AssetPipeline()
+AssetPipeline::AssetPipeline(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
+    : assetSystem(assetSystem), fileSystem(fileSystem)
 {
-    importers.push_back(std::make_unique<TextureImporter>());
-    importers.push_back(std::make_unique<ShaderImporter>());
-    importers.push_back(std::make_unique<MaterialImporter>());
-    importers.push_back(std::make_unique<FontImporter>());
-    importers.push_back(std::make_unique<OBJImporter>());
-    importers.push_back(std::make_unique<FBXImporter>());
+    importers.push_back(std::make_unique<TextureImporter>(assetSystem, fileSystem));
+    importers.push_back(std::make_unique<ShaderImporter>(assetSystem, fileSystem));
+    importers.push_back(std::make_unique<MaterialImporter>(assetSystem, fileSystem));
+    importers.push_back(std::make_unique<FontImporter>(assetSystem, fileSystem));
+    importers.push_back(std::make_unique<OBJImporter>(assetSystem, fileSystem));
+    importers.push_back(std::make_unique<FBXImporter>(assetSystem, fileSystem));
 }
 
 AssetPipeline::~AssetPipeline() = default;

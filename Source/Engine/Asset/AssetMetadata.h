@@ -17,7 +17,6 @@ struct AssetMetadata
     AssetHandle handle = {};
     AssetType type = AssetType::Unknown;
     VirtualPath sourcePath;
-    VirtualPath metadataPath;
     VirtualPath assetPath;
 
     YAML::Node Serialize() const;

@@ -1,6 +1,8 @@
 #include "AssetSystem.h"
 
+#include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetMetadataSerializer.h>
 #include <Engine/Asset/AssetPipeline.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
@@ -11,10 +13,10 @@
 #include <Engine/Asset/Mesh/MeshGenerator.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
+#include <Engine/Asset/Texture/TextureData.h>
+#include <Engine/Asset/Texture/TextureSerializer.h>
 #include <Engine/Engine.h>
 #include <Engine/Object/Object.h>
-
-#include <Core/File/VirtualFileSystem.h>
 
 #include <iostream>
 #include <string>
@@ -35,7 +37,9 @@ bool AssetSystem::Initialize(
         return false;
 
     database = std::make_unique<AssetDatabase>();
-    pipeline = std::make_unique<AssetPipeline>();
+    pipeline = std::make_unique<AssetPipeline>(*this, *fileSystem);
+    metadataSerializer = std::make_unique<AssetMetadataSerializer>(*fileSystem);
+    textureSerializer = std::make_unique<TextureSerializer>(*fileSystem);
 
     ImportRecursive("Engine://Asset");
     ImportRecursive("Project://Asset");
@@ -50,6 +54,7 @@ void AssetSystem::Finalize()
     pipeline.reset();
     database.reset();
     metadataBySourcePath.clear();
+    metadataSerializer.reset();
 
     fileSystem.reset();
 }
@@ -105,6 +110,30 @@ const AssetMetadata* AssetSystem::FindMetadataBySourcePath(
         return nullptr;
 
     return &it->second;
+}
+
+Texture* AssetSystem::LoadTexture(const AssetMetadata& metadata)
+{
+    if (Texture* existing = database->Find<Texture>(metadata.handle))
+        return existing;
+
+    TextureAssetData data;
+    if (!textureSerializer->Load(data, metadata.assetPath))
+        return nullptr;
+
+    auto texture = std::make_unique<Texture>(
+        data.width,
+        data.height,
+        4,
+        data.pixels);
+
+    texture->SetHandle(metadata.handle);
+    texture->SetName(metadata.assetPath.GetStem());
+
+    Texture* result = texture.get();
+    database->Add(std::move(texture));
+
+    return result;
 }
 
 void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)

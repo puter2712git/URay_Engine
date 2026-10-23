@@ -2,8 +2,11 @@
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetMetadata.h>
+#include <Engine/Asset/AssetMetadataSerializer.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Texture/Texture.h>
+#include <Engine/Asset/Texture/TextureData.h>
+#include <Engine/Asset/Texture/TextureSerializer.h>
 #include <Engine/Engine.h>
 
 #include <Core/File/VirtualFileSystem.h>
@@ -15,76 +18,66 @@
 namespace URay
 {
 
-TextureImporter::TextureImporter() = default;
+TextureImporter::TextureImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
+    : Importer(assetSystem, fileSystem) {}
 
 TextureImporter::~TextureImporter() = default;
 
 void TextureImporter::Import(const VirtualPath& sourcePath)
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+    const VirtualPath assetPath = sourcePath.ReplaceExtension(".urtex");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);
 
-    AssetMetadata metadata = {};
+    TextureImportData importData = {
+        .sourcePath = sourcePath,
+        .importerVersion = 1,
+        .isSRGB = true,
+        .generateMipmaps = false
+    };
 
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    TextureAssetData assetData;
+    if (!DecodeTexture(assetData, sourcePath))
+        return;
 
-    if (fileSystem.Exists(metadataPath))
-    {
-        const std::string fileText = fileSystem.ReadText(metadataPath);
-        const YAML::Node node = YAML::Load(fileText);
-        metadata.Deserialize(node);
-    }
-    else
-    {
-        metadata = CreateMetadata(sourcePath);
-        const YAML::Node node = metadata.Serialize();
-        fileSystem.WriteText(metadataPath, YAML::Dump(node));
-    }
+    TextureSerializer& serializer = assetSystem.GetTextureSerializer();
+
+    serializer.Save(assetData, sourcePath.ReplaceExtension(".urtex"));
+
+    AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Texture);
+    assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);
 
     assetSystem.RegisterMetadata(metadata);
 
+    assetSystem.LoadTexture(metadata);
+}
+
+bool TextureImporter::CanImport(const std::string& extension) const
+{
+    return extension == ".png" || extension == ".jpg";
+}
+
+bool TextureImporter::DecodeTexture(TextureAssetData& outTexture, const VirtualPath& sourcePath) const
+{
     int32 width, height, channels;
-    std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);
+    std::vector<uint8> fileBytes = fileSystem.ReadBinary(sourcePath);
 
     stbi_uc* data = stbi_load_from_memory(
         fileBytes.data(),
         static_cast<int>(fileBytes.size()),
         &width, &height, &channels,
         STBI_rgb_alpha);
-    if (!data)
-        return;
 
-    std::vector<uint8> pixels = std::vector<uint8>(data, data + width * height * 4);
+    if (!data)
+        return false;
+
+    outTexture.width = width;
+    outTexture.height = height;
+    outTexture.format = TexturePixelFormat::RGBA8;
+    outTexture.pixels = std::vector<uint8>(data, data + width * height * 4);
 
     stbi_image_free(data);
 
-    std::unique_ptr<Texture> texture = std::make_unique<Texture>(width, height, channels, pixels);
-    texture->SetName(metadata.sourcePath.GetStem());
-    texture->SetHandle(metadata.handle);
-
-    assetDatabase.Add(std::move(texture));
-}
-
-AssetMetadata TextureImporter::CreateMetadata(const VirtualPath& sourcePath) const
-{
-    AssetMetadata ret = {};
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-
-    ret.handle = AssetHandle::Generate();
-    ret.type = AssetType::Texture;
-    ret.sourcePath = sourcePath;
-
-    ret.metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    ret.assetPath = VirtualPath(ret.metadataPath.ToString() + ".asset");
-
-    return ret;
-}
-
-bool TextureImporter::CanImport(const std::string& extension) const
-{
-    return extension == ".png" || extension == ".jpg";
+    return true;
 }
 
 } // namespace URay

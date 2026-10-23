@@ -18,7 +18,10 @@ class VirtualPath;
 class Asset;
 class AssetDatabase;
 class AssetPipeline;
+class AssetMetadataSerializer;
 class Importer;
+class TextureSerializer;
+class Texture;
 struct MeshInfo;
 
 class AssetSystem
@@ -40,8 +43,12 @@ public:
     void RegisterMetadata(const AssetMetadata& metadata);
     const AssetMetadata* FindMetadataBySourcePath(const VirtualPath& sourcePath) const;
 
+    Texture* LoadTexture(const AssetMetadata& metadata);
+
     VirtualFileSystem& GetFileSystem() const { return *fileSystem; }
     AssetDatabase& GetDatabase() const { return *database; }
+    AssetMetadataSerializer& GetMetadataSerializer() const { return *metadataSerializer; }
+    TextureSerializer& GetTextureSerializer() const { return *textureSerializer; }
 
 private:
     void CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle);
@@ -51,6 +58,9 @@ private:
 
     std::unique_ptr<AssetDatabase> database = nullptr;
     std::unique_ptr<AssetPipeline> pipeline = nullptr;
+    std::unique_ptr<AssetMetadataSerializer> metadataSerializer = nullptr;
+
+    std::unique_ptr<TextureSerializer> textureSerializer = nullptr;
 
     std::unordered_map<std::string, AssetMetadata> metadataBySourcePath;
 };

@@ -29,23 +29,18 @@ namespace
 Matrix ToMatrix(const ufbx_matrix& source);
 } // namespace
 
+FBXImporter::FBXImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
+    : Importer(assetSystem, fileSystem) {}
+
+FBXImporter::~FBXImporter() {}
+
 void FBXImporter::Import(const VirtualPath& sourcePath)
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
-    AssetMetadata metadata = {};
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-
-    if (fileSystem.Exists(metadataPath))
-    {
-        metadata.Deserialize(YAML::Load(fileSystem.ReadText(metadataPath)));
-    }
-    else
-    {
-        metadata = CreateMetadata(sourcePath);
-        fileSystem.WriteText(metadataPath, YAML::Dump(metadata.Serialize()));
-    }
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Mesh);
 
     assetSystem.RegisterMetadata(metadata);
 
@@ -129,23 +124,6 @@ void FBXImporter::Import(const VirtualPath& sourcePath)
     }
 
     ufbx_free_scene(scene);
-}
-
-AssetMetadata FBXImporter::CreateMetadata(const VirtualPath& sourcePath) const
-{
-    AssetMetadata metadata = {};
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-
-    metadata.handle = AssetHandle::Generate();
-    metadata.type = AssetType::Mesh;
-    metadata.sourcePath = sourcePath;
-
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    metadata.metadataPath = metadataPath;
-    metadata.assetPath = VirtualPath(metadataPath.ToString() + ".asset");
-
-    return metadata;
 }
 
 bool FBXImporter::CanImport(const std::string& extension) const

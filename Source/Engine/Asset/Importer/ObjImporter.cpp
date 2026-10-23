@@ -18,7 +18,8 @@
 namespace URay
 {
 
-OBJImporter::OBJImporter() = default;
+OBJImporter::OBJImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
+    : Importer(assetSystem, fileSystem) {}
 
 OBJImporter::~OBJImporter() = default;
 
@@ -27,22 +28,9 @@ void OBJImporter::Import(const VirtualPath& sourcePath)
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
-    AssetMetadata metadata = {};
-
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
-    if (fileSystem.Exists(metadataPath))
-    {
-        const std::string fileText = fileSystem.ReadText(metadataPath);
-        const YAML::Node node = YAML::Load(fileText);
-        metadata.Deserialize(node);
-    }
-    else
-    {
-        metadata = CreateMetadata(sourcePath);
-        const YAML::Node node = metadata.Serialize();
-        fileSystem.WriteText(metadataPath, YAML::Dump(node));
-    }
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Mesh);
 
     assetSystem.RegisterMetadata(metadata);
 
@@ -54,22 +42,6 @@ void OBJImporter::Import(const VirtualPath& sourcePath)
     OBJ::MTLInfo mtlInfo = ParseMTL(mtlPath);
 
     Assemble(objInfo, mtlInfo, metadata);
-}
-
-AssetMetadata OBJImporter::CreateMetadata(const VirtualPath& sourcePath) const
-{
-    AssetMetadata ret = {};
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-
-    ret.handle = AssetHandle::Generate();
-    ret.type = AssetType::Mesh;
-    ret.sourcePath = sourcePath;
-
-    ret.metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    ret.assetPath = VirtualPath(ret.metadataPath.ToString() + ".asset");
-
-    return ret;
 }
 
 bool OBJImporter::CanImport(const std::string& extension) const

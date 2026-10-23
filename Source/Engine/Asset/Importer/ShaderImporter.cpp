@@ -11,7 +11,8 @@
 namespace URay
 {
 
-ShaderImporter::ShaderImporter() = default;
+ShaderImporter::ShaderImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
+    : Importer(assetSystem, fileSystem) {}
 
 ShaderImporter::~ShaderImporter() = default;
 
@@ -21,22 +22,8 @@ void ShaderImporter::Import(const VirtualPath& sourcePath)
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
-    AssetMetadata metadata = {};
-
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-
-    if (fileSystem.Exists(metadataPath))
-    {
-        const std::string fileText = fileSystem.ReadText(metadataPath);
-        const YAML::Node node = YAML::Load(fileText);
-        metadata.Deserialize(node);
-    }
-    else
-    {
-        metadata = CreateMetadata(sourcePath);
-        const YAML::Node node = metadata.Serialize();
-        fileSystem.WriteText(metadataPath, YAML::Dump(node));
-    }
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Shader);
 
     assetSystem.RegisterMetadata(metadata);
 
@@ -45,23 +32,6 @@ void ShaderImporter::Import(const VirtualPath& sourcePath)
     shader->SetHandle(metadata.handle);
 
     assetDatabase.Add(std::move(shader));
-}
-
-AssetMetadata ShaderImporter::CreateMetadata(const VirtualPath& sourcePath) const
-{
-    AssetMetadata ret = {};
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-
-    ret.handle = AssetHandle::Generate();
-    ret.type = AssetType::Shader;
-    ret.sourcePath = sourcePath;
-
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    ret.metadataPath = metadataPath;
-    ret.assetPath = VirtualPath(metadataPath.ToString() + ".asset");
-
-    return ret;
 }
 
 bool ShaderImporter::CanImport(const std::string& extension) const

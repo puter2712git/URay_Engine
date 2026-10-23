@@ -11,14 +11,11 @@ class VirtualPath;
 class ShaderImporter final : public Importer
 {
 public:
-    ShaderImporter();
+    ShaderImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem);
     ~ShaderImporter() override;
 
 public:
     void Import(const VirtualPath& sourcePath) override;
-
-    AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const override;
-
     bool CanImport(const std::string& extension) const override;
 };
 

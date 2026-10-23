@@ -10,13 +10,15 @@ namespace URay
 {
 
 class Asset;
+class AssetSystem;
 class Importer;
+class VirtualFileSystem;
 class VirtualPath;
 
 class AssetPipeline
 {
 public:
-    AssetPipeline();
+    AssetPipeline(AssetSystem& assetSystem, VirtualFileSystem& fileSystem);
     ~AssetPipeline();
 
 public:
@@ -26,6 +28,9 @@ private:
     Importer* FindImporter(const std::string& extension) const;
 
 private:
+    AssetSystem& assetSystem;
+    VirtualFileSystem& fileSystem;
+
     std::vector<std::unique_ptr<Importer>> importers;
 };
 

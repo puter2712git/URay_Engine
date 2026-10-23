@@ -11,14 +11,11 @@ class VirtualPath;
 class MaterialImporter final : public Importer
 {
 public:
-    MaterialImporter();
+    MaterialImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem);
     ~MaterialImporter() override;
 
 public:
     void Import(const VirtualPath& sourcePath) override;
-
-    AssetMetadata CreateMetadata(const VirtualPath& sourcePath) const override;
-
     bool CanImport(const std::string& extension) const override;
 
 private:
