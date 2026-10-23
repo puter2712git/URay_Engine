@@ -5,7 +5,6 @@
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Texture/Texture.h>
 
-
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -52,7 +51,7 @@ public:
     }
     std::vector<Asset*> GetAssets(Class* assetClass) const;
 
-    void Add(std::unique_ptr<Asset> asset);
+    void InsertOrReplace(std::unique_ptr<Asset> asset);
 
 private:
     std::unordered_map<AssetHandle, std::unique_ptr<Asset>, AssetHandleHash> assets;

@@ -20,7 +20,7 @@ public:
     ~TextureImporter() override;
 
 public:
-    void Import(const VirtualPath& sourcePath) override;
+    ImportResult Import(const VirtualPath& sourcePath) override;
     bool CanImport(const std::string& extension) const override;
 
 private:

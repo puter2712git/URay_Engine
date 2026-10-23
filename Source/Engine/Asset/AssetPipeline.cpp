@@ -1,5 +1,9 @@
 #include "AssetPipeline.h"
 
+#include <Core/File/VirtualFileSystem.h>
+#include <Core/Log/LogSystem.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetFactory.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Importer/FBXImporter.h>
 #include <Engine/Asset/Importer/FontImporter.h>
@@ -7,9 +11,7 @@
 #include <Engine/Asset/Importer/OBJImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
 #include <Engine/Asset/Importer/TextureImporter.h>
-#include <Engine/Engine.h>
-
-#include <Core/File/VirtualFileSystem.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 
 namespace URay
 {
@@ -29,16 +31,41 @@ AssetPipeline::~AssetPipeline() = default;
 
 void AssetPipeline::Execute(const VirtualPath& path) const
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
-
     const std::string extension = path.GetExtension();
 
     Importer* importer = FindImporter(extension);
     if (!importer)
         return;
 
-    importer->Import(path);
+    ImportResult result = importer->Import(path);
+    if (!result)
+    {
+        URAY_LOG("[AssetPipeline] Failed to import asset: %s. Error: %s", path.ToString().c_str(), result.errorMessage.c_str());
+        return;
+    }
+
+    for (const AssetMetadata& metadata : result.outputMetadatas)
+    {
+        const VirtualPath metadataPath = assetSystem.GetMetadataPath(metadata.assetPath);
+
+        if (!assetSystem.GetMetadataSerializer().Save(metadata, metadataPath))
+        {
+            URAY_LOG("[AssetPipeline] Failed to save metadata: %s", metadataPath.ToString().c_str());
+            return;
+        }
+
+        assetSystem.RegisterMetadata(metadata);
+
+        std::unique_ptr<Asset> asset = assetSystem.GetFactory().Create(metadata);
+
+        if (!asset)
+        {
+            URAY_LOG("[AssetPipeline] Failed to create asset: %s", metadata.assetPath.ToString().c_str());
+            return;
+        }
+
+        assetSystem.GetDatabase().InsertOrReplace(std::move(asset));
+    }
 }
 
 Importer* AssetPipeline::FindImporter(const std::string& extension) const

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Engine/Asset/Importer/ImportResult.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 
 #include <vector>
@@ -19,7 +20,7 @@ public:
     virtual ~Importer() = default;
 
 public:
-    virtual void Import(const VirtualPath& sourcePath) = 0;
+    virtual ImportResult Import(const VirtualPath& sourcePath) = 0;
     virtual bool CanImport(const std::string& extension) const = 0;
 
 protected:

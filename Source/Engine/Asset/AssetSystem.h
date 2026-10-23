@@ -18,6 +18,7 @@ class VirtualPath;
 class Asset;
 class AssetDatabase;
 class AssetPipeline;
+class AssetFactory;
 class AssetMetadataSerializer;
 class Importer;
 class TextureSerializer;
@@ -45,11 +46,9 @@ public:
     void RegisterMetadata(const AssetMetadata& metadata);
     const AssetMetadata* FindMetadataBySourcePath(const VirtualPath& sourcePath) const;
 
-    Texture* LoadTexture(const AssetMetadata& metadata);
-    Material* LoadMaterial(const AssetMetadata& metadata);
-
     VirtualFileSystem& GetFileSystem() const { return *fileSystem; }
     AssetDatabase& GetDatabase() const { return *database; }
+    AssetFactory& GetFactory() const { return *factory; }
     AssetMetadataSerializer& GetMetadataSerializer() const { return *metadataSerializer; }
     TextureSerializer& GetTextureSerializer() const { return *textureSerializer; }
     MaterialSerializer& GetMaterialSerializer() const { return *materialSerializer; }
@@ -62,6 +61,7 @@ private:
 
     std::unique_ptr<AssetDatabase> database = nullptr;
     std::unique_ptr<AssetPipeline> pipeline = nullptr;
+    std::unique_ptr<AssetFactory> factory = nullptr;
     std::unique_ptr<AssetMetadataSerializer> metadataSerializer = nullptr;
 
     std::unique_ptr<TextureSerializer> textureSerializer = nullptr;

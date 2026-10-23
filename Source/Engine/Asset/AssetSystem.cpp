@@ -2,6 +2,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetFactory.h>
 #include <Engine/Asset/AssetPipeline.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
@@ -40,6 +41,7 @@ bool AssetSystem::Initialize(
 
     database = std::make_unique<AssetDatabase>();
     pipeline = std::make_unique<AssetPipeline>(*this, *fileSystem);
+    factory = std::make_unique<AssetFactory>(*this);
     metadataSerializer = std::make_unique<AssetMetadataSerializer>(*fileSystem);
     textureSerializer = std::make_unique<TextureSerializer>(*fileSystem);
     materialSerializer = std::make_unique<MaterialSerializer>(*fileSystem);
@@ -56,10 +58,11 @@ void AssetSystem::Finalize()
 {
     materialSerializer.reset();
     textureSerializer.reset();
+    metadataSerializer.reset();
+    factory.reset();
     pipeline.reset();
     database.reset();
     metadataBySourcePath.clear();
-    metadataSerializer.reset();
 
     fileSystem.reset();
 }
@@ -117,54 +120,6 @@ const AssetMetadata* AssetSystem::FindMetadataBySourcePath(
     return &it->second;
 }
 
-Texture* AssetSystem::LoadTexture(const AssetMetadata& metadata)
-{
-    if (Texture* existing = database->Find<Texture>(metadata.handle))
-        return existing;
-
-    TextureData data;
-    if (!textureSerializer->Load(data, metadata.assetPath))
-        return nullptr;
-
-    auto texture = std::make_unique<Texture>(
-        data.width,
-        data.height,
-        4,
-        data.pixels);
-
-    texture->SetHandle(metadata.handle);
-    texture->SetName(metadata.assetPath.GetStem());
-
-    Texture* result = texture.get();
-    database->Add(std::move(texture));
-
-    return result;
-}
-
-Material* AssetSystem::LoadMaterial(const AssetMetadata& metadata)
-{
-    if (Material* existing = database->Find<Material>(metadata.handle))
-        return existing;
-
-    MaterialData data;
-    if (!materialSerializer->Load(data, metadata.assetPath))
-        return nullptr;
-
-    auto material = std::make_unique<Material>(data.shaderHandle);
-    material->SetHandle(metadata.handle);
-    material->SetName(metadata.assetPath.GetStem());
-
-    for (const auto& parameter : data.parameters)
-    {
-        material->AddParameter(parameter.name, parameter.type, parameter.value);
-    }
-
-    Material* result = material.get();
-    database->Add(std::move(material));
-
-    return result;
-}
-
 void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)
 {
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
@@ -175,7 +130,7 @@ void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const std::string
     mesh->SetSections(meshInfo.sections);
     mesh->SetDefaultMaterials({ materialHandle });
 
-    database->Add(std::move(mesh));
+    database->InsertOrReplace(std::move(mesh));
 }
 
 } // namespace URay

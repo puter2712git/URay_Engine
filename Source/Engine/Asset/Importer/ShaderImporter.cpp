@@ -16,22 +16,20 @@ ShaderImporter::ShaderImporter(AssetSystem& assetSystem, VirtualFileSystem& file
 
 ShaderImporter::~ShaderImporter() = default;
 
-void ShaderImporter::Import(const VirtualPath& sourcePath)
+ImportResult ShaderImporter::Import(const VirtualPath& sourcePath)
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
-
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
     const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Shader::StaticClass());
 
-    assetSystem.RegisterMetadata(metadata);
+    ImportResult result = ImportResult::Success();
+    result.outputMetadatas.push_back(metadata);
+    return result;
 
-    std::unique_ptr<Shader> shader = std::make_unique<Shader>(sourcePath);
-    shader->SetName(metadata.sourcePath.GetStem());
-    shader->SetHandle(metadata.handle);
+    // std::unique_ptr<Shader> shader = std::make_unique<Shader>(sourcePath);
+    // shader->SetName(metadata.sourcePath.GetStem());
+    // shader->SetHandle(metadata.handle);
 
-    assetDatabase.Add(std::move(shader));
+    // assetDatabase.Add(std::move(shader));
 }
 
 bool ShaderImporter::CanImport(const std::string& extension) const

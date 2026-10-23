@@ -35,21 +35,14 @@ std::vector<Asset*> AssetDatabase::GetAssets(Class* assetClass) const
     return ret;
 }
 
-void AssetDatabase::Add(std::unique_ptr<Asset> asset)
+void AssetDatabase::InsertOrReplace(std::unique_ptr<Asset> asset)
 {
-    const AssetHandle& handle = asset->GetHandle();
-    if (!handle.IsValid())
+    if (!asset || !asset->GetHandle().IsValid())
         return;
 
-    const auto it = assets.find(handle);
-    if (it != assets.end())
-    {
-        // Duplicate asset handle found!
-        // TODO: Print error msg.
-        return;
-    }
+    const AssetHandle handle = asset->GetHandle();
 
-    assets.insert({ handle, std::move(asset) });
+    assets.insert_or_assign(handle, std::move(asset));
 }
 
 } // namespace URay

@@ -21,24 +21,23 @@ TextureImporter::TextureImporter(AssetSystem& assetSystem, VirtualFileSystem& fi
 
 TextureImporter::~TextureImporter() = default;
 
-void TextureImporter::Import(const VirtualPath& sourcePath)
+ImportResult TextureImporter::Import(const VirtualPath& sourcePath)
 {
     const VirtualPath assetPath = sourcePath.ReplaceExtension(".urtex");
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);
 
     TextureData assetData;
     if (!DecodeTexture(assetData, sourcePath))
-        return;
+        return ImportResult::Failure("Failed to decode texture: " + sourcePath.ToString());
 
     TextureSerializer& serializer = assetSystem.GetTextureSerializer();
     serializer.Save(assetData, assetPath);
 
     AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Texture::StaticClass());
 
-    assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);
-    assetSystem.RegisterMetadata(metadata);
-
-    assetSystem.LoadTexture(metadata);
+    ImportResult result = ImportResult::Success();
+    result.outputMetadatas.push_back(metadata);
+    return result;
 }
 
 bool TextureImporter::CanImport(const std::string& extension) const

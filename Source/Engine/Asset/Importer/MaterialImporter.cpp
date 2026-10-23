@@ -21,24 +21,28 @@ MaterialImporter::MaterialImporter(AssetSystem& assetSystem, VirtualFileSystem& 
 
 MaterialImporter::~MaterialImporter() = default;
 
-void MaterialImporter::Import(const VirtualPath& sourcePath)
+ImportResult MaterialImporter::Import(const VirtualPath& sourcePath)
 {
     const VirtualPath assetPath = sourcePath;
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);
 
     MaterialData materialData;
     if (!ParseMaterial(materialData, sourcePath))
-        return;
+        return ImportResult::Failure("Failed to parse material: " + sourcePath.ToString());
 
-    MaterialSerializer& serializer = assetSystem.GetMaterialSerializer();
-    serializer.Save(materialData, assetPath);
+    // MaterialSerializer& serializer = assetSystem.GetMaterialSerializer();
+    // serializer.Save(materialData, assetPath);
 
     AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Material::StaticClass());
 
-    assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);
-    assetSystem.RegisterMetadata(metadata);
+    ImportResult result = ImportResult::Success();
+    result.outputMetadatas.push_back(metadata);
+    return result;
 
-    assetSystem.LoadMaterial(metadata);
+    // assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);
+    // assetSystem.RegisterMetadata(metadata);
+
+    // assetSystem.LoadMaterial(metadata);
 }
 
 bool MaterialImporter::CanImport(const std::string& extension) const

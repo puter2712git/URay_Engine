@@ -16,24 +16,22 @@ FontImporter::FontImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSyst
 
 FontImporter::~FontImporter() = default;
 
-void FontImporter::Import(const VirtualPath& sourcePath)
+ImportResult FontImporter::Import(const VirtualPath& sourcePath)
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
-
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
     const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Font::StaticClass());
 
-    assetSystem.RegisterMetadata(metadata);
+    ImportResult result = ImportResult::Success();
+    result.outputMetadatas.push_back(metadata);
+    return result;
 
-    std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);
+    // std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);
 
-    std::unique_ptr<Font> font = std::make_unique<Font>(fileBytes);
-    font->SetName(metadata.sourcePath.GetStem());
-    font->SetHandle(metadata.handle);
+    // std::unique_ptr<Font> font = std::make_unique<Font>(fileBytes);
+    // font->SetName(metadata.sourcePath.GetStem());
+    // font->SetHandle(metadata.handle);
 
-    assetDatabase.Add(std::move(font));
+    // assetDatabase.Add(std::move(font));
 }
 
 bool FontImporter::CanImport(const std::string& extension) const
