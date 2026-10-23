@@ -1,4 +1,6 @@
-UUID: 00000000-0000-0000-0001-000000000009
-Type: Texture
-SourcePath: Engine://Asset/Texture/ScaleGizmoIcon.png
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0001-000000000009
+ClassName: Texture
 AssetPath: Engine://Asset/Texture/ScaleGizmoIcon.urtex
+SourcePath: Engine://Asset/Texture/ScaleGizmoIcon.png
+ImporterVersion: 1

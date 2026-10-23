@@ -5,7 +5,7 @@ namespace URay
 
 class VirtualFileSystem;
 class VirtualPath;
-struct TextureAssetData;
+struct TextureData;
 
 class TextureSerializer
 {
@@ -13,8 +13,8 @@ public:
     TextureSerializer(VirtualFileSystem& fileSystem);
 
 public:
-    bool Save(const TextureAssetData& texture, const VirtualPath& assetPath) const;
-    bool Load(TextureAssetData& outTexture, const VirtualPath& assetPath) const;
+    bool Save(const TextureData& texture, const VirtualPath& assetPath) const;
+    bool Load(TextureData& outTexture, const VirtualPath& assetPath) const;
 
 private:
     VirtualFileSystem& fileSystem;

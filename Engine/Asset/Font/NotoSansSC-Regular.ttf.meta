@@ -1,5 +1,6 @@
-UUID: b4fb2815-d12b-403a-924f-7ba9195419d4
-Type: Font
-SourcePath: Engine://Asset/Font/NotoSansSC-Regular.ttf
-MetadataPath: Engine://Asset/Font/NotoSansSC-Regular.ttf.meta
+MetadataVersion: 1
+Handle: b4fb2815-d12b-403a-924f-7ba9195419d4
+ClassName: Font
 AssetPath: Engine://Asset/Imported/Font/NotoSansSC-Regular.ttf.asset
+SourcePath: Engine://Asset/Font/NotoSansSC-Regular.ttf
+ImporterVersion: 0

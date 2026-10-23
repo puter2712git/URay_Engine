@@ -13,7 +13,8 @@ AssetMetadataSerializer::AssetMetadataSerializer(VirtualFileSystem& fileSystem)
 
 bool AssetMetadataSerializer::Save(const AssetMetadata& metadata, const VirtualPath& metadataPath) const
 {
-    const YAML::Node node = metadata.Serialize();
+    YAML::Node node = metadata.Serialize();
+
     const std::string yamlString = YAML::Dump(node);
 
     return fileSystem.WriteText(metadataPath, yamlString);

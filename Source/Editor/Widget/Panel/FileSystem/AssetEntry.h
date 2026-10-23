@@ -23,7 +23,7 @@ struct AssetEntry
     std::string displayName;
 
     AssetHandle assetHandle = {};
-    AssetType assetType = AssetType::Unknown;
+    std::string className;
 };
 
 } // namespace URay

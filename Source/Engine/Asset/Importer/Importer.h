@@ -8,6 +8,7 @@ namespace URay
 {
 
 class AssetSystem;
+class Class;
 class VirtualFileSystem;
 class VirtualPath;
 
@@ -22,7 +23,7 @@ public:
     virtual bool CanImport(const std::string& extension) const = 0;
 
 protected:
-    AssetMetadata LoadOrCreateMetadata(const VirtualPath& sourcePath, const VirtualPath& metadataPath, AssetType assetType) const;
+    AssetMetadata LoadOrCreateMetadata(const VirtualPath& sourcePath, const VirtualPath& metadataPath, Class* assetClass) const;
 
 protected:
     AssetSystem& assetSystem;

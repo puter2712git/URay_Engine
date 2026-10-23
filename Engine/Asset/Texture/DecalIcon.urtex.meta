@@ -1,4 +1,6 @@
-UUID: 00000000-0000-0000-0001-000000000004
-Type: Texture
-SourcePath: Engine://Asset/Texture/DecalIcon.png
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0001-000000000004
+ClassName: Texture
 AssetPath: Engine://Asset/Texture/DecalIcon.urtex
+SourcePath: Engine://Asset/Texture/DecalIcon.png
+ImporterVersion: 1

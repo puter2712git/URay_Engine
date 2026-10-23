@@ -1,4 +1,6 @@
-UUID: 00000000-0000-0000-0001-000000000010
-Type: Texture
-SourcePath: Engine://Asset/Texture/GizmoWorldSpaceIcon.png
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0001-000000000010
+ClassName: Texture
 AssetPath: Engine://Asset/Texture/GizmoWorldSpaceIcon.urtex
+SourcePath: Engine://Asset/Texture/GizmoWorldSpaceIcon.png
+ImporterVersion: 1

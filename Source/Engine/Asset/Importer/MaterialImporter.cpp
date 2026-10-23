@@ -27,7 +27,7 @@ void MaterialImporter::Import(const VirtualPath& sourcePath)
 
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
-    AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Material);
+    AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Material::StaticClass());
 
     assetSystem.RegisterMetadata(metadata);
 

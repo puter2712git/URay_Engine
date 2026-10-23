@@ -117,7 +117,7 @@ Texture* AssetSystem::LoadTexture(const AssetMetadata& metadata)
     if (Texture* existing = database->Find<Texture>(metadata.handle))
         return existing;
 
-    TextureAssetData data;
+    TextureData data;
     if (!textureSerializer->Load(data, metadata.assetPath))
         return nullptr;
 

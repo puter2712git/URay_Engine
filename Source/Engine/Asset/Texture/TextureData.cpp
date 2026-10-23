@@ -6,7 +6,7 @@
 namespace URay
 {
 
-bool TextureAssetData::Serialize(BinaryWriter& writer) const
+bool TextureData::Serialize(BinaryWriter& writer) const
 {
     writer << width;
     writer << height;
@@ -19,7 +19,7 @@ bool TextureAssetData::Serialize(BinaryWriter& writer) const
     return true;
 }
 
-bool TextureAssetData::Deserialize(BinaryReader& reader)
+bool TextureData::Deserialize(BinaryReader& reader)
 {
     reader >> width;
     reader >> height;

@@ -23,7 +23,7 @@ void ShaderImporter::Import(const VirtualPath& sourcePath)
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Shader);
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Shader::StaticClass());
 
     assetSystem.RegisterMetadata(metadata);
 

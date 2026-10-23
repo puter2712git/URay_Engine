@@ -1,6 +1,9 @@
 #include "Importer.h"
 
 #include <Core/File/VirtualFileSystem.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
+#include <Engine/Object/Class/Class.h>
 
 namespace URay
 {
@@ -8,24 +11,19 @@ namespace URay
 Importer::Importer(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
     : assetSystem(assetSystem), fileSystem(fileSystem) {}
 
-AssetMetadata Importer::LoadOrCreateMetadata(const VirtualPath& sourcePath, const VirtualPath& metadataPath, AssetType assetType) const
+AssetMetadata Importer::LoadOrCreateMetadata(const VirtualPath& sourcePath, const VirtualPath& metadataPath, Class* assetClass) const
 {
     const std::string metadataText = fileSystem.ReadText(metadataPath);
 
     AssetMetadata metadata;
 
-    if (metadataText.empty())
-    {
-        metadata.handle = AssetHandle::Generate();
-        metadata.type = assetType;
-        metadata.sourcePath = sourcePath;
-        metadata.assetPath = metadataPath.RemoveExtension();
-    }
-    else
-    {
-        YAML::Node node = YAML::Load(metadataText);
-        metadata.Deserialize(node);
-    }
+    if (assetSystem.GetMetadataSerializer().Load(metadata, metadataPath))
+        return metadata;
+
+    metadata.handle = AssetHandle::Generate();
+    metadata.className = assetClass->GetType().name;
+    metadata.assetPath = metadataPath.RemoveExtension();
+    metadata.sourcePath = sourcePath;
 
     return metadata;
 }

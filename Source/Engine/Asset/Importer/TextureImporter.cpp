@@ -1,13 +1,11 @@
 #include "TextureImporter.h"
 
-#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 #include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
-#include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Asset/Texture/TextureData.h>
 #include <Engine/Asset/Texture/TextureSerializer.h>
-#include <Engine/Engine.h>
 
 #include <Core/File/VirtualFileSystem.h>
 
@@ -28,24 +26,16 @@ void TextureImporter::Import(const VirtualPath& sourcePath)
     const VirtualPath assetPath = sourcePath.ReplaceExtension(".urtex");
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);
 
-    TextureImportData importData = {
-        .sourcePath = sourcePath,
-        .importerVersion = 1,
-        .isSRGB = true,
-        .generateMipmaps = false
-    };
-
-    TextureAssetData assetData;
+    TextureData assetData;
     if (!DecodeTexture(assetData, sourcePath))
         return;
 
     TextureSerializer& serializer = assetSystem.GetTextureSerializer();
+    serializer.Save(assetData, assetPath);
 
-    serializer.Save(assetData, sourcePath.ReplaceExtension(".urtex"));
+    AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Texture::StaticClass());
 
-    AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Texture);
     assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);
-
     assetSystem.RegisterMetadata(metadata);
 
     assetSystem.LoadTexture(metadata);
@@ -56,7 +46,7 @@ bool TextureImporter::CanImport(const std::string& extension) const
     return extension == ".png" || extension == ".jpg";
 }
 
-bool TextureImporter::DecodeTexture(TextureAssetData& outTexture, const VirtualPath& sourcePath) const
+bool TextureImporter::DecodeTexture(TextureData& outTexture, const VirtualPath& sourcePath) const
 {
     int32 width, height, channels;
     std::vector<uint8> fileBytes = fileSystem.ReadBinary(sourcePath);

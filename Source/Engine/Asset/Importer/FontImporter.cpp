@@ -3,9 +3,9 @@
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
 #include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/Metadata/AssetMetadata.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Font/Font.h>
+#include <Engine/Asset/Metadata/AssetMetadata.h>
 #include <Engine/Engine.h>
 
 namespace URay
@@ -23,7 +23,7 @@ void FontImporter::Import(const VirtualPath& sourcePath)
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Font);
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Font::StaticClass());
 
     assetSystem.RegisterMetadata(metadata);
 

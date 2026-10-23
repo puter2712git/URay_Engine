@@ -30,7 +30,7 @@ void OBJImporter::Import(const VirtualPath& sourcePath)
 
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
 
-    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, AssetType::Mesh);
+    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Mesh::StaticClass());
 
     assetSystem.RegisterMetadata(metadata);
 

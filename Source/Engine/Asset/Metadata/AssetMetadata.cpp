@@ -6,70 +6,29 @@ namespace URay
 YAML::Node AssetMetadata::Serialize() const
 {
     YAML::Node node;
-    node["UUID"] = handle.ToString();
 
-    switch (type)
-    {
-    case AssetType::Texture:
-        node["Type"] = "Texture";
-        break;
-    case AssetType::Mesh:
-        node["Type"] = "Mesh";
-        break;
-    case AssetType::Material:
-        node["Type"] = "Material";
-        break;
-    case AssetType::Shader:
-        node["Type"] = "Shader";
-        break;
-    case AssetType::Font:
-        node["Type"] = "Font";
-        break;
-    case AssetType::Unknown:
-    default:
-        node["Type"] = "Unknown";
-        break;
-    }
+    node["MetadataVersion"] = metadataVersion;
 
-    node["SourcePath"] = sourcePath.ToString();
+    node["Handle"] = handle.ToString();
+    node["ClassName"] = className;
+
     node["AssetPath"] = assetPath.ToString();
+    node["SourcePath"] = sourcePath.ToString();
+    node["ImporterVersion"] = importerVersion;
 
     return node;
 }
 
 void AssetMetadata::Deserialize(const YAML::Node& node)
 {
-    handle = AssetHandle::FromString(node["UUID"].as<std::string>());
+    metadataVersion = node["MetadataVersion"].as<uint32>();
 
-    std::string typeString = node["Type"].as<std::string>();
+    handle = AssetHandle::FromString(node["Handle"].as<std::string>());
+    className = node["ClassName"].as<std::string>();
 
-    if (typeString == "Texture")
-    {
-        type = AssetType::Texture;
-    }
-    else if (typeString == "Mesh")
-    {
-        type = AssetType::Mesh;
-    }
-    else if (typeString == "Material")
-    {
-        type = AssetType::Material;
-    }
-    else if (typeString == "Shader")
-    {
-        type = AssetType::Shader;
-    }
-    else if (typeString == "Font")
-    {
-        type = AssetType::Font;
-    }
-    else
-    {
-        type = AssetType::Unknown;
-    }
-
-    sourcePath = VirtualPath(node["SourcePath"].as<std::string>());
     assetPath = VirtualPath(node["AssetPath"].as<std::string>());
+    sourcePath = VirtualPath(node["SourcePath"].as<std::string>());
+    importerVersion = node["ImporterVersion"].as<uint32>();
 }
 
 } // namespace URay

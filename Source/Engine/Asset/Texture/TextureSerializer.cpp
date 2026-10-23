@@ -15,7 +15,7 @@ constexpr uint32 TextureAssetVersion = 1;
 TextureSerializer::TextureSerializer(VirtualFileSystem& fileSystem)
     : fileSystem(fileSystem) {}
 
-bool TextureSerializer::Save(const TextureAssetData& texture, const VirtualPath& assetPath) const
+bool TextureSerializer::Save(const TextureData& texture, const VirtualPath& assetPath) const
 {
     BinaryWriter writer;
 
@@ -30,7 +30,7 @@ bool TextureSerializer::Save(const TextureAssetData& texture, const VirtualPath&
     return fileSystem.WriteBinary(assetPath, buffer);
 }
 
-bool TextureSerializer::Load(TextureAssetData& outTexture, const VirtualPath& assetPath) const
+bool TextureSerializer::Load(TextureData& outTexture, const VirtualPath& assetPath) const
 {
     auto buffer = fileSystem.ReadBinary(assetPath);
     if (buffer.empty())

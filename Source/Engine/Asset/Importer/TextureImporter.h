@@ -11,7 +11,7 @@ class AssetSystem;
 class VirtualFileSystem;
 class VirtualPath;
 class Texture;
-struct TextureAssetData;
+struct TextureData;
 
 class TextureImporter final : public Importer
 {
@@ -24,7 +24,7 @@ public:
     bool CanImport(const std::string& extension) const override;
 
 private:
-    bool DecodeTexture(TextureAssetData& outTexture, const VirtualPath& sourcePath) const;
+    bool DecodeTexture(TextureData& outTexture, const VirtualPath& sourcePath) const;
 };
 
 } // namespace URay

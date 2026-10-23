@@ -1,5 +1,6 @@
-UUID: 00000000-0000-0000-0002-000000000005
-Type: Material
-SourcePath: Engine://Asset/Material/PointLightBillboard.urmat
-MetadataPath: Engine://Asset/Material/PointLightBillboard.urmat.meta
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0002-000000000005
+ClassName: Material
 AssetPath: Engine://Asset/Imported/Material/PointLightBillboard.urmat.asset
+SourcePath: Engine://Asset/Material/PointLightBillboard.urmat
+ImporterVersion: 0

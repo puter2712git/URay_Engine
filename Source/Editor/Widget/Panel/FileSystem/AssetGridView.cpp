@@ -64,7 +64,7 @@ void AssetGridView::SetDirectory(AssetSystem& assetSystem, const VirtualPath& pa
             .path = metadata->sourcePath,
             .displayName = metadata->sourcePath.GetStem(),
             .assetHandle = metadata->handle,
-            .assetType = metadata->type });
+            .className = metadata->className });
     }
 
     std::sort(assetEntries.begin(), assetEntries.end(),

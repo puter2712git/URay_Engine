@@ -1,4 +1,6 @@
-UUID: 00000000-0000-0000-0001-000000000008
-Type: Texture
-SourcePath: Engine://Asset/Texture/RotationGizmoIcon.png
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0001-000000000008
+ClassName: Texture
 AssetPath: Engine://Asset/Texture/RotationGizmoIcon.urtex
+SourcePath: Engine://Asset/Texture/RotationGizmoIcon.png
+ImporterVersion: 1

@@ -1,4 +1,6 @@
-UUID: 00000000-0000-0000-0001-000000000005
-Type: Texture
-SourcePath: Engine://Asset/Texture/DirectionalLightIcon.png
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0001-000000000005
+ClassName: Texture
 AssetPath: Engine://Asset/Texture/DirectionalLightIcon.urtex
+SourcePath: Engine://Asset/Texture/DirectionalLightIcon.png
+ImporterVersion: 1

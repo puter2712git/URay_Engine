@@ -1,5 +1,6 @@
-UUID: 00000000-0000-0000-0002-000000000006
-Type: Material
-SourcePath: Engine://Asset/Material/DecalBillboard.urmat
-MetadataPath: Engine://Asset/Material/DecalBillboard.urmat.meta
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0002-000000000006
+ClassName: Material
 AssetPath: Engine://Asset/Imported/Material/DecalBillboard.urmat.asset
+SourcePath: Engine://Asset/Material/DecalBillboard.urmat
+ImporterVersion: 0

@@ -1,5 +1,6 @@
-UUID: 00000000-0000-0000-0000-000000000005
-Type: Shader
-SourcePath: Engine://Asset/Shader/Billboard.hlsl
-MetadataPath: Engine://Asset/Shader/Billboard.hlsl.meta
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0000-000000000005
+ClassName: Shader
 AssetPath: Engine://Asset/Imported/Shader/Billboard.hlsl.asset
+SourcePath: Engine://Asset/Shader/Billboard.hlsl
+ImporterVersion: 0

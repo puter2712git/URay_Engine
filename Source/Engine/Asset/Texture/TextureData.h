@@ -16,17 +16,7 @@ enum class TexturePixelFormat
     RGBA8
 };
 
-struct TextureImportData
-{
-    VirtualPath sourcePath;
-
-    uint32 importerVersion = 1;
-
-    bool isSRGB = true;
-    bool generateMipmaps = false;
-};
-
-struct TextureAssetData
+struct TextureData
 {
     uint32 width = 0;
     uint32 height = 0;

@@ -1,4 +1,6 @@
-UUID: 00000000-0000-0000-0001-000000000006
-Type: Texture
-SourcePath: Engine://Asset/Texture/PointLightIcon.png
+MetadataVersion: 1
+Handle: 00000000-0000-0000-0001-000000000006
+ClassName: Texture
 AssetPath: Engine://Asset/Texture/PointLightIcon.urtex
+SourcePath: Engine://Asset/Texture/PointLightIcon.png
+ImporterVersion: 1
