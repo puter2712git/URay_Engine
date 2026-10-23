@@ -1,14 +1,13 @@
 #include "Scene.h"
 
+#include <Core/Log/LogSystem.h>
+#include <Core/Serialization/YAMLConverters.h>
+#include <Core/Type/Types.h>
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Component/TransformComponent.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
-
-#include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
-
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 
@@ -99,10 +98,10 @@ YAML::Node Scene::Serialize() const
     for (const auto& unit : units)
     {
         YAML::Node unitNode;
-        unitNode["Id"] = unit->GetPersistentId().ToString();
+        unitNode["Id"] = unit->GetPersistentId();
 
         if (const Unit* parent = unit->GetParent())
-            unitNode["ParentId"] = parent->GetPersistentId().ToString();
+            unitNode["ParentId"] = parent->GetPersistentId();
         else
             unitNode["ParentId"] = YAML::Node(YAML::NodeType::Null);
 
@@ -143,7 +142,7 @@ void Scene::Deserialize(const YAML::Node& node)
             continue;
         }
 
-        const UUID id = UUID::FromString(unitNode["Id"].as<std::string>());
+        const UUID id = unitNode["Id"].as<UUID>();
 
         if (!id.IsValid() || unitsById.contains(id))
         {
@@ -203,7 +202,7 @@ void Scene::Deserialize(const YAML::Node& node)
         {
             pendingParentLinks.push_back(ParentLink{
                 .child = newUnit.get(),
-                .parentId = UUID::FromString(parentIdNode.as<std::string>()) });
+                .parentId = parentIdNode.as<UUID>() });
         }
 
         AddUnit(std::move(newUnit));

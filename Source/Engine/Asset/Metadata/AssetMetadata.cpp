@@ -1,5 +1,7 @@
 #include "AssetMetadata.h"
 
+#include <Core/Serialization/YAMLConverters.h>
+
 namespace URay
 {
 
@@ -9,7 +11,7 @@ YAML::Node AssetMetadata::Serialize() const
 
     node["MetadataVersion"] = metadataVersion;
 
-    node["Handle"] = handle.ToString();
+    node["Handle"] = handle;
     node["ClassName"] = className;
 
     node["AssetPath"] = assetPath.ToString();
@@ -23,7 +25,7 @@ void AssetMetadata::Deserialize(const YAML::Node& node)
 {
     metadataVersion = node["MetadataVersion"].as<uint32>();
 
-    handle = AssetHandle::FromString(node["Handle"].as<std::string>());
+    handle = node["Handle"].as<UUID>();
     className = node["ClassName"].as<std::string>();
 
     assetPath = VirtualPath(node["AssetPath"].as<std::string>());

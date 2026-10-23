@@ -4,6 +4,7 @@
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>
+#include <Core/Serialization/YAMLConverters.h>
 #include <Core/Type/Types.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -37,84 +38,29 @@ YAML::Node Object::Serialize() const
             node[prop.name] = prop.GetValue<float>(this);
             break;
         case PropertyType::Vector2:
-        {
-            const Vector2 value = prop.GetValue<Vector2>(this);
-            YAML::Node valueNode(YAML::NodeType::Sequence);
-            valueNode.push_back(value.x);
-            valueNode.push_back(value.y);
-            node[prop.name] = valueNode;
+            node[prop.name] = prop.GetValue<Vector2>(this);
             break;
-        }
         case PropertyType::Vector3:
-        {
-            const Vector3 value = prop.GetValue<Vector3>(this);
-            YAML::Node valueNode(YAML::NodeType::Sequence);
-            valueNode.push_back(value.x);
-            valueNode.push_back(value.y);
-            valueNode.push_back(value.z);
-            node[prop.name] = valueNode;
+            node[prop.name] = prop.GetValue<Vector3>(this);
             break;
-        }
         case PropertyType::Rotation:
-        {
-            const Quaternion value = prop.GetValue<Quaternion>(this);
-            YAML::Node valueNode(YAML::NodeType::Sequence);
-            valueNode.push_back(value.x);
-            valueNode.push_back(value.y);
-            valueNode.push_back(value.z);
-            valueNode.push_back(value.w);
-            node[prop.name] = valueNode;
+            node[prop.name] = prop.GetValue<Quaternion>(this);
             break;
-        }
         case PropertyType::Vector4:
-        {
-            const Vector4 value = prop.GetValue<Vector4>(this);
-            YAML::Node valueNode(YAML::NodeType::Sequence);
-            valueNode.push_back(value.x);
-            valueNode.push_back(value.y);
-            valueNode.push_back(value.z);
-            valueNode.push_back(value.w);
-            node[prop.name] = valueNode;
+            node[prop.name] = prop.GetValue<Vector4>(this);
             break;
-        }
         case PropertyType::Color:
-        {
-            const Color value = prop.GetValue<Color>(this);
-            YAML::Node valueNode(YAML::NodeType::Sequence);
-            valueNode.push_back(value.r);
-            valueNode.push_back(value.g);
-            valueNode.push_back(value.b);
-            valueNode.push_back(value.a);
-            node[prop.name] = valueNode;
+            node[prop.name] = prop.GetValue<Color>(this);
             break;
-        }
         case PropertyType::String:
             node[prop.name] = prop.GetValue<std::string>(this);
             break;
         case PropertyType::Mesh:
-        {
-            AssetHandle meshHandle = prop.GetValue<AssetHandle>(this);
-            node[prop.name] = meshHandle.ToString();
-            break;
-        }
         case PropertyType::SkinnedMesh:
-        {
-            AssetHandle skinnedMeshHandle = prop.GetValue<AssetHandle>(this);
-            node[prop.name] = skinnedMeshHandle.ToString();
-            break;
-        }
         case PropertyType::Texture:
-        {
-            AssetHandle textureHandle = prop.GetValue<AssetHandle>(this);
-            node[prop.name] = textureHandle.ToString();
-            break;
-        }
         case PropertyType::Material:
-        {
-            AssetHandle materialHandle = prop.GetValue<AssetHandle>(this);
-            node[prop.name] = materialHandle.ToString();
+            node[prop.name] = prop.GetValue<AssetHandle>(this).ToString();
             break;
-        }
         default:
             break;
         }
@@ -150,74 +96,29 @@ void Object::Deserialize(const YAML::Node& node)
             *static_cast<float*>(valueAddress) = valueNode.as<float>();
             break;
         case PropertyType::Vector2:
-        {
-            Vector2& value = *static_cast<Vector2*>(valueAddress);
-            value.x = valueNode[0].as<float>();
-            value.y = valueNode[1].as<float>();
+            *static_cast<Vector2*>(valueAddress) = valueNode.as<Vector2>();
             break;
-        }
         case PropertyType::Vector3:
-        {
-            Vector3& value = *static_cast<Vector3*>(valueAddress);
-            value.x = valueNode[0].as<float>();
-            value.y = valueNode[1].as<float>();
-            value.z = valueNode[2].as<float>();
+            *static_cast<Vector3*>(valueAddress) = valueNode.as<Vector3>();
             break;
-        }
         case PropertyType::Rotation:
-        {
-            Quaternion& value = *static_cast<Quaternion*>(valueAddress);
-            value.x = valueNode[0].as<float>();
-            value.y = valueNode[1].as<float>();
-            value.z = valueNode[2].as<float>();
-            value.w = valueNode[3].as<float>();
+            *static_cast<Quaternion*>(valueAddress) = valueNode.as<Quaternion>();
             break;
-        }
         case PropertyType::Vector4:
-        {
-            Vector4& value = *static_cast<Vector4*>(valueAddress);
-            value.x = valueNode[0].as<float>();
-            value.y = valueNode[1].as<float>();
-            value.z = valueNode[2].as<float>();
-            value.w = valueNode[3].as<float>();
+            *static_cast<Vector4*>(valueAddress) = valueNode.as<Vector4>();
             break;
-        }
         case PropertyType::Color:
-        {
-            Color& value = *static_cast<Color*>(valueAddress);
-            value.r = valueNode[0].as<float>();
-            value.g = valueNode[1].as<float>();
-            value.b = valueNode[2].as<float>();
-            value.a = valueNode[3].as<float>();
+            *static_cast<Color*>(valueAddress) = valueNode.as<Color>();
             break;
-        }
         case PropertyType::String:
             *static_cast<std::string*>(valueAddress) = valueNode.as<std::string>();
             break;
         case PropertyType::Mesh:
-        {
-            const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
-            *static_cast<AssetHandle*>(valueAddress) = handle;
-            break;
-        }
         case PropertyType::SkinnedMesh:
-        {
-            const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
-            *static_cast<AssetHandle*>(valueAddress) = handle;
-            break;
-        }
         case PropertyType::Texture:
-        {
-            const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
-            *static_cast<AssetHandle*>(valueAddress) = handle;
-            break;
-        }
         case PropertyType::Material:
-        {
-            const AssetHandle handle = AssetHandle::FromString(valueNode.as<std::string>());
-            *static_cast<AssetHandle*>(valueAddress) = handle;
+            *static_cast<AssetHandle*>(valueAddress) = valueNode.as<AssetHandle>();
             break;
-        }
         default:
             break;
         }

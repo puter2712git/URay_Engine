@@ -2,6 +2,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
+#include <Core/Serialization/YAMLConverters.h>
 
 namespace URay
 {
@@ -21,18 +22,8 @@ bool EditorSettings::Save(const EditorSettingsContext& context)
 
     YAML::Node cameraNode;
 
-    YAML::Node cameraPosNode(YAML::NodeType::Sequence);
-    cameraPosNode.push_back(context.cameraSettings.position.x);
-    cameraPosNode.push_back(context.cameraSettings.position.y);
-    cameraPosNode.push_back(context.cameraSettings.position.z);
-
-    YAML::Node cameraRotNode(YAML::NodeType::Sequence);
-    cameraRotNode.push_back(context.cameraSettings.rotation.x);
-    cameraRotNode.push_back(context.cameraSettings.rotation.y);
-    cameraRotNode.push_back(context.cameraSettings.rotation.z);
-
-    cameraNode["Position"] = cameraPosNode;
-    cameraNode["Rotation"] = cameraRotNode;
+    cameraNode["Position"] = context.cameraSettings.position;
+    cameraNode["Rotation"] = context.cameraSettings.rotation;
 
     settings["CameraTransform"] = cameraNode;
 
@@ -57,12 +48,8 @@ bool EditorSettings::Load(EditorSettingsContext& context)
         };
 
         loadedContext.startScenePath = settingsNode["StartScene"].as<std::string>();
-        loadedContext.cameraSettings.position.x = settingsNode["CameraTransform"]["Position"][0].as<float>();
-        loadedContext.cameraSettings.position.y = settingsNode["CameraTransform"]["Position"][1].as<float>();
-        loadedContext.cameraSettings.position.z = settingsNode["CameraTransform"]["Position"][2].as<float>();
-        loadedContext.cameraSettings.rotation.x = settingsNode["CameraTransform"]["Rotation"][0].as<float>();
-        loadedContext.cameraSettings.rotation.y = settingsNode["CameraTransform"]["Rotation"][1].as<float>();
-        loadedContext.cameraSettings.rotation.z = settingsNode["CameraTransform"]["Rotation"][2].as<float>();
+        loadedContext.cameraSettings.position = settingsNode["CameraTransform"]["Position"].as<Vector3>();
+        loadedContext.cameraSettings.rotation = settingsNode["CameraTransform"]["Rotation"].as<Vector3>();
 
         layout.LoadLayout(context.rootWidget, settingsNode["Layout"]);
 

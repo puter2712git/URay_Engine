@@ -2,6 +2,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
+#include <Core/Serialization/YAMLConverters.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
@@ -34,7 +35,7 @@ void MaterialImporter::Import(const VirtualPath& sourcePath)
     const std::string materialText = fileSystem.ReadText(metadata.sourcePath);
     const YAML::Node materialNode = YAML::Load(materialText);
 
-    const AssetHandle shaderHandle = AssetHandle::FromString(materialNode["Shader"].as<std::string>());
+    const AssetHandle shaderHandle = materialNode["Shader"].as<AssetHandle>();
 
     std::unique_ptr<Material> material = std::make_unique<Material>(shaderHandle);
     material->SetName(metadata.sourcePath.GetStem());
