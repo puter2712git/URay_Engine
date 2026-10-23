@@ -20,6 +20,7 @@ public:
     virtual ~Importer() = default;
 
 public:
+    virtual DependencyResult DiscoverDependencies(const VirtualPath& sourcePath) { return DependencyResult::Success(); }
     virtual ImportResult Import(const VirtualPath& sourcePath) = 0;
     virtual bool CanImport(const std::string& extension) const = 0;
 

@@ -22,7 +22,7 @@ ImportResult FontImporter::Import(const VirtualPath& sourcePath)
     const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Font::StaticClass());
 
     ImportResult result = ImportResult::Success();
-    result.outputMetadatas.push_back(metadata);
+    result.metadatas.push_back(metadata);
     return result;
 
     // std::vector<uint8> fileBytes = fileSystem.ReadBinary(metadata.sourcePath);

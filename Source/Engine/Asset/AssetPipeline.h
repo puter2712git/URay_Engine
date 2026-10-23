@@ -22,7 +22,7 @@ public:
     ~AssetPipeline();
 
 public:
-    void Execute(const VirtualPath& path) const;
+    bool Execute(const VirtualPath& path) const;
 
 private:
     Importer* FindImporter(const std::string& extension) const;

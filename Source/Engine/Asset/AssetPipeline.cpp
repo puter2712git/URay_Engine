@@ -29,29 +29,39 @@ AssetPipeline::AssetPipeline(AssetSystem& assetSystem, VirtualFileSystem& fileSy
 
 AssetPipeline::~AssetPipeline() = default;
 
-void AssetPipeline::Execute(const VirtualPath& path) const
+bool AssetPipeline::Execute(const VirtualPath& path) const
 {
     const std::string extension = path.GetExtension();
 
     Importer* importer = FindImporter(extension);
     if (!importer)
-        return;
+        return false;
+
+    DependencyResult dependencies = importer->DiscoverDependencies(path);
+    if (!dependencies)
+        return false;
+
+    for (const VirtualPath& dependency : dependencies.sourcePaths)
+    {
+        if (!Execute(dependency))
+            return false;
+    }
 
     ImportResult result = importer->Import(path);
     if (!result)
     {
         URAY_LOG("[AssetPipeline] Failed to import asset: %s. Error: %s", path.ToString().c_str(), result.errorMessage.c_str());
-        return;
+        return false;
     }
 
-    for (const AssetMetadata& metadata : result.outputMetadatas)
+    for (const AssetMetadata& metadata : result.metadatas)
     {
         const VirtualPath metadataPath = assetSystem.GetMetadataPath(metadata.assetPath);
 
         if (!assetSystem.GetMetadataSerializer().Save(metadata, metadataPath))
         {
             URAY_LOG("[AssetPipeline] Failed to save metadata: %s", metadataPath.ToString().c_str());
-            return;
+            return false;
         }
 
         assetSystem.RegisterMetadata(metadata);
@@ -61,11 +71,13 @@ void AssetPipeline::Execute(const VirtualPath& path) const
         if (!asset)
         {
             URAY_LOG("[AssetPipeline] Failed to create asset: %s", metadata.assetPath.ToString().c_str());
-            return;
+            return false;
         }
 
         assetSystem.GetDatabase().InsertOrReplace(std::move(asset));
     }
+
+    return true;
 }
 
 Importer* AssetPipeline::FindImporter(const std::string& extension) const

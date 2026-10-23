@@ -36,7 +36,7 @@ ImportResult MaterialImporter::Import(const VirtualPath& sourcePath)
     AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Material::StaticClass());
 
     ImportResult result = ImportResult::Success();
-    result.outputMetadatas.push_back(metadata);
+    result.metadatas.push_back(metadata);
     return result;
 
     // assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);

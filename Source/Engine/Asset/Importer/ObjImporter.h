@@ -26,6 +26,7 @@ public:
     ~OBJImporter();
 
 public:
+    DependencyResult DiscoverDependencies(const VirtualPath& sourcePath) override;
     ImportResult Import(const VirtualPath& sourcePath) override;
     bool CanImport(const std::string& extension) const override;
 
@@ -34,16 +35,16 @@ public:
     // std::vector<Material*> CreateMaterials(const OBJ::MTLInfo& mtlInfo, const VirtualPath& directory) const;
     // void CreateMesh(const OBJ::OBJInfo& objInfo, const std::vector<Material*>& materialHandles, const AssetMetadata& metadata) const;
 
-    // OBJ::OBJInfo ParseOBJ(const VirtualPath& objPath) const;
-    // OBJ::MTLInfo ParseMTL(const VirtualPath& mtlPath) const;
+    OBJ::OBJInfo ParseOBJ(const VirtualPath& objPath) const;
+    OBJ::MTLInfo ParseMTL(const VirtualPath& mtlPath) const;
 
-    // OBJ::OBJIndex ParseOBJIndex(const std::string& vertexString) const;
+    OBJ::OBJIndex ParseOBJIndex(const std::string& vertexString) const;
 
-    // uint32 GetOrCreateVertex(
-    //     const OBJ::OBJInfo& objInfo,
-    //     const OBJ::OBJIndex& objIndex,
-    //     std::vector<Render::VertexPNT>& verticesRef,
-    //     std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const;
+    uint32 GetOrCreateVertex(
+        const OBJ::OBJInfo& objInfo,
+        const OBJ::OBJIndex& objIndex,
+        std::vector<Render::VertexPNT>& verticesRef,
+        std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const;
 };
 
 } // namespace URay

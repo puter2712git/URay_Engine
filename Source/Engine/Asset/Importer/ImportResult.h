@@ -9,13 +9,37 @@
 namespace URay
 {
 
+struct DependencyResult
+{
+    bool succeeded = false;
+    std::string errorMessage;
+
+    std::vector<VirtualPath> sourcePaths;
+
+    explicit operator bool() const { return succeeded; }
+
+    static DependencyResult Success()
+    {
+        DependencyResult result;
+        result.succeeded = true;
+        return result;
+    }
+
+    static DependencyResult Failure(const std::string& errorMessage)
+    {
+        DependencyResult result;
+        result.succeeded = false;
+        result.errorMessage = errorMessage;
+        return result;
+    }
+};
+
 struct ImportResult
 {
     bool succeeded = false;
     std::string errorMessage;
 
-    std::vector<AssetMetadata> outputMetadatas;
-    std::vector<VirtualPath> dependencies;
+    std::vector<AssetMetadata> metadatas;
 
     explicit operator bool() const { return succeeded; }
 

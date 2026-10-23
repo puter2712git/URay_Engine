@@ -22,7 +22,7 @@ ImportResult ShaderImporter::Import(const VirtualPath& sourcePath)
     const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Shader::StaticClass());
 
     ImportResult result = ImportResult::Success();
-    result.outputMetadatas.push_back(metadata);
+    result.metadatas.push_back(metadata);
     return result;
 
     // std::unique_ptr<Shader> shader = std::make_unique<Shader>(sourcePath);
