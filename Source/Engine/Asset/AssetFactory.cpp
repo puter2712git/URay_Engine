@@ -6,6 +6,9 @@
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Material/MaterialData.h>
 #include <Engine/Asset/Material/MaterialSerializer.h>
+#include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Mesh/MeshData.h>
+#include <Engine/Asset/Mesh/MeshSerializer.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
@@ -35,6 +38,10 @@ std::unique_ptr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
     else if (metadata.className == Font::StaticRuntimeType().name)
     {
         return CreateFont(metadata);
+    }
+    else if (metadata.className == Mesh::StaticRuntimeType().name)
+    {
+        return CreateMesh(metadata);
     }
 
     return nullptr;
@@ -102,6 +109,23 @@ std::unique_ptr<Font> AssetFactory::CreateFont(const AssetMetadata& metadata) co
     font->SetName(metadata.assetPath.GetStem());
 
     return font;
+}
+
+std::unique_ptr<Mesh> AssetFactory::CreateMesh(const AssetMetadata& metadata) const
+{
+    MeshData data;
+    if (!assetSystem.GetMeshSerializer().Load(data, metadata.assetPath))
+        return nullptr;
+
+    auto mesh = std::make_unique<Mesh>();
+    mesh->SetHandle(metadata.handle);
+    mesh->SetName(metadata.assetPath.GetStem());
+    mesh->SetVertices(data.vertices);
+    mesh->SetIndices(data.indices);
+    mesh->SetSections(data.sections);
+    mesh->SetDefaultMaterials(data.defaultMaterials);
+
+    return mesh;
 }
 
 } // namespace URay

@@ -13,6 +13,7 @@
 #include <Engine/Asset/Material/MaterialData.h>
 #include <Engine/Asset/Material/MaterialSerializer.h>
 #include <Engine/Asset/Mesh/MeshGenerator.h>
+#include <Engine/Asset/Mesh/MeshSerializer.h>
 #include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
@@ -45,6 +46,7 @@ bool AssetSystem::Initialize(
     metadataSerializer = std::make_unique<AssetMetadataSerializer>(*fileSystem);
     textureSerializer = std::make_unique<TextureSerializer>(*fileSystem);
     materialSerializer = std::make_unique<MaterialSerializer>(*fileSystem);
+    meshSerializer = std::make_unique<MeshSerializer>(*fileSystem);
 
     ImportRecursive("Engine://Asset");
     ImportRecursive("Project://Asset");
@@ -56,6 +58,7 @@ bool AssetSystem::Initialize(
 
 void AssetSystem::Finalize()
 {
+    meshSerializer.reset();
     materialSerializer.reset();
     textureSerializer.reset();
     metadataSerializer.reset();

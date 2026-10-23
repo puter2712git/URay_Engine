@@ -11,6 +11,7 @@ class Texture;
 class Material;
 class Shader;
 class Font;
+class Mesh;
 struct AssetMetadata;
 
 class AssetFactory
@@ -26,6 +27,7 @@ private:
     std::unique_ptr<Material> CreateMaterial(const AssetMetadata& metadata) const;
     std::unique_ptr<Shader> CreateShader(const AssetMetadata& metadata) const;
     std::unique_ptr<Font> CreateFont(const AssetMetadata& metadata) const;
+    std::unique_ptr<Mesh> CreateMesh(const AssetMetadata& metadata) const;
 
 private:
     AssetSystem& assetSystem;

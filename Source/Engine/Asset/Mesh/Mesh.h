@@ -1,10 +1,9 @@
 #pragma once
 
-#include <Engine/Asset/Asset.h>
-
 #include <Core/Math/AABB.h>
 #include <Core/Type/Types.h>
-
+#include <Engine/Asset/Asset.h>
+#include <Engine/Asset/Mesh/MeshSection.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
 #include <string>
@@ -15,13 +14,6 @@ namespace URay
 {
 
 class Material;
-
-struct MeshSection
-{
-    uint32 indexOffset = 0;
-    uint32 indexCount = 0;
-    size_t materialIndex = 0;
-};
 
 class Mesh : public Asset
 {
