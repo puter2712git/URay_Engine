@@ -1,6 +1,0 @@
-MetadataVersion: 1
-Handle: 00000000-0000-0000-0000-000000000006
-ClassName: Shader
-AssetPath: Engine://Asset/Imported/Shader/Decal.hlsl.asset
-SourcePath: Engine://Asset/Shader/Decal.hlsl
-ImporterVersion: 0

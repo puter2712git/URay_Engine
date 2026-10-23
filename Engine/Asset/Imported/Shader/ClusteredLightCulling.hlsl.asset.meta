@@ -1,6 +1,0 @@
-MetadataVersion: 1
-Handle: 00000000-0000-0000-0000-000000000011
-ClassName: Shader
-AssetPath: Engine://Asset/Imported/Shader/ClusteredLightCulling.hlsl.asset
-SourcePath: Engine://Asset/Shader/ClusteredLightCulling.hlsl
-ImporterVersion: 0

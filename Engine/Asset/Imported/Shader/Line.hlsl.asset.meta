@@ -1,6 +1,0 @@
-MetadataVersion: 1
-Handle: 00000000-0000-0000-0000-000000000003
-ClassName: Shader
-AssetPath: Engine://Asset/Imported/Shader/Line.hlsl.asset
-SourcePath: Engine://Asset/Shader/Line.hlsl
-ImporterVersion: 0

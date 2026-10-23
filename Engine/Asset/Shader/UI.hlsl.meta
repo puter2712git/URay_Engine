@@ -1,6 +1,6 @@
 MetadataVersion: 1
 Handle: 00000000-0000-0000-0000-000000000010
 ClassName: Shader
-AssetPath: Engine://Asset/Imported/Shader/UI.hlsl.asset
+AssetPath: Engine://Asset/Shader/UI.hlsl
 SourcePath: Engine://Asset/Shader/UI.hlsl
 ImporterVersion: 0

@@ -1,6 +1,0 @@
-MetadataVersion: 1
-Handle: 00000000-0000-0000-0000-000000000009
-ClassName: Shader
-AssetPath: Engine://Asset/Imported/Shader/PostProcess/SelectionOutline.hlsl.asset
-SourcePath: Engine://Asset/Shader/PostProcess/SelectionOutline.hlsl
-ImporterVersion: 0
