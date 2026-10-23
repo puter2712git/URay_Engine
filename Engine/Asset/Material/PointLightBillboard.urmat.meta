@@ -1,6 +1,6 @@
 MetadataVersion: 1
 Handle: 00000000-0000-0000-0002-000000000005
 ClassName: Material
-AssetPath: Engine://Asset/Imported/Material/PointLightBillboard.urmat.asset
+AssetPath: Engine://Asset/Material/PointLightBillboard.urmat
 SourcePath: Engine://Asset/Material/PointLightBillboard.urmat
 ImporterVersion: 0

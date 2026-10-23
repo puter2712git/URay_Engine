@@ -7,6 +7,7 @@ namespace URay
 
 class VirtualFileSystem;
 class VirtualPath;
+struct MaterialData;
 
 class MaterialImporter final : public Importer
 {
@@ -19,7 +20,7 @@ public:
     bool CanImport(const std::string& extension) const override;
 
 private:
-    bool LoadSource(const VirtualPath& path) const;
+    bool ParseMaterial(MaterialData& outMaterial, const VirtualPath& sourcePath) const;
 };
 
 } // namespace URay

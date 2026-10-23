@@ -1,6 +1,6 @@
+Version: 1
 Shader: 00000000-0000-0000-0000-000000000001
-
 Parameters:
-  diffuseColorTexture:
-    Type: Texture2D
+  - Name: diffuseColorTexture
+    Type: 4
     Value: 00000000-0000-0000-0001-000000000001

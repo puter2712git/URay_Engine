@@ -3,12 +3,13 @@
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
 #include <Core/Serialization/YAMLConverters.h>
-#include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Material/MaterialData.h>
+#include <Engine/Asset/Material/MaterialSerializer.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
-#include <Engine/Engine.h>
 
 #include <yaml-cpp/yaml.h>
 
@@ -22,49 +23,39 @@ MaterialImporter::~MaterialImporter() = default;
 
 void MaterialImporter::Import(const VirtualPath& sourcePath)
 {
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+    const VirtualPath assetPath = sourcePath;
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);
 
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    MaterialData materialData;
+    if (!ParseMaterial(materialData, sourcePath))
+        return;
+
+    MaterialSerializer& serializer = assetSystem.GetMaterialSerializer();
+    serializer.Save(materialData, assetPath);
 
     AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Material::StaticClass());
 
+    assetSystem.GetMetadataSerializer().Save(metadata, metadataPath);
     assetSystem.RegisterMetadata(metadata);
 
-    const std::string materialText = fileSystem.ReadText(metadata.sourcePath);
-    const YAML::Node materialNode = YAML::Load(materialText);
-
-    const AssetHandle shaderHandle = materialNode["Shader"].as<AssetHandle>();
-
-    std::unique_ptr<Material> material = std::make_unique<Material>(shaderHandle);
-    material->SetName(metadata.sourcePath.GetStem());
-    material->SetHandle(metadata.handle);
-
-    const YAML::Node parametersNode = materialNode["Parameters"];
-    if (parametersNode)
-    {
-        for (const auto& parameterNode : parametersNode)
-        {
-            const std::string name = parameterNode.first.as<std::string>();
-            const YAML::Node parameter = parameterNode.second;
-
-            const std::string typeName = parameter["Type"].as<std::string>();
-
-            if (typeName == "Texture2D")
-            {
-                const AssetHandle textureHandle = AssetHandle::FromString(parameter["Value"].as<std::string>());
-                material->AddParameter(name, MaterialParameterType::Texture2D, textureHandle);
-            }
-        }
-    }
-
-    assetDatabase.Add(std::move(material));
+    assetSystem.LoadMaterial(metadata);
 }
 
 bool MaterialImporter::CanImport(const std::string& extension) const
 {
     return extension == ".urmat";
+}
+
+bool MaterialImporter::ParseMaterial(MaterialData& outMaterial, const VirtualPath& sourcePath) const
+{
+    const std::string fileText = fileSystem.ReadText(sourcePath);
+    if (fileText.empty())
+        return false;
+
+    YAML::Node node = YAML::Load(fileText);
+    outMaterial.Deserialize(node);
+
+    return true;
 }
 
 } // namespace URay

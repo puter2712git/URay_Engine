@@ -2,7 +2,6 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/AssetPipeline.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
@@ -10,7 +9,10 @@
 #include <Engine/Asset/Importer/ShaderImporter.h>
 #include <Engine/Asset/Importer/TextureImporter.h>
 #include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Material/MaterialData.h>
+#include <Engine/Asset/Material/MaterialSerializer.h>
 #include <Engine/Asset/Mesh/MeshGenerator.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Asset/Texture/TextureData.h>
@@ -40,6 +42,7 @@ bool AssetSystem::Initialize(
     pipeline = std::make_unique<AssetPipeline>(*this, *fileSystem);
     metadataSerializer = std::make_unique<AssetMetadataSerializer>(*fileSystem);
     textureSerializer = std::make_unique<TextureSerializer>(*fileSystem);
+    materialSerializer = std::make_unique<MaterialSerializer>(*fileSystem);
 
     ImportRecursive("Engine://Asset");
     ImportRecursive("Project://Asset");
@@ -51,6 +54,8 @@ bool AssetSystem::Initialize(
 
 void AssetSystem::Finalize()
 {
+    materialSerializer.reset();
+    textureSerializer.reset();
     pipeline.reset();
     database.reset();
     metadataBySourcePath.clear();
@@ -132,6 +137,30 @@ Texture* AssetSystem::LoadTexture(const AssetMetadata& metadata)
 
     Texture* result = texture.get();
     database->Add(std::move(texture));
+
+    return result;
+}
+
+Material* AssetSystem::LoadMaterial(const AssetMetadata& metadata)
+{
+    if (Material* existing = database->Find<Material>(metadata.handle))
+        return existing;
+
+    MaterialData data;
+    if (!materialSerializer->Load(data, metadata.assetPath))
+        return nullptr;
+
+    auto material = std::make_unique<Material>(data.shaderHandle);
+    material->SetHandle(metadata.handle);
+    material->SetName(metadata.assetPath.GetStem());
+
+    for (const auto& parameter : data.parameters)
+    {
+        material->AddParameter(parameter.name, parameter.type, parameter.value);
+    }
+
+    Material* result = material.get();
+    database->Add(std::move(material));
 
     return result;
 }
