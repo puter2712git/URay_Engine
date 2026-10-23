@@ -2,7 +2,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/AssetMetadataSerializer.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/AssetPipeline.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>

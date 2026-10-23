@@ -1,7 +1,7 @@
 #include "AssetMetadataSerializer.h"
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Engine/Asset/AssetMetadata.h>
+#include <Engine/Asset/Metadata/AssetMetadata.h>
 
 #include <yaml-cpp/yaml.h>
 

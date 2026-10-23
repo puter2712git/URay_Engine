@@ -1,8 +1,8 @@
 #include "TextureImporter.h"
 
 #include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/AssetMetadata.h>
-#include <Engine/Asset/AssetMetadataSerializer.h>
+#include <Engine/Asset/Metadata/AssetMetadata.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Asset/Texture/TextureData.h>
