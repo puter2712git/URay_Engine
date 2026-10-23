@@ -7,7 +7,12 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Material/MaterialData.h>
+#include <Engine/Asset/Material/MaterialSerializer.h>
 #include <Engine/Asset/Mesh/Mesh.h>
+#include <Engine/Asset/Mesh/MeshData.h>
+#include <Engine/Asset/Mesh/MeshSerializer.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
 
@@ -45,21 +50,25 @@ DependencyResult OBJImporter::DiscoverDependencies(const VirtualPath& sourcePath
 
 ImportResult OBJImporter::Import(const VirtualPath& sourcePath)
 {
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
+    OBJ::OBJInfo objInfo = ParseOBJ(sourcePath);
 
-    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Mesh::StaticClass());
+    const VirtualPath mtlPath = sourcePath.GetDirectory().Join(objInfo.mtllib);
+    OBJ::MTLInfo mtlInfo = ParseMTL(mtlPath);
 
-    ImportResult result = ImportResult::Failure("Failed to import OBJ file");
+    ImportResult result = ImportResult::Success();
+
+    ImportedMaterials importedMaterials;
+    if (!ImportMaterials(sourcePath, mtlInfo, result, importedMaterials))
+    {
+        return ImportResult::Failure("Failed to import materials.");
+    }
+
+    if (!ImportMesh(sourcePath, objInfo, importedMaterials, result))
+    {
+        return ImportResult::Failure("Failed to import mesh.");
+    }
+
     return result;
-
-    // OBJ::OBJInfo objInfo = ParseOBJ(sourcePath);
-
-    // const VirtualPath objDirectory = sourcePath.GetDirectory();
-    // const VirtualPath mtlPath = objDirectory.Join(objInfo.mtllib);
-
-    // OBJ::MTLInfo mtlInfo = ParseMTL(mtlPath);
-
-    // Assemble(objInfo, mtlInfo, metadata);
 }
 
 bool OBJImporter::CanImport(const std::string& extension) const
@@ -67,134 +76,118 @@ bool OBJImporter::CanImport(const std::string& extension) const
     return extension == ".obj";
 }
 
-// void OBJImporter::Assemble(
-//     const OBJ::OBJInfo& objInfo,
-//     const OBJ::MTLInfo& mtlInfo,
-//     const AssetMetadata& metadata) const
-//{
-//     const VirtualPath directory = metadata.sourcePath.GetDirectory();
-//
-//     std::vector<Material*> materials = CreateMaterials(mtlInfo, directory);
-//     CreateMesh(objInfo, materials, metadata);
-// }
+bool OBJImporter::ImportMaterials(
+    const VirtualPath& sourcePath,
+    const OBJ::MTLInfo& mtlInfo,
+    ImportResult& outResult,
+    ImportedMaterials& outMaterials) const
+{
+    AssetMetadataSerializer& metadataSerializer = assetSystem.GetMetadataSerializer();
+    MaterialSerializer& materialSerializer = assetSystem.GetMaterialSerializer();
 
-// std::vector<Material*> OBJImporter::CreateMaterials(
-//     const OBJ::MTLInfo& mtlInfo,
-//     const VirtualPath& directory) const
-//{
-//     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-//     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-//     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
-//
-//     std::vector<Material*> materials;
-//
-//     for (const OBJ::MTLData& mtlData : mtlInfo.datas)
-//     {
-//         auto newMaterial = std::make_unique<Material>(EngineAsset::MeshShader);
-//         newMaterial->SetName(mtlData.mtlName);
-//         newMaterial->SetHandle(UUID::Generate());
-//
-//         if (!mtlData.diffuseTexturePath.empty())
-//         {
-//             const VirtualPath diffuseTexturePath = directory.Join(mtlData.diffuseTexturePath);
-//             const VirtualPath diffuseTextureMetadataPath = assetSystem.GetMetadataPath(diffuseTexturePath);
-//
-//             const std::string metadataText = fileSystem.ReadText(diffuseTextureMetadataPath);
-//             if (!metadataText.empty())
-//             {
-//                 AssetMetadata metadata = {};
-//
-//                 const YAML::Node metadataNode = YAML::Load(metadataText);
-//                 metadata.Deserialize(metadataNode);
-//
-//                 newMaterial->AddParameter(
-//                     "diffuseColorTexture",
-//                     MaterialParameterType::Texture2D,
-//                     metadata.handle);
-//             }
-//         }
-//
-//         materials.push_back(newMaterial.get());
-//
-//         assetDatabase.Add(std::move(newMaterial));
-//     }
-//
-//     return materials;
-// }
-//
-// void OBJImporter::CreateMesh(
-//     const OBJ::OBJInfo& objInfo,
-//     const std::vector<Material*>& materials,
-//     const AssetMetadata& metadata) const
-//{
-//     AssetSystem& assetSystem = gEngine->GetAssetSystem();
-//     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-//
-//     std::vector<Render::VertexPNT> vertices;
-//     std::vector<uint32> indices;
-//     std::vector<MeshSection> sections;
-//
-//     std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash> vertexMap;
-//
-//     for (const auto& [mtlName, faces] : objInfo.mtlTofaces)
-//     {
-//         MeshSection section = {};
-//         section.indexOffset = static_cast<uint32>(indices.size());
-//
-//         for (const OBJ::Face& face : faces)
-//         {
-//             for (size_t i = 1; i + 1 < face.indices.size(); ++i)
-//             {
-//                 indices.push_back(
-//                     GetOrCreateVertex(objInfo, face.indices[0], vertices, vertexMap));
-//
-//                 indices.push_back(
-//                     GetOrCreateVertex(objInfo, face.indices[i], vertices, vertexMap));
-//
-//                 indices.push_back(
-//                     GetOrCreateVertex(objInfo, face.indices[i + 1], vertices, vertexMap));
-//             }
-//         }
-//
-//         section.indexCount = static_cast<uint32>(indices.size()) - section.indexOffset;
-//
-//         for (uint32 materialIndex = 0; materialIndex < static_cast<uint32>(materials.size()); ++materialIndex)
-//         {
-//             if (materials[materialIndex]->GetName() == mtlName)
-//             {
-//                 section.materialIndex = materialIndex;
-//                 break;
-//             }
-//         }
-//
-//         sections.push_back(section);
-//     }
-//
-//     auto mesh = std::make_unique<Mesh>();
-//     mesh->SetHandle(metadata.handle);
-//     mesh->SetName(metadata.sourcePath.GetStem());
-//     mesh->SetVertices(vertices);
-//     mesh->SetIndices(indices);
-//     mesh->SetSections(sections);
-//
-//     if (materials.empty())
-//     {
-//         mesh->SetDefaultMaterials({ EngineAsset::MeshMaterial });
-//     }
-//     else
-//     {
-//         std::vector<AssetHandle> materialHandles;
-//         for (const Material* material : materials)
-//         {
-//             materialHandles.push_back(material->GetHandle());
-//         }
-//
-//         mesh->SetDefaultMaterials(materialHandles);
-//     }
-//
-//     assetDatabase.Add(std::move(mesh));
-// }
-//
+    outMaterials = {};
+
+    const VirtualPath directory = sourcePath.GetDirectory();
+
+    for (const OBJ::MTLData& mtlData : mtlInfo.datas)
+    {
+        MaterialData materialData = {};
+        materialData.shaderHandle = EngineAsset::MeshShader;
+
+        if (!mtlData.diffuseTexturePath.empty())
+        {
+            const VirtualPath diffuseTexturePath = directory.Join(mtlData.diffuseTexturePath);
+            const VirtualPath textureAssetPath = diffuseTexturePath.ReplaceExtension(".urtex");
+            const VirtualPath textureMetadataPath = assetSystem.GetMetadataPath(textureAssetPath);
+
+            AssetMetadata textureMetadata;
+            if (!metadataSerializer.Load(textureMetadata, textureMetadataPath))
+                return false;
+
+            materialData.parameters.emplace_back(
+                "diffuseColorTexture",
+                MaterialParameterType::Texture2D,
+                textureMetadata.handle);
+        }
+
+        const uint32 materialIndex = static_cast<uint32>(outMaterials.handles.size());
+
+        const VirtualPath materialAssetPath = directory.Join(sourcePath.GetStem() + "_" + mtlData.mtlName + ".urmat");
+        const VirtualPath materialMetadataPath = assetSystem.GetMetadataPath(materialAssetPath);
+
+        AssetMetadata materialMetadata = LoadOrCreateMetadata(materialAssetPath, materialMetadataPath, Material::StaticClass());
+
+        if (!materialSerializer.Save(materialData, materialAssetPath))
+            return false;
+
+        outMaterials.handles.push_back(materialMetadata.handle);
+        outMaterials.indicesByName.emplace(mtlData.mtlName, materialIndex);
+
+        outResult.metadatas.push_back(materialMetadata);
+    }
+
+    return true;
+}
+
+bool OBJImporter::ImportMesh(
+    const VirtualPath& sourcePath,
+    const OBJ::OBJInfo& objInfo,
+    const ImportedMaterials& importedMaterials,
+    ImportResult& outResult) const
+{
+    MeshSerializer& meshSerializer = assetSystem.GetMeshSerializer();
+
+    std::vector<Render::VertexPNT> vertices;
+    std::vector<uint32> indices;
+    std::vector<MeshSection> sections;
+
+    std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash> vertexMap;
+
+    for (const auto& [mtlName, faces] : objInfo.mtlTofaces)
+    {
+        MeshSection section;
+        section.indexOffset = static_cast<uint32>(indices.size());
+
+        for (const OBJ::Face& face : faces)
+        {
+            for (size_t i = 1; i + 1 < face.indices.size(); ++i)
+            {
+                indices.push_back(GetOrCreateVertex(objInfo, face.indices[0], vertices, vertexMap));
+                indices.push_back(GetOrCreateVertex(objInfo, face.indices[i], vertices, vertexMap));
+                indices.push_back(GetOrCreateVertex(objInfo, face.indices[i + 1], vertices, vertexMap));
+            }
+        }
+
+        section.indexCount = static_cast<uint32>(indices.size()) - section.indexOffset;
+
+        const auto it = importedMaterials.indicesByName.find(mtlName);
+        if (it == importedMaterials.indicesByName.end())
+            return false;
+
+        section.materialIndex = it->second;
+
+        sections.push_back(section);
+    }
+
+    const VirtualPath meshAssetPath = sourcePath.ReplaceExtension(".urmesh");
+    const VirtualPath meshMetadataPath = assetSystem.GetMetadataPath(meshAssetPath);
+
+    AssetMetadata metadata = LoadOrCreateMetadata(meshAssetPath, meshMetadataPath, Mesh::StaticClass());
+
+    MeshData meshData;
+    meshData.vertices = std::move(vertices);
+    meshData.indices = std::move(indices);
+    meshData.sections = std::move(sections);
+    meshData.defaultMaterials = importedMaterials.handles;
+
+    if (!meshSerializer.Save(meshData, meshAssetPath))
+        return false;
+
+    outResult.metadatas.push_back(metadata);
+
+    return true;
+}
+
 OBJ::OBJInfo OBJImporter::ParseOBJ(const VirtualPath& objPath) const
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();

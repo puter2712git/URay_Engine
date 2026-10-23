@@ -15,9 +15,13 @@
 namespace URay
 {
 
-class Material;
-
 class VirtualFileSystem;
+
+struct ImportedMaterials
+{
+    std::vector<AssetHandle> handles;
+    std::unordered_map<std::string, uint32> indicesByName;
+};
 
 class OBJImporter : public Importer
 {
@@ -30,10 +34,9 @@ public:
     ImportResult Import(const VirtualPath& sourcePath) override;
     bool CanImport(const std::string& extension) const override;
 
-    // private:
-    // void Assemble(const OBJ::OBJInfo& objInfo, const OBJ::MTLInfo& mtlInfo, const AssetMetadata& metadata) const;
-    // std::vector<Material*> CreateMaterials(const OBJ::MTLInfo& mtlInfo, const VirtualPath& directory) const;
-    // void CreateMesh(const OBJ::OBJInfo& objInfo, const std::vector<Material*>& materialHandles, const AssetMetadata& metadata) const;
+private:
+    bool ImportMaterials(const VirtualPath& sourcePath, const OBJ::MTLInfo& mtlInfo, ImportResult& outResult, ImportedMaterials& outMaterials) const;
+    bool ImportMesh(const VirtualPath& sourcePath, const OBJ::OBJInfo& objInfo, const ImportedMaterials& materials, ImportResult& outResult) const;
 
     OBJ::OBJInfo ParseOBJ(const VirtualPath& objPath) const;
     OBJ::MTLInfo ParseMTL(const VirtualPath& mtlPath) const;
