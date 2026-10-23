@@ -44,9 +44,6 @@ public:
 
     VirtualPath GetMetadataPath(const VirtualPath& sourcePath) const;
 
-    void RegisterMetadata(const AssetMetadata& metadata);
-    const AssetMetadata* FindMetadataBySourcePath(const VirtualPath& sourcePath) const;
-
     VirtualFileSystem& GetFileSystem() const { return *fileSystem; }
     AssetDatabase& GetDatabase() const { return *database; }
     AssetFactory& GetFactory() const { return *factory; }
@@ -69,8 +66,6 @@ private:
     std::unique_ptr<TextureSerializer> textureSerializer = nullptr;
     std::unique_ptr<MaterialSerializer> materialSerializer = nullptr;
     std::unique_ptr<MeshSerializer> meshSerializer = nullptr;
-
-    std::unordered_map<std::string, AssetMetadata> metadataBySourcePath;
 };
 
 } // namespace URay

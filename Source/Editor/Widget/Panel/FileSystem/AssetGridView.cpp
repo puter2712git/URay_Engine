@@ -4,6 +4,7 @@
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
 #include <Editor/Widget/Panel/FileSystem/AssetGridItem.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 
 #include <algorithm>
 
@@ -55,16 +56,24 @@ void AssetGridView::SetDirectory(AssetSystem& assetSystem, const VirtualPath& pa
             continue;
         }
 
-        const AssetMetadata* metadata = assetSystem.FindMetadataBySourcePath(entry.path);
-        if (!metadata)
+        if (entry.path.GetExtension() == ".meta")
+            continue;
+
+        AssetMetadata metadata;
+
+        const VirtualPath metadataPath = assetSystem.GetMetadataPath(entry.path);
+        if (!assetSystem.GetMetadataSerializer().Load(metadata, metadataPath))
+            continue;
+
+        if (metadata.assetPath.ToString() != entry.path.ToString())
             continue;
 
         assetEntries.push_back(AssetEntry{
             .kind = AssetEntryKind::Asset,
-            .path = metadata->sourcePath,
-            .displayName = metadata->sourcePath.GetStem(),
-            .assetHandle = metadata->handle,
-            .className = metadata->className });
+            .path = metadata.assetPath,
+            .displayName = metadata.assetPath.GetStem(),
+            .assetHandle = metadata.handle,
+            .className = metadata.className });
     }
 
     std::sort(assetEntries.begin(), assetEntries.end(),

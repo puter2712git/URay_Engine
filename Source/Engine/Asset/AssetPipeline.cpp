@@ -64,8 +64,6 @@ bool AssetPipeline::Execute(const VirtualPath& path) const
             return false;
         }
 
-        assetSystem.RegisterMetadata(metadata);
-
         std::unique_ptr<Asset> asset = assetSystem.GetFactory().Create(metadata);
 
         if (!asset)
