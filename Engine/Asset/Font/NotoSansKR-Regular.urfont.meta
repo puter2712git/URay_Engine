@@ -1,6 +1,6 @@
 MetadataVersion: 1
 Handle: 00000000-0000-0000-0004-000000000001
 ClassName: Font
-AssetPath: Engine://Asset/Imported/Font/NotoSansKR-Regular.ttf.asset
+AssetPath: Engine://Asset/Font/NotoSansKR-Regular.urfont
 SourcePath: Engine://Asset/Font/NotoSansKR-Regular.ttf
 ImporterVersion: 0

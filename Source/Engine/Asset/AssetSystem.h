@@ -24,6 +24,7 @@ class Importer;
 class TextureSerializer;
 class MaterialSerializer;
 class MeshSerializer;
+class FontSerializer;
 class Texture;
 class Material;
 struct MeshInfo;
@@ -50,6 +51,7 @@ public:
     AssetMetadataSerializer& GetMetadataSerializer() const { return *metadataSerializer; }
     TextureSerializer& GetTextureSerializer() const { return *textureSerializer; }
     MaterialSerializer& GetMaterialSerializer() const { return *materialSerializer; }
+    FontSerializer& GetFontSerializer() const { return *fontSerializer; }
     MeshSerializer& GetMeshSerializer() const { return *meshSerializer; }
 
 private:
@@ -65,6 +67,7 @@ private:
 
     std::unique_ptr<TextureSerializer> textureSerializer = nullptr;
     std::unique_ptr<MaterialSerializer> materialSerializer = nullptr;
+    std::unique_ptr<FontSerializer> fontSerializer = nullptr;
     std::unique_ptr<MeshSerializer> meshSerializer = nullptr;
 };
 

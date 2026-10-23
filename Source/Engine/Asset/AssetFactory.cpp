@@ -3,6 +3,8 @@
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Font/Font.h>
+#include <Engine/Asset/Font/FontData.h>
+#include <Engine/Asset/Font/FontSerializer.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Material/MaterialData.h>
 #include <Engine/Asset/Material/MaterialSerializer.h>
@@ -98,13 +100,11 @@ std::unique_ptr<Shader> AssetFactory::CreateShader(const AssetMetadata& metadata
 
 std::unique_ptr<Font> AssetFactory::CreateFont(const AssetMetadata& metadata) const
 {
-    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
-
-    std::vector<uint8> data = fileSystem.ReadBinary(metadata.assetPath);
-    if (data.empty())
+    FontData data;
+    if (!assetSystem.GetFontSerializer().Load(data, metadata.assetPath))
         return nullptr;
 
-    auto font = std::make_unique<Font>(data);
+    auto font = std::make_unique<Font>(data.bytes);
     font->SetHandle(metadata.handle);
     font->SetName(metadata.assetPath.GetStem());
 

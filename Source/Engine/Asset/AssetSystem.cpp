@@ -5,6 +5,8 @@
 #include <Engine/Asset/AssetFactory.h>
 #include <Engine/Asset/AssetPipeline.h>
 #include <Engine/Asset/EngineAsset.h>
+#include <Engine/Asset/Font/Font.h>
+#include <Engine/Asset/Font/FontSerializer.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
@@ -46,6 +48,7 @@ bool AssetSystem::Initialize(
     metadataSerializer = std::make_unique<AssetMetadataSerializer>(*fileSystem);
     textureSerializer = std::make_unique<TextureSerializer>(*fileSystem);
     materialSerializer = std::make_unique<MaterialSerializer>(*fileSystem);
+    fontSerializer = std::make_unique<FontSerializer>(*fileSystem);
     meshSerializer = std::make_unique<MeshSerializer>(*fileSystem);
 
     ImportRecursive("Engine://Asset");
@@ -59,6 +62,7 @@ bool AssetSystem::Initialize(
 void AssetSystem::Finalize()
 {
     meshSerializer.reset();
+    fontSerializer.reset();
     materialSerializer.reset();
     textureSerializer.reset();
     metadataSerializer.reset();

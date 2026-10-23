@@ -5,6 +5,9 @@
 namespace URay
 {
 
+class VirtualPath;
+struct FontData;
+
 class FontImporter : public Importer
 {
 public:
@@ -14,6 +17,9 @@ public:
 public:
     ImportResult Import(const VirtualPath& sourcePath) override;
     bool CanImport(const std::string& extension) const override;
+
+private:
+    bool DecodeFont(FontData& outFont, const VirtualPath& sourcePath) const;
 };
 
 } // namespace URay
