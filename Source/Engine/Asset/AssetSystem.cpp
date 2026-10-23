@@ -1,6 +1,7 @@
 #include "AssetSystem.h"
 
 #include <Core/File/VirtualFileSystem.h>
+#include <Core/Log/LogSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetFactory.h>
 #include <Engine/Asset/AssetPipeline.h>
@@ -51,8 +52,8 @@ bool AssetSystem::Initialize(
     fontSerializer = std::make_unique<FontSerializer>(*fileSystem);
     meshSerializer = std::make_unique<MeshSerializer>(*fileSystem);
 
-    ImportRecursive("Engine://Asset");
-    ImportRecursive("Project://Asset");
+    LoadAssetsRecursive("Engine://Asset");
+    LoadAssetsRecursive("Project://Asset");
 
     CreateDefaultAssets();
 
@@ -73,21 +74,51 @@ void AssetSystem::Finalize()
     fileSystem.reset();
 }
 
-void AssetSystem::ImportRecursive(const VirtualPath& path)
+bool AssetSystem::Import(const VirtualPath& sourcePath)
 {
-    const bool isDirectory = fileSystem->IsDirectory(path);
+    return pipeline->Execute(sourcePath);
+}
 
-    if (!isDirectory)
+void AssetSystem::LoadAssetsRecursive(const VirtualPath& path)
+{
+    if (fileSystem->IsDirectory(path))
     {
-        pipeline->Execute(path);
+        for (const auto& entry : fileSystem->ListDirectory(path))
+        {
+            LoadAssetsRecursive(entry.path);
+        }
         return;
     }
 
-    const auto& fileEntries = fileSystem->ListDirectory(path);
-    for (const auto& entry : fileEntries)
+    if (path.GetExtension() != ".meta")
+        return;
+
+    AssetMetadata metadata;
+    if (!metadataSerializer->Load(metadata, path))
+        return;
+
+    const VirtualPath expectedPath = GetMetadataPath(metadata.assetPath);
+    if (expectedPath.ToString() != path.ToString())
+        return;
+
+    if (!fileSystem->Exists(metadata.assetPath))
+        return;
+
+    if (!RegisterAsset(metadata))
     {
-        ImportRecursive(entry.path);
+        URAY_LOG("[AssetSystem] Failed to register asset: %s", metadata.assetPath.ToString().c_str());
+        return;
     }
+}
+
+bool AssetSystem::RegisterAsset(const AssetMetadata& metadata)
+{
+    std::unique_ptr<Asset> asset = factory->Create(metadata);
+    if (!asset)
+        return false;
+
+    database->InsertOrReplace(std::move(asset));
+    return true;
 }
 
 void AssetSystem::CreateDefaultAssets()

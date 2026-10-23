@@ -39,7 +39,10 @@ public:
     bool Initialize(const std::string& enginePath, const std::string& projectPath);
     void Finalize();
 
-    void ImportRecursive(const VirtualPath& path);
+    bool Import(const VirtualPath& sourcePath);
+
+    void LoadAssetsRecursive(const VirtualPath& path);
+    bool RegisterAsset(const AssetMetadata& metadata);
 
     void CreateDefaultAssets();
 

@@ -64,15 +64,11 @@ bool AssetPipeline::Execute(const VirtualPath& path) const
             return false;
         }
 
-        std::unique_ptr<Asset> asset = assetSystem.GetFactory().Create(metadata);
-
-        if (!asset)
+        if (!assetSystem.RegisterAsset(metadata))
         {
-            URAY_LOG("[AssetPipeline] Failed to create asset: %s", metadata.assetPath.ToString().c_str());
+            URAY_LOG("[AssetPipeline] Failed to register asset: %s", metadata.assetPath.ToString().c_str());
             return false;
         }
-
-        assetSystem.GetDatabase().InsertOrReplace(std::move(asset));
     }
 
     return true;
