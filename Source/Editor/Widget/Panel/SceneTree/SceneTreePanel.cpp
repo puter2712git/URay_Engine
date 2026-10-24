@@ -7,7 +7,7 @@
 #include <Editor/Widget/Panel/SceneTree/SceneTreeNode.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
-#include <Editor/Widget/WidgetSystem.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
@@ -77,7 +77,7 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
     if (event.changedButton != MouseButton::Right)
         return {};
 
-    PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
     UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
     popup->GetUnitSelectedRay().Register(

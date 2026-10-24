@@ -6,8 +6,8 @@
 #include <Editor/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
-#include <Editor/Widget/Layout/CrossAxisAlignment.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Engine/UI/Layout/CrossAxisAlignment.h>
+#include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/AssetDatabase.h>

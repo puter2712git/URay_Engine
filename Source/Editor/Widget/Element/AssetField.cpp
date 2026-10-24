@@ -4,7 +4,7 @@
 #include <Editor/Widget/Element/TextBox.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Popup/AssetPickerPopup.h>
-#include <Editor/Widget/WidgetSystem.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -30,7 +30,7 @@ EventReply AssetField::OnPointerDown(const PointerEvent& event)
     if (event.changedButton != MouseButton::Left)
         return {};
 
-    PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
 
     AssetPickerPopup* popup =
         popupLayer.OpenPopup<AssetPickerPopup>(

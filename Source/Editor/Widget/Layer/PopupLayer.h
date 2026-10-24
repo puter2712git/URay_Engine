@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Layer/Layer.h>
 
 namespace URay
 {
 
-class PopupLayer final : public Widget
+class PopupLayer final : public Layer
 {
 public:
     void Arrange(const Rect& rect) override;

@@ -5,7 +5,6 @@
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/Performance/PerformanceViewModel.h>
-#include <Core/TimeFlow/Timer.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Play/PlaySession.h>
@@ -16,7 +15,8 @@
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
-#include <Editor/Widget/WidgetSystem.h>
+#include <Editor/Widget/EditorUI.h>
+#include <Engine/UI/UISystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
@@ -27,7 +27,6 @@
 #include <Engine/Scene/Unit.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>
-#include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/RenderScene.h>
@@ -101,8 +100,8 @@ bool Editor::Initialize()
     performanceViewModel = std::make_unique<PerformanceViewModel>();
     renderSystem.GetRenderer().SetPerformanceViewModel(performanceViewModel.get());
 
-    widgetSystem = std::make_unique<WidgetSystem>(*viewportController);
-    if (!widgetSystem->Initialize())
+    editorUI = std::make_unique<EditorUI>(*viewportController);
+    if (!editorUI->Initialize(gEngine->GetUISystem()))
     {
         URAY_LOG("[Editor] Failed to initialize widget system.");
         Finalize();
@@ -110,7 +109,7 @@ bool Editor::Initialize()
     }
 
     EditorSettingsContext settingsContext = {
-        .rootWidget = widgetSystem->GetRootWidget()
+        .rootWidget = gEngine->GetUISystem().GetRootWidget()
     };
 
     auto createEmptyGameScene = [&]()
@@ -185,10 +184,10 @@ void Editor::Finalize()
 
     EditorView editorView = viewportController->GetEditorCamera().GetView();
 
-    if (editorSettings && widgetSystem && gameScene)
+    if (editorSettings && editorUI && gameScene)
     {
         EditorSettingsContext settingsContext = {
-            .rootWidget = widgetSystem->GetRootWidget(),
+            .rootWidget = gEngine->GetUISystem().GetRootWidget(),
             .startScenePath = gameScene->GetFilePath().ToString(),
             .cameraSettings = {
                 .position = editorView.position,
@@ -202,10 +201,10 @@ void Editor::Finalize()
         }
     }
 
-    if (widgetSystem)
+    if (editorUI)
     {
-        widgetSystem->Finalize();
-        widgetSystem.reset();
+        gEngine->GetUISystem().ClearRootWidget();
+        editorUI.reset();
     }
 
     if (performanceViewModel)
@@ -249,10 +248,6 @@ void Editor::Update()
 
     URAY_PROFILE_SCOPE("Editor::Update")
 
-    Timer& timer = gEngine->GetTimer();
-    float deltaTime = timer.GetDeltaTime();
-
-    widgetSystem->Update(deltaTime);
     ProcessInputActions();
 }
 
@@ -267,7 +262,7 @@ void Editor::ProcessInputActions()
         return value && value->pressed;
     };
 
-    if (widgetSystem->IsTextInputActive())
+    if (gEngine->GetUISystem().IsTextInputActive())
         return;
 
     if (wasPressed(EditorInputAction::SaveScene))
@@ -326,7 +321,7 @@ void Editor::OpenSaveSceneDialog()
     auto gameScenes = sceneSystem.GetScenes(SceneType::Game);
     Scene* gameScene = gameScenes.empty() ? nullptr : gameScenes[0];
 
-    SaveSceneDialog* dialog = widgetSystem->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
+    SaveSceneDialog* dialog = editorUI->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
 
     dialog->GetClosedRay().Register(this, [this, dialog, gameScene](DialogResult result)
                                     {
@@ -337,7 +332,7 @@ void Editor::OpenSaveSceneDialog()
                 SaveSceneToPath(*gameScene, dialog->GetSavePath());
             }
 
-            widgetSystem->GetDialogLayer().CloseDialog();
+            editorUI->GetDialogLayer().CloseDialog();
         } });
 }
 
@@ -390,14 +385,6 @@ void Editor::DeleteSelectedUnits()
     {
         gameScene->DestroyUnit(root);
     }
-}
-
-void Editor::PrepareRender()
-{
-    URAY_PROFILE_SCOPE("Editor::PrepareRender")
-
-    widgetSystem->PrepareRender();
-    widgetSystem->Paint();
 }
 
 Render::RenderRequest Editor::BuildRenderRequest() const
@@ -485,7 +472,7 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     sceneRenderInfo.targets = renderSystem.GetRenderer().GetViewportSceneRenderTargets();
 
     request.sceneRenderInfos.push_back(std::move(sceneRenderInfo));
-    request.uiDrawContext = &widgetSystem->GetDrawContext();
+    request.uiDrawContext = &gEngine->GetUISystem().GetDrawContext();
 
     return request;
 }

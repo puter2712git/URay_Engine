@@ -10,43 +10,39 @@ class UIDrawContext;
 namespace URay
 {
 
-class Widget;
-class ViewportController;
-class PopupLayer;
-class DialogLayer;
+class InputSystem;
 class UIInputRouter;
+class Widget;
+class Window;
 
-class WidgetSystem
+class UISystem
 {
 public:
-    explicit WidgetSystem(ViewportController& viewportController);
-    ~WidgetSystem();
+    UISystem(Window& window, InputSystem& inputSystem);
+    ~UISystem();
 
-public:
-    bool Initialize();
+    void Initialize();
     void Finalize();
+
+    void SetRootWidget(std::unique_ptr<Widget> root);
+    void ClearRootWidget();
 
     void Update(float deltaTime);
     void PrepareRender();
     void Paint();
 
-    Widget& GetRootWidget() const { return *root; }
-    PopupLayer& GetPopupLayer() const;
-    DialogLayer& GetDialogLayer() const;
     bool IsTextInputActive() const;
 
+    Widget& GetRootWidget() const { return *root; }
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }
 
 private:
-    void CreateDefaultWidgets();
+    Window& window;
+    InputSystem& inputSystem;
 
-private:
     std::unique_ptr<Widget> root = nullptr;
-
     std::unique_ptr<UIInputRouter> inputRouter = nullptr;
-
     std::unique_ptr<Render::UIDrawContext> drawContext = nullptr;
-    ViewportController& viewportController;
 };
 
 } // namespace URay

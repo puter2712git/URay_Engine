@@ -2,7 +2,7 @@
 #include <Core/Math/Math.h>
 
 #include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Engine/UI/Layout/VerticalLayout.h>
 
 namespace URay
 {

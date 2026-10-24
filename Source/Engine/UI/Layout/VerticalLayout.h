@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Editor/Widget/Layout/CrossAxisAlignment.h>
-#include <Editor/Widget/Layout/MainAxisAlignment.h>
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Layout/CrossAxisAlignment.h>
+#include <Engine/UI/Layout/MainAxisAlignment.h>
+#include <Engine/UI/Widget.h>
 
 #include <Core/Math/Padding.h>
 #include <Core/Type/Types.h>

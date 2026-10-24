@@ -3,7 +3,7 @@
 #include <Core/File/VirtualPath.h>
 #include <Core/Ray/EventRay.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Widget.h>
 
 #include <vector>
 

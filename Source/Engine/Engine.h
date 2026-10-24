@@ -15,6 +15,7 @@ class Scheduler;
 class LogSystem;
 class InputSystem;
 class InputActionSystem;
+class UISystem;
 class PerformanceAnalytics;
 class StdErrLogSink;
 class FileLogSink;
@@ -49,6 +50,7 @@ public:
     Scheduler& GetScheduler() const { return *scheduler; }
     InputSystem& GetInputSystem() const { return *inputSystem; }
     InputActionSystem& GetInputActionSystem() const { return *inputActionSystem; }
+    UISystem& GetUISystem() const { return *uiSystem; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
     AssetSystem& GetAssetSystem() const { return *assetSystem; }
@@ -68,6 +70,7 @@ private:
 
     std::unique_ptr<InputSystem> inputSystem = nullptr;
     std::unique_ptr<InputActionSystem> inputActionSystem = nullptr;
+    std::unique_ptr<UISystem> uiSystem = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
     std::unique_ptr<AssetSystem> assetSystem = nullptr;

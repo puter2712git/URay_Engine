@@ -8,7 +8,7 @@
 #include <Core/Type/Types.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Editor/Viewport/EditorView.h>
-#include <Editor/Widget/Input/EventReply.h>
+#include <Engine/UI/Input/EventReply.h>
 #include <Render/Rendering/View/ViewMode.h>
 
 #include <memory>

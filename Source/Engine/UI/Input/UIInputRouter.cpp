@@ -1,7 +1,7 @@
 #include "UIInputRouter.h"
 
 #include <Core/Input/InputSnapshot.h>
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Widget.h>
 #include <Platform/Window/Window.h>
 
 namespace URay

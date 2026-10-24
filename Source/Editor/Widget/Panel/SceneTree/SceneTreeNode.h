@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Widget.h>
 
 #include <Core/Type/Types.h>
 

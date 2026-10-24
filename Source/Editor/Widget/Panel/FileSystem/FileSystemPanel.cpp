@@ -8,13 +8,13 @@
 #include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/ScrollView.h>
-#include <Editor/Widget/WidgetSystem.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
@@ -171,7 +171,7 @@ void FileSystemPanel::OpenImportDialog()
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
 
-    ImportAssetDialog* dialog = gEditor->GetWidgetSystem().GetDialogLayer().OpenDialog<ImportAssetDialog>(
+    ImportAssetDialog* dialog = gEditor->GetEditorUI().GetDialogLayer().OpenDialog<ImportAssetDialog>(
         assetSystem,
         currentPath);
 
@@ -182,7 +182,7 @@ void FileSystemPanel::OpenImportDialog()
             if (result == DialogResult::Accepted)
                 NavigateTo(currentPath);
 
-            gEditor->GetWidgetSystem().GetDialogLayer().CloseDialog();
+            gEditor->GetEditorUI().GetDialogLayer().CloseDialog();
         });
 }
 

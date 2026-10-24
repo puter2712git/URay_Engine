@@ -5,9 +5,9 @@
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/Surface.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
-#include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
-#include <Editor/Widget/WidgetSystem.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Engine/Scene/Scene.h>
 
 #include <Engine/Scene/Unit.h>
@@ -60,7 +60,7 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
     if (event.changedButton == MouseButton::Right)
     {
-        PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+        PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
         UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
         Unit* targetUnit = unit;

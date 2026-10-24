@@ -1,7 +1,7 @@
 #include "PanelHeader.h"
 
 #include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Engine/Asset/EngineAsset.h>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Layer/Layer.h>
 
 namespace URay
 {
 
-class DialogLayer final : public Widget
+class DialogLayer final : public Layer
 {
 public:
     void Arrange(const Rect& rect) override;

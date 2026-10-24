@@ -6,7 +6,7 @@
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Element/Surface.h>
-#include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridView.h>
 #include <Editor/Widget/Panel/ScrollView.h>

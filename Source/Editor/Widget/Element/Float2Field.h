@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Editor/Widget/Widget.h>
+#include <Engine/UI/Widget.h>
 
 #include <Core/Math/Vector2.h>
 #include <Core/Ray/EventRay.h>

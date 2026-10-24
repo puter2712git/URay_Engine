@@ -2,7 +2,7 @@
 
 #include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Image.h>
-#include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Engine/UI/Layout/HorizontalLayout.h>
 
 #include <Engine/Asset/EngineAsset.h>
 

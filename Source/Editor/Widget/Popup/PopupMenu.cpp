@@ -4,7 +4,7 @@
 #include <Editor/Widget/Element/Label.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/Surface.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
 #include <utility>

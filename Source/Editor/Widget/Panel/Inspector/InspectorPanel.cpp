@@ -19,13 +19,13 @@
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
-#include <Editor/Widget/Layout/VerticalLayout.h>
+#include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/ComponentPickerPopup.h>
-#include <Editor/Widget/WidgetSystem.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Engine/Asset/Asset.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -145,7 +145,7 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
         this,
         [this, addComponentButton, inspectedUnit]
         {
-            PopupLayer& popupLayer = gEditor->GetWidgetSystem().GetPopupLayer();
+            PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
 
             ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *inspectedUnit);
             popup->GetComponentSelectedRay().Register(

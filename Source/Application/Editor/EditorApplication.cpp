@@ -46,7 +46,6 @@ void EditorApplication::Run()
         editor->Update();
 
         engine->BeginRender();
-        editor->PrepareRender();
 
         engine->Render(editor->BuildRenderRequest());
 

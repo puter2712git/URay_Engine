@@ -11,7 +11,7 @@ namespace URay
 class CameraComponent;
 class Scene;
 
-class WidgetSystem;
+class EditorUI;
 class EditorSettings;
 class SelectionSystem;
 class VisualSystem;
@@ -32,8 +32,6 @@ public:
     void Finalize();
 
     void Update();
-    void PrepareRender();
-
     void SetUseEditorCamera(bool value) { useEditorCamera = value; }
     bool UsingEditorCamera() const { return useEditorCamera; }
 
@@ -41,7 +39,7 @@ public:
 
     void LoadGameScene(const VirtualPath& scenePath);
 
-    WidgetSystem& GetWidgetSystem() const { return *widgetSystem; }
+    EditorUI& GetEditorUI() const { return *editorUI; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
     InspectSystem& GetInspectSystem() const { return *inspectSystem; }
 
@@ -62,7 +60,7 @@ private:
     void UpdatePerformanceViewModel();
 
 private:
-    std::unique_ptr<WidgetSystem> widgetSystem = nullptr;
+    std::unique_ptr<EditorUI> editorUI = nullptr;
     std::unique_ptr<ViewportController> viewportController = nullptr;
     std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
     std::unique_ptr<VisualSystem> visualSystem = nullptr;

@@ -3,6 +3,7 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Scene/SceneSystem.h>
+#include <Engine/UI/UISystem.h>
 
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Input/InputSystem.h>
@@ -18,6 +19,7 @@
 
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/RenderPipeline.h>
+#include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/Renderer.h>
 
 #include <GLFW/glfw3.h>
@@ -92,6 +94,10 @@ bool Engine::Initialize(
         return false;
     }
 
+    uiSystem = std::make_unique<UISystem>(*window, *inputSystem);
+    uiSystem->Initialize();
+    renderSystem->GetPipeline().AddRenderPass(std::make_unique<Render::UIPass>());
+
     assetSystem = std::make_unique<AssetSystem>();
     if (!assetSystem->Initialize(enginePath, projectPath))
     {
@@ -119,7 +125,16 @@ void Engine::Finalize()
     if (renderSystem)
     {
         renderSystem->WaitIdle();
+    }
 
+    if (uiSystem)
+    {
+        uiSystem->Finalize();
+        uiSystem.reset();
+    }
+
+    if (renderSystem)
+    {
         renderSystem->Finalize();
         renderSystem.reset();
     }
@@ -194,6 +209,8 @@ void Engine::Update()
     timer->Tick();
     scheduler->Update(timer->GetDeltaTime());
 
+    uiSystem->Update(timer->GetDeltaTime());
+
     sceneSystem->Update(timer->GetDeltaTime());
 }
 
@@ -203,6 +220,9 @@ void Engine::BeginRender()
 
     renderSystem->GetPipeline().Reset();
     renderSystem->BeginFrame();
+
+    uiSystem->PrepareRender();
+    uiSystem->Paint();
 }
 
 void Engine::Render(const Render::RenderRequest& request)

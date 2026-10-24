@@ -1,7 +1,7 @@
 #include "BreadcrumbBar.h"
 
 #include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Layout/HorizontalLayout.h>
+#include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbItem.h>
 
 namespace URay
