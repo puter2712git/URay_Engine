@@ -69,7 +69,7 @@ void UIDrawContext::AddOutlineRect(const Rect& rect, float thickness, const Colo
                   color);
 }
 
-void UIDrawContext::AddText(const Vector2& position, std::string_view utf8Text, const TextStyle& style)
+void UIDrawContext::AddText(const Vector2& baselinePosition, std::string_view utf8Text, const TextStyle& style)
 {
     RenderSystem& renderSystem = gEngine->GetRenderSystem();
     ResourceManager& resourceManager = renderSystem.GetResourceManager();
@@ -79,8 +79,8 @@ void UIDrawContext::AddText(const Vector2& position, std::string_view utf8Text, 
     if (!fontAtlas)
         return;
 
-    float penX = position.x;
-    const float baselineY = position.y + fontAtlas->GetPixelHeight();
+    float penX = baselinePosition.x;
+    const float baselineY = baselinePosition.y;
 
     std::u32string u32String = UTF8::Decode(utf8Text);
 

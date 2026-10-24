@@ -31,6 +31,7 @@ public:
     FontFace* GetOrCreateFace(AssetHandle fontHandle);
     FontAtlas* GetOrCreateAtlas(AssetHandle fontHandle, uint32 pixelHeight);
     const Glyph* GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint);
+    const FontMetrics* GetMetrics(AssetHandle fontHandle, uint32 pixelHeight);
 
     Vector2 MeasureText(const std::string& text, AssetHandle fontHandle, uint32 pixelHeight);
 

@@ -19,6 +19,13 @@ class FontFace;
 class Texture;
 class TextureView;
 
+struct FontMetrics
+{
+    float ascender = 0.0f;
+    float descender = 0.0f;
+    float lineHeight = 0.0f;
+};
+
 struct Glyph
 {
     uint32 atlasX = 0;
@@ -55,13 +62,15 @@ class FontAtlas
     friend class FontSystem;
 
 public:
-    FontAtlas(FontFace* face, uint32 pixelHeight);
+    FontAtlas(FontFace* face, uint32 pixelHeight, const FontMetrics& metrics);
     ~FontAtlas();
 
 public:
     const Glyph* FindGlyph(char32_t codepoint) const;
 
     uint32 GetPixelHeight() const { return pixelHeight; }
+    const FontMetrics& GetMetrics() const { return metrices; }
+
     uint32 GetWidth() const { return width; }
     uint32 GetHeight() const { return height; }
     TextureView* GetTextureView() const { return view.get(); }
@@ -69,6 +78,8 @@ public:
 private:
     FontFace* face = nullptr;
     uint32 pixelHeight = 0;
+
+    FontMetrics metrices = {};
 
     uint32 width = 1024;
     uint32 height = 1024;

@@ -37,9 +37,7 @@ TextBox::TextBox(const std::string& text) : text(text) {}
 EventReply TextBox::OnPointerEnter()
 {
     return EventReply{
-        .cursor = isReadonly
-                      ? CursorType::ARROW
-                      : CursorType::TEXT
+        .cursor = isReadonly ? CursorType::ARROW : CursorType::TEXT
     };
 }
 
@@ -201,6 +199,13 @@ Vector2 TextBox::OnMeasure()
 
 void TextBox::OnPaint(Render::UIDrawContext& context)
 {
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
+
+    const Render::FontMetrics* metrics = fontSystem.GetMetrics(textStyle.fontHandle, textStyle.pixelHeight);
+    if (!metrics)
+        return;
+
     Color background = normalColor;
 
     if (IsFocused())
@@ -219,10 +224,6 @@ void TextBox::OnPaint(Render::UIDrawContext& context)
 
     if (IsEditing() && IsFocused() && HasSelection())
     {
-        Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-        Render::FontSystem& fontSystem =
-            renderSystem.GetResourceManager().GetFontSystem();
-
         const std::string prefixBeforeSelection =
             UTF8::Encode(editingText.substr(0, GetSelectionStart()));
 
@@ -245,12 +246,16 @@ void TextBox::OnPaint(Render::UIDrawContext& context)
             content.position.y);
         selectionRect.size = Vector2(
             selectionEndSize.x - selectionStartSize.x,
-            static_cast<float>(textStyle.pixelHeight));
+            metrics->lineHeight);
 
         context.AddFilledRect(selectionRect, selectionColor);
     }
 
-    context.AddText(content.position, text, textStyle);
+    const Vector2 textPosition = Vector2(
+        content.position.x,
+        content.position.y + metrics->ascender);
+
+    context.AddText(textPosition, text, textStyle);
 }
 
 void TextBox::OnPaintForeground(Render::UIDrawContext& context)
@@ -263,12 +268,16 @@ void TextBox::OnPaintForeground(Render::UIDrawContext& context)
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
 
+    const Render::FontMetrics* metrics = fontSystem.GetMetrics(textStyle.fontHandle, textStyle.pixelHeight);
+    if (!metrics)
+        return;
+
     const std::string prefix = UTF8::Encode(editingText.substr(0, caretIndex));
     const Vector2 prefixSize = fontSystem.MeasureText(prefix, textStyle.fontHandle, textStyle.pixelHeight);
 
     Rect caretRect;
     caretRect.position = Vector2(content.position.x + prefixSize.x, content.position.y);
-    caretRect.size = Vector2(1.0f, static_cast<float>(textStyle.pixelHeight));
+    caretRect.size = Vector2(1.0f, metrics->lineHeight);
 
     context.AddFilledRect(caretRect, caretColor);
 }

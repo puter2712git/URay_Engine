@@ -6,8 +6,8 @@
 namespace URay::Render
 {
 
-FontAtlas::FontAtlas(FontFace* face, uint32 pixelHeight)
-    : face(face), pixelHeight(pixelHeight)
+FontAtlas::FontAtlas(FontFace* face, uint32 pixelHeight, const FontMetrics& metrics)
+    : face(face), pixelHeight(pixelHeight), metrices(metrics)
 {
     pixels.resize(width * height * 4, 0);
 }

@@ -23,6 +23,13 @@ Vector2 Label::OnMeasure()
 
 void Label::OnPaint(Render::UIDrawContext& context)
 {
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();
+
+    const Render::FontMetrics* metrics = fontSystem.GetMetrics(style.fontHandle, style.pixelHeight);
+    if (!metrics)
+        return;
+
     Vector2 textPosition = rect.position;
     const Vector2& textSize = GetDesiredSize();
 
@@ -53,6 +60,8 @@ void Label::OnPaint(Render::UIDrawContext& context)
         textPosition.y += rect.size.y - textSize.y;
         break;
     }
+
+    textPosition.y += metrics->ascender;
 
     context.AddText(textPosition, text, style);
 }

@@ -58,7 +58,7 @@ public:
 
     void AddFilledRect(const Rect& rect, const Color& color);
     void AddOutlineRect(const Rect& rect, float thickness, const Color& color);
-    void AddText(const Vector2& position, std::string_view utf8Text, const TextStyle& style);
+    void AddText(const Vector2& baselinePosition, std::string_view utf8Text, const TextStyle& style);
     void AddImage(const Rect& rect, const UIImage& image, const Color& color = Color::White);
 
     const std::vector<UIDrawBatch>& GetBatches() const { return batches; }

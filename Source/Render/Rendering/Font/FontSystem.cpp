@@ -187,7 +187,18 @@ FontAtlas* FontSystem::GetOrCreateAtlas(AssetHandle fontHandle, uint32 pixelHeig
         return ret;
     }
 
-    std::unique_ptr<FontAtlas> atlas = std::make_unique<FontAtlas>(face, pixelHeight);
+    if (FT_Set_Pixel_Sizes(face->nativeFace, 0, pixelHeight) != FT_Err_Ok)
+        return nullptr;
+
+    const FT_Size_Metrics& metrics = face->nativeFace->size->metrics;
+
+    FontMetrics fontMetrics = {
+        .ascender = static_cast<float>(metrics.ascender) / 64.0f,
+        .descender = static_cast<float>(metrics.descender) / 64.0f,
+        .lineHeight = static_cast<float>(metrics.height) / 64.0f
+    };
+
+    std::unique_ptr<FontAtlas> atlas = std::make_unique<FontAtlas>(face, pixelHeight, fontMetrics);
 
     ret = atlas.get();
     atlases.insert({ key, std::move(atlas) });
@@ -285,6 +296,15 @@ const Glyph* FontSystem::GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint)
     return ret;
 }
 
+const FontMetrics* FontSystem::GetMetrics(AssetHandle fontHandle, uint32 pixelHeight)
+{
+    FontAtlas* atlas = GetOrCreateAtlas(fontHandle, pixelHeight);
+    if (!atlas)
+        return nullptr;
+
+    return &atlas->GetMetrics();
+}
+
 Vector2 FontSystem::MeasureText(
     const std::string& text,
     AssetHandle fontHandle,
@@ -305,7 +325,7 @@ Vector2 FontSystem::MeasureText(
         width += glyph->advance;
     }
 
-    return Vector2(width, static_cast<float>(atlas->GetPixelHeight()));
+    return Vector2(width, atlas->GetMetrics().lineHeight);
 }
 
 } // namespace URay::Render
