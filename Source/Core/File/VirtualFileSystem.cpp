@@ -16,6 +16,7 @@ bool VirtualFileSystem::Initialize(
     Mount("Engine", enginePath);
     Mount("Project", projectPath);
     Mount("Asset", std::filesystem::path(projectPath) / "Asset/Source");
+    Mount("External", std::filesystem::path(projectPath) / "External");
 
     return true;
 }
