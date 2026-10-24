@@ -9,7 +9,6 @@
 #include <Engine/Asset/Font/Font.h>
 #include <Engine/Asset/Font/FontSerializer.h>
 #include <Engine/Asset/Importer/ImportRequest.h>
-#include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
 #include <Engine/Asset/Importer/TextureImporter.h>

@@ -8,7 +8,6 @@
 #include <Engine/Asset/Importer/FBXImporter.h>
 #include <Engine/Asset/Importer/FontImporter.h>
 #include <Engine/Asset/Importer/ImportRequest.h>
-#include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
 #include <Engine/Asset/Importer/TextureImporter.h>
@@ -21,8 +20,6 @@ AssetPipeline::AssetPipeline(AssetSystem& assetSystem, VirtualFileSystem& fileSy
     : assetSystem(assetSystem), fileSystem(fileSystem)
 {
     importers.push_back(std::make_unique<TextureImporter>(assetSystem, fileSystem));
-    importers.push_back(std::make_unique<ShaderImporter>(assetSystem, fileSystem));
-    importers.push_back(std::make_unique<MaterialImporter>(assetSystem, fileSystem));
     importers.push_back(std::make_unique<FontImporter>(assetSystem, fileSystem));
     importers.push_back(std::make_unique<OBJImporter>(assetSystem, fileSystem));
     importers.push_back(std::make_unique<FBXImporter>(assetSystem, fileSystem));

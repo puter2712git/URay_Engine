@@ -1,12 +1,12 @@
 #include "ShaderImporter.h"
 
-#include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Asset/Shader/Shader.h>
-#include <Engine/Engine.h>
-
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Importer/ImportRequest.h>
+#include <Engine/Asset/Shader/Shader.h>
+#include <Engine/Engine.h>
 
 namespace URay
 {
@@ -16,10 +16,10 @@ ShaderImporter::ShaderImporter(AssetSystem& assetSystem, VirtualFileSystem& file
 
 ShaderImporter::~ShaderImporter() = default;
 
-ImportResult ShaderImporter::Import(const VirtualPath& sourcePath)
+ImportResult ShaderImporter::Import(const ImportRequest& request)
 {
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Shader::StaticClass());
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(request.sourcePath);
+    const AssetMetadata metadata = LoadOrCreateMetadata(request.sourcePath, metadataPath, Shader::StaticClass());
 
     ImportResult result = ImportResult::Success();
     result.metadatas.push_back(metadata);

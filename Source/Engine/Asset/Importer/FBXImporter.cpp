@@ -7,6 +7,7 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
+#include <Engine/Asset/Importer/ImportRequest.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Mesh/SkinnedMesh.h>
@@ -34,10 +35,10 @@ FBXImporter::FBXImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem
 
 FBXImporter::~FBXImporter() {}
 
-ImportResult FBXImporter::Import(const VirtualPath& sourcePath)
+ImportResult FBXImporter::Import(const ImportRequest& request)
 {
-    const VirtualPath metadataPath = assetSystem.GetMetadataPath(sourcePath);
-    const AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Mesh::StaticClass());
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(request.sourcePath);
+    const AssetMetadata metadata = LoadOrCreateMetadata(request.sourcePath, metadataPath, Mesh::StaticClass());
 
     ImportResult result = ImportResult::Failure("Failed to import FBX file");
     return result;
