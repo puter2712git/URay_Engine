@@ -1,5 +1,7 @@
 #include "NumberField.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+
 #include <Core/Math/Math.h>
 
 #include <charconv>
@@ -7,6 +9,11 @@
 
 namespace URay
 {
+
+NumberField::NumberField()
+{
+    ConfigureEditorTextBox(*this);
+}
 
 EventReply NumberField::OnPointerDown(const PointerEvent& event)
 {

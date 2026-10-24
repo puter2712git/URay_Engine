@@ -1,4 +1,6 @@
 #include "SceneTreePanel.h"
+
+#include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>
 
 #include <Editor/Editor.h>

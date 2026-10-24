@@ -1,8 +1,11 @@
 #include "ConsolePanel.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Editor/Widget/Style/EditorStyles.h>
+
 #include <Core/Log/ConsoleLogSink.h>
 #include <Core/Log/LogSystem.h>
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Label.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Engine.h>
@@ -63,7 +66,7 @@ void ConsolePanel::OnUpdate(float deltaTime)
 
     for (const std::string& entry : logEntries)
     {
-        Label* line = logLayout->AddChild<Label>(entry);
+        Label* line = CreateEditorLabel(*logLayout, entry);
         line->SetTextStyle(EditorStyle::SmallText());
     }
 

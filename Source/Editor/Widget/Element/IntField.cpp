@@ -1,5 +1,7 @@
 #include "IntField.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+
 #include <Core/Math/Math.h>
 
 #include <algorithm>
@@ -10,6 +12,11 @@
 
 namespace URay
 {
+
+IntField::IntField()
+{
+    ConfigureEditorTextBox(*this);
+}
 
 EventReply IntField::OnPointerDown(const PointerEvent& event)
 {

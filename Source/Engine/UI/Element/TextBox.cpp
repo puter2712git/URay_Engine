@@ -201,19 +201,19 @@ Vector2 TextBox::OnMeasure()
 
 void TextBox::OnPaint(Render::UIDrawContext& context)
 {
-    Color background = EditorStyle::ControlNormal;
+    Color background = normalColor;
 
     if (IsFocused())
     {
-        background = EditorStyle::ControlPressed;
+        background = focusedColor;
     }
     else if (IsHovered())
     {
-        background = EditorStyle::ControlHovered;
+        background = hoverColor;
     }
 
     context.AddFilledRect(rect, background);
-    context.AddOutlineRect(rect, outlineWidth, EditorStyle::Border);
+    context.AddOutlineRect(rect, outlineWidth, outlineColor);
 
     const Rect content = GetContentRect();
 
@@ -247,7 +247,7 @@ void TextBox::OnPaint(Render::UIDrawContext& context)
             selectionEndSize.x - selectionStartSize.x,
             static_cast<float>(textStyle.pixelHeight));
 
-        context.AddFilledRect(selectionRect, EditorStyle::TextSelection);
+        context.AddFilledRect(selectionRect, selectionColor);
     }
 
     context.AddText(content.position, text, textStyle);
@@ -270,7 +270,7 @@ void TextBox::OnPaintForeground(Render::UIDrawContext& context)
     caretRect.position = Vector2(content.position.x + prefixSize.x, content.position.y);
     caretRect.size = Vector2(1.0f, static_cast<float>(textStyle.pixelHeight));
 
-    context.AddFilledRect(caretRect, EditorStyle::TextPrimary);
+    context.AddFilledRect(caretRect, caretColor);
 }
 
 void TextBox::BeginEdit()

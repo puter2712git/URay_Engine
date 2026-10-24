@@ -1,10 +1,12 @@
 #include "StatusPanel.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+
 #include <Core/Performance/PerformanceViewModel.h>
 #include <Core/TimeFlow/Timer.h>
 #include <Editor/Editor.h>
-#include <Editor/Widget/Element/Checkbox.h>
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Checkbox.h>
+#include <Engine/UI/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Engine/UI/Layout/CrossAxisAlignment.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
@@ -59,40 +61,40 @@ StatusPanel::StatusPanel() : Panel("Status")
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
     layout->SetGap(2.0f);
 
-    fpsLabel = layout->AddChild<Label>("FPS:");
+    fpsLabel = CreateEditorLabel(*layout, "FPS:");
     fpsLabel->SetPreferredHeight(20.0f);
     fpsLabel->SetTextStyle(EditorStyle::SmallText());
 
-    cullingStatsLabel = layout->AddChild<Label>("Cull: collecting...");
+    cullingStatsLabel = CreateEditorLabel(*layout, "Cull: collecting...");
     cullingStatsLabel->SetPreferredHeight(20.0f);
     cullingStatsLabel->SetTextStyle(EditorStyle::SmallText());
 
-    cpuFrameLabel = layout->AddChild<Label>("CPU: collecting...");
+    cpuFrameLabel = CreateEditorLabel(*layout, "CPU: collecting...");
     cpuFrameLabel->SetPreferredHeight(20.0f);
     cpuFrameLabel->SetTextStyle(EditorStyle::SmallText());
 
-    Label* cpuScopesHeader = layout->AddChild<Label>("CPU scopes:");
+    Label* cpuScopesHeader = CreateEditorLabel(*layout, "CPU scopes:");
     cpuScopesHeader->SetPreferredHeight(18.0f);
     cpuScopesHeader->SetTextStyle(EditorStyle::SmallText());
 
     for (Label*& scopeLabel : cpuScopeLabels)
     {
-        scopeLabel = layout->AddChild<Label>();
+        scopeLabel = CreateEditorLabel(*layout);
         scopeLabel->SetPreferredHeight(18.0f);
         scopeLabel->SetTextStyle(EditorStyle::SmallText());
     }
 
-    gpuFrameLabel = layout->AddChild<Label>("GPU: collecting...");
+    gpuFrameLabel = CreateEditorLabel(*layout, "GPU: collecting...");
     gpuFrameLabel->SetPreferredHeight(20.0f);
     gpuFrameLabel->SetTextStyle(EditorStyle::SmallText());
 
-    Label* gpuPassesHeader = layout->AddChild<Label>("GPU passes:");
+    Label* gpuPassesHeader = CreateEditorLabel(*layout, "GPU passes:");
     gpuPassesHeader->SetPreferredHeight(18.0f);
     gpuPassesHeader->SetTextStyle(EditorStyle::SmallText());
 
     for (Label*& scopeLabel : gpuScopeLabels)
     {
-        scopeLabel = layout->AddChild<Label>();
+        scopeLabel = CreateEditorLabel(*layout);
         scopeLabel->SetPreferredHeight(18.0f);
         scopeLabel->SetTextStyle(EditorStyle::SmallText());
     }

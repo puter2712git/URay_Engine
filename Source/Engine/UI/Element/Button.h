@@ -1,19 +1,14 @@
 #pragma once
 
-#include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/UI/Widget.h>
-
-#include <Engine/Asset/AssetHandle.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Ray/EventRay.h>
 
-#include <string_view>
+#include <memory>
 
 namespace URay
 {
-
-class Label;
 
 enum class ButtonState
 {
@@ -27,8 +22,7 @@ class Button final : public Widget
     URAY_TYPE(Button, Widget)
 
 public:
-    explicit Button(std::string_view text);
-    explicit Button(AssetHandle textureHandle);
+    explicit Button(std::unique_ptr<Widget> content);
     ~Button() override;
 
 public:
@@ -38,6 +32,12 @@ public:
     EventReply OnPointerUp(const PointerEvent& event) override;
 
     ButtonState GetState() const;
+
+    Widget& GetContent() const { return *content; }
+
+    void SetNormalColor(const Color& color) { normalColor = color; }
+    void SetHoverColor(const Color& color) { hoverColor = color; }
+    void SetPressedColor(const Color& color) { pressedColor = color; }
 
     EventRay<>& GetOnClickRay() { return onClickRay; }
 
@@ -49,9 +49,9 @@ protected:
 private:
     Widget* content = nullptr;
 
-    Color normalColor = EditorStyle::ControlNormal;
-    Color hoverColor = EditorStyle::ControlHovered;
-    Color pressedColor = EditorStyle::ControlPressed;
+    Color normalColor = {};
+    Color hoverColor = {};
+    Color pressedColor = {};
 
     EventRay<> onClickRay;
 };

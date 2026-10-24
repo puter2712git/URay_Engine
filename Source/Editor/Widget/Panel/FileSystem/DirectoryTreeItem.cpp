@@ -1,7 +1,9 @@
 #include "DirectoryTreeItem.h"
 
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+
+#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -19,7 +21,7 @@ DirectoryTreeItem::DirectoryTreeItem(VirtualPath path, uint32 depth, bool expand
     layout->SetPadding(Padding(0.0f, 0.0f, 0.0f, depth * 16.0f));
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
 
-    disclosureLabel = layout->AddChild<Label>(expanded ? "v" : ">");
+    disclosureLabel = CreateEditorLabel(*layout, expanded ? "v" : ">");
     disclosureLabel->SetPreferredWidth(16.0f);
     disclosureLabel->SetTextStyle(EditorStyle::SmallText());
 
@@ -27,7 +29,7 @@ DirectoryTreeItem::DirectoryTreeItem(VirtualPath path, uint32 depth, bool expand
                                   ? this->path.GetMountName() + "://"
                                   : this->path.GetFilename();
 
-    directoryLabel = layout->AddChild<Label>(label);
+    directoryLabel = CreateEditorLabel(*layout, label);
     directoryLabel->SetTextStyle(EditorStyle::SmallText());
 }
 

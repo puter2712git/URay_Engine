@@ -1,14 +1,16 @@
 #include "PropertyRow.h"
+
+#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
 
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Label.h>
 
 namespace URay
 {
 
 PropertyRow::PropertyRow(const std::string& name)
 {
-    nameLabel = AddChild<Label>(name);
+    nameLabel = CreateEditorLabel(*this, name);
 }
 
 void PropertyRow::Arrange(const Rect& rect)

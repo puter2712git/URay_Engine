@@ -2,6 +2,7 @@
 
 #include <Engine/UI/Widget.h>
 
+#include <Core/Math/Color.h>
 #include <Core/Ray/EventRay.h>
 
 namespace URay
@@ -18,6 +19,12 @@ public:
     bool IsChecked() const { return checked; }
     void SetChecked(bool value) { checked = value; }
 
+    void SetNormalColor(const Color& color) { normalColor = color; }
+    void SetHoverColor(const Color& color) { hoverColor = color; }
+    void SetPressedColor(const Color& color) { pressedColor = color; }
+    void SetOutlineColor(const Color& color) { outlineColor = color; }
+    void SetCheckmarkColor(const Color& color) { checkmarkColor = color; }
+
     EventRay<bool>& GetValueChangeRay() { return valueChangeRay; }
 
 protected:
@@ -28,6 +35,12 @@ protected:
 private:
     Rect indicatorRect = {};
     bool checked = false;
+
+    Color normalColor = {};
+    Color hoverColor = {};
+    Color pressedColor = {};
+    Color outlineColor = {};
+    Color checkmarkColor = {};
 
     EventRay<bool> valueChangeRay;
 };

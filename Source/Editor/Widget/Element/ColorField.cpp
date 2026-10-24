@@ -1,7 +1,9 @@
 #include "ColorField.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+
 #include <Core/Math/Math.h>
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Label.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -29,19 +31,19 @@ Render::TextStyle MakeComponentLabelStyle(const Color& color)
 
 ColorField::ColorField()
 {
-    rLabel = AddChild<Label>("R");
+    rLabel = CreateEditorLabel(*this, "R");
     rLabel->SetTextStyle(MakeComponentLabelStyle(Color::Red));
     rField = AddChild<NumberField>();
 
-    gLabel = AddChild<Label>("G");
+    gLabel = CreateEditorLabel(*this, "G");
     gLabel->SetTextStyle(MakeComponentLabelStyle(Color::Green));
     gField = AddChild<NumberField>();
 
-    bLabel = AddChild<Label>("B");
+    bLabel = CreateEditorLabel(*this, "B");
     bLabel->SetTextStyle(MakeComponentLabelStyle(Color::Blue));
     bField = AddChild<NumberField>();
 
-    aLabel = AddChild<Label>("A");
+    aLabel = CreateEditorLabel(*this, "A");
     aLabel->SetTextStyle(MakeComponentLabelStyle(EditorStyle::TextPrimary));
     aField = AddChild<NumberField>();
 

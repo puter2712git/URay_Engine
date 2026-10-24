@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Editor/Widget/Element/TextBox.h>
+#include <Engine/UI/Element/TextBox.h>
 
 #include <Core/Ray/EventRay.h>
 #include <Core/Type/Types.h>
@@ -11,6 +11,8 @@ namespace URay
 class IntField final : public TextBox
 {
 public:
+    IntField();
+
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;

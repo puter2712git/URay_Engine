@@ -1,7 +1,9 @@
 #include "FileGridItem.h"
 
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+
+#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -28,7 +30,7 @@ FileGridItem::FileGridItem(VirtualFileEntry entry) : entry(std::move(entry))
             ? Color::FromRGB(0xC0, 0x90, 0x30)
             : EditorStyle::Separator);
 
-    nameLabel = layout->AddChild<Label>(this->entry.path.GetFilename());
+    nameLabel = CreateEditorLabel(*layout, this->entry.path.GetFilename());
     nameLabel->SetTextStyle(EditorStyle::SmallText());
 }
 

@@ -1,7 +1,8 @@
 #include "ViewportToolbar.h"
 
-#include <Editor/Widget/Element/Button.h>
-#include <Editor/Widget/Element/Image.h>
+#include <Engine/UI/Element/Button.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Engine/UI/Element/Image.h>
 #include <Engine/UI/Layout/HorizontalLayout.h>
 
 #include <Engine/Asset/EngineAsset.h>
@@ -15,30 +16,30 @@ ViewportToolbar::ViewportToolbar()
     gizmoModeButtonLayout->SetPadding(Padding(5.0f, 5.0f));
     gizmoModeButtonLayout->SetGap(5.0f);
 
-    gizmoModeButtons[0] = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::TranslationGizmoIconTexture);
+    gizmoModeButtons[0] = CreateEditorIconButton(*gizmoModeButtonLayout, EngineAsset::TranslationGizmoIconTexture);
     gizmoModeButtons[0]->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    gizmoModeButtons[1] = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::RotationGizmoIconTexture);
+    gizmoModeButtons[1] = CreateEditorIconButton(*gizmoModeButtonLayout, EngineAsset::RotationGizmoIconTexture);
     gizmoModeButtons[1]->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    gizmoModeButtons[2] = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::ScaleGizmoIconTexture);
+    gizmoModeButtons[2] = CreateEditorIconButton(*gizmoModeButtonLayout, EngineAsset::ScaleGizmoIconTexture);
     gizmoModeButtons[2]->SetPreferredSize(Vector2(30.0f, 30.0f));
 
-    gizmoSpaceToggleButton = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::GizmoLocalSpaceIconTexture);
+    gizmoSpaceToggleButton = CreateEditorIconButton(*gizmoModeButtonLayout, EngineAsset::GizmoLocalSpaceIconTexture);
     gizmoSpaceToggleButton->SetPreferredSize(Vector2(30.0f, 30.0f));
     gizmoSpaceImage = static_cast<Image*>(gizmoSpaceToggleButton->GetChildren()[0].get());
 
-    viewModeToggleButton = gizmoModeButtonLayout->AddChild<Button>(EngineAsset::ViewModeIconTexture);
+    viewModeToggleButton = CreateEditorIconButton(*gizmoModeButtonLayout, EngineAsset::ViewModeIconTexture);
     viewModeToggleButton->SetPreferredSize(Vector2(30.0f, 30.0f));
 
     playControlLayout = AddChild<HorizontalLayout>();
     playControlLayout->SetPadding(Padding(5.0f, 5.0f));
     playControlLayout->SetGap(5.0f);
 
-    playButton = playControlLayout->AddChild<Button>("Play");
+    playButton = CreateEditorButton(*playControlLayout, "Play");
     playButton->SetPreferredSize(Vector2(60.0f, 30.0f));
 
-    stopButton = playControlLayout->AddChild<Button>("Stop");
+    stopButton = CreateEditorButton(*playControlLayout, "Stop");
     stopButton->SetPreferredSize(Vector2(60.0f, 30.0f));
 }
 

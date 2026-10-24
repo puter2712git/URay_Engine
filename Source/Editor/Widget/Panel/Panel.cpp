@@ -1,4 +1,6 @@
 #include "Panel.h"
+
+#include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>
 
 #include <Editor/Widget/Panel/PanelHeader.h>

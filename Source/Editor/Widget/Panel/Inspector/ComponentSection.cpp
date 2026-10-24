@@ -1,7 +1,10 @@
 #include "ComponentSection.h"
+
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>
 
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Label.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
 
 namespace URay
@@ -9,7 +12,7 @@ namespace URay
 
 ComponentSection::ComponentSection(const std::string& title)
 {
-    titleLabel = AddChild<Label>(title);
+    titleLabel = CreateEditorLabel(*this, title);
 
     content = AddChild<VerticalLayout>();
     content->SetGap(2.0f);

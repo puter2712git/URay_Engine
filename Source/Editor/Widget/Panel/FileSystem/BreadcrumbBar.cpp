@@ -1,6 +1,9 @@
 #include "BreadcrumbBar.h"
 
-#include <Editor/Widget/Element/Label.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Editor/Widget/Style/EditorStyles.h>
+
+#include <Engine/UI/Element/Label.h>
 #include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbItem.h>
 
@@ -77,7 +80,7 @@ void BreadcrumbBar::RebuildItems()
 
         if (!segment.empty())
         {
-            Label* separator = layout->AddChild<Label>(">");
+            Label* separator = CreateEditorLabel(*layout, ">");
             separator->SetTextStyle(EditorStyle::SmallText());
 
             accumulatedPath = accumulatedPath.Join(segment);

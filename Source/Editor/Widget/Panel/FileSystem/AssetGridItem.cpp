@@ -1,8 +1,10 @@
 #include "AssetGridItem.h"
 
-#include <Editor/Widget/Element/Image.h>
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+
+#include <Engine/UI/Element/Image.h>
+#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/Texture/Texture.h>
@@ -38,7 +40,7 @@ AssetGridItem::AssetGridItem(AssetEntry entry) : entry(std::move(entry))
     if (isTexture)
         thumbnailImage = thumbnailSurface->AddChild<Image>(this->entry.assetHandle);
 
-    nameLabel = layout->AddChild<Label>(this->entry.displayName);
+    nameLabel = CreateEditorLabel(*layout, this->entry.displayName);
     nameLabel->SetTextStyle(EditorStyle::SmallText());
 }
 

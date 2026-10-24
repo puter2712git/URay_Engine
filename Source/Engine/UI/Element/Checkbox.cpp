@@ -1,9 +1,8 @@
 #include "Checkbox.h"
 #include <Core/Math/Math.h>
 
-#include <Editor/Widget/Style/EditorStyles.h>
-
 #include <Core/Math/Color.h>
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 namespace URay
 {
@@ -51,15 +50,15 @@ EventReply Checkbox::OnPointerUp(const PointerEvent& event)
 
 void Checkbox::OnPaint(Render::UIDrawContext& context)
 {
-    Color background = EditorStyle::ControlNormal;
+    Color background = normalColor;
 
     if (HasPointerCapture())
-        background = EditorStyle::ControlPressed;
+        background = pressedColor;
     else if (IsHovered())
-        background = EditorStyle::ControlHovered;
+        background = hoverColor;
 
     context.AddFilledRect(indicatorRect, background);
-    context.AddOutlineRect(indicatorRect, 1.0f, EditorStyle::Border);
+    context.AddOutlineRect(indicatorRect, 1.0f, outlineColor);
 
     if (!checked)
         return;
@@ -72,7 +71,7 @@ void Checkbox::OnPaint(Render::UIDrawContext& context)
         Math::Max(0.0f, indicatorRect.size.x - inset * 2.0f),
         Math::Max(0.0f, indicatorRect.size.y - inset * 2.0f));
 
-    context.AddFilledRect(markRect, EditorStyle::TextPrimary);
+    context.AddFilledRect(markRect, checkmarkColor);
 }
 
 } // namespace URay

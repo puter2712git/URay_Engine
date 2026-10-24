@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Editor/Widget/Style/EditorStyles.h>
-#include <Engine/UI/Widget.h>
-
+#include <Core/Math/Color.h>
 #include <Core/Math/Padding.h>
+#include <Engine/UI/Widget.h>
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <string>
 
@@ -27,8 +27,14 @@ public:
     const std::string& GetText() const { return text; }
     void SetText(const std::string& text) { this->text = text; }
 
+    void SetTextStyle(const Render::TextStyle& style) { textStyle = style; }
     void SetOutlineColor(const Color& color) { outlineColor = color; }
     void SetOutlineWidth(float width) { outlineWidth = width; }
+    void SetNormalColor(const Color& color) { normalColor = color; }
+    void SetHoverColor(const Color& color) { hoverColor = color; }
+    void SetFocusedColor(const Color& color) { focusedColor = color; }
+    void SetSelectionColor(const Color& color) { selectionColor = color; }
+    void SetCaretColor(const Color& color) { caretColor = color; }
 
     bool IsEditing() const { return isEditing; }
     bool IsTextInputActive() const override { return isEditing; }
@@ -82,9 +88,14 @@ private:
     bool isReadonly = false;
 
     Padding padding = Padding(6.0f, 4.0f);
-    Render::TextStyle textStyle = EditorStyle::SmallText();
+    Render::TextStyle textStyle = {};
 
-    Color outlineColor = EditorStyle::Border;
+    Color normalColor = {};
+    Color hoverColor = {};
+    Color focusedColor = {};
+    Color outlineColor = {};
+    Color selectionColor = {};
+    Color caretColor = {};
     float outlineWidth = 1.0f;
 
     size_t caretIndex = 0;

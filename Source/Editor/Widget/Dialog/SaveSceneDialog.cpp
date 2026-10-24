@@ -2,10 +2,11 @@
 #include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Editor/Widget/Element/Button.h>
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Button.h>
+#include <Engine/UI/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridView.h>
@@ -46,11 +47,11 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
     contentScroll = AddChild<ScrollView>();
     fileGrid = contentScroll->SetContent<FileGridView>();
 
-    filenameLabel = AddChild<Label>("File name");
+    filenameLabel = CreateEditorLabel(*this, "File name");
     filenameField = AddChild<StringField>();
     filenameField->SetText("Untitled.scene");
 
-    validationLabel = AddChild<Label>();
+    validationLabel = CreateEditorLabel(*this);
     validationLabel->SetTextStyle(EditorStyle::SmallText());
 
     actionLayout = AddChild<HorizontalLayout>();
@@ -58,10 +59,10 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
     actionLayout->SetMainAxisAlignment(MainAxisAlignment::End);
     actionLayout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
 
-    saveButton = actionLayout->AddChild<Button>("Save");
+    saveButton = CreateEditorButton(*actionLayout, "Save");
     saveButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
-    cancelButton = actionLayout->AddChild<Button>("Cancel");
+    cancelButton = CreateEditorButton(*actionLayout, "Cancel");
     cancelButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
     breadcrumbBar->GetOnPathActivatedRay().Register(

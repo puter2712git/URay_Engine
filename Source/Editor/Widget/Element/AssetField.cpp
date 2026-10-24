@@ -1,7 +1,9 @@
 #include "AssetField.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+
 #include <Editor/Editor.h>
-#include <Editor/Widget/Element/TextBox.h>
+#include <Engine/UI/Element/TextBox.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Popup/AssetPickerPopup.h>
 #include <Editor/Widget/EditorUI.h>
@@ -14,7 +16,7 @@ namespace URay
 
 AssetField::AssetField(Class* assetClass) : assetClass(assetClass)
 {
-    textBox = AddChild<TextBox>("None");
+    textBox = CreateEditorTextBox(*this, "None");
     textBox->SetReadonly(true);
 }
 

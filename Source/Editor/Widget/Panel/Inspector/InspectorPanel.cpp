@@ -1,5 +1,8 @@
 #include "InspectorPanel.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Editor/Widget/Style/EditorStyles.h>
+
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
@@ -8,8 +11,8 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/AssetField.h>
-#include <Editor/Widget/Element/Button.h>
-#include <Editor/Widget/Element/Checkbox.h>
+#include <Engine/UI/Element/Button.h>
+#include <Engine/UI/Element/Checkbox.h>
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float2Field.h>
 #include <Editor/Widget/Element/Float3Field.h>
@@ -139,7 +142,7 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
 
     Unit* inspectedUnit = &unit;
 
-    Button* addComponentButton = layout->AddChild<Button>("Add Component");
+    Button* addComponentButton = CreateEditorButton(*layout, "Add Component");
     addComponentButton->SetPreferredHeight(26.0f);
     addComponentButton->GetOnClickRay().Register(
         this,
@@ -240,6 +243,7 @@ void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& objec
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
     Checkbox* checkbox = row->SetValueWidget<Checkbox>();
+    ConfigureEditorCheckbox(*checkbox);
     checkbox->SetChecked(*value);
 
     checkbox->GetValueChangeRay().Register(

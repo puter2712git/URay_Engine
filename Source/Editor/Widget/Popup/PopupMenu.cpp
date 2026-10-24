@@ -1,9 +1,10 @@
 #include "PopupMenu.h"
 
-#include <Editor/Widget/Element/Button.h>
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Button.h>
+#include <Engine/UI/Element/Label.h>
 #include <Editor/Widget/Element/Separator.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -35,7 +36,7 @@ Button* PopupMenu::AddMenuItem(
     std::string_view text,
     std::function<void()> onClick)
 {
-    Button* button = layout->AddChild<Button>(text);
+    Button* button = CreateEditorButton(*layout, text);
     button->SetPreferredHeight(18.0f);
 
     Label* label = Cast<Label>(button->GetChildren()[0].get());

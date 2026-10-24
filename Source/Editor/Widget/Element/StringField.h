@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Editor/Widget/Element/TextBox.h>
+#include <Engine/UI/Element/TextBox.h>
 
 #include <Core/Ray/EventRay.h>
 
@@ -10,6 +10,8 @@ namespace URay
 class StringField : public TextBox
 {
 public:
+    StringField();
+
     EventRay<>& GetValueChangedRay() { return valueChangedRay; }
     EventRay<>& GetValueCommittedRay() { return valueCommittedRay; }
 

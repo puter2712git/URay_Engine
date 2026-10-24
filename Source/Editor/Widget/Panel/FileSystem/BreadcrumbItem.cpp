@@ -1,7 +1,9 @@
 #include "BreadcrumbItem.h"
 
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+
+#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
 namespace URay
@@ -16,7 +18,7 @@ BreadcrumbItem::BreadcrumbItem(VirtualPath path) : path(path)
                                  ? this->path.GetMountName() + "://"
                                  : this->path.GetFilename();
 
-    label = surface->AddChild<Label>(text);
+    label = CreateEditorLabel(*surface, text);
     label->SetTextStyle(EditorStyle::SmallText());
 }
 

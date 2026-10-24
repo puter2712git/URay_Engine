@@ -2,9 +2,10 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Math/Math.h>
-#include <Editor/Widget/Element/Button.h>
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Engine/UI/Element/Button.h>
+#include <Engine/UI/Element/Label.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridView.h>
 #include <Editor/Widget/Panel/ScrollView.h>
@@ -43,14 +44,14 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
     contentScroll = AddChild<ScrollView>();
     fileGrid = contentScroll->SetContent<FileGridView>();
 
-    destinationLabel = AddChild<Label>();
+    destinationLabel = CreateEditorLabel(*this);
     destinationLabel->SetText("Double-click a source file to import to: " + outputDirectory.ToString());
     destinationLabel->SetTextStyle(EditorStyle::SmallText());
 
-    validationLabel = AddChild<Label>();
+    validationLabel = CreateEditorLabel(*this);
     validationLabel->SetTextStyle(EditorStyle::SmallText());
 
-    cancelButton = AddChild<Button>("Cancel");
+    cancelButton = CreateEditorButton(*this, "Cancel");
     cancelButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
     breadcrumbBar->GetOnPathActivatedRay().Register(

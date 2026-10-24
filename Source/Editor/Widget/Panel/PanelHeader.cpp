@@ -1,6 +1,8 @@
 #include "PanelHeader.h"
 
-#include <Editor/Widget/Element/Label.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+
+#include <Engine/UI/Element/Label.h>
 #include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -15,7 +17,7 @@ PanelHeader::PanelHeader(const std::string& name)
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
     layout->SetPadding(Padding(5.0f, 0.0f));
 
-    Label* label = layout->AddChild<Label>(name);
+    Label* label = CreateEditorLabel(*layout, name);
 }
 
 void PanelHeader::Arrange(const Rect& rect)

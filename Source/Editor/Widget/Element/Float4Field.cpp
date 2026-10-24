@@ -1,7 +1,9 @@
 #include "Float4Field.h"
+
+#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
 
-#include <Editor/Widget/Element/Label.h>
+#include <Engine/UI/Element/Label.h>
 #include <Editor/Widget/Element/NumberField.h>
 
 #include <algorithm>
@@ -19,13 +21,13 @@ constexpr float LabelFieldGap = 4.0f;
 
 Float4Field::Float4Field()
 {
-    xLabel = AddChild<Label>("X");
+    xLabel = CreateEditorLabel(*this, "X");
     xField = AddChild<NumberField>();
-    yLabel = AddChild<Label>("Y");
+    yLabel = CreateEditorLabel(*this, "Y");
     yField = AddChild<NumberField>();
-    zLabel = AddChild<Label>("Z");
+    zLabel = CreateEditorLabel(*this, "Z");
     zField = AddChild<NumberField>();
-    wLabel = AddChild<Label>("W");
+    wLabel = CreateEditorLabel(*this, "W");
     wField = AddChild<NumberField>();
 
     xField->GetValueChangedRay().Register(this, [this](float component) { value.x = component; valueChangedRay.Emit(value); });

@@ -1,9 +1,12 @@
 #include "SceneTreeNode.h"
 
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Editor/Widget/Style/EditorStyles.h>
+
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
-#include <Editor/Widget/Element/Label.h>
-#include <Editor/Widget/Element/Surface.h>
+#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Element/Surface.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Engine/UI/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
@@ -25,7 +28,7 @@ SceneTreeNode::SceneTreeNode()
     surface->SetPadding(Padding(5.0f, 2.0f));
 
     layout = surface->AddChild<HorizontalLayout>();
-    label = layout->AddChild<Label>();
+    label = CreateEditorLabel(*layout);
     label->SetTextStyle(EditorStyle::SmallText());
 }
 

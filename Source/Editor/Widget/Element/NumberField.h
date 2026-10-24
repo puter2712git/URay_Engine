@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Editor/Widget/Element/TextBox.h>
+#include <Engine/UI/Element/TextBox.h>
 
 #include <Core/Ray/EventRay.h>
 
@@ -10,6 +10,8 @@ namespace URay
 class NumberField final : public TextBox
 {
 public:
+    NumberField();
+
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;

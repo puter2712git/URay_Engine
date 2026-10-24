@@ -1,30 +1,14 @@
 #include "Button.h"
 
-#include <Editor/Widget/Element/Image.h>
-#include <Editor/Widget/Element/Label.h>
-
-#include <Engine/Asset/EngineAsset.h>
-
-#include <memory>
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 namespace URay
 {
 
-Button::Button(std::string_view text)
+Button::Button(std::unique_ptr<Widget> content)
 {
-    content = AddChild<Label>(text);
-
-    if (Label* label = static_cast<Label*>(content))
-    {
-        label->SetTextStyle({ .fontHandle = EngineAsset::EditorFont,
-                              .pixelHeight = 18,
-                              .color = EditorStyle::TextOnButton });
-    }
-}
-
-Button::Button(AssetHandle textureHandle)
-{
-    content = AddChild<Image>(textureHandle);
+    this->content = content.get();
+    AddChild(std::move(content));
 }
 
 Button::~Button() = default;

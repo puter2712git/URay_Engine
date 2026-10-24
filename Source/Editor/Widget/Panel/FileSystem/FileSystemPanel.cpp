@@ -1,11 +1,13 @@
 #include "FileSystemPanel.h"
+
+#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Dialog/ImportAssetDialog.h>
-#include <Editor/Widget/Element/Button.h>
+#include <Engine/UI/Element/Button.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Engine/UI/Layout/VerticalLayout.h>
@@ -30,7 +32,7 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
     directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://Asset"));
 
     breadcrumbBar = AddChild<BreadcrumbBar>();
-    importButton = AddChild<Button>("Import");
+    importButton = CreateEditorButton(*this, "Import");
     importButton->SetPreferredSize(Vector2(80.0f, 28.0f));
 
     contentScroll = AddChild<ScrollView>();
