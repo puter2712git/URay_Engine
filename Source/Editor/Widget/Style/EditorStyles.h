@@ -36,7 +36,7 @@ inline Render::TextStyle ButtonText()
     return {
         .fontHandle = EngineAsset::EditorFont,
         .pixelHeight = 18,
-        .color = Color::FromRGB(0x00, 0x00, 0x00),
+        .color = Color::FromRGB(0xFF, 0xFF, 0xFF),
     };
 }
 

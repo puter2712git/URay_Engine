@@ -23,7 +23,38 @@ Vector2 Label::OnMeasure()
 
 void Label::OnPaint(Render::UIDrawContext& context)
 {
-    context.AddText(rect.position, text, style);
+    Vector2 textPosition = rect.position;
+    const Vector2& textSize = GetDesiredSize();
+
+    switch (horizontalAlignment)
+    {
+    case HorizontalTextAlignment::Left:
+        break;
+
+    case HorizontalTextAlignment::Center:
+        textPosition.x += (rect.size.x - textSize.x) * 0.5f;
+        break;
+
+    case HorizontalTextAlignment::Right:
+        textPosition.x += rect.size.x - textSize.x;
+        break;
+    }
+
+    switch (verticalAlignment)
+    {
+    case VerticalTextAlignment::Top:
+        break;
+
+    case VerticalTextAlignment::Center:
+        textPosition.y += (rect.size.y - textSize.y) * 0.5f;
+        break;
+
+    case VerticalTextAlignment::Bottom:
+        textPosition.y += rect.size.y - textSize.y;
+        break;
+    }
+
+    context.AddText(textPosition, text, style);
 }
 
 } // namespace URay

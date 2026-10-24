@@ -26,6 +26,8 @@ Button* CreateEditorButton(Widget& parent, std::string_view text)
 {
     auto label = std::make_unique<Label>(text);
     label->SetTextStyle(EditorStyle::ButtonText());
+    label->SetHorizontalAlignment(HorizontalTextAlignment::Center);
+    label->SetVerticalAlignment(VerticalTextAlignment::Center);
 
     Button* button = parent.AddChild<Button>(std::move(label));
     button->SetNormalColor(EditorStyle::ControlNormal);
