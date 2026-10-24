@@ -79,6 +79,11 @@ bool AssetSystem::Import(const ImportRequest& request)
     return pipeline->Execute(request);
 }
 
+bool AssetSystem::CanImport(const VirtualPath& sourcePath) const
+{
+    return pipeline->CanImport(sourcePath);
+}
+
 void AssetSystem::LoadAssetsRecursive(const VirtualPath& path)
 {
     if (fileSystem->IsDirectory(path))

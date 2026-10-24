@@ -13,6 +13,7 @@ class ScrollView;
 class DirectoryTreeView;
 class BreadcrumbBar;
 class AssetGridView;
+class Button;
 class Separator;
 
 class FileSystemPanel final : public Panel
@@ -31,6 +32,9 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
+    void OpenImportDialog();
+
+private:
     VirtualPath currentPath = "Project://Asset";
     std::optional<VirtualPath> pendingPath = std::nullopt;
 
@@ -38,6 +42,7 @@ private:
     DirectoryTreeView* directoryTree = nullptr;
 
     BreadcrumbBar* breadcrumbBar = nullptr;
+    Button* importButton = nullptr;
 
     ScrollView* contentScroll = nullptr;
     AssetGridView* assetGrid = nullptr;

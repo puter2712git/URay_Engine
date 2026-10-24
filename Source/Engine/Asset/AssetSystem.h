@@ -41,6 +41,7 @@ public:
     void Finalize();
 
     bool Import(const ImportRequest& request);
+    bool CanImport(const VirtualPath& sourcePath) const;
 
     void LoadAssetsRecursive(const VirtualPath& path);
     bool RegisterAsset(const AssetMetadata& metadata);

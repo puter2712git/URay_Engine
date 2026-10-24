@@ -4,13 +4,17 @@
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/Dialog/ImportAssetDialog.h>
+#include <Editor/Widget/Element/Button.h>
 #include <Editor/Widget/Element/Separator.h>
+#include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/ScrollView.h>
+#include <Editor/Widget/WidgetSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
@@ -26,6 +30,8 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
     directoryTree = directoryScroll->SetContent<DirectoryTreeView>(fileSystem, VirtualPath("Project://Asset"));
 
     breadcrumbBar = AddChild<BreadcrumbBar>();
+    importButton = AddChild<Button>("Import");
+    importButton->SetPreferredSize(Vector2(80.0f, 28.0f));
 
     contentScroll = AddChild<ScrollView>();
     assetGrid = contentScroll->SetContent<AssetGridView>();
@@ -69,6 +75,13 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
             {
                 pendingPath = path;
             });
+
+    importButton->GetOnClickRay().Register(
+        this,
+        [this]
+        {
+            OpenImportDialog();
+        });
 }
 
 void FileSystemPanel::Arrange(const Rect& rect)
@@ -102,9 +115,20 @@ void FileSystemPanel::Arrange(const Rect& rect)
     const float remainingHeight = Math::Max(0.0f, rightRect.size.y - actualBreadcrumbHeight);
     const float horizontalSeparatorHeight = Math::Min(separatorExtent, remainingHeight);
 
+    constexpr float importButtonWidth = 80.0f;
+    constexpr float importButtonGap = 8.0f;
+
     Rect breadcrumbRect;
     breadcrumbRect.position = rightRect.position;
-    breadcrumbRect.size = Vector2(rightRect.size.x, actualBreadcrumbHeight);
+    breadcrumbRect.size = Vector2(
+        Math::Max(0.0f, rightRect.size.x - importButtonWidth - importButtonGap),
+        actualBreadcrumbHeight);
+
+    Rect importButtonRect;
+    importButtonRect.position = Vector2(
+        breadcrumbRect.position.x + breadcrumbRect.size.x + importButtonGap,
+        rightRect.position.y);
+    importButtonRect.size = Vector2(importButtonWidth, actualBreadcrumbHeight);
 
     Rect horizontalSeparatorRect;
     horizontalSeparatorRect.position = Vector2(rightRect.position.x, breadcrumbRect.position.y + breadcrumbRect.size.y);
@@ -118,6 +142,7 @@ void FileSystemPanel::Arrange(const Rect& rect)
     verticalSeparator->Arrange(verticalSeparatorRect);
 
     breadcrumbBar->Arrange(breadcrumbRect);
+    importButton->Arrange(importButtonRect);
     horizontalSeparator->Arrange(horizontalSeparatorRect);
 
     contentScroll->Arrange(gridRect);
@@ -140,6 +165,25 @@ void FileSystemPanel::OnUpdate(float deltaTime)
 
     NavigateTo(*pendingPath);
     pendingPath.reset();
+}
+
+void FileSystemPanel::OpenImportDialog()
+{
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+
+    ImportAssetDialog* dialog = gEditor->GetWidgetSystem().GetDialogLayer().OpenDialog<ImportAssetDialog>(
+        assetSystem,
+        currentPath);
+
+    dialog->GetClosedRay().Register(
+        this,
+        [this](DialogResult result)
+        {
+            if (result == DialogResult::Accepted)
+                NavigateTo(currentPath);
+
+            gEditor->GetWidgetSystem().GetDialogLayer().CloseDialog();
+        });
 }
 
 } // namespace URay
