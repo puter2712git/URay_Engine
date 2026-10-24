@@ -9,13 +9,13 @@ namespace URay
 ObjectIdTargetRegistry::ObjectIdTargetRegistry(Render::SceneSystem& sceneSystem)
     : sceneSystem(sceneSystem)
 {
-    sceneSystem.GetObjectAddRay().Register(
+    sceneSystem.onObjectAdded.Register(
         this,
         [this](Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component)
         {
             OnRenderObjectAdded(scene, object, unit, component);
         });
-    sceneSystem.GetObjectDestroyRay().Register(
+    sceneSystem.onObjectDestroyed.Register(
         this,
         [this](Render::RenderScene* scene, Render::RenderObject* object)
         {
@@ -25,8 +25,8 @@ ObjectIdTargetRegistry::ObjectIdTargetRegistry(Render::SceneSystem& sceneSystem)
 
 ObjectIdTargetRegistry::~ObjectIdTargetRegistry()
 {
-    sceneSystem.GetObjectDestroyRay().UnregisterAll(this);
-    sceneSystem.GetObjectAddRay().UnregisterAll(this);
+    sceneSystem.onObjectDestroyed.UnregisterAll(this);
+    sceneSystem.onObjectAdded.UnregisterAll(this);
 }
 
 Unit* ObjectIdTargetRegistry::FindUnit(uint32 objectId) const

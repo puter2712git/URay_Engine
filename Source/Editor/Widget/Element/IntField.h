@@ -21,8 +21,6 @@ public:
 
     void SetDragSpeed(float speed) { dragSpeed = speed; }
 
-    EventRay<int32>& GetValueChangedRay() { return onValueChanged; }
-
 protected:
     bool TryCommitText(const std::string& editingText, std::string& committedText) override;
     void OnTextChanged(const std::string& prevText, const std::string& currText) override;
@@ -31,9 +29,10 @@ private:
     bool TryParse(const std::string& text, int32& outValue) const;
     float GetModifiedDragSpeed(ModifierKey modifiers) const;
 
-private:
+public:
     EventRay<int32> onValueChanged;
 
+private:
     Vector2 initPointerPosition = Vector2::Zero;
     double dragValue = 0.0;
     float dragSpeed = 1.0f;

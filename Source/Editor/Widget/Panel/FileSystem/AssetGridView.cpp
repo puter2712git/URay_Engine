@@ -96,7 +96,7 @@ void AssetGridView::RebuildItems(const std::vector<AssetEntry>& entries)
     {
         AssetGridItem* item = AddChild<AssetGridItem>(entry);
 
-        item->GetOnSelectedRay().Register(
+        item->onSelected.Register(
             this,
             [this](const AssetEntry& selectedEntry)
             {
@@ -111,7 +111,7 @@ void AssetGridView::RebuildItems(const std::vector<AssetEntry>& entries)
                 onEntrySelected.Emit(selectedEntry);
             });
 
-        item->GetOnActivatedRay().Register(
+        item->onActivated.Register(
             this,
             [this](const AssetEntry& activatedEntry)
             {

@@ -20,17 +20,17 @@ public:
     const VirtualPath& GetDirectory() const { return directory; }
     void SetDirectory(VirtualFileSystem& fileSystem, const VirtualPath& path);
 
-    EventRay<const VirtualFileEntry&>& GetOnEntryActivatedRay() { return onEntryActivated; }
-
 protected:
     Vector2 OnMeasure() override;
 
 private:
     void RebuildItems(const std::vector<VirtualFileEntry>& entries);
 
+public:
+    EventRay<const VirtualFileEntry&> onEntryActivated;
+
 private:
     VirtualPath directory = {};
-    EventRay<const VirtualFileEntry&> onEntryActivated;
 
     static constexpr float TileWidth = 96.0f;
     static constexpr float TileHeight = 112.0f;

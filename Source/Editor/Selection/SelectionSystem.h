@@ -26,9 +26,6 @@ public:
 
     bool IsSelected(const Unit* unit) const;
 
-    EventRay<>& GetOnSelectionSetChangedRay() { return onSelectionSetChanged; }
-    EventRay<Unit*, Unit*>& GetOnActiveSelectionChangedRay() { return onActiveSelectionChanged; }
-
     const std::vector<Unit*>& GetSelectedUnits() const { return selectedUnits; }
     Unit* GetActiveUnit() const { return activeUnit; }
 
@@ -36,10 +33,11 @@ private:
     void OnUnitRemoved(Scene* scene, Unit* unit);
     void NotifySelectionChanged(Unit* previousActive);
 
-private:
+public:
     EventRay<> onSelectionSetChanged;
     EventRay<Unit*, Unit*> onActiveSelectionChanged;
 
+private:
     std::vector<Unit*> selectedUnits;
     Unit* activeUnit = nullptr;
 };

@@ -42,7 +42,7 @@ Button* PopupMenu::AddMenuItem(
     Label* label = Cast<Label>(button->GetChildren()[0].get());
     label->SetTextStyle(EditorStyle::SmallText());
 
-    button->GetOnClickRay().Register(
+    button->onClicked.Register(
         this,
         [onClick = std::move(onClick)]
         {

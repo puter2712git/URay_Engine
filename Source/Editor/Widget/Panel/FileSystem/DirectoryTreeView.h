@@ -22,8 +22,6 @@ public:
 
     void SetSelectedPath(const VirtualPath& path);
 
-    EventRay<const VirtualPath&>& GetOnDirectoryActivatedRay() { return onDirectoryActivated; }
-
 protected:
     Vector2 OnMeasure() override;
 
@@ -35,6 +33,9 @@ private:
 
     void ExpandAncestors(const VirtualPath& path);
 
+public:
+    EventRay<const VirtualPath&> onDirectoryActivated;
+
 private:
     VirtualFileSystem& fileSystem;
 
@@ -45,7 +46,6 @@ private:
     std::optional<VirtualPath> pendingExpandPath = std::nullopt;
     std::optional<VirtualPath> pendingSelectedPath = std::nullopt;
 
-    EventRay<const VirtualPath&> onDirectoryActivated;
 };
 
 } // namespace URay

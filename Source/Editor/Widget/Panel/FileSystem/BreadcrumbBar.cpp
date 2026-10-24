@@ -53,7 +53,7 @@ void BreadcrumbBar::RebuildItems()
     {
         BreadcrumbItem* item = layout->AddChild<BreadcrumbItem>(path);
 
-        item->GetOnActivatedRay().Register(
+        item->onActivated.Register(
             this,
             [this](const VirtualPath& activatedPath)
             {

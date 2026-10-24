@@ -15,9 +15,6 @@ public:
     explicit AssetPickerPopup(Class* assetClass, AssetHandle currentValue);
 
 public:
-    EventRay<AssetHandle>& GetValueSelectedRay() { return onValueSelected; }
-
-private:
     EventRay<AssetHandle> onValueSelected;
 };
 

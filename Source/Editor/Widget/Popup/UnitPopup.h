@@ -17,9 +17,6 @@ public:
     UnitPopup();
 
 public:
-    EventRay<UnitPopupSelection>& GetUnitSelectedRay() { return onUnitSelected; }
-
-private:
     EventRay<UnitPopupSelection> onUnitSelected;
 };
 

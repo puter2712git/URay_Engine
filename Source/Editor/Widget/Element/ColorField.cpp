@@ -47,7 +47,7 @@ ColorField::ColorField()
     aLabel->SetTextStyle(MakeComponentLabelStyle(EditorStyle::TextPrimary));
     aField = AddChild<NumberField>();
 
-    rField->GetValueChangedRay().Register(
+    rField->onValueChanged.Register(
         this,
         [this](float component)
         {
@@ -55,7 +55,7 @@ ColorField::ColorField()
             onValueChanged.Emit(value);
         });
 
-    gField->GetValueChangedRay().Register(
+    gField->onValueChanged.Register(
         this,
         [this](float component)
         {
@@ -63,7 +63,7 @@ ColorField::ColorField()
             onValueChanged.Emit(value);
         });
 
-    bField->GetValueChangedRay().Register(
+    bField->onValueChanged.Register(
         this,
         [this](float component)
         {
@@ -71,7 +71,7 @@ ColorField::ColorField()
             onValueChanged.Emit(value);
         });
 
-    aField->GetValueChangedRay().Register(
+    aField->onValueChanged.Register(
         this,
         [this](float component)
         {

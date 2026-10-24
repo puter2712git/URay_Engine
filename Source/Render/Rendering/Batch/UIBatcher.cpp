@@ -58,7 +58,7 @@ bool UIBatcher::Initialize()
         mappedIndexData[i] = indexBuffers[i]->Map();
     }
 
-    renderer.GetViewportRenderTargetsRecreatedRay().Register(this, [this]()
+    renderer.onViewportRenderTargetsRecreated.Register(this, [this]()
                                                              { descriptorSets.clear(); });
 
     return true;
@@ -69,7 +69,7 @@ void UIBatcher::Finalize()
     RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Renderer& renderer = renderSystem.GetRenderer();
 
-    renderer.GetViewportRenderTargetsRecreatedRay().UnregisterAll(this);
+    renderer.onViewportRenderTargetsRecreated.UnregisterAll(this);
 
     descriptorSets.clear();
     whiteTextureView = nullptr;

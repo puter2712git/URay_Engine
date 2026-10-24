@@ -24,7 +24,7 @@ ViewportPanel::ViewportPanel(ViewportController& controller)
     const auto gizmoButtons = toolbar->GetGizmoModeButtons();
     for (size_t index = 0; index < gizmoButtons.size(); ++index)
     {
-        gizmoButtons[index]->GetOnClickRay().Register(
+        gizmoButtons[index]->onClicked.Register(
             this,
             [this, index, &controller]()
             {
@@ -32,7 +32,7 @@ ViewportPanel::ViewportPanel(ViewportController& controller)
             });
     }
 
-    toolbar->GetGizmoSpaceToggleButton()->GetOnClickRay().Register(
+    toolbar->GetGizmoSpaceToggleButton()->onClicked.Register(
         this,
         [this, &controller]()
         {
@@ -40,20 +40,20 @@ ViewportPanel::ViewportPanel(ViewportController& controller)
         });
     toolbar->SetGizmoSpaceLocal(controller.IsGizmoSpaceLocal());
 
-    toolbar->GetViewModeToggleButton()->GetOnClickRay().Register(
+    toolbar->GetViewModeToggleButton()->onClicked.Register(
         this,
         [this, &controller]()
         {
             controller.CycleViewMode();
         });
 
-    toolbar->GetPlayButton()->GetOnClickRay().Register(
+    toolbar->GetPlayButton()->onClicked.Register(
         this,
         [this, &controller]()
         {
             controller.Play();
         });
-    toolbar->GetStopButton()->GetOnClickRay().Register(
+    toolbar->GetStopButton()->onClicked.Register(
         this,
         [this, &controller]()
         {

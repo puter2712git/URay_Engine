@@ -42,13 +42,13 @@ bool VisualSystem::Initialize()
                                                 { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    sceneSystem.GetUnitWorldTransformUpdateRay().Register(this, [this](Scene* scene, Unit* unit)
+    sceneSystem.onUnitWorldTransformUpdated.Register(this, [this](Scene* scene, Unit* unit)
                                                           { OnUnitTransformUpdated(scene, unit); });
-    sceneSystem.GetComponentAddRay().Register(this, [this](Scene* scene, Unit* unit, Component* component)
+    sceneSystem.onComponentAdded.Register(this, [this](Scene* scene, Unit* unit, Component* component)
                                               { OnComponentAdded(scene, unit, component); });
-    sceneSystem.GetComponentDestroyRay().Register(this, [this](Scene* scene, Unit* unit, Component* component)
+    sceneSystem.onComponentDestroyed.Register(this, [this](Scene* scene, Unit* unit, Component* component)
                                                   { OnComponentDestroyed(scene, unit, component); });
-    sceneSystem.GetComponentPropertyChangeRay().Register(this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
+    sceneSystem.onComponentPropertyChanged.Register(this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
                                                          { OnComponentPropertyChanged(scene, unit, component, property); });
 
     return true;
@@ -58,10 +58,10 @@ void VisualSystem::Finalize()
 {
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
-    sceneSystem.GetComponentPropertyChangeRay().UnregisterAll(this);
-    sceneSystem.GetComponentDestroyRay().UnregisterAll(this);
-    sceneSystem.GetComponentAddRay().UnregisterAll(this);
-    sceneSystem.GetUnitWorldTransformUpdateRay().UnregisterAll(this);
+    sceneSystem.onComponentPropertyChanged.UnregisterAll(this);
+    sceneSystem.onComponentDestroyed.UnregisterAll(this);
+    sceneSystem.onComponentAdded.UnregisterAll(this);
+    sceneSystem.onUnitWorldTransformUpdated.UnregisterAll(this);
 }
 
 void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)

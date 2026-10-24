@@ -232,13 +232,13 @@ void Scene::AddUnit(std::unique_ptr<Unit> unit)
     units.push_back(std::move(unit));
     unitPtr->SetOwner(this);
 
-    sceneSystem.GetUnitAddRay().Emit(this, unitPtr);
+    sceneSystem.onUnitAdded.Emit(this, unitPtr);
 
     const auto& components = unitPtr->GetComponents();
     for (const auto& component : components)
     {
         component->Initialize();
-        sceneSystem.GetComponentAddRay().Emit(this, unitPtr, component.get());
+        sceneSystem.onComponentAdded.Emit(this, unitPtr, component.get());
 
         if (IsLoaded())
         {
@@ -279,11 +279,11 @@ void Scene::DestroyUnit(Unit* unit)
     for (const auto& component : targetUnit->GetComponents())
     {
         component->Unload();
-        sceneSystem.GetComponentDestroyRay().Emit(this, unit, component.get());
+        sceneSystem.onComponentDestroyed.Emit(this, unit, component.get());
         component->Finalize();
     }
 
-    sceneSystem.GetUnitRemoveRay().Emit(this, unit);
+    sceneSystem.onUnitRemoved.Emit(this, unit);
     units.erase(it);
 }
 

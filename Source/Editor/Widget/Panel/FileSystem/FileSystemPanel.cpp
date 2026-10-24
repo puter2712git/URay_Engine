@@ -43,7 +43,7 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
 
     NavigateTo(currentPath);
 
-    assetGrid->GetOnEntryActivatedRay().Register(
+    assetGrid->onEntryActivated.Register(
         this,
         [this](const AssetEntry& entry)
         {
@@ -63,14 +63,14 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
             }
         });
 
-    breadcrumbBar->GetOnPathActivatedRay().Register(
+    breadcrumbBar->onPathActivated.Register(
         this,
         [this](const VirtualPath& path)
         {
             pendingPath = path;
         });
 
-    directoryTree->GetOnDirectoryActivatedRay()
+    directoryTree->onDirectoryActivated
         .Register(
             this,
             [this](const VirtualPath& path)
@@ -78,7 +78,7 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
                 pendingPath = path;
             });
 
-    importButton->GetOnClickRay().Register(
+    importButton->onClicked.Register(
         this,
         [this]
         {
@@ -177,7 +177,7 @@ void FileSystemPanel::OpenImportDialog()
         assetSystem,
         currentPath);
 
-    dialog->GetClosedRay().Register(
+    dialog->onClosed.Register(
         this,
         [this](DialogResult result)
         {

@@ -26,7 +26,7 @@ Float2Field::Float2Field()
     yLabel = CreateEditorLabel(*this, "Y");
     yField = AddChild<NumberField>();
 
-    xField->GetValueChangedRay().Register(
+    xField->onValueChanged.Register(
         this,
         [this](float component)
         {
@@ -34,7 +34,7 @@ Float2Field::Float2Field()
             onValueChanged.Emit(value);
         });
 
-    yField->GetValueChangedRay().Register(
+    yField->onValueChanged.Register(
         this,
         [this](float component)
         {

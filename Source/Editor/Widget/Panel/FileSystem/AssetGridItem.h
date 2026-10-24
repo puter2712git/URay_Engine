@@ -24,9 +24,6 @@ public:
 
     const AssetEntry& GetEntry() const { return entry; }
 
-    EventRay<const AssetEntry&>& GetOnSelectedRay() { return onSelected; }
-    EventRay<const AssetEntry&>& GetOnActivatedRay() { return onActivated; }
-
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
@@ -36,6 +33,10 @@ protected:
     void OnUpdate(float deltaTime) override;
 
     std::optional<Rect> GetClipRect() const override { return rect; }
+
+public:
+    EventRay<const AssetEntry&> onSelected;
+    EventRay<const AssetEntry&> onActivated;
 
 private:
     AssetEntry entry = {};
@@ -48,8 +49,6 @@ private:
     Image* thumbnailImage = nullptr;
     Label* nameLabel = nullptr;
 
-    EventRay<const AssetEntry&> onSelected;
-    EventRay<const AssetEntry&> onActivated;
 };
 
 } // namespace URay

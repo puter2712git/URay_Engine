@@ -22,7 +22,7 @@ namespace URay
 SpotLightVisualizer::SpotLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
     : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
-    selectionSystem.GetOnActiveSelectionChangedRay().Register(
+    selectionSystem.onActiveSelectionChanged.Register(
         this,
         [this](Unit* previousUnit, Unit* selectedUnit)
         { OnSelectionChanged(previousUnit, selectedUnit); });
@@ -34,7 +34,7 @@ SpotLightVisualizer::SpotLightVisualizer(EditorVisualContext& context, Unit& uni
 
 SpotLightVisualizer::~SpotLightVisualizer()
 {
-    selectionSystem.GetOnActiveSelectionChangedRay().UnregisterAll(this);
+    selectionSystem.onActiveSelectionChanged.UnregisterAll(this);
     EditorVisualContext context = {
         .engine = engine,
         .renderScene = renderScene

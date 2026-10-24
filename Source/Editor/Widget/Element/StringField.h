@@ -12,16 +12,15 @@ class StringField : public TextBox
 public:
     StringField();
 
-    EventRay<>& GetValueChangedRay() { return onValueChanged; }
-    EventRay<>& GetValueCommittedRay() { return onValueCommitted; }
-
 protected:
     void OnTextChanged(const std::string& prevText, const std::string& currText) override;
     void OnTextCommitted(const std::string& prevText, const std::string& committedText) override;
 
-private:
+public:
     EventRay<> onValueChanged;
     EventRay<> onValueCommitted;
+
+private:
 };
 
 } // namespace URay

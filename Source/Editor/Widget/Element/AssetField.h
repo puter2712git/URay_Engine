@@ -25,10 +25,11 @@ public:
     void SetValue(AssetHandle handle);
     AssetHandle GetValue() const { return value; }
 
-    EventRay<AssetHandle>& GetValueChangedRay() { return onValueChanged; }
-
 protected:
     Vector2 OnMeasure() override;
+
+public:
+    EventRay<AssetHandle> onValueChanged;
 
 private:
     TextBox* textBox = nullptr;
@@ -36,7 +37,6 @@ private:
     Class* assetClass = nullptr;
     AssetHandle value = {};
 
-    EventRay<AssetHandle> onValueChanged;
 };
 
 } // namespace URay

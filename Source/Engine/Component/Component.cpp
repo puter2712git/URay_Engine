@@ -82,7 +82,7 @@ void Component::NotifyPropertyChanged(const Property& property)
         return;
 
     SceneSystem& sceneSystem = scene->GetSceneSystem();
-    auto& onComponentPropertyChanged = sceneSystem.GetComponentPropertyChangeRay();
+    auto& onComponentPropertyChanged = sceneSystem.onComponentPropertyChanged;
     onComponentPropertyChanged.Emit(scene, unit, this, property);
 }
 

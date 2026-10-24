@@ -18,8 +18,6 @@ public:
 
     void SetValue(const Vector4& value);
 
-    EventRay<Vector4>& GetValueChangedRay() { return onValueChanged; }
-
     void Arrange(const Rect& rect) override;
 
 protected:
@@ -27,6 +25,9 @@ protected:
 
 private:
     void ArrangeComponent(const Rect& rect, Label& label, NumberField& field) const;
+
+public:
+    EventRay<Vector4> onValueChanged;
 
 private:
     Vector4 value = {};
@@ -41,7 +42,6 @@ private:
     NumberField* zField = nullptr;
     NumberField* wField = nullptr;
 
-    EventRay<Vector4> onValueChanged;
 };
 
 } // namespace URay

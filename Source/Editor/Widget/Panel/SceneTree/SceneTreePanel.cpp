@@ -54,9 +54,9 @@ SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
     scrollView = AddChild<ScrollView>();
     virtualContent = scrollView->SetContent<SceneTreeVirtualContent>(*this);
 
-    sceneSystem->GetUnitAddRay().Register(this, [this](Scene*, Unit*)
+    sceneSystem->onUnitAdded.Register(this, [this](Scene*, Unit*)
                                           { isTreeDirty = true; });
-    sceneSystem->GetUnitRemoveRay().Register(this, [this](Scene*, Unit*)
+    sceneSystem->onUnitRemoved.Register(this, [this](Scene*, Unit*)
                                              { isTreeDirty = true; });
 
     UpdateTree();
@@ -64,8 +64,8 @@ SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
 
 SceneTreePanel::~SceneTreePanel()
 {
-    sceneSystem->GetUnitAddRay().UnregisterAll(this);
-    sceneSystem->GetUnitRemoveRay().UnregisterAll(this);
+    sceneSystem->onUnitAdded.UnregisterAll(this);
+    sceneSystem->onUnitRemoved.UnregisterAll(this);
 }
 
 void SceneTreePanel::Arrange(const Rect& rect)
@@ -82,7 +82,7 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
     PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
     UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
-    popup->GetUnitSelectedRay().Register(
+    popup->onUnitSelected.Register(
         popup,
         [this, &popupLayer](UnitPopupSelection selection)
         {

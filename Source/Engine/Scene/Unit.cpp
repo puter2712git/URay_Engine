@@ -140,7 +140,7 @@ Component* Unit::AddComponent(std::unique_ptr<Component> component)
         componentPtr->Initialize();
 
         SceneSystem& sceneSystem = scene->GetSceneSystem();
-        sceneSystem.GetComponentAddRay().Emit(scene, this, componentPtr);
+        sceneSystem.onComponentAdded.Emit(scene, this, componentPtr);
 
         if (scene->IsLoaded())
         {

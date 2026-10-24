@@ -64,7 +64,7 @@ void TransformComponent::UpdateWorldMatrix()
         return;
 
     SceneSystem& sceneSystem = scene->GetSceneSystem();
-    sceneSystem.GetUnitWorldTransformUpdateRay().Emit(scene, owner);
+    sceneSystem.onUnitWorldTransformUpdated.Emit(scene, owner);
 
     // TODO: Move these logics.
     for (const auto& component : GetOwner()->GetComponents())

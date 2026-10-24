@@ -65,14 +65,14 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
     cancelButton = CreateEditorButton(*actionLayout, "Cancel");
     cancelButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
-    breadcrumbBar->GetOnPathActivatedRay().Register(
+    breadcrumbBar->onPathActivated.Register(
         this,
         [this](const VirtualPath& path)
         {
             pendingDirectory = path;
         });
 
-    fileGrid->GetOnEntryActivatedRay().Register(
+    fileGrid->onEntryActivated.Register(
         this,
         [this](const VirtualFileEntry& entry)
         {
@@ -80,21 +80,21 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
                 pendingDirectory = entry.path;
         });
 
-    filenameField->GetValueChangedRay().Register(
+    filenameField->onValueChanged.Register(
         this,
         [this]
         {
             SetValidationMessage("");
         });
 
-    saveButton->GetOnClickRay().Register(
+    saveButton->onClicked.Register(
         this,
         [this]
         {
             Accept();
         });
 
-    cancelButton->GetOnClickRay().Register(
+    cancelButton->onClicked.Register(
         this,
         [this]
         {

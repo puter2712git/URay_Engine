@@ -12,7 +12,7 @@ void RenderObject::NotifyUpdated()
         return;
 
     SceneSystem& sceneSystem = scene->GetSceneSystem();
-    sceneSystem.GetObjectUpdateRay().Emit(scene, this);
+    sceneSystem.onObjectUpdated.Emit(scene, this);
 }
 
 } // namespace URay::Render

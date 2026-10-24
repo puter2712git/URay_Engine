@@ -20,13 +20,13 @@ bool SceneSystem::Initialize()
 {
     URay::SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
-    sceneSystem.GetSceneAddRay().Register(this, [this](Scene* scene)
+    sceneSystem.onSceneAdded.Register(this, [this](Scene* scene)
                                           { OnEngineSceneAdded(scene); });
-    sceneSystem.GetSceneDestroyRay().Register(this, [this](Scene* scene)
+    sceneSystem.onSceneDestroyed.Register(this, [this](Scene* scene)
                                               { OnEngineSceneDestroyed(scene); });
-    sceneSystem.GetComponentAddRay().Register(this, [this](Scene* scene, Unit* unit, Component* component)
+    sceneSystem.onComponentAdded.Register(this, [this](Scene* scene, Unit* unit, Component* component)
                                               { OnEngineSceneComponentAdded(scene, unit, component); });
-    sceneSystem.GetComponentDestroyRay().Register(this, [this](Scene* scene, Unit* unit, Component* component)
+    sceneSystem.onComponentDestroyed.Register(this, [this](Scene* scene, Unit* unit, Component* component)
                                                   { OnEngineSceneComponentDestroyed(scene, unit, component); });
 
     return true;
@@ -36,10 +36,10 @@ void SceneSystem::Finalize()
 {
     URay::SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
-    sceneSystem.GetComponentDestroyRay().UnregisterAll(this);
-    sceneSystem.GetComponentAddRay().UnregisterAll(this);
-    sceneSystem.GetSceneDestroyRay().UnregisterAll(this);
-    sceneSystem.GetSceneAddRay().UnregisterAll(this);
+    sceneSystem.onComponentDestroyed.UnregisterAll(this);
+    sceneSystem.onComponentAdded.UnregisterAll(this);
+    sceneSystem.onSceneDestroyed.UnregisterAll(this);
+    sceneSystem.onSceneAdded.UnregisterAll(this);
 }
 
 RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderObject> object, Component* component)

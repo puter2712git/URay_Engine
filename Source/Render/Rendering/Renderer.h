@@ -64,14 +64,11 @@ public:
     VkImageView GetSwapChainImageView() const;
     VkExtent2D GetSwapChainExtent() const;
 
-    EventRay<>& GetViewportRenderTargetsRecreatedRay() { return onViewportRenderTargetsRecreated; }
-
     FrameResource& GetFrameResource() { return frameResources[currentFrame]; }
 
     RenderTargetRegistry& GetRenderTargetRegistry() { return *renderTargetRegistry; }
 
     ObjectIdReadback& GetObjectIdReadback() { return *objectIdReadback; }
-    EventRay<const ObjectIdReadbackResult&>& GetObjectIdReadbackRay() { return onObjectIdReadback; }
 
     void SetPerformanceViewModel(PerformanceViewModel* viewModel) { performanceViewModel = viewModel; }
 
@@ -102,6 +99,8 @@ private:
 
 public:
     bool framebufferResized = false;
+    EventRay<> onViewportRenderTargetsRecreated;
+    EventRay<const ObjectIdReadbackResult&> onObjectIdReadback;
 
 private:
     Window& window;
@@ -120,15 +119,12 @@ private:
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
     std::optional<Scheduler::TaskId> sceneResizeTaskId;
     static constexpr double SceneResizeDebounceSeconds = 0.15;
-    EventRay<> onViewportRenderTargetsRecreated;
-
     std::unique_ptr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
     std::array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;
     uint64 gpuTimestampSubmissionSequence = 0;
     PerformanceViewModel* performanceViewModel = nullptr;
 
     std::unique_ptr<ObjectIdReadback> objectIdReadback = nullptr;
-    EventRay<const ObjectIdReadbackResult&> onObjectIdReadback;
 };
 
 constexpr uint32 GpuTimestampQueryCount = 2 * static_cast<uint32>(RenderPassId::Count);

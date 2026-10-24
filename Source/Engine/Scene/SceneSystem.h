@@ -35,22 +35,7 @@ public:
 
     const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
 
-    EventRay<Scene*>& GetSceneAddRay() { return onSceneAdded; }
-    EventRay<Scene*>& GetSceneDestroyRay() { return onSceneDestroyed; }
-
-    EventRay<Scene*, Unit*>& GetUnitAddRay() { return onUnitAdded; }
-    EventRay<Scene*, Unit*>& GetUnitRemoveRay() { return onUnitRemoved; }
-    EventRay<Scene*, Unit*>& GetUnitWorldTransformUpdateRay() { return onUnitWorldTransformUpdated; }
-
-    EventRay<Scene*, Unit*, Component*>& GetComponentAddRay() { return onComponentAdded; }
-    EventRay<Scene*, Unit*, Component*>& GetComponentDestroyRay() { return onComponentDestroyed; }
-    EventRay<Scene*, Unit*, Component*, const Property&>& GetComponentPropertyChangeRay() { return onComponentPropertyChanged; }
-
-private:
-    SceneId nextSceneId = 1;
-
-    std::vector<std::unique_ptr<Scene>> scenes;
-
+public:
     EventRay<Scene*> onSceneAdded;
     EventRay<Scene*> onSceneDestroyed;
     EventRay<Scene*, Unit*> onUnitAdded;
@@ -59,6 +44,12 @@ private:
     EventRay<Scene*, Unit*, Component*> onComponentAdded;
     EventRay<Scene*, Unit*, Component*> onComponentDestroyed;
     EventRay<Scene*, Unit*, Component*, const Property&> onComponentPropertyChanged;
+
+private:
+    SceneId nextSceneId = 1;
+
+    std::vector<std::unique_ptr<Scene>> scenes;
+
 };
 
 } // namespace URay

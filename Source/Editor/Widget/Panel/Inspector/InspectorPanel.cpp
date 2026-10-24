@@ -61,7 +61,7 @@ InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->Ge
     layout->SetGap(4.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
-    inspectSystem.GetOnTargetChangedRay().Register(
+    inspectSystem.onTargetChanged.Register(
         this,
         [this](const InspectTarget&, const InspectTarget&)
         { isDirty = true; });
@@ -69,7 +69,7 @@ InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->Ge
 
 InspectorPanel::~InspectorPanel()
 {
-    inspectSystem.GetOnTargetChangedRay().UnregisterAll(this);
+    inspectSystem.onTargetChanged.UnregisterAll(this);
 }
 
 void InspectorPanel::Arrange(const Rect& rect)
@@ -144,14 +144,14 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
 
     Button* addComponentButton = CreateEditorButton(*layout, "Add Component");
     addComponentButton->SetPreferredHeight(26.0f);
-    addComponentButton->GetOnClickRay().Register(
+    addComponentButton->onClicked.Register(
         this,
         [this, addComponentButton, inspectedUnit]
         {
             PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
 
             ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *inspectedUnit);
-            popup->GetComponentSelectedRay().Register(
+            popup->onComponentSelected.Register(
                 popup,
                 [this, &popupLayer, inspectedUnit](const ComponentPickerSelection& selection)
                 {
@@ -246,7 +246,7 @@ void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& objec
     ConfigureEditorCheckbox(*checkbox);
     checkbox->SetChecked(*value);
 
-    checkbox->GetValueChangeRay().Register(
+    checkbox->onValueChanged.Register(
         this,
         [&object, property, value](bool checked)
         {
@@ -267,7 +267,7 @@ void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& obje
     NumberField* field = row->SetValueWidget<NumberField>();
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value, field](float newValue)
         {
@@ -288,7 +288,7 @@ void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object
     IntField* field = row->SetValueWidget<IntField>();
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](int32 newValue)
         {
@@ -309,7 +309,7 @@ void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& ob
     Float2Field* field = row->SetValueWidget<Float2Field>();
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](const Vector2& newValue)
         {
@@ -330,7 +330,7 @@ void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& ob
     Float3Field* field = row->SetValueWidget<Float3Field>();
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](const Vector3& newValue)
         {
@@ -351,7 +351,7 @@ void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& o
     Float3Field* field = row->SetValueWidget<Float3Field>();
     field->SetValue(value->ToEulerDegrees());
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](const Vector3& newValue)
         {
@@ -372,7 +372,7 @@ void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& obje
     ColorField* field = row->SetValueWidget<ColorField>();
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](const Color& newValue)
         {
@@ -393,7 +393,7 @@ void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& ob
     Float4Field* field = row->SetValueWidget<Float4Field>();
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](const Vector4& newValue)
         {
@@ -414,7 +414,7 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
     StringField* field = row->SetValueWidget<StringField>();
     field->SetText(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value, field]()
         {
@@ -460,7 +460,7 @@ void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& obje
     AssetField* field = row->SetValueWidget<AssetField>(assetClass);
     field->SetValue(*value);
 
-    field->GetValueChangedRay().Register(
+    field->onValueChanged.Register(
         this,
         [&object, property, value](AssetHandle newValue)
         {

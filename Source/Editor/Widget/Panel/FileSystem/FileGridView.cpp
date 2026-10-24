@@ -46,7 +46,7 @@ void FileGridView::SetDirectory(VirtualFileSystem& fileSystem, const VirtualPath
     {
         FileGridItem* item = AddChild<FileGridItem>(entry);
 
-        item->GetOnActivatedRay().Register(
+        item->onActivated.Register(
             this,
             [this](const VirtualFileEntry& activatedEntry)
             {

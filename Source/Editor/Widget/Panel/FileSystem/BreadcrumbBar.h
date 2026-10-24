@@ -19,20 +19,20 @@ public:
 
     void SetPath(const VirtualPath& path);
 
-    EventRay<const VirtualPath&>& GetOnPathActivatedRay() { return onPathActivated; }
-
 protected:
     Vector2 OnMeasure() override;
 
 private:
     void RebuildItems();
 
+public:
+    EventRay<const VirtualPath&> onPathActivated;
+
 private:
     VirtualPath currentPath;
 
     HorizontalLayout* layout = nullptr;
 
-    EventRay<const VirtualPath&> onPathActivated;
 };
 
 } // namespace URay

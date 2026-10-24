@@ -40,7 +40,7 @@ EventReply AssetField::OnPointerDown(const PointerEvent& event)
             assetClass,
             value);
 
-    popup->GetValueSelectedRay().Register(
+    popup->onValueSelected.Register(
         this,
         [this, &popupLayer](AssetHandle selectedHandle)
         {

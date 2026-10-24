@@ -15,7 +15,7 @@ SelectionSystem::~SelectionSystem() = default;
 bool SelectionSystem::Initialize()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetUnitRemoveRay().Register(
+    sceneSystem.onUnitRemoved.Register(
         this,
         [this](Scene* scene, Unit* unit)
         { OnUnitRemoved(scene, unit); });
@@ -26,7 +26,7 @@ bool SelectionSystem::Initialize()
 void SelectionSystem::Finalize()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.GetUnitRemoveRay().UnregisterAll(this);
+    sceneSystem.onUnitRemoved.UnregisterAll(this);
 }
 
 void SelectionSystem::SetSelection(Unit* unit)

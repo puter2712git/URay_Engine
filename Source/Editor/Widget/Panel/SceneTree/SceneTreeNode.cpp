@@ -73,7 +73,7 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
         Unit* targetUnit = unit;
         SelectionSystem* targetSelectionSystem = selectionSystem;
 
-        popup->GetUnitSelectedRay().Register(
+        popup->onUnitSelected.Register(
             popup,
             [targetUnit, targetSelectionSystem, &popupLayer](UnitPopupSelection selection)
             {

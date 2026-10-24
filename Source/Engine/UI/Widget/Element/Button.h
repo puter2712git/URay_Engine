@@ -39,12 +39,13 @@ public:
     void SetHoverColor(const Color& color) { hoverColor = color; }
     void SetPressedColor(const Color& color) { pressedColor = color; }
 
-    EventRay<>& GetOnClickRay() { return onClicked; }
-
 protected:
     Vector2 OnMeasure() override;
 
     void OnPaint(Render::UIDrawContext& context) override;
+
+public:
+    EventRay<> onClicked;
 
 private:
     Widget* content = nullptr;
@@ -53,7 +54,6 @@ private:
     Color hoverColor = {};
     Color pressedColor = {};
 
-    EventRay<> onClicked;
 };
 
 } // namespace URay

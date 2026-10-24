@@ -54,14 +54,14 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
     cancelButton = CreateEditorButton(*this, "Cancel");
     cancelButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
-    breadcrumbBar->GetOnPathActivatedRay().Register(
+    breadcrumbBar->onPathActivated.Register(
         this,
         [this](const VirtualPath& path)
         {
             pendingDirectory = path;
         });
 
-    fileGrid->GetOnEntryActivatedRay().Register(
+    fileGrid->onEntryActivated.Register(
         this,
         [this](const VirtualFileEntry& entry)
         {
@@ -71,7 +71,7 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
                 Import(entry.path);
         });
 
-    cancelButton->GetOnClickRay().Register(
+    cancelButton->onClicked.Register(
         this,
         [this]
         {

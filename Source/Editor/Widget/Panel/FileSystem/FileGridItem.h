@@ -23,7 +23,6 @@ public:
     EventReply OnPointerUp(const PointerEvent& event) override;
 
     const VirtualFileEntry& GetEntry() const { return entry; }
-    EventRay<const VirtualFileEntry&>& GetOnActivatedRay() { return onActivated; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -31,6 +30,9 @@ protected:
     void OnUpdate(float deltaTime) override;
 
     std::optional<Rect> GetClipRect() const override { return rect; }
+
+public:
+    EventRay<const VirtualFileEntry&> onActivated;
 
 private:
     VirtualFileEntry entry = {};
@@ -40,7 +42,6 @@ private:
     Surface* thumbnailSurface = nullptr;
     Label* nameLabel = nullptr;
 
-    EventRay<const VirtualFileEntry&> onActivated;
 };
 
 } // namespace URay

@@ -20,9 +20,6 @@ public:
     explicit ComponentPickerPopup(const Unit& unit);
 
 public:
-    EventRay<const ComponentPickerSelection&>& GetComponentSelectedRay() { return onComponentSelected; }
-
-private:
     EventRay<const ComponentPickerSelection&> onComponentSelected;
 };
 

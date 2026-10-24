@@ -66,7 +66,7 @@ bool Editor::Initialize()
 
     inspectSystem = std::make_unique<InspectSystem>();
 
-    selectionSystem->GetOnActiveSelectionChangedRay().Register(
+    selectionSystem->onActiveSelectionChanged.Register(
         this,
         [this](Unit*, Unit* activeUnit)
         {
@@ -323,7 +323,7 @@ void Editor::OpenSaveSceneDialog()
 
     SaveSceneDialog* dialog = editorUI->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
 
-    dialog->GetClosedRay().Register(this, [this, dialog, gameScene](DialogResult result)
+    dialog->onClosed.Register(this, [this, dialog, gameScene](DialogResult result)
                                     {
         if (result == DialogResult::Accepted)
         {

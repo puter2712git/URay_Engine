@@ -48,7 +48,7 @@ ViewportController::ViewportController(
 
     this->editorCamera = std::make_unique<EditorCamera>();
 
-    selectionSystem.GetOnSelectionSetChangedRay().Register(
+    selectionSystem.onSelectionSetChanged.Register(
         this,
         [this]()
         {
@@ -58,7 +58,7 @@ ViewportController::ViewportController(
         });
     gizmo->SetTargets(selectionSystem.GetSelectedUnits(), selectionSystem.GetActiveUnit());
 
-    renderer.GetObjectIdReadbackRay().Register(
+    renderer.onObjectIdReadback.Register(
         this,
         [this](const Render::ObjectIdReadbackResult& result)
         {
@@ -84,8 +84,8 @@ ViewportController::ViewportController(
 
 ViewportController::~ViewportController()
 {
-    renderer.GetObjectIdReadbackRay().UnregisterAll(this);
-    selectionSystem.GetOnSelectionSetChangedRay().UnregisterAll(this);
+    renderer.onObjectIdReadback.UnregisterAll(this);
+    selectionSystem.onSelectionSetChanged.UnregisterAll(this);
 
     objectIdTargets.reset();
 }

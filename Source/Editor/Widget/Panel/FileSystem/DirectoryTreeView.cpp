@@ -106,11 +106,11 @@ void DirectoryTreeView::AppendDirectory(const VirtualPath& path, uint32 depth)
     DirectoryTreeItem* item = AddChild<DirectoryTreeItem>(
         path, depth, expanded, selected);
 
-    item->GetOnExpandRequestedRay().Register(
+    item->onExpandRequested.Register(
         this, [this](const VirtualPath& requestedPath)
         { pendingExpandPath = requestedPath; });
 
-    item->GetOnActivatedRay().Register(
+    item->onActivated.Register(
         this, [this](const VirtualPath& activatedPath)
         { pendingSelectedPath = activatedPath;
     onDirectoryActivated.Emit(activatedPath); });

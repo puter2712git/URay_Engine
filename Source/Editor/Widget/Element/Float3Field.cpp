@@ -30,7 +30,7 @@ Float3Field::Float3Field()
     zLabel = CreateEditorLabel(*this, "Z");
     zField = AddChild<NumberField>();
 
-    xField->GetValueChangedRay().Register(
+    xField->onValueChanged.Register(
         this,
         [this](float component)
         {
@@ -38,7 +38,7 @@ Float3Field::Float3Field()
             onValueChanged.Emit(value);
         });
 
-    yField->GetValueChangedRay().Register(
+    yField->onValueChanged.Register(
         this,
         [this](float component)
         {
@@ -46,7 +46,7 @@ Float3Field::Float3Field()
             onValueChanged.Emit(value);
         });
 
-    zField->GetValueChangedRay().Register(
+    zField->onValueChanged.Register(
         this,
         [this](float component)
         {
