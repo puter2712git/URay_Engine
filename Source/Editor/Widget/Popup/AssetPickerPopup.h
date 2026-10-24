@@ -15,10 +15,10 @@ public:
     explicit AssetPickerPopup(Class* assetClass, AssetHandle currentValue);
 
 public:
-    EventRay<AssetHandle>& GetValueSelectedRay() { return valueSelectedRay; }
+    EventRay<AssetHandle>& GetValueSelectedRay() { return onValueSelected; }
 
 private:
-    EventRay<AssetHandle> valueSelectedRay;
+    EventRay<AssetHandle> onValueSelected;
 };
 
 } // namespace URay

@@ -69,11 +69,11 @@ EventReply DirectoryTreeItem::OnPointerUp(const PointerEvent& event)
     if (event.position.x >= disclosureRect.position.x &&
         event.position.x < disclosureRect.position.x + disclosureRect.size.x)
     {
-        expandRequestedRay.Emit(path);
+        onExpandRequested.Emit(path);
     }
     else
     {
-        activatedRay.Emit(path);
+        onActivated.Emit(path);
     }
 
     return EventReply{

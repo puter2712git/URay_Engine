@@ -212,7 +212,7 @@ bool Renderer::BeginFrame()
 
         if (const auto result = objectIdReadback->ConsumeCompleted(currentFrame))
         {
-            objectIdReadbackRay.Emit(*result);
+            onObjectIdReadback.Emit(*result);
         }
     }
 
@@ -732,7 +732,7 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
 
     renderTargetRegistry->RecreateViewportRelative(extent);
 
-    viewportRenderTargetsRecreatedRay.Emit();
+    onViewportRenderTargetsRecreated.Emit();
 }
 
 bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)

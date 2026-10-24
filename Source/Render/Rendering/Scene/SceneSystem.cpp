@@ -53,7 +53,7 @@ RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderO
     Unit* unit = component ? component->GetOwner() : nullptr;
     scene.Add(std::move(object), unit);
 
-    objectAddRay.Emit(&scene, objectPtr, unit, component);
+    onObjectAdded.Emit(&scene, objectPtr, unit, component);
 
     return objectPtr;
 }
@@ -63,7 +63,7 @@ void SceneSystem::DestroyObject(RenderScene& scene, RenderObject* object)
     if (!object)
         return;
 
-    objectDestroyRay.Emit(&scene, object);
+    onObjectDestroyed.Emit(&scene, object);
     scene.Destroy(object);
 }
 

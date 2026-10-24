@@ -37,9 +37,9 @@ public:
 
     RenderScene* GetRenderScene(Scene* scene) const;
 
-    EventRay<RenderScene*, RenderObject*, Unit*, Component*>& GetObjectAddRay() { return objectAddRay; }
-    EventRay<RenderScene*, RenderObject*>& GetObjectDestroyRay() { return objectDestroyRay; }
-    EventRay<RenderScene*, RenderObject*>& GetObjectUpdateRay() { return objectUpdateRay; }
+    EventRay<RenderScene*, RenderObject*, Unit*, Component*>& GetObjectAddRay() { return onObjectAdded; }
+    EventRay<RenderScene*, RenderObject*>& GetObjectDestroyRay() { return onObjectDestroyed; }
+    EventRay<RenderScene*, RenderObject*>& GetObjectUpdateRay() { return onObjectUpdated; }
 
 private:
     void OnEngineSceneAdded(Scene* scene);
@@ -51,9 +51,9 @@ private:
 private:
     std::unordered_map<Scene*, std::unique_ptr<RenderScene>> scenes;
 
-    EventRay<RenderScene*, RenderObject*, Unit*, Component*> objectAddRay;
-    EventRay<RenderScene*, RenderObject*> objectDestroyRay;
-    EventRay<RenderScene*, RenderObject*> objectUpdateRay;
+    EventRay<RenderScene*, RenderObject*, Unit*, Component*> onObjectAdded;
+    EventRay<RenderScene*, RenderObject*> onObjectDestroyed;
+    EventRay<RenderScene*, RenderObject*> onObjectUpdated;
 
     uint32 nextObjectId = 1;
 };

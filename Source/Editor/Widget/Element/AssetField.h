@@ -25,7 +25,7 @@ public:
     void SetValue(AssetHandle handle);
     AssetHandle GetValue() const { return value; }
 
-    EventRay<AssetHandle>& GetValueChangedRay() { return valueChangedRay; }
+    EventRay<AssetHandle>& GetValueChangedRay() { return onValueChanged; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -36,7 +36,7 @@ private:
     Class* assetClass = nullptr;
     AssetHandle value = {};
 
-    EventRay<AssetHandle> valueChangedRay;
+    EventRay<AssetHandle> onValueChanged;
 };
 
 } // namespace URay

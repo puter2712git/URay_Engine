@@ -58,7 +58,7 @@ EventReply FileGridItem::OnPointerUp(const PointerEvent& event)
         return {};
 
     if (IsHovered())
-        activatedRay.Emit(entry);
+        onActivated.Emit(entry);
 
     return EventReply{
         .handled = true,

@@ -6,7 +6,7 @@ namespace URay
 UnitPopup::UnitPopup()
 {
     AddMenuItem("Empty Unit", [this]
-                { unitSelectedRay.Emit(UnitPopupSelection::EmptyUnit); });
+                { onUnitSelected.Emit(UnitPopupSelection::EmptyUnit); });
 }
 
 } // namespace URay

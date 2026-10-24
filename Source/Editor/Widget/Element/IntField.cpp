@@ -70,7 +70,7 @@ EventReply IntField::OnPointerMove(const PointerEvent& event)
         return EventReply{ .handled = true };
 
     SetValue(newValue);
-    valueChangedRay.Emit(newValue);
+    onValueChanged.Emit(newValue);
 
     return EventReply{ .handled = true };
 }
@@ -120,7 +120,7 @@ void IntField::OnTextChanged(
 {
     int32 value = 0;
     if (TryParse(currText, value))
-        valueChangedRay.Emit(value);
+        onValueChanged.Emit(value);
 }
 
 bool IntField::TryParse(const std::string& text, int32& outValue) const

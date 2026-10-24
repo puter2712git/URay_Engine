@@ -20,7 +20,7 @@ public:
     const VirtualPath& GetDirectory() const { return directory; }
     void SetDirectory(VirtualFileSystem& fileSystem, const VirtualPath& path);
 
-    EventRay<const VirtualFileEntry&>& GetOnEntryActivatedRay() { return entryActivatedRay; }
+    EventRay<const VirtualFileEntry&>& GetOnEntryActivatedRay() { return onEntryActivated; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -30,7 +30,7 @@ private:
 
 private:
     VirtualPath directory = {};
-    EventRay<const VirtualFileEntry&> entryActivatedRay;
+    EventRay<const VirtualFileEntry&> onEntryActivated;
 
     static constexpr float TileWidth = 96.0f;
     static constexpr float TileHeight = 112.0f;

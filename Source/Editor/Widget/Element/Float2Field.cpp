@@ -31,7 +31,7 @@ Float2Field::Float2Field()
         [this](float component)
         {
             value.x = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 
     yField->GetValueChangedRay().Register(
@@ -39,7 +39,7 @@ Float2Field::Float2Field()
         [this](float component)
         {
             value.y = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 }
 

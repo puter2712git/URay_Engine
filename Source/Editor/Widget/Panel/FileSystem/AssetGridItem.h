@@ -24,8 +24,8 @@ public:
 
     const AssetEntry& GetEntry() const { return entry; }
 
-    EventRay<const AssetEntry&>& GetOnSelectedRay() { return onSelectedRay; }
-    EventRay<const AssetEntry&>& GetOnActivatedRay() { return onActivatedRay; }
+    EventRay<const AssetEntry&>& GetOnSelectedRay() { return onSelected; }
+    EventRay<const AssetEntry&>& GetOnActivatedRay() { return onActivated; }
 
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
@@ -48,8 +48,8 @@ private:
     Image* thumbnailImage = nullptr;
     Label* nameLabel = nullptr;
 
-    EventRay<const AssetEntry&> onSelectedRay;
-    EventRay<const AssetEntry&> onActivatedRay;
+    EventRay<const AssetEntry&> onSelected;
+    EventRay<const AssetEntry&> onActivated;
 };
 
 } // namespace URay

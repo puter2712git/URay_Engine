@@ -35,30 +35,30 @@ public:
 
     const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
 
-    EventRay<Scene*>& GetSceneAddRay() { return sceneAddRay; }
-    EventRay<Scene*>& GetSceneDestroyRay() { return sceneDestroyRay; }
+    EventRay<Scene*>& GetSceneAddRay() { return onSceneAdded; }
+    EventRay<Scene*>& GetSceneDestroyRay() { return onSceneDestroyed; }
 
-    EventRay<Scene*, Unit*>& GetUnitAddRay() { return unitAddRay; }
-    EventRay<Scene*, Unit*>& GetUnitRemoveRay() { return unitRemoveRay; }
-    EventRay<Scene*, Unit*>& GetUnitWorldTransformUpdateRay() { return unitWorldTransformUpdateRay; }
+    EventRay<Scene*, Unit*>& GetUnitAddRay() { return onUnitAdded; }
+    EventRay<Scene*, Unit*>& GetUnitRemoveRay() { return onUnitRemoved; }
+    EventRay<Scene*, Unit*>& GetUnitWorldTransformUpdateRay() { return onUnitWorldTransformUpdated; }
 
-    EventRay<Scene*, Unit*, Component*>& GetComponentAddRay() { return componentAddRay; }
-    EventRay<Scene*, Unit*, Component*>& GetComponentDestroyRay() { return componentDestroyRay; }
-    EventRay<Scene*, Unit*, Component*, const Property&>& GetComponentPropertyChangeRay() { return componentPropertyChangedRay; }
+    EventRay<Scene*, Unit*, Component*>& GetComponentAddRay() { return onComponentAdded; }
+    EventRay<Scene*, Unit*, Component*>& GetComponentDestroyRay() { return onComponentDestroyed; }
+    EventRay<Scene*, Unit*, Component*, const Property&>& GetComponentPropertyChangeRay() { return onComponentPropertyChanged; }
 
 private:
     SceneId nextSceneId = 1;
 
     std::vector<std::unique_ptr<Scene>> scenes;
 
-    EventRay<Scene*> sceneAddRay;
-    EventRay<Scene*> sceneDestroyRay;
-    EventRay<Scene*, Unit*> unitAddRay;
-    EventRay<Scene*, Unit*> unitRemoveRay;
-    EventRay<Scene*, Unit*> unitWorldTransformUpdateRay;
-    EventRay<Scene*, Unit*, Component*> componentAddRay;
-    EventRay<Scene*, Unit*, Component*> componentDestroyRay;
-    EventRay<Scene*, Unit*, Component*, const Property&> componentPropertyChangedRay;
+    EventRay<Scene*> onSceneAdded;
+    EventRay<Scene*> onSceneDestroyed;
+    EventRay<Scene*, Unit*> onUnitAdded;
+    EventRay<Scene*, Unit*> onUnitRemoved;
+    EventRay<Scene*, Unit*> onUnitWorldTransformUpdated;
+    EventRay<Scene*, Unit*, Component*> onComponentAdded;
+    EventRay<Scene*, Unit*, Component*> onComponentDestroyed;
+    EventRay<Scene*, Unit*, Component*, const Property&> onComponentPropertyChanged;
 };
 
 } // namespace URay

@@ -14,12 +14,12 @@ public:
 
     const InspectTarget& GetTarget() const { return target; }
 
-    EventRay<const InspectTarget&, const InspectTarget&>& GetOnTargetChangedRay() { return targetChangedRay; }
+    EventRay<const InspectTarget&, const InspectTarget&>& GetOnTargetChangedRay() { return onTargetChanged; }
 
 private:
     InspectTarget target = {};
 
-    EventRay<const InspectTarget&, const InspectTarget&> targetChangedRay;
+    EventRay<const InspectTarget&, const InspectTarget&> onTargetChanged;
 };
 
 } // namespace URay

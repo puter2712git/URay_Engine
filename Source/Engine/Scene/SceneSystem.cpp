@@ -49,15 +49,15 @@ Scene* SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
     Scene* scenePtr = scene.get();
 
     scenes.push_back(std::move(scene));
-    sceneAddRay.Emit(scenePtr);
+    onSceneAdded.Emit(scenePtr);
 
     for (auto& unit : scenePtr->GetUnits())
     {
-        unitAddRay.Emit(scenePtr, unit.get());
+        onUnitAdded.Emit(scenePtr, unit.get());
 
         for (auto& component : unit->GetComponents())
         {
-            componentAddRay.Emit(scenePtr, unit.get(), component.get());
+            onComponentAdded.Emit(scenePtr, unit.get(), component.get());
         }
     }
 
@@ -82,7 +82,7 @@ bool SceneSystem::UnloadScene(SceneId id)
     }
 
     targetScene->DestroyAllUnits();
-    sceneDestroyRay.Emit(targetScene);
+    onSceneDestroyed.Emit(targetScene);
     scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
                                 [targetScene](const std::unique_ptr<Scene>& scene)
                                 {

@@ -8,7 +8,7 @@ void InspectSystem::SetTarget(InspectTarget newTarget)
     InspectTarget previousTarget = target;
     target = std::move(newTarget);
 
-    targetChangedRay.Emit(previousTarget, target);
+    onTargetChanged.Emit(previousTarget, target);
 }
 
 void InspectSystem::ClearTarget()

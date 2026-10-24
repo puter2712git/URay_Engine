@@ -30,10 +30,10 @@ Float4Field::Float4Field()
     wLabel = CreateEditorLabel(*this, "W");
     wField = AddChild<NumberField>();
 
-    xField->GetValueChangedRay().Register(this, [this](float component) { value.x = component; valueChangedRay.Emit(value); });
-    yField->GetValueChangedRay().Register(this, [this](float component) { value.y = component; valueChangedRay.Emit(value); });
-    zField->GetValueChangedRay().Register(this, [this](float component) { value.z = component; valueChangedRay.Emit(value); });
-    wField->GetValueChangedRay().Register(this, [this](float component) { value.w = component; valueChangedRay.Emit(value); });
+    xField->GetValueChangedRay().Register(this, [this](float component) { value.x = component; onValueChanged.Emit(value); });
+    yField->GetValueChangedRay().Register(this, [this](float component) { value.y = component; onValueChanged.Emit(value); });
+    zField->GetValueChangedRay().Register(this, [this](float component) { value.z = component; onValueChanged.Emit(value); });
+    wField->GetValueChangedRay().Register(this, [this](float component) { value.w = component; onValueChanged.Emit(value); });
 }
 
 void Float4Field::SetValue(const Vector4& value)

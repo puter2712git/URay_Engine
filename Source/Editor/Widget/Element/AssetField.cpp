@@ -47,7 +47,7 @@ EventReply AssetField::OnPointerDown(const PointerEvent& event)
             if (value != selectedHandle)
             {
                 SetValue(selectedHandle);
-                valueChangedRay.Emit(selectedHandle);
+                onValueChanged.Emit(selectedHandle);
             }
 
             popupLayer.ClosePopup();

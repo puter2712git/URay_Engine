@@ -13,7 +13,7 @@ namespace URay
 AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
 {
     AddMenuItem("<Null>", [this]
-                { valueSelectedRay.Emit(AssetHandle{}); });
+                { onValueSelected.Emit(AssetHandle{}); });
 
     AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
     std::vector<Asset*> assets = database.GetAssets(assetClass);
@@ -26,7 +26,7 @@ AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
         const AssetHandle handle = asset->GetHandle();
 
         AddMenuItem(asset->GetName(), [this, handle]
-                    { valueSelectedRay.Emit(handle); });
+                    { onValueSelected.Emit(handle); });
     }
 }
 

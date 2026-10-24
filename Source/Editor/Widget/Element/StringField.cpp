@@ -16,14 +16,14 @@ void StringField::OnTextChanged(
     const std::string& prevText,
     const std::string& currText)
 {
-    valueChangedRay.Emit();
+    onValueChanged.Emit();
 }
 
 void StringField::OnTextCommitted(
     const std::string& prevText,
     const std::string& committedText)
 {
-    valueCommittedRay.Emit();
+    onValueCommitted.Emit();
 }
 
 } // namespace URay

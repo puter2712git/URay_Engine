@@ -39,7 +39,7 @@ EventReply Checkbox::OnPointerUp(const PointerEvent& event)
     if (IsHovered())
     {
         checked = !checked;
-        valueChangeRay.Emit(checked);
+        onValueChanged.Emit(checked);
     }
 
     return EventReply{

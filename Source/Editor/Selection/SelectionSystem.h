@@ -26,8 +26,8 @@ public:
 
     bool IsSelected(const Unit* unit) const;
 
-    EventRay<>& GetOnSelectionSetChangedRay() { return onSelectionSetChangedRay; }
-    EventRay<Unit*, Unit*>& GetOnActiveSelectionChangedRay() { return onActiveSelectionChangedRay; }
+    EventRay<>& GetOnSelectionSetChangedRay() { return onSelectionSetChanged; }
+    EventRay<Unit*, Unit*>& GetOnActiveSelectionChangedRay() { return onActiveSelectionChanged; }
 
     const std::vector<Unit*>& GetSelectedUnits() const { return selectedUnits; }
     Unit* GetActiveUnit() const { return activeUnit; }
@@ -37,8 +37,8 @@ private:
     void NotifySelectionChanged(Unit* previousActive);
 
 private:
-    EventRay<> onSelectionSetChangedRay;
-    EventRay<Unit*, Unit*> onActiveSelectionChangedRay;
+    EventRay<> onSelectionSetChanged;
+    EventRay<Unit*, Unit*> onActiveSelectionChanged;
 
     std::vector<Unit*> selectedUnits;
     Unit* activeUnit = nullptr;

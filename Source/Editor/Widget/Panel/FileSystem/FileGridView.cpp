@@ -48,9 +48,9 @@ void FileGridView::SetDirectory(VirtualFileSystem& fileSystem, const VirtualPath
 
         item->GetOnActivatedRay().Register(
             this,
-            [this](const VirtualFileEntry& activatedRay)
+            [this](const VirtualFileEntry& activatedEntry)
             {
-                entryActivatedRay.Emit(activatedRay);
+                onEntryActivated.Emit(activatedEntry);
             });
     }
 }

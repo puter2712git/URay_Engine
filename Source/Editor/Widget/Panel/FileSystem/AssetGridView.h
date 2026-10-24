@@ -20,8 +20,8 @@ public:
     const VirtualPath& GetDirectory() const { return directory; }
     void SetDirectory(AssetSystem& assetSystem, const VirtualPath& path);
 
-    EventRay<const AssetEntry&>& GetOnEntrySelectedRay() { return entrySelectedRay; }
-    EventRay<const AssetEntry&>& GetOnEntryActivatedRay() { return entryActivatedRay; }
+    EventRay<const AssetEntry&>& GetOnEntrySelectedRay() { return onEntrySelected; }
+    EventRay<const AssetEntry&>& GetOnEntryActivatedRay() { return onEntryActivated; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -31,8 +31,8 @@ private:
 
 private:
     VirtualPath directory = {};
-    EventRay<const AssetEntry&> entrySelectedRay;
-    EventRay<const AssetEntry&> entryActivatedRay;
+    EventRay<const AssetEntry&> onEntrySelected;
+    EventRay<const AssetEntry&> onEntryActivated;
 
     static constexpr float TileWidth = 96.0f;
     static constexpr float TileHeight = 112.0f;

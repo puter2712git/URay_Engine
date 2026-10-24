@@ -35,7 +35,7 @@ Float3Field::Float3Field()
         [this](float component)
         {
             value.x = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 
     yField->GetValueChangedRay().Register(
@@ -43,7 +43,7 @@ Float3Field::Float3Field()
         [this](float component)
         {
             value.y = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 
     zField->GetValueChangedRay().Register(
@@ -51,7 +51,7 @@ Float3Field::Float3Field()
         [this](float component)
         {
             value.z = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 }
 

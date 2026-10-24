@@ -9,7 +9,7 @@ void Dialog::Accept()
         return;
 
     result = DialogResult::Accepted;
-    closedRay.Emit(result);
+    onClosed.Emit(result);
 }
 
 void Dialog::Cancel()
@@ -18,7 +18,7 @@ void Dialog::Cancel()
         return;
 
     result = DialogResult::Cancelled;
-    closedRay.Emit(result);
+    onClosed.Emit(result);
 }
 
 } // namespace URay

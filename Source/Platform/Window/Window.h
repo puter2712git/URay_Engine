@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Platform/Window/Cursor.h>
-
 #include <Core/Math/Extent2D.h>
+#include <Core/Ray/EventRay.h>
+#include <Platform/Window/Cursor.h>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>

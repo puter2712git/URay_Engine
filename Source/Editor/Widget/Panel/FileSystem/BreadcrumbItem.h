@@ -21,7 +21,7 @@ public:
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
-    EventRay<const VirtualPath&>& GetOnActivatedRay() { return activatedRay; }
+    EventRay<const VirtualPath&>& GetOnActivatedRay() { return onActivated; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -34,7 +34,7 @@ private:
     Surface* surface = nullptr;
     Label* label = nullptr;
 
-    EventRay<const VirtualPath&> activatedRay;
+    EventRay<const VirtualPath&> onActivated;
 };
 
 } // namespace URay

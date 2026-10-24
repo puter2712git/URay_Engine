@@ -57,7 +57,7 @@ void BreadcrumbBar::RebuildItems()
             this,
             [this](const VirtualPath& activatedPath)
             {
-                pathActivatedRay.Emit(activatedPath);
+                onPathActivated.Emit(activatedPath);
             });
     };
 

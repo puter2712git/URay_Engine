@@ -122,11 +122,11 @@ void SelectionSystem::OnUnitRemoved(Scene* scene, Unit* unit)
 
 void SelectionSystem::NotifySelectionChanged(Unit* previousActive)
 {
-    onSelectionSetChangedRay.Emit();
+    onSelectionSetChanged.Emit();
 
     if (previousActive != activeUnit)
     {
-        onActiveSelectionChangedRay.Emit(previousActive, activeUnit);
+        onActiveSelectionChanged.Emit(previousActive, activeUnit);
     }
 }
 

@@ -108,14 +108,14 @@ void AssetGridView::RebuildItems(const std::vector<AssetEntry>& entries)
                     gridItem->SetSelected(isSelected);
                 }
 
-                entrySelectedRay.Emit(selectedEntry);
+                onEntrySelected.Emit(selectedEntry);
             });
 
         item->GetOnActivatedRay().Register(
             this,
             [this](const AssetEntry& activatedEntry)
             {
-                entryActivatedRay.Emit(activatedEntry);
+                onEntryActivated.Emit(activatedEntry);
             });
     }
 }

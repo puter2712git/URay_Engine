@@ -39,7 +39,7 @@ public:
     void SetHoverColor(const Color& color) { hoverColor = color; }
     void SetPressedColor(const Color& color) { pressedColor = color; }
 
-    EventRay<>& GetOnClickRay() { return onClickRay; }
+    EventRay<>& GetOnClickRay() { return onClicked; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -53,7 +53,7 @@ private:
     Color hoverColor = {};
     Color pressedColor = {};
 
-    EventRay<> onClickRay;
+    EventRay<> onClicked;
 };
 
 } // namespace URay

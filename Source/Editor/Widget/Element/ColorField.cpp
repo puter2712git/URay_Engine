@@ -52,7 +52,7 @@ ColorField::ColorField()
         [this](float component)
         {
             value.r = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 
     gField->GetValueChangedRay().Register(
@@ -60,7 +60,7 @@ ColorField::ColorField()
         [this](float component)
         {
             value.g = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 
     bField->GetValueChangedRay().Register(
@@ -68,7 +68,7 @@ ColorField::ColorField()
         [this](float component)
         {
             value.b = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 
     aField->GetValueChangedRay().Register(
@@ -76,7 +76,7 @@ ColorField::ColorField()
         [this](float component)
         {
             value.a = component;
-            valueChangedRay.Emit(value);
+            onValueChanged.Emit(value);
         });
 }
 

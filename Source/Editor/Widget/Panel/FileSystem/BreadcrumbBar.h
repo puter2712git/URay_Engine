@@ -19,7 +19,7 @@ public:
 
     void SetPath(const VirtualPath& path);
 
-    EventRay<const VirtualPath&>& GetOnPathActivatedRay() { return pathActivatedRay; }
+    EventRay<const VirtualPath&>& GetOnPathActivatedRay() { return onPathActivated; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -32,7 +32,7 @@ private:
 
     HorizontalLayout* layout = nullptr;
 
-    EventRay<const VirtualPath&> pathActivatedRay;
+    EventRay<const VirtualPath&> onPathActivated;
 };
 
 } // namespace URay

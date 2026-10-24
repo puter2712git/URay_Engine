@@ -17,10 +17,10 @@ public:
     UnitPopup();
 
 public:
-    EventRay<UnitPopupSelection>& GetUnitSelectedRay() { return unitSelectedRay; }
+    EventRay<UnitPopupSelection>& GetUnitSelectedRay() { return onUnitSelected; }
 
 private:
-    EventRay<UnitPopupSelection> unitSelectedRay;
+    EventRay<UnitPopupSelection> onUnitSelected;
 };
 
 } // namespace URay

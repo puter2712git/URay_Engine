@@ -47,7 +47,7 @@ EventReply BreadcrumbItem::OnPointerUp(const PointerEvent& event)
         return {};
 
     if (IsHovered())
-        activatedRay.Emit(path);
+        onActivated.Emit(path);
 
     return EventReply{
         .handled = true,

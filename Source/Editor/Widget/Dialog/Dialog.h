@@ -20,7 +20,7 @@ public:
     virtual void Cancel();
 
     DialogResult GetResult() const { return result; }
-    EventRay<DialogResult>& GetClosedRay() { return closedRay; }
+    EventRay<DialogResult>& GetClosedRay() { return onClosed; }
 
 protected:
     std::optional<Rect> GetClipRect() const override { return rect; }
@@ -29,7 +29,7 @@ protected:
 
 private:
     DialogResult result = DialogResult::None;
-    EventRay<DialogResult> closedRay;
+    EventRay<DialogResult> onClosed;
 };
 
 } // namespace URay

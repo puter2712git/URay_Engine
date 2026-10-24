@@ -23,7 +23,7 @@ public:
     EventReply OnPointerUp(const PointerEvent& event) override;
 
     const VirtualFileEntry& GetEntry() const { return entry; }
-    EventRay<const VirtualFileEntry&>& GetOnActivatedRay() { return activatedRay; }
+    EventRay<const VirtualFileEntry&>& GetOnActivatedRay() { return onActivated; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -40,7 +40,7 @@ private:
     Surface* thumbnailSurface = nullptr;
     Label* nameLabel = nullptr;
 
-    EventRay<const VirtualFileEntry&> activatedRay;
+    EventRay<const VirtualFileEntry&> onActivated;
 };
 
 } // namespace URay

@@ -39,7 +39,7 @@ EventReply Button::OnPointerUp(const PointerEvent& event)
 
     if (IsHovered())
     {
-        onClickRay.Emit();
+        onClicked.Emit();
     }
 
     return EventReply{

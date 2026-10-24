@@ -22,8 +22,8 @@ public:
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
 
-    EventRay<const VirtualPath&>& GetOnActivatedRay() { return activatedRay; }
-    EventRay<const VirtualPath&>& GetOnExpandRequestedRay() { return expandRequestedRay; }
+    EventRay<const VirtualPath&>& GetOnActivatedRay() { return onActivated; }
+    EventRay<const VirtualPath&>& GetOnExpandRequestedRay() { return onExpandRequested; }
 
 protected:
     Vector2 OnMeasure() override;
@@ -40,8 +40,8 @@ private:
     Label* disclosureLabel = nullptr;
     Label* directoryLabel = nullptr;
 
-    EventRay<const VirtualPath&> activatedRay;
-    EventRay<const VirtualPath&> expandRequestedRay;
+    EventRay<const VirtualPath&> onActivated;
+    EventRay<const VirtualPath&> onExpandRequested;
 };
 
 } // namespace URay

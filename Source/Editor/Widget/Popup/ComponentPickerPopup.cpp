@@ -24,7 +24,7 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
         const ComponentPickerSelection selection = { .componentTypeName = typeName };
 
         AddMenuItem(typeName, [this, selection]
-                    { componentSelectedRay.Emit(selection); });
+                    { onComponentSelected.Emit(selection); });
     }
 }
 

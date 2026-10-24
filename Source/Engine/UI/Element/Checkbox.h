@@ -25,7 +25,7 @@ public:
     void SetOutlineColor(const Color& color) { outlineColor = color; }
     void SetCheckmarkColor(const Color& color) { checkmarkColor = color; }
 
-    EventRay<bool>& GetValueChangeRay() { return valueChangeRay; }
+    EventRay<bool>& GetValueChangeRay() { return onValueChanged; }
 
 protected:
     Vector2 OnMeasure() override { return Vector2(18.0f, 18.0f); }
@@ -42,7 +42,7 @@ private:
     Color outlineColor = {};
     Color checkmarkColor = {};
 
-    EventRay<bool> valueChangeRay;
+    EventRay<bool> onValueChanged;
 };
 
 } // namespace URay

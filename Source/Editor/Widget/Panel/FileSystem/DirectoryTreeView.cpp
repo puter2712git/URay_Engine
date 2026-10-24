@@ -113,7 +113,7 @@ void DirectoryTreeView::AppendDirectory(const VirtualPath& path, uint32 depth)
     item->GetOnActivatedRay().Register(
         this, [this](const VirtualPath& activatedPath)
         { pendingSelectedPath = activatedPath;
-    directoryActivatedRay.Emit(activatedPath); });
+    onDirectoryActivated.Emit(activatedPath); });
 
     if (!expanded)
         return;

@@ -74,8 +74,8 @@ EventReply AssetGridItem::OnPointerUp(const PointerEvent& event)
 
     if (IsHovered())
     {
-        onSelectedRay.Emit(entry);
-        onActivatedRay.Emit(entry);
+        onSelected.Emit(entry);
+        onActivated.Emit(entry);
     }
 
     return EventReply{

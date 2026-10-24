@@ -68,7 +68,7 @@ EventReply NumberField::OnPointerMove(const PointerEvent& event)
     dragValue += event.delta.x * GetModifiedDragSpeed(event.modifiers);
 
     SetValue(dragValue);
-    valueChangedRay.Emit(dragValue);
+    onValueChanged.Emit(dragValue);
 
     return EventReply{
         .handled = true
@@ -123,7 +123,7 @@ void NumberField::OnTextChanged(
     if (!TryParse(currText, value))
         return;
 
-    valueChangedRay.Emit(value);
+    onValueChanged.Emit(value);
 }
 
 bool NumberField::TryParse(const std::string& text, float& outValue)
