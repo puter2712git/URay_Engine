@@ -16,7 +16,7 @@ public:
     ~MaterialImporter() override;
 
 public:
-    ImportResult Import(const VirtualPath& sourcePath) override;
+    ImportResult Import(const ImportRequest& request) override;
     bool CanImport(const std::string& extension) const override;
 
 private:

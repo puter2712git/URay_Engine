@@ -8,6 +8,7 @@
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Font/Font.h>
 #include <Engine/Asset/Font/FontSerializer.h>
+#include <Engine/Asset/Importer/ImportRequest.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
@@ -74,9 +75,9 @@ void AssetSystem::Finalize()
     fileSystem.reset();
 }
 
-bool AssetSystem::Import(const VirtualPath& sourcePath)
+bool AssetSystem::Import(const ImportRequest& request)
 {
-    return pipeline->Execute(sourcePath);
+    return pipeline->Execute(request);
 }
 
 void AssetSystem::LoadAssetsRecursive(const VirtualPath& path)

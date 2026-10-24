@@ -21,7 +21,7 @@ MaterialImporter::MaterialImporter(AssetSystem& assetSystem, VirtualFileSystem& 
 
 MaterialImporter::~MaterialImporter() = default;
 
-ImportResult MaterialImporter::Import(const VirtualPath& sourcePath)
+ImportResult MaterialImporter::Import(const ImportRequest& request)
 {
     const VirtualPath assetPath = sourcePath;
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);

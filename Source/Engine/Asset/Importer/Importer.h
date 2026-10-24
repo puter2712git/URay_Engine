@@ -12,6 +12,7 @@ class AssetSystem;
 class Class;
 class VirtualFileSystem;
 class VirtualPath;
+struct ImportRequest;
 
 class Importer
 {
@@ -20,8 +21,8 @@ public:
     virtual ~Importer() = default;
 
 public:
-    virtual DependencyResult DiscoverDependencies(const VirtualPath& sourcePath) { return DependencyResult::Success(); }
-    virtual ImportResult Import(const VirtualPath& sourcePath) = 0;
+    virtual DependencyResult DiscoverDependencies(const ImportRequest& request) { return DependencyResult::Success(); }
+    virtual ImportResult Import(const ImportRequest& request) = 0;
     virtual bool CanImport(const std::string& extension) const = 0;
 
 protected:

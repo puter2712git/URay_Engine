@@ -14,6 +14,7 @@ class AssetSystem;
 class Importer;
 class VirtualFileSystem;
 class VirtualPath;
+struct ImportRequest;
 
 class AssetPipeline
 {
@@ -22,7 +23,9 @@ public:
     ~AssetPipeline();
 
 public:
-    bool Execute(const VirtualPath& path) const;
+    bool CanImport(const VirtualPath& sourcePath) const;
+
+    bool Execute(const ImportRequest& request) const;
 
 private:
     Importer* FindImporter(const std::string& extension) const;

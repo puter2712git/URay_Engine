@@ -6,6 +6,7 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
+#include <Engine/Asset/Importer/ImportRequest.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Material/MaterialData.h>
 #include <Engine/Asset/Material/MaterialSerializer.h>
@@ -17,6 +18,7 @@
 #include <Engine/Engine.h>
 
 #include <iostream>
+#include <optional>
 #include <sstream>
 #include <unordered_map>
 
@@ -28,11 +30,11 @@ OBJImporter::OBJImporter(AssetSystem& assetSystem, VirtualFileSystem& fileSystem
 
 OBJImporter::~OBJImporter() = default;
 
-DependencyResult OBJImporter::DiscoverDependencies(const VirtualPath& sourcePath)
+DependencyResult OBJImporter::DiscoverDependencies(const ImportRequest& request)
 {
-    OBJ::OBJInfo objInfo = ParseOBJ(sourcePath);
+    OBJ::OBJInfo objInfo = ParseOBJ(request.sourcePath);
 
-    const VirtualPath mtlPath = sourcePath.GetDirectory().Join(objInfo.mtllib);
+    const VirtualPath mtlPath = request.sourcePath.GetDirectory().Join(objInfo.mtllib);
     OBJ::MTLInfo mtlInfo = ParseMTL(mtlPath);
 
     DependencyResult result = DependencyResult::Success();
@@ -41,31 +43,31 @@ DependencyResult OBJImporter::DiscoverDependencies(const VirtualPath& sourcePath
     {
         if (!material.diffuseTexturePath.empty())
         {
-            result.sourcePaths.push_back(sourcePath.GetDirectory().Join(material.diffuseTexturePath));
+            result.sourcePaths.push_back(request.sourcePath.GetDirectory().Join(material.diffuseTexturePath));
         }
     }
 
     return result;
 }
 
-ImportResult OBJImporter::Import(const VirtualPath& sourcePath)
+ImportResult OBJImporter::Import(const ImportRequest& request)
 {
-    OBJ::OBJInfo objInfo = ParseOBJ(sourcePath);
+    OBJ::OBJInfo objInfo = ParseOBJ(request.sourcePath);
 
-    const VirtualPath mtlPath = sourcePath.GetDirectory().Join(objInfo.mtllib);
+    const VirtualPath mtlPath = request.sourcePath.GetDirectory().Join(objInfo.mtllib);
     OBJ::MTLInfo mtlInfo = ParseMTL(mtlPath);
 
     ImportResult result = ImportResult::Success();
 
     ImportedMaterials importedMaterials;
-    if (!ImportMaterials(sourcePath, mtlInfo, result, importedMaterials))
+    if (!ImportMaterials(request, mtlInfo, result, importedMaterials))
     {
         return ImportResult::Failure("Failed to import materials.");
     }
 
     AssignFallbackMaterials(objInfo, importedMaterials);
 
-    if (!ImportMesh(sourcePath, objInfo, importedMaterials, result))
+    if (!ImportMesh(request, objInfo, importedMaterials, result))
     {
         return ImportResult::Failure("Failed to import mesh.");
     }
@@ -79,7 +81,7 @@ bool OBJImporter::CanImport(const std::string& extension) const
 }
 
 bool OBJImporter::ImportMaterials(
-    const VirtualPath& sourcePath,
+    const ImportRequest& request,
     const OBJ::MTLInfo& mtlInfo,
     ImportResult& outResult,
     ImportedMaterials& outMaterials) const
@@ -89,7 +91,7 @@ bool OBJImporter::ImportMaterials(
 
     outMaterials = {};
 
-    const VirtualPath directory = sourcePath.GetDirectory();
+    const VirtualPath sourceDirectory = request.sourcePath.GetDirectory();
 
     for (const OBJ::MTLData& mtlData : mtlInfo.datas)
     {
@@ -98,8 +100,8 @@ bool OBJImporter::ImportMaterials(
 
         if (!mtlData.diffuseTexturePath.empty())
         {
-            const VirtualPath diffuseTexturePath = directory.Join(mtlData.diffuseTexturePath);
-            const VirtualPath textureAssetPath = diffuseTexturePath.ReplaceExtension(".urtex");
+            const VirtualPath diffuseTexturePath = sourceDirectory.Join(mtlData.diffuseTexturePath);
+            const VirtualPath textureAssetPath = request.outputDirectory.Join(diffuseTexturePath.GetStem() + ".urtex");
             const VirtualPath textureMetadataPath = assetSystem.GetMetadataPath(textureAssetPath);
 
             AssetMetadata textureMetadata;
@@ -114,10 +116,10 @@ bool OBJImporter::ImportMaterials(
 
         const uint32 materialIndex = static_cast<uint32>(outMaterials.handles.size());
 
-        const VirtualPath materialAssetPath = directory.Join(sourcePath.GetStem() + "_" + mtlData.mtlName + ".urmat");
+        const VirtualPath materialAssetPath = request.outputDirectory.Join(request.sourcePath.GetStem() + "_" + mtlData.mtlName + ".urmat");
         const VirtualPath materialMetadataPath = assetSystem.GetMetadataPath(materialAssetPath);
 
-        AssetMetadata materialMetadata = LoadOrCreateMetadata(materialAssetPath, materialMetadataPath, Material::StaticClass());
+        AssetMetadata materialMetadata = LoadOrCreateMetadata(request.sourcePath, materialMetadataPath, Material::StaticClass());
 
         if (!materialSerializer.Save(materialData, materialAssetPath))
             return false;
@@ -132,7 +134,7 @@ bool OBJImporter::ImportMaterials(
 }
 
 bool OBJImporter::ImportMesh(
-    const VirtualPath& sourcePath,
+    const ImportRequest& request,
     const OBJ::OBJInfo& objInfo,
     const ImportedMaterials& importedMaterials,
     ImportResult& outResult) const
@@ -171,10 +173,10 @@ bool OBJImporter::ImportMesh(
         sections.push_back(section);
     }
 
-    const VirtualPath meshAssetPath = sourcePath.ReplaceExtension(".urmesh");
+    const VirtualPath meshAssetPath = request.outputDirectory.Join(request.sourcePath.GetStem() + ".urmesh");
     const VirtualPath meshMetadataPath = assetSystem.GetMetadataPath(meshAssetPath);
 
-    AssetMetadata metadata = LoadOrCreateMetadata(meshAssetPath, meshMetadataPath, Mesh::StaticClass());
+    AssetMetadata metadata = LoadOrCreateMetadata(request.sourcePath, meshMetadataPath, Mesh::StaticClass());
 
     MeshData meshData;
     meshData.vertices = std::move(vertices);

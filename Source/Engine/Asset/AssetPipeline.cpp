@@ -7,6 +7,7 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Importer/FBXImporter.h>
 #include <Engine/Asset/Importer/FontImporter.h>
+#include <Engine/Asset/Importer/ImportRequest.h>
 #include <Engine/Asset/Importer/MaterialImporter.h>
 #include <Engine/Asset/Importer/OBJImporter.h>
 #include <Engine/Asset/Importer/ShaderImporter.h>
@@ -29,28 +30,38 @@ AssetPipeline::AssetPipeline(AssetSystem& assetSystem, VirtualFileSystem& fileSy
 
 AssetPipeline::~AssetPipeline() = default;
 
-bool AssetPipeline::Execute(const VirtualPath& path) const
+bool AssetPipeline::CanImport(const VirtualPath& sourcePath) const
 {
-    const std::string extension = path.GetExtension();
+    const std::string extension = sourcePath.GetExtension();
+    Importer* importer = FindImporter(extension);
+    return importer != nullptr;
+}
+
+bool AssetPipeline::Execute(const ImportRequest& request) const
+{
+    const std::string extension = request.sourcePath.GetExtension();
 
     Importer* importer = FindImporter(extension);
     if (!importer)
         return false;
 
-    DependencyResult dependencies = importer->DiscoverDependencies(path);
+    DependencyResult dependencies = importer->DiscoverDependencies(request);
     if (!dependencies)
         return false;
 
     for (const VirtualPath& dependency : dependencies.sourcePaths)
     {
-        if (!Execute(dependency))
+        ImportRequest dependencyRequest = request;
+        dependencyRequest.sourcePath = dependency;
+
+        if (!Execute(dependencyRequest))
             return false;
     }
 
-    ImportResult result = importer->Import(path);
+    ImportResult result = importer->Import(request);
     if (!result)
     {
-        URAY_LOG("[AssetPipeline] Failed to import asset: %s. Error: %s", path.ToString().c_str(), result.errorMessage.c_str());
+        URAY_LOG("[AssetPipeline] Failed to import asset: %s. Error: %s", request.sourcePath.ToString().c_str(), result.errorMessage.c_str());
         return false;
     }
 

@@ -2,6 +2,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Importer/ImportRequest.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 #include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/Texture/Texture.h>
@@ -20,19 +21,20 @@ TextureImporter::TextureImporter(AssetSystem& assetSystem, VirtualFileSystem& fi
 
 TextureImporter::~TextureImporter() = default;
 
-ImportResult TextureImporter::Import(const VirtualPath& sourcePath)
+ImportResult TextureImporter::Import(const ImportRequest& request)
 {
-    const VirtualPath assetPath = sourcePath.ReplaceExtension(".urtex");
+    const VirtualPath assetPath = request.outputDirectory.Join(request.sourcePath.GetStem() + ".urtex");
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(assetPath);
 
     TextureData assetData;
-    if (!DecodeTexture(assetData, sourcePath))
-        return ImportResult::Failure("Failed to decode texture: " + sourcePath.ToString());
+    if (!DecodeTexture(assetData, request.sourcePath))
+        return ImportResult::Failure("Failed to decode texture: " + request.sourcePath.ToString());
 
     TextureSerializer& serializer = assetSystem.GetTextureSerializer();
-    serializer.Save(assetData, assetPath);
+    if (!serializer.Save(assetData, assetPath))
+        return ImportResult::Failure("Failed to save texture: " + assetPath.ToString());
 
-    AssetMetadata metadata = LoadOrCreateMetadata(sourcePath, metadataPath, Texture::StaticClass());
+    AssetMetadata metadata = LoadOrCreateMetadata(request.sourcePath, metadataPath, Texture::StaticClass());
 
     ImportResult result = ImportResult::Success();
     result.metadatas.push_back(metadata);

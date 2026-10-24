@@ -30,13 +30,13 @@ public:
     ~OBJImporter();
 
 public:
-    DependencyResult DiscoverDependencies(const VirtualPath& sourcePath) override;
-    ImportResult Import(const VirtualPath& sourcePath) override;
+    DependencyResult DiscoverDependencies(const ImportRequest& request) override;
+    ImportResult Import(const ImportRequest& request) override;
     bool CanImport(const std::string& extension) const override;
 
 private:
-    bool ImportMaterials(const VirtualPath& sourcePath, const OBJ::MTLInfo& mtlInfo, ImportResult& outResult, ImportedMaterials& outMaterials) const;
-    bool ImportMesh(const VirtualPath& sourcePath, const OBJ::OBJInfo& objInfo, const ImportedMaterials& materials, ImportResult& outResult) const;
+    bool ImportMaterials(const ImportRequest& request, const OBJ::MTLInfo& mtlInfo, ImportResult& outResult, ImportedMaterials& outMaterials) const;
+    bool ImportMesh(const ImportRequest& request, const OBJ::OBJInfo& objInfo, const ImportedMaterials& materials, ImportResult& outResult) const;
 
     void AssignFallbackMaterials(const OBJ::OBJInfo& objInfo, ImportedMaterials& materials) const;
 

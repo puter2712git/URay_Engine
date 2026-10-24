@@ -28,6 +28,7 @@ class FontSerializer;
 class Texture;
 class Material;
 struct MeshInfo;
+struct ImportRequest;
 
 class AssetSystem
 {
@@ -39,7 +40,7 @@ public:
     bool Initialize(const std::string& enginePath, const std::string& projectPath);
     void Finalize();
 
-    bool Import(const VirtualPath& sourcePath);
+    bool Import(const ImportRequest& request);
 
     void LoadAssetsRecursive(const VirtualPath& path);
     bool RegisterAsset(const AssetMetadata& metadata);
