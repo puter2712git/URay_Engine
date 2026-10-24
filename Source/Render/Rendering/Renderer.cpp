@@ -83,12 +83,6 @@ static std::string_view GetRenderPassName(RenderPassId passId)
     return "Unknown";
 }
 
-static void FramebufferResizeCallback(GLFWwindow* window, int width, int height)
-{
-    auto renderer = reinterpret_cast<Renderer*>(glfwGetWindowUserPointer(window));
-    renderer->framebufferResized = true;
-}
-
 Renderer::Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager)
     : window(window), context(context), device(device), resourceManager(resourceManager) {}
 
@@ -96,10 +90,10 @@ Renderer::~Renderer() = default;
 
 bool Renderer::Initialize()
 {
-    glfwSetWindowUserPointer(window.GetGLFWWindow(), this);
-    glfwSetFramebufferSizeCallback(window.GetGLFWWindow(), FramebufferResizeCallback);
+    window.onFramebufferResized.Register(this, [this](const Extent2D& extent)
+                                         { framebufferResized = true; });
 
-    int width, height;
+    int32 width, height;
     glfwGetFramebufferSize(window.GetGLFWWindow(), &width, &height);
 
     SwapChainDesc swapChainDesc = {};
@@ -188,6 +182,8 @@ void Renderer::Finalize()
     }
 
     DestroyCommandPool();
+
+    window.onFramebufferResized.UnregisterAll(this);
 }
 
 bool Renderer::BeginFrame()

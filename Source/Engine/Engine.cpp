@@ -18,8 +18,8 @@
 #include <Platform/Window/Window.h>
 
 #include <Render/RenderSystem.h>
-#include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
+#include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
 
 #include <GLFW/glfw3.h>
@@ -28,13 +28,6 @@
 
 namespace URay
 {
-
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-void CursorPosCallback(GLFWwindow* window, double xpos, double ypos);
-void CharacterCallback(GLFWwindow* window, unsigned int codepoint);
-void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-void WindowFocusCallback(GLFWwindow* window, int focused);
 
 Engine* gEngine;
 
@@ -62,13 +55,6 @@ bool Engine::Initialize(
         Finalize();
         return false;
     }
-
-    glfwSetKeyCallback(window->GetGLFWWindow(), KeyCallback);
-    glfwSetMouseButtonCallback(window->GetGLFWWindow(), MouseButtonCallback);
-    glfwSetCursorPosCallback(window->GetGLFWWindow(), CursorPosCallback);
-    glfwSetCharCallback(window->GetGLFWWindow(), CharacterCallback);
-    glfwSetScrollCallback(window->GetGLFWWindow(), ScrollCallback);
-    glfwSetWindowFocusCallback(window->GetGLFWWindow(), WindowFocusCallback);
 
     timer = std::make_unique<Timer>();
     scheduler = std::make_unique<Scheduler>();
@@ -105,6 +91,19 @@ bool Engine::Initialize(
         Finalize();
         return false;
     }
+
+    window->onKey.Register(this, [this](KeyCode key, KeyAction action, ModifierKey mods)
+                           { inputSystem->OnKey(key, action, mods); });
+    window->onMouseButton.Register(this, [this](MouseButton button, KeyAction action, ModifierKey mods)
+                                   { inputSystem->OnMouseButton(button, action, mods); });
+    window->onCursorMoved.Register(this, [this](Vector2 position)
+                                   { inputSystem->OnCursorMoved(position); });
+    window->onTextInput.Register(this, [this](char32_t codepoint)
+                                 { inputSystem->OnTextInput(codepoint); });
+    window->onScroll.Register(this, [this](Vector2 delta)
+                              { inputSystem->OnScroll(delta); });
+    window->onFocusChanged.Register(this, [this](bool focused)
+                                    { inputSystem->OnWindowFocusChanged(focused); });
 
     std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
     for (Material* material : materials)
@@ -173,6 +172,13 @@ void Engine::Finalize()
 
     if (window)
     {
+        window->onKey.UnregisterAll(this);
+        window->onMouseButton.UnregisterAll(this);
+        window->onCursorMoved.UnregisterAll(this);
+        window->onTextInput.UnregisterAll(this);
+        window->onScroll.UnregisterAll(this);
+        window->onFocusChanged.UnregisterAll(this);
+
         window->Finalize();
         window.reset();
     }
@@ -231,59 +237,6 @@ void Engine::Render(const Render::RenderRequest& request)
 
     renderSystem->GetPipeline().Execute(request);
     renderSystem->EndFrame();
-}
-
-void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    const KeyCode keyCode = Platform::ToKeyCode(key);
-    const std::optional<KeyAction> keyAction = Platform::ToKeyAction(action);
-
-    if (keyCode == KeyCode::Unknown || !keyAction)
-        return;
-
-    gEngine->GetInputSystem().OnKey(
-        keyCode,
-        *keyAction,
-        Platform::ToModifierKey(mods));
-}
-
-void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
-    const MouseButton mouseButton = Platform::ToMouseButton(button);
-    const std::optional<KeyAction> mouseAction = Platform::ToKeyAction(action);
-
-    if (mouseButton == MouseButton::None || !mouseAction)
-        return;
-
-    gEngine->GetInputSystem().OnMouseButton(
-        mouseButton,
-        *mouseAction,
-        Platform::ToModifierKey(mods));
-}
-
-void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
-{
-    gEngine->GetInputSystem().OnCursorMoved(Vector2(xpos, ypos));
-}
-
-void CharacterCallback(GLFWwindow* window, unsigned int codepoint)
-{
-    if (codepoint == 0 || codepoint > 0x10FFFF)
-        return;
-
-    gEngine->GetInputSystem().OnTextInput(static_cast<char32_t>(codepoint));
-}
-
-void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    gEngine->GetInputSystem().OnScroll(
-        Vector2(static_cast<float>(xoffset),
-                static_cast<float>(yoffset)));
-}
-
-void WindowFocusCallback(GLFWwindow* window, int focused)
-{
-    gEngine->GetInputSystem().OnWindowFocusChanged(focused == GLFW_TRUE);
 }
 
 } // namespace URay
