@@ -5,8 +5,8 @@
 
 #include <Core/Log/ConsoleLogSink.h>
 #include <Core/Log/LogSystem.h>
-#include <Engine/UI/Element/Label.h>
-#include <Engine/UI/Layout/VerticalLayout.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Engine.h>
 

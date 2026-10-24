@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Editor/Widget/Style/EditorStyles.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Padding.h>

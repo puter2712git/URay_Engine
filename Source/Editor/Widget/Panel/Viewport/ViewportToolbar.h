@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Type/Types.h>
 

@@ -1,15 +1,15 @@
 #include "SceneTreePanel.h"
 
-#include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Panel/SceneTree/SceneTreeNode.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
-#include <Editor/Widget/EditorUI.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
@@ -138,10 +138,12 @@ void SceneTreePanel::UpdateTree()
     }
 }
 
-void SceneTreePanel::AddSubtree(Unit& unit, uint32 depth)
+void SceneTreePanel::AddSubtree(const Unit& unit, uint32 depth)
 {
     rows.push_back(TreeRow{
-        .unit = &unit,
+        .sceneId = unit.GetOwner()->GetId(),
+        .unitId = unit.GetPersistentId(),
+        .name = unit.GetName(),
         .depth = depth });
 
     for (Unit* child : unit.GetChildren())
@@ -195,7 +197,7 @@ void SceneTreeVirtualContent::Arrange(const Rect& rect)
         const SceneTreePanel::TreeRow& row = owner.rows[rowIndex];
 
         SceneTreeNode* node = nodePool[poolIndex];
-        node->Bind(*row.unit, row.depth);
+        node->Bind(row.sceneId, row.unitId, row.name, row.depth);
 
         Rect rowRect;
         rowRect.position = Vector2(rect.position.x, rect.position.y + static_cast<float>(rowIndex) * SceneTreeRowHeight);

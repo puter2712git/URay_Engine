@@ -2,7 +2,7 @@
 
 #include <Core/Input/InputSystem.h>
 #include <Engine/UI/Input/UIInputRouter.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 #include <Platform/Window/Window.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 

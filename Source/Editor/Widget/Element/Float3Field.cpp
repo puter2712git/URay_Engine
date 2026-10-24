@@ -3,7 +3,7 @@
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
 
-#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Widget/Element/Label.h>
 #include <Editor/Widget/Element/NumberField.h>
 
 #include <algorithm>

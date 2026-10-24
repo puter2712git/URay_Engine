@@ -10,16 +10,17 @@
 #include <memory>
 #include <vector>
 
+namespace URay::Render
+{
+class RenderScene;
+} // namespace URay::Render
+
 namespace URay
 {
 
 class Unit;
 class SceneSystem;
-
-namespace Render
-{
-class RenderScene;
-}
+struct UUID;
 
 enum class SceneType
 {
@@ -53,6 +54,8 @@ public:
     void AddUnit(std::unique_ptr<Unit> unit);
     void DestroyUnit(Unit* unit);
     void DestroyAllUnits();
+
+    Unit* FindUnit(const UUID& id) const;
 
     Unit* CreateEmptyUnit(const std::string& name, Unit* parent);
 

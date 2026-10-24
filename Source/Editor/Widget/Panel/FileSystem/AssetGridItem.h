@@ -2,7 +2,7 @@
 
 #include <Core/Ray/EventRay.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 namespace URay
 {

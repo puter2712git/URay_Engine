@@ -11,8 +11,8 @@
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Element/AssetField.h>
-#include <Engine/UI/Element/Button.h>
-#include <Engine/UI/Element/Checkbox.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float2Field.h>
 #include <Editor/Widget/Element/Float3Field.h>
@@ -22,7 +22,7 @@
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
-#include <Engine/UI/Layout/VerticalLayout.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>

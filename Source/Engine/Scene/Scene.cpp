@@ -295,6 +295,16 @@ void Scene::DestroyAllUnits()
     }
 }
 
+Unit* Scene::FindUnit(const UUID& id) const
+{
+    const auto it = std::find_if(
+        units.begin(), units.end(),
+        [&id](const std::unique_ptr<Unit>& unit)
+        { return unit->GetPersistentId() == id; });
+
+    return it != units.end() ? it->get() : nullptr;
+}
+
 Unit* Scene::CreateEmptyUnit(const std::string& name, Unit* parent)
 {
     auto unit = std::make_unique<Unit>();

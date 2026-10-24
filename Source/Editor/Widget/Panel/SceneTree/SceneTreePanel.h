@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Core/Type/Types.h>
+#include <Core/Type/UUID.h>
 #include <Editor/Widget/Panel/Panel.h>
+#include <Engine/Scene/Scene.h>
 
 #include <vector>
 
@@ -35,13 +37,15 @@ protected:
 private:
     struct TreeRow
     {
-        Unit* unit = nullptr;
+        SceneId sceneId = InvalidSceneId;
+        UUID unitId = {};
+        std::string name;
         uint32 depth = 0;
     };
 
 private:
     void UpdateTree();
-    void AddSubtree(Unit& unit, uint32 depth);
+    void AddSubtree(const Unit& unit, uint32 depth);
 
 private:
     SceneSystem* sceneSystem = nullptr;

@@ -2,12 +2,12 @@
 #include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Engine/UI/Element/Button.h>
-#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
-#include <Engine/UI/Element/Surface.h>
-#include <Engine/UI/Layout/HorizontalLayout.h>
+#include <Engine/UI/Widget/Element/Surface.h>
+#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridView.h>
 #include <Editor/Widget/Panel/ScrollView.h>

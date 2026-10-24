@@ -5,7 +5,7 @@
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>
-#include <Core/UUID.h>
+#include <Core/Type/UUID.h>
 
 #include <yaml-cpp/yaml.h>
 

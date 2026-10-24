@@ -2,9 +2,9 @@
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
-#include <Engine/UI/Element/Label.h>
-#include <Engine/UI/Element/Surface.h>
-#include <Engine/UI/Layout/HorizontalLayout.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Element/Surface.h>
+#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
 #include <utility>

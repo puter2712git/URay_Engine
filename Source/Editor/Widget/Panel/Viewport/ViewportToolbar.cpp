@@ -1,9 +1,9 @@
 #include "ViewportToolbar.h"
 
-#include <Engine/UI/Element/Button.h>
+#include <Engine/UI/Widget/Element/Button.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
-#include <Engine/UI/Element/Image.h>
-#include <Engine/UI/Layout/HorizontalLayout.h>
+#include <Engine/UI/Widget/Element/Image.h>
+#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
 
 #include <Engine/Asset/EngineAsset.h>
 

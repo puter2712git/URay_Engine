@@ -2,10 +2,10 @@
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
-#include <Engine/UI/Element/Image.h>
-#include <Engine/UI/Element/Label.h>
-#include <Engine/UI/Element/Surface.h>
-#include <Engine/UI/Layout/VerticalLayout.h>
+#include <Engine/UI/Widget/Element/Image.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Element/Surface.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/Texture/Texture.h>
 

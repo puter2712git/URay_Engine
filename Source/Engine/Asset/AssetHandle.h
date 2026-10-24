@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/UUID.h>
+#include <Core/Type/UUID.h>
 
 namespace URay
 {

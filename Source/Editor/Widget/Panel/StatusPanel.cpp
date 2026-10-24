@@ -5,11 +5,11 @@
 #include <Core/Performance/PerformanceViewModel.h>
 #include <Core/TimeFlow/Timer.h>
 #include <Editor/Editor.h>
-#include <Engine/UI/Element/Checkbox.h>
-#include <Engine/UI/Element/Label.h>
+#include <Engine/UI/Widget/Element/Checkbox.h>
+#include <Engine/UI/Widget/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
-#include <Engine/UI/Layout/CrossAxisAlignment.h>
-#include <Engine/UI/Layout/VerticalLayout.h>
+#include <Engine/UI/Widget/Layout/CrossAxisAlignment.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/AssetDatabase.h>

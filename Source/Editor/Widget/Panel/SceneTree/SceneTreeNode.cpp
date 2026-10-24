@@ -1,17 +1,18 @@
 #include "SceneTreeNode.h"
 
-#include <Editor/Widget/EditorWidgetFactory.h>
-#include <Editor/Widget/Style/EditorStyles.h>
-
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
-#include <Engine/UI/Element/Label.h>
-#include <Engine/UI/Element/Surface.h>
-#include <Editor/Widget/Layer/PopupLayer.h>
-#include <Engine/UI/Layout/HorizontalLayout.h>
-#include <Editor/Widget/Popup/UnitPopup.h>
 #include <Editor/Widget/EditorUI.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
+#include <Editor/Widget/Layer/PopupLayer.h>
+#include <Editor/Widget/Popup/UnitPopup.h>
+#include <Editor/Widget/Style/EditorStyles.h>
+#include <Engine/Engine.h>
 #include <Engine/Scene/Scene.h>
+#include <Engine/Scene/SceneSystem.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Element/Surface.h>
+#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
 
 #include <Engine/Scene/Unit.h>
 
@@ -32,18 +33,20 @@ SceneTreeNode::SceneTreeNode()
     label->SetTextStyle(EditorStyle::SmallText());
 }
 
-void SceneTreeNode::Bind(Unit& unit, uint32 depth)
+void SceneTreeNode::Bind(SceneId sceneId, const UUID& unitId, std::string_view name, uint32 depth)
 {
-    this->unit = &unit;
+    this->sceneId = sceneId;
+    this->unitId = unitId;
     this->depth = depth;
 
-    label->SetText(unit.GetName());
+    label->SetText(name);
     layout->SetPadding(Padding(depth * 16.0f, 0.0f));
 }
 
 void SceneTreeNode::Unbind()
 {
-    unit = nullptr;
+    sceneId = InvalidSceneId;
+    unitId = {};
     depth = 0;
     label->SetText({});
     surface->SetBackgroundColor(EditorStyle::Surface);
@@ -58,6 +61,7 @@ void SceneTreeNode::Arrange(const Rect& rect)
 
 EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 {
+    Unit* unit = ResolveUnit();
     if (!unit)
         return {};
 
@@ -123,6 +127,7 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
 
 void SceneTreeNode::OnUpdate(float deltaTime)
 {
+    Unit* unit = ResolveUnit();
     if (!unit)
         return;
 
@@ -138,6 +143,12 @@ void SceneTreeNode::OnUpdate(float deltaTime)
     }
 
     surface->SetBackgroundColor(surfaceColor);
+}
+
+Unit* SceneTreeNode::ResolveUnit() const
+{
+    Scene* scene = gEngine->GetSceneSystem().GetScene(sceneId);
+    return scene ? scene->FindUnit(unitId) : nullptr;
 }
 
 } // namespace URay

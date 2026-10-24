@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Engine/UI/Layout/CrossAxisAlignment.h>
-#include <Engine/UI/Layout/MainAxisAlignment.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Layout/CrossAxisAlignment.h>
+#include <Engine/UI/Widget/Layout/MainAxisAlignment.h>
+#include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Padding.h>
 #include <Core/Type/Types.h>
@@ -10,7 +10,7 @@
 namespace URay
 {
 
-class HorizontalLayout final : public Widget
+class VerticalLayout final : public Widget
 {
 public:
     bool CanHit() const override { return false; }
@@ -33,11 +33,11 @@ protected:
     Vector2 OnMeasure() override;
 
 private:
-    float CalculateStartOffsetX(const Rect& contentRect) const;
-    float CalculateTotalWidth() const;
+    float CalculateStartOffsetY(const Rect& contentRect) const;
+    float CalculateTotalHeight() const;
 
-    float CalculateChildY(float childHeight, const Rect& contentRect) const;
-    float CalculateChildHeight(const Widget& child, const Rect& contentRect) const;
+    float CalculateChildX(float childWidth, const Rect& contentRect) const;
+    float CalculateChildWidth(const Widget& child, const Rect& contentRect) const;
 
     float GetChildLayoutWidth(const Widget& child) const;
     float GetChildLayoutHeight(const Widget& child) const;

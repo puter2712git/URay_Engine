@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
 #include <string>

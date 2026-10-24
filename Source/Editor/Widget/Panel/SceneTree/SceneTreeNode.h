@@ -1,8 +1,11 @@
 #pragma once
 
-#include <Engine/UI/Widget.h>
-
 #include <Core/Type/Types.h>
+#include <Core/Type/UUID.h>
+#include <Engine/Scene/Scene.h>
+#include <Engine/UI/Widget/Widget.h>
+
+#include <string_view>
 
 namespace URay
 {
@@ -19,7 +22,7 @@ public:
     SceneTreeNode();
 
 public:
-    void Bind(Unit& unit, uint32 depth);
+    void Bind(SceneId sceneId, const UUID& unitId, std::string_view name, uint32 depth);
     void Unbind();
 
     void Arrange(const Rect& rect) override;
@@ -30,9 +33,13 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
+    Unit* ResolveUnit() const;
+
+private:
     SelectionSystem* selectionSystem = nullptr;
 
-    Unit* unit = nullptr;
+    SceneId sceneId = InvalidSceneId;
+    UUID unitId = {};
     uint32 depth = 0;
 
     Surface* surface = nullptr;

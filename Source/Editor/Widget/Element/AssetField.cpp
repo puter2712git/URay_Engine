@@ -3,7 +3,7 @@
 #include <Editor/Widget/EditorWidgetFactory.h>
 
 #include <Editor/Editor.h>
-#include <Engine/UI/Element/TextBox.h>
+#include <Engine/UI/Widget/Element/TextBox.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Popup/AssetPickerPopup.h>
 #include <Editor/Widget/EditorUI.h>

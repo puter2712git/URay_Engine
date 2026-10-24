@@ -2,12 +2,12 @@
 
 #include <Editor/Widget/Style/EditorStyles.h>
 
-#include <Engine/UI/Element/Button.h>
-#include <Engine/UI/Element/Checkbox.h>
-#include <Engine/UI/Element/Image.h>
-#include <Engine/UI/Element/Label.h>
-#include <Engine/UI/Element/TextBox.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Checkbox.h>
+#include <Engine/UI/Widget/Element/Image.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Element/TextBox.h>
+#include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
 #include <string>

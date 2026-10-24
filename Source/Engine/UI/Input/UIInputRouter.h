@@ -2,7 +2,7 @@
 
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Vector2.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 namespace URay
 {

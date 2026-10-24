@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Ray/EventRay.h>
-#include <Engine/UI/Widget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 namespace URay
 {

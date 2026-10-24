@@ -3,8 +3,8 @@
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
-#include <Engine/UI/Element/Label.h>
-#include <Engine/UI/Layout/HorizontalLayout.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbItem.h>
 
 namespace URay
