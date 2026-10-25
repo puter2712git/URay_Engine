@@ -17,8 +17,8 @@ public:
     explicit ScaleGizmoStrategy(TransformGizmo& gizmo);
     GizmoMode GetMode() const override { return GizmoMode::Scale; }
     void UpdateHandles(const Matrix& gizmoWorld) override;
-    void StartDragging(GizmoHandleId handleId, const Ray& cursorRay, const EditorView& view) override;
-    void UpdateDragging(const Ray& cursorRay) override;
+    void StartDragging(GizmoHandleId handleId, const Vector3& origin, const Vector3& direction, const EditorView& view) override;
+    void UpdateDragging(const Vector3& origin, const Vector3& direction) override;
     void EndDragging() override;
 
 private:

@@ -2,7 +2,6 @@
 
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Math/Ray.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 
@@ -23,7 +22,7 @@ struct EditorView
     Matrix GetViewMatrix() const;
     Matrix GetProjMatrix(const Extent2D& extent) const;
 
-    Ray ScreenPointToRay(const Vector2& point, const Extent2D& extent) const;
+    void ScreenPointToRay(const Vector2& point, const Extent2D& extent, Vector3& outOrigin, Vector3& outDirection) const;
 };
 
 } // namespace URay

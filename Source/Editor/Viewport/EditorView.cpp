@@ -46,13 +46,13 @@ Matrix EditorView::GetProjMatrix(const Extent2D& extent) const
     return projMatrix;
 }
 
-Ray EditorView::ScreenPointToRay(const Vector2& point, const Extent2D& extent) const
+void EditorView::ScreenPointToRay(const Vector2& point, const Extent2D& extent, Vector3& outOrigin, Vector3& outDirection) const
 {
     uint32 width = extent.width;
     uint32 height = extent.height;
 
     if (width == 0 || height == 0)
-        return {};
+        return;
 
     const float ndcX = 2.0f * point.x / static_cast<float>(width) - 1.0f;
     const float ndcY = 1.0f - 2.0f * point.y / static_cast<float>(height);
@@ -73,12 +73,8 @@ Ray EditorView::ScreenPointToRay(const Vector2& point, const Extent2D& extent) c
     const Vector3 nearPosition = unproject(0.0f);
     const Vector3 farPosition = unproject(1.0f);
 
-    const Ray ray = {
-        .origin = nearPosition,
-        .direction = (farPosition - nearPosition).GetNormalized()
-    };
-
-    return ray;
+    outOrigin = nearPosition;
+    outDirection = (farPosition - nearPosition).GetNormalized();
 }
 
 } // namespace URay

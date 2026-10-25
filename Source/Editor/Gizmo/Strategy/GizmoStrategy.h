@@ -2,7 +2,6 @@
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Math/Ray.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Type/Types.h>
 #include <Editor/Viewport/EditorView.h>
@@ -52,8 +51,8 @@ public:
 public:
     virtual GizmoMode GetMode() const = 0;
     virtual void UpdateHandles(const Matrix& gizmoWorld) = 0;
-    virtual void StartDragging(GizmoHandleId handleId, const Ray& cursorRay, const EditorView& view) = 0;
-    virtual void UpdateDragging(const Ray& cursorRay) = 0;
+    virtual void StartDragging(GizmoHandleId handleId, const Vector3& origin, const Vector3& direction, const EditorView& view) = 0;
+    virtual void UpdateDragging(const Vector3& origin, const Vector3& direction) = 0;
     virtual void EndDragging() = 0;
 
     const std::vector<GizmoHandle>& GetHandles() const { return handles; }

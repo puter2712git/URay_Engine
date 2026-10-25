@@ -25,22 +25,21 @@ void RotationGizmoStrategy::UpdateHandles(const Matrix& world)
     handles[2].worldMatrix = world;
 }
 
-void RotationGizmoStrategy::StartDragging(GizmoHandleId id, const Ray& cursorRay, const EditorView&)
+void RotationGizmoStrategy::StartDragging(GizmoHandleId id, const Vector3& origin, const Vector3& direction, const EditorView&)
 {
     TransformComponent* transform = gizmo.GetActiveTransform();
     if (!transform)
         return;
     selectedHandle = id;
-    startWorldPosition = cursorRay.origin;
-    startLineDirection = cursorRay.direction;
+    startWorldPosition = origin;
+    startLineDirection = direction;
     targets.clear();
     for (TransformComponent* target : gizmo.GetTargetTransforms())
     {
-        targets.push_back({
-            .transform = target,
-            .initialWorldPosition = target->GetWorldPosition(),
-            .initialLocalRotation = target->GetLocalRotation(),
-            .initialWorldRotation = target->GetWorldRotation() });
+        targets.push_back({ .transform = target,
+                            .initialWorldPosition = target->GetWorldPosition(),
+                            .initialLocalRotation = target->GetLocalRotation(),
+                            .initialWorldRotation = target->GetWorldRotation() });
     }
     if (targets.empty())
         return;
@@ -80,14 +79,14 @@ void RotationGizmoStrategy::StartDragging(GizmoHandleId id, const Ray& cursorRay
     }
 }
 
-void RotationGizmoStrategy::UpdateDragging(const Ray& cursorRay)
+void RotationGizmoStrategy::UpdateDragging(const Vector3& origin, const Vector3& direction)
 {
     if (targets.empty())
         return;
 
     Vector3 startHit, currentHit;
     if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, pivotPosition, axisDirection, startHit) ||
-        !Math::IntersectLinePlane(cursorRay.origin, cursorRay.direction, pivotPosition, axisDirection, currentHit))
+        !Math::IntersectLinePlane(origin, direction, pivotPosition, axisDirection, currentHit))
         return;
 
     const Vector3 a = (startHit - pivotPosition).GetNormalized();

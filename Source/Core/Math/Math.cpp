@@ -1,7 +1,6 @@
 #include "Math.h"
 
 #include <Core/Math/AABB.h>
-#include <Core/Math/Ray.h>
 #include <Core/Math/Vector3.h>
 
 #include <limits>
@@ -10,7 +9,7 @@ namespace URay
 {
 
 bool Math::IntersectLineTriangle(
-    const Ray& ray,
+    const Vector3& origin, const Vector3& direction,
     const Vector3& p0, const Vector3& p1, const Vector3& p2,
     float& outDistance)
 {
@@ -19,7 +18,7 @@ bool Math::IntersectLineTriangle(
     const Vector3 edge1 = p1 - p0;
     const Vector3 edge2 = p2 - p0;
 
-    const Vector3 pvec = Vector3::Cross(ray.direction, edge2);
+    const Vector3 pvec = Vector3::Cross(direction, edge2);
     const float det = Vector3::Dot(edge1, pvec);
 
     if (Math::Abs(det) < epsilon)
@@ -27,13 +26,13 @@ bool Math::IntersectLineTriangle(
 
     const float invDet = 1.0f / det;
 
-    const Vector3 tvec = ray.origin - p0;
+    const Vector3 tvec = origin - p0;
     const float u = Vector3::Dot(tvec, pvec) * invDet;
     if (u < 0.0f || u > 1.0f)
         return false;
 
     const Vector3 qvec = Vector3::Cross(tvec, edge1);
-    const float v = Vector3::Dot(ray.direction, qvec) * invDet;
+    const float v = Vector3::Dot(direction, qvec) * invDet;
     if (v < 0.0f || u + v > 1.0f)
         return false;
 
@@ -64,7 +63,7 @@ bool Math::IntersectLinePlane(
 }
 
 bool Math::IntersectRayAABB(
-    const Ray& ray,
+    const Vector3& origin, const Vector3& direction,
     const AABB& aabb,
     float& outDistance)
 {
@@ -96,9 +95,9 @@ bool Math::IntersectRayAABB(
         return tEnter <= tExit;
     };
 
-    if (!intersectAxis(ray.origin.x, ray.direction.x, aabb.min.x, aabb.max.x) ||
-        !intersectAxis(ray.origin.y, ray.direction.y, aabb.min.y, aabb.max.y) ||
-        !intersectAxis(ray.origin.z, ray.direction.z, aabb.min.z, aabb.max.z))
+    if (!intersectAxis(origin.x, direction.x, aabb.min.x, aabb.max.x) ||
+        !intersectAxis(origin.y, direction.y, aabb.min.y, aabb.max.y) ||
+        !intersectAxis(origin.z, direction.z, aabb.min.z, aabb.max.z))
     {
         return false;
     }

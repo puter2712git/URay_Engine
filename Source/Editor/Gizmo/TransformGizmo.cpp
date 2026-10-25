@@ -1,5 +1,6 @@
 #include "TransformGizmo.h"
 
+#include <Core/Math/Math.h>
 #include <Editor/Gizmo/Strategy/RotationGizmoStrategy.h>
 #include <Editor/Gizmo/Strategy/ScaleGizmoStrategy.h>
 #include <Editor/Gizmo/Strategy/TranslationGizmoStrategy.h>
@@ -19,8 +20,6 @@
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 
-#include <Core/Math/Math.h>
-#include <Core/Math/Ray.h>
 #include <algorithm>
 #include <limits>
 #include <unordered_set>
@@ -117,7 +116,7 @@ void TransformGizmo::SetMode(GizmoMode newMode)
     currentStrategy = FindStrategy(newMode);
 }
 
-std::optional<GizmoHandleId> TransformGizmo::HitTest(const Ray& worldRay) const
+std::optional<GizmoHandleId> TransformGizmo::HitTest(const Vector3& worldOrigin, const Vector3& worldDirection) const
 {
     if (!HasTargets() || !GetActiveTransform())
         return std::nullopt;
@@ -132,10 +131,9 @@ std::optional<GizmoHandleId> TransformGizmo::HitTest(const Ray& worldRay) const
             continue;
 
         const Matrix inverseWorld = handle.worldMatrix.Inverse();
-        const Ray localRay{
-            .origin = inverseWorld.TransformPoint(worldRay.origin),
-            .direction = inverseWorld.TransformVector(worldRay.direction),
-        };
+
+        Vector3 localOrigin = inverseWorld.TransformPoint(worldOrigin);
+        Vector3 localDirection = inverseWorld.TransformVector(worldDirection).GetNormalized();
 
         const std::vector<Render::VertexPNT>& vertices = mesh->GetVertices();
         const std::vector<uint32>& indices = mesh->GetIndices();
@@ -147,7 +145,7 @@ std::optional<GizmoHandleId> TransformGizmo::HitTest(const Ray& worldRay) const
             const Vector3 p2 = vertices[indices[index + 2]].position;
 
             float distance = 0.0f;
-            if (!Math::IntersectLineTriangle(localRay, p0, p1, p2, distance) ||
+            if (!Math::IntersectLineTriangle(localOrigin, localDirection, p0, p1, p2, distance) ||
                 distance >= nearestDistance)
             {
                 continue;
@@ -166,7 +164,7 @@ GizmoMode TransformGizmo::GetMode() const
     return currentStrategy ? currentStrategy->GetMode() : GizmoMode::Translation;
 }
 
-void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
+void TransformGizmo::Update(const Vector3& origin, const Vector3& direction, const EditorView& view)
 {
     if (!HasTargets() || !GetActiveTransform())
     {
@@ -178,7 +176,7 @@ void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
     if (!renderObject)
         return;
 
-    UpdateDragging(cursorRay);
+    UpdateDragging(origin, direction);
 
     const Vector3 targetPosition = GetPivotPosition();
     const Quaternion targetRotation = GetActiveTransform()->GetWorldRotation();
@@ -205,7 +203,8 @@ void TransformGizmo::Update(const Ray& cursorRay, const EditorView& view)
 
 void TransformGizmo::StartDragging(
     GizmoHandleId handleId,
-    const Ray& cursorRay,
+    const Vector3& origin,
+    const Vector3& direction,
     const EditorView& view)
 {
     if (!currentStrategy)
@@ -213,16 +212,17 @@ void TransformGizmo::StartDragging(
 
     selectedHandle = handleId;
     dragging = true;
-    currentStrategy->StartDragging(handleId, cursorRay, view);
+    currentStrategy->StartDragging(handleId, origin, direction, view);
 }
 
 void TransformGizmo::UpdateDragging(
-    const Ray& cursorRay)
+    const Vector3& origin,
+    const Vector3& direction)
 {
     if (!currentStrategy || !dragging)
         return;
 
-    currentStrategy->UpdateDragging(cursorRay);
+    currentStrategy->UpdateDragging(origin, direction);
 }
 
 void TransformGizmo::EndDragging()

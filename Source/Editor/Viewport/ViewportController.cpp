@@ -3,7 +3,6 @@
 #include <Core/Math/Math.h>
 
 #include <Core/Input/Action/InputActionSystem.h>
-#include <Core/Math/Ray.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Gizmo/TransformGizmo.h>
 #include <Editor/Input/EditorInputActions.h>
@@ -123,9 +122,10 @@ void ViewportController::Update(float deltaTime, bool isFocused)
             FocusActiveUnit();
     }
 
-    const Ray cursorRay = editorCamera->GetView().ScreenPointToRay(cachedPosition, targetExtent);
+    Vector3 cursorRayOrigin, cursorRayDirection;
+    editorCamera->GetView().ScreenPointToRay(cachedPosition, targetExtent, cursorRayOrigin, cursorRayDirection);
 
-    gizmo->Update(cursorRay, editorCamera->GetView());
+    gizmo->Update(cursorRayOrigin, cursorRayDirection, editorCamera->GetView());
 
     input.mouseDelta = cameraMouseDelta;
     editorCamera->Update(deltaTime, input);
@@ -186,11 +186,12 @@ EventReply ViewportController::OnPointerDown(const PointerEvent& event)
         if (!targetPosition)
             return {};
 
-        const Ray cursorRay = view.ScreenPointToRay(*targetPosition, targetExtent);
+        Vector3 cursorRayOrigin, cursorRayDirection;
+        view.ScreenPointToRay(*targetPosition, targetExtent, cursorRayOrigin, cursorRayDirection);
 
         if (const std::optional<GizmoHandleId> gizmoHandle = HitTestGizmo(view, *targetPosition))
         {
-            gizmo->StartDragging(*gizmoHandle, cursorRay, editorCamera->GetView());
+            gizmo->StartDragging(*gizmoHandle, cursorRayOrigin, cursorRayDirection, editorCamera->GetView());
         }
         else
         {
@@ -300,9 +301,10 @@ std::optional<GizmoHandleId> ViewportController::HitTestGizmo(
     const EditorView& view,
     const Vector2& targetPosition) const
 {
-    const Ray screenRay = view.ScreenPointToRay(targetPosition, targetExtent);
+    Vector3 cursorRayOrigin, cursorRayDirection;
+    view.ScreenPointToRay(targetPosition, targetExtent, cursorRayOrigin, cursorRayDirection);
 
-    return gizmo->HitTest(screenRay);
+    return gizmo->HitTest(cursorRayOrigin, cursorRayDirection);
 }
 
 void ViewportController::CycleGizmoMode()

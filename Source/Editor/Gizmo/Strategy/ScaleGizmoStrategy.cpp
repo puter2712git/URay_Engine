@@ -42,14 +42,14 @@ void ScaleGizmoStrategy::UpdateHandles(const Matrix& world)
     handles[6].worldMatrix = Matrix::MakeScale(Vector3(0.18f, 0.18f, 0.18f)) * world;
 }
 
-void ScaleGizmoStrategy::StartDragging(GizmoHandleId id, const Ray& cursorRay, const EditorView& view)
+void ScaleGizmoStrategy::StartDragging(GizmoHandleId id, const Vector3& origin, const Vector3& direction, const EditorView& view)
 {
     TransformComponent* transform = gizmo.GetActiveTransform();
     if (!transform)
         return;
     selectedHandle = id;
-    startWorldPosition = cursorRay.origin;
-    startLineDirection = cursorRay.direction;
+    startWorldPosition = origin;
+    startLineDirection = direction;
     targets.clear();
     for (TransformComponent* target : gizmo.GetTargetTransforms())
         targets.push_back({ .transform = target, .initialWorldPosition = target->GetWorldPosition(), .initialLocalScale = target->GetLocalScale() });
@@ -93,13 +93,13 @@ void ScaleGizmoStrategy::StartDragging(GizmoHandleId id, const Ray& cursorRay, c
     }
 }
 
-void ScaleGizmoStrategy::UpdateDragging(const Ray& cursorRay)
+void ScaleGizmoStrategy::UpdateDragging(const Vector3& origin, const Vector3& direction)
 {
     if (targets.empty())
         return;
     Vector3 startHit, currentHit;
     if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, pivotPosition, planeNormal, startHit) ||
-        !Math::IntersectLinePlane(cursorRay.origin, cursorRay.direction, pivotPosition, planeNormal, currentHit))
+        !Math::IntersectLinePlane(origin, direction, pivotPosition, planeNormal, currentHit))
         return;
     const Vector3 delta = currentHit - startHit;
     float amount = 0.0f;

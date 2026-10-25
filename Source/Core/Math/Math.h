@@ -7,7 +7,6 @@
 namespace URay
 {
 
-struct Ray;
 struct Vector3;
 struct AABB;
 
@@ -83,7 +82,7 @@ public:
     static inline bool IsFinite(double value) { return std::isfinite(value); }
 
     static bool IntersectLineTriangle(
-        const Ray& ray,
+        const Vector3& origin, const Vector3& direction,
         const Vector3& p0, const Vector3& p1, const Vector3& p2,
         float& outDistance);
 
@@ -93,7 +92,7 @@ public:
         Vector3& hitPoint);
 
     static bool IntersectRayAABB(
-        const Ray& ray,
+        const Vector3& origin, const Vector3& direction,
         const AABB& aabb,
         float& outDistance);
 };

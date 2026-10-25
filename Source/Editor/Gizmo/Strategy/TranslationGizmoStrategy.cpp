@@ -62,15 +62,16 @@ void TranslationGizmoStrategy::UpdateHandles(const Matrix& gizmoWorld)
 
 void TranslationGizmoStrategy::StartDragging(
     GizmoHandleId handleId,
-    const Ray& cursorRay,
+    const Vector3& origin,
+    const Vector3& direction,
     const EditorView& view)
 {
     TransformComponent* activeTransform = gizmo.GetActiveTransform();
     if (!activeTransform)
         return;
 
-    startWorldPosition = cursorRay.origin;
-    startLineDirection = cursorRay.direction;
+    startWorldPosition = origin;
+    startLineDirection = direction;
     targets.clear();
     for (TransformComponent* transform : gizmo.GetTargetTransforms())
         targets.push_back({ .transform = transform, .initialWorldPosition = transform->GetWorldPosition() });
@@ -124,7 +125,8 @@ void TranslationGizmoStrategy::StartDragging(
 }
 
 void TranslationGizmoStrategy::UpdateDragging(
-    const Ray& cursorRay)
+    const Vector3& origin,
+    const Vector3& direction)
 {
     if (targets.empty())
         return;
@@ -132,7 +134,7 @@ void TranslationGizmoStrategy::UpdateDragging(
     Vector3 startHit;
     Vector3 currentHit;
     if (!Math::IntersectLinePlane(startWorldPosition, startLineDirection, pivotPosition, planeNormal, startHit) ||
-        !Math::IntersectLinePlane(cursorRay.origin, cursorRay.direction, pivotPosition, planeNormal, currentHit))
+        !Math::IntersectLinePlane(origin, direction, pivotPosition, planeNormal, currentHit))
         return;
 
     const Vector3 delta = currentHit - startHit;

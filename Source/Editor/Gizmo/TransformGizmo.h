@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Math/Ray.h>
 #include <Core/Math/Vector2.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Editor/Viewport/EditorView.h>
@@ -22,7 +21,7 @@ namespace Render
 {
 class GizmoObject;
 class RenderScene;
-}
+} // namespace Render
 
 class TransformGizmo
 {
@@ -48,11 +47,11 @@ public:
     bool IsLocal() const { return isLocal; }
     void SetIsLocal(bool local) { isLocal = local; }
 
-    std::optional<GizmoHandleId> HitTest(const Ray& worldRay) const;
+    std::optional<GizmoHandleId> HitTest(const Vector3& worldOrigin, const Vector3& worldDirection) const;
 
-    void Update(const Ray& cursorRay, const EditorView& view);
-    void StartDragging(GizmoHandleId handleId, const Ray& cursorRay, const EditorView& view);
-    void UpdateDragging(const Ray& cursorRay);
+    void Update(const Vector3& origin, const Vector3& direction, const EditorView& view);
+    void StartDragging(GizmoHandleId handleId, const Vector3& origin, const Vector3& direction, const EditorView& view);
+    void UpdateDragging(const Vector3& origin, const Vector3& direction);
     void EndDragging();
     void Deactivate();
 
