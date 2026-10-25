@@ -1,8 +1,5 @@
 #include "InspectorPanel.h"
 
-#include <Editor/Widget/EditorWidgetFactory.h>
-#include <Editor/Widget/Style/EditorStyles.h>
-
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
@@ -10,9 +7,9 @@
 #include <Core/Math/Vector4.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/EditorUI.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Element/AssetField.h>
-#include <Engine/UI/Widget/Element/Button.h>
-#include <Engine/UI/Widget/Element/Checkbox.h>
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/Float2Field.h>
 #include <Editor/Widget/Element/Float3Field.h>
@@ -22,13 +19,12 @@
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
-#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/ComponentPickerPopup.h>
-#include <Editor/Widget/EditorUI.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/Asset.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -42,6 +38,9 @@
 #include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Checkbox.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 
 #include <variant>
 
@@ -65,11 +64,16 @@ InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->Ge
         this,
         [this](const InspectTarget&, const InspectTarget&)
         { isDirty = true; });
+    inspectSystem.onTargetContentChanged.Register(
+        this,
+        [this](const InspectTarget&)
+        { isDirty = true; });
 }
 
 InspectorPanel::~InspectorPanel()
 {
     inspectSystem.onTargetChanged.UnregisterAll(this);
+    inspectSystem.onTargetContentChanged.UnregisterAll(this);
 }
 
 void InspectorPanel::Arrange(const Rect& rect)

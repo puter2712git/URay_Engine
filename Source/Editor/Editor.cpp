@@ -13,10 +13,9 @@
 #include <Editor/Viewport/ViewportController.h>
 #include <Editor/Visual/VisualSystem.h>
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
-#include <Editor/Widget/EditorUI.h>
-#include <Engine/UI/UISystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
@@ -25,6 +24,7 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
+#include <Engine/UI/UISystem.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>
 #include <Render/Rendering/RenderPipeline.h>
@@ -64,7 +64,13 @@ bool Editor::Initialize()
         return false;
     }
 
-    inspectSystem = std::make_unique<InspectSystem>();
+    inspectSystem = std::make_unique<InspectSystem>(sceneSystem);
+    if (!inspectSystem->Initialize())
+    {
+        URAY_LOG("[Editor] Failed to initialize inspect system.");
+        Finalize();
+        return false;
+    }
 
     selectionSystem->onActiveSelectionChanged.Register(
         this,
@@ -228,6 +234,12 @@ void Editor::Finalize()
         visualSystem.reset();
     }
 
+    if (inspectSystem)
+    {
+        inspectSystem->Finalize();
+        inspectSystem.reset();
+    }
+
     if (selectionSystem)
     {
         selectionSystem->Finalize();
@@ -324,7 +336,7 @@ void Editor::OpenSaveSceneDialog()
     SaveSceneDialog* dialog = editorUI->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
 
     dialog->onClosed.Register(this, [this, dialog, gameScene](DialogResult result)
-                                    {
+                              {
         if (result == DialogResult::Accepted)
         {
             if (gameScene)
