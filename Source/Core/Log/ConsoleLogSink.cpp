@@ -1,4 +1,5 @@
 #include "ConsoleLogSink.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
 
@@ -10,7 +11,7 @@ EditorConsoleLogSink::EditorConsoleLogSink(ConsolePanel& console)
 
 EditorConsoleLogSink::~EditorConsoleLogSink() = default;
 
-void EditorConsoleLogSink::Write(std::string_view msg)
+void EditorConsoleLogSink::Write(StringView msg)
 {
     console.AddLog(msg);
 }

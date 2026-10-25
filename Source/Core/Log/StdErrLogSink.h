@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Log/LogSink.h>
 
@@ -12,7 +13,7 @@ public:
     ~StdErrLogSink() override;
 
 public:
-    void Write(std::string_view msg) override;
+    void Write(StringView msg) override;
 };
 
 } // namespace URay

@@ -1,7 +1,7 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <optional>
-#include <string>
 #include <vector>
 
 namespace URay
@@ -14,12 +14,12 @@ public:
     ~CommandLine();
 
 public:
-    bool Has(const std::string& option) const;
+    bool Has(const String& option) const;
 
-    std::optional<std::string> Get(const std::string& option) const;
+    std::optional<String> Get(const String& option) const;
 
 private:
-    std::vector<std::string> arguments;
+    std::vector<String> arguments;
 };
 
 } // namespace URay

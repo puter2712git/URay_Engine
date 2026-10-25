@@ -1,4 +1,5 @@
 #include "TextBox.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Core/Type/String.h>
@@ -32,7 +33,7 @@ bool IsWordCharacter(char32_t codepoint)
 }
 } // namespace
 
-TextBox::TextBox(const std::string& text) : text(text) {}
+TextBox::TextBox(const String& text) : text(text) {}
 
 EventReply TextBox::OnPointerEnter()
 {
@@ -224,10 +225,10 @@ void TextBox::OnPaint(Render::UIDrawContext& context)
 
     if (IsEditing() && IsFocused() && HasSelection())
     {
-        const std::string prefixBeforeSelection =
+        const String prefixBeforeSelection =
             UTF8::Encode(editingText.substr(0, GetSelectionStart()));
 
-        const std::string prefixThroughSelection =
+        const String prefixThroughSelection =
             UTF8::Encode(editingText.substr(0, GetSelectionEnd()));
 
         const Vector2 selectionStartSize = fontSystem.MeasureText(
@@ -272,7 +273,7 @@ void TextBox::OnPaintForeground(Render::UIDrawContext& context)
     if (!metrics)
         return;
 
-    const std::string prefix = UTF8::Encode(editingText.substr(0, caretIndex));
+    const String prefix = UTF8::Encode(editingText.substr(0, caretIndex));
     const Vector2 prefixSize = fontSystem.MeasureText(prefix, textStyle.fontHandle, textStyle.pixelHeight);
 
     Rect caretRect;
@@ -300,8 +301,8 @@ void TextBox::CommitEdit()
     if (!isEditing)
         return;
 
-    const std::string editingUTF8 = UTF8::Encode(editingText);
-    std::string committedText;
+    const String editingUTF8 = UTF8::Encode(editingText);
+    String committedText;
 
     if (!TryCommitText(editingUTF8, committedText))
     {
@@ -325,7 +326,7 @@ void TextBox::CancelEdit()
 
     isEditing = false;
 
-    const std::string prevText = GetText();
+    const String prevText = GetText();
 
     if (prevText == originalText)
         return;
@@ -336,8 +337,8 @@ void TextBox::CancelEdit()
 
 void TextBox::RefreshText()
 {
-    const std::string prevText = GetText();
-    const std::string currText = UTF8::Encode(editingText);
+    const String prevText = GetText();
+    const String currText = UTF8::Encode(editingText);
 
     if (prevText == currText)
         return;
@@ -416,7 +417,7 @@ float TextBox::GetPrefixWidth(size_t characterCount) const
 {
     const size_t clampedCount = Math::Min(characterCount, editingText.size());
 
-    const std::string prefix = UTF8::Encode(editingText.substr(0, clampedCount));
+    const String prefix = UTF8::Encode(editingText.substr(0, clampedCount));
 
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Render::FontSystem& fontSystem = renderSystem.GetResourceManager().GetFontSystem();

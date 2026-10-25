@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/Importer/Importer.h>
 
@@ -16,7 +17,7 @@ public:
 
 public:
     ImportResult Import(const ImportRequest& request) override;
-    bool CanImport(const std::string& extension) const override;
+    bool CanImport(const String& extension) const override;
 };
 
 } // namespace URay

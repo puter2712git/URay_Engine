@@ -1,11 +1,11 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetHandle.h>
 #include <Engine/Asset/Material/MaterialParameter.h>
 
 #include <yaml-cpp/yaml.h>
 
-#include <string>
 #include <vector>
 
 namespace URay
@@ -13,7 +13,7 @@ namespace URay
 
 struct MaterialParameterData
 {
-    std::string name;
+    String name;
     MaterialParameterType type;
     MaterialParameterValue value;
 };

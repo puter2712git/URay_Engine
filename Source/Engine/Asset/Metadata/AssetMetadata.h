@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetType.h>
 
@@ -19,7 +20,7 @@ struct AssetMetadata
     uint32 metadataVersion = AssetMetadataVersion;
 
     AssetHandle handle = {};
-    std::string className;
+    String className;
 
     VirtualPath assetPath;
     VirtualPath sourcePath;

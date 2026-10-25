@@ -13,7 +13,7 @@ class PerformanceAnalytics;
 class ScopeTimer
 {
 public:
-    ScopeTimer(PerformanceAnalytics& analytics, std::string_view name);
+    ScopeTimer(PerformanceAnalytics& analytics, StringView name);
     ~ScopeTimer();
 
 private:
@@ -22,7 +22,7 @@ private:
     double startMs = 0.0;
     uint32 depth = 0;
 
-    std::string_view name;
+    StringView name;
     std::chrono::steady_clock::time_point begin;
 };
 

@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace URay
@@ -28,7 +28,7 @@ public:
     bool Execute(const ImportRequest& request) const;
 
 private:
-    Importer* FindImporter(const std::string& extension) const;
+    Importer* FindImporter(const String& extension) const;
 
 private:
     AssetSystem& assetSystem;

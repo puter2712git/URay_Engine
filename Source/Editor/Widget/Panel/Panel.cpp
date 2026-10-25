@@ -1,4 +1,5 @@
 #include "Panel.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>
@@ -12,7 +13,7 @@ namespace URay
 
 Panel::Panel() = default;
 
-Panel::Panel(const std::string& name)
+Panel::Panel(const String& name)
 {
     header = AddChild<PanelHeader>(name);
 }

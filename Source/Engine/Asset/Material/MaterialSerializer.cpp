@@ -1,7 +1,7 @@
 #include "MaterialSerializer.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Core/Type/Types.h>
 #include <Engine/Asset/Material/MaterialData.h>
 
 #include <yaml-cpp/yaml.h>
@@ -26,7 +26,7 @@ bool MaterialSerializer::Save(const MaterialData& material, const VirtualPath& a
 
 bool MaterialSerializer::Load(MaterialData& outMaterial, const VirtualPath& assetPath) const
 {
-    const std::string fileText = fileSystem.ReadText(assetPath);
+    const String fileText = fileSystem.ReadText(assetPath);
     if (fileText.empty())
         return false;
 

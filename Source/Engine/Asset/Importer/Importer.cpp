@@ -1,4 +1,5 @@
 #include "Importer.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -13,7 +14,7 @@ Importer::Importer(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
 
 AssetMetadata Importer::LoadOrCreateMetadata(const VirtualPath& sourcePath, const VirtualPath& metadataPath, Class* assetClass) const
 {
-    const std::string metadataText = fileSystem.ReadText(metadataPath);
+    const String metadataText = fileSystem.ReadText(metadataPath);
 
     AssetMetadata metadata;
 

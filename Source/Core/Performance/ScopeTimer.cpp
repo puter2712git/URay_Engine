@@ -1,11 +1,12 @@
 #include "ScopeTimer.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Performance/PerformanceAnalytics.h>
 
 namespace URay
 {
 
-ScopeTimer::ScopeTimer(PerformanceAnalytics& analytics, std::string_view name)
+ScopeTimer::ScopeTimer(PerformanceAnalytics& analytics, StringView name)
     : analytics(analytics),
       name(name),
       begin(std::chrono::steady_clock::now())

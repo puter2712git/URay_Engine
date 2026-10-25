@@ -1,4 +1,5 @@
 #include "Engine.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -36,8 +37,8 @@ Engine::Engine() = default;
 Engine::~Engine() = default;
 
 bool Engine::Initialize(
-    const std::string& enginePath,
-    const std::string& projectPath)
+    const String& enginePath,
+    const String& projectPath)
 {
     gEngine = this;
 

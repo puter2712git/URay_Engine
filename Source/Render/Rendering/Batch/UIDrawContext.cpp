@@ -1,4 +1,5 @@
 #include "UIDrawContext.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Render/RenderSystem.h>
@@ -69,7 +70,7 @@ void UIDrawContext::AddOutlineRect(const Rect& rect, float thickness, const Colo
                   color);
 }
 
-void UIDrawContext::AddText(const Vector2& baselinePosition, std::string_view utf8Text, const TextStyle& style)
+void UIDrawContext::AddText(const Vector2& baselinePosition, StringView utf8Text, const TextStyle& style)
 {
     RenderSystem& renderSystem = gEngine->GetRenderSystem();
     ResourceManager& resourceManager = renderSystem.GetResourceManager();

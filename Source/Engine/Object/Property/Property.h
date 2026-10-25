@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include "PropertyTypes.h"
 
 #include <functional>
-#include <string>
 
 namespace URay
 {
@@ -14,7 +14,7 @@ struct Property
 {
     PropertyType type = PropertyType::Bool;
 
-    std::string name;
+    String name;
     size_t offset = 0;
     size_t size = 0;
     std::function<void(Object& owner, const Property& property)> OnChangedCallback = nullptr;

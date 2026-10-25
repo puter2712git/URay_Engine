@@ -1,4 +1,5 @@
 #include "TextureImporter.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -41,7 +42,7 @@ ImportResult TextureImporter::Import(const ImportRequest& request)
     return result;
 }
 
-bool TextureImporter::CanImport(const std::string& extension) const
+bool TextureImporter::CanImport(const String& extension) const
 {
     return extension == ".png" || extension == ".jpg";
 }

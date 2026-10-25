@@ -1,4 +1,5 @@
 #include "PropertyRow.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
@@ -8,7 +9,7 @@
 namespace URay
 {
 
-PropertyRow::PropertyRow(const std::string& name)
+PropertyRow::PropertyRow(const String& name)
 {
     nameLabel = CreateEditorLabel(*this, name);
 }

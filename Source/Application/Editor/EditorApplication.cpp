@@ -1,4 +1,5 @@
 #include "EditorApplication.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Editor/Editor.h>
@@ -12,8 +13,8 @@ EditorApplication::EditorApplication() = default;
 EditorApplication::~EditorApplication() = default;
 
 bool EditorApplication::Initialize(
-    const std::string& enginePath,
-    const std::string& projectPath)
+    const String& enginePath,
+    const String& projectPath)
 {
     engine = std::make_unique<Engine>();
     if (!engine->Initialize(enginePath, projectPath))

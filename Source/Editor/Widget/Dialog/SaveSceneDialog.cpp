@@ -1,4 +1,5 @@
 #include "SaveSceneDialog.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
@@ -14,7 +15,6 @@
 #include <Editor/Widget/Style/EditorStyles.h>
 
 #include <algorithm>
-#include <string>
 
 namespace URay
 {
@@ -210,16 +210,16 @@ void SaveSceneDialog::NavigateTo(const VirtualPath& path)
 
 bool SaveSceneDialog::IsValidFilename() const
 {
-    const std::string& filename = filenameField->GetText();
+    const String& filename = filenameField->GetText();
 
     if (filename.empty() ||
-        filename.find_first_not_of(" \t\r\n") == std::string::npos ||
-        filename.find_first_of("/\\:") != std::string::npos)
+        filename.find_first_not_of(" \t\r\n") == String::npos ||
+        filename.find_first_of("/\\:") != String::npos)
     {
         return false;
     }
 
-    const std::string extension = VirtualPath(filename).GetExtension();
+    const String extension = VirtualPath(filename).GetExtension();
     return extension.empty() || extension == ".scene";
 }
 

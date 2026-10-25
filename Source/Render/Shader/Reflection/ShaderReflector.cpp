@@ -1,8 +1,8 @@
 #include "ShaderReflector.h"
+#include <Core/Type/Types.h>
 
 #include <Render/RHI/Descriptor/ResourceBinding.h>
 
-#include <Core/Type/Types.h>
 
 #include <limits>
 #include <utility>
@@ -61,7 +61,7 @@ ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
 
 bool ShaderReflector::Reflect(
     const std::vector<uint8>& shaderCode,
-    const std::string& entryPoint,
+    const String& entryPoint,
     ShaderReflection& outReflection)
 {
     outReflection = {};
@@ -99,7 +99,7 @@ bool ShaderReflector::Reflect(
 
 bool ShaderReflector::ReflectVertexInputs(
     const SpvReflectShaderModule& module,
-    const std::string& entryPoint,
+    const String& entryPoint,
     ShaderReflection& outReflection)
 {
     uint32 inputCount = 0;

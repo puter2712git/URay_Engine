@@ -1,4 +1,5 @@
 #include "EditorWidgetFactory.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -15,14 +16,14 @@
 namespace URay
 {
 
-Label* CreateEditorLabel(Widget& parent, std::string_view text)
+Label* CreateEditorLabel(Widget& parent, StringView text)
 {
     Label* label = parent.AddChild<Label>(text);
     label->SetTextStyle(EditorStyle::SmallText());
     return label;
 }
 
-Button* CreateEditorButton(Widget& parent, std::string_view text)
+Button* CreateEditorButton(Widget& parent, StringView text)
 {
     auto label = std::make_unique<Label>(text);
     label->SetTextStyle(EditorStyle::ButtonText());
@@ -61,9 +62,9 @@ void ConfigureEditorCheckbox(Checkbox& checkbox)
     checkbox.SetCheckmarkColor(EditorStyle::TextPrimary);
 }
 
-TextBox* CreateEditorTextBox(Widget& parent, std::string_view text)
+TextBox* CreateEditorTextBox(Widget& parent, StringView text)
 {
-    TextBox* textBox = parent.AddChild<TextBox>(std::string(text));
+    TextBox* textBox = parent.AddChild<TextBox>(String(text));
     ConfigureEditorTextBox(*textBox);
     return textBox;
 }

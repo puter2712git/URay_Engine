@@ -1,4 +1,5 @@
 #include "ShaderCompiler.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -153,7 +154,7 @@ bool ShaderCompiler::Compile(
 
     if (diagnostics && diagnostics->GetStringLength() > 0)
     {
-        const std::string diagnosticsText(diagnostics->GetStringPointer(), diagnostics->GetStringLength());
+        const String diagnosticsText(diagnostics->GetStringPointer(), diagnostics->GetStringLength());
 
         URAY_LOG(
             "[ShaderCompiler] DXC diagnostics for %s (%ls, %ls):\n%s",

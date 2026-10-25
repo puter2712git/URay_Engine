@@ -1,4 +1,5 @@
 #include "StringField.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -13,15 +14,15 @@ StringField::StringField()
 }
 
 void StringField::OnTextChanged(
-    const std::string& prevText,
-    const std::string& currText)
+    const String& prevText,
+    const String& currText)
 {
     onValueChanged.Emit();
 }
 
 void StringField::OnTextCommitted(
-    const std::string& prevText,
-    const std::string& committedText)
+    const String& prevText,
+    const String& committedText)
 {
     onValueCommitted.Emit();
 }

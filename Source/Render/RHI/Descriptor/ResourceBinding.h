@@ -1,11 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Render/Shader/ShaderStageFlags.h>
 
-#include <Core/Type/Types.h>
 
 #include <cstdint>
-#include <string>
 
 namespace URay::Render
 {
@@ -22,7 +21,7 @@ enum class ResourceType
 
 struct ResourceBinding
 {
-    std::string name;
+    String name;
     uint32 binding = 0;
     ResourceType resourceType = ResourceType::Sampler;
     uint32 arrayCount = 1;

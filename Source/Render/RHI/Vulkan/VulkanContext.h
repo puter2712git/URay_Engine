@@ -1,8 +1,8 @@
 #include <Render/RHI/RHIContext.h>
+#include <Core/Type/Types.h>
 
 #include <vulkan/vulkan.h>
 
-#include <string>
 #include <vector>
 
 namespace URay
@@ -15,8 +15,8 @@ namespace Render
 
 struct VulkanContextDesc
 {
-    std::string appName;
-    std::string engineName;
+    String appName;
+    String engineName;
 };
 
 class VulkanContext final : public RHIContext

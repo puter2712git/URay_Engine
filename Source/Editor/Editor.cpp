@@ -1,4 +1,5 @@
 #include "Editor.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
@@ -134,7 +135,7 @@ bool Editor::Initialize()
         editorView.rotation = settingsContext.cameraSettings.rotation;
 
         const VirtualPath& path = settingsContext.startScenePath;
-        const std::string sceneText = filesystem.ReadText(path);
+        const String sceneText = filesystem.ReadText(path);
 
         if (path.ToString().empty() || sceneText.empty())
         {
@@ -311,7 +312,7 @@ bool Editor::SaveSceneToPath(Scene& scene, const VirtualPath& path)
 {
     VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
 
-    const std::string sceneText = YAML::Dump(scene.Serialize());
+    const String sceneText = YAML::Dump(scene.Serialize());
 
     if (!fileSystem.WriteText(path, sceneText))
     {
@@ -500,7 +501,7 @@ void Editor::LoadGameScene(const VirtualPath& scenePath)
     VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
-    const std::string sceneText = fileSystem.ReadText(scenePath);
+    const String sceneText = fileSystem.ReadText(scenePath);
     if (sceneText.empty())
     {
         URAY_LOG("[Editor] Failed to read scene: %s", scenePath.ToString().c_str());

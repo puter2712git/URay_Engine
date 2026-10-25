@@ -1,9 +1,8 @@
 #pragma once
-
-#include <Core/Performance/ScopeTimer.h>
 #include <Core/Type/Types.h>
 
-#include <string>
+#include <Core/Performance/ScopeTimer.h>
+
 #include <vector>
 
 namespace URay
@@ -36,7 +35,7 @@ public:
     ~Engine();
 
 public:
-    bool Initialize(const std::string& enginePath, const std::string& projectPath);
+    bool Initialize(const String& enginePath, const String& projectPath);
     void Finalize();
 
     void Update();

@@ -1,4 +1,5 @@
 #include "Unit.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/Component/Component.h>
 #include <Engine/Component/Render/RenderComponent.h>
@@ -31,7 +32,7 @@ void Unit::RegisterClass()
     StaticClass()->AddProperty({ .type = PropertyType::String,
                                  .name = "Name",
                                  .offset = offsetof(Unit, name),
-                                 .size = sizeof(std::string) });
+                                 .size = sizeof(String) });
 }
 
 void Unit::Update(float deltaTime)

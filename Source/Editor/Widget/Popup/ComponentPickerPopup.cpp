@@ -1,4 +1,5 @@
 #include "ComponentPickerPopup.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/Component/ComponentFactory.h>
 
@@ -10,7 +11,7 @@ namespace URay
 
 ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 {
-    std::vector<std::string> componentNames;
+    std::vector<String> componentNames;
 
     for (const auto& [name, constructor] : ComponentFactory::GetRegisteredComponents())
     {
@@ -19,7 +20,7 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 
     std::sort(componentNames.begin(), componentNames.end());
 
-    for (const std::string& typeName : componentNames)
+    for (const String& typeName : componentNames)
     {
         const ComponentPickerSelection selection = { .componentTypeName = typeName };
 

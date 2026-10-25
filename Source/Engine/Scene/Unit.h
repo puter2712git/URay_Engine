@@ -1,11 +1,11 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Type/UUID.h>
 #include <Engine/Object/Object.h>
 
 #include <functional>
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace URay
@@ -52,8 +52,8 @@ public:
 
     TransformComponent* GetTransform() const { return transform; }
 
-    const std::string& GetName() const { return name; }
-    void SetName(const std::string& newName) { name = newName; }
+    const String& GetName() const { return name; }
+    void SetName(const String& newName) { name = newName; }
 
     const UUID& GetPersistentId() const { return persistentId; }
     void SetPersistentId(const UUID& id) { persistentId = id; }
@@ -74,7 +74,7 @@ private:
     void MarkTransformHierarchyDirty();
 
 private:
-    std::string name;
+    String name;
 
     UUID persistentId = UUID::Generate();
 

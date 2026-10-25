@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Widget.h>
 
 #include <functional>
-#include <string_view>
 
 namespace URay
 {
@@ -26,7 +26,7 @@ protected:
 
     std::optional<Rect> GetClipRect() const override { return rect; }
 
-    Button* AddMenuItem(std::string_view text, std::function<void()> onClick);
+    Button* AddMenuItem(StringView text, std::function<void()> onClick);
     Separator* AddMenuSeparator();
 
 private:

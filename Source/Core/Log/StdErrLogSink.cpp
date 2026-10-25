@@ -1,4 +1,5 @@
 #include "StdErrLogSink.h"
+#include <Core/Type/Types.h>
 
 #include <iostream>
 
@@ -9,7 +10,7 @@ StdErrLogSink::StdErrLogSink() = default;
 
 StdErrLogSink::~StdErrLogSink() = default;
 
-void StdErrLogSink::Write(std::string_view msg)
+void StdErrLogSink::Write(StringView msg)
 {
     std::cerr << msg << '\n';
 }

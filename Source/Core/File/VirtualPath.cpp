@@ -1,4 +1,5 @@
 #include "VirtualPath.h"
+#include <Core/Type/Types.h>
 
 namespace URay
 {
@@ -8,19 +9,19 @@ namespace
 
 constexpr const char* MountSeparator = "://";
 
-size_t GetFilenameStart(const std::string& value)
+size_t GetFilenameStart(const String& value)
 {
     const size_t slashPos = value.find_last_of('/');
-    return slashPos == std::string::npos ? 0 : slashPos + 1;
+    return slashPos == String::npos ? 0 : slashPos + 1;
 }
 
-size_t GetExtensionStart(const std::string& value)
+size_t GetExtensionStart(const String& value)
 {
     const size_t filenameStart = GetFilenameStart(value);
     const size_t dotPos = value.find_last_of('.');
 
-    if (dotPos == std::string::npos || dotPos < filenameStart || dotPos == filenameStart)
-        return std::string::npos;
+    if (dotPos == String::npos || dotPos < filenameStart || dotPos == filenameStart)
+        return String::npos;
 
     return dotPos;
 }
@@ -29,42 +30,42 @@ size_t GetExtensionStart(const std::string& value)
 
 VirtualPath::VirtualPath() = default;
 VirtualPath::VirtualPath(const char* path) : path(path) {}
-VirtualPath::VirtualPath(const std::string& path) : path(path) {}
+VirtualPath::VirtualPath(const String& path) : path(path) {}
 
 VirtualPath VirtualPath::GetDirectory() const
 {
     const size_t separatorPos = path.find(MountSeparator);
-    if (separatorPos != std::string::npos && path.size() == separatorPos + 3)
+    if (separatorPos != String::npos && path.size() == separatorPos + 3)
         return VirtualPath("");
 
     const size_t slashPos = path.find_last_of('/');
-    if (slashPos == std::string::npos)
+    if (slashPos == String::npos)
         return VirtualPath("");
 
-    if (separatorPos != std::string::npos && slashPos == separatorPos + 2)
+    if (separatorPos != String::npos && slashPos == separatorPos + 2)
         return VirtualPath(path.substr(0, slashPos + 1));
 
     return VirtualPath(path.substr(0, slashPos));
 }
 
-std::string VirtualPath::GetFilename() const
+String VirtualPath::GetFilename() const
 {
     return path.substr(GetFilenameStart(path));
 }
 
-std::string VirtualPath::GetStem() const
+String VirtualPath::GetStem() const
 {
     const size_t extensionPos = GetExtensionStart(path);
-    if (extensionPos == std::string::npos)
+    if (extensionPos == String::npos)
         return GetFilename();
 
     return path.substr(GetFilenameStart(path), extensionPos - GetFilenameStart(path));
 }
 
-std::string VirtualPath::GetExtension() const
+String VirtualPath::GetExtension() const
 {
     const size_t extensionPos = GetExtensionStart(path);
-    if (extensionPos == std::string::npos)
+    if (extensionPos == String::npos)
         return "";
 
     return path.substr(extensionPos);
@@ -73,16 +74,16 @@ std::string VirtualPath::GetExtension() const
 VirtualPath VirtualPath::RemoveExtension() const
 {
     const size_t extensionPos = GetExtensionStart(path);
-    if (extensionPos == std::string::npos)
+    if (extensionPos == String::npos)
         return *this;
 
     return VirtualPath(path.substr(0, extensionPos));
 }
 
-VirtualPath VirtualPath::ReplaceExtension(const std::string& extension) const
+VirtualPath VirtualPath::ReplaceExtension(const String& extension) const
 {
     const size_t extensionPos = GetExtensionStart(path);
-    std::string result = extensionPos == std::string::npos ? path : path.substr(0, extensionPos);
+    String result = extensionPos == String::npos ? path : path.substr(0, extensionPos);
 
     if (extension.empty())
         return VirtualPath(result);
@@ -94,7 +95,7 @@ VirtualPath VirtualPath::ReplaceExtension(const std::string& extension) const
     return VirtualPath(result);
 }
 
-VirtualPath VirtualPath::Join(const std::string& child) const
+VirtualPath VirtualPath::Join(const String& child) const
 {
     if (path.empty())
         return VirtualPath(child);
@@ -102,17 +103,17 @@ VirtualPath VirtualPath::Join(const std::string& child) const
     if (child.empty())
         return *this;
 
-    std::string result = path;
+    String result = path;
     const size_t separatorPos = result.find(MountSeparator);
-    const size_t minimumLength = separatorPos == std::string::npos && result.front() == '/'
+    const size_t minimumLength = separatorPos == String::npos && result.front() == '/'
                                      ? 1
-                                     : (separatorPos == std::string::npos ? 0 : separatorPos + 3);
+                                     : (separatorPos == String::npos ? 0 : separatorPos + 3);
 
     while (result.size() > minimumLength && result.back() == '/')
         result.pop_back();
 
     const size_t childStart = child.find_first_not_of('/');
-    if (childStart == std::string::npos)
+    if (childStart == String::npos)
         return VirtualPath(result);
 
     if (result.back() != '/')
@@ -122,19 +123,19 @@ VirtualPath VirtualPath::Join(const std::string& child) const
     return VirtualPath(result);
 }
 
-std::string VirtualPath::GetMountName() const
+String VirtualPath::GetMountName() const
 {
     const size_t separatorPos = path.find(MountSeparator);
-    if (separatorPos == std::string::npos)
+    if (separatorPos == String::npos)
         return "";
 
     return path.substr(0, separatorPos);
 }
 
-std::string VirtualPath::GetRelativePath() const
+String VirtualPath::GetRelativePath() const
 {
     const size_t separatorPos = path.find(MountSeparator);
-    if (separatorPos == std::string::npos)
+    if (separatorPos == String::npos)
         return path;
 
     return path.substr(separatorPos + 3);

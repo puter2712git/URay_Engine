@@ -1,8 +1,8 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Type/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
-#include <string>
 
 namespace URay
 {
@@ -11,7 +11,7 @@ class Unit;
 
 struct ComponentPickerSelection
 {
-    std::string componentTypeName;
+    String componentTypeName;
 };
 
 class ComponentPickerPopup final : public PopupMenu

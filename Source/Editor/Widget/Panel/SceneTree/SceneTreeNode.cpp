@@ -1,4 +1,5 @@
 #include "SceneTreeNode.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
@@ -33,7 +34,7 @@ SceneTreeNode::SceneTreeNode()
     label->SetTextStyle(EditorStyle::SmallText());
 }
 
-void SceneTreeNode::Bind(SceneId sceneId, const UUID& unitId, std::string_view name, uint32 depth)
+void SceneTreeNode::Bind(SceneId sceneId, const UUID& unitId, StringView name, uint32 depth)
 {
     this->sceneId = sceneId;
     this->unitId = unitId;

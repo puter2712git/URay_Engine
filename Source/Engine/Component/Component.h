@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Object/Object.h>
 
-#include <string>
 
 namespace URay
 {
@@ -57,7 +57,7 @@ private:
     const bool registered##Type = []()                      \
     {                                                       \
         ComponentFactory::RegisterComponent<Type>(          \
-            std::string{ Type::StaticRuntimeType().name }); \
+            String{ Type::StaticRuntimeType().name }); \
         return true;                                        \
     }();                                                    \
     }

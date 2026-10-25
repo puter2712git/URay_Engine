@@ -1,4 +1,5 @@
 #include "MaterialData.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Serialization/YAMLConverters.h>
 
@@ -48,7 +49,7 @@ YAML::Node MaterialData::Serialize(YAML::Node& inNode) const
 
 void MaterialData::Deserialize(const YAML::Node& node)
 {
-    shaderHandle = AssetHandle::FromString(node["Shader"].as<std::string>());
+    shaderHandle = AssetHandle::FromString(node["Shader"].as<String>());
 
     parameters.clear();
 
@@ -61,7 +62,7 @@ void MaterialData::Deserialize(const YAML::Node& node)
     for (const auto& parameterNode : parametersNode)
     {
         MaterialParameterData parameter;
-        parameter.name = parameterNode["Name"].as<std::string>();
+        parameter.name = parameterNode["Name"].as<String>();
         parameter.type = static_cast<MaterialParameterType>(parameterNode["Type"].as<int>());
 
         const YAML::Node valueNode = parameterNode["Value"];

@@ -1,10 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/Asset.h>
 #include <Engine/Asset/Material/MaterialParameter.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Type/Types.h>
 
 #include <Render/Rendering/RenderInfo.h>
 
@@ -42,10 +42,10 @@ public:
 
     void PrepareDescriptorSet(uint32 frameIndex);
 
-    void AddParameter(const std::string& name, MaterialParameterType type, MaterialParameterValue value);
+    void AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value);
 
-    void SetFloat(const std::string& name, float value);
-    void SetTexture(const std::string& name, const AssetHandle& textureHandle);
+    void SetFloat(const String& name, float value);
+    void SetTexture(const String& name, const AssetHandle& textureHandle);
 
     Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const
     {
@@ -66,7 +66,7 @@ protected:
 
     std::map<uint32, std::array<std::unique_ptr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
 
-    std::unordered_map<std::string, MaterialParameter> parameters;
+    std::unordered_map<String, MaterialParameter> parameters;
 
     uint64 descriptorRevision = 1;
     std::array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};

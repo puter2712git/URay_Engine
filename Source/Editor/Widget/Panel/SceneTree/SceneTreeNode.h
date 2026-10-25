@@ -5,7 +5,6 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/UI/Widget/Widget.h>
 
-#include <string_view>
 
 namespace URay
 {
@@ -22,7 +21,7 @@ public:
     SceneTreeNode();
 
 public:
-    void Bind(SceneId sceneId, const UUID& unitId, std::string_view name, uint32 depth);
+    void Bind(SceneId sceneId, const UUID& unitId, StringView name, uint32 depth);
     void Unbind();
 
     void Arrange(const Rect& rect) override;

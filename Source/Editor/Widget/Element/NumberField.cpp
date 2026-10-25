@@ -1,4 +1,5 @@
 #include "NumberField.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -104,8 +105,8 @@ void NumberField::SetValue(float value)
 }
 
 bool NumberField::TryCommitText(
-    const std::string& editingText,
-    std::string& committedText)
+    const String& editingText,
+    String& committedText)
 {
     float value = 0.0f;
     if (!TryParse(editingText, value))
@@ -116,8 +117,8 @@ bool NumberField::TryCommitText(
 }
 
 void NumberField::OnTextChanged(
-    const std::string& prevText,
-    const std::string& currText)
+    const String& prevText,
+    const String& currText)
 {
     float value = 0.0f;
     if (!TryParse(currText, value))
@@ -126,7 +127,7 @@ void NumberField::OnTextChanged(
     onValueChanged.Emit(value);
 }
 
-bool NumberField::TryParse(const std::string& text, float& outValue)
+bool NumberField::TryParse(const String& text, float& outValue)
 {
     if (text.empty())
         return false;
@@ -145,7 +146,7 @@ bool NumberField::TryParse(const std::string& text, float& outValue)
            Math::IsFinite(outValue);
 }
 
-std::string NumberField::FormatValue(float value)
+String NumberField::FormatValue(float value)
 {
     return std::format("{}", value);
 }

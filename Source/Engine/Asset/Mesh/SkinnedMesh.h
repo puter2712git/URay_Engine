@@ -1,14 +1,13 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Math/AABB.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Type/Types.h>
 #include <Engine/Asset/Asset.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
 #include <algorithm>
-#include <string>
 #include <vector>
 
 namespace URay
@@ -16,7 +15,7 @@ namespace URay
 
 struct Bone
 {
-    std::string name;
+    String name;
     int32 parentIndex = -1;
 
     Matrix localBindTransform = Matrix::Identity;

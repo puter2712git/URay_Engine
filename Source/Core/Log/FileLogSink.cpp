@@ -1,4 +1,5 @@
 #include "FileLogSink.h"
+#include <Core/Type/Types.h>
 
 #include <iostream>
 #include <system_error>
@@ -38,7 +39,7 @@ FileLogSink::FileLogSink(const std::filesystem::path& filePath)
 
 FileLogSink::~FileLogSink() = default;
 
-void FileLogSink::Write(std::string_view msg)
+void FileLogSink::Write(StringView msg)
 {
     if (!stream.is_open())
         return;

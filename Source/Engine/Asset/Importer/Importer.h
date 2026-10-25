@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/Importer/ImportResult.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
@@ -23,7 +24,7 @@ public:
 public:
     virtual DependencyResult DiscoverDependencies(const ImportRequest& request) { return DependencyResult::Success(); }
     virtual ImportResult Import(const ImportRequest& request) = 0;
-    virtual bool CanImport(const std::string& extension) const = 0;
+    virtual bool CanImport(const String& extension) const = 0;
 
 protected:
     AssetMetadata LoadOrCreateMetadata(const VirtualPath& sourcePath, const VirtualPath& metadataPath, Class* assetClass) const;

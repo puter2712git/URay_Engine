@@ -1,4 +1,5 @@
 #include "EditorSettings.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -35,7 +36,7 @@ bool EditorSettings::Save(const EditorSettingsContext& context)
 
 bool EditorSettings::Load(EditorSettingsContext& context)
 {
-    const std::string settings = filesystem.ReadText("Project://Config/Editor.ini");
+    const String settings = filesystem.ReadText("Project://Config/Editor.ini");
     if (settings.empty())
         return false;
 
@@ -47,7 +48,7 @@ bool EditorSettings::Load(EditorSettingsContext& context)
             .rootWidget = context.rootWidget
         };
 
-        loadedContext.startScenePath = settingsNode["StartScene"].as<std::string>();
+        loadedContext.startScenePath = settingsNode["StartScene"].as<String>();
         loadedContext.cameraSettings.position = settingsNode["CameraTransform"]["Position"].as<Vector3>();
         loadedContext.cameraSettings.rotation = settingsNode["CameraTransform"]["Rotation"].as<Vector3>();
 

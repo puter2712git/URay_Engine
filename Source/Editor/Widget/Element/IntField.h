@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Element/TextBox.h>
 
 #include <Core/Type/Ray.h>
-#include <Core/Type/Types.h>
 
 namespace URay
 {
@@ -22,11 +22,11 @@ public:
     void SetDragSpeed(float speed) { dragSpeed = speed; }
 
 protected:
-    bool TryCommitText(const std::string& editingText, std::string& committedText) override;
-    void OnTextChanged(const std::string& prevText, const std::string& currText) override;
+    bool TryCommitText(const String& editingText, String& committedText) override;
+    void OnTextChanged(const String& prevText, const String& currText) override;
 
 private:
-    bool TryParse(const std::string& text, int32& outValue) const;
+    bool TryParse(const String& text, int32& outValue) const;
     float GetModifiedDragSpeed(ModifierKey modifiers) const;
 
 public:

@@ -1,8 +1,8 @@
 #include "ObjImporter.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
@@ -75,7 +75,7 @@ ImportResult OBJImporter::Import(const ImportRequest& request)
     return result;
 }
 
-bool OBJImporter::CanImport(const std::string& extension) const
+bool OBJImporter::CanImport(const String& extension) const
 {
     return extension == ".obj";
 }
@@ -218,7 +218,7 @@ OBJ::OBJInfo OBJImporter::ParseOBJ(const VirtualPath& objPath) const
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
-    const std::string fileText = fileSystem.ReadText(objPath);
+    const String fileText = fileSystem.ReadText(objPath);
     if (fileText.empty())
         return {};
 
@@ -226,14 +226,14 @@ OBJ::OBJInfo OBJImporter::ParseOBJ(const VirtualPath& objPath) const
 
     std::istringstream stream(fileText);
 
-    std::string currentMTL;
+    String currentMTL;
 
-    std::string line;
+    String line;
     while (std::getline(stream, line))
     {
         std::istringstream lineStream(line);
 
-        std::string type;
+        String type;
         lineStream >> type;
 
         if (type == "mtllib")
@@ -267,7 +267,7 @@ OBJ::OBJInfo OBJImporter::ParseOBJ(const VirtualPath& objPath) const
         {
             OBJ::Face face;
 
-            std::string vertexString;
+            String vertexString;
 
             while (lineStream >> vertexString)
             {
@@ -287,7 +287,7 @@ OBJ::MTLInfo OBJImporter::ParseMTL(const VirtualPath& mtlPath) const
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
 
-    const std::string fileText = fileSystem.ReadText(mtlPath);
+    const String fileText = fileSystem.ReadText(mtlPath);
     if (fileText.empty())
         return {};
 
@@ -298,12 +298,12 @@ OBJ::MTLInfo OBJImporter::ParseMTL(const VirtualPath& mtlPath) const
     bool hasCurrentMTL = false;
     OBJ::MTLData mtlData = {};
 
-    std::string line;
+    String line;
     while (std::getline(stream, line))
     {
         std::istringstream lineStream(line);
 
-        std::string type;
+        String type;
         lineStream >> type;
 
         if (type == "newmtl")
@@ -360,13 +360,13 @@ OBJ::MTLInfo OBJImporter::ParseMTL(const VirtualPath& mtlPath) const
     return mtlInfo;
 }
 
-OBJ::OBJIndex OBJImporter::ParseOBJIndex(const std::string& vertexString) const
+OBJ::OBJIndex OBJImporter::ParseOBJIndex(const String& vertexString) const
 {
     OBJ::OBJIndex objIndex = {};
 
     std::istringstream stream(vertexString);
 
-    std::string value;
+    String value;
 
     if (std::getline(stream, value, '/'))
     {

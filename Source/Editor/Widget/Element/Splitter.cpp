@@ -1,9 +1,9 @@
 #include "Splitter.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 
-#include <Core/Type/Types.h>
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
@@ -12,7 +12,7 @@
 namespace URay
 {
 
-Splitter::Splitter(const std::string& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second)
+Splitter::Splitter(const String& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second)
     : layoutId(layoutId), axis(axis)
 {
     AddChild(std::move(first));

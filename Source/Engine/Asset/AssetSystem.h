@@ -1,11 +1,11 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 
 #include <filesystem>
 #include <memory>
 #include <optional>
-#include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
@@ -37,7 +37,7 @@ public:
     ~AssetSystem();
 
 public:
-    bool Initialize(const std::string& enginePath, const std::string& projectPath);
+    bool Initialize(const String& enginePath, const String& projectPath);
     void Finalize();
 
     bool Import(const ImportRequest& request);
@@ -60,7 +60,7 @@ public:
     MeshSerializer& GetMeshSerializer() const { return *meshSerializer; }
 
 private:
-    void CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle);
+    void CreateDefaultMesh(const AssetHandle& handle, const String& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle);
 
 private:
     std::unique_ptr<VirtualFileSystem> fileSystem = nullptr;

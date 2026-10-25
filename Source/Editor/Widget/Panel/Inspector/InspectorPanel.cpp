@@ -1,4 +1,5 @@
 #include "InspectorPanel.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>
@@ -134,7 +135,7 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
     for (const auto& comp : components)
     {
         ComponentSection* section = layout->AddChild<ComponentSection>(
-            std::string(comp->GetClass()->GetType().name));
+            String(comp->GetClass()->GetType().name));
 
         for (const Property& property : comp->GetClass()->GetAllProperties())
         {
@@ -188,7 +189,7 @@ void InspectorPanel::RebuildAssetProperties(AssetHandle handle)
     }
 }
 
-void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     switch (property.type)
     {
@@ -240,7 +241,7 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
     }
 }
 
-void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     bool* value = reinterpret_cast<bool*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -262,7 +263,7 @@ void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& objec
         });
 }
 
-void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     float* value = reinterpret_cast<float*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -283,7 +284,7 @@ void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& obje
         });
 }
 
-void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     int32* value = reinterpret_cast<int32*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -304,7 +305,7 @@ void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object
         });
 }
 
-void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     Vector2* value = reinterpret_cast<Vector2*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -325,7 +326,7 @@ void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& ob
         });
 }
 
-void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     Vector3* value = reinterpret_cast<Vector3*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -346,7 +347,7 @@ void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& ob
         });
 }
 
-void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     Quaternion* value = reinterpret_cast<Quaternion*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -367,7 +368,7 @@ void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& o
         });
 }
 
-void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     Color* value = reinterpret_cast<Color*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -388,7 +389,7 @@ void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& obje
         });
 }
 
-void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     Vector4* value = reinterpret_cast<Vector4*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
@@ -409,9 +410,9 @@ void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& ob
         });
 }
 
-void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
-    std::string* value = reinterpret_cast<std::string*>(reinterpret_cast<uint8*>(&object) + property.offset);
+    String* value = reinterpret_cast<String*>(reinterpret_cast<uint8*>(&object) + property.offset);
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
@@ -430,7 +431,7 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
         });
 }
 
-void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const std::string& name)
+void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     Class* assetClass = nullptr;
 

@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Object/Object.h>
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Types.h>
 
 #include <functional>
 #include <map>
@@ -57,7 +57,7 @@ public:
 
     Unit* FindUnit(const UUID& id) const;
 
-    Unit* CreateEmptyUnit(const std::string& name, Unit* parent);
+    Unit* CreateEmptyUnit(const String& name, Unit* parent);
 
     SceneSystem& GetSceneSystem() { return sceneSystem; }
 

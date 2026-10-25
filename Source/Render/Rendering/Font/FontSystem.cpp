@@ -1,4 +1,5 @@
 #include "FontSystem.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Engine/Asset/AssetDatabase.h>
@@ -306,7 +307,7 @@ const FontMetrics* FontSystem::GetMetrics(AssetHandle fontHandle, uint32 pixelHe
 }
 
 Vector2 FontSystem::MeasureText(
-    const std::string& text,
+    const String& text,
     AssetHandle fontHandle,
     uint32 pixelHeight)
 {

@@ -1,8 +1,8 @@
 #include "Scene.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Core/Serialization/YAMLConverters.h>
-#include <Core/Type/Types.h>
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Component/TransformComponent.h>
@@ -146,7 +146,7 @@ void Scene::Deserialize(const YAML::Node& node)
 
         if (!id.IsValid() || unitsById.contains(id))
         {
-            URAY_LOG("Failed to deserialize unit: %s", unitNode["Name"].as<std::string>());
+            URAY_LOG("Failed to deserialize unit: %s", unitNode["Name"].as<String>());
             continue;
         }
 
@@ -156,7 +156,7 @@ void Scene::Deserialize(const YAML::Node& node)
         unitsById.emplace(id, newUnit.get());
 
         if (const YAML::Node nameNode = unitNode["Name"])
-            newUnit->SetName(nameNode.as<std::string>());
+            newUnit->SetName(nameNode.as<String>());
 
         const YAML::Node componentsNode = unitNode["Components"];
 
@@ -182,7 +182,7 @@ void Scene::Deserialize(const YAML::Node& node)
                 continue;
             }
 
-            const std::string typeName = typeNode.as<std::string>();
+            const String typeName = typeNode.as<String>();
 
             auto component = ComponentFactory::Create(typeName);
             if (!component)
@@ -305,7 +305,7 @@ Unit* Scene::FindUnit(const UUID& id) const
     return it != units.end() ? it->get() : nullptr;
 }
 
-Unit* Scene::CreateEmptyUnit(const std::string& name, Unit* parent)
+Unit* Scene::CreateEmptyUnit(const String& name, Unit* parent)
 {
     auto unit = std::make_unique<Unit>();
     unit->SetName(name);

@@ -1,11 +1,11 @@
 #include "Object.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>
 #include <Core/Serialization/YAMLConverters.h>
-#include <Core/Type/Types.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Mesh/Mesh.h>
@@ -53,7 +53,7 @@ YAML::Node Object::Serialize() const
             node[prop.name] = prop.GetValue<Color>(this);
             break;
         case PropertyType::String:
-            node[prop.name] = prop.GetValue<std::string>(this);
+            node[prop.name] = prop.GetValue<String>(this);
             break;
         case PropertyType::Mesh:
         case PropertyType::SkinnedMesh:
@@ -111,7 +111,7 @@ void Object::Deserialize(const YAML::Node& node)
             *static_cast<Color*>(valueAddress) = valueNode.as<Color>();
             break;
         case PropertyType::String:
-            *static_cast<std::string*>(valueAddress) = valueNode.as<std::string>();
+            *static_cast<String*>(valueAddress) = valueNode.as<String>();
             break;
         case PropertyType::Mesh:
         case PropertyType::SkinnedMesh:

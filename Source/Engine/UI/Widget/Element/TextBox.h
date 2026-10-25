@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Padding.h>
@@ -13,7 +14,7 @@ namespace URay
 class TextBox : public Widget
 {
 public:
-    explicit TextBox(const std::string& text = {});
+    explicit TextBox(const String& text = {});
 
 public:
     EventReply OnPointerEnter() override;
@@ -24,8 +25,8 @@ public:
 
     Rect GetContentRect() const override;
 
-    const std::string& GetText() const { return text; }
-    void SetText(const std::string& text) { this->text = text; }
+    const String& GetText() const { return text; }
+    void SetText(const String& text) { this->text = text; }
 
     void SetTextStyle(const Render::TextStyle& style) { textStyle = style; }
     void SetOutlineColor(const Color& color) { outlineColor = color; }
@@ -48,13 +49,13 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
     void OnPaintForeground(Render::UIDrawContext& context) override;
 
-    virtual bool TryCommitText(const std::string& editingText, std::string& committedText)
+    virtual bool TryCommitText(const String& editingText, String& committedText)
     {
         committedText = editingText;
         return true;
     }
-    virtual void OnTextChanged(const std::string& prevText, const std::string& currText) {}
-    virtual void OnTextCommitted(const std::string& prevText, const std::string& committedText) {}
+    virtual void OnTextChanged(const String& prevText, const String& currText) {}
+    virtual void OnTextCommitted(const String& prevText, const String& committedText) {}
 
     void BeginEdit();
     void CommitEdit();
@@ -80,10 +81,10 @@ private:
     void SelectWordAt(size_t caretPosition);
 
 private:
-    std::string text;
+    String text;
 
     std::u32string editingText;
-    std::string originalText;
+    String originalText;
     bool isEditing = false;
     bool isReadonly = false;
 

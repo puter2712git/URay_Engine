@@ -1,4 +1,5 @@
 #include "AssetMetadata.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Serialization/YAMLConverters.h>
 
@@ -26,10 +27,10 @@ void AssetMetadata::Deserialize(const YAML::Node& node)
     metadataVersion = node["MetadataVersion"].as<uint32>();
 
     handle = node["Handle"].as<UUID>();
-    className = node["ClassName"].as<std::string>();
+    className = node["ClassName"].as<String>();
 
-    assetPath = VirtualPath(node["AssetPath"].as<std::string>());
-    sourcePath = VirtualPath(node["SourcePath"].as<std::string>());
+    assetPath = VirtualPath(node["AssetPath"].as<String>());
+    sourcePath = VirtualPath(node["SourcePath"].as<String>());
     importerVersion = node["ImporterVersion"].as<uint32>();
 }
 

@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/Panel/Panel.h>
 
 #include <string>
-#include <string_view>
 #include <vector>
 
 namespace URay
@@ -26,7 +26,7 @@ public:
 
     EventReply OnPointerDown(const PointerEvent& event) override;
 
-    void AddLog(std::string_view message);
+    void AddLog(StringView message);
 
 protected:
     void OnUpdate(float deltaTime) override;
@@ -37,7 +37,7 @@ private:
     ScrollView* scrollView = nullptr;
     VerticalLayout* logLayout = nullptr;
 
-    std::vector<std::string> logEntries;
+    std::vector<String> logEntries;
     bool isLogDirty = false;
 };
 

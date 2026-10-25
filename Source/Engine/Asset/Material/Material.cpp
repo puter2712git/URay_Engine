@@ -1,4 +1,5 @@
 #include "Material.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -7,7 +8,6 @@
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
 
-#include <Core/Type/Types.h>
 
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/Descriptor/DescriptorSet.h>
@@ -181,14 +181,14 @@ void Material::PrepareDescriptorSet(uint32 frameIndex)
     appliedDescriptorRevisions[frameIndex] = descriptorRevision;
 }
 
-void Material::AddParameter(const std::string& name, MaterialParameterType type, MaterialParameterValue value)
+void Material::AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value)
 {
     parameters.insert({ name, MaterialParameter{
                                   .type = type,
                                   .value = value } });
 }
 
-void Material::SetFloat(const std::string& name, float value)
+void Material::SetFloat(const String& name, float value)
 {
     auto it = parameters.find(name);
     if (it == parameters.end())
@@ -207,7 +207,7 @@ void Material::SetFloat(const std::string& name, float value)
     }
 }
 
-void Material::SetTexture(const std::string& name, const AssetHandle& textureHandle)
+void Material::SetTexture(const String& name, const AssetHandle& textureHandle)
 {
     auto it = parameters.find(name);
     if (it == parameters.end())

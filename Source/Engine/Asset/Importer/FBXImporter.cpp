@@ -1,9 +1,9 @@
 #include "FBXImporter.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
@@ -127,7 +127,7 @@ ImportResult FBXImporter::Import(const ImportRequest& request)
     // ufbx_free_scene(scene);
 }
 
-bool FBXImporter::CanImport(const std::string& extension) const
+bool FBXImporter::CanImport(const String& extension) const
 {
     return extension == ".fbx";
 }
@@ -177,7 +177,7 @@ bool FBXImporter::CanImport(const std::string& extension) const
 //             continue;
 //
 //         FBX::BoneInfo bone = {};
-//         bone.name = std::string(sourceNode->name.data, sourceNode->name.length);
+//         bone.name = String(sourceNode->name.data, sourceNode->name.length);
 //         bone.worldBindTransform = ToMatrix(sourceNode->node_to_world);
 //
 //         const int32 boneIndex = static_cast<int32>(fbxInfo.bones.size());
@@ -220,7 +220,7 @@ bool FBXImporter::CanImport(const std::string& extension) const
 //
 //         FBX::MeshInfo meshInfo = {};
 //
-//         meshInfo.name = std::string(sourceMesh.name.data, sourceMesh.name.length);
+//         meshInfo.name = String(sourceMesh.name.data, sourceMesh.name.length);
 //
 //         if (sourceMesh.skin_deformers.count == 0)
 //         {
@@ -848,7 +848,7 @@ bool FBXImporter::CanImport(const std::string& extension) const
 //
 //         auto material = std::make_unique<Material>(EngineAsset::MeshShader);
 //
-//         const std::string sourceName(sourceMaterial->name.data, sourceMaterial->name.length);
+//         const String sourceName(sourceMaterial->name.data, sourceMaterial->name.length);
 //
 //         material->SetName(sourceName.empty()
 //                               ? metadata.sourcePath.GetStem() + "_Material_" + std::to_string(i)
@@ -872,7 +872,7 @@ bool FBXImporter::CanImport(const std::string& extension) const
 //         {
 //             const ufbx_texture* sourceTexture = diffuseMap->texture;
 //
-//             const std::string relativeTexturePath(
+//             const String relativeTexturePath(
 //                 sourceTexture->relative_filename.data,
 //                 sourceTexture->relative_filename.length);
 //
@@ -882,7 +882,7 @@ bool FBXImporter::CanImport(const std::string& extension) const
 //
 //                 const VirtualPath diffuseTextureMetadataPath = assetSystem.GetMetadataPath(diffuseTexturePath);
 //
-//                 const std::string metadataText = fileSystem.ReadText(diffuseTextureMetadataPath);
+//                 const String metadataText = fileSystem.ReadText(diffuseTextureMetadataPath);
 //
 //                 if (!metadataText.empty())
 //                 {

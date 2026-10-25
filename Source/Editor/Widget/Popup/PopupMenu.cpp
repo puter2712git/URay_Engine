@@ -1,4 +1,5 @@
 #include "PopupMenu.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Element/Button.h>
 #include <Engine/UI/Widget/Element/Label.h>
@@ -33,7 +34,7 @@ void PopupMenu::Arrange(const Rect& rect)
 }
 
 Button* PopupMenu::AddMenuItem(
-    std::string_view text,
+    StringView text,
     std::function<void()> onClick)
 {
     Button* button = CreateEditorButton(*layout, text);

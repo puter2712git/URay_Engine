@@ -1,6 +1,6 @@
 #pragma once
+#include <Core/Type/Types.h>
 
-#include <string_view>
 
 namespace URay
 {
@@ -11,7 +11,7 @@ public:
     virtual ~LogSink() = default;
 
 public:
-    virtual void Write(std::string_view msg) = 0;
+    virtual void Write(StringView msg) = 0;
 };
 
 } // namespace URay

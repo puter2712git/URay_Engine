@@ -1,4 +1,5 @@
 #include "Asset.h"
+#include <Core/Type/Types.h>
 
 namespace URay
 {
@@ -11,7 +12,7 @@ void Asset::RegisterClass()
         { .type = PropertyType::String,
           .name = "Name",
           .offset = offsetof(Asset, name),
-          .size = sizeof(std::string) });
+          .size = sizeof(String) });
 }
 
 } // namespace URay

@@ -1,11 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Render/Shader/Reflection/ShaderReflection.h>
 
-#include <Core/Type/Types.h>
 
 #include <spirv/spirv_reflect.h>
-#include <string>
 #include <vector>
 
 namespace URay::Render
@@ -16,13 +15,13 @@ class ShaderReflector
 public:
     static bool Reflect(
         const std::vector<uint8>& shaderCode,
-        const std::string& entryPoint,
+        const String& entryPoint,
         ShaderReflection& outReflection);
 
 private:
     static bool ReflectVertexInputs(
         const SpvReflectShaderModule& module,
-        const std::string& entryPoint,
+        const String& entryPoint,
         ShaderReflection& outReflection);
 
     static bool ReflectDescriptorBindings(

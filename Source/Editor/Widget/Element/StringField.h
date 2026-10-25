@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Element/TextBox.h>
 
@@ -13,8 +14,8 @@ public:
     StringField();
 
 protected:
-    void OnTextChanged(const std::string& prevText, const std::string& currText) override;
-    void OnTextCommitted(const std::string& prevText, const std::string& committedText) override;
+    void OnTextChanged(const String& prevText, const String& currText) override;
+    void OnTextCommitted(const String& prevText, const String& committedText) override;
 
 public:
     Ray<> onValueChanged;

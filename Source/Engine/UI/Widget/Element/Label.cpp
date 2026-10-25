@@ -1,4 +1,5 @@
 #include "Label.h"
+#include <Core/Type/Types.h>
 
 #include <Engine/Engine.h>
 
@@ -9,7 +10,7 @@
 namespace URay
 {
 
-Label::Label(std::string_view text) : text(text) {}
+Label::Label(StringView text) : text(text) {}
 
 Label::~Label() = default;
 

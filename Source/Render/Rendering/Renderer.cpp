@@ -1,10 +1,10 @@
 #include "Renderer.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/Performance/PerformanceViewModel.h>
-#include <Core/Type/Types.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Engine.h>
@@ -46,13 +46,12 @@
 #include <iostream>
 #include <set>
 #include <string>
-#include <string_view>
 #include <vector>
 
 namespace URay::Render
 {
 
-static std::string_view GetRenderPassName(RenderPassId passId)
+static StringView GetRenderPassName(RenderPassId passId)
 {
     switch (passId)
     {
@@ -776,7 +775,7 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
             const RenderPassId passId = static_cast<RenderPassId>(passIndex);
 
             samples.push_back(ProfileSample{
-                .name = std::string(GetRenderPassName(passId)),
+                .name = String(GetRenderPassName(passId)),
                 .startMs = static_cast<double>(beginTimestamp - firstTimestamp) * tickToMs,
                 .durationMs = static_cast<double>(endTimestamp - beginTimestamp) * tickToMs,
                 .depth = 0 });

@@ -1,13 +1,13 @@
 #pragma once
+#include <Core/Type/Types.h>
 
-#include <string_view>
 
 namespace URay
 {
 
 struct RuntimeType
 {
-    std::string_view name;
+    StringView name;
     const RuntimeType* parent;
 };
 

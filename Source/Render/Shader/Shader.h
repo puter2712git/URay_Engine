@@ -1,13 +1,12 @@
 #pragma once
-
 #include <Core/Type/Types.h>
+
 #include <Render/RHI/Descriptor/DescriptorSetLayoutDesc.h>
 #include <Render/RHI/PushConstantRange.h>
 #include <Render/Shader/Reflection/ShaderReflection.h>
 
 #include <map>
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace URay::Render
@@ -16,7 +15,7 @@ namespace URay::Render
 struct ShaderStageData
 {
     ShaderStageFlags stage = ShaderStageFlags::None;
-    std::string entryPoint;
+    String entryPoint;
     std::vector<uint8> code;
     ShaderReflection reflection = {};
 };

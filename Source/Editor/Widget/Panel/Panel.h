@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/UI/Widget/Widget.h>
@@ -6,7 +7,6 @@
 #include <Core/Math/Color.h>
 #include <Core/Math/Padding.h>
 
-#include <string>
 
 namespace URay
 {
@@ -19,7 +19,7 @@ class Panel : public Widget
 
 public:
     Panel();
-    Panel(const std::string& name);
+    Panel(const String& name);
     ~Panel() override;
 
 public:
@@ -48,7 +48,7 @@ protected:
 protected:
     PanelHeader* header = nullptr;
 
-    std::string name;
+    String name;
 
     Color backgroundColor = EditorStyle::Surface;
 

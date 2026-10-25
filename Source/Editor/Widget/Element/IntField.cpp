@@ -1,4 +1,5 @@
 #include "IntField.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -103,8 +104,8 @@ void IntField::SetValue(int32 value)
 }
 
 bool IntField::TryCommitText(
-    const std::string& editingText,
-    std::string& committedText)
+    const String& editingText,
+    String& committedText)
 {
     int32 value = 0;
     if (!TryParse(editingText, value))
@@ -115,15 +116,15 @@ bool IntField::TryCommitText(
 }
 
 void IntField::OnTextChanged(
-    const std::string&,
-    const std::string& currText)
+    const String&,
+    const String& currText)
 {
     int32 value = 0;
     if (TryParse(currText, value))
         onValueChanged.Emit(value);
 }
 
-bool IntField::TryParse(const std::string& text, int32& outValue) const
+bool IntField::TryParse(const String& text, int32& outValue) const
 {
     if (text.empty())
         return false;

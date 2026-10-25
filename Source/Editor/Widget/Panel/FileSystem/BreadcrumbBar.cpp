@@ -1,4 +1,5 @@
 #include "BreadcrumbBar.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -42,7 +43,7 @@ void BreadcrumbBar::RebuildItems()
 {
     layout->ClearChildren();
 
-    const std::string mountName = currentPath.GetMountName();
+    const String mountName = currentPath.GetMountName();
 
     if (mountName.empty())
         return;
@@ -63,7 +64,7 @@ void BreadcrumbBar::RebuildItems()
 
     addBreadcrumbItem(accumulatedPath);
 
-    const std::string relativePath = currentPath.GetRelativePath();
+    const String relativePath = currentPath.GetRelativePath();
 
     size_t segmentStart = 0;
 
@@ -72,11 +73,11 @@ void BreadcrumbBar::RebuildItems()
         const size_t separatorIndex = relativePath.find('/', segmentStart);
 
         const size_t segmentLength =
-            separatorIndex == std::string::npos
-                ? std::string::npos
+            separatorIndex == String::npos
+                ? String::npos
                 : separatorIndex - segmentStart;
 
-        const std::string segment = relativePath.substr(segmentStart, segmentLength);
+        const String segment = relativePath.substr(segmentStart, segmentLength);
 
         if (!segment.empty())
         {
@@ -87,7 +88,7 @@ void BreadcrumbBar::RebuildItems()
             addBreadcrumbItem(accumulatedPath);
         }
 
-        if (separatorIndex == std::string::npos)
+        if (separatorIndex == String::npos)
             break;
 
         segmentStart = separatorIndex + 1;

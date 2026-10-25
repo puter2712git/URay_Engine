@@ -1,11 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Math/Color3.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
-#include <Core/Type/Types.h>
 
-#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -48,18 +47,18 @@ struct Face
 
 struct OBJInfo
 {
-    std::string mtllib;
+    String mtllib;
 
     std::vector<Vector3> positions;
     std::vector<Vector3> normals;
     std::vector<Vector2> uvs;
 
-    std::unordered_map<std::string, std::vector<Face>> mtlTofaces;
+    std::unordered_map<String, std::vector<Face>> mtlTofaces;
 };
 
 struct MTLData
 {
-    std::string mtlName;
+    String mtlName;
     float shininess = 0.0f;
     Color3 ambient = Color3::White;
     Color3 specular = Color3::White;
@@ -68,7 +67,7 @@ struct MTLData
     float dissolve = 1.0f;
     int32 illuminationModel = 2;
 
-    std::string diffuseTexturePath;
+    String diffuseTexturePath;
 };
 
 struct MTLInfo

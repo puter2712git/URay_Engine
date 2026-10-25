@@ -17,7 +17,7 @@ struct ScopeBeginInfo
 
 struct ScopeSample
 {
-    std::string_view name;
+    StringView name;
     double startMs;
     double durationMs;
     uint32 depth;

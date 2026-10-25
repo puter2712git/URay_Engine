@@ -1,6 +1,6 @@
 #pragma once
+#include <Core/Type/Types.h>
 
-#include <string>
 
 namespace URay
 {
@@ -10,27 +10,27 @@ class VirtualPath
 public:
     VirtualPath();
     VirtualPath(const char* path);
-    VirtualPath(const std::string& path);
+    VirtualPath(const String& path);
 
 public:
     VirtualPath GetDirectory() const;
-    std::string GetFilename() const;
-    std::string GetStem() const;
-    std::string GetExtension() const;
+    String GetFilename() const;
+    String GetStem() const;
+    String GetExtension() const;
 
     VirtualPath RemoveExtension() const;
-    VirtualPath ReplaceExtension(const std::string& extension) const;
-    VirtualPath Join(const std::string& child) const;
+    VirtualPath ReplaceExtension(const String& extension) const;
+    VirtualPath Join(const String& child) const;
 
-    std::string GetMountName() const;
-    std::string GetRelativePath() const;
+    String GetMountName() const;
+    String GetRelativePath() const;
 
     bool IsDirectory() const;
 
-    const std::string& ToString() const { return path; }
+    const String& ToString() const { return path; }
 
 private:
-    std::string path;
+    String path;
 };
 
 } // namespace URay

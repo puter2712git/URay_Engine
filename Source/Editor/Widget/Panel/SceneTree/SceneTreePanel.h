@@ -1,6 +1,6 @@
 #pragma once
-
 #include <Core/Type/Types.h>
+
 #include <Core/Type/UUID.h>
 #include <Editor/Widget/Panel/Panel.h>
 #include <Engine/Scene/Scene.h>
@@ -39,7 +39,7 @@ private:
     {
         SceneId sceneId = InvalidSceneId;
         UUID unitId = {};
-        std::string name;
+        String name;
         uint32 depth = 0;
     };
 

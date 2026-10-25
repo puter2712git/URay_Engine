@@ -1,6 +1,6 @@
 #pragma once
-
 #include <Core/Type/Types.h>
+
 
 #include <string>
 #include <string_view>
@@ -8,9 +8,9 @@
 namespace URay::UTF8
 {
 
-inline std::string Encode(std::u32string_view text)
+inline String Encode(std::u32string_view text)
 {
-    std::string result;
+    String result;
     result.reserve(text.size());
 
     for (char32_t codepoint : text)
@@ -51,7 +51,7 @@ inline std::string Encode(std::u32string_view text)
     return result;
 }
 
-inline std::u32string Decode(std::string_view text)
+inline std::u32string Decode(StringView text)
 {
     std::u32string result;
     result.reserve(text.size());

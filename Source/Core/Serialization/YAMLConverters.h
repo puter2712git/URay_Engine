@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>
@@ -149,7 +150,7 @@ struct convert<URay::UUID>
         if (!node.IsScalar())
             return false;
 
-        value = URay::UUID::FromString(node.as<std::string>());
+        value = URay::UUID::FromString(node.as<URay::String>());
         return true;
     }
 };

@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
-#include <string>
 
 namespace URay
 {
@@ -19,7 +19,7 @@ class Splitter : public Widget
     URAY_TYPE(Splitter, Widget)
 
 public:
-    Splitter(const std::string& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
+    Splitter(const String& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
     ~Splitter() override;
 
 public:
@@ -34,7 +34,7 @@ public:
     float GetSplitRatio() const { return splitRatio; }
     void SetSplitRatio(float ratio) { splitRatio = ratio; }
 
-    const std::string& GetLayoutId() const { return layoutId; }
+    const String& GetLayoutId() const { return layoutId; }
 
 protected:
     void OnPaint(Render::UIDrawContext& context) override;
@@ -44,7 +44,7 @@ private:
     Rect GetHandleRect() const;
 
 private:
-    std::string layoutId;
+    String layoutId;
 
     SplitAxis axis = SplitAxis::Horizontal;
 

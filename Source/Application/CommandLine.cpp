@@ -1,4 +1,5 @@
 #include "CommandLine.h"
+#include <Core/Type/Types.h>
 
 namespace URay
 {
@@ -15,9 +16,9 @@ CommandLine::CommandLine(int argc, char** argv)
 
 CommandLine::~CommandLine() = default;
 
-bool CommandLine::Has(const std::string& option) const
+bool CommandLine::Has(const String& option) const
 {
-    for (const std::string& arg : arguments)
+    for (const String& arg : arguments)
     {
         if (arg == option)
             return true;
@@ -26,7 +27,7 @@ bool CommandLine::Has(const std::string& option) const
     return false;
 }
 
-std::optional<std::string> CommandLine::Get(const std::string& option) const
+std::optional<String> CommandLine::Get(const String& option) const
 {
     size_t argumentCount = arguments.size();
 

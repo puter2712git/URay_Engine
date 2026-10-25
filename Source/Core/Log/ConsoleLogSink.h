@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Log/LogSink.h>
 
@@ -14,7 +15,7 @@ public:
     ~EditorConsoleLogSink() override;
 
 public:
-    void Write(std::string_view msg) override;
+    void Write(StringView msg) override;
 
 private:
     ConsolePanel& console;

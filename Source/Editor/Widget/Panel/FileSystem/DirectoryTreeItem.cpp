@@ -1,4 +1,5 @@
 #include "DirectoryTreeItem.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -25,7 +26,7 @@ DirectoryTreeItem::DirectoryTreeItem(VirtualPath path, uint32 depth, bool expand
     disclosureLabel->SetPreferredWidth(16.0f);
     disclosureLabel->SetTextStyle(EditorStyle::SmallText());
 
-    const std::string label = this->path.GetFilename().empty()
+    const String label = this->path.GetFilename().empty()
                                   ? this->path.GetMountName() + "://"
                                   : this->path.GetFilename();
 

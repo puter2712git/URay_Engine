@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <string_view>
 
 namespace URay
 {
@@ -14,5 +16,8 @@ using int8 = std::int8_t;
 using int16 = std::int16_t;
 using int32 = std::int32_t;
 using int64 = std::int64_t;
+
+using String = std::string;
+using StringView = std::string_view;
 
 } // namespace URay

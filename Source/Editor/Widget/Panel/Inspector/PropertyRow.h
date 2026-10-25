@@ -1,8 +1,8 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Widget.h>
 
-#include <string>
 
 namespace URay
 {
@@ -12,7 +12,7 @@ class Label;
 class PropertyRow final : public Widget
 {
 public:
-    explicit PropertyRow(const std::string& name);
+    explicit PropertyRow(const String& name);
 
 public:
     void Arrange(const Rect& rect) override;

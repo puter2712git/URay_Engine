@@ -1,8 +1,8 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Widget.h>
 
-#include <string>
 
 namespace URay
 {
@@ -12,7 +12,7 @@ class HorizontalLayout;
 class PanelHeader final : public Widget
 {
 public:
-    PanelHeader(const std::string& name);
+    PanelHeader(const String& name);
 
 public:
     void Arrange(const Rect& rect) override;

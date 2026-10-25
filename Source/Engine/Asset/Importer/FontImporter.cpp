@@ -1,4 +1,5 @@
 #include "FontImporter.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
@@ -38,7 +39,7 @@ ImportResult FontImporter::Import(const ImportRequest& request)
     return result;
 }
 
-bool FontImporter::CanImport(const std::string& extension) const
+bool FontImporter::CanImport(const String& extension) const
 {
     return extension == ".ttf";
 }

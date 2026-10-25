@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Asset/AssetHandle.h>
 #include <Engine/Asset/Importer/FBXInfo.h>
@@ -20,7 +21,7 @@ public:
 
 public:
     ImportResult Import(const ImportRequest& request) override;
-    bool CanImport(const std::string& extension) const override;
+    bool CanImport(const String& extension) const override;
 
     // private:
     //     FBX::FBXInfo ParseFBXInfo(const ufbx_scene& sourceScene) const;

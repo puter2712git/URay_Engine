@@ -1,4 +1,5 @@
 #include "UUID.h"
+#include <Core/Type/Types.h>
 
 #include <charconv>
 #include <format>
@@ -26,7 +27,7 @@ UUID UUID::Generate()
     return ret;
 }
 
-std::string UUID::ToString() const
+String UUID::ToString() const
 {
     return std::format(
         "{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
@@ -37,7 +38,7 @@ std::string UUID::ToString() const
         low & 0xFFFFFFFFFFFFULL);
 }
 
-UUID UUID::FromString(const std::string& str)
+UUID UUID::FromString(const String& str)
 {
     if (str.size() != 36)
         return {};

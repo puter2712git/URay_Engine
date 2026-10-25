@@ -1,4 +1,5 @@
 #include "ShaderImporter.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
@@ -32,7 +33,7 @@ ImportResult ShaderImporter::Import(const ImportRequest& request)
     // assetDatabase.Add(std::move(shader));
 }
 
-bool ShaderImporter::CanImport(const std::string& extension) const
+bool ShaderImporter::CanImport(const String& extension) const
 {
     return extension == ".hlsl";
 }

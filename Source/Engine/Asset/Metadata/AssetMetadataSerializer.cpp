@@ -1,4 +1,5 @@
 #include "AssetMetadataSerializer.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -16,7 +17,7 @@ bool AssetMetadataSerializer::Save(const AssetMetadata& metadata, const VirtualP
 {
     YAML::Node node = metadata.Serialize();
 
-    const std::string yamlString = YAML::Dump(node);
+    const String yamlString = YAML::Dump(node);
 
     return fileSystem.WriteText(metadataPath, yamlString);
 }
@@ -28,7 +29,7 @@ bool AssetMetadataSerializer::Load(AssetMetadata& outMetadata, const VirtualPath
 
     try
     {
-        const std::string yamlString = fileSystem.ReadText(metadataPath);
+        const String yamlString = fileSystem.ReadText(metadataPath);
         const YAML::Node node = YAML::Load(yamlString);
         outMetadata.Deserialize(node);
         return true;

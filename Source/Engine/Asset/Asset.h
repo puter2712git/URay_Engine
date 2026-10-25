@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/Object/Object.h>
 
@@ -15,14 +16,14 @@ public:
     virtual ~Asset() override = default;
 
 public:
-    const std::string& GetName() const { return name; }
-    void SetName(const std::string& name) { this->name = name; }
+    const String& GetName() const { return name; }
+    void SetName(const String& name) { this->name = name; }
 
     AssetHandle GetHandle() const { return handle; }
     void SetHandle(const AssetHandle& handle) { this->handle = handle; }
 
 private:
-    std::string name;
+    String name;
     AssetHandle handle = {};
 };
 

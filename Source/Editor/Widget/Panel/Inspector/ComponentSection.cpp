@@ -1,4 +1,5 @@
 #include "ComponentSection.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -10,7 +11,7 @@
 namespace URay
 {
 
-ComponentSection::ComponentSection(const std::string& title)
+ComponentSection::ComponentSection(const String& title)
 {
     titleLabel = CreateEditorLabel(*this, title);
 

@@ -1,11 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Math/Matrix.h>
-#include <Core/Type/Types.h>
 
 #include <array>
 #include <limits>
-#include <string>
 #include <vector>
 
 namespace URay::FBX
@@ -33,7 +32,7 @@ struct SkinClusterInfo
 
 struct BoneInfo
 {
-    std::string name;
+    String name;
     int32 parentIndex = -1;
 
     Matrix worldBindTransform = Matrix::Identity;
@@ -41,7 +40,7 @@ struct BoneInfo
 
 struct MeshInfo
 {
-    std::string name;
+    String name;
     std::vector<SkinVertex> skinVertices;
     std::vector<SkinClusterInfo> clusters;
 };

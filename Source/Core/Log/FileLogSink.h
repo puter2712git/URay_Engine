@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Log/LogSink.h>
 
@@ -15,7 +16,7 @@ public:
     ~FileLogSink() override;
 
 public:
-    void Write(std::string_view msg) override;
+    void Write(StringView msg) override;
 
 private:
     std::ofstream stream;

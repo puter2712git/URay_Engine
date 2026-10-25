@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualPath.h>
 #include <Core/Type/Ray.h>
@@ -42,7 +43,7 @@ private:
     VirtualPath rootPath = {};
     VirtualPath selectedPath = {};
 
-    std::unordered_set<std::string> expandedPaths;
+    std::unordered_set<String> expandedPaths;
     std::optional<VirtualPath> pendingExpandPath = std::nullopt;
     std::optional<VirtualPath> pendingSelectedPath = std::nullopt;
 

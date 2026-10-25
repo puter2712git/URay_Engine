@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Element/TextBox.h>
 
@@ -21,12 +22,12 @@ public:
     void SetDragSpeed(float speed) { dragSpeed = speed; }
 
 protected:
-    bool TryCommitText(const std::string& editingText, std::string& committedText) override;
-    void OnTextChanged(const std::string& prevText, const std::string& currText) override;
+    bool TryCommitText(const String& editingText, String& committedText) override;
+    void OnTextChanged(const String& prevText, const String& currText) override;
 
 private:
-    bool TryParse(const std::string& text, float& outValue);
-    std::string FormatValue(float value);
+    bool TryParse(const String& text, float& outValue);
+    String FormatValue(float value);
 
     float GetModifiedDragSpeed(ModifierKey modifiers) const;
 

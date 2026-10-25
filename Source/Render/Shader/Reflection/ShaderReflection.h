@@ -1,13 +1,12 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Render/RHI/Descriptor/ResourceBinding.h>
 #include <Render/Shader/ShaderStageFlags.h>
 
-#include <Core/Type/Types.h>
 
 #include <vulkan/vulkan.h>
 
-#include <string>
 #include <vector>
 
 namespace URay::Render
@@ -15,8 +14,8 @@ namespace URay::Render
 
 struct ShaderVertexInput
 {
-    std::string name;
-    std::string semantic;
+    String name;
+    String semantic;
 
     uint32 location = 0;
     uint32 component = 0;
@@ -26,7 +25,7 @@ struct ShaderVertexInput
 
 struct ShaderDescriptorBinding
 {
-    std::string name;
+    String name;
 
     uint32 set = 0;
     uint32 binding = 0;
@@ -39,7 +38,7 @@ struct ShaderDescriptorBinding
 
 struct ShaderParameter
 {
-    std::string name;
+    String name;
 
     uint32 offset = 0;
     uint32 size = 0;
@@ -52,7 +51,7 @@ struct ShaderParameter
 
 struct ShaderUniformBuffer
 {
-    std::string name;
+    String name;
 
     uint32 set = 0;
     uint32 binding = 0;

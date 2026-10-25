@@ -1,4 +1,5 @@
 #include "ConsolePanel.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -49,7 +50,7 @@ EventReply ConsolePanel::OnPointerDown(const PointerEvent& event)
     };
 }
 
-void ConsolePanel::AddLog(std::string_view message)
+void ConsolePanel::AddLog(StringView message)
 {
     logEntries.emplace_back(message);
     isLogDirty = true;
@@ -64,7 +65,7 @@ void ConsolePanel::OnUpdate(float deltaTime)
 
     logLayout->ClearChildren();
 
-    for (const std::string& entry : logEntries)
+    for (const String& entry : logEntries)
     {
         Label* line = CreateEditorLabel(*logLayout, entry);
         line->SetTextStyle(EditorStyle::SmallText());

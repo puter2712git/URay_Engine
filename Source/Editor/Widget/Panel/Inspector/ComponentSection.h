@@ -1,8 +1,8 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Engine/UI/Widget/Widget.h>
 
-#include <string>
 
 namespace URay
 {
@@ -13,7 +13,7 @@ class VerticalLayout;
 class ComponentSection final : public Widget
 {
 public:
-    explicit ComponentSection(const std::string& title);
+    explicit ComponentSection(const String& title);
 
 public:
     void Arrange(const Rect& rect) override;

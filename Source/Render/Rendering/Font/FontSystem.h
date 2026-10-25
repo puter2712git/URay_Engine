@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Render/Rendering/Font/FontAtlas.h>
 #include <Render/Rendering/Font/FontFace.h>
@@ -33,7 +34,7 @@ public:
     const Glyph* GetOrCreateGlyph(FontAtlas* atlas, char32_t codepoint);
     const FontMetrics* GetMetrics(AssetHandle fontHandle, uint32 pixelHeight);
 
-    Vector2 MeasureText(const std::string& text, AssetHandle fontHandle, uint32 pixelHeight);
+    Vector2 MeasureText(const String& text, AssetHandle fontHandle, uint32 pixelHeight);
 
 private:
     Device& device;

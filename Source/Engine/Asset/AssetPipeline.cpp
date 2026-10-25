@@ -1,4 +1,5 @@
 #include "AssetPipeline.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -29,14 +30,14 @@ AssetPipeline::~AssetPipeline() = default;
 
 bool AssetPipeline::CanImport(const VirtualPath& sourcePath) const
 {
-    const std::string extension = sourcePath.GetExtension();
+    const String extension = sourcePath.GetExtension();
     Importer* importer = FindImporter(extension);
     return importer != nullptr;
 }
 
 bool AssetPipeline::Execute(const ImportRequest& request) const
 {
-    const std::string extension = request.sourcePath.GetExtension();
+    const String extension = request.sourcePath.GetExtension();
 
     Importer* importer = FindImporter(extension);
     if (!importer)
@@ -82,7 +83,7 @@ bool AssetPipeline::Execute(const ImportRequest& request) const
     return true;
 }
 
-Importer* AssetPipeline::FindImporter(const std::string& extension) const
+Importer* AssetPipeline::FindImporter(const String& extension) const
 {
     for (const auto& importer : importers)
     {

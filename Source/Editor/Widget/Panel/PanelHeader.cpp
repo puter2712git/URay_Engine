@@ -1,4 +1,5 @@
 #include "PanelHeader.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -11,7 +12,7 @@
 namespace URay
 {
 
-PanelHeader::PanelHeader(const std::string& name)
+PanelHeader::PanelHeader(const String& name)
 {
     layout = AddChild<HorizontalLayout>();
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);

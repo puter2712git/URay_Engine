@@ -1,8 +1,8 @@
 #include "Device.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/Buffer/BufferDesc.h>
 #include <Render/RHI/Buffer/MeshBuffer.h>
@@ -1424,7 +1424,7 @@ bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
     const auto& deviceExtensions = context.GetDeviceExtensions();
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::set<String> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
     for (const auto& extension : availableExtensions)
     {

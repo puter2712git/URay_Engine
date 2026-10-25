@@ -1,9 +1,9 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualPath.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
 
-#include <string>
 #include <vector>
 
 namespace URay
@@ -12,7 +12,7 @@ namespace URay
 struct DependencyResult
 {
     bool succeeded = false;
-    std::string errorMessage;
+    String errorMessage;
 
     std::vector<VirtualPath> sourcePaths;
 
@@ -25,7 +25,7 @@ struct DependencyResult
         return result;
     }
 
-    static DependencyResult Failure(const std::string& errorMessage)
+    static DependencyResult Failure(const String& errorMessage)
     {
         DependencyResult result;
         result.succeeded = false;
@@ -37,7 +37,7 @@ struct DependencyResult
 struct ImportResult
 {
     bool succeeded = false;
-    std::string errorMessage;
+    String errorMessage;
 
     std::vector<AssetMetadata> metadatas;
 
@@ -50,7 +50,7 @@ struct ImportResult
         return result;
     }
 
-    static ImportResult Failure(const std::string& errorMessage)
+    static ImportResult Failure(const String& errorMessage)
     {
         ImportResult result;
         result.succeeded = false;

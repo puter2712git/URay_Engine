@@ -1,6 +1,6 @@
 #include "VirtualFileSystem.h"
-
 #include <Core/Type/Types.h>
+
 
 #include <fstream>
 #include <iostream>
@@ -10,8 +10,8 @@ namespace URay
 {
 
 bool VirtualFileSystem::Initialize(
-    const std::string& enginePath,
-    const std::string& projectPath)
+    const String& enginePath,
+    const String& projectPath)
 {
     Mount("Engine", enginePath);
     Mount("Project", projectPath);
@@ -26,7 +26,7 @@ void VirtualFileSystem::Finalize()
     mountMap.clear();
 }
 
-void VirtualFileSystem::Mount(const std::string& mountName, const std::filesystem::path& physicalFilePath)
+void VirtualFileSystem::Mount(const String& mountName, const std::filesystem::path& physicalFilePath)
 {
     mountMap.insert({ mountName, physicalFilePath });
 }
@@ -69,18 +69,18 @@ std::vector<uint8> VirtualFileSystem::ReadBinary(const VirtualPath& virtualPath)
     return buffer;
 }
 
-std::string VirtualFileSystem::ReadText(const VirtualPath& virtualPath) const
+String VirtualFileSystem::ReadText(const VirtualPath& virtualPath) const
 {
     if (!Exists(virtualPath))
-        return std::string();
+        return String();
 
     std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath);
     if (!file.is_open())
-        return std::string();
+        return String();
 
-    return std::string(
+    return String(
         std::istreambuf_iterator<char>(file),
         std::istreambuf_iterator<char>());
 }
@@ -109,7 +109,7 @@ bool VirtualFileSystem::WriteBinary(const VirtualPath& path, const std::vector<u
     return file.good();
 }
 
-bool VirtualFileSystem::WriteText(const VirtualPath& virtualPath, const std::string& text) const
+bool VirtualFileSystem::WriteText(const VirtualPath& virtualPath, const String& text) const
 {
     std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
@@ -164,7 +164,7 @@ std::vector<VirtualFileEntry> VirtualFileSystem::ListDirectory(
         VirtualFileEntry fileEntry = {};
 
         const std::u8string filename = entry.path().filename().u8string();
-        fileEntry.path = directory.Join(std::string(filename.begin(), filename.end()));
+        fileEntry.path = directory.Join(String(filename.begin(), filename.end()));
 
         fileEntry.isDirectory = isDirectory;
 
@@ -176,14 +176,14 @@ std::vector<VirtualFileEntry> VirtualFileSystem::ListDirectory(
 
 std::filesystem::path VirtualFileSystem::ResolveToPhysicalPath(const VirtualPath& virtualPath) const
 {
-    std::string pathStr = virtualPath.ToString();
+    String pathStr = virtualPath.ToString();
 
     size_t pos = pathStr.find("://");
 
-    if (pos != std::string::npos)
+    if (pos != String::npos)
     {
-        std::string mount = pathStr.substr(0, pos);
-        std::string relativePath = pathStr.substr(pos + 3);
+        String mount = pathStr.substr(0, pos);
+        String relativePath = pathStr.substr(pos + 3);
 
         auto it = mountMap.find(mount);
         if (it == mountMap.end())

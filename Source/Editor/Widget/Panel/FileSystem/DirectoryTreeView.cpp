@@ -1,4 +1,5 @@
 #include "DirectoryTreeView.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeItem.h>
@@ -64,7 +65,7 @@ void DirectoryTreeView::OnUpdate(float deltaTime)
 
     if (pendingExpandPath.has_value())
     {
-        const std::string key = pendingExpandPath->ToString();
+        const String key = pendingExpandPath->ToString();
 
         if (expandedPaths.contains(key))
         {

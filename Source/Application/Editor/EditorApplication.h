@@ -1,7 +1,7 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <memory>
-#include <string>
 
 namespace URay
 {
@@ -16,7 +16,7 @@ public:
     ~EditorApplication();
 
 public:
-    bool Initialize(const std::string& enginePath, const std::string& projectPath);
+    bool Initialize(const String& enginePath, const String& projectPath);
     void Run();
     void Finalize();
 

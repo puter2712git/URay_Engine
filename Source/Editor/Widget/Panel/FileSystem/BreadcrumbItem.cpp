@@ -1,4 +1,5 @@
 #include "BreadcrumbItem.h"
+#include <Core/Type/Types.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -14,7 +15,7 @@ BreadcrumbItem::BreadcrumbItem(VirtualPath path) : path(path)
     surface = AddChild<Surface>();
     surface->SetPadding(Padding(2.0f, 6.0f));
 
-    const std::string text = this->path.GetFilename().empty()
+    const String text = this->path.GetFilename().empty()
                                  ? this->path.GetMountName() + "://"
                                  : this->path.GetFilename();
 

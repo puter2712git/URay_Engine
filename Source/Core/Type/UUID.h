@@ -1,9 +1,8 @@
 #pragma once
-
 #include <Core/Type/Types.h>
 
+
 #include <cstdint>
-#include <string>
 
 namespace URay
 {
@@ -15,8 +14,8 @@ struct UUID
 
     static UUID Generate();
 
-    std::string ToString() const;
-    static UUID FromString(const std::string& str);
+    String ToString() const;
+    static UUID FromString(const String& str);
 
     bool IsValid() const { return high != 0 || low != 0; }
 

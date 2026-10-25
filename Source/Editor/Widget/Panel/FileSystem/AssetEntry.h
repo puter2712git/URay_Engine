@@ -1,10 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualPath.h>
 #include <Engine/Asset/AssetHandle.h>
 #include <Engine/Asset/AssetType.h>
 
-#include <string>
 
 namespace URay
 {
@@ -20,10 +20,10 @@ struct AssetEntry
 {
     AssetEntryKind kind = AssetEntryKind::Directory;
     VirtualPath path; // Source Path
-    std::string displayName;
+    String displayName;
 
     AssetHandle assetHandle = {};
-    std::string className;
+    String className;
 };
 
 } // namespace URay

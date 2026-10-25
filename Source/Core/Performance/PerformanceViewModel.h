@@ -1,11 +1,10 @@
 #pragma once
+#include <Core/Type/Types.h>
 
 #include <Core/Performance/PerformanceAnalytics.h>
-#include <Core/Type/Types.h>
 
 #include <array>
 #include <deque>
-#include <string>
 #include <vector>
 
 namespace URay
@@ -20,7 +19,7 @@ enum class ProfileDomain : uint8
 
 struct ProfileSample
 {
-    std::string name;
+    String name;
     double startMs = 0.0;
     double durationMs = 0.0;
     uint32 depth = 0;
@@ -28,7 +27,7 @@ struct ProfileSample
 
 struct ProfileScopeRow
 {
-    std::string name;
+    String name;
     double startMs = 0.0;
     double durationMs = 0.0;
     double selfMs = 0.0;
@@ -44,7 +43,7 @@ struct ProfileFrame
 
 struct ProfileScopeStatistics
 {
-    std::string name;
+    String name;
     uint32 sampleCount = 0;
 
     double latestMs = 0.0;

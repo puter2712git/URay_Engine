@@ -9,7 +9,6 @@
 #include <Core/Math/Vector2.h>
 #include <Core/Type/Types.h>
 
-#include <string_view>
 #include <vector>
 
 namespace URay::Render
@@ -58,7 +57,7 @@ public:
 
     void AddFilledRect(const Rect& rect, const Color& color);
     void AddOutlineRect(const Rect& rect, float thickness, const Color& color);
-    void AddText(const Vector2& baselinePosition, std::string_view utf8Text, const TextStyle& style);
+    void AddText(const Vector2& baselinePosition, StringView utf8Text, const TextStyle& style);
     void AddImage(const Rect& rect, const UIImage& image, const Color& color = Color::White);
 
     const std::vector<UIDrawBatch>& GetBatches() const { return batches; }

@@ -1,4 +1,5 @@
 #include "AssetSystem.h"
+#include <Core/Type/Types.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -26,7 +27,6 @@
 #include <Engine/Object/Object.h>
 
 #include <iostream>
-#include <string>
 
 namespace URay
 {
@@ -36,8 +36,8 @@ AssetSystem::AssetSystem() = default;
 AssetSystem::~AssetSystem() = default;
 
 bool AssetSystem::Initialize(
-    const std::string& enginePath,
-    const std::string& projectPath)
+    const String& enginePath,
+    const String& projectPath)
 {
     fileSystem = std::make_unique<VirtualFileSystem>();
     if (!fileSystem->Initialize(enginePath, projectPath))
@@ -144,7 +144,7 @@ VirtualPath AssetSystem::GetMetadataPath(const VirtualPath& sourcePath) const
     return VirtualPath(sourcePath.ToString() + ".meta");
 }
 
-void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const std::string& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)
+void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const String& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)
 {
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
     mesh->SetHandle(handle);

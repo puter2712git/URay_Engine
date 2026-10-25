@@ -1,10 +1,10 @@
 #include "PerformanceViewModel.h"
+#include <Core/Type/Types.h>
 #include <Core/Math/Math.h>
 
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <string>
 #include <unordered_map>
 
 namespace URay
@@ -21,7 +21,7 @@ void PerformanceViewModel::AddCPUFrame(uint64 frameNumber, const std::vector<Sco
     for (const ScopeSample& sample : samples)
     {
         profileSamples.push_back(ProfileSample{
-            .name = std::string(sample.name),
+            .name = String(sample.name),
             .startMs = sample.startMs,
             .durationMs = sample.durationMs,
             .depth = sample.depth });
@@ -124,7 +124,7 @@ void PerformanceViewModel::RebuildStatistics(ProfileChannel& channel)
         double latestMs = 0.0;
     };
 
-    std::unordered_map<std::string, ScopeValues> valuesByName;
+    std::unordered_map<String, ScopeValues> valuesByName;
 
     for (const ProfileFrame& frame : channel.frames)
     {

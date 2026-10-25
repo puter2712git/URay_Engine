@@ -1,9 +1,9 @@
 #include "LogSystem.h"
+#include <Core/Type/Types.h>
 
 #include <Core/Log/LogSink.h>
 
 #include <cstdio>
-#include <string>
 
 namespace URay
 {
@@ -40,7 +40,7 @@ void LogSystem::LogV(const char* format, va_list args)
     if (length < 0)
         return;
 
-    std::string message(static_cast<size_t>(length), '\0');
+    String message(static_cast<size_t>(length), '\0');
     std::vsnprintf(message.data(), message.size() + 1, format, args);
 
     for (LogSink* sink : sinks)
