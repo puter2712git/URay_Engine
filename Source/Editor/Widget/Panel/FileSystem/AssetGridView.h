@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
 #include <Engine/UI/Widget/Widget.h>
 

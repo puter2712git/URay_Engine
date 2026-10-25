@@ -2,7 +2,7 @@
 #include <Core/Type/Types.h>
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <optional>

@@ -4,7 +4,7 @@
 
 #include <Engine/Asset/AssetHandle.h>
 
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 
 namespace URay
 {

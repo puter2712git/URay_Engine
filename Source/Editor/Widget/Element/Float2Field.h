@@ -3,7 +3,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Vector2.h>
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 
 namespace URay
 {

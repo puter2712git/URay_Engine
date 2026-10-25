@@ -2,7 +2,7 @@
 
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Platform/Window/Cursor.h>
 
 #define GLFW_INCLUDE_VULKAN

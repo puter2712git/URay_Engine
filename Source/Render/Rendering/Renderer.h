@@ -2,7 +2,7 @@
 
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/Type/Types.h>
 #include <Render/RHI/Texture/Texture.h>

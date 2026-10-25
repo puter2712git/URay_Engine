@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 
 #include <Core/Type/Types.h>
 

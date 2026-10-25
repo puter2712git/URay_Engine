@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/Type/Types.h>
 
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 
 namespace URay

@@ -4,7 +4,7 @@
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Rect.h>
 #include <Core/Math/Vector2.h>
-#include <Core/Type/Ray.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Types.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Editor/Viewport/EditorView.h>
