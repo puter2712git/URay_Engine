@@ -15,7 +15,6 @@ class Unit;
 class Material;
 class TransformComponent;
 class PlaySession;
-struct Ray;
 
 namespace Render
 {

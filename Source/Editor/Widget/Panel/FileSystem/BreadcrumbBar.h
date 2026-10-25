@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -26,7 +26,7 @@ private:
     void RebuildItems();
 
 public:
-    EventRay<const VirtualPath&> onPathActivated;
+    Ray<const VirtualPath&> onPathActivated;
 
 private:
     VirtualPath currentPath;

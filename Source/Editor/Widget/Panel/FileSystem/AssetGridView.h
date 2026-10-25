@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
 #include <Engine/UI/Widget/Widget.h>
 
@@ -27,8 +27,8 @@ private:
     void RebuildItems(const std::vector<AssetEntry>& entries);
 
 public:
-    EventRay<const AssetEntry&> onEntrySelected;
-    EventRay<const AssetEntry&> onEntryActivated;
+    Ray<const AssetEntry&> onEntrySelected;
+    Ray<const AssetEntry&> onEntryActivated;
 
 private:
     VirtualPath directory = {};

@@ -2,7 +2,7 @@
 
 #include <Engine/UI/Widget/Element/TextBox.h>
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -17,8 +17,8 @@ protected:
     void OnTextCommitted(const std::string& prevText, const std::string& committedText) override;
 
 public:
-    EventRay<> onValueChanged;
-    EventRay<> onValueCommitted;
+    Ray<> onValueChanged;
+    Ray<> onValueCommitted;
 
 private:
 };

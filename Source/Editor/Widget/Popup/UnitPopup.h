@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 
 namespace URay
@@ -17,7 +17,7 @@ public:
     UnitPopup();
 
 public:
-    EventRay<UnitPopupSelection> onUnitSelected;
+    Ray<UnitPopupSelection> onUnitSelected;
 };
 
 } // namespace URay

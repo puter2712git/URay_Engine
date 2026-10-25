@@ -4,7 +4,7 @@
 
 #include <Engine/Asset/AssetHandle.h>
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -29,7 +29,7 @@ protected:
     Vector2 OnMeasure() override;
 
 public:
-    EventRay<AssetHandle> onValueChanged;
+    Ray<AssetHandle> onValueChanged;
 
 private:
     TextBox* textBox = nullptr;

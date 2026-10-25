@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
 #include <Engine/UI/Widget/Widget.h>
 
@@ -35,8 +35,8 @@ protected:
     std::optional<Rect> GetClipRect() const override { return rect; }
 
 public:
-    EventRay<const AssetEntry&> onSelected;
-    EventRay<const AssetEntry&> onActivated;
+    Ray<const AssetEntry&> onSelected;
+    Ray<const AssetEntry&> onActivated;
 
 private:
     AssetEntry entry = {};

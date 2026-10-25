@@ -2,19 +2,19 @@ namespace URay
 {
 
 template <typename... Args>
-void EventRay<Args...>::Register(const void* owner, Callback callback)
+void Ray<Args...>::Register(const void* owner, Callback callback)
 {
     callbacks[owner].push_back(callback);
 }
 
 template <typename... Args>
-void EventRay<Args...>::UnregisterAll(const void* owner)
+void Ray<Args...>::UnregisterAll(const void* owner)
 {
     callbacks.erase(owner);
 }
 
 template <typename... Args>
-void EventRay<Args...>::Emit(Args... args) const
+void Ray<Args...>::Emit(Args... args) const
 {
     for (auto& [owner, callbackArray] : callbacks)
     {

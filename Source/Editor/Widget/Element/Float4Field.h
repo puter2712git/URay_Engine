@@ -3,7 +3,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Vector4.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -27,7 +27,7 @@ private:
     void ArrangeComponent(const Rect& rect, Label& label, NumberField& field) const;
 
 public:
-    EventRay<Vector4> onValueChanged;
+    Ray<Vector4> onValueChanged;
 
 private:
     Vector4 value = {};

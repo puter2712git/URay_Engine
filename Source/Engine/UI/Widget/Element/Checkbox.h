@@ -3,7 +3,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -31,7 +31,7 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 public:
-    EventRay<bool> onValueChanged;
+    Ray<bool> onValueChanged;
 
 private:
     Rect indicatorRect = {};

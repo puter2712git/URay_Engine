@@ -3,7 +3,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 #include <memory>
 
@@ -45,7 +45,7 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 public:
-    EventRay<> onClicked;
+    Ray<> onClicked;
 
 private:
     Widget* content = nullptr;

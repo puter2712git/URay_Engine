@@ -3,7 +3,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -32,7 +32,7 @@ private:
         NumberField& field) const;
 
 public:
-    EventRay<Color> onValueChanged;
+    Ray<Color> onValueChanged;
 
 private:
     Color value = Color::White;

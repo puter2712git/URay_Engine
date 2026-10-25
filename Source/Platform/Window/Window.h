@@ -2,7 +2,7 @@
 
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Platform/Window/Cursor.h>
 
 #define GLFW_INCLUDE_VULKAN
@@ -43,13 +43,13 @@ private:
     static void FramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
 
 public:
-    EventRay<KeyCode, KeyAction, ModifierKey> onKey;
-    EventRay<MouseButton, KeyAction, ModifierKey> onMouseButton;
-    EventRay<Vector2> onCursorMoved;
-    EventRay<char32_t> onTextInput;
-    EventRay<Vector2> onScroll;
-    EventRay<bool> onFocusChanged;
-    EventRay<Extent2D> onFramebufferResized;
+    Ray<KeyCode, KeyAction, ModifierKey> onKey;
+    Ray<MouseButton, KeyAction, ModifierKey> onMouseButton;
+    Ray<Vector2> onCursorMoved;
+    Ray<char32_t> onTextInput;
+    Ray<Vector2> onScroll;
+    Ray<bool> onFocusChanged;
+    Ray<Extent2D> onFramebufferResized;
 
 private:
     bool glfwInitialized = false;

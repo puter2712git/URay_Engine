@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <optional>
@@ -34,7 +34,7 @@ private:
     void ExpandAncestors(const VirtualPath& path);
 
 public:
-    EventRay<const VirtualPath&> onDirectoryActivated;
+    Ray<const VirtualPath&> onDirectoryActivated;
 
 private:
     VirtualFileSystem& fileSystem;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Editor/Widget/Panel/Inspector/InspectTarget.h>
 
 namespace URay
@@ -28,8 +28,8 @@ private:
     bool IsInspecting(const Unit* unit) const;
 
 public:
-    EventRay<const InspectTarget&, const InspectTarget&> onTargetChanged;
-    EventRay<const InspectTarget&> onTargetContentChanged;
+    Ray<const InspectTarget&, const InspectTarget&> onTargetChanged;
+    Ray<const InspectTarget&> onTargetContentChanged;
 
 private:
     SceneSystem& sceneSystem;

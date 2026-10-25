@@ -2,7 +2,7 @@
 
 #include <Engine/UI/Widget/Element/TextBox.h>
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -31,7 +31,7 @@ private:
     float GetModifiedDragSpeed(ModifierKey modifiers) const;
 
 public:
-    EventRay<float> onValueChanged;
+    Ray<float> onValueChanged;
 
 private:
     Vector2 initPointerPosition = Vector2::Zero;

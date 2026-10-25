@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -32,7 +32,7 @@ protected:
     std::optional<Rect> GetClipRect() const override { return rect; }
 
 public:
-    EventRay<const VirtualFileEntry&> onActivated;
+    Ray<const VirtualFileEntry&> onActivated;
 
 private:
     VirtualFileEntry entry = {};

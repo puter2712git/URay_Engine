@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 #include <Engine/Asset/AssetHandle.h>
 
@@ -15,7 +15,7 @@ public:
     explicit AssetPickerPopup(Class* assetClass, AssetHandle currentValue);
 
 public:
-    EventRay<AssetHandle> onValueSelected;
+    Ray<AssetHandle> onValueSelected;
 };
 
 } // namespace URay

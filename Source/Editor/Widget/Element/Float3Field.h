@@ -3,7 +3,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Vector3.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 namespace URay
 {
@@ -31,7 +31,7 @@ private:
         NumberField& field) const;
 
 public:
-    EventRay<Vector3> onValueChanged;
+    Ray<Vector3> onValueChanged;
 
 private:
     Vector3 value = Vector3::Zero;

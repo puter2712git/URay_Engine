@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/Scene/Scene.h>
 
 #include <memory>
@@ -36,14 +36,14 @@ public:
     const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
 
 public:
-    EventRay<Scene*> onSceneAdded;
-    EventRay<Scene*> onSceneDestroyed;
-    EventRay<Scene*, Unit*> onUnitAdded;
-    EventRay<Scene*, Unit*> onUnitRemoved;
-    EventRay<Scene*, Unit*> onUnitWorldTransformUpdated;
-    EventRay<Scene*, Unit*, Component*> onComponentAdded;
-    EventRay<Scene*, Unit*, Component*> onComponentDestroyed;
-    EventRay<Scene*, Unit*, Component*, const Property&> onComponentPropertyChanged;
+    Ray<Scene*> onSceneAdded;
+    Ray<Scene*> onSceneDestroyed;
+    Ray<Scene*, Unit*> onUnitAdded;
+    Ray<Scene*, Unit*> onUnitRemoved;
+    Ray<Scene*, Unit*> onUnitWorldTransformUpdated;
+    Ray<Scene*, Unit*, Component*> onComponentAdded;
+    Ray<Scene*, Unit*, Component*> onComponentDestroyed;
+    Ray<Scene*, Unit*, Component*, const Property&> onComponentPropertyChanged;
 
 private:
     SceneId nextSceneId = 1;

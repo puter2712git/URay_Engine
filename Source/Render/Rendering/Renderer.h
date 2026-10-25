@@ -2,7 +2,7 @@
 
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/Type/Types.h>
 #include <Render/RHI/Texture/Texture.h>
@@ -99,8 +99,8 @@ private:
 
 public:
     bool framebufferResized = false;
-    EventRay<> onViewportRenderTargetsRecreated;
-    EventRay<const ObjectIdReadbackResult&> onObjectIdReadback;
+    Ray<> onViewportRenderTargetsRecreated;
+    Ray<const ObjectIdReadbackResult&> onObjectIdReadback;
 
 private:
     Window& window;

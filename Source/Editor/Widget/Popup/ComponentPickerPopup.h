@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 #include <string>
 
@@ -20,7 +20,7 @@ public:
     explicit ComponentPickerPopup(const Unit& unit);
 
 public:
-    EventRay<const ComponentPickerSelection&> onComponentSelected;
+    Ray<const ComponentPickerSelection&> onComponentSelected;
 };
 
 } // namespace URay

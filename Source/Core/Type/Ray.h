@@ -7,7 +7,7 @@ namespace URay
 {
 
 template <typename... Args>
-class EventRay
+class Ray
 {
 public:
     using Callback = std::function<void(Args...)>;
@@ -24,4 +24,4 @@ private:
 
 } // namespace URay
 
-#include "EventRay.tpp"
+#include "Ray.tpp"

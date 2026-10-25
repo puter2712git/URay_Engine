@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -27,8 +27,8 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 public:
-    EventRay<const VirtualPath&> onActivated;
-    EventRay<const VirtualPath&> onExpandRequested;
+    Ray<const VirtualPath&> onActivated;
+    Ray<const VirtualPath&> onExpandRequested;
 
 private:
     VirtualPath path = {};

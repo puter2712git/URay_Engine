@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <vector>
@@ -27,7 +27,7 @@ private:
     void RebuildItems(const std::vector<VirtualFileEntry>& entries);
 
 public:
-    EventRay<const VirtualFileEntry&> onEntryActivated;
+    Ray<const VirtualFileEntry&> onEntryActivated;
 
 private:
     VirtualPath directory = {};

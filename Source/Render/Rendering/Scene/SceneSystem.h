@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 #include <Core/Type/Types.h>
 
@@ -45,9 +45,9 @@ private:
     void OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Component* component);
 
 public:
-    EventRay<RenderScene*, RenderObject*, Unit*, Component*> onObjectAdded;
-    EventRay<RenderScene*, RenderObject*> onObjectDestroyed;
-    EventRay<RenderScene*, RenderObject*> onObjectUpdated;
+    Ray<RenderScene*, RenderObject*, Unit*, Component*> onObjectAdded;
+    Ray<RenderScene*, RenderObject*> onObjectDestroyed;
+    Ray<RenderScene*, RenderObject*> onObjectUpdated;
 
 private:
     std::unordered_map<Scene*, std::unique_ptr<RenderScene>> scenes;

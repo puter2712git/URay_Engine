@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -27,7 +27,7 @@ protected:
     virtual bool CanAccept() const { return true; }
 
 public:
-    EventRay<DialogResult> onClosed;
+    Ray<DialogResult> onClosed;
 
 private:
     DialogResult result = DialogResult::None;

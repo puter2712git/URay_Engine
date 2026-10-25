@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Ray/EventRay.h>
+#include <Core/Type/Ray.h>
 
 #include <vector>
 
@@ -34,8 +34,8 @@ private:
     void NotifySelectionChanged(Unit* previousActive);
 
 public:
-    EventRay<> onSelectionSetChanged;
-    EventRay<Unit*, Unit*> onActiveSelectionChanged;
+    Ray<> onSelectionSetChanged;
+    Ray<Unit*, Unit*> onActiveSelectionChanged;
 
 private:
     std::vector<Unit*> selectedUnits;
