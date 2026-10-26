@@ -1,5 +1,10 @@
 #pragma once
 
+#include <Core/Math/Color.h>
+#include <Core/Math/Quaternion.h>
+#include <Core/Math/Vector2.h>
+#include <Core/Math/Vector3.h>
+#include <Core/Math/Vector4.h>
 #include <Core/Type/TypeAlias.h>
 
 namespace URay
@@ -15,6 +20,7 @@ enum class TypeKind
 
     Vector2,
     Vector3,
+    Vector4,
     Quaternion,
     Color,
 
@@ -106,6 +112,56 @@ inline const Type& TypeOf<String>()
     static const Type type = {
         .kind = TypeKind::String,
         .name = "String"
+    };
+    return type;
+}
+
+template <>
+inline const Type& TypeOf<Vector2>()
+{
+    static const Type type = {
+        .kind = TypeKind::Vector2,
+        .name = "Vector2"
+    };
+    return type;
+}
+
+template <>
+inline const Type& TypeOf<Vector3>()
+{
+    static const Type type = {
+        .kind = TypeKind::Vector3,
+        .name = "Vector3"
+    };
+    return type;
+}
+
+template <>
+inline const Type& TypeOf<Vector4>()
+{
+    static const Type type = {
+        .kind = TypeKind::Vector4,
+        .name = "Vector4"
+    };
+    return type;
+}
+
+template <>
+inline const Type& TypeOf<Quaternion>()
+{
+    static const Type type = {
+        .kind = TypeKind::Quaternion,
+        .name = "Quaternion"
+    };
+    return type;
+}
+
+template <>
+inline const Type& TypeOf<Color>()
+{
+    static const Type type = {
+        .kind = TypeKind::Color,
+        .name = "Color"
     };
     return type;
 }
