@@ -25,23 +25,23 @@ AssetFactory::AssetFactory(AssetSystem& assetSystem)
 
 std::unique_ptr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
 {
-    if (metadata.className == Texture::StaticRuntimeType().name)
+    if (metadata.className == Texture::StaticType().name)
     {
         return CreateTexture(metadata);
     }
-    else if (metadata.className == Material::StaticRuntimeType().name)
+    else if (metadata.className == Material::StaticType().name)
     {
         return CreateMaterial(metadata);
     }
-    else if (metadata.className == Shader::StaticRuntimeType().name)
+    else if (metadata.className == Shader::StaticType().name)
     {
         return CreateShader(metadata);
     }
-    else if (metadata.className == Font::StaticRuntimeType().name)
+    else if (metadata.className == Font::StaticType().name)
     {
         return CreateFont(metadata);
     }
-    else if (metadata.className == Mesh::StaticRuntimeType().name)
+    else if (metadata.className == Mesh::StaticType().name)
     {
         return CreateMesh(metadata);
     }

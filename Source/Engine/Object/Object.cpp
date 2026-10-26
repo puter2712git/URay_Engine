@@ -130,9 +130,9 @@ void Object::Deserialize(const YAML::Node& node)
     }
 }
 
-bool Object::IsA(const RuntimeType& type) const
+bool Object::IsA(const Type& type) const
 {
-    return IsTypeOf(GetRuntimeType(), type);
+    return IsTypeOf(GetType(), type);
 }
 
 bool Object::IsA(Class* cls) const

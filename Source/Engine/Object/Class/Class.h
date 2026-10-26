@@ -1,10 +1,8 @@
 #pragma once
 
+#include <Core/Type/Type.h>
 #include <Engine/Object/Property/Property.h>
 
-#include <Core/Type/RuntimeType.h>
-
-#include <string>
 #include <vector>
 
 namespace URay
@@ -13,7 +11,7 @@ namespace URay
 class Class
 {
 public:
-    Class(const RuntimeType& type);
+    Class(const Type& type);
     ~Class();
 
 public:
@@ -22,28 +20,28 @@ public:
     void AddProperty(Property prop) { properties.push_back(prop); }
     const std::vector<Property>& GetProperties() const { return properties; }
 
-    const RuntimeType& GetType() const { return type; }
+    const Type& GetType() const { return type; }
 
 private:
-    const RuntimeType& type;
+    const Type& type;
 
     std::vector<Property> properties;
 };
 
-#define URAY_CLASS(self, parent)               \
-    URAY_TYPE(self, parent)                    \
-public:                                        \
-    static void RegisterClass();               \
-                                               \
-    static Class* StaticClass()                \
-    {                                          \
-        static Class cls(StaticRuntimeType()); \
-        return &cls;                           \
-    }                                          \
-                                               \
-    Class* GetClass() const override           \
-    {                                          \
-        return self::StaticClass();            \
+#define URAY_CLASS(self, parent)        \
+    URAY_TYPE(self, parent)             \
+public:                                 \
+    static void RegisterClass();        \
+                                        \
+    static Class* StaticClass()         \
+    {                                   \
+        static Class cls(StaticType()); \
+        return &cls;                    \
+    }                                   \
+                                        \
+    Class* GetClass() const override    \
+    {                                   \
+        return self::StaticClass();     \
     }
 
 #define URAY_REGISTER_CLASS(self)                                \

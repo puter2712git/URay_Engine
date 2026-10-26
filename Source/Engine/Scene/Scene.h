@@ -68,7 +68,7 @@ public:
 
     bool IsLoaded() const { return loaded; }
 
-    SceneType GetType() const { return type; }
+    SceneType GetSceneType() const { return type; }
     const std::vector<std::unique_ptr<Unit>>& GetUnits() const { return units; }
 
 private:

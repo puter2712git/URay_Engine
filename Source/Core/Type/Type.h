@@ -28,10 +28,31 @@ struct Type
     TypeKind kind = TypeKind::Null;
 
     String name;
-    uint32 size = 0;
-
     const Type* parent = nullptr;
 };
+
+inline bool IsTypeOf(const Type& derived, const Type& target)
+{
+    for (const Type* type = &derived; type; type = type->parent)
+    {
+        if (type == &target)
+            return true;
+    }
+
+    return false;
+}
+
+template <typename To, typename From>
+To* Cast(From* source)
+{
+    if (!source)
+        return nullptr;
+
+    if (!IsTypeOf(source->GetType(), To::StaticType()))
+        return nullptr;
+
+    return static_cast<To*>(source);
+}
 
 template <typename T>
 inline const Type& TypeOf()
@@ -44,8 +65,7 @@ inline const Type& TypeOf<bool>()
 {
     static const Type type = {
         .kind = TypeKind::Bool,
-        .name = "bool",
-        .size = sizeof(bool)
+        .name = "bool"
     };
     return type;
 }
@@ -55,8 +75,7 @@ inline const Type& TypeOf<int32>()
 {
     static const Type type = {
         .kind = TypeKind::Int,
-        .name = "int32",
-        .size = sizeof(int32)
+        .name = "int32"
     };
     return type;
 }
@@ -66,8 +85,7 @@ inline const Type& TypeOf<uint32>()
 {
     static const Type type = {
         .kind = TypeKind::Int,
-        .name = "uint32",
-        .size = sizeof(uint32)
+        .name = "uint32"
     };
     return type;
 }
@@ -77,8 +95,7 @@ inline const Type& TypeOf<float>()
 {
     static const Type type = {
         .kind = TypeKind::Float,
-        .name = "float",
-        .size = sizeof(float)
+        .name = "float"
     };
     return type;
 }
@@ -88,44 +105,43 @@ inline const Type& TypeOf<String>()
 {
     static const Type type = {
         .kind = TypeKind::String,
-        .name = "String",
-        .size = sizeof(String)
+        .name = "String"
     };
     return type;
 }
 
-#define URAY_TYPE_1(self)            \
-public:                              \
-    static const Type& StaticType()  \
-    {                                \
-        static const Type type = {   \
-            .kind = TypeKind::Class, \
-            .name = #self,           \
-            .size = sizeof(self),    \
-            .parent = nullptr        \
-        };                           \
-        return type;                 \
-    }                                \
-    const Type& GetType() const      \
-    {                                \
-        return self::StaticType();   \
+#define URAY_TYPE_1(self)               \
+public:                                 \
+    static const Type& StaticType()     \
+    {                                   \
+        static const Type type = {      \
+            .kind = TypeKind::Class,    \
+            .name = #self,              \
+            .parent = nullptr           \
+        };                              \
+        return type;                    \
+    }                                   \
+    virtual const Type& GetType() const \
+    {                                   \
+        return self::StaticType();      \
     }
 
-#define URAY_TYPE_2(self, parent)           \
-public:                                     \
-    static const Type& StaticType()         \
-    {                                       \
-        static const Type type = {          \
-            .kind = TypeKind::Class,        \
-            .name = #self,                  \
-            .size = sizeof(self),           \
-            .parent = &parent::StaticType() \
-        };                                  \
-        return type;                        \
-    }                                       \
-    const Type& GetType() const override    \
-    {                                       \
-        return self::StaticType();          \
+#define URAY_TYPE_2(self, parentType)           \
+    using Super = parentType;                   \
+                                                \
+public:                                         \
+    static const Type& StaticType()             \
+    {                                           \
+        static const Type type = {              \
+            .kind = TypeKind::Class,            \
+            .name = #self,                      \
+            .parent = &parentType::StaticType() \
+        };                                      \
+        return type;                            \
+    }                                           \
+    const Type& GetType() const override        \
+    {                                           \
+        return self::StaticType();              \
     }
 
 #define URAY_TYPE_SELECT(_1, _2, NAME, ...) NAME

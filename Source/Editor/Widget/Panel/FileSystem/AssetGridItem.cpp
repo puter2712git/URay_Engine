@@ -1,13 +1,12 @@
 #include "AssetGridItem.h"
 
 #include <Editor/Widget/EditorWidgetFactory.h>
-
+#include <Editor/Widget/Style/EditorStyles.h>
+#include <Engine/Asset/Texture/Texture.h>
 #include <Engine/UI/Widget/Element/Image.h>
 #include <Engine/UI/Widget/Element/Label.h>
 #include <Engine/UI/Widget/Element/Surface.h>
 #include <Engine/UI/Widget/Layout/VerticalLayout.h>
-#include <Editor/Widget/Style/EditorStyles.h>
-#include <Engine/Asset/Texture/Texture.h>
 
 #include <utility>
 
@@ -30,7 +29,7 @@ AssetGridItem::AssetGridItem(AssetEntry entry) : entry(std::move(entry))
 
     const bool isTexture =
         this->entry.kind == AssetEntryKind::Asset &&
-        this->entry.className == Texture::StaticRuntimeType().name;
+        this->entry.className == Texture::StaticType().name;
 
     thumbnailSurface->SetBackgroundColor(
         this->entry.kind == AssetEntryKind::Directory

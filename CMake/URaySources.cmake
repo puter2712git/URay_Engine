@@ -48,6 +48,8 @@ if(MSVC)
         /wd26440
     )
 
+    target_compile_options(URay_Engine PRIVATE /Zc:preprocessor)
+
     target_compile_options(URay_Engine PRIVATE /MP)
     target_compile_options(URay_ThirdParty PRIVATE /MP)
 endif()

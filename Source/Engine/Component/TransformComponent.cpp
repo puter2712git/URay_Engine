@@ -25,7 +25,7 @@ void TransformComponent::RegisterClass()
         { .type = PropertyType::Rotation,
           .name = "Rotation",
           .offset = offsetof(TransformComponent, rotation),
-          .size = sizeof(Vector3) });
+          .size = sizeof(Quaternion) });
     StaticClass()->AddProperty(
         { .type = PropertyType::Vector3,
           .name = "Scale",

@@ -2,7 +2,7 @@
 
 #include <Core/Math/AABB.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Type/RuntimeType.h>
+#include <Core/Type/Type.h>
 #include <Core/Type/Types.h>
 
 namespace URay::Render
@@ -12,7 +12,7 @@ class RenderScene;
 
 class RenderObject
 {
-    URAY_ROOT_TYPE(RenderObject)
+    URAY_TYPE(RenderObject)
 
 public:
     virtual ~RenderObject() = default;

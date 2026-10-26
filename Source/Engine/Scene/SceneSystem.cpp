@@ -61,7 +61,7 @@ Scene* SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
         }
     }
 
-    if (scenePtr->GetType() == SceneType::Play)
+    if (scenePtr->GetSceneType() == SceneType::Play)
     {
         scenePtr->Load();
     }
@@ -76,7 +76,7 @@ bool SceneSystem::UnloadScene(SceneId id)
     if (!targetScene)
         return false;
 
-    if (targetScene->GetType() == SceneType::Play)
+    if (targetScene->GetSceneType() == SceneType::Play)
     {
         targetScene->Unload();
     }
@@ -112,7 +112,7 @@ std::vector<Scene*> SceneSystem::GetScenes(SceneType type) const
 
     for (const auto& scene : scenes)
     {
-        if (scene->GetType() == type)
+        if (scene->GetSceneType() == type)
         {
             matchingScenes.push_back(scene.get());
         }

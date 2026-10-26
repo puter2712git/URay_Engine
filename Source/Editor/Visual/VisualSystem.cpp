@@ -43,13 +43,13 @@ bool VisualSystem::Initialize()
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.onUnitWorldTransformUpdated.Register(this, [this](Scene* scene, Unit* unit)
-                                                          { OnUnitTransformUpdated(scene, unit); });
+                                                     { OnUnitTransformUpdated(scene, unit); });
     sceneSystem.onComponentAdded.Register(this, [this](Scene* scene, Unit* unit, Component* component)
-                                              { OnComponentAdded(scene, unit, component); });
+                                          { OnComponentAdded(scene, unit, component); });
     sceneSystem.onComponentDestroyed.Register(this, [this](Scene* scene, Unit* unit, Component* component)
-                                                  { OnComponentDestroyed(scene, unit, component); });
+                                              { OnComponentDestroyed(scene, unit, component); });
     sceneSystem.onComponentPropertyChanged.Register(this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
-                                                         { OnComponentPropertyChanged(scene, unit, component, property); });
+                                                    { OnComponentPropertyChanged(scene, unit, component, property); });
 
     return true;
 }
@@ -86,7 +86,7 @@ void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 
 void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* component)
 {
-    if (scene->GetType() == SceneType::Play)
+    if (scene->GetSceneType() == SceneType::Play)
         return;
 
     Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
@@ -103,7 +103,7 @@ void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* compone
     if (visualizers.contains(component))
         return;
 
-    const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(&component->GetRuntimeType());
+    const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(&component->GetType());
     if (constructor)
     {
         std::unique_ptr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);

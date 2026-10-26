@@ -1,10 +1,9 @@
 #pragma once
 
-#include <Engine/UI/Input/EventReply.h>
-
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Rect.h>
-#include <Core/Type/RuntimeType.h>
+#include <Core/Type/Type.h>
+#include <Engine/UI/Input/EventReply.h>
 
 #include <memory>
 #include <optional>
@@ -24,7 +23,7 @@ inline constexpr WidgetId InvalidWidgetId = 0;
 
 class Widget
 {
-    URAY_ROOT_TYPE(Widget)
+    URAY_TYPE(Widget)
 
     friend class UIInputRouter;
 

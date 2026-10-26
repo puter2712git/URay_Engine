@@ -1,9 +1,8 @@
 #pragma once
 
+#include <Core/Type/Type.h>
 #include <Engine/Object/Class/Class.h>
 #include <Engine/Object/Class/ClassRegistry.h>
-
-#include <Core/Type/RuntimeType.h>
 
 #include <yaml-cpp/yaml.h>
 
@@ -14,7 +13,7 @@ class Class;
 
 class Object
 {
-    URAY_ROOT_TYPE(Object)
+    URAY_TYPE(Object)
 
 public:
     virtual ~Object() = default;
@@ -24,7 +23,7 @@ public:
 
     static Class* StaticClass()
     {
-        static Class cls(StaticRuntimeType());
+        static Class cls(StaticType());
         return &cls;
     }
 
@@ -38,7 +37,7 @@ public:
 
     virtual void NotifyPropertyChanged(const Property& property) {}
 
-    bool IsA(const RuntimeType& type) const;
+    bool IsA(const Type& type) const;
     bool IsA(Class* cls) const;
 
     template <typename T>

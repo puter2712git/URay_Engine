@@ -1,9 +1,8 @@
 #pragma once
-#include <Core/Type/Types.h>
 
+#include <Core/Type/Types.h>
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Object/Object.h>
-
 
 namespace URay
 {
@@ -51,15 +50,15 @@ private:
     bool finalized = false;
 };
 
-#define URAY_REGISTER_COMPONENT(Type)                       \
-    namespace                                               \
-    {                                                       \
-    const bool registered##Type = []()                      \
-    {                                                       \
-        ComponentFactory::RegisterComponent<Type>(          \
-            String{ Type::StaticRuntimeType().name }); \
-        return true;                                        \
-    }();                                                    \
+#define URAY_REGISTER_COMPONENT(component)              \
+    namespace                                           \
+    {                                                   \
+    const bool registered##component = []()             \
+    {                                                   \
+        ComponentFactory::RegisterComponent<component>( \
+            String{ component::StaticType().name });    \
+        return true;                                    \
+    }();                                                \
     }
 
 } // namespace URay

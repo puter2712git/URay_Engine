@@ -6,7 +6,7 @@ namespace URay
 {
 
 class Class;
-struct RuntimeType;
+struct Type;
 
 class ClassRegistry
 {
@@ -18,10 +18,10 @@ public:
     }
 
     void Register(Class& cls);
-    Class* Find(const RuntimeType& type) const;
+    Class* Find(const Type& type) const;
 
 private:
-    std::unordered_map<const RuntimeType*, Class*> classes;
+    std::unordered_map<const Type*, Class*> classes;
 };
 
 } // namespace URay
