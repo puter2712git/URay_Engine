@@ -1,5 +1,5 @@
 #include "ComponentPickerPopup.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Component/ComponentFactory.h>
 

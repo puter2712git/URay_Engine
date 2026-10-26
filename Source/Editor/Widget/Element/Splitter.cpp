@@ -1,5 +1,5 @@
 #include "Splitter.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>

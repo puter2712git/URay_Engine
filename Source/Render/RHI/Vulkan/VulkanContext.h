@@ -1,5 +1,5 @@
 #include <Render/RHI/RHIContext.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <vulkan/vulkan.h>
 

@@ -2,7 +2,7 @@
 
 #include <Engine/Asset/Mesh/Mesh.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Vertex/Vertex.h>
 

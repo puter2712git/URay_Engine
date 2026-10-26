@@ -3,7 +3,7 @@
 #include <Core/Math/AABB.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Type/Type.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {

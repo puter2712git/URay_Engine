@@ -1,5 +1,5 @@
 #include "SceneTreeNode.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>

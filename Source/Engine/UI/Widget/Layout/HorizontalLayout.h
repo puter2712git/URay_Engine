@@ -5,7 +5,7 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Padding.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

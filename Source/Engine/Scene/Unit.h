@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Type/UUID.h>
 #include <Engine/Object/Object.h>

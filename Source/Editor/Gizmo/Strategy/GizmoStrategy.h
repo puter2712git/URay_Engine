@@ -3,7 +3,7 @@
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Math/Vector2.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Viewport/EditorView.h>
 
 #include <cstdint>

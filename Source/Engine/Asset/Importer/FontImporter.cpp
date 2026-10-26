@@ -1,5 +1,5 @@
 #include "FontImporter.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>

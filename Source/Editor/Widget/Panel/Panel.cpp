@@ -1,5 +1,5 @@
 #include "Panel.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>

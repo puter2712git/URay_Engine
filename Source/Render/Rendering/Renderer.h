@@ -4,7 +4,7 @@
 #include <Core/Math/Matrix.h>
 #include <Core/Type/Ray/Ray.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/FrameResource.h>

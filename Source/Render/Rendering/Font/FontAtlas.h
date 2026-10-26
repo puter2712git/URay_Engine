@@ -6,7 +6,7 @@
 
 #include <Core/Math/Rect.h>
 #include <Core/Math/Vector2.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <memory>
 #include <unordered_map>

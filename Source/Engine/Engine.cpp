@@ -8,7 +8,7 @@
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/TimeFlow/Timer.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Object/ObjectSystem.h>

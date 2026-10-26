@@ -2,7 +2,7 @@
 
 #include <Engine/Asset/Asset.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <string>
 #include <vector>

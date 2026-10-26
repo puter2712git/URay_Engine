@@ -1,5 +1,5 @@
 #include "InspectorPanel.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>

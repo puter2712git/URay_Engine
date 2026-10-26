@@ -1,5 +1,5 @@
 #include "VirtualPath.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

@@ -6,7 +6,7 @@
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
 #include <Core/Math/Rect.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <vulkan/vulkan.h>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <vector>
 

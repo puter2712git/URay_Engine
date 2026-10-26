@@ -2,7 +2,7 @@
 
 #include <Core/Type/Ray/Ray.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <memory>
 #include <unordered_map>

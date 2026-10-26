@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Object/ObjectId.h>
 
 #include <vector>

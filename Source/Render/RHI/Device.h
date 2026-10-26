@@ -4,7 +4,7 @@
 #include <Render/RHI/Queue/QueueType.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>

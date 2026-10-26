@@ -1,5 +1,5 @@
 #include "IntField.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 

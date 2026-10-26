@@ -1,5 +1,5 @@
 #include "LogSystem.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSink.h>
 

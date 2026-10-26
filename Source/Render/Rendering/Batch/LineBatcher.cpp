@@ -14,7 +14,7 @@
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Engine.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {

@@ -11,7 +11,7 @@
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/Vulkan/VulkanUtils.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {

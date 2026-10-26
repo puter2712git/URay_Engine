@@ -2,7 +2,7 @@
 
 #include <Core/Math/AABB.h>
 #include <Core/Math/Plane.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <array>
 

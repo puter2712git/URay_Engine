@@ -6,7 +6,7 @@
 #include <Render/RHI/Vulkan/VulkanContext.h>
 #include <Render/RHI/Vulkan/VulkanSurfaceSupport.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <algorithm>
 #include <limits>

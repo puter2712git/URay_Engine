@@ -1,5 +1,5 @@
 #include "StdErrLogSink.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <iostream>
 

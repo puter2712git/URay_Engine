@@ -1,7 +1,7 @@
 #include "VulkanContext.h"
 
 #include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Platform/Window/Window.h>
 

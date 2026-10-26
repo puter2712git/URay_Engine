@@ -1,5 +1,5 @@
 #pragma once
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/Rendering/Font/FontAtlas.h>
 #include <Render/Rendering/Font/FontFace.h>

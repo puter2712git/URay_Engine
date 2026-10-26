@@ -2,7 +2,7 @@
 
 #include <Render/RHI/Buffer/BufferUsage.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {

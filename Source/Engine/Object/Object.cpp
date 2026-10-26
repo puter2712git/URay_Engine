@@ -1,5 +1,5 @@
 #include "Object.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>

@@ -3,7 +3,7 @@
 #include <Render/Rendering/RenderPass/RenderPass.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <cstdint>
 #include <memory>

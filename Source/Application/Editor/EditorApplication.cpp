@@ -1,5 +1,5 @@
 #include "EditorApplication.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Editor/Editor.h>

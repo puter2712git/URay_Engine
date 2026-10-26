@@ -2,7 +2,7 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Mesh/SkinnedMesh.h>

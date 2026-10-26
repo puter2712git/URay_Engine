@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Object/Object.h>
 

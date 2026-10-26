@@ -1,5 +1,5 @@
 #include "UUID.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <charconv>
 #include <format>

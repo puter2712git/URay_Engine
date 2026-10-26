@@ -1,5 +1,5 @@
 #include "ShaderCompiler.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>

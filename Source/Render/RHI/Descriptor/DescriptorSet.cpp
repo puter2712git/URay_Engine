@@ -4,7 +4,7 @@
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/RHI/Texture/Sampler.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {

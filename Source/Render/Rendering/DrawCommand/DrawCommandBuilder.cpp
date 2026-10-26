@@ -1,6 +1,6 @@
 #include "DrawCommandBuilder.h"
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>

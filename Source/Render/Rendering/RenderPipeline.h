@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/RenderPass/RenderPass.h>
 #include <Render/Rendering/RenderPass/RenderPassId.h>

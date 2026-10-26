@@ -1,6 +1,6 @@
 #include "Shader.h"
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <cassert>
 #include <map>

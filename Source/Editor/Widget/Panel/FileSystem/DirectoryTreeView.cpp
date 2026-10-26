@@ -1,5 +1,5 @@
 #include "DirectoryTreeView.h"
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeItem.h>

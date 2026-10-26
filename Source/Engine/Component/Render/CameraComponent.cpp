@@ -5,7 +5,7 @@
 #include <Engine/Scene/Unit.h>
 
 #include <Core/Math/Math.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/Rendering/Object/ViewObject.h>
 

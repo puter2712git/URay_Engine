@@ -3,7 +3,7 @@
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Engine/UI/Widget/Widget.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <array>
 

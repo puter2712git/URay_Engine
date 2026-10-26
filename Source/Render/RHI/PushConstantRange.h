@@ -2,7 +2,7 @@
 
 #include <Render/Shader/ShaderStageFlags.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {

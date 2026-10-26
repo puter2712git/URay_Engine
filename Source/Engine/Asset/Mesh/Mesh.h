@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Math/AABB.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/Asset.h>
 #include <Engine/Asset/Mesh/MeshSection.h>
 #include <Render/RHI/Vertex/Vertex.h>

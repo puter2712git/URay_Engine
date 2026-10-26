@@ -4,7 +4,7 @@
 #include <Core/Binary/BinaryWriter.h>
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/Font/FontData.h>
 
 namespace URay

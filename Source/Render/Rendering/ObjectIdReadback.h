@@ -2,7 +2,7 @@
 
 #include <Render/RHI/Texture/Texture.h>
 
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <memory>
 #include <optional>

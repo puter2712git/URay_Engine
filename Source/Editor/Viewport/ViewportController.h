@@ -5,7 +5,7 @@
 #include <Core/Math/Rect.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Type/Ray/Ray.h>
-#include <Core/Type/Types.h>
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Editor/Viewport/EditorView.h>
 #include <Engine/UI/Input/EventReply.h>
