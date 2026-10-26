@@ -19,6 +19,7 @@ class PerformanceAnalytics;
 class StdErrLogSink;
 class FileLogSink;
 
+class ObjectSystem;
 class AssetSystem;
 class SceneSystem;
 
@@ -52,6 +53,7 @@ public:
     UISystem& GetUISystem() const { return *uiSystem; }
     PerformanceAnalytics& GetPerformanceAnalytics() const { return *performanceAnalytics; }
 
+    ObjectSystem& GetObjectSystem() const { return *objectSystem; }
     AssetSystem& GetAssetSystem() const { return *assetSystem; }
     SceneSystem& GetSceneSystem() const { return *sceneSystem; }
     Render::RenderSystem& GetRenderSystem() const { return *renderSystem; }
@@ -72,6 +74,7 @@ private:
     std::unique_ptr<UISystem> uiSystem = nullptr;
     std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
+    std::unique_ptr<ObjectSystem> objectSystem = nullptr;
     std::unique_ptr<AssetSystem> assetSystem = nullptr;
     std::unique_ptr<SceneSystem> sceneSystem = nullptr;
     std::unique_ptr<Render::RenderSystem> renderSystem = nullptr;

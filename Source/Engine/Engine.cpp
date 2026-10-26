@@ -1,10 +1,4 @@
 #include "Engine.h"
-#include <Core/Type/Types.h>
-
-#include <Engine/Asset/AssetDatabase.h>
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Scene/SceneSystem.h>
-#include <Engine/UI/UISystem.h>
 
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Input/InputSystem.h>
@@ -14,10 +8,14 @@
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/TimeFlow/Timer.h>
-
+#include <Core/Type/Types.h>
+#include <Engine/Asset/AssetDatabase.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Object/ObjectSystem.h>
+#include <Engine/Scene/SceneSystem.h>
+#include <Engine/UI/UISystem.h>
 #include <Platform/Input/GLFWInputAdapter.h>
 #include <Platform/Window/Window.h>
-
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
@@ -64,6 +62,8 @@ bool Engine::Initialize(
     inputActionSystem = std::make_unique<InputActionSystem>();
 
     performanceAnalytics = std::make_unique<PerformanceAnalytics>();
+
+    objectSystem = std::make_unique<ObjectSystem>();
 
     sceneSystem = std::make_unique<SceneSystem>();
     if (!sceneSystem->Initialize())
@@ -149,6 +149,11 @@ void Engine::Finalize()
     {
         assetSystem->Finalize();
         assetSystem.reset();
+    }
+
+    if (objectSystem)
+    {
+        objectSystem.reset();
     }
 
     if (performanceAnalytics)

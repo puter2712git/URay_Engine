@@ -11,6 +11,9 @@
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
+#include <Engine/Object/ObjectSystem.h>
+
+#include <cassert>
 
 namespace URay
 {
@@ -18,6 +21,20 @@ namespace URay
 URAY_REGISTER_CLASS(Object)
 
 void Object::RegisterClass() {}
+
+Object::Object()
+{
+    ObjectSystem& objectSystem = gEngine->GetObjectSystem();
+    objectSystem.Register(*this);
+}
+
+Object::~Object()
+{
+    ObjectSystem& objectSystem = gEngine->GetObjectSystem();
+    const bool removed = objectSystem.Unregister(*this);
+
+    assert(removed);
+}
 
 YAML::Node Object::Serialize() const
 {

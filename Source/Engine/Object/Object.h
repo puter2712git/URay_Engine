@@ -3,6 +3,7 @@
 #include <Core/Type/Type.h>
 #include <Engine/Object/Class/Class.h>
 #include <Engine/Object/Class/ClassRegistry.h>
+#include <Engine/Object/ObjectId.h>
 
 #include <yaml-cpp/yaml.h>
 
@@ -15,8 +16,16 @@ class Object
 {
     URAY_TYPE(Object)
 
+    friend class ObjectSystem;
+
 public:
-    virtual ~Object() = default;
+    Object();
+    virtual ~Object();
+
+    Object(const Object&) = delete;
+    Object& operator=(const Object&) = delete;
+    Object(Object&&) = delete;
+    Object& operator=(Object&&) = delete;
 
 public:
     static void RegisterClass();
@@ -45,6 +54,11 @@ public:
     {
         return IsA(T::StaticClass());
     }
+
+    ObjectId GetId() const { return id; }
+
+private:
+    ObjectId id = {};
 };
 
 } // namespace URay
