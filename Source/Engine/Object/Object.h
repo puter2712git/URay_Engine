@@ -14,7 +14,7 @@ class Class;
 
 class Object
 {
-    URAY_TYPE(Object)
+    URAY_OBJECT_ROOT_TYPE(Object)
 
     friend class ObjectSystem;
 

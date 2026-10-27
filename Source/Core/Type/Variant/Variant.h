@@ -7,12 +7,17 @@
 namespace URay
 {
 
+class Object;
+
 class Variant
 {
 public:
     Variant(const char* value) : Variant(String(value)) {}
 
+    Variant(Object* object);
+
     template <typename T>
+        requires(!std::is_pointer_v<T>)
     Variant(const T& value)
         : type(&TypeOf<T>()),
           ops(&ValueVariantPolicy<T>::Operations()),
@@ -24,13 +29,22 @@ public:
     template <typename T>
     T* TryGet()
     {
-        if (!type || type != &TypeOf<T>())
+        if (!type || type->isObjectType || type != &TypeOf<T>())
             return nullptr;
 
         return static_cast<T*>(value);
     }
 
+    template <typename T>
+    T* TryGetObject() const
+    {
+        return Cast<T>(ResolveObject());
+    }
+
     const Type* GetType() const { return type; }
+
+private:
+    Object* ResolveObject() const;
 
 private:
     const Type* type = nullptr;

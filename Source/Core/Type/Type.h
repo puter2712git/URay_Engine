@@ -35,6 +35,8 @@ struct Type
 
     String name;
     const Type* parent = nullptr;
+
+    bool isObjectType = false;
 };
 
 inline bool IsTypeOf(const Type& derived, const Type& target)
@@ -166,38 +168,44 @@ inline const Type& TypeOf<Color>()
     return type;
 }
 
-#define URAY_TYPE_1(self)               \
-public:                                 \
-    static const Type& StaticType()     \
-    {                                   \
-        static const Type type = {      \
-            .kind = TypeKind::Class,    \
-            .name = #self,              \
-            .parent = nullptr           \
-        };                              \
-        return type;                    \
-    }                                   \
-    virtual const Type& GetType() const \
-    {                                   \
-        return self::StaticType();      \
+#define URAY_ROOT_TYPE(self, objectType) \
+public:                                  \
+    static const Type& StaticType()      \
+    {                                    \
+        static const Type type = {       \
+            .kind = TypeKind::Class,     \
+            .name = #self,               \
+            .parent = nullptr,           \
+            .isObjectType = objectType   \
+        };                               \
+        return type;                     \
+    }                                    \
+    virtual const Type& GetType() const  \
+    {                                    \
+        return self::StaticType();       \
     }
 
-#define URAY_TYPE_2(self, parentType)           \
-    using Super = parentType;                   \
-                                                \
-public:                                         \
-    static const Type& StaticType()             \
-    {                                           \
-        static const Type type = {              \
-            .kind = TypeKind::Class,            \
-            .name = #self,                      \
-            .parent = &parentType::StaticType() \
-        };                                      \
-        return type;                            \
-    }                                           \
-    const Type& GetType() const override        \
-    {                                           \
-        return self::StaticType();              \
+#define URAY_TYPE_1(self) URAY_ROOT_TYPE(self, false)
+
+#define URAY_OBJECT_ROOT_TYPE(self) URAY_ROOT_TYPE(self, true)
+
+#define URAY_TYPE_2(self, parentType)                             \
+    using Super = parentType;                                     \
+                                                                  \
+public:                                                           \
+    static const Type& StaticType()                               \
+    {                                                             \
+        static const Type type = {                                \
+            .kind = TypeKind::Class,                              \
+            .name = #self,                                        \
+            .parent = &parentType::StaticType(),                  \
+            .isObjectType = parentType::StaticType().isObjectType \
+        };                                                        \
+        return type;                                              \
+    }                                                             \
+    const Type& GetType() const override                          \
+    {                                                             \
+        return self::StaticType();                                \
     }
 
 #define URAY_TYPE_SELECT(_1, _2, NAME, ...) NAME
