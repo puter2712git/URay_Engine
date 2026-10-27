@@ -116,6 +116,9 @@ public:
 
     const Type* GetType() const { return type; }
 
+    bool IsConstPointer() const noexcept;
+    bool IsNullPointer() const noexcept;
+
 private:
     void Reset() noexcept;
 

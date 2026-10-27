@@ -18,6 +18,16 @@ Variant::Variant(Object* object)
     value = new ObjectId(object->GetId());
 }
 
+bool Variant::IsConstPointer() const noexcept
+{
+    return ops && ops->isConstPointer;
+}
+
+bool Variant::IsNullPointer() const noexcept
+{
+    return ops && ops->isNullPointer && ops->isNullPointer(value);
+}
+
 void Variant::Reset() noexcept
 {
     if (ops)
