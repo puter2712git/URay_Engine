@@ -16,7 +16,7 @@ class Image;
 
 class ViewportToolbar final : public Widget
 {
-    URAY_TYPE(ViewportToolbar, Widget)
+    URAY_CLASS(ViewportToolbar, Widget)
 
 public:
     ViewportToolbar();

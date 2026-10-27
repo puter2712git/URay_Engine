@@ -28,8 +28,8 @@ private:
     std::vector<Property> properties;
 };
 
-#define URAY_CLASS(self, parent)        \
-    URAY_TYPE(self, parent)             \
+#define URAY_OBJECT(self, parent)        \
+    URAY_CLASS(self, parent)             \
 public:                                 \
     static void RegisterClass();        \
                                         \

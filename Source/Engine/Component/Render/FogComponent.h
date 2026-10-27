@@ -9,7 +9,7 @@ namespace URay
 
 class FogComponent : public RenderComponent
 {
-    URAY_CLASS(FogComponent, RenderComponent)
+    URAY_OBJECT(FogComponent, RenderComponent)
 
 public:
     FogComponent();

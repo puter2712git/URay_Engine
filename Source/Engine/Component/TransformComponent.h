@@ -13,7 +13,7 @@ class Unit;
 
 class TransformComponent : public Component
 {
-    URAY_CLASS(TransformComponent, Component)
+    URAY_OBJECT(TransformComponent, Component)
 
 public:
     void NotifyPropertyChanged(const Property& property) override;

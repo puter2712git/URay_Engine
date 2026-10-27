@@ -11,7 +11,7 @@ class VirtualPath;
 
 class Shader : public Asset
 {
-    URAY_CLASS(Shader, Asset)
+    URAY_OBJECT(Shader, Asset)
 
 public:
     Shader(const VirtualPath& filePath);

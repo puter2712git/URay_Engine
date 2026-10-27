@@ -20,7 +20,7 @@ struct PointLightObjectState
 
 class PointLightObject : public RenderObject
 {
-    URAY_TYPE(PointLightObject, RenderObject)
+    URAY_CLASS(PointLightObject, RenderObject)
 
 public:
     PointLightObject(const PointLightObjectState& state);

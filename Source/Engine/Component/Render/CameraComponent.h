@@ -14,7 +14,7 @@ namespace Render
 
 class CameraComponent : public RenderComponent
 {
-    URAY_CLASS(CameraComponent, RenderComponent)
+    URAY_OBJECT(CameraComponent, RenderComponent)
 
 public:
     Render::RenderObject* CreateRenderObject() override;

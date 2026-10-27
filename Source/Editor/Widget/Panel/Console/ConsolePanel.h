@@ -15,7 +15,7 @@ class VerticalLayout;
 
 class ConsolePanel final : public Panel
 {
-    URAY_TYPE(ConsolePanel, Panel)
+    URAY_CLASS(ConsolePanel, Panel)
 
 public:
     ConsolePanel();

@@ -11,7 +11,7 @@ namespace Render
 
 class GridComponent : public RenderComponent
 {
-    URAY_CLASS(GridComponent, RenderComponent)
+    URAY_OBJECT(GridComponent, RenderComponent)
 
 public:
     Render::RenderObject* CreateRenderObject() override;

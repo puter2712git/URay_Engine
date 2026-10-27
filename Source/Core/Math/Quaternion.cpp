@@ -1,6 +1,7 @@
 #include "Quaternion.h"
 
 #include <Core/Math/Math.h>
+#include <Core/Math/Vector3.h>
 
 #include <algorithm>
 

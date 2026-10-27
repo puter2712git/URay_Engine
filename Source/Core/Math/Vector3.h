@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/Math.h>
+#include <Core/Type/Type.h>
 
 #include <cmath>
 
@@ -11,6 +12,8 @@ struct Vector4;
 
 struct Vector3
 {
+    URAY_TYPE(Vector3)
+
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;

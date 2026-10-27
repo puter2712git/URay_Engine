@@ -16,7 +16,7 @@ struct Property;
 
 class InspectorPanel final : public Panel
 {
-    URAY_TYPE(InspectorPanel, Panel)
+    URAY_CLASS(InspectorPanel, Panel)
 
 public:
     InspectorPanel();

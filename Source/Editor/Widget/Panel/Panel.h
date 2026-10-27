@@ -15,7 +15,7 @@ class PanelHeader;
 
 class Panel : public Widget
 {
-    URAY_TYPE(Panel, Widget)
+    URAY_CLASS(Panel, Widget)
 
 public:
     Panel();

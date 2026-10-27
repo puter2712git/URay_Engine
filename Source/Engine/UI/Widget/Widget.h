@@ -23,7 +23,7 @@ inline constexpr WidgetId InvalidWidgetId = 0;
 
 class Widget
 {
-    URAY_TYPE(Widget)
+    URAY_CLASS(Widget)
 
     friend class UIInputRouter;
 

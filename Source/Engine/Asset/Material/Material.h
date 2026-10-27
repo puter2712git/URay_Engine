@@ -29,7 +29,7 @@ class ResourceManager;
 
 class Material : public Asset
 {
-    URAY_CLASS(Material, Asset)
+    URAY_OBJECT(Material, Asset)
 
 public:
     Material(const AssetHandle& shaderHandle);

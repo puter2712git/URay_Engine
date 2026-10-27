@@ -7,7 +7,7 @@ namespace URay
 
 class SpotLightComponent : public LightComponent
 {
-    URAY_CLASS(SpotLightComponent, LightComponent)
+    URAY_OBJECT(SpotLightComponent, LightComponent)
 
 public:
     SpotLightComponent();

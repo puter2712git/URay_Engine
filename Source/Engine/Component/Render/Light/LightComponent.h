@@ -9,7 +9,7 @@ namespace URay
 
 class LightComponent : public RenderComponent
 {
-    URAY_CLASS(LightComponent, RenderComponent)
+    URAY_OBJECT(LightComponent, RenderComponent)
 
 public:
     virtual ~LightComponent() override = default;

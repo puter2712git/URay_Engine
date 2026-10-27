@@ -1,12 +1,16 @@
 #pragma once
 
-#include <Core/Math/Vector3.h>
+#include <Core/Type/Type.h>
 
 namespace URay
 {
 
+struct Vector3;
+
 struct Quaternion
 {
+    URAY_TYPE(Quaternion)
+
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;

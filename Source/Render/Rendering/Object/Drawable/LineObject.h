@@ -24,7 +24,7 @@ struct LineObjectState
 
 class LineObject : public DrawableObject
 {
-    URAY_TYPE(LineObject, DrawableObject)
+    URAY_CLASS(LineObject, DrawableObject)
 
 public:
     LineObject(const LineObjectState& state);

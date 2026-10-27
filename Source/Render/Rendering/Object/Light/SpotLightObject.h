@@ -23,7 +23,7 @@ struct SpotLightObjectState
 
 class SpotLightObject : public RenderObject
 {
-    URAY_TYPE(SpotLightObject, RenderObject)
+    URAY_CLASS(SpotLightObject, RenderObject)
 
 public:
     explicit SpotLightObject(const SpotLightObjectState& state);

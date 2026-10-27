@@ -19,7 +19,7 @@ struct DirectionalLightObjectState
 
 class DirectionalLightObject : public RenderObject
 {
-    URAY_TYPE(DirectionalLightObject, RenderObject)
+    URAY_CLASS(DirectionalLightObject, RenderObject)
 
 public:
     DirectionalLightObject(const DirectionalLightObjectState& state);

@@ -17,7 +17,7 @@ class Material;
 
 class Mesh : public Asset
 {
-    URAY_CLASS(Mesh, Asset)
+    URAY_OBJECT(Mesh, Asset)
 
 public:
     Mesh();

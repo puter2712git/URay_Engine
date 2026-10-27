@@ -16,7 +16,7 @@ struct ViewObjectState
 
 class ViewObject : public RenderObject
 {
-    URAY_TYPE(ViewObject, RenderObject)
+    URAY_CLASS(ViewObject, RenderObject)
 
 public:
     ViewObject(const ViewObjectState& state);

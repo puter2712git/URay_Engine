@@ -25,7 +25,7 @@ enum class VerticalTextAlignment : uint8
 
 class Label final : public Widget
 {
-    URAY_TYPE(Label, Widget)
+    URAY_CLASS(Label, Widget)
 
 public:
     Label(StringView text = {});

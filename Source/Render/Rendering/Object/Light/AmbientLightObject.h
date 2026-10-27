@@ -15,7 +15,7 @@ struct AmbientLightObjectState
 
 class AmbientLightObject : public RenderObject
 {
-    URAY_TYPE(AmbientLightObject, RenderObject)
+    URAY_CLASS(AmbientLightObject, RenderObject)
 
 public:
     AmbientLightObject(const AmbientLightObjectState& state);

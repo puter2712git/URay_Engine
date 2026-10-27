@@ -10,7 +10,7 @@ struct DrawCommandParams;
 
 class DrawableObject : public RenderObject
 {
-    URAY_TYPE(DrawableObject, RenderObject)
+    URAY_CLASS(DrawableObject, RenderObject)
 
 public:
     ~DrawableObject() override = default;

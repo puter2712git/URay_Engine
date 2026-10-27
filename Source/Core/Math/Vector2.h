@@ -1,10 +1,14 @@
 #pragma once
 
+#include <Core/Type/Type.h>
+
 namespace URay
 {
 
 struct Vector2
 {
+    URAY_TYPE(Vector2)
+
     float x = 0.0f;
     float y = 0.0f;
 

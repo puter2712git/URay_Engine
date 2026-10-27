@@ -30,7 +30,7 @@ struct GizmoObjectState
 
 class GizmoObject : public DrawableObject
 {
-    URAY_TYPE(GizmoObject, DrawableObject)
+    URAY_CLASS(GizmoObject, DrawableObject)
 
 public:
     GizmoObject(const GizmoObjectState& state);

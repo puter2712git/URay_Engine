@@ -1,7 +1,8 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
-#include "PropertyTypes.h"
+#include <Core/Type/Type.h>
+#include <Core/Type/TypeAlias.h>
+#include <Engine/Object/Property/PropertyTypes.h>
 
 #include <functional>
 
@@ -12,6 +13,8 @@ class Object;
 
 struct Property
 {
+    URAY_PLAIN_CLASS(Property)
+
     PropertyType type = PropertyType::Bool;
 
     String name;

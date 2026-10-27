@@ -1,10 +1,5 @@
 #pragma once
 
-#include <Core/Math/Color.h>
-#include <Core/Math/Quaternion.h>
-#include <Core/Math/Vector2.h>
-#include <Core/Math/Vector3.h>
-#include <Core/Math/Vector4.h>
 #include <Core/Type/TypeAlias.h>
 
 namespace URay
@@ -13,20 +8,8 @@ namespace URay
 enum class TypeKind
 {
     Null,
-    Bool,
-    Int,
-    Float,
-    String,
-
-    Vector2,
-    Vector3,
-    Vector4,
-    Quaternion,
-    Color,
-
-    Class,
-    Array,
-    Dictionary
+    Value,
+    Class
 };
 
 struct Type
@@ -72,7 +55,7 @@ template <>
 inline const Type& TypeOf<bool>()
 {
     static const Type type = {
-        .kind = TypeKind::Bool,
+        .kind = TypeKind::Value,
         .name = "bool"
     };
     return type;
@@ -82,7 +65,7 @@ template <>
 inline const Type& TypeOf<int32>()
 {
     static const Type type = {
-        .kind = TypeKind::Int,
+        .kind = TypeKind::Value,
         .name = "int32"
     };
     return type;
@@ -92,7 +75,7 @@ template <>
 inline const Type& TypeOf<uint32>()
 {
     static const Type type = {
-        .kind = TypeKind::Int,
+        .kind = TypeKind::Value,
         .name = "uint32"
     };
     return type;
@@ -102,7 +85,7 @@ template <>
 inline const Type& TypeOf<float>()
 {
     static const Type type = {
-        .kind = TypeKind::Float,
+        .kind = TypeKind::Value,
         .name = "float"
     };
     return type;
@@ -112,58 +95,8 @@ template <>
 inline const Type& TypeOf<String>()
 {
     static const Type type = {
-        .kind = TypeKind::String,
+        .kind = TypeKind::Value,
         .name = "String"
-    };
-    return type;
-}
-
-template <>
-inline const Type& TypeOf<Vector2>()
-{
-    static const Type type = {
-        .kind = TypeKind::Vector2,
-        .name = "Vector2"
-    };
-    return type;
-}
-
-template <>
-inline const Type& TypeOf<Vector3>()
-{
-    static const Type type = {
-        .kind = TypeKind::Vector3,
-        .name = "Vector3"
-    };
-    return type;
-}
-
-template <>
-inline const Type& TypeOf<Vector4>()
-{
-    static const Type type = {
-        .kind = TypeKind::Vector4,
-        .name = "Vector4"
-    };
-    return type;
-}
-
-template <>
-inline const Type& TypeOf<Quaternion>()
-{
-    static const Type type = {
-        .kind = TypeKind::Quaternion,
-        .name = "Quaternion"
-    };
-    return type;
-}
-
-template <>
-inline const Type& TypeOf<Color>()
-{
-    static const Type type = {
-        .kind = TypeKind::Color,
-        .name = "Color"
     };
     return type;
 }
@@ -185,11 +118,11 @@ public:                                  \
         return self::StaticType();       \
     }
 
-#define URAY_TYPE_1(self) URAY_ROOT_TYPE(self, false)
+#define URAY_CLASS_1(self) URAY_ROOT_TYPE(self, false)
 
 #define URAY_OBJECT_ROOT_TYPE(self) URAY_ROOT_TYPE(self, true)
 
-#define URAY_TYPE_2(self, parentType)                             \
+#define URAY_CLASS_2(self, parentType)                            \
     using Super = parentType;                                     \
                                                                   \
 public:                                                           \
@@ -208,9 +141,34 @@ public:                                                           \
         return self::StaticType();                                \
     }
 
-#define URAY_TYPE_SELECT(_1, _2, NAME, ...) NAME
+#define URAY_CLASS_SELECT(_1, _2, NAME, ...) NAME
 
-#define URAY_TYPE(...) \
-    URAY_TYPE_SELECT(__VA_ARGS__, URAY_TYPE_2, URAY_TYPE_1)(__VA_ARGS__)
+#define URAY_CLASS(...) \
+    URAY_CLASS_SELECT(__VA_ARGS__, URAY_CLASS_2, URAY_CLASS_1)(__VA_ARGS__)
 
 } // namespace URay
+
+// Registers a non-polymorphic value type without changing its object layout.
+#define URAY_TYPE(self)              \
+public:                              \
+    static const Type& StaticType()  \
+    {                                \
+        static const Type type = {   \
+            .kind = TypeKind::Value, \
+            .name = #self            \
+        };                           \
+        return type;                 \
+    }
+
+#define URAY_PLAIN_CLASS(self)       \
+public:                              \
+    static const Type& StaticType()  \
+    {                                \
+        static const Type type = {   \
+            .kind = TypeKind::Class, \
+            .name = #self,           \
+            .parent = nullptr,       \
+            .isObjectType = false    \
+        };                           \
+        return type;                 \
+    }

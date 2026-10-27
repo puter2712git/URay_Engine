@@ -18,6 +18,16 @@ Variant::Variant(Object* object)
     value = new ObjectId(object->GetId());
 }
 
+void Variant::Reset() noexcept
+{
+    if (ops)
+        ops->destroy(value);
+
+    type = nullptr;
+    ops = nullptr;
+    value = nullptr;
+}
+
 Object* Variant::ResolveObject() const
 {
     if (!type || !type->isObjectType)

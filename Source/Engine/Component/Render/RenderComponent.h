@@ -12,7 +12,7 @@ class RenderObject;
 
 class RenderComponent : public Component
 {
-    URAY_CLASS(RenderComponent, Component)
+    URAY_OBJECT(RenderComponent, Component)
 
 public:
     virtual ~RenderComponent() override;

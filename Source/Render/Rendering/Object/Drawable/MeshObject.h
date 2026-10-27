@@ -29,7 +29,7 @@ struct MeshObjectState
 
 class MeshObject : public DrawableObject
 {
-    URAY_TYPE(MeshObject, DrawableObject)
+    URAY_CLASS(MeshObject, DrawableObject)
 
 public:
     MeshObject(const MeshObjectState& state);

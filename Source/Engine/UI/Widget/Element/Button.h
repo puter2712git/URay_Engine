@@ -19,7 +19,7 @@ enum class ButtonState
 
 class Button final : public Widget
 {
-    URAY_TYPE(Button, Widget)
+    URAY_CLASS(Button, Widget)
 
 public:
     explicit Button(std::unique_ptr<Widget> content);

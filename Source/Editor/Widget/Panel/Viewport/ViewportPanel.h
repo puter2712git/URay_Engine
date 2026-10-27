@@ -10,7 +10,7 @@ class ViewportToolbar;
 
 class ViewportPanel final : public Panel
 {
-    URAY_TYPE(ViewportPanel, Panel)
+    URAY_CLASS(ViewportPanel, Panel)
 
 public:
     explicit ViewportPanel(ViewportController& controller);

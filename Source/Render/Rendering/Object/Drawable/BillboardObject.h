@@ -28,7 +28,7 @@ struct BillboardObjectState
 
 class BillboardObject : public DrawableObject
 {
-    URAY_TYPE(BillboardObject, DrawableObject)
+    URAY_CLASS(BillboardObject, DrawableObject)
 
 public:
     BillboardObject(const BillboardObjectState& state);

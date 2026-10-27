@@ -12,7 +12,7 @@ class Material;
 
 class DecalComponent : public RenderComponent
 {
-    URAY_CLASS(DecalComponent, RenderComponent)
+    URAY_OBJECT(DecalComponent, RenderComponent)
 
 public:
     DecalComponent();

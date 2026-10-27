@@ -12,7 +12,7 @@ namespace URay
 
 class Texture : public Asset
 {
-    URAY_CLASS(Texture, Asset)
+    URAY_OBJECT(Texture, Asset)
 
 public:
     Texture(int32 width, int32 height, int32 channels,

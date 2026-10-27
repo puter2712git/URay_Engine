@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/Type.h>
 #include <Core/Type/TypeAlias.h>
 
 namespace URay
@@ -7,6 +8,8 @@ namespace URay
 
 struct Color
 {
+    URAY_TYPE(Color)
+
     float r = 0.0f;
     float g = 0.0f;
     float b = 0.0f;

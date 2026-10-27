@@ -12,7 +12,7 @@ class Material;
 
 class SpriteComponent : public RenderComponent
 {
-    URAY_CLASS(SpriteComponent, RenderComponent)
+    URAY_OBJECT(SpriteComponent, RenderComponent)
 
 public:
     SpriteComponent();

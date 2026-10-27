@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Type/Type.h>
+
 namespace URay
 {
 
@@ -7,6 +9,8 @@ struct Vector3;
 
 struct Vector4
 {
+    URAY_TYPE(Vector4)
+
     float x = 0.0f;
     float y = 0.0f;
     float z = 0.0f;

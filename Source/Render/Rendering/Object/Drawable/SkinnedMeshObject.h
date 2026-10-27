@@ -31,7 +31,7 @@ struct SkinnedMeshObjectState
 
 class SkinnedMeshObject : public DrawableObject
 {
-    URAY_TYPE(SkinnedMeshObject, DrawableObject)
+    URAY_CLASS(SkinnedMeshObject, DrawableObject)
 
 public:
     SkinnedMeshObject(const SkinnedMeshObjectState& state);

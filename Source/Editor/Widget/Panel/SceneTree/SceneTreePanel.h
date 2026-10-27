@@ -18,7 +18,7 @@ class Unit;
 
 class SceneTreePanel final : public Panel
 {
-    URAY_TYPE(SceneTreePanel, Panel)
+    URAY_CLASS(SceneTreePanel, Panel)
 
     friend class SceneTreeVirtualContent;
 

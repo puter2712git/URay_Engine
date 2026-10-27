@@ -18,7 +18,7 @@ class Separator;
 
 class FileSystemPanel final : public Panel
 {
-    URAY_TYPE(FileSystemPanel, Panel)
+    URAY_CLASS(FileSystemPanel, Panel)
 
 public:
     FileSystemPanel();

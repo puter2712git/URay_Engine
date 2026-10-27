@@ -11,7 +11,7 @@ class Unit;
 
 class Component : public Object
 {
-    URAY_CLASS(Component, Object)
+    URAY_OBJECT(Component, Object)
 
 public:
     virtual ~Component() = default;

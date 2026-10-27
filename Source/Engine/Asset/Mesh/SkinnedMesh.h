@@ -24,7 +24,7 @@ struct Bone
 
 class SkinnedMesh : public Asset
 {
-    URAY_CLASS(SkinnedMesh, Asset)
+    URAY_OBJECT(SkinnedMesh, Asset)
 
 public:
     const std::vector<Render::VertexSkinnedPNT>& GetVertices() const { return vertices; }

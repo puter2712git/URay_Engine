@@ -17,7 +17,7 @@ struct FogObjectState
 
 class FogObject : public RenderObject
 {
-    URAY_TYPE(FogObject, RenderObject)
+    URAY_CLASS(FogObject, RenderObject)
 
 public:
     FogObject(const FogObjectState& state);

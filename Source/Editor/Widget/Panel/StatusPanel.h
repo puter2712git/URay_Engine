@@ -12,7 +12,7 @@ class VerticalLayout;
 
 class StatusPanel final : public Panel
 {
-    URAY_TYPE(StatusPanel, Panel)
+    URAY_CLASS(StatusPanel, Panel)
 
 public:
     StatusPanel();

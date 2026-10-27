@@ -37,7 +37,7 @@ struct DecalObjectState
 
 class DecalObject : public RenderObject
 {
-    URAY_TYPE(DecalObject, RenderObject)
+    URAY_CLASS(DecalObject, RenderObject)
 
 public:
     DecalObject(RenderSystem& renderSystem, const DecalObjectState& state);

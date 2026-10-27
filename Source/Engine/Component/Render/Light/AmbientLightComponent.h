@@ -9,7 +9,7 @@ namespace URay
 
 class AmbientLightComponent : public LightComponent
 {
-    URAY_CLASS(AmbientLightComponent, LightComponent)
+    URAY_OBJECT(AmbientLightComponent, LightComponent)
 
 public:
     AmbientLightComponent();

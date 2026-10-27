@@ -12,7 +12,7 @@ class Texture;
 
 class Font : public Asset
 {
-    URAY_CLASS(Font, Asset)
+    URAY_OBJECT(Font, Asset)
 
 public:
     Font(const std::vector<uint8>& data);

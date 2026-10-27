@@ -10,7 +10,7 @@ namespace URay
 
 class Asset : public Object
 {
-    URAY_CLASS(Asset, Object)
+    URAY_OBJECT(Asset, Object)
 
 public:
     virtual ~Asset() override = default;

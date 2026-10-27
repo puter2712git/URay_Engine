@@ -8,7 +8,7 @@ namespace URay
 
 class MeshComponent : public RenderComponent
 {
-    URAY_CLASS(MeshComponent, RenderComponent)
+    URAY_OBJECT(MeshComponent, RenderComponent)
 
 public:
     MeshComponent();

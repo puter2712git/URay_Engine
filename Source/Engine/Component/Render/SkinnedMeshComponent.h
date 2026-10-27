@@ -10,7 +10,7 @@ namespace URay
 
 class SkinnedMeshComponent : public RenderComponent
 {
-    URAY_CLASS(SkinnedMeshComponent, RenderComponent)
+    URAY_OBJECT(SkinnedMeshComponent, RenderComponent)
 
 public:
     SkinnedMeshComponent();

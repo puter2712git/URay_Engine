@@ -9,7 +9,7 @@ namespace URay
 
 class DirectionalLightComponent : public LightComponent
 {
-    URAY_CLASS(DirectionalLightComponent, LightComponent)
+    URAY_OBJECT(DirectionalLightComponent, LightComponent)
 
 public:
     DirectionalLightComponent();

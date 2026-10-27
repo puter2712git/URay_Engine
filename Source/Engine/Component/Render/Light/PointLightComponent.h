@@ -9,7 +9,7 @@ namespace URay
 
 class PointLightComponent : public LightComponent
 {
-    URAY_CLASS(PointLightComponent, LightComponent)
+    URAY_OBJECT(PointLightComponent, LightComponent)
 
 public:
     PointLightComponent();

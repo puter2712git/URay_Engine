@@ -23,7 +23,7 @@ enum class ReparentMode
 
 class Unit : public Object
 {
-    URAY_CLASS(Unit, Object)
+    URAY_OBJECT(Unit, Object)
 
 public:
     Unit();

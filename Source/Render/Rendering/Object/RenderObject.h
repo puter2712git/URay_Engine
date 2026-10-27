@@ -12,7 +12,7 @@ class RenderScene;
 
 class RenderObject
 {
-    URAY_TYPE(RenderObject)
+    URAY_CLASS(RenderObject)
 
 public:
     virtual ~RenderObject() = default;
