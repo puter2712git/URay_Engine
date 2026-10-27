@@ -46,6 +46,14 @@ public:
         value = new T*(pointer);
     }
 
+    template <typename T>
+        requires std::is_convertible_v<T*, Object*>
+    Variant(T* object) : Variant(static_cast<Object*>(object))
+    {
+        if (!object)
+            type = &TypeOf<T>();
+    }
+
     Variant(const Variant&) = delete;
     Variant& operator=(const Variant&) = delete;
 
@@ -118,6 +126,7 @@ public:
 
     bool IsConstPointer() const noexcept;
     bool IsNullPointer() const noexcept;
+    bool IsNullObject() const noexcept;
 
 private:
     void Reset() noexcept;

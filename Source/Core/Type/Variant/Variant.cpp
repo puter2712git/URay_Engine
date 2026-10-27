@@ -11,7 +11,10 @@ namespace URay
 Variant::Variant(Object* object)
 {
     if (!object)
+    {
+        type = &Object::StaticType();
         return;
+    }
 
     type = &object->GetType();
     ops = &ValueVariantPolicy<ObjectId>::Operations();
@@ -28,6 +31,11 @@ bool Variant::IsNullPointer() const noexcept
     return ops && ops->isNullPointer && ops->isNullPointer(value);
 }
 
+bool Variant::IsNullObject() const noexcept
+{
+    return type && type->isObjectType && value == nullptr;
+}
+
 void Variant::Reset() noexcept
 {
     if (ops)
@@ -40,7 +48,7 @@ void Variant::Reset() noexcept
 
 Object* Variant::ResolveObject() const
 {
-    if (!type || !type->isObjectType)
+    if (!type || !type->isObjectType || !value)
         return nullptr;
 
     const ObjectId& id = *static_cast<const ObjectId*>(value);
