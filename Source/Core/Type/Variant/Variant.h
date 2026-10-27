@@ -128,6 +128,8 @@ public:
     bool IsNullPointer() const noexcept;
     bool IsNullObject() const noexcept;
 
+    bool IsObjectAlive() const;
+
 private:
     void Reset() noexcept;
 

@@ -12,6 +12,23 @@ bool FunctionParameter::Accepts(const Variant& argument) const
     if (!type || !argumentType)
         return false;
 
+    if (type->kind == TypeKind::Class && type->isObjectType)
+    {
+        if (!argumentType->isObjectType)
+            return false;
+
+        if (!IsTypeOf(*argumentType, *type))
+            return false;
+
+        if (isConst)
+            return false;
+
+        if (argument.IsNullObject())
+            return nullable;
+
+        return argument.IsObjectAlive();
+    }
+
     if (type != argumentType)
         return false;
 

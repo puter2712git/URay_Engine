@@ -36,6 +36,14 @@ bool Variant::IsNullObject() const noexcept
     return type && type->isObjectType && value == nullptr;
 }
 
+bool Variant::IsObjectAlive() const
+{
+    if (!type || !type->isObjectType || IsNullObject())
+        return false;
+
+    return ResolveObject() != nullptr;
+}
+
 void Variant::Reset() noexcept
 {
     if (ops)
