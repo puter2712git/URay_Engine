@@ -73,7 +73,6 @@ EventReply IntField::OnPointerMove(const PointerEvent& event)
         return EventReply{ .handled = true };
 
     SetValue(newValue);
-    onValueChanged.Emit(newValue);
     Emit("ValueChanged", newValue);
 
     return EventReply{ .handled = true };
@@ -125,7 +124,6 @@ void IntField::OnTextChanged(
     int32 value = 0;
     if (TryParse(currText, value))
     {
-        onValueChanged.Emit(value);
         Emit("ValueChanged", value);
     }
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Core/Type/TypeAlias.h>
 #include <Engine/UI/Widget/Element/TextBox.h>
@@ -16,9 +15,6 @@ public:
 protected:
     void OnTextChanged(const String& prevText, const String& currText) override;
     void OnTextCommitted(const String& prevText, const String& committedText) override;
-
-public:
-    Ray<> onValueChanged;
 
 private:
 };

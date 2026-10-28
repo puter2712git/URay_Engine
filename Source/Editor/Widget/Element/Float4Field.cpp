@@ -41,28 +41,24 @@ Float4Field::Float4Field()
 void Float4Field::OnXChanged(float component)
 {
     value.x = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void Float4Field::OnYChanged(float component)
 {
     value.y = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void Float4Field::OnZChanged(float component)
 {
     value.z = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void Float4Field::OnWChanged(float component)
 {
     value.w = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 

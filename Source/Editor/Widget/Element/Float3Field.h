@@ -3,7 +3,6 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Vector3.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
@@ -34,9 +33,6 @@ private:
         const Rect& rect,
         Label& label,
         NumberField& field) const;
-
-public:
-    Ray<Vector3> onValueChanged;
 
 private:
     Vector3 value = Vector3::Zero;

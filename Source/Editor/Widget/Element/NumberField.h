@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Core/Type/TypeAlias.h>
 #include <Engine/UI/Widget/Element/TextBox.h>
@@ -30,9 +29,6 @@ private:
     String FormatValue(float value);
 
     float GetModifiedDragSpeed(ModifierKey modifiers) const;
-
-public:
-    Ray<float> onValueChanged;
 
 private:
     Vector2 initPointerPosition = Vector2::Zero;

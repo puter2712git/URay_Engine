@@ -3,7 +3,6 @@
 
 #include <Engine/UI/Widget/Element/TextBox.h>
 
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
@@ -29,9 +28,6 @@ protected:
 private:
     bool TryParse(const String& text, int32& outValue) const;
     float GetModifiedDragSpeed(ModifierKey modifiers) const;
-
-public:
-    Ray<int32> onValueChanged;
 
 private:
     Vector2 initPointerPosition = Vector2::Zero;

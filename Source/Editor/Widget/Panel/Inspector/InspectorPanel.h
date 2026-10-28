@@ -3,6 +3,9 @@
 
 #include <Editor/Widget/Panel/Panel.h>
 
+#include <memory>
+#include <vector>
+
 namespace URay
 {
 
@@ -12,6 +15,10 @@ class Button;
 class Object;
 class Unit;
 class InspectSystem;
+class StringField;
+struct Color;
+struct Vector3;
+struct Vector4;
 struct InspectTarget;
 struct Property;
 
@@ -40,6 +47,7 @@ private:
     void RebuildAssetProperties(AssetHandle handle);
 
     void AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
+    const Property* KeepProperty(const Property& property);
 
     void AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
     void AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
@@ -53,12 +61,22 @@ private:
     void AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
 
     void OnAddComponentClicked(Button* button, Unit* unit);
+    void OnBoolChanged(bool value, Object* object, const Property* property);
+    void OnIntChanged(int32 value, Object* object, const Property* property);
+    void OnFloatChanged(float value, Object* object, const Property* property);
+    void OnVector2Changed(Vector2 value, Object* object, const Property* property);
+    void OnVector3Changed(Vector3 value, Object* object, const Property* property);
+    void OnRotationChanged(Vector3 value, Object* object, const Property* property);
+    void OnVector4Changed(Vector4 value, Object* object, const Property* property);
+    void OnColorChanged(Color value, Object* object, const Property* property);
+    void OnStringChanged(Object* object, const Property* property, StringField* field);
 
 private:
     InspectSystem& inspectSystem;
 
     ScrollView* scrollView = nullptr;
     VerticalLayout* layout = nullptr;
+    std::vector<std::unique_ptr<Property>> propertyCopies;
 
     bool isDirty = true;
 };

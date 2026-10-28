@@ -3,7 +3,6 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
@@ -36,9 +35,6 @@ private:
         const Rect& rect,
         Label& label,
         NumberField& field) const;
-
-public:
-    Ray<Color> onValueChanged;
 
 private:
     Color value = Color::White;

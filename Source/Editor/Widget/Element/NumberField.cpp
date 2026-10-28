@@ -71,7 +71,6 @@ EventReply NumberField::OnPointerMove(const PointerEvent& event)
     dragValue += event.delta.x * GetModifiedDragSpeed(event.modifiers);
 
     SetValue(dragValue);
-    onValueChanged.Emit(dragValue);
     Emit("ValueChanged", dragValue);
 
     return EventReply{
@@ -127,7 +126,6 @@ void NumberField::OnTextChanged(
     if (!TryParse(currText, value))
         return;
 
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 

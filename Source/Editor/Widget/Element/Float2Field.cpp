@@ -35,14 +35,12 @@ Float2Field::Float2Field()
 void Float2Field::OnXChanged(float component)
 {
     value.x = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void Float2Field::OnYChanged(float component)
 {
     value.y = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 

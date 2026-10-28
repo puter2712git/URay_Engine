@@ -18,7 +18,6 @@ void StringField::OnTextChanged(
     const String& prevText,
     const String& currText)
 {
-    onValueChanged.Emit();
     Emit("ValueChanged");
 }
 

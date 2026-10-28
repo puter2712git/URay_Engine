@@ -43,10 +43,32 @@
 #include <Engine/UI/Widget/Element/Checkbox.h>
 #include <Engine/UI/Widget/Layout/VerticalLayout.h>
 
+#include <utility>
 #include <variant>
 
 namespace URay
 {
+
+namespace
+{
+
+template <typename T>
+void UpdateInspectedProperty(T value, Object* object, const Property* property)
+{
+    if (!object || !property)
+        return;
+
+    // Notifications may cause the inspector to be rebuilt, so keep a local copy.
+    const Property propertyCopy = *property;
+    auto* target = reinterpret_cast<T*>(reinterpret_cast<uint8*>(object) + propertyCopy.offset);
+    *target = std::move(value);
+    object->NotifyPropertyChanged(propertyCopy);
+
+    if (propertyCopy.OnChangedCallback)
+        propertyCopy.OnChangedCallback(*object, propertyCopy);
+}
+
+} // namespace
 
 InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->GetInspectSystem())
 {
@@ -68,6 +90,8 @@ InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->Ge
 InspectorPanel::~InspectorPanel()
 {
     inspectSystem.UnregisterAll(this);
+    layout->ClearChildren();
+    propertyCopies.clear();
 }
 
 void InspectorPanel::OnTargetChanged(const InspectTarget*, const InspectTarget*)
@@ -105,6 +129,7 @@ void InspectorPanel::OnUpdate(float)
 void InspectorPanel::RebuildProperties()
 {
     layout->ClearChildren();
+    propertyCopies.clear();
 
     const InspectTarget& target = inspectSystem.GetTarget();
 
@@ -225,6 +250,12 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
     }
 }
 
+const Property* InspectorPanel::KeepProperty(const Property& property)
+{
+    propertyCopies.push_back(std::make_unique<Property>(property));
+    return propertyCopies.back().get();
+}
+
 void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
 {
     bool* value = reinterpret_cast<bool*>(reinterpret_cast<uint8*>(&object) + property.offset);
@@ -235,16 +266,7 @@ void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& objec
     ConfigureEditorCheckbox(*checkbox);
     checkbox->SetChecked(*value);
 
-    checkbox->onValueChanged.Register(
-        this,
-        [&object, property, value](bool checked)
-        {
-            *value = checked;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    checkbox->Register("ValueChanged", this, &InspectorPanel::OnBoolChanged, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -256,16 +278,7 @@ void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& obje
     NumberField* field = row->SetValueWidget<NumberField>();
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value, field](float newValue)
-        {
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnFloatChanged, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -277,16 +290,7 @@ void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object
     IntField* field = row->SetValueWidget<IntField>();
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](int32 newValue)
-        {
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnIntChanged, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -298,16 +302,7 @@ void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& ob
     Float2Field* field = row->SetValueWidget<Float2Field>();
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](const Vector2& newValue)
-        {
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnVector2Changed, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -319,16 +314,7 @@ void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& ob
     Float3Field* field = row->SetValueWidget<Float3Field>();
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](const Vector3& newValue)
-        {
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnVector3Changed, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -340,16 +326,7 @@ void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& o
     Float3Field* field = row->SetValueWidget<Float3Field>();
     field->SetValue(value->ToEulerDegrees());
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](const Vector3& newValue)
-        {
-            *value = Quaternion::FromEulerDegrees(newValue);
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnRotationChanged, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -361,16 +338,7 @@ void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& obje
     ColorField* field = row->SetValueWidget<ColorField>();
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](const Color& newValue)
-        {
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnColorChanged, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -382,16 +350,7 @@ void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& ob
     Float4Field* field = row->SetValueWidget<Float4Field>();
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](const Vector4& newValue)
-        {
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
-
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    field->Register("ValueChanged", this, &InspectorPanel::OnVector4Changed, &object, KeepProperty(property));
 }
 
 void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -403,16 +362,53 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
     StringField* field = row->SetValueWidget<StringField>();
     field->SetText(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value, field]()
-        {
-            *value = field->GetText();
-            object.NotifyPropertyChanged(property);
+    field->Register("ValueChanged", this, &InspectorPanel::OnStringChanged, &object, KeepProperty(property), field);
+}
 
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+void InspectorPanel::OnBoolChanged(bool value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnIntChanged(int32 value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnFloatChanged(float value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnVector2Changed(Vector2 value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnVector3Changed(Vector3 value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnRotationChanged(Vector3 value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(Quaternion::FromEulerDegrees(value), object, property);
+}
+
+void InspectorPanel::OnVector4Changed(Vector4 value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnColorChanged(Color value, Object* object, const Property* property)
+{
+    UpdateInspectedProperty(value, object, property);
+}
+
+void InspectorPanel::OnStringChanged(Object* object, const Property* property, StringField* field)
+{
+    if (field)
+        UpdateInspectedProperty(field->GetText(), object, property);
 }
 
 void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)

@@ -40,21 +40,18 @@ Float3Field::Float3Field()
 void Float3Field::OnXChanged(float component)
 {
     value.x = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void Float3Field::OnYChanged(float component)
 {
     value.y = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void Float3Field::OnZChanged(float component)
 {
     value.z = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 

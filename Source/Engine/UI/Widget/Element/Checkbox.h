@@ -3,7 +3,6 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
@@ -32,9 +31,6 @@ protected:
     Vector2 OnMeasure() override { return Vector2(18.0f, 18.0f); }
 
     void OnPaint(Render::UIDrawContext& context) override;
-
-public:
-    Ray<bool> onValueChanged;
 
 private:
     Rect indicatorRect = {};

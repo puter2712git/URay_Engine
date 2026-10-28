@@ -3,7 +3,6 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Vector4.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
@@ -30,9 +29,6 @@ private:
     void OnYChanged(float component);
     void OnZChanged(float component);
     void OnWChanged(float component);
-
-public:
-    Ray<Vector4> onValueChanged;
 
 private:
     Vector4 value = {};

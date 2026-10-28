@@ -58,28 +58,24 @@ ColorField::ColorField()
 void ColorField::OnRChanged(float component)
 {
     value.r = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void ColorField::OnGChanged(float component)
 {
     value.g = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void ColorField::OnBChanged(float component)
 {
     value.b = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
 void ColorField::OnAChanged(float component)
 {
     value.a = component;
-    onValueChanged.Emit(value);
     Emit("ValueChanged", value);
 }
 
