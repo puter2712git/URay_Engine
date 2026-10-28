@@ -13,6 +13,8 @@ namespace URay
 
 NumberField::NumberField()
 {
+    URAY_DECLARE_RAY(ValueChanged, float);
+
     ConfigureEditorTextBox(*this);
 }
 
@@ -70,6 +72,7 @@ EventReply NumberField::OnPointerMove(const PointerEvent& event)
 
     SetValue(dragValue);
     onValueChanged.Emit(dragValue);
+    Emit("ValueChanged", dragValue);
 
     return EventReply{
         .handled = true
@@ -125,6 +128,7 @@ void NumberField::OnTextChanged(
         return;
 
     onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
 }
 
 bool NumberField::TryParse(const String& text, float& outValue)

@@ -40,7 +40,6 @@ EventReply Button::OnPointerUp(const PointerEvent& event)
 
     if (IsHovered())
     {
-        onClicked.Emit();
         Emit("Clicked");
     }
 

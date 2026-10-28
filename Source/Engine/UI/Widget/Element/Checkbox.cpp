@@ -7,6 +7,11 @@
 namespace URay
 {
 
+Checkbox::Checkbox()
+{
+    URAY_DECLARE_RAY(ValueChanged, bool);
+}
+
 void Checkbox::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
@@ -40,6 +45,7 @@ EventReply Checkbox::OnPointerUp(const PointerEvent& event)
     {
         checked = !checked;
         onValueChanged.Emit(checked);
+        Emit("ValueChanged", checked);
     }
 
     return EventReply{

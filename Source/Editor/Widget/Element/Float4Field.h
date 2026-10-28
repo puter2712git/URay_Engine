@@ -4,6 +4,7 @@
 
 #include <Core/Math/Vector4.h>
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
 {
@@ -11,7 +12,7 @@ namespace URay
 class Label;
 class NumberField;
 
-class Float4Field final : public Widget
+class Float4Field final : public Widget, public RayEmitter
 {
 public:
     Float4Field();
@@ -25,6 +26,10 @@ protected:
 
 private:
     void ArrangeComponent(const Rect& rect, Label& label, NumberField& field) const;
+    void OnXChanged(float component);
+    void OnYChanged(float component);
+    void OnZChanged(float component);
+    void OnWChanged(float component);
 
 public:
     Ray<Vector4> onValueChanged;

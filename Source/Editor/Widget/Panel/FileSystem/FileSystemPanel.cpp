@@ -1,25 +1,25 @@
 #include "FileSystemPanel.h"
 
-#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Dialog/ImportAssetDialog.h>
-#include <Engine/UI/Widget/Element/Button.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
-#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/ScrollView.h>
-#include <Editor/Widget/EditorUI.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 
 namespace URay
 {
@@ -78,12 +78,7 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
                 pendingPath = path;
             });
 
-    importButton->onClicked.Register(
-        this,
-        [this]
-        {
-            OpenImportDialog();
-        });
+    importButton->Register("Clicked", this, &FileSystemPanel::OpenImportDialog);
 }
 
 void FileSystemPanel::Arrange(const Rect& rect)

@@ -4,11 +4,12 @@
 #include <Engine/UI/Widget/Element/TextBox.h>
 
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
 {
 
-class IntField final : public TextBox
+class IntField final : public TextBox, public RayEmitter
 {
 public:
     IntField();

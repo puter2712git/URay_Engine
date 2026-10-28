@@ -21,26 +21,29 @@ constexpr float LabelFieldGap = 4.0f;
 
 Float2Field::Float2Field()
 {
+    URAY_DECLARE_RAY(ValueChanged, Vector2);
+
     xLabel = CreateEditorLabel(*this, "X");
     xField = AddChild<NumberField>();
     yLabel = CreateEditorLabel(*this, "Y");
     yField = AddChild<NumberField>();
 
-    xField->onValueChanged.Register(
-        this,
-        [this](float component)
-        {
-            value.x = component;
-            onValueChanged.Emit(value);
-        });
+    xField->Register("ValueChanged", this, &Float2Field::OnXChanged);
+    yField->Register("ValueChanged", this, &Float2Field::OnYChanged);
+}
 
-    yField->onValueChanged.Register(
-        this,
-        [this](float component)
-        {
-            value.y = component;
-            onValueChanged.Emit(value);
-        });
+void Float2Field::OnXChanged(float component)
+{
+    value.x = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
+
+void Float2Field::OnYChanged(float component)
+{
+    value.y = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
 }
 
 void Float2Field::SetValue(const Vector2& value)

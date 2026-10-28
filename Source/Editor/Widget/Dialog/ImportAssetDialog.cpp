@@ -2,16 +2,16 @@
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Math/Math.h>
-#include <Engine/UI/Widget/Element/Button.h>
-#include <Engine/UI/Widget/Element/Label.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
-#include <Engine/UI/Widget/Element/Surface.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridView.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Importer/ImportRequest.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Element/Surface.h>
 
 namespace URay
 {
@@ -29,9 +29,7 @@ constexpr float Gap = 8.0f;
 } // namespace
 
 ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath& outputDirectory)
-    : assetSystem(assetSystem)
-    , fileSystem(assetSystem.GetFileSystem())
-    , outputDirectory(outputDirectory)
+    : assetSystem(assetSystem), fileSystem(assetSystem.GetFileSystem()), outputDirectory(outputDirectory)
 {
     background = AddChild<Surface>();
     background->SetBackgroundColor(EditorStyle::Surface);
@@ -63,12 +61,7 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
 
     fileGrid->Register("EntryActivated", this, &ImportAssetDialog::OnFileEntryActivated);
 
-    cancelButton->onClicked.Register(
-        this,
-        [this]
-        {
-            Cancel();
-        });
+    cancelButton->Register("Clicked", this, &ImportAssetDialog::Cancel);
 
     NavigateTo(currentDirectory);
 }

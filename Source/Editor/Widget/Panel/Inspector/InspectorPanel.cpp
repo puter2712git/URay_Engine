@@ -152,26 +152,7 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
 
     Button* addComponentButton = CreateEditorButton(*layout, "Add Component");
     addComponentButton->SetPreferredHeight(26.0f);
-    addComponentButton->onClicked.Register(
-        this,
-        [this, addComponentButton, inspectedUnit]
-        {
-            PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
-
-            ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(addComponentButton->GetRect(), *inspectedUnit);
-            popup->onComponentSelected.Register(
-                popup,
-                [this, &popupLayer, inspectedUnit](const ComponentPickerSelection& selection)
-                {
-                    auto component = ComponentFactory::Create(selection.componentTypeName);
-                    if (component)
-                    {
-                        inspectedUnit->AddComponent(std::move(component));
-                    }
-
-                    popupLayer.ClosePopup();
-                });
-        });
+    addComponentButton->Register("Clicked", this, &InspectorPanel::OnAddComponentClicked, addComponentButton, inspectedUnit);
 }
 
 void InspectorPanel::RebuildAssetProperties(AssetHandle handle)
@@ -480,6 +461,30 @@ void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& obje
 
             if (property.OnChangedCallback)
                 property.OnChangedCallback(object, property);
+        });
+}
+
+void InspectorPanel::OnAddComponentClicked(Button* button, Unit* unit)
+{
+    if (!button || !unit)
+        return;
+
+    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
+
+    ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(button->GetRect(), *unit);
+
+    popup->onComponentSelected.Register(
+        popup,
+        [this, &popupLayer, unit](const ComponentPickerSelection& selection)
+        {
+            auto component = ComponentFactory::Create(selection.componentTypeName);
+
+            if (component)
+            {
+                unit->AddComponent(std::move(component));
+            }
+
+            popupLayer.ClosePopup();
         });
 }
 

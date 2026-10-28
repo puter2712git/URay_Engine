@@ -1,9 +1,9 @@
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 
 #include <Editor/Viewport/ViewportController.h>
-#include <Engine/UI/Widget/Element/Button.h>
 #include <Editor/Widget/Panel/Viewport/ViewportToolbar.h>
 #include <Editor/Widget/Style/EditorStyles.h>
+#include <Engine/UI/Widget/Element/Button.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <memory>
@@ -24,41 +24,15 @@ ViewportPanel::ViewportPanel(ViewportController& controller)
     const auto gizmoButtons = toolbar->GetGizmoModeButtons();
     for (size_t index = 0; index < gizmoButtons.size(); ++index)
     {
-        gizmoButtons[index]->onClicked.Register(
-            this,
-            [this, index, &controller]()
-            {
-                controller.SetGizmoMode(static_cast<GizmoMode>(index));
-            });
+        gizmoButtons[index]->Register("Clicked", this, &ViewportPanel::OnGizmoModeClicked, static_cast<int32>(index));
     }
 
-    toolbar->GetGizmoSpaceToggleButton()->onClicked.Register(
-        this,
-        [this, &controller]()
-        {
-            toolbar->SetGizmoSpaceLocal(controller.ToggleGizmoSpace());
-        });
+    toolbar->GetGizmoSpaceToggleButton()->Register("Clicked", this, &ViewportPanel::OnGizmoSpaceClicked);
+    toolbar->GetViewModeToggleButton()->Register("Clicked", this, &ViewportPanel::OnViewModeClicked);
+    toolbar->GetPlayButton()->Register("Clicked", this, &ViewportPanel::OnPlayClicked);
+    toolbar->GetStopButton()->Register("Clicked", this, &ViewportPanel::OnStopClicked);
+
     toolbar->SetGizmoSpaceLocal(controller.IsGizmoSpaceLocal());
-
-    toolbar->GetViewModeToggleButton()->onClicked.Register(
-        this,
-        [this, &controller]()
-        {
-            controller.CycleViewMode();
-        });
-
-    toolbar->GetPlayButton()->onClicked.Register(
-        this,
-        [this, &controller]()
-        {
-            controller.Play();
-        });
-    toolbar->GetStopButton()->onClicked.Register(
-        this,
-        [this, &controller]()
-        {
-            controller.Stop();
-        });
 }
 
 ViewportPanel::~ViewportPanel() = default;
@@ -115,6 +89,31 @@ void ViewportPanel::OnPaint(Render::UIDrawContext& context)
         return;
 
     context.AddImage(imageRect, { .view = image->view, .sampler = image->sampler });
+}
+
+void ViewportPanel::OnGizmoModeClicked(int32 index)
+{
+    controller.SetGizmoMode(static_cast<GizmoMode>(index));
+}
+
+void ViewportPanel::OnGizmoSpaceClicked()
+{
+    controller.ToggleGizmoSpace();
+}
+
+void ViewportPanel::OnViewModeClicked()
+{
+    controller.CycleViewMode();
+}
+
+void ViewportPanel::OnPlayClicked()
+{
+    controller.Play();
+}
+
+void ViewportPanel::OnStopClicked()
+{
+    controller.Stop();
 }
 
 } // namespace URay

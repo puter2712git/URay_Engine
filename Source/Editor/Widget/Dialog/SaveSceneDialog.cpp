@@ -1,18 +1,18 @@
 #include "SaveSceneDialog.h"
-#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Engine/UI/Widget/Element/Button.h>
-#include <Engine/UI/Widget/Element/Label.h>
-#include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
-#include <Engine/UI/Widget/Element/Surface.h>
-#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
+#include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridView.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Style/EditorStyles.h>
+#include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Element/Surface.h>
+#include <Engine/UI/Widget/Layout/HorizontalLayout.h>
 
 #include <algorithm>
 
@@ -74,26 +74,10 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
 
     fileGrid->Register("EntryActivated", this, &SaveSceneDialog::OnFileEntryActivated);
 
-    filenameField->onValueChanged.Register(
-        this,
-        [this]
-        {
-            SetValidationMessage("");
-        });
+    filenameField->Register("ValueChanged", this, &SaveSceneDialog::OnFilenameChanged);
 
-    saveButton->onClicked.Register(
-        this,
-        [this]
-        {
-            Accept();
-        });
-
-    cancelButton->onClicked.Register(
-        this,
-        [this]
-        {
-            Cancel();
-        });
+    saveButton->Register("Clicked", this, &SaveSceneDialog::Accept);
+    cancelButton->Register("Clicked", this, &SaveSceneDialog::Cancel);
 
     NavigateTo(currentDirectory);
 }
@@ -226,6 +210,11 @@ bool SaveSceneDialog::IsValidFilename() const
 void SaveSceneDialog::SetValidationMessage(const char* message)
 {
     validationLabel->SetText(message);
+}
+
+void SaveSceneDialog::OnFilenameChanged()
+{
+    SetValidationMessage("");
 }
 
 } // namespace URay

@@ -1,14 +1,14 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
-
-#include <Engine/UI/Widget/Element/TextBox.h>
 
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
+#include <Core/Type/TypeAlias.h>
+#include <Engine/UI/Widget/Element/TextBox.h>
 
 namespace URay
 {
 
-class NumberField final : public TextBox
+class NumberField final : public TextBox, public RayEmitter
 {
 public:
     NumberField();

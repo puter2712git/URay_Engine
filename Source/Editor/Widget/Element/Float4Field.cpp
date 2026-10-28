@@ -21,6 +21,8 @@ constexpr float LabelFieldGap = 4.0f;
 
 Float4Field::Float4Field()
 {
+    URAY_DECLARE_RAY(ValueChanged, Vector4);
+
     xLabel = CreateEditorLabel(*this, "X");
     xField = AddChild<NumberField>();
     yLabel = CreateEditorLabel(*this, "Y");
@@ -30,10 +32,38 @@ Float4Field::Float4Field()
     wLabel = CreateEditorLabel(*this, "W");
     wField = AddChild<NumberField>();
 
-    xField->onValueChanged.Register(this, [this](float component) { value.x = component; onValueChanged.Emit(value); });
-    yField->onValueChanged.Register(this, [this](float component) { value.y = component; onValueChanged.Emit(value); });
-    zField->onValueChanged.Register(this, [this](float component) { value.z = component; onValueChanged.Emit(value); });
-    wField->onValueChanged.Register(this, [this](float component) { value.w = component; onValueChanged.Emit(value); });
+    xField->Register("ValueChanged", this, &Float4Field::OnXChanged);
+    yField->Register("ValueChanged", this, &Float4Field::OnYChanged);
+    zField->Register("ValueChanged", this, &Float4Field::OnZChanged);
+    wField->Register("ValueChanged", this, &Float4Field::OnWChanged);
+}
+
+void Float4Field::OnXChanged(float component)
+{
+    value.x = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
+
+void Float4Field::OnYChanged(float component)
+{
+    value.y = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
+
+void Float4Field::OnZChanged(float component)
+{
+    value.z = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
+
+void Float4Field::OnWChanged(float component)
+{
+    value.w = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
 }
 
 void Float4Field::SetValue(const Vector4& value)

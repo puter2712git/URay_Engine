@@ -40,6 +40,7 @@ private:
     bool IsValidFilename() const;
     void SetValidationMessage(const char* message);
     void OnFileEntryActivated(const VirtualFileEntry* entry);
+    void OnFilenameChanged();
 
 private:
     VirtualFileSystem& fileSystem;

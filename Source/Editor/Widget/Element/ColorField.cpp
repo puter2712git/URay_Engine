@@ -31,6 +31,8 @@ Render::TextStyle MakeComponentLabelStyle(const Color& color)
 
 ColorField::ColorField()
 {
+    URAY_DECLARE_RAY(ValueChanged, Color);
+
     rLabel = CreateEditorLabel(*this, "R");
     rLabel->SetTextStyle(MakeComponentLabelStyle(Color::Red));
     rField = AddChild<NumberField>();
@@ -47,37 +49,38 @@ ColorField::ColorField()
     aLabel->SetTextStyle(MakeComponentLabelStyle(EditorStyle::TextPrimary));
     aField = AddChild<NumberField>();
 
-    rField->onValueChanged.Register(
-        this,
-        [this](float component)
-        {
-            value.r = component;
-            onValueChanged.Emit(value);
-        });
+    rField->Register("ValueChanged", this, &ColorField::OnRChanged);
+    gField->Register("ValueChanged", this, &ColorField::OnGChanged);
+    bField->Register("ValueChanged", this, &ColorField::OnBChanged);
+    aField->Register("ValueChanged", this, &ColorField::OnAChanged);
+}
 
-    gField->onValueChanged.Register(
-        this,
-        [this](float component)
-        {
-            value.g = component;
-            onValueChanged.Emit(value);
-        });
+void ColorField::OnRChanged(float component)
+{
+    value.r = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
 
-    bField->onValueChanged.Register(
-        this,
-        [this](float component)
-        {
-            value.b = component;
-            onValueChanged.Emit(value);
-        });
+void ColorField::OnGChanged(float component)
+{
+    value.g = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
 
-    aField->onValueChanged.Register(
-        this,
-        [this](float component)
-        {
-            value.a = component;
-            onValueChanged.Emit(value);
-        });
+void ColorField::OnBChanged(float component)
+{
+    value.b = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
+}
+
+void ColorField::OnAChanged(float component)
+{
+    value.a = component;
+    onValueChanged.Emit(value);
+    Emit("ValueChanged", value);
 }
 
 void ColorField::SetValue(const Color& value)

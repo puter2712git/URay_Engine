@@ -4,13 +4,16 @@
 
 #include <Core/Math/Color.h>
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
 {
 
-class Checkbox : public Widget
+class Checkbox : public Widget, public RayEmitter
 {
 public:
+    Checkbox();
+
     void Arrange(const Rect& rect) override;
 
     EventReply OnPointerDown(const PointerEvent& event) override;

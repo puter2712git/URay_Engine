@@ -4,6 +4,7 @@
 
 #include <Core/Math/Color.h>
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 namespace URay
 {
@@ -11,7 +12,7 @@ namespace URay
 class Label;
 class NumberField;
 
-class ColorField final : public Widget
+class ColorField final : public Widget, public RayEmitter
 {
 public:
     ColorField();
@@ -26,6 +27,11 @@ protected:
     void OnPaint(Render::UIDrawContext& context) override;
 
 private:
+    void OnRChanged(float component);
+    void OnGChanged(float component);
+    void OnBChanged(float component);
+    void OnAChanged(float component);
+
     void ArrangeComponent(
         const Rect& rect,
         Label& label,

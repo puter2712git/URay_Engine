@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Panel/Panel.h>
 
 namespace URay
@@ -26,6 +27,13 @@ public:
 protected:
     void OnUpdate(float deltaTime) override;
     void OnPaint(Render::UIDrawContext& context) override;
+
+private:
+    void OnGizmoModeClicked(int32 index);
+    void OnGizmoSpaceClicked();
+    void OnViewModeClicked();
+    void OnPlayClicked();
+    void OnStopClicked();
 
 private:
     ViewportController& controller;

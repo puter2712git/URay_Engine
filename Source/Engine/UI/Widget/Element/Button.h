@@ -3,7 +3,6 @@
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 #include <memory>
@@ -45,16 +44,12 @@ protected:
 
     void OnPaint(Render::UIDrawContext& context) override;
 
-public:
-    Ray<> onClicked;
-
 private:
     Widget* content = nullptr;
 
     Color normalColor = {};
     Color hoverColor = {};
     Color pressedColor = {};
-
 };
 
 } // namespace URay

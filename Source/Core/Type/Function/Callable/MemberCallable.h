@@ -11,6 +11,7 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace URay
 {
@@ -29,8 +30,8 @@ private:
         "Ray callbacks must return void.");
 
 public:
-    MemberCallable(Owner* target, const void* targetIdentity, Method method, FunctionSignature signature)
-        : Callable(std::move(signature)), method(method), targetIdentity(targetIdentity)
+    MemberCallable(Owner* target, const void* targetIdentity, Method method, FunctionSignature signature, std::vector<Variant> boundArguments)
+        : Callable(std::move(signature)), method(method), targetIdentity(targetIdentity), boundArguments(std::move(boundArguments))
     {
         if constexpr (std::is_convertible_v<Owner*, Object*>)
         {
@@ -52,11 +53,15 @@ public:
         if (!GetSignature().AcceptsArguments(args))
             return false;
 
+        if (args.size() + boundArguments.size() != Traits::ArgumentCount)
+            return false;
+
         return InvokeImpl(
             target,
             args,
             std::make_index_sequence<Traits::ArgumentCount>{});
     }
+
     bool HasTarget(const void* target) const override { return targetIdentity == target; }
 
 private:
@@ -77,7 +82,10 @@ private:
     {
         auto values = std::tuple{
             ReadCallableArgument<
-                std::tuple_element_t<Indices, ArgumentTypes>>(args[Indices])...
+                std::tuple_element_t<Indices, ArgumentTypes>>(
+                Indices < args.size()
+                    ? args[Indices]
+                    : boundArguments[Indices - args.size()])...
         };
 
         const bool allValid = std::apply(
@@ -98,12 +106,14 @@ private:
     Method method;
     const void* targetIdentity = nullptr;
 
+    std::vector<Variant> boundArguments;
+
     Owner* plainTarget = nullptr;
     std::optional<Variant> objectTarget;
 };
 
-template <typename Target, typename Method>
-std::unique_ptr<Callable> MakeMemberCallable(Target* target, Method method)
+template <typename Target, typename Method, typename... BoundArgs>
+std::unique_ptr<Callable> MakeMemberCallable(Target* target, Method method, BoundArgs&&... boundArgs)
 {
     using Traits = FunctionTraits<Method>;
     using Owner = typename Traits::OwnerType;
@@ -124,11 +134,33 @@ std::unique_ptr<Callable> MakeMemberCallable(Target* target, Method method)
     if (!signature)
         return nullptr;
 
+    constexpr std::size_t boundCount = sizeof...(BoundArgs);
+
+    if (boundCount > signature->parameters.size())
+        return nullptr;
+
+    std::vector<Variant> boundArguments;
+    boundArguments.reserve(boundCount);
+    (boundArguments.emplace_back(std::forward<BoundArgs>(boundArgs)), ...);
+
+    const std::size_t eventArgumentCount = signature->parameters.size() - boundCount;
+
+    for (std::size_t index = 0; index < boundCount; ++index)
+    {
+        const auto& parameter = signature->parameters[eventArgumentCount + index];
+
+        if (!parameter.Accepts(boundArguments[index]))
+            return nullptr;
+    }
+
+    signature->parameters.resize(eventArgumentCount);
+
     return std::make_unique<MemberCallable<Method>>(
         static_cast<Owner*>(target),
         static_cast<const void*>(target),
         method,
-        std::move(*signature));
+        std::move(*signature),
+        std::move(boundArguments));
 }
 
 } // namespace URay

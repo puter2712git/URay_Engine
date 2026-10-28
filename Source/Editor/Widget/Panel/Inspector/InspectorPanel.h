@@ -3,12 +3,12 @@
 
 #include <Editor/Widget/Panel/Panel.h>
 
-
 namespace URay
 {
 
 class VerticalLayout;
 class ScrollView;
+class Button;
 class Object;
 class Unit;
 class InspectSystem;
@@ -51,6 +51,8 @@ private:
     void AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
     void AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
     void AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
+
+    void OnAddComponentClicked(Button* button, Unit* unit);
 
 private:
     InspectSystem& inspectSystem;

@@ -16,6 +16,8 @@ namespace URay
 
 IntField::IntField()
 {
+    URAY_DECLARE_RAY(ValueChanged, int32);
+
     ConfigureEditorTextBox(*this);
 }
 
@@ -72,6 +74,7 @@ EventReply IntField::OnPointerMove(const PointerEvent& event)
 
     SetValue(newValue);
     onValueChanged.Emit(newValue);
+    Emit("ValueChanged", newValue);
 
     return EventReply{ .handled = true };
 }
@@ -121,7 +124,10 @@ void IntField::OnTextChanged(
 {
     int32 value = 0;
     if (TryParse(currText, value))
+    {
         onValueChanged.Emit(value);
+        Emit("ValueChanged", value);
+    }
 }
 
 bool IntField::TryParse(const String& text, int32& outValue) const

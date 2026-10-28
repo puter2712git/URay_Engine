@@ -33,15 +33,15 @@ public:
         return true;
     }
 
-    template <typename Target, typename Method>
-    bool Register(const String& name, Target* target, Method method)
+    template <typename Target, typename Method, typename... BoundArgs>
+    bool Register(const String& name, Target* target, Method method, BoundArgs&&... boundArgs)
     {
         auto it = rays.find(name);
 
         if (it == rays.end())
             return false;
 
-        auto callback = MakeMemberCallable(target, method);
+        auto callback = MakeMemberCallable(target, method, std::forward<BoundArgs>(boundArgs)...);
 
         if (!callback)
             return false;
