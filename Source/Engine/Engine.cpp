@@ -8,7 +8,11 @@
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/TimeFlow/Timer.h>
+#include <Core/Type/Function/Function.h>
+#include <Core/Type/Function/FunctionParameter.h>
+#include <Core/Type/Function/FunctionSignature.h>
 #include <Core/Type/TypeAlias.h>
+#include <Core/Type/Variant/Variant.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Object/ObjectSystem.h>
@@ -24,6 +28,7 @@
 #include <GLFW/glfw3.h>
 
 #include <algorithm>
+#include <cassert>
 
 namespace URay
 {
@@ -117,6 +122,33 @@ bool Engine::Initialize(
         }
     }
 
+    struct TestListener
+    {
+        void OnChanged(float value, int32 count) {}
+        void OnDifferent(float value) {}
+        int32 OnChangedWithReturn(float value, int32 count) { return 0; }
+    };
+
+    const auto raySignature =
+        MakeFunctionSignature(&TestListener::OnChanged);
+
+    const auto callbackSignature =
+        MakeFunctionSignature(&TestListener::OnChanged);
+
+    const auto differentSignature =
+        MakeFunctionSignature(&TestListener::OnDifferent);
+
+    const auto returnSignature =
+        MakeFunctionSignature(&TestListener::OnChangedWithReturn);
+
+    assert(raySignature.has_value());
+    assert(callbackSignature.has_value());
+    assert(differentSignature.has_value());
+    assert(returnSignature.has_value());
+
+    assert(callbackSignature->Accepts(*raySignature));
+    assert(!differentSignature->Accepts(*raySignature));
+    assert(!returnSignature->Accepts(*raySignature));
     return true;
 }
 

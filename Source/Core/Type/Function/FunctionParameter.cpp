@@ -49,4 +49,21 @@ bool FunctionParameter::Accepts(const Variant& argument) const
     return false;
 }
 
+bool FunctionParameter::Accepts(const FunctionParameter& source) const
+{
+    if (!type || !source.type)
+        return false;
+
+    if (source.nullable && !nullable)
+        return false;
+
+    if (isConst != source.isConst)
+        return false;
+
+    if (type->isObjectType && source.type->isObjectType)
+        return IsTypeOf(*source.type, *type);
+
+    return type == source.type;
+}
+
 } // namespace URay
