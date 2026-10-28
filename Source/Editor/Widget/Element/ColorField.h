@@ -9,7 +9,7 @@ namespace URay
 {
 
 class Label;
-class NumberField;
+template <typename T> class NumberField;
 
 class ColorField final : public Widget, public RayEmitter
 {
@@ -34,7 +34,7 @@ private:
     void ArrangeComponent(
         const Rect& rect,
         Label& label,
-        NumberField& field) const;
+        NumberField<float>& field) const;
 
 private:
     Color value = Color::White;
@@ -45,10 +45,10 @@ private:
     Label* bLabel = nullptr;
     Label* aLabel = nullptr;
 
-    NumberField* rField = nullptr;
-    NumberField* gField = nullptr;
-    NumberField* bField = nullptr;
-    NumberField* aField = nullptr;
+    NumberField<float>* rField = nullptr;
+    NumberField<float>* gField = nullptr;
+    NumberField<float>* bField = nullptr;
+    NumberField<float>* aField = nullptr;
 
 };
 

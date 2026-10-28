@@ -35,19 +35,19 @@ ColorField::ColorField()
 
     rLabel = CreateEditorLabel(*this, "R");
     rLabel->SetTextStyle(MakeComponentLabelStyle(Color::Red));
-    rField = AddChild<NumberField>();
+    rField = AddChild<NumberField<float>>();
 
     gLabel = CreateEditorLabel(*this, "G");
     gLabel->SetTextStyle(MakeComponentLabelStyle(Color::Green));
-    gField = AddChild<NumberField>();
+    gField = AddChild<NumberField<float>>();
 
     bLabel = CreateEditorLabel(*this, "B");
     bLabel->SetTextStyle(MakeComponentLabelStyle(Color::Blue));
-    bField = AddChild<NumberField>();
+    bField = AddChild<NumberField<float>>();
 
     aLabel = CreateEditorLabel(*this, "A");
     aLabel->SetTextStyle(MakeComponentLabelStyle(EditorStyle::TextPrimary));
-    aField = AddChild<NumberField>();
+    aField = AddChild<NumberField<float>>();
 
     rField->Register("ValueChanged", this, &ColorField::OnRChanged);
     gField->Register("ValueChanged", this, &ColorField::OnGChanged);
@@ -163,7 +163,7 @@ void ColorField::OnPaint(Render::UIDrawContext& context)
 void ColorField::ArrangeComponent(
     const Rect& rect,
     Label& label,
-    NumberField& field) const
+    NumberField<float>& field) const
 {
     const Vector2 labelSize = label.GetDesiredSize();
     const float labelWidth = labelSize.x;

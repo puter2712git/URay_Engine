@@ -49,7 +49,7 @@ class VectorField final : public Widget, public RayEmitter
     struct Component
     {
         Label* label = nullptr;
-        NumberField* field = nullptr;
+        NumberField<float>* field = nullptr;
     };
 
 public:
@@ -61,7 +61,7 @@ public:
         for (std::size_t i = 0; i < ComponentCount; ++i)
         {
             components[i].label = CreateEditorLabel(*this, names[i]);
-            components[i].field = AddChild<NumberField>();
+            components[i].field = AddChild<NumberField<float>>();
             components[i].field->Register(
                 "ValueChanged", this, &VectorField::OnComponentChanged, static_cast<int32>(i));
         }

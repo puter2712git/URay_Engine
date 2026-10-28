@@ -13,7 +13,6 @@
 #include <Editor/Widget/Element/AssetField.h>
 #include <Editor/Widget/Element/ColorField.h>
 #include <Editor/Widget/Element/VectorField.h>
-#include <Editor/Widget/Element/IntField.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
@@ -273,7 +272,7 @@ void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& obje
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
-    NumberField* field = row->SetValueWidget<NumberField>();
+    NumberField<float>* field = row->SetValueWidget<NumberField<float>>();
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnFloatChanged, &object, KeepProperty(property));
@@ -285,7 +284,7 @@ void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
-    IntField* field = row->SetValueWidget<IntField>();
+    NumberField<int32>* field = row->SetValueWidget<NumberField<int32>>();
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnIntChanged, &object, KeepProperty(property));
