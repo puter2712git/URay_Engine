@@ -25,6 +25,7 @@ public:
     const FunctionSignature& GetSignature() const { return signature; }
 
     virtual bool Invoke(std::span<const Variant> args) = 0;
+    virtual bool HasTarget(const void* target) const = 0;
 
 private:
     FunctionSignature signature;

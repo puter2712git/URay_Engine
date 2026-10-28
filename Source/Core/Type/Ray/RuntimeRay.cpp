@@ -1,5 +1,7 @@
 #include "RuntimeRay.h"
 
+#include <algorithm>
+
 namespace URay
 {
 
@@ -13,8 +15,27 @@ bool RuntimeRay::Register(std::unique_ptr<Callable> callback)
     if (!callback->GetSignature().Accepts(signature))
         return false;
 
-    callbacks.push_back(std::move(callback));
+    callbacks.push_back(std::make_shared<Connection>(std::move(callback)));
     return true;
+}
+
+void RuntimeRay::UnregisterAll(const void* target)
+{
+    if (!target)
+        return;
+
+    for (const auto& connection : callbacks)
+    {
+        if (connection->callback->HasTarget(target))
+            connection->active = false;
+    }
+
+    std::erase_if(
+        callbacks,
+        [](const auto& connection)
+        {
+            return !connection->active;
+        });
 }
 
 bool RuntimeRay::Emit(std::span<const Variant> args)
@@ -22,12 +43,16 @@ bool RuntimeRay::Emit(std::span<const Variant> args)
     if (!signature.AcceptsArguments(args))
         return false;
 
-    bool allInvoked = true;
-    const std::size_t count = callbacks.size();
+    const auto currentConnections = callbacks;
 
-    for (std::size_t index = 0; index < count; ++index)
+    bool allInvoked = true;
+
+    for (const auto& connection : currentConnections)
     {
-        if (!callbacks[index]->Invoke(args))
+        if (!connection->active)
+            continue;
+
+        if (!connection->callback->Invoke(args))
             allInvoked = false;
     }
 

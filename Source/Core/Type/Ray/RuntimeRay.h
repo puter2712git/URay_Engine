@@ -20,13 +20,23 @@ public:
 
 public:
     bool Register(std::unique_ptr<Callable> callback);
+    void UnregisterAll(const void* target);
+
     bool Emit(std::span<const Variant> args);
 
     const FunctionSignature& GetSignature() const { return signature; }
 
 private:
+    struct Connection
+    {
+        explicit Connection(std::unique_ptr<Callable> callback) : callback(std::move(callback)) {}
+
+        std::unique_ptr<Callable> callback;
+        bool active = true;
+    };
+
     FunctionSignature signature;
-    std::vector<std::unique_ptr<Callable>> callbacks;
+    std::vector<std::shared_ptr<Connection>> callbacks;
 };
 
 } // namespace URay

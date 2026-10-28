@@ -8,12 +8,7 @@
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/TimeFlow/Timer.h>
-#include <Core/Type/Function/Callable/CallableArgument.h>
-#include <Core/Type/Function/Callable/MemberCallable.h>
-#include <Core/Type/Function/Function.h>
-#include <Core/Type/Function/FunctionParameter.h>
-#include <Core/Type/Function/FunctionSignature.h>
-#include <Core/Type/Ray/RuntimeRay.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Core/Type/TypeAlias.h>
 #include <Core/Type/Variant/Variant.h>
 #include <Engine/Asset/AssetDatabase.h>
@@ -27,9 +22,6 @@
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
-
-#include <array>
-#include <cassert>
 
 #include <GLFW/glfw3.h>
 
@@ -127,39 +119,6 @@ bool Engine::Initialize(
             return false;
         }
     }
-
-    struct TestListener
-    {
-        float received = 0.0f;
-
-        void OnChanged(float value)
-        {
-            received = value;
-        }
-    };
-
-    TestListener listener;
-
-    // 이번 테스트에서는 함수에서 Ray 시그니처를 임시로 생성한다.
-    // 나중에는 Ray 선언 매크로가 이를 만들게 된다.
-    auto signature = MakeFunctionSignature(&TestListener::OnChanged);
-    assert(signature.has_value());
-
-    RuntimeRay ray(std::move(*signature));
-
-    auto callback = MakeMemberCallable(
-        &listener,
-        &TestListener::OnChanged);
-
-    const bool registered = ray.Register(std::move(callback));
-    assert(registered);
-
-    std::array<Variant, 1> args{ Variant(3.5f) };
-
-    const bool emitted = ray.Emit(args);
-
-    assert(emitted);
-    assert(listener.received == 3.5f);
 
     return true;
 }

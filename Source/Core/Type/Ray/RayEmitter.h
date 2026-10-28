@@ -49,6 +49,17 @@ public:
         return it->second.Register(std::move(callback));
     }
 
+    void UnregisterAll(const void* target)
+    {
+        if (!target)
+            return;
+
+        for (auto& [name, ray] : rays)
+        {
+            ray.UnregisterAll(target);
+        }
+    }
+
     template <typename... Args>
     bool Emit(const String& name, Args&&... args)
     {

@@ -29,8 +29,8 @@ private:
         "Ray callbacks must return void.");
 
 public:
-    MemberCallable(Owner* target, Method method, FunctionSignature signature)
-        : Callable(std::move(signature)), method(method)
+    MemberCallable(Owner* target, const void* targetIdentity, Method method, FunctionSignature signature)
+        : Callable(std::move(signature)), method(method), targetIdentity(targetIdentity)
     {
         if constexpr (std::is_convertible_v<Owner*, Object*>)
         {
@@ -57,6 +57,7 @@ public:
             args,
             std::make_index_sequence<Traits::ArgumentCount>{});
     }
+    bool HasTarget(const void* target) const override { return targetIdentity == target; }
 
 private:
     Owner* ResolveTarget() const
@@ -95,6 +96,8 @@ private:
 
 private:
     Method method;
+    const void* targetIdentity = nullptr;
+
     Owner* plainTarget = nullptr;
     std::optional<Variant> objectTarget;
 };
@@ -123,6 +126,7 @@ std::unique_ptr<Callable> MakeMemberCallable(Target* target, Method method)
 
     return std::make_unique<MemberCallable<Method>>(
         static_cast<Owner*>(target),
+        static_cast<const void*>(target),
         method,
         std::move(*signature));
 }
