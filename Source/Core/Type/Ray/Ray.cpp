@@ -1,13 +1,13 @@
-#include "RuntimeRay.h"
+#include "Ray.h"
 
 #include <algorithm>
 
 namespace URay
 {
 
-RuntimeRay::RuntimeRay(FunctionSignature signature) : signature(std::move(signature)) {}
+Ray::Ray(FunctionSignature signature) : signature(std::move(signature)) {}
 
-bool RuntimeRay::Register(std::unique_ptr<Callable> callback)
+bool Ray::Register(std::unique_ptr<Callable> callback)
 {
     if (!callback)
         return false;
@@ -19,7 +19,7 @@ bool RuntimeRay::Register(std::unique_ptr<Callable> callback)
     return true;
 }
 
-void RuntimeRay::UnregisterAll(const void* target)
+void Ray::UnregisterAll(const void* target)
 {
     if (!target)
         return;
@@ -38,7 +38,7 @@ void RuntimeRay::UnregisterAll(const void* target)
         });
 }
 
-bool RuntimeRay::Emit(std::span<const Variant> args)
+bool Ray::Emit(std::span<const Variant> args)
 {
     if (!signature.AcceptsArguments(args))
         return false;

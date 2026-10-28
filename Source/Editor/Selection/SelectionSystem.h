@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 #include <vector>

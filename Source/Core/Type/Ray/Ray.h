@@ -1,27 +1,42 @@
 #pragma once
 
-#include <functional>
-#include <unordered_map>
+#include <Core/Type/Function/Callable/Callable.h>
+#include <Core/Type/Function/FunctionSignature.h>
+#include <Core/Type/Variant/Variant.h>
+
+#include <cstddef>
+#include <memory>
+#include <span>
+#include <utility>
+#include <vector>
 
 namespace URay
 {
 
-template <typename... Args>
 class Ray
 {
 public:
-    using Callback = std::function<void(Args...)>;
+    explicit Ray(FunctionSignature signature);
 
 public:
-    void Register(const void* owner, Callback callback);
-    void UnregisterAll(const void* owner);
+    bool Register(std::unique_ptr<Callable> callback);
+    void UnregisterAll(const void* target);
 
-    void Emit(Args... args) const;
+    bool Emit(std::span<const Variant> args);
+
+    const FunctionSignature& GetSignature() const { return signature; }
 
 private:
-    std::unordered_map<const void*, std::vector<Callback>> callbacks;
+    struct Connection
+    {
+        explicit Connection(std::unique_ptr<Callable> callback) : callback(std::move(callback)) {}
+
+        std::unique_ptr<Callable> callback;
+        bool active = true;
+    };
+
+    FunctionSignature signature;
+    std::vector<std::shared_ptr<Connection>> callbacks;
 };
 
 } // namespace URay
-
-#include "Ray.tpp"

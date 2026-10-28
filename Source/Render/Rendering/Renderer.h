@@ -3,7 +3,6 @@
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Matrix.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Texture/Texture.h>

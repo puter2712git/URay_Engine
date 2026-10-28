@@ -2,7 +2,6 @@
 
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Platform/Window/Cursor.h>
 

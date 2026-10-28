@@ -2,7 +2,7 @@
 
 #include <Core/Type/Function/Callable/MemberCallable.h>
 #include <Core/Type/Function/FunctionSignature.h>
-#include <Core/Type/Ray/RuntimeRay.h>
+#include <Core/Type/Ray/Ray.h>
 #include <Core/Type/TypeAlias.h>
 #include <Core/Type/Variant/Variant.h>
 
@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    std::unordered_map<String, RuntimeRay> rays;
+    std::unordered_map<String, Ray> rays;
 };
 
 #define URAY_DECLARE_RAY(name, ...) \

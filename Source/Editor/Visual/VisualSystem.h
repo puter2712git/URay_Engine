@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
 #include <Editor/Visual/Visualizer/EditorVisualizerRegistry.h>
 
 #include <memory>
