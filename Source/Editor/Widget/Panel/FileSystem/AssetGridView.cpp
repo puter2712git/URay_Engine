@@ -11,6 +11,12 @@
 namespace URay
 {
 
+AssetGridView::AssetGridView()
+{
+    URAY_DECLARE_RAY(EntrySelected, AssetEntry);
+    URAY_DECLARE_RAY(EntryActivated, AssetEntry);
+}
+
 void AssetGridView::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
@@ -96,28 +102,26 @@ void AssetGridView::RebuildItems(const std::vector<AssetEntry>& entries)
     {
         AssetGridItem* item = AddChild<AssetGridItem>(entry);
 
-        item->onSelected.Register(
-            this,
-            [this](const AssetEntry& selectedEntry)
-            {
-                for (const auto& child : children)
-                {
-                    AssetGridItem* gridItem = static_cast<AssetGridItem*>(child.get());
-                    const bool isSelected =
-                        gridItem->GetEntry().path.ToString() == selectedEntry.path.ToString();
-                    gridItem->SetSelected(isSelected);
-                }
-
-                onEntrySelected.Emit(selectedEntry);
-            });
-
-        item->onActivated.Register(
-            this,
-            [this](const AssetEntry& activatedEntry)
-            {
-                onEntryActivated.Emit(activatedEntry);
-            });
+        item->Register("Selected", this, &AssetGridView::OnItemSelected);
+        item->Register("Activated", this, &AssetGridView::OnItemActivated);
     }
+}
+
+void AssetGridView::OnItemSelected(AssetEntry entry)
+{
+    for (const auto& child : children)
+    {
+        AssetGridItem* gridItem = static_cast<AssetGridItem*>(child.get());
+        const bool isSelected = gridItem->GetEntry().path.ToString() == entry.path.ToString();
+        gridItem->SetSelected(isSelected);
+    }
+
+    Emit("EntrySelected", entry);
+}
+
+void AssetGridView::OnItemActivated(AssetEntry entry)
+{
+    Emit("EntryActivated", entry);
 }
 
 Vector2 AssetGridView::OnMeasure()

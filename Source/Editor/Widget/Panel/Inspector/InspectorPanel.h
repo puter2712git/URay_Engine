@@ -70,6 +70,7 @@ private:
     void OnVector4Changed(Vector4 value, Object* object, const Property* property);
     void OnColorChanged(Color value, Object* object, const Property* property);
     void OnStringChanged(Object* object, const Property* property, StringField* field);
+    void OnAssetChanged(AssetHandle value, Object* object, const Property* property);
 
 private:
     InspectSystem& inspectSystem;

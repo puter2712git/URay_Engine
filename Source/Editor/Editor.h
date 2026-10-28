@@ -23,6 +23,7 @@ class PerformanceViewModel;
 class SaveSceneDialog;
 enum class DialogResult;
 enum class UnitPopupSelection;
+struct ComponentPickerSelection;
 
 class Editor
 {
@@ -42,6 +43,7 @@ public:
 
     void LoadGameScene(const VirtualPath& scenePath);
     void OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, int32 unitIndex, uint32 unitGeneration);
+    void OnComponentPopupSelected(ComponentPickerSelection selection, int32 unitIndex, uint32 unitGeneration);
 
     EditorUI& GetEditorUI() const { return *editorUI; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }

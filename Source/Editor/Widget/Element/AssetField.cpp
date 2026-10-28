@@ -16,8 +16,19 @@ namespace URay
 
 AssetField::AssetField(Class* assetClass) : assetClass(assetClass)
 {
+    URAY_DECLARE_RAY(ValueChanged, AssetHandle);
     textBox = CreateEditorTextBox(*this, "None");
     textBox->SetReadonly(true);
+}
+
+AssetField::~AssetField()
+{
+    if (!popupLifetime.expired())
+    {
+        activePopup->UnregisterAll(this);
+        if (auto* popupLayer = static_cast<PopupLayer*>(activePopup->GetParent()))
+            popupLayer->ClosePopup();
+    }
 }
 
 void AssetField::Arrange(const Rect& rect)
@@ -40,23 +51,27 @@ EventReply AssetField::OnPointerDown(const PointerEvent& event)
             assetClass,
             value);
 
-    popup->onValueSelected.Register(
-        this,
-        [this, &popupLayer](AssetHandle selectedHandle)
-        {
-            if (value != selectedHandle)
-            {
-                SetValue(selectedHandle);
-                onValueChanged.Emit(selectedHandle);
-            }
-
-            popupLayer.ClosePopup();
-        });
+    activePopup = popup;
+    popupLifetime = popup->GetLifetimeToken();
+    popup->Register("ValueSelected", this, &AssetField::OnValueSelected);
 
     return EventReply{
         .handled = true,
         .requestFocus = true
     };
+}
+
+void AssetField::OnValueSelected(AssetHandle selectedHandle)
+{
+    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
+
+    if (value != selectedHandle)
+    {
+        SetValue(selectedHandle);
+        Emit("ValueChanged", selectedHandle);
+    }
+
+    popupLayer.ClosePopup();
 }
 
 void AssetField::SetValue(AssetHandle handle)

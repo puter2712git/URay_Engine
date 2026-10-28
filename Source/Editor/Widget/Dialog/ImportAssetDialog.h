@@ -37,6 +37,7 @@ private:
     void Import(const VirtualPath& sourcePath);
     void SetValidationMessage(const char* message);
     void OnFileEntryActivated(const VirtualFileEntry* entry);
+    void OnPathActivated(VirtualPath path);
 
 private:
     AssetSystem& assetSystem;

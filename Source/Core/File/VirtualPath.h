@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/Type/TypeAlias.h>
+#include <Core/Type/Type.h>
 
 
 namespace URay
@@ -7,6 +8,8 @@ namespace URay
 
 class VirtualPath
 {
+    URAY_TYPE(VirtualPath)
+
 public:
     VirtualPath();
     VirtualPath(const char* path);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -9,7 +9,7 @@ namespace URay
 
 class HorizontalLayout;
 
-class BreadcrumbBar final : public Widget
+class BreadcrumbBar final : public Widget, public RayEmitter
 {
 public:
     BreadcrumbBar();
@@ -24,9 +24,7 @@ protected:
 
 private:
     void RebuildItems();
-
-public:
-    Ray<const VirtualPath&> onPathActivated;
+    void OnItemActivated(VirtualPath path);
 
 private:
     VirtualPath currentPath;

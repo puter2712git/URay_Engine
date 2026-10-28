@@ -43,42 +43,35 @@ FileSystemPanel::FileSystemPanel() : Panel("File System")
 
     NavigateTo(currentPath);
 
-    assetGrid->onEntryActivated.Register(
-        this,
-        [this](const AssetEntry& entry)
-        {
-            if (entry.kind == AssetEntryKind::Directory)
-            {
-                gEditor->GetInspectSystem().ClearTarget();
-                pendingPath = entry.path;
-            }
-            else if (entry.kind == AssetEntryKind::Asset)
-            {
-                gEditor->GetSelectionSystem().ClearSelection();
-                gEditor->GetInspectSystem().SetTarget(InspectTarget::FromAsset(entry.assetHandle));
-            }
-            else if (entry.kind == AssetEntryKind::Scene)
-            {
-                gEditor->LoadGameScene(entry.path);
-            }
-        });
+    assetGrid->Register("EntryActivated", this, &FileSystemPanel::OnEntryActivated);
 
-    breadcrumbBar->onPathActivated.Register(
-        this,
-        [this](const VirtualPath& path)
-        {
-            pendingPath = path;
-        });
-
-    directoryTree->onDirectoryActivated
-        .Register(
-            this,
-            [this](const VirtualPath& path)
-            {
-                pendingPath = path;
-            });
+    breadcrumbBar->Register("PathActivated", this, &FileSystemPanel::OnPathActivated);
+    directoryTree->Register("DirectoryActivated", this, &FileSystemPanel::OnPathActivated);
 
     importButton->Register("Clicked", this, &FileSystemPanel::OpenImportDialog);
+}
+
+void FileSystemPanel::OnEntryActivated(AssetEntry entry)
+{
+    if (entry.kind == AssetEntryKind::Directory)
+    {
+        gEditor->GetInspectSystem().ClearTarget();
+        pendingPath = entry.path;
+    }
+    else if (entry.kind == AssetEntryKind::Asset)
+    {
+        gEditor->GetSelectionSystem().ClearSelection();
+        gEditor->GetInspectSystem().SetTarget(InspectTarget::FromAsset(entry.assetHandle));
+    }
+    else if (entry.kind == AssetEntryKind::Scene)
+    {
+        gEditor->LoadGameScene(entry.path);
+    }
+}
+
+void FileSystemPanel::OnPathActivated(VirtualPath path)
+{
+    pendingPath = path;
 }
 
 void FileSystemPanel::Arrange(const Rect& rect)

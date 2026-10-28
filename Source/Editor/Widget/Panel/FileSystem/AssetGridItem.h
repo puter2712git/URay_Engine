@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
 #include <Engine/UI/Widget/Widget.h>
 
@@ -12,7 +12,7 @@ class VerticalLayout;
 class Label;
 class Image;
 
-class AssetGridItem final : public Widget
+class AssetGridItem final : public Widget, public RayEmitter
 {
 public:
     explicit AssetGridItem(AssetEntry entry);
@@ -33,10 +33,6 @@ protected:
     void OnUpdate(float deltaTime) override;
 
     std::optional<Rect> GetClipRect() const override { return rect; }
-
-public:
-    Ray<const AssetEntry&> onSelected;
-    Ray<const AssetEntry&> onActivated;
 
 private:
     AssetEntry entry = {};

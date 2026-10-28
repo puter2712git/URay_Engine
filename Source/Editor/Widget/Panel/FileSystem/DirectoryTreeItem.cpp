@@ -16,6 +16,8 @@ namespace URay
 DirectoryTreeItem::DirectoryTreeItem(VirtualPath path, uint32 depth, bool expanded, bool selected)
     : path(std::move(path)), depth(depth), expanded(expanded), selected(selected)
 {
+    URAY_DECLARE_RAY(Activated, VirtualPath);
+    URAY_DECLARE_RAY(ExpandRequested, VirtualPath);
     surface = AddChild<Surface>();
 
     layout = surface->AddChild<HorizontalLayout>();
@@ -70,11 +72,11 @@ EventReply DirectoryTreeItem::OnPointerUp(const PointerEvent& event)
     if (event.position.x >= disclosureRect.position.x &&
         event.position.x < disclosureRect.position.x + disclosureRect.size.x)
     {
-        onExpandRequested.Emit(path);
+        Emit("ExpandRequested", path);
     }
     else
     {
-        onActivated.Emit(path);
+        Emit("Activated", path);
     }
 
     return EventReply{

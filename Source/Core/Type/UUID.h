@@ -1,5 +1,6 @@
 #pragma once
 #include <Core/Type/TypeAlias.h>
+#include <Core/Type/Type.h>
 
 
 #include <cstdint>
@@ -9,6 +10,8 @@ namespace URay
 
 struct UUID
 {
+    URAY_TYPE(UUID)
+
     uint64 high;
     uint64 low;
 

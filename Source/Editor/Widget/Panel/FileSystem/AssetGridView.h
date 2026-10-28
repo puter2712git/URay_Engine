@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
 #include <Engine/UI/Widget/Widget.h>
 
@@ -12,9 +12,11 @@ namespace URay
 
 class AssetSystem;
 
-class AssetGridView final : public Widget
+class AssetGridView final : public Widget, public RayEmitter
 {
 public:
+    AssetGridView();
+
     void Arrange(const Rect& rect) override;
 
     const VirtualPath& GetDirectory() const { return directory; }
@@ -25,10 +27,8 @@ protected:
 
 private:
     void RebuildItems(const std::vector<AssetEntry>& entries);
-
-public:
-    Ray<const AssetEntry&> onEntrySelected;
-    Ray<const AssetEntry&> onEntryActivated;
+    void OnItemSelected(AssetEntry entry);
+    void OnItemActivated(AssetEntry entry);
 
 private:
     VirtualPath directory = {};

@@ -52,18 +52,18 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
     cancelButton = CreateEditorButton(*this, "Cancel");
     cancelButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
-    breadcrumbBar->onPathActivated.Register(
-        this,
-        [this](const VirtualPath& path)
-        {
-            pendingDirectory = path;
-        });
+    breadcrumbBar->Register("PathActivated", this, &ImportAssetDialog::OnPathActivated);
 
     fileGrid->Register("EntryActivated", this, &ImportAssetDialog::OnFileEntryActivated);
 
     cancelButton->Register("Clicked", this, &ImportAssetDialog::Cancel);
 
     NavigateTo(currentDirectory);
+}
+
+void ImportAssetDialog::OnPathActivated(VirtualPath path)
+{
+    pendingDirectory = path;
 }
 
 void ImportAssetDialog::OnFileEntryActivated(const VirtualFileEntry* entry)

@@ -18,11 +18,13 @@
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
+#include <Editor/Widget/Popup/ComponentPickerPopup.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
 #include <Engine/Component/TransformComponent.h>
+#include <Engine/Component/ComponentFactory.h>
 #include <Engine/Engine.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/Scene/Scene.h>
@@ -375,6 +377,19 @@ void Editor::OnUnitPopupSelected(UnitPopupSelection selection, bool createChild,
     {
         Unit* createdUnit = scene->CreateEmptyUnit(createChild ? "New Unit" : "Empty Unit", targetUnit);
         selectionSystem->SetSelection(createdUnit);
+    }
+
+    editorUI->GetPopupLayer().ClosePopup();
+}
+
+void Editor::OnComponentPopupSelected(ComponentPickerSelection selection, int32 unitIndex, uint32 unitGeneration)
+{
+    Unit* unit = Cast<Unit>(gEngine->GetObjectSystem().Resolve(ObjectId{unitIndex, unitGeneration}));
+    if (unit)
+    {
+        auto component = ComponentFactory::Create(selection.componentTypeName);
+        if (component)
+            unit->AddComponent(std::move(component));
     }
 
     editorUI->GetPopupLayer().ClosePopup();

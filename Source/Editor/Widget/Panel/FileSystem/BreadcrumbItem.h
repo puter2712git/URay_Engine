@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -10,7 +10,7 @@ namespace URay
 class Surface;
 class Label;
 
-class BreadcrumbItem final : public Widget
+class BreadcrumbItem final : public Widget, public RayEmitter
 {
 public:
     explicit BreadcrumbItem(VirtualPath path);
@@ -25,9 +25,6 @@ protected:
     Vector2 OnMeasure() override;
 
     void OnUpdate(float deltaTime) override;
-
-public:
-    Ray<const VirtualPath&> onActivated;
 
 private:
     VirtualPath path = {};

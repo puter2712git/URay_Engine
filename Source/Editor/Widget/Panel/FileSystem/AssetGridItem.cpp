@@ -15,6 +15,8 @@ namespace URay
 
 AssetGridItem::AssetGridItem(AssetEntry entry) : entry(std::move(entry))
 {
+    URAY_DECLARE_RAY(Selected, AssetEntry);
+    URAY_DECLARE_RAY(Activated, AssetEntry);
     surface = AddChild<Surface>();
     surface->SetOutlineWidth(1.0f);
     surface->SetOutlineColor(EditorStyle::Border);
@@ -73,8 +75,8 @@ EventReply AssetGridItem::OnPointerUp(const PointerEvent& event)
 
     if (IsHovered())
     {
-        onSelected.Emit(entry);
-        onActivated.Emit(entry);
+        Emit("Selected", entry);
+        Emit("Activated", entry);
     }
 
     return EventReply{

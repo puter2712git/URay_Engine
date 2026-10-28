@@ -445,19 +445,18 @@ void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& obje
     AssetField* field = row->SetValueWidget<AssetField>(assetClass);
     field->SetValue(*value);
 
-    field->onValueChanged.Register(
-        this,
-        [&object, property, value](AssetHandle newValue)
-        {
-            if (*value == newValue)
-                return;
+    field->Register("ValueChanged", this, &InspectorPanel::OnAssetChanged, &object, KeepProperty(property));
+}
 
-            *value = newValue;
-            object.NotifyPropertyChanged(property);
+void InspectorPanel::OnAssetChanged(AssetHandle value, Object* object, const Property* property)
+{
+    if (!object || !property)
+        return;
 
-            if (property.OnChangedCallback)
-                property.OnChangedCallback(object, property);
-        });
+    const auto* current = reinterpret_cast<const AssetHandle*>(
+        reinterpret_cast<const uint8*>(object) + property->offset);
+    if (*current != value)
+        UpdateInspectedProperty(value, object, property);
 }
 
 void InspectorPanel::OnAddComponentClicked(Button* button, Unit* unit)
@@ -469,19 +468,8 @@ void InspectorPanel::OnAddComponentClicked(Button* button, Unit* unit)
 
     ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(button->GetRect(), *unit);
 
-    popup->onComponentSelected.Register(
-        popup,
-        [this, &popupLayer, unit](const ComponentPickerSelection& selection)
-        {
-            auto component = ComponentFactory::Create(selection.componentTypeName);
-
-            if (component)
-            {
-                unit->AddComponent(std::move(component));
-            }
-
-            popupLayer.ClosePopup();
-        });
+    const ObjectId unitId = unit->GetId();
+    popup->Register("ComponentSelected", gEditor, &Editor::OnComponentPopupSelected, unitId.index, unitId.generation);
 }
 
 } // namespace URay

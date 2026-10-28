@@ -12,6 +12,7 @@ namespace URay
 
 AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
 {
+    URAY_DECLARE_RAY(ValueSelected, AssetHandle);
     Register("ItemSelected", this, &AssetPickerPopup::OnMenuItemSelected);
     handles.push_back(AssetHandle{});
     AddMenuItem("<Null>", 0);
@@ -35,7 +36,7 @@ AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
 void AssetPickerPopup::OnMenuItemSelected(int32 id)
 {
     if (id >= 0 && static_cast<size_t>(id) < handles.size())
-        onValueSelected.Emit(handles[static_cast<size_t>(id)]);
+        Emit("ValueSelected", handles[static_cast<size_t>(id)]);
 }
 
 } // namespace URay

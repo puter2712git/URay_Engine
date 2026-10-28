@@ -15,6 +15,7 @@ class BreadcrumbBar;
 class AssetGridView;
 class Button;
 class Separator;
+struct AssetEntry;
 enum class DialogResult;
 
 class FileSystemPanel final : public Panel
@@ -35,6 +36,8 @@ protected:
 private:
     void OpenImportDialog();
     void OnImportDialogClosed(DialogResult result);
+    void OnPathActivated(VirtualPath path);
+    void OnEntryActivated(AssetEntry entry);
 
 private:
     VirtualPath currentPath = "Project://Asset";

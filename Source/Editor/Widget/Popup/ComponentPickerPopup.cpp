@@ -11,6 +11,7 @@ namespace URay
 
 ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 {
+    URAY_DECLARE_RAY(ComponentSelected, ComponentPickerSelection);
     Register("ItemSelected", this, &ComponentPickerPopup::OnMenuItemSelected);
 
     for (const auto& [name, constructor] : ComponentFactory::GetRegisteredComponents())
@@ -33,7 +34,7 @@ void ComponentPickerPopup::OnMenuItemSelected(int32 id)
         return;
 
     const ComponentPickerSelection selection = { .componentTypeName = componentNames[static_cast<size_t>(id)] };
-    onComponentSelected.Emit(selection);
+    Emit("ComponentSelected", selection);
 }
 
 } // namespace URay

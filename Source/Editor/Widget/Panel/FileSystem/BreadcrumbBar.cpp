@@ -13,6 +13,7 @@ namespace URay
 
 BreadcrumbBar::BreadcrumbBar()
 {
+    URAY_DECLARE_RAY(PathActivated, VirtualPath);
     layout = AddChild<HorizontalLayout>();
     layout->SetGap(2.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Center);
@@ -54,12 +55,7 @@ void BreadcrumbBar::RebuildItems()
     {
         BreadcrumbItem* item = layout->AddChild<BreadcrumbItem>(path);
 
-        item->onActivated.Register(
-            this,
-            [this](const VirtualPath& activatedPath)
-            {
-                onPathActivated.Emit(activatedPath);
-            });
+        item->Register("Activated", this, &BreadcrumbBar::OnItemActivated);
     };
 
     addBreadcrumbItem(accumulatedPath);
@@ -93,6 +89,11 @@ void BreadcrumbBar::RebuildItems()
 
         segmentStart = separatorIndex + 1;
     }
+}
+
+void BreadcrumbBar::OnItemActivated(VirtualPath path)
+{
+    Emit("PathActivated", path);
 }
 
 } // namespace URay

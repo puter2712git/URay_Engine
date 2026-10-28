@@ -1,7 +1,6 @@
 #pragma once
 #include <Core/Type/TypeAlias.h>
 
-#include <Core/Type/Ray/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 
 namespace URay
@@ -11,6 +10,8 @@ class Unit;
 
 struct ComponentPickerSelection
 {
+    URAY_TYPE(ComponentPickerSelection)
+
     String componentTypeName;
 };
 
@@ -23,8 +24,6 @@ private:
     void OnMenuItemSelected(int32 id);
     std::vector<String> componentNames;
 
-public:
-    Ray<const ComponentPickerSelection&> onComponentSelected;
 };
 
 } // namespace URay

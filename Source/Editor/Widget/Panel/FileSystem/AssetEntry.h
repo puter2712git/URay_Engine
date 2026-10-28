@@ -18,6 +18,8 @@ enum class AssetEntryKind
 
 struct AssetEntry
 {
+    URAY_TYPE(AssetEntry)
+
     AssetEntryKind kind = AssetEntryKind::Directory;
     VirtualPath path; // Source Path
     String displayName;

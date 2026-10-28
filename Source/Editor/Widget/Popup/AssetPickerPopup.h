@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 #include <Engine/Asset/AssetHandle.h>
+
+#include <memory>
 
 namespace URay
 {
@@ -13,13 +14,12 @@ class AssetPickerPopup final : public PopupMenu
 {
 public:
     explicit AssetPickerPopup(Class* assetClass, AssetHandle currentValue);
+    std::weak_ptr<void> GetLifetimeToken() const { return lifetimeToken; }
 
 private:
     void OnMenuItemSelected(int32 id);
     std::vector<AssetHandle> handles;
-
-public:
-    Ray<AssetHandle> onValueSelected;
+    std::shared_ptr<void> lifetimeToken = std::make_shared<int>(0);
 };
 
 } // namespace URay

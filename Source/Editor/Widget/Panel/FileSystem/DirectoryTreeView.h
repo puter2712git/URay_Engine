@@ -2,7 +2,7 @@
 #include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <optional>
@@ -13,7 +13,7 @@ namespace URay
 
 class VirtualFileSystem;
 
-class DirectoryTreeView final : public Widget
+class DirectoryTreeView final : public Widget, public RayEmitter
 {
 public:
     DirectoryTreeView(VirtualFileSystem& fileSystem, VirtualPath rootPath);
@@ -33,9 +33,8 @@ private:
     void AppendDirectory(const VirtualPath& path, uint32 depth);
 
     void ExpandAncestors(const VirtualPath& path);
-
-public:
-    Ray<const VirtualPath&> onDirectoryActivated;
+    void OnExpandRequested(VirtualPath path);
+    void OnItemActivated(VirtualPath path);
 
 private:
     VirtualFileSystem& fileSystem;
