@@ -141,7 +141,7 @@ Component* Unit::AddComponent(std::unique_ptr<Component> component)
         componentPtr->Initialize();
 
         SceneSystem& sceneSystem = scene->GetSceneSystem();
-        sceneSystem.onComponentAdded.Emit(scene, this, componentPtr);
+        sceneSystem.Emit("ComponentAdded", scene, this, componentPtr);
 
         if (scene->IsLoaded())
         {

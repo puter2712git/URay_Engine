@@ -22,7 +22,6 @@ class ObjectIdTargetRegistry;
 class PlaySession;
 class SelectionSystem;
 class TransformGizmo;
-
 class InputActionSystem;
 class Window;
 
@@ -33,6 +32,7 @@ class ResourceManager;
 class Sampler;
 class SceneSystem;
 class TextureView;
+struct ObjectIdReadbackResult;
 } // namespace Render
 
 struct ViewportImage
@@ -96,6 +96,9 @@ private:
     void CycleGizmoMode();
 
     void FocusActiveUnit();
+
+    void OnSelectionSetChanged();
+    void OnObjectIdReadback(Render::ObjectIdReadbackResult result);
 
 private:
     Render::Renderer& renderer;

@@ -47,6 +47,9 @@ private:
     void UpdateTree();
     void AddSubtree(const Unit& unit, uint32 depth);
 
+    void OnUnitAdded(Scene* scene, Unit* unit);
+    void OnUnitRemoved(Scene* scene, Unit* unit);
+
 private:
     SceneSystem* sceneSystem = nullptr;
 

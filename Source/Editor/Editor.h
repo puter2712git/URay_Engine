@@ -10,7 +10,7 @@ namespace URay
 
 class CameraComponent;
 class Scene;
-
+class Unit;
 class EditorUI;
 class EditorSettings;
 class SelectionSystem;
@@ -58,6 +58,8 @@ private:
     void DeleteSelectedUnits();
 
     void UpdatePerformanceViewModel();
+
+    void OnActiveSelectionChanged(Unit* previousUnit, Unit* activeUnit);
 
 private:
     std::unique_ptr<EditorUI> editorUI = nullptr;

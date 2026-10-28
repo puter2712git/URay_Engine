@@ -2,8 +2,9 @@
 
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Matrix.h>
-#include <Core/Type/Ray/Ray.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
+#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
@@ -40,7 +41,7 @@ class Texture;
 class TextureView;
 class RenderTargetRegistry;
 
-class Renderer
+class Renderer : public RayEmitter
 {
 public:
     Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager);
@@ -91,16 +92,13 @@ private:
 
     bool ConsumeGPUTimestampResults(FrameResource& frameResource);
 
+    void OnFramebufferResized(Extent2D);
+
     Format FindDepthFormat() const;
     bool HasStencilComponent(VkFormat format) const;
 
     VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
                                  VkFormatFeatureFlags features) const;
-
-public:
-    bool framebufferResized = false;
-    Ray<> onViewportRenderTargetsRecreated;
-    Ray<const ObjectIdReadbackResult&> onObjectIdReadback;
 
 private:
     Window& window;
@@ -125,6 +123,8 @@ private:
     PerformanceViewModel* performanceViewModel = nullptr;
 
     std::unique_ptr<ObjectIdReadback> objectIdReadback = nullptr;
+
+    bool framebufferResized = false;
 };
 
 constexpr uint32 GpuTimestampQueryCount = 2 * static_cast<uint32>(RenderPassId::Count);

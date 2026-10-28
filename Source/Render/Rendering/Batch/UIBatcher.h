@@ -62,6 +62,8 @@ private:
 
     DescriptorSet* GetOrCreateDescriptorSet(const TextureSamplerKey& key);
 
+    void OnViewportRenderTargetsRecreated();
+
 private:
     Device& device;
     ResourceManager& resourceManager;

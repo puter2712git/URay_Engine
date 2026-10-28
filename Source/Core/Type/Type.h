@@ -101,6 +101,16 @@ inline const Type& TypeOf<String>()
     return type;
 }
 
+template <>
+inline const Type& TypeOf<char32_t>()
+{
+    static const Type type = {
+        .kind = TypeKind::Value,
+        .name = "char32_t"
+    };
+    return type;
+}
+
 #define URAY_ROOT_TYPE(self, objectType) \
 public:                                  \
     static const Type& StaticType()      \
@@ -146,8 +156,6 @@ public:                                                           \
 #define URAY_CLASS(...) \
     URAY_CLASS_SELECT(__VA_ARGS__, URAY_CLASS_2, URAY_CLASS_1)(__VA_ARGS__)
 
-} // namespace URay
-
 // Registers a non-polymorphic value type without changing its object layout.
 #define URAY_TYPE(self)              \
 public:                              \
@@ -172,3 +180,16 @@ public:                              \
         };                           \
         return type;                 \
     }
+
+#define URAY_ENUM_TYPE(enumType)          \
+    template <>                           \
+    inline const Type& TypeOf<enumType>() \
+    {                                     \
+        static const Type type = {        \
+            .kind = TypeKind::Value,      \
+            .name = #enumType             \
+        };                                \
+        return type;                      \
+    }
+
+} // namespace URay

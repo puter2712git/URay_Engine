@@ -1,6 +1,9 @@
 #include "InspectSystem.h"
 
+#include <Engine/Component/Component.h>
+#include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/SceneSystem.h>
+#include <Engine/Scene/Unit.h>
 
 namespace URay
 {
@@ -9,52 +12,19 @@ InspectSystem::InspectSystem(SceneSystem& sceneSystem) : sceneSystem(sceneSystem
 
 bool InspectSystem::Initialize()
 {
-    sceneSystem.onComponentAdded.Register(
-        this, [this](Scene*, Unit* unit, Component*)
-        { 
-            if (IsInspecting(unit))
-            {
-                onTargetContentChanged.Emit(target);
-            } });
+    sceneSystem.Register("ComponentAdded", this, &InspectSystem::OnComponentChanged);
 
-    sceneSystem.onComponentDestroyed.Register(
-        this, [this](Scene*, Unit* unit, Component*)
-        { 
-            if (IsInspecting(unit))
-            {
-                onTargetContentChanged.Emit(target);
-            } });
-    sceneSystem.onComponentPropertyChanged.Register(
-        this, [this](Scene*, Unit* unit, Component*, const Property&)
-        { 
-            if (IsInspecting(unit))
-            {
-                onTargetContentChanged.Emit(target);
-            } });
-    sceneSystem.onUnitWorldTransformUpdated.Register(
-        this, [this](Scene*, Unit* unit)
-        {
-            if (IsInspecting(unit)){
-                onTargetContentChanged.Emit(target);
-            } });
-    sceneSystem.onUnitRemoved.Register(
-        this, [this](Scene*, Unit* unit)
-        { 
-            if (IsInspecting(unit))
-            {
-                ClearTarget();
-            } });
+    sceneSystem.Register("ComponentDestroyed", this, &InspectSystem::OnComponentChanged);
+    sceneSystem.Register("ComponentPropertyChanged", this, &InspectSystem::OnComponentPropertyChanged);
+    sceneSystem.Register("UnitRemoved", this, &InspectSystem::OnUnitRemoved);
+    sceneSystem.Register("UnitWorldTransformUpdated", this, &InspectSystem::OnUnitWorldTransformUpdated);
 
     return true;
 }
 
 void InspectSystem::Finalize()
 {
-    sceneSystem.onUnitRemoved.UnregisterAll(this);
-    sceneSystem.onUnitWorldTransformUpdated.UnregisterAll(this);
-    sceneSystem.onComponentPropertyChanged.UnregisterAll(this);
-    sceneSystem.onComponentDestroyed.UnregisterAll(this);
-    sceneSystem.onComponentAdded.UnregisterAll(this);
+    sceneSystem.UnregisterAll(this);
 
     ClearTarget();
 }
@@ -91,6 +61,33 @@ bool InspectSystem::IsInspecting(const Unit* unit) const
         return false;
 
     return unitTarget->unit == unit;
+}
+
+void InspectSystem::OnComponentChanged(Scene*, Unit* unit, Component*)
+{
+    if (IsInspecting(unit))
+        onTargetContentChanged.Emit(target);
+}
+
+void InspectSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property*)
+{
+    OnComponentChanged(scene, unit, component);
+}
+
+void InspectSystem::OnUnitRemoved(Scene* scene, Unit* unit)
+{
+    if (IsInspecting(unit))
+    {
+        ClearTarget();
+    }
+}
+
+void InspectSystem::OnUnitWorldTransformUpdated(Scene* scene, Unit* unit)
+{
+    if (IsInspecting(unit))
+    {
+        onTargetContentChanged.Emit(target);
+    }
 }
 
 } // namespace URay

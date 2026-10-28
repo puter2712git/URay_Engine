@@ -82,8 +82,7 @@ void Component::NotifyPropertyChanged(const Property& property)
         return;
 
     SceneSystem& sceneSystem = scene->GetSceneSystem();
-    auto& onComponentPropertyChanged = sceneSystem.onComponentPropertyChanged;
-    onComponentPropertyChanged.Emit(scene, unit, this, property);
+    sceneSystem.Emit("ComponentPropertyChanged", scene, unit, this, &property);
 }
 
 } // namespace URay

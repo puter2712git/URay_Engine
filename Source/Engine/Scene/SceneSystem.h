@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/Scene/Scene.h>
 
 #include <memory>
@@ -12,7 +13,7 @@ namespace URay
 class Component;
 class Property;
 
-class SceneSystem
+class SceneSystem : public RayEmitter
 {
 public:
     SceneSystem();
@@ -35,21 +36,10 @@ public:
 
     const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
 
-public:
-    Ray<Scene*> onSceneAdded;
-    Ray<Scene*> onSceneDestroyed;
-    Ray<Scene*, Unit*> onUnitAdded;
-    Ray<Scene*, Unit*> onUnitRemoved;
-    Ray<Scene*, Unit*> onUnitWorldTransformUpdated;
-    Ray<Scene*, Unit*, Component*> onComponentAdded;
-    Ray<Scene*, Unit*, Component*> onComponentDestroyed;
-    Ray<Scene*, Unit*, Component*, const Property&> onComponentPropertyChanged;
-
 private:
     SceneId nextSceneId = 1;
 
     std::vector<std::unique_ptr<Scene>> scenes;
-
 };
 
 } // namespace URay

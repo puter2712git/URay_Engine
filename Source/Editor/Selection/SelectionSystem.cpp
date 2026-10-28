@@ -2,23 +2,25 @@
 
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
+#include <Engine/Scene/Unit.h>
 
 #include <algorithm>
 
 namespace URay
 {
 
-SelectionSystem::SelectionSystem() = default;
+SelectionSystem::SelectionSystem()
+{
+    URAY_DECLARE_RAY(SelectionSetChanged);
+    URAY_DECLARE_RAY(ActiveSelectionChanged, Unit*, Unit*);
+}
 
 SelectionSystem::~SelectionSystem() = default;
 
 bool SelectionSystem::Initialize()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.onUnitRemoved.Register(
-        this,
-        [this](Scene* scene, Unit* unit)
-        { OnUnitRemoved(scene, unit); });
+    sceneSystem.Register("UnitRemoved", this, &SelectionSystem::OnUnitRemoved);
 
     return true;
 }
@@ -26,7 +28,7 @@ bool SelectionSystem::Initialize()
 void SelectionSystem::Finalize()
 {
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
-    sceneSystem.onUnitRemoved.UnregisterAll(this);
+    sceneSystem.UnregisterAll(this);
 }
 
 void SelectionSystem::SetSelection(Unit* unit)
@@ -122,11 +124,11 @@ void SelectionSystem::OnUnitRemoved(Scene* scene, Unit* unit)
 
 void SelectionSystem::NotifySelectionChanged(Unit* previousActive)
 {
-    onSelectionSetChanged.Emit();
+    Emit("SelectionSetChanged");
 
     if (previousActive != activeUnit)
     {
-        onActiveSelectionChanged.Emit(previousActive, activeUnit);
+        Emit("ActiveSelectionChanged", previousActive, activeUnit);
     }
 }
 

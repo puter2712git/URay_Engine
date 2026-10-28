@@ -3,7 +3,9 @@
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 
+#include <Engine/Component/Component.h>
 #include <Engine/Component/Render/RenderComponent.h>
+#include <Engine/Scene/Unit.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 
@@ -20,14 +22,10 @@ bool SceneSystem::Initialize()
 {
     URay::SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
-    sceneSystem.onSceneAdded.Register(this, [this](Scene* scene)
-                                          { OnEngineSceneAdded(scene); });
-    sceneSystem.onSceneDestroyed.Register(this, [this](Scene* scene)
-                                              { OnEngineSceneDestroyed(scene); });
-    sceneSystem.onComponentAdded.Register(this, [this](Scene* scene, Unit* unit, Component* component)
-                                              { OnEngineSceneComponentAdded(scene, unit, component); });
-    sceneSystem.onComponentDestroyed.Register(this, [this](Scene* scene, Unit* unit, Component* component)
-                                                  { OnEngineSceneComponentDestroyed(scene, unit, component); });
+    sceneSystem.Register("SceneAdded", this, &SceneSystem::OnEngineSceneAdded);
+    sceneSystem.Register("SceneDestroyed", this, &SceneSystem::OnEngineSceneDestroyed);
+    sceneSystem.Register("ComponentAdded", this, &SceneSystem::OnEngineSceneComponentAdded);
+    sceneSystem.Register("ComponentDestroyed", this, &SceneSystem::OnEngineSceneComponentDestroyed);
 
     return true;
 }
@@ -36,10 +34,7 @@ void SceneSystem::Finalize()
 {
     URay::SceneSystem& sceneSystem = gEngine->GetSceneSystem();
 
-    sceneSystem.onComponentDestroyed.UnregisterAll(this);
-    sceneSystem.onComponentAdded.UnregisterAll(this);
-    sceneSystem.onSceneDestroyed.UnregisterAll(this);
-    sceneSystem.onSceneAdded.UnregisterAll(this);
+    sceneSystem.UnregisterAll(this);
 }
 
 RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderObject> object, Component* component)

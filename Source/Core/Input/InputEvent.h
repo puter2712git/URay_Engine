@@ -2,6 +2,7 @@
 
 #include <Core/Math/Vector2.h>
 #include <Core/Type/TypeAlias.h>
+#include <Core/Type/Type.h>
 
 #include <cstdint>
 #include <variant>
@@ -16,6 +17,7 @@ enum class MouseButton : uint8
     Right = 1 << 1,
     Middle = 1 << 2,
 };
+URAY_ENUM_TYPE(MouseButton)
 
 using MouseButtonMask = uint8;
 
@@ -27,6 +29,7 @@ enum class ModifierKey : uint8
     Alt = 1 << 2,
     Super = 1 << 3,
 };
+URAY_ENUM_TYPE(ModifierKey)
 
 constexpr ModifierKey operator|(ModifierKey lhs, ModifierKey rhs)
 {
@@ -185,6 +188,7 @@ enum class KeyCode : uint16
 
     Count,
 };
+URAY_ENUM_TYPE(KeyCode)
 
 enum class KeyAction : uint8
 {
@@ -192,6 +196,7 @@ enum class KeyAction : uint8
     Released,
     Repeated,
 };
+URAY_ENUM_TYPE(KeyAction)
 
 enum class PointerAction : uint8
 {
@@ -199,6 +204,7 @@ enum class PointerAction : uint8
     Pressed,
     Released,
 };
+URAY_ENUM_TYPE(PointerAction)
 
 struct PointerEvent
 {

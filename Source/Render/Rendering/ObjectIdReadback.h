@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Render/RHI/Texture/Texture.h>
-
+#include <Core/Type/Type.h>
 #include <Core/Type/TypeAlias.h>
+#include <Render/RHI/Texture/Texture.h>
 
 #include <memory>
 #include <optional>
@@ -17,6 +17,8 @@ class Texture;
 
 struct ObjectIdReadbackResult
 {
+    URAY_TYPE(ObjectIdReadbackResult)
+
     uint64 requestId = 0;
     uint32 objectId = 0;
 };

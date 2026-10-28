@@ -58,8 +58,7 @@ bool UIBatcher::Initialize()
         mappedIndexData[i] = indexBuffers[i]->Map();
     }
 
-    renderer.onViewportRenderTargetsRecreated.Register(this, [this]()
-                                                             { descriptorSets.clear(); });
+    renderer.Register("ViewportRenderTargetsRecreated", this, &UIBatcher::OnViewportRenderTargetsRecreated);
 
     return true;
 }
@@ -69,7 +68,7 @@ void UIBatcher::Finalize()
     RenderSystem& renderSystem = gEngine->GetRenderSystem();
     Renderer& renderer = renderSystem.GetRenderer();
 
-    renderer.onViewportRenderTargetsRecreated.UnregisterAll(this);
+    renderer.UnregisterAll(this);
 
     descriptorSets.clear();
     whiteTextureView = nullptr;
@@ -209,6 +208,11 @@ DescriptorSet* UIBatcher::GetOrCreateDescriptorSet(const TextureSamplerKey& key)
     descriptorSets.emplace(key, std::move(descriptorSet));
 
     return result;
+}
+
+void UIBatcher::OnViewportRenderTargetsRecreated()
+{
+    descriptorSets.clear();
 }
 
 } // namespace URay::Render

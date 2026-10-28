@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 #include <vector>
 
@@ -10,7 +11,7 @@ namespace URay
 class Scene;
 class Unit;
 
-class SelectionSystem
+class SelectionSystem : public RayEmitter
 {
 public:
     SelectionSystem();
@@ -32,10 +33,6 @@ public:
 private:
     void OnUnitRemoved(Scene* scene, Unit* unit);
     void NotifySelectionChanged(Unit* previousActive);
-
-public:
-    Ray<> onSelectionSetChanged;
-    Ray<Unit*, Unit*> onActiveSelectionChanged;
 
 private:
     std::vector<Unit*> selectedUnits;

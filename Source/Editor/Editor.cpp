@@ -73,15 +73,7 @@ bool Editor::Initialize()
         return false;
     }
 
-    selectionSystem->onActiveSelectionChanged.Register(
-        this,
-        [this](Unit*, Unit* activeUnit)
-        {
-            if (activeUnit)
-                inspectSystem->SetTarget(InspectTarget::FromUnit(activeUnit));
-            else
-                inspectSystem->ClearTarget();
-        });
+    selectionSystem->Register("ActiveSelectionChanged", this, &Editor::OnActiveSelectionChanged);
 
     visualSystem = std::make_unique<VisualSystem>(*gEngine, *selectionSystem);
     if (!visualSystem->Initialize())
@@ -234,6 +226,9 @@ void Editor::Finalize()
         visualSystem->Finalize();
         visualSystem.reset();
     }
+
+    if (selectionSystem)
+        selectionSystem->UnregisterAll(this);
 
     if (inspectSystem)
     {
@@ -593,6 +588,14 @@ void Editor::UpdatePerformanceViewModel()
         analytics.GetCompletedSamples());
 
     lastProfileFrameNumber = completedFrameNumber;
+}
+
+void Editor::OnActiveSelectionChanged(Unit* previousUnit, Unit* activeUnit)
+{
+    if (activeUnit)
+        inspectSystem->SetTarget(InspectTarget::FromUnit(activeUnit));
+    else
+        inspectSystem->ClearTarget();
 }
 
 } // namespace URay

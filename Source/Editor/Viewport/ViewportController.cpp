@@ -47,44 +47,16 @@ ViewportController::ViewportController(
 
     this->editorCamera = std::make_unique<EditorCamera>();
 
-    selectionSystem.onSelectionSetChanged.Register(
-        this,
-        [this]()
-        {
-            gizmo->SetTargets(
-                this->selectionSystem.GetSelectedUnits(),
-                this->selectionSystem.GetActiveUnit());
-        });
+    selectionSystem.Register("SelectionSetChanged", this, &ViewportController::OnSelectionSetChanged);
+    renderer.Register("ObjectIdReadback", this, &ViewportController::OnObjectIdReadback);
+
     gizmo->SetTargets(selectionSystem.GetSelectedUnits(), selectionSystem.GetActiveUnit());
-
-    renderer.onObjectIdReadback.Register(
-        this,
-        [this](const Render::ObjectIdReadbackResult& result)
-        {
-            if (!pendingSelectionRequest || pendingSelectionRequest->requestId != result.requestId)
-                return;
-
-            const SelectionOperation operation = pendingSelectionRequest->operation;
-            pendingSelectionRequest.reset();
-
-            Unit* unit = objectIdTargets->FindUnit(result.objectId);
-
-            if (operation == SelectionOperation::Toggle)
-            {
-                if (unit)
-                    this->selectionSystem.ToggleSelection(unit);
-
-                return;
-            }
-
-            this->selectionSystem.SetSelection(unit);
-        });
 }
 
 ViewportController::~ViewportController()
 {
-    renderer.onObjectIdReadback.UnregisterAll(this);
-    selectionSystem.onSelectionSetChanged.UnregisterAll(this);
+    renderer.UnregisterAll(this);
+    selectionSystem.UnregisterAll(this);
 
     objectIdTargets.reset();
 }
@@ -327,6 +299,32 @@ void ViewportController::FocusActiveUnit()
 
     constexpr float FocusDistance = 5.0f;
     editorCamera->FocusAt(transform->GetWorldPosition(), FocusDistance);
+}
+
+void ViewportController::OnSelectionSetChanged()
+{
+    gizmo->SetTargets(selectionSystem.GetSelectedUnits(), selectionSystem.GetActiveUnit());
+}
+
+void ViewportController::OnObjectIdReadback(Render::ObjectIdReadbackResult result)
+{
+    if (!pendingSelectionRequest || pendingSelectionRequest->requestId != result.requestId)
+        return;
+
+    const SelectionOperation operation = pendingSelectionRequest->operation;
+    pendingSelectionRequest.reset();
+
+    Unit* unit = objectIdTargets->FindUnit(result.objectId);
+
+    if (operation == SelectionOperation::Toggle)
+    {
+        if (unit)
+            selectionSystem.ToggleSelection(unit);
+
+        return;
+    }
+
+    selectionSystem.SetSelection(unit);
 }
 
 } // namespace URay

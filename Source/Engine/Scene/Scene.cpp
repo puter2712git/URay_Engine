@@ -14,6 +14,10 @@
 namespace URay
 {
 
+URAY_REGISTER_CLASS(Scene)
+
+void Scene::RegisterClass() {}
+
 Scene::Scene(SceneSystem& sceneSystem, SceneId id, SceneType type, const VirtualPath& filePath)
     : sceneSystem(sceneSystem), id(id), type(type), filePath(filePath) {}
 
@@ -232,13 +236,13 @@ void Scene::AddUnit(std::unique_ptr<Unit> unit)
     units.push_back(std::move(unit));
     unitPtr->SetOwner(this);
 
-    sceneSystem.onUnitAdded.Emit(this, unitPtr);
+    sceneSystem.Emit("UnitAdded", this, unitPtr);
 
     const auto& components = unitPtr->GetComponents();
     for (const auto& component : components)
     {
         component->Initialize();
-        sceneSystem.onComponentAdded.Emit(this, unitPtr, component.get());
+        sceneSystem.Emit("ComponentAdded", this, unitPtr, component.get());
 
         if (IsLoaded())
         {
@@ -279,11 +283,11 @@ void Scene::DestroyUnit(Unit* unit)
     for (const auto& component : targetUnit->GetComponents())
     {
         component->Unload();
-        sceneSystem.onComponentDestroyed.Emit(this, unit, component.get());
+        sceneSystem.Emit("ComponentDestroyed", this, unit, component.get());
         component->Finalize();
     }
 
-    sceneSystem.onUnitRemoved.Emit(this, unit);
+    sceneSystem.Emit("UnitRemoved", this, unit);
     units.erase(it);
 }
 

@@ -7,6 +7,7 @@
 #include <Editor/Visual/Visualizer/PointLightVisualizer.h>
 #include <Editor/Visual/Visualizer/SpotLightVisualizer.h>
 #include <Engine/Component/Component.h>
+#include <Engine/Object/Property/Property.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/DecalComponent.h>
 #include <Engine/Component/Render/Light/DirectionalLightComponent.h>
@@ -42,14 +43,10 @@ bool VisualSystem::Initialize()
                                                 { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
-    sceneSystem.onUnitWorldTransformUpdated.Register(this, [this](Scene* scene, Unit* unit)
-                                                     { OnUnitTransformUpdated(scene, unit); });
-    sceneSystem.onComponentAdded.Register(this, [this](Scene* scene, Unit* unit, Component* component)
-                                          { OnComponentAdded(scene, unit, component); });
-    sceneSystem.onComponentDestroyed.Register(this, [this](Scene* scene, Unit* unit, Component* component)
-                                              { OnComponentDestroyed(scene, unit, component); });
-    sceneSystem.onComponentPropertyChanged.Register(this, [this](Scene* scene, Unit* unit, Component* component, const Property& property)
-                                                    { OnComponentPropertyChanged(scene, unit, component, property); });
+    sceneSystem.Register("UnitWorldTransformUpdated", this, &VisualSystem::OnUnitTransformUpdated);
+    sceneSystem.Register("ComponentAdded", this, &VisualSystem::OnComponentAdded);
+    sceneSystem.Register("ComponentDestroyed", this, &VisualSystem::OnComponentDestroyed);
+    sceneSystem.Register("ComponentPropertyChanged", this, &VisualSystem::OnComponentPropertyChanged);
 
     return true;
 }
@@ -58,10 +55,7 @@ void VisualSystem::Finalize()
 {
     SceneSystem& sceneSystem = engine.GetSceneSystem();
 
-    sceneSystem.onComponentPropertyChanged.UnregisterAll(this);
-    sceneSystem.onComponentDestroyed.UnregisterAll(this);
-    sceneSystem.onComponentAdded.UnregisterAll(this);
-    sceneSystem.onUnitWorldTransformUpdated.UnregisterAll(this);
+    sceneSystem.UnregisterAll(this);
 }
 
 void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
@@ -116,8 +110,11 @@ void VisualSystem::OnComponentDestroyed(Scene* scene, Unit* unit, Component* com
     visualizers.erase(component);
 }
 
-void VisualSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property)
+void VisualSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property* property)
 {
+    if (!property)
+        return;
+
     Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
     Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
 
@@ -129,7 +126,7 @@ void VisualSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Componen
     const auto it = visualizers.find(component);
     if (it != visualizers.end())
     {
-        it->second->OnPropertyChanged(context, *scene, *unit, *component, property);
+        it->second->OnPropertyChanged(context, *scene, *unit, *component, *property);
     }
 }
 

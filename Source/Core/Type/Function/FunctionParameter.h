@@ -55,7 +55,7 @@ std::optional<FunctionParameter> MakeFunctionParameter()
         return FunctionParameter{
             .type = &type,
             .isConst = std::is_const_v<Pointee>,
-            .nullable = false
+            .nullable = true
         };
     }
     else

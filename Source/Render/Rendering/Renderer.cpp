@@ -1,6 +1,6 @@
 #include "Renderer.h"
-#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
@@ -83,14 +83,17 @@ static StringView GetRenderPassName(RenderPassId passId)
 }
 
 Renderer::Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager)
-    : window(window), context(context), device(device), resourceManager(resourceManager) {}
+    : window(window), context(context), device(device), resourceManager(resourceManager)
+{
+    URAY_DECLARE_RAY(ViewportRenderTargetsRecreated);
+    URAY_DECLARE_RAY(ObjectIdReadback, ObjectIdReadbackResult);
+}
 
 Renderer::~Renderer() = default;
 
 bool Renderer::Initialize()
 {
-    window.onFramebufferResized.Register(this, [this](const Extent2D& extent)
-                                         { framebufferResized = true; });
+    window.Register("FramebufferResized", this, &Renderer::OnFramebufferResized);
 
     int32 width, height;
     glfwGetFramebufferSize(window.GetGLFWWindow(), &width, &height);
@@ -182,7 +185,7 @@ void Renderer::Finalize()
 
     DestroyCommandPool();
 
-    window.onFramebufferResized.UnregisterAll(this);
+    window.UnregisterAll(this);
 }
 
 bool Renderer::BeginFrame()
@@ -207,7 +210,7 @@ bool Renderer::BeginFrame()
 
         if (const auto result = objectIdReadback->ConsumeCompleted(currentFrame))
         {
-            onObjectIdReadback.Emit(*result);
+            Emit("ObjectIdReadback", *result);
         }
     }
 
@@ -727,7 +730,7 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
 
     renderTargetRegistry->RecreateViewportRelative(extent);
 
-    onViewportRenderTargetsRecreated.Emit();
+    Emit("ViewportRenderTargetsRecreated");
 }
 
 bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
@@ -788,6 +791,11 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
 
     frameResource.gpuTimeStamps.hasPendingResults = false;
     return true;
+}
+
+void Renderer::OnFramebufferResized(Extent2D extent)
+{
+    framebufferResized = true;
 }
 
 Format Renderer::FindDepthFormat() const

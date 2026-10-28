@@ -7,6 +7,9 @@ namespace URay
 {
 
 class SceneSystem;
+class Scene;
+class Component;
+struct Property;
 
 class InspectSystem
 {
@@ -26,6 +29,11 @@ private:
     Unit* GetInspectedUnit() const;
 
     bool IsInspecting(const Unit* unit) const;
+
+    void OnComponentChanged(Scene* scene, Unit* unit, Component* component);
+    void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property* property);
+    void OnUnitRemoved(Scene* scene, Unit* unit);
+    void OnUnitWorldTransformUpdated(Scene* scene, Unit* unit);
 
 public:
     Ray<const InspectTarget&, const InspectTarget&> onTargetChanged;

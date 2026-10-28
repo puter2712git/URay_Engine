@@ -1,5 +1,7 @@
 #include "SceneSystem.h"
 
+#include <Engine/Component/Component.h>
+#include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/Unit.h>
 
 #include <cassert>
@@ -7,7 +9,17 @@
 namespace URay
 {
 
-SceneSystem::SceneSystem() = default;
+SceneSystem::SceneSystem()
+{
+    URAY_DECLARE_RAY(SceneAdded, Scene*);
+    URAY_DECLARE_RAY(SceneDestroyed, Scene*);
+    URAY_DECLARE_RAY(UnitAdded, Scene*, Unit*);
+    URAY_DECLARE_RAY(UnitRemoved, Scene*, Unit*);
+    URAY_DECLARE_RAY(ComponentAdded, Scene*, Unit*, Component*);
+    URAY_DECLARE_RAY(ComponentDestroyed, Scene*, Unit*, Component*);
+    URAY_DECLARE_RAY(ComponentPropertyChanged, Scene*, Unit*, Component*, const Property*);
+    URAY_DECLARE_RAY(UnitWorldTransformUpdated, Scene*, Unit*);
+}
 
 SceneSystem::~SceneSystem() = default;
 
@@ -49,15 +61,15 @@ Scene* SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
     Scene* scenePtr = scene.get();
 
     scenes.push_back(std::move(scene));
-    onSceneAdded.Emit(scenePtr);
+    Emit("SceneAdded", scenePtr);
 
     for (auto& unit : scenePtr->GetUnits())
     {
-        onUnitAdded.Emit(scenePtr, unit.get());
+        Emit("UnitAdded", scenePtr, unit.get());
 
         for (auto& component : unit->GetComponents())
         {
-            onComponentAdded.Emit(scenePtr, unit.get(), component.get());
+            Emit("ComponentAdded", scenePtr, unit.get(), component.get());
         }
     }
 
@@ -82,7 +94,8 @@ bool SceneSystem::UnloadScene(SceneId id)
     }
 
     targetScene->DestroyAllUnits();
-    onSceneDestroyed.Emit(targetScene);
+    Emit("SceneDestroyed", targetScene);
+
     scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
                                 [targetScene](const std::unique_ptr<Scene>& scene)
                                 {

@@ -22,10 +22,7 @@ namespace URay
 DecalVisualizer::DecalVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
     : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
-    selectionSystem.onActiveSelectionChanged.Register(
-        this,
-        [this](Unit* previousUnit, Unit* selectedUnit)
-        { OnSelectionChanged(previousUnit, selectedUnit); });
+    selectionSystem.Register("ActiveSelectionChanged", this, &DecalVisualizer::OnSelectionChanged);
 
     std::unique_ptr<Render::BillboardObject> billboard =
         std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit));
@@ -44,7 +41,7 @@ DecalVisualizer::DecalVisualizer(EditorVisualContext& context, Unit& unit, Compo
 
 DecalVisualizer::~DecalVisualizer()
 {
-    selectionSystem.onActiveSelectionChanged.UnregisterAll(this);
+    selectionSystem.UnregisterAll(this);
     EditorVisualContext context = {
         .engine = engine,
         .renderScene = renderScene

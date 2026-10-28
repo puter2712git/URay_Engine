@@ -22,10 +22,7 @@ namespace URay
 CameraVisualizer::CameraVisualizer(EditorVisualContext& context, Unit& unit, Component& component, SelectionSystem& selectionSystem)
     : engine(context.engine), renderScene(context.renderScene), selectionSystem(selectionSystem)
 {
-    selectionSystem.onActiveSelectionChanged.Register(
-        this,
-        [this](Unit* previousUnit, Unit* selectedUnit)
-        { OnSelectionChanged(previousUnit, selectedUnit); });
+    selectionSystem.Register("ActiveSelectionChanged", this, &CameraVisualizer::OnSelectionChanged);
 
     visual = { .unit = &unit, .component = &component };
     if (selectionSystem.GetActiveUnit() == &unit)
@@ -34,7 +31,7 @@ CameraVisualizer::CameraVisualizer(EditorVisualContext& context, Unit& unit, Com
 
 CameraVisualizer::~CameraVisualizer()
 {
-    selectionSystem.onActiveSelectionChanged.UnregisterAll(this);
+    selectionSystem.UnregisterAll(this);
 
     EditorVisualContext context = {
         .engine = engine,

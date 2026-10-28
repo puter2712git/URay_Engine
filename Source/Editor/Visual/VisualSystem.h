@@ -31,7 +31,7 @@ private:
     void OnUnitTransformUpdated(Scene* scene, Unit* unit);
     void OnComponentAdded(Scene* scene, Unit* unit, Component* component);
     void OnComponentDestroyed(Scene* scene, Unit* unit, Component* component);
-    void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property& property);
+    void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property* property);
 
 private:
     Engine& engine;

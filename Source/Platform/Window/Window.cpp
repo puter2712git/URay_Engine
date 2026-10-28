@@ -14,6 +14,17 @@ void GLFWErrorCallback(int errorCode, const char* description)
         description ? description : "No description");
 }
 
+Window::Window()
+{
+    URAY_DECLARE_RAY(FocusChanged, bool);
+    URAY_DECLARE_RAY(CursorMoved, Vector2);
+    URAY_DECLARE_RAY(Scroll, Vector2);
+    URAY_DECLARE_RAY(Key, KeyCode, KeyAction, ModifierKey);
+    URAY_DECLARE_RAY(MouseButton, MouseButton, KeyAction, ModifierKey);
+    URAY_DECLARE_RAY(TextInput, char32_t);
+    URAY_DECLARE_RAY(FramebufferResized, Extent2D);
+}
+
 bool Window::Initialize()
 {
     glfwSetErrorCallback(GLFWErrorCallback);
@@ -165,7 +176,7 @@ void Window::KeyCallback(GLFWwindow* glfwWindow, int key, int scancode, int acti
 
     const ModifierKey modifierKey = Platform::ToModifierKey(mods);
 
-    window->onKey.Emit(keyCode, keyAction.value(), modifierKey);
+    window->Emit("Key", keyCode, keyAction.value(), modifierKey);
 }
 
 void Window::MouseButtonCallback(GLFWwindow* glfwWindow, int button, int action, int mods)
@@ -184,7 +195,7 @@ void Window::MouseButtonCallback(GLFWwindow* glfwWindow, int button, int action,
 
     const ModifierKey modifierKey = Platform::ToModifierKey(mods);
 
-    window->onMouseButton.Emit(mouseButton, mouseAction.value(), modifierKey);
+    window->Emit("MouseButton", mouseButton, mouseAction.value(), modifierKey);
 }
 
 void Window::CursorPosCallback(GLFWwindow* glfwWindow, double xpos, double ypos)
@@ -193,7 +204,7 @@ void Window::CursorPosCallback(GLFWwindow* glfwWindow, double xpos, double ypos)
     if (!window)
         return;
 
-    window->onCursorMoved.Emit(Vector2(static_cast<float>(xpos), static_cast<float>(ypos)));
+    window->Emit("CursorMoved", Vector2(static_cast<float>(xpos), static_cast<float>(ypos)));
 }
 
 void Window::CharacterCallback(GLFWwindow* glfwWindow, unsigned int codepoint)
@@ -205,7 +216,7 @@ void Window::CharacterCallback(GLFWwindow* glfwWindow, unsigned int codepoint)
     if (codepoint == 0 || codepoint > 0x10FFFF)
         return;
 
-    window->onTextInput.Emit(static_cast<char32_t>(codepoint));
+    window->Emit("TextInput", static_cast<char32_t>(codepoint));
 }
 
 void Window::ScrollCallback(GLFWwindow* glfwWindow, double xoffset, double yoffset)
@@ -214,7 +225,7 @@ void Window::ScrollCallback(GLFWwindow* glfwWindow, double xoffset, double yoffs
     if (!window)
         return;
 
-    window->onScroll.Emit(Vector2(static_cast<float>(xoffset), static_cast<float>(yoffset)));
+    window->Emit("Scroll", Vector2(static_cast<float>(xoffset), static_cast<float>(yoffset)));
 }
 
 void Window::WindowFocusCallback(GLFWwindow* glfwWindow, int focused)
@@ -223,7 +234,7 @@ void Window::WindowFocusCallback(GLFWwindow* glfwWindow, int focused)
     if (!window)
         return;
 
-    window->onFocusChanged.Emit(focused == GLFW_TRUE);
+    window->Emit("FocusChanged", focused == GLFW_TRUE);
 }
 
 void Window::FramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height)
@@ -232,9 +243,7 @@ void Window::FramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int heig
     if (!window)
         return;
 
-    window->onFramebufferResized.Emit(Extent2D{
-        .width = static_cast<uint32>(width),
-        .height = static_cast<uint32>(height) });
+    window->Emit("FramebufferResized", Extent2D{ .width = static_cast<uint32>(width), .height = static_cast<uint32>(height) });
 }
 
 } // namespace URay

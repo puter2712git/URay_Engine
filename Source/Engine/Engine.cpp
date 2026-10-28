@@ -96,18 +96,12 @@ bool Engine::Initialize(
         return false;
     }
 
-    window->onKey.Register(this, [this](KeyCode key, KeyAction action, ModifierKey mods)
-                           { inputSystem->OnKey(key, action, mods); });
-    window->onMouseButton.Register(this, [this](MouseButton button, KeyAction action, ModifierKey mods)
-                                   { inputSystem->OnMouseButton(button, action, mods); });
-    window->onCursorMoved.Register(this, [this](Vector2 position)
-                                   { inputSystem->OnCursorMoved(position); });
-    window->onTextInput.Register(this, [this](char32_t codepoint)
-                                 { inputSystem->OnTextInput(codepoint); });
-    window->onScroll.Register(this, [this](Vector2 delta)
-                              { inputSystem->OnScroll(delta); });
-    window->onFocusChanged.Register(this, [this](bool focused)
-                                    { inputSystem->OnWindowFocusChanged(focused); });
+    window->Register("Key", inputSystem.get(), &InputSystem::OnKey);
+    window->Register("MouseButton", inputSystem.get(), &InputSystem::OnMouseButton);
+    window->Register("CursorMoved", inputSystem.get(), &InputSystem::OnCursorMoved);
+    window->Register("TextInput", inputSystem.get(), &InputSystem::OnTextInput);
+    window->Register("Scroll", inputSystem.get(), &InputSystem::OnScroll);
+    window->Register("FocusChanged", inputSystem.get(), &InputSystem::OnWindowFocusChanged);
 
     std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
     for (Material* material : materials)
@@ -119,6 +113,20 @@ bool Engine::Initialize(
             return false;
         }
     }
+
+    Variant keyVariant(KeyCode::A);
+
+    assert(keyVariant.GetType() == &TypeOf<KeyCode>());
+
+    const KeyCode* key = keyVariant.TryGet<KeyCode>();
+
+    assert(key != nullptr);
+    assert(*key == KeyCode::A);
+
+    const auto parameter = MakeFunctionParameter<KeyCode>();
+
+    assert(parameter.has_value());
+    assert(parameter->Accepts(keyVariant));
 
     return true;
 }
@@ -169,6 +177,11 @@ void Engine::Finalize()
         inputActionSystem.reset();
     }
 
+    if (window && inputSystem)
+    {
+        window->UnregisterAll(inputSystem.get());
+    }
+
     if (inputSystem)
     {
         inputSystem.reset();
@@ -181,13 +194,6 @@ void Engine::Finalize()
 
     if (window)
     {
-        window->onKey.UnregisterAll(this);
-        window->onMouseButton.UnregisterAll(this);
-        window->onCursorMoved.UnregisterAll(this);
-        window->onTextInput.UnregisterAll(this);
-        window->onScroll.UnregisterAll(this);
-        window->onFocusChanged.UnregisterAll(this);
-
         window->Finalize();
         window.reset();
     }

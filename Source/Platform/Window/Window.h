@@ -3,6 +3,7 @@
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Platform/Window/Cursor.h>
 
 #define GLFW_INCLUDE_VULKAN
@@ -14,10 +15,10 @@
 namespace URay
 {
 
-class Window
+class Window : public RayEmitter
 {
 public:
-    Window() = default;
+    Window();
     ~Window() = default;
 
 public:
@@ -41,15 +42,6 @@ private:
     static void ScrollCallback(GLFWwindow* glfwWindow, double xoffset, double yoffset);
     static void WindowFocusCallback(GLFWwindow* glfwWindow, int focused);
     static void FramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
-
-public:
-    Ray<KeyCode, KeyAction, ModifierKey> onKey;
-    Ray<MouseButton, KeyAction, ModifierKey> onMouseButton;
-    Ray<Vector2> onCursorMoved;
-    Ray<char32_t> onTextInput;
-    Ray<Vector2> onScroll;
-    Ray<bool> onFocusChanged;
-    Ray<Extent2D> onFramebufferResized;
 
 private:
     bool glfwInitialized = false;

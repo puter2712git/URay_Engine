@@ -39,6 +39,8 @@ struct UpdateGroup
 
 class Scene : public Object
 {
+    URAY_OBJECT(Scene, Object)
+
 public:
     Scene(SceneSystem& sceneSystem, SceneId id, SceneType type, const VirtualPath& filePath);
 

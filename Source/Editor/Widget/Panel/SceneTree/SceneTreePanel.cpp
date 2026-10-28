@@ -54,18 +54,15 @@ SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
     scrollView = AddChild<ScrollView>();
     virtualContent = scrollView->SetContent<SceneTreeVirtualContent>(*this);
 
-    sceneSystem->onUnitAdded.Register(this, [this](Scene*, Unit*)
-                                          { isTreeDirty = true; });
-    sceneSystem->onUnitRemoved.Register(this, [this](Scene*, Unit*)
-                                             { isTreeDirty = true; });
+    sceneSystem->Register("UnitAdded", this, &SceneTreePanel::OnUnitAdded);
+    sceneSystem->Register("UnitRemoved", this, &SceneTreePanel::OnUnitRemoved);
 
     UpdateTree();
 }
 
 SceneTreePanel::~SceneTreePanel()
 {
-    sceneSystem->onUnitAdded.UnregisterAll(this);
-    sceneSystem->onUnitRemoved.UnregisterAll(this);
+    sceneSystem->UnregisterAll(this);
 }
 
 void SceneTreePanel::Arrange(const Rect& rect)
@@ -151,6 +148,16 @@ void SceneTreePanel::AddSubtree(const Unit& unit, uint32 depth)
         if (child)
             AddSubtree(*child, depth + 1);
     }
+}
+
+void SceneTreePanel::OnUnitAdded(Scene* scene, Unit* unit)
+{
+    isTreeDirty = true;
+}
+
+void SceneTreePanel::OnUnitRemoved(Scene* scene, Unit* unit)
+{
+    isTreeDirty = true;
 }
 
 SceneTreeVirtualContent::SceneTreeVirtualContent(SceneTreePanel& owner) : owner(owner) {}
