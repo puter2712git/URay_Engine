@@ -12,9 +12,7 @@
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Element/AssetField.h>
 #include <Editor/Widget/Element/ColorField.h>
-#include <Editor/Widget/Element/Float2Field.h>
-#include <Editor/Widget/Element/Float3Field.h>
-#include <Editor/Widget/Element/Float4Field.h>
+#include <Editor/Widget/Element/VectorField.h>
 #include <Editor/Widget/Element/IntField.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/Separator.h>
@@ -299,7 +297,7 @@ void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& ob
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
-    Float2Field* field = row->SetValueWidget<Float2Field>();
+    VectorField<Vector2>* field = row->SetValueWidget<VectorField<Vector2>>();
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnVector2Changed, &object, KeepProperty(property));
@@ -311,7 +309,7 @@ void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& ob
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
-    Float3Field* field = row->SetValueWidget<Float3Field>();
+    VectorField<Vector3>* field = row->SetValueWidget<VectorField<Vector3>>();
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnVector3Changed, &object, KeepProperty(property));
@@ -323,7 +321,7 @@ void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& o
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
-    Float3Field* field = row->SetValueWidget<Float3Field>();
+    VectorField<Vector3>* field = row->SetValueWidget<VectorField<Vector3>>();
     field->SetValue(value->ToEulerDegrees());
 
     field->Register("ValueChanged", this, &InspectorPanel::OnRotationChanged, &object, KeepProperty(property));
@@ -347,7 +345,7 @@ void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& ob
 
     PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
 
-    Float4Field* field = row->SetValueWidget<Float4Field>();
+    VectorField<Vector4>* field = row->SetValueWidget<VectorField<Vector4>>();
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnVector4Changed, &object, KeepProperty(property));
