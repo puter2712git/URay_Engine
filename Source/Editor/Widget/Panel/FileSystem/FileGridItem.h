@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualFileSystem.h>
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -11,7 +11,7 @@ class Surface;
 class VerticalLayout;
 class Label;
 
-class FileGridItem final : public Widget
+class FileGridItem final : public Widget, public RayEmitter
 {
 public:
     explicit FileGridItem(VirtualFileEntry entry);
@@ -30,9 +30,6 @@ protected:
     void OnUpdate(float deltaTime) override;
 
     std::optional<Rect> GetClipRect() const override { return rect; }
-
-public:
-    Ray<const VirtualFileEntry&> onActivated;
 
 private:
     VirtualFileEntry entry = {};

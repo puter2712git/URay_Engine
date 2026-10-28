@@ -61,15 +61,7 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
             pendingDirectory = path;
         });
 
-    fileGrid->onEntryActivated.Register(
-        this,
-        [this](const VirtualFileEntry& entry)
-        {
-            if (entry.isDirectory)
-                pendingDirectory = entry.path;
-            else
-                Import(entry.path);
-        });
+    fileGrid->Register("EntryActivated", this, &ImportAssetDialog::OnFileEntryActivated);
 
     cancelButton->onClicked.Register(
         this,
@@ -79,6 +71,17 @@ ImportAssetDialog::ImportAssetDialog(AssetSystem& assetSystem, const VirtualPath
         });
 
     NavigateTo(currentDirectory);
+}
+
+void ImportAssetDialog::OnFileEntryActivated(const VirtualFileEntry* entry)
+{
+    if (!entry)
+        return;
+
+    if (entry->isDirectory)
+        pendingDirectory = entry->path;
+    else
+        Import(entry->path);
 }
 
 void ImportAssetDialog::Arrange(const Rect& rect)

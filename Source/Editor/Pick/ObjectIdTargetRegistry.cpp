@@ -1,6 +1,9 @@
 #include "ObjectIdTargetRegistry.h"
 
+#include <Engine/Component/Component.h>
+#include <Engine/Scene/Unit.h>
 #include <Render/Rendering/Object/RenderObject.h>
+#include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 
 namespace URay
@@ -9,24 +12,13 @@ namespace URay
 ObjectIdTargetRegistry::ObjectIdTargetRegistry(Render::SceneSystem& sceneSystem)
     : sceneSystem(sceneSystem)
 {
-    sceneSystem.onObjectAdded.Register(
-        this,
-        [this](Render::RenderScene* scene, Render::RenderObject* object, Unit* unit, Component* component)
-        {
-            OnRenderObjectAdded(scene, object, unit, component);
-        });
-    sceneSystem.onObjectDestroyed.Register(
-        this,
-        [this](Render::RenderScene* scene, Render::RenderObject* object)
-        {
-            OnRenderObjectDestroyed(scene, object);
-        });
+    sceneSystem.Register("ObjectAdded", this, &ObjectIdTargetRegistry::OnRenderObjectAdded);
+    sceneSystem.Register("ObjectDestroyed", this, &ObjectIdTargetRegistry::OnRenderObjectDestroyed);
 }
 
 ObjectIdTargetRegistry::~ObjectIdTargetRegistry()
 {
-    sceneSystem.onObjectDestroyed.UnregisterAll(this);
-    sceneSystem.onObjectAdded.UnregisterAll(this);
+    sceneSystem.UnregisterAll(this);
 }
 
 Unit* ObjectIdTargetRegistry::FindUnit(uint32 objectId) const

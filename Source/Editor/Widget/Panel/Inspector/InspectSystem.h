@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Editor/Widget/Panel/Inspector/InspectTarget.h>
 
 namespace URay
@@ -11,7 +11,7 @@ class Scene;
 class Component;
 struct Property;
 
-class InspectSystem
+class InspectSystem : public RayEmitter
 {
 public:
     InspectSystem(SceneSystem& sceneSystem);
@@ -34,10 +34,6 @@ private:
     void OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property* property);
     void OnUnitRemoved(Scene* scene, Unit* unit);
     void OnUnitWorldTransformUpdated(Scene* scene, Unit* unit);
-
-public:
-    Ray<const InspectTarget&, const InspectTarget&> onTargetChanged;
-    Ray<const InspectTarget&> onTargetContentChanged;
 
 private:
     SceneSystem& sceneSystem;

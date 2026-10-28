@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 #include <Core/Type/TypeAlias.h>
 
@@ -20,7 +20,7 @@ namespace URay::Render
 class RenderScene;
 class RenderObject;
 
-class SceneSystem
+class SceneSystem : public RayEmitter
 {
 public:
     SceneSystem();
@@ -43,11 +43,6 @@ private:
 
     void OnEngineSceneComponentAdded(Scene* scene, Unit* unit, Component* component);
     void OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Component* component);
-
-public:
-    Ray<RenderScene*, RenderObject*, Unit*, Component*> onObjectAdded;
-    Ray<RenderScene*, RenderObject*> onObjectDestroyed;
-    Ray<RenderScene*, RenderObject*> onObjectUpdated;
 
 private:
     std::unordered_map<Scene*, std::unique_ptr<RenderScene>> scenes;

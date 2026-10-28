@@ -61,20 +61,23 @@ InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->Ge
     layout->SetGap(4.0f);
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
-    inspectSystem.onTargetChanged.Register(
-        this,
-        [this](const InspectTarget&, const InspectTarget&)
-        { isDirty = true; });
-    inspectSystem.onTargetContentChanged.Register(
-        this,
-        [this](const InspectTarget&)
-        { isDirty = true; });
+    inspectSystem.Register("TargetChanged", this, &InspectorPanel::OnTargetChanged);
+    inspectSystem.Register("TargetContentChanged", this, &InspectorPanel::OnTargetContentChanged);
 }
 
 InspectorPanel::~InspectorPanel()
 {
-    inspectSystem.onTargetChanged.UnregisterAll(this);
-    inspectSystem.onTargetContentChanged.UnregisterAll(this);
+    inspectSystem.UnregisterAll(this);
+}
+
+void InspectorPanel::OnTargetChanged(const InspectTarget*, const InspectTarget*)
+{
+    isDirty = true;
+}
+
+void InspectorPanel::OnTargetContentChanged(const InspectTarget*)
+{
+    isDirty = true;
 }
 
 void InspectorPanel::Arrange(const Rect& rect)

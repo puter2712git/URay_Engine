@@ -7,6 +7,7 @@ namespace URay
 
 Button::Button(std::unique_ptr<Widget> content)
 {
+    URAY_DECLARE_RAY(Clicked);
     this->content = content.get();
     AddChild(std::move(content));
 }
@@ -40,6 +41,7 @@ EventReply Button::OnPointerUp(const PointerEvent& event)
     if (IsHovered())
     {
         onClicked.Emit();
+        Emit("Clicked");
     }
 
     return EventReply{

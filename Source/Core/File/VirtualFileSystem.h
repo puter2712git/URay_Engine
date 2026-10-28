@@ -1,4 +1,5 @@
 #pragma once
+#include <Core/Type/Type.h>
 #include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualPath.h>
@@ -12,6 +13,8 @@ namespace URay
 
 struct VirtualFileEntry
 {
+    URAY_PLAIN_CLASS(VirtualFileEntry)
+
     VirtualPath path;
     bool isDirectory = false;
 };

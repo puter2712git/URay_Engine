@@ -17,6 +17,7 @@ class ScrollView;
 class StringField;
 class Surface;
 class VirtualFileSystem;
+struct VirtualFileEntry;
 
 class SaveSceneDialog final : public Dialog
 {
@@ -38,6 +39,7 @@ private:
     void NavigateTo(const VirtualPath& path);
     bool IsValidFilename() const;
     void SetValidationMessage(const char* message);
+    void OnFileEntryActivated(const VirtualFileEntry* entry);
 
 private:
     VirtualFileSystem& fileSystem;

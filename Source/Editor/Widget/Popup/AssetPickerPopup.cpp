@@ -12,8 +12,9 @@ namespace URay
 
 AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
 {
-    AddMenuItem("<Null>", [this]
-                { onValueSelected.Emit(AssetHandle{}); });
+    Register("ItemSelected", this, &AssetPickerPopup::OnMenuItemSelected);
+    handles.push_back(AssetHandle{});
+    AddMenuItem("<Null>", 0);
 
     AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
     std::vector<Asset*> assets = database.GetAssets(assetClass);
@@ -25,9 +26,16 @@ AssetPickerPopup::AssetPickerPopup(Class* assetClass, AssetHandle currentValue)
     {
         const AssetHandle handle = asset->GetHandle();
 
-        AddMenuItem(asset->GetName(), [this, handle]
-                    { onValueSelected.Emit(handle); });
+        const int32 id = static_cast<int32>(handles.size());
+        handles.push_back(handle);
+        AddMenuItem(asset->GetName(), id);
     }
+}
+
+void AssetPickerPopup::OnMenuItemSelected(int32 id)
+{
+    if (id >= 0 && static_cast<size_t>(id) < handles.size())
+        onValueSelected.Emit(handles[static_cast<size_t>(id)]);
 }
 
 } // namespace URay

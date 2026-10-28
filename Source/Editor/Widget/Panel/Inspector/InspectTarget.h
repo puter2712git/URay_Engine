@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/Type.h>
 #include <Engine/Asset/AssetHandle.h>
 
 #include <variant>
@@ -26,6 +27,8 @@ using InspectTargetData = std::variant<
 
 struct InspectTarget
 {
+    URAY_PLAIN_CLASS(InspectTarget)
+
     InspectTargetData data = {};
 
     static InspectTarget FromUnit(Unit* unit)

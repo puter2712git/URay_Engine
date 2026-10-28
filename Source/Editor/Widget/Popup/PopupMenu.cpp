@@ -14,8 +14,18 @@
 namespace URay
 {
 
+struct PopupMenu::MenuItem
+{
+    PopupMenu* owner = nullptr;
+    Button* button = nullptr;
+    int32 id = 0;
+
+    void OnClicked() { owner->Emit("ItemSelected", id); }
+};
+
 PopupMenu::PopupMenu()
 {
+    URAY_DECLARE_RAY(ItemSelected, int32);
     surface = AddChild<Surface>();
     surface->SetBackgroundColor(EditorStyle::SurfaceHeader);
     surface->SetOutlineColor(EditorStyle::Border);
@@ -27,6 +37,12 @@ PopupMenu::PopupMenu()
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 }
 
+PopupMenu::~PopupMenu()
+{
+    for (const auto& item : menuItems)
+        item->button->UnregisterAll(item.get());
+}
+
 void PopupMenu::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
@@ -35,7 +51,7 @@ void PopupMenu::Arrange(const Rect& rect)
 
 Button* PopupMenu::AddMenuItem(
     StringView text,
-    std::function<void()> onClick)
+    int32 itemId)
 {
     Button* button = CreateEditorButton(*layout, text);
     button->SetPreferredHeight(18.0f);
@@ -43,12 +59,12 @@ Button* PopupMenu::AddMenuItem(
     Label* label = Cast<Label>(button->GetChildren()[0].get());
     label->SetTextStyle(EditorStyle::SmallText());
 
-    button->onClicked.Register(
-        this,
-        [onClick = std::move(onClick)]
-        {
-            onClick();
-        });
+    auto item = std::make_unique<MenuItem>();
+    item->owner = this;
+    item->button = button;
+    item->id = itemId;
+    button->Register("Clicked", item.get(), &MenuItem::OnClicked);
+    menuItems.push_back(std::move(item));
 
     return button;
 }

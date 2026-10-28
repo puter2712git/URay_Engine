@@ -14,6 +14,7 @@ namespace URay
 
 FileGridItem::FileGridItem(VirtualFileEntry entry) : entry(std::move(entry))
 {
+    URAY_DECLARE_RAY(Activated, const VirtualFileEntry*);
     surface = AddChild<Surface>();
     surface->SetOutlineWidth(1.0f);
     surface->SetOutlineColor(EditorStyle::Border);
@@ -58,7 +59,7 @@ EventReply FileGridItem::OnPointerUp(const PointerEvent& event)
         return {};
 
     if (IsHovered())
-        onActivated.Emit(entry);
+        Emit("Activated", static_cast<const VirtualFileEntry*>(&entry));
 
     return EventReply{
         .handled = true,

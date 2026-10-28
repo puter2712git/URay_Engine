@@ -16,6 +16,7 @@ class Label;
 class ScrollView;
 class Surface;
 class VirtualFileSystem;
+struct VirtualFileEntry;
 
 class ImportAssetDialog final : public Dialog
 {
@@ -35,6 +36,7 @@ private:
     void NavigateTo(const VirtualPath& path);
     void Import(const VirtualPath& sourcePath);
     void SetValidationMessage(const char* message);
+    void OnFileEntryActivated(const VirtualFileEntry* entry);
 
 private:
     AssetSystem& assetSystem;

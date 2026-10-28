@@ -12,6 +12,7 @@ class ScrollView;
 class Object;
 class Unit;
 class InspectSystem;
+struct InspectTarget;
 struct Property;
 
 class InspectorPanel final : public Panel
@@ -31,6 +32,8 @@ protected:
     void OnUpdate(float deltaTime) override;
 
 private:
+    void OnTargetChanged(const InspectTarget* previous, const InspectTarget* current);
+    void OnTargetContentChanged(const InspectTarget* target);
     void RebuildProperties();
 
     void RebuildUnitProperties(Unit& unit);

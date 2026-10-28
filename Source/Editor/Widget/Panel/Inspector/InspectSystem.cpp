@@ -8,7 +8,11 @@
 namespace URay
 {
 
-InspectSystem::InspectSystem(SceneSystem& sceneSystem) : sceneSystem(sceneSystem) {}
+InspectSystem::InspectSystem(SceneSystem& sceneSystem) : sceneSystem(sceneSystem)
+{
+    URAY_DECLARE_RAY(TargetChanged, const InspectTarget*, const InspectTarget*);
+    URAY_DECLARE_RAY(TargetContentChanged, const InspectTarget*);
+}
 
 bool InspectSystem::Initialize()
 {
@@ -34,7 +38,7 @@ void InspectSystem::SetTarget(InspectTarget newTarget)
     InspectTarget previousTarget = target;
     target = std::move(newTarget);
 
-    onTargetChanged.Emit(previousTarget, target);
+    Emit("TargetChanged", static_cast<const InspectTarget*>(&previousTarget), static_cast<const InspectTarget*>(&target));
 }
 
 void InspectSystem::ClearTarget()
@@ -66,7 +70,7 @@ bool InspectSystem::IsInspecting(const Unit* unit) const
 void InspectSystem::OnComponentChanged(Scene*, Unit* unit, Component*)
 {
     if (IsInspecting(unit))
-        onTargetContentChanged.Emit(target);
+        Emit("TargetContentChanged", static_cast<const InspectTarget*>(&target));
 }
 
 void InspectSystem::OnComponentPropertyChanged(Scene* scene, Unit* unit, Component* component, const Property*)
@@ -86,7 +90,7 @@ void InspectSystem::OnUnitWorldTransformUpdated(Scene* scene, Unit* unit)
 {
     if (IsInspecting(unit))
     {
-        onTargetContentChanged.Emit(target);
+        Emit("TargetContentChanged", static_cast<const InspectTarget*>(&target));
     }
 }
 

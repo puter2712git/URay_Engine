@@ -16,6 +16,9 @@ class UnitPopup final : public PopupMenu
 public:
     UnitPopup();
 
+private:
+    void OnMenuItemSelected(int32 id);
+
 public:
     Ray<UnitPopupSelection> onUnitSelected;
 };

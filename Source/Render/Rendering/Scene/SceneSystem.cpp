@@ -14,7 +14,12 @@
 namespace URay::Render
 {
 
-SceneSystem::SceneSystem() = default;
+SceneSystem::SceneSystem()
+{
+    URAY_DECLARE_RAY(ObjectAdded, RenderScene*, RenderObject*, Unit*, Component*);
+    URAY_DECLARE_RAY(ObjectDestroyed, RenderScene*, RenderObject*);
+    URAY_DECLARE_RAY(ObjectUpdated, RenderScene*, RenderObject*);
+}
 
 SceneSystem::~SceneSystem() = default;
 
@@ -48,7 +53,7 @@ RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderO
     Unit* unit = component ? component->GetOwner() : nullptr;
     scene.Add(std::move(object), unit);
 
-    onObjectAdded.Emit(&scene, objectPtr, unit, component);
+    Emit("ObjectAdded", &scene, objectPtr, unit, component);
 
     return objectPtr;
 }
@@ -58,7 +63,7 @@ void SceneSystem::DestroyObject(RenderScene& scene, RenderObject* object)
     if (!object)
         return;
 
-    onObjectDestroyed.Emit(&scene, object);
+    Emit("ObjectDestroyed", &scene, object);
     scene.Destroy(object);
 }
 

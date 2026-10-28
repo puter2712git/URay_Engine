@@ -14,6 +14,10 @@ class AssetPickerPopup final : public PopupMenu
 public:
     explicit AssetPickerPopup(Class* assetClass, AssetHandle currentValue);
 
+private:
+    void OnMenuItemSelected(int32 id);
+    std::vector<AssetHandle> handles;
+
 public:
     Ray<AssetHandle> onValueSelected;
 };

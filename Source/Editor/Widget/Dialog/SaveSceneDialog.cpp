@@ -72,13 +72,7 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
             pendingDirectory = path;
         });
 
-    fileGrid->onEntryActivated.Register(
-        this,
-        [this](const VirtualFileEntry& entry)
-        {
-            if (entry.isDirectory)
-                pendingDirectory = entry.path;
-        });
+    fileGrid->Register("EntryActivated", this, &SaveSceneDialog::OnFileEntryActivated);
 
     filenameField->onValueChanged.Register(
         this,
@@ -102,6 +96,12 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
         });
 
     NavigateTo(currentDirectory);
+}
+
+void SaveSceneDialog::OnFileEntryActivated(const VirtualFileEntry* entry)
+{
+    if (entry && entry->isDirectory)
+        pendingDirectory = entry->path;
 }
 
 void SaveSceneDialog::Accept()

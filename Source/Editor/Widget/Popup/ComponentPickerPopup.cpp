@@ -11,7 +11,7 @@ namespace URay
 
 ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 {
-    std::vector<String> componentNames;
+    Register("ItemSelected", this, &ComponentPickerPopup::OnMenuItemSelected);
 
     for (const auto& [name, constructor] : ComponentFactory::GetRegisteredComponents())
     {
@@ -22,11 +22,18 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 
     for (const String& typeName : componentNames)
     {
-        const ComponentPickerSelection selection = { .componentTypeName = typeName };
-
-        AddMenuItem(typeName, [this, selection]
-                    { onComponentSelected.Emit(selection); });
+        const int32 id = static_cast<int32>(&typeName - componentNames.data());
+        AddMenuItem(typeName, id);
     }
+}
+
+void ComponentPickerPopup::OnMenuItemSelected(int32 id)
+{
+    if (id < 0 || static_cast<size_t>(id) >= componentNames.size())
+        return;
+
+    const ComponentPickerSelection selection = { .componentTypeName = componentNames[static_cast<size_t>(id)] };
+    onComponentSelected.Emit(selection);
 }
 
 } // namespace URay

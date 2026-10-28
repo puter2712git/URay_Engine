@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <vector>
@@ -12,9 +12,10 @@ namespace URay
 class VirtualFileSystem;
 struct VirtualFileEntry;
 
-class FileGridView final : public Widget
+class FileGridView final : public Widget, public RayEmitter
 {
 public:
+    FileGridView();
     void Arrange(const Rect& rect) override;
 
     const VirtualPath& GetDirectory() const { return directory; }
@@ -25,9 +26,7 @@ protected:
 
 private:
     void RebuildItems(const std::vector<VirtualFileEntry>& entries);
-
-public:
-    Ray<const VirtualFileEntry&> onEntryActivated;
+    void OnItemActivated(const VirtualFileEntry* entry);
 
 private:
     VirtualPath directory = {};

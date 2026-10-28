@@ -4,6 +4,7 @@
 
 #include <Core/Math/Color.h>
 #include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 
 #include <memory>
 
@@ -17,7 +18,7 @@ enum class ButtonState
     Pressed
 };
 
-class Button final : public Widget
+class Button final : public Widget, public RayEmitter
 {
     URAY_CLASS(Button, Widget)
 

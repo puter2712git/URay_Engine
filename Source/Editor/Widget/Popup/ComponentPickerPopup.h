@@ -19,6 +19,10 @@ class ComponentPickerPopup final : public PopupMenu
 public:
     explicit ComponentPickerPopup(const Unit& unit);
 
+private:
+    void OnMenuItemSelected(int32 id);
+    std::vector<String> componentNames;
+
 public:
     Ray<const ComponentPickerSelection&> onComponentSelected;
 };

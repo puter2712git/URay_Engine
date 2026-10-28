@@ -5,8 +5,14 @@ namespace URay
 
 UnitPopup::UnitPopup()
 {
-    AddMenuItem("Empty Unit", [this]
-                { onUnitSelected.Emit(UnitPopupSelection::EmptyUnit); });
+    Register("ItemSelected", this, &UnitPopup::OnMenuItemSelected);
+    AddMenuItem("Empty Unit", 0);
+}
+
+void UnitPopup::OnMenuItemSelected(int32 id)
+{
+    if (id == 0)
+        onUnitSelected.Emit(UnitPopupSelection::EmptyUnit);
 }
 
 } // namespace URay

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/Type.h>
 #include <Render/Rendering/Scene/RenderEnvironment.h>
 
 #include <memory>
@@ -22,6 +23,8 @@ class SpotLightObject;
 
 class RenderScene
 {
+    URAY_PLAIN_CLASS(RenderScene)
+
     friend class SceneSystem;
 
 public:
