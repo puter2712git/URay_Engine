@@ -8,6 +8,8 @@
 #include <Core/Performance/PerformanceAnalytics.h>
 #include <Core/TimeFlow/Schedule/Scheduler.h>
 #include <Core/TimeFlow/Timer.h>
+#include <Core/Type/Function/Callable/CallableArgument.h>
+#include <Core/Type/Function/Callable/MemberCallable.h>
 #include <Core/Type/Function/Function.h>
 #include <Core/Type/Function/FunctionParameter.h>
 #include <Core/Type/Function/FunctionSignature.h>
@@ -24,6 +26,9 @@
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
+
+#include <array>
+#include <cassert>
 
 #include <GLFW/glfw3.h>
 
@@ -124,31 +129,29 @@ bool Engine::Initialize(
 
     struct TestListener
     {
-        void OnChanged(float value, int32 count) {}
-        void OnDifferent(float value) {}
-        int32 OnChangedWithReturn(float value, int32 count) { return 0; }
+        float received = 0.0f;
+
+        void OnChanged(float value)
+        {
+            received = value;
+        }
     };
 
-    const auto raySignature =
-        MakeFunctionSignature(&TestListener::OnChanged);
+    TestListener listener;
 
-    const auto callbackSignature =
-        MakeFunctionSignature(&TestListener::OnChanged);
+    auto callable = MakeMemberCallable(
+        &listener,
+        &TestListener::OnChanged);
 
-    const auto differentSignature =
-        MakeFunctionSignature(&TestListener::OnDifferent);
+    assert(callable != nullptr);
 
-    const auto returnSignature =
-        MakeFunctionSignature(&TestListener::OnChangedWithReturn);
+    std::array<Variant, 1> args{ Variant(3.5f) };
 
-    assert(raySignature.has_value());
-    assert(callbackSignature.has_value());
-    assert(differentSignature.has_value());
-    assert(returnSignature.has_value());
+    const bool invoked = callable->Invoke(args);
 
-    assert(callbackSignature->Accepts(*raySignature));
-    assert(!differentSignature->Accepts(*raySignature));
-    assert(!returnSignature->Accepts(*raySignature));
+    assert(invoked);
+    assert(listener.received == 3.5f);
+
     return true;
 }
 
