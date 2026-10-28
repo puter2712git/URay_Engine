@@ -71,32 +71,8 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
         PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
         UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
-        Unit* targetUnit = unit;
-        SelectionSystem* targetSelectionSystem = selectionSystem;
-
-        popup->onUnitSelected.Register(
-            popup,
-            [targetUnit, targetSelectionSystem, &popupLayer](UnitPopupSelection selection)
-            {
-                if (selection != UnitPopupSelection::EmptyUnit)
-                    return;
-
-                Scene* scene = targetUnit->GetOwner();
-
-                if (!scene)
-                {
-                    popupLayer.ClosePopup();
-                    return;
-                }
-
-                Unit* createdUnit = scene->CreateEmptyUnit(
-                    "New Unit",
-                    targetUnit);
-
-                targetSelectionSystem->SetSelection(createdUnit);
-
-                popupLayer.ClosePopup();
-            });
+        const ObjectId targetId = unit->GetId();
+        popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, true, targetId.index, targetId.generation);
 
         return EventReply{
             .handled = true,

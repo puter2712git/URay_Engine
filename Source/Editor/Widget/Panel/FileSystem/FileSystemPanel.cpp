@@ -172,15 +172,15 @@ void FileSystemPanel::OpenImportDialog()
         assetSystem,
         currentPath);
 
-    dialog->onClosed.Register(
-        this,
-        [this](DialogResult result)
-        {
-            if (result == DialogResult::Accepted)
-                NavigateTo(currentPath);
+    dialog->Register("Closed", this, &FileSystemPanel::OnImportDialogClosed);
+}
 
-            gEditor->GetEditorUI().GetDialogLayer().CloseDialog();
-        });
+void FileSystemPanel::OnImportDialogClosed(DialogResult result)
+{
+    if (result == DialogResult::Accepted)
+        NavigateTo(currentPath);
+
+    gEditor->GetEditorUI().GetDialogLayer().CloseDialog();
 }
 
 } // namespace URay

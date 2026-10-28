@@ -20,6 +20,9 @@ class PlaySession;
 class InputActionMap;
 class ViewportController;
 class PerformanceViewModel;
+class SaveSceneDialog;
+enum class DialogResult;
+enum class UnitPopupSelection;
 
 class Editor
 {
@@ -38,6 +41,7 @@ public:
     Render::RenderRequest BuildRenderRequest() const;
 
     void LoadGameScene(const VirtualPath& scenePath);
+    void OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, int32 unitIndex, uint32 unitGeneration);
 
     EditorUI& GetEditorUI() const { return *editorUI; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
@@ -54,6 +58,7 @@ private:
     bool SaveCurrentScene();
     bool SaveSceneToPath(Scene& scene, const VirtualPath& path);
     void OpenSaveSceneDialog();
+    void OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialog, int32 sceneIndex, uint32 sceneGeneration);
 
     void DeleteSelectedUnits();
 

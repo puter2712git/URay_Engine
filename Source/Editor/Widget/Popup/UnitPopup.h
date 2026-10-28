@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 
 namespace URay
@@ -11,6 +10,8 @@ enum class UnitPopupSelection
     EmptyUnit
 };
 
+URAY_ENUM_TYPE(UnitPopupSelection)
+
 class UnitPopup final : public PopupMenu
 {
 public:
@@ -19,8 +20,6 @@ public:
 private:
     void OnMenuItemSelected(int32 id);
 
-public:
-    Ray<UnitPopupSelection> onUnitSelected;
 };
 
 } // namespace URay

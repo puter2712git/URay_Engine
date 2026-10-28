@@ -16,12 +16,15 @@
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
 #include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
+#include <Editor/Widget/Layer/PopupLayer.h>
+#include <Editor/Widget/Popup/UnitPopup.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
 #include <Engine/Component/TransformComponent.h>
 #include <Engine/Engine.h>
+#include <Engine/Object/ObjectSystem.h>
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
@@ -331,17 +334,50 @@ void Editor::OpenSaveSceneDialog()
 
     SaveSceneDialog* dialog = editorUI->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
 
-    dialog->onClosed.Register(this, [this, dialog, gameScene](DialogResult result)
-                              {
-        if (result == DialogResult::Accepted)
-        {
-            if (gameScene)
-            {
-                SaveSceneToPath(*gameScene, dialog->GetSavePath());
-            }
+    const ObjectId sceneId = gameScene ? gameScene->Object::GetId() : ObjectId{};
+    dialog->Register("Closed", this, &Editor::OnSaveSceneDialogClosed, dialog, sceneId.index, sceneId.generation);
+}
 
-            editorUI->GetDialogLayer().CloseDialog();
-        } });
+void Editor::OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialog, int32 sceneIndex, uint32 sceneGeneration)
+{
+    if (result != DialogResult::Accepted)
+        return;
+
+    Object* object = gEngine->GetObjectSystem().Resolve(ObjectId{ sceneIndex, sceneGeneration });
+    Scene* gameScene = Cast<Scene>(object);
+    if (gameScene && dialog)
+        SaveSceneToPath(*gameScene, dialog->GetSavePath());
+
+    editorUI->GetDialogLayer().CloseDialog();
+}
+
+void Editor::OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, int32 unitIndex, uint32 unitGeneration)
+{
+    if (selection != UnitPopupSelection::EmptyUnit)
+        return;
+
+    Unit* targetUnit = nullptr;
+    Scene* scene = nullptr;
+
+    if (createChild)
+    {
+        targetUnit = Cast<Unit>(gEngine->GetObjectSystem().Resolve(ObjectId{unitIndex, unitGeneration}));
+        if (targetUnit)
+            scene = targetUnit->GetOwner();
+    }
+    else
+    {
+        auto scenes = gEngine->GetSceneSystem().GetScenes(SceneType::Game);
+        scene = scenes.empty() ? nullptr : scenes[0];
+    }
+
+    if (scene)
+    {
+        Unit* createdUnit = scene->CreateEmptyUnit(createChild ? "New Unit" : "Empty Unit", targetUnit);
+        selectionSystem->SetSelection(createdUnit);
+    }
+
+    editorUI->GetPopupLayer().ClosePopup();
 }
 
 void Editor::DeleteSelectedUnits()

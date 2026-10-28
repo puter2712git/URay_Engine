@@ -79,28 +79,7 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
     PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
     UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
-    popup->onUnitSelected.Register(
-        popup,
-        [this, &popupLayer](UnitPopupSelection selection)
-        {
-            if (selection != UnitPopupSelection::EmptyUnit)
-                return;
-
-            auto scenes = sceneSystem->GetScenes(SceneType::Game);
-            Scene* gameScene = scenes.empty() ? nullptr : scenes[0];
-
-            if (!gameScene)
-            {
-                popupLayer.ClosePopup();
-                return;
-            }
-
-            Unit* emptyUnit = gameScene->CreateEmptyUnit("Empty Unit", nullptr);
-
-            gEditor->GetSelectionSystem().SetSelection(emptyUnit);
-
-            popupLayer.ClosePopup();
-        });
+    popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, false, int32{0}, uint32{0});
 
     return EventReply{
         .handled = true,

@@ -3,13 +3,18 @@
 namespace URay
 {
 
+Dialog::Dialog()
+{
+    URAY_DECLARE_RAY(Closed, DialogResult);
+}
+
 void Dialog::Accept()
 {
     if (result != DialogResult::None || !CanAccept())
         return;
 
     result = DialogResult::Accepted;
-    onClosed.Emit(result);
+    Emit("Closed", result);
 }
 
 void Dialog::Cancel()
@@ -18,7 +23,7 @@ void Dialog::Cancel()
         return;
 
     result = DialogResult::Cancelled;
-    onClosed.Emit(result);
+    Emit("Closed", result);
 }
 
 } // namespace URay

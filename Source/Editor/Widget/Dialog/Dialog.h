@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Type/Ray/Ray.h>
+#include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
 
 namespace URay
@@ -13,9 +13,13 @@ enum class DialogResult
     Cancelled
 };
 
-class Dialog : public Widget
+URAY_ENUM_TYPE(DialogResult)
+
+class Dialog : public Widget, public RayEmitter
 {
 public:
+    Dialog();
+
     virtual void Accept();
     virtual void Cancel();
 
@@ -25,9 +29,6 @@ protected:
     std::optional<Rect> GetClipRect() const override { return rect; }
 
     virtual bool CanAccept() const { return true; }
-
-public:
-    Ray<DialogResult> onClosed;
 
 private:
     DialogResult result = DialogResult::None;
