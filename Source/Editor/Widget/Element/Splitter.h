@@ -1,6 +1,6 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
@@ -20,6 +20,7 @@ class Splitter : public Widget
 
 public:
     Splitter(const String& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
+    Splitter(const String& layoutId, SplitAxis axis);
     ~Splitter() override;
 
 public:

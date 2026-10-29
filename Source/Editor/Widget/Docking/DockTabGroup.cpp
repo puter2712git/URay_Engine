@@ -59,6 +59,17 @@ const DockedTab* DockTabGroup::FindTab(ObjectId panelId) const
     return nullptr;
 }
 
+Rect DockTabGroup::GetPanelRect() const
+{
+    const float actualTabHeight = Math::Min(tabHeight, Math::Max(0.0f, rect.size.y));
+
+    Rect panelRect = {};
+    panelRect.position = Vector2(rect.position.x, rect.position.y + actualTabHeight);
+    panelRect.size = Vector2(rect.size.x, Math::Max(0.0f, rect.size.y - actualTabHeight));
+
+    return panelRect;
+}
+
 std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
 {
     const auto it = std::find_if(tabs.begin(), tabs.end(), [panelId](const DockedTab& tab)
@@ -157,12 +168,12 @@ void DockTabGroup::OnUpdate(float deltaTime)
 
 void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
 {
-    if (dropHighlighted)
+    if (dropHighlight.has_value())
     {
-        const Rect panelRect = GetPanelRect();
+        const Rect highlightRect = GetDropHighlightRect(*dropHighlight);
 
-        if (panelRect.size.x > 0.0f && panelRect.size.y > 0.0f)
-            context.AddFilledRect(panelRect, EditorStyle::DockDropHighlight);
+        if (highlightRect.size.x > 0.0f && highlightRect.size.y > 0.0f)
+            context.AddFilledRect(highlightRect, EditorStyle::DockDropHighlight);
     }
 
     context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
@@ -222,15 +233,50 @@ void DockTabGroup::OnTabDragReleased(Vector2 position, ObjectId panelId)
     dockSystem.RequestDrop(GetId(), panelId, position);
 }
 
-Rect DockTabGroup::GetPanelRect() const
+Rect DockTabGroup::GetDropHighlightRect(DockDropZone zone) const
 {
-    const float actualTabHeight = Math::Min(tabHeight, Math::Max(0.0f, rect.size.y));
+    if (zone == DockDropZone::Center)
+        return GetPanelRect();
 
-    Rect panelRect = {};
-    panelRect.position = Vector2(rect.position.x, rect.position.y + actualTabHeight);
-    panelRect.size = Vector2(rect.size.x, Math::Max(0.0f, rect.size.y - actualTabHeight));
+    constexpr float splitterExtent = 4.0f;
 
-    return panelRect;
+    Rect result = rect;
+
+    switch (zone)
+    {
+    case DockDropZone::Left:
+    case DockDropZone::Right:
+    {
+        const float handle = Math::Min(splitterExtent, Math::Max(0.0f, rect.size.x));
+
+        const float width = Math::Max(0.0f, rect.size.x - handle) * 0.5f;
+        result.size.x = width;
+
+        if (zone == DockDropZone::Right)
+            result.position.x = rect.position.x + rect.size.x - width;
+
+        break;
+    }
+
+    case DockDropZone::Top:
+    case DockDropZone::Bottom:
+    {
+        const float handle = Math::Min(splitterExtent, Math::Max(0.0f, rect.size.y));
+
+        const float height = Math::Max(0.0f, rect.size.y - handle) * 0.5f;
+        result.size.y = height;
+
+        if (zone == DockDropZone::Bottom)
+            result.position.y = rect.position.y + rect.size.y - height;
+
+        break;
+    }
+
+    case DockDropZone::Center:
+        break;
+    }
+
+    return result;
 }
 
 } // namespace URay

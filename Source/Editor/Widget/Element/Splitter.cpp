@@ -1,9 +1,8 @@
 #include "Splitter.h"
+
 #include <Core/Math/Math.h>
 #include <Core/Type/TypeAlias.h>
-
 #include <Editor/Widget/Style/EditorStyles.h>
-
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <algorithm>
@@ -16,6 +15,12 @@ Splitter::Splitter(const String& layoutId, SplitAxis axis, std::unique_ptr<Widge
 {
     AddChild(std::move(first));
     AddChild(std::move(second));
+}
+
+Splitter::Splitter(const String& layoutId, SplitAxis axis)
+    : layoutId(layoutId), axis(axis)
+{
+    children.reserve(2);
 }
 
 Splitter::~Splitter() = default;

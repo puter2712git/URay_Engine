@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
@@ -41,7 +42,7 @@ public:
     Rect GetPanelRect() const;
     size_t GetTabCount() const { return tabs.size(); }
 
-    void SetDropHighlighted(bool highlighted) { dropHighlighted = highlighted; }
+    void SetDropHighlight(std::optional<DockDropZone> zone) { dropHighlight = zone; }
 
     std::optional<DetachedTab> DetachTab(ObjectId panelId);
     bool IsEmpty() const { return tabs.empty(); }
@@ -59,6 +60,8 @@ private:
     void OnTabDragMoved(Vector2 position, ObjectId panelId);
     void OnTabDragReleased(Vector2 position, ObjectId panelId);
 
+    Rect GetDropHighlightRect(DockDropZone zone) const;
+
 private:
     UISystem& uiSystem;
     std::vector<DockedTab> tabs;
@@ -66,7 +69,7 @@ private:
     std::optional<ObjectId> activeId;
     std::optional<ObjectId> pendingId;
 
-    bool dropHighlighted = false;
+    std::optional<DockDropZone> dropHighlight;
 };
 
 } // namespace URay
