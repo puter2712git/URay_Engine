@@ -79,11 +79,15 @@ public:
     bool HitTest(const Vector2& position) const;
     virtual bool CanHit() const { return true; }
 
+    bool IsVisible() const { return visible; }
+    void SetVisible(bool visible) { this->visible = visible; }
+
     virtual EventReply OnPointerEnter() { return EventReply{}; }
     virtual EventReply OnPointerLeave() { return EventReply{}; }
     virtual EventReply OnPointerDown(const PointerEvent& event) { return EventReply{}; }
     virtual EventReply OnPointerMove(const PointerEvent& event) { return EventReply{}; }
     virtual EventReply OnPointerUp(const PointerEvent& event) { return EventReply{}; }
+    virtual void OnPointerCancel() {}
     virtual EventReply OnKeyDown(const KeyEvent& event) { return EventReply{}; }
     virtual EventReply OnKeyUp(const KeyEvent& event) { return EventReply{}; }
     virtual EventReply OnScroll(const ScrollEvent& event) { return EventReply{}; }
@@ -110,6 +114,8 @@ protected:
     bool hovered = false;
     bool focused = false;
     bool pointerCaptured = false;
+
+    bool visible = true;
 };
 
 } // namespace URay

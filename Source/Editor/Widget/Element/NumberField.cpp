@@ -92,6 +92,14 @@ EventReply NumberField<T>::OnPointerUp(const PointerEvent& event)
 }
 
 template <typename T>
+void NumberField<T>::OnPointerCancel()
+{
+    isPointerDown = false;
+    isDragging = false;
+    pendingClickCount = 0;
+}
+
+template <typename T>
 void NumberField<T>::SetValue(T value)
 {
     TextBox::SetText(std::format("{}", value));

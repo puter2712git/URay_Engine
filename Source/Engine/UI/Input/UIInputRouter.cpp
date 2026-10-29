@@ -181,7 +181,7 @@ void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& r
 
 Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) const
 {
-    if (!root.HitTest(position))
+    if (!root.IsVisible() || !root.HitTest(position))
         return nullptr;
 
     const auto& children = root.GetChildren();

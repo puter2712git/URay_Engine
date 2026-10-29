@@ -1,9 +1,8 @@
 #include "Splitter.h"
-#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Editor/Widget/Style/EditorStyles.h>
-
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
@@ -84,6 +83,11 @@ EventReply Splitter::OnPointerUp(const PointerEvent& event)
         .handled = true,
         .releasePointer = true
     };
+}
+
+void Splitter::OnPointerCancel()
+{
+    isDragging = false;
 }
 
 void Splitter::Arrange(const Rect& rect)

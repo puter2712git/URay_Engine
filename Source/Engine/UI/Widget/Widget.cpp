@@ -23,6 +23,9 @@ void Widget::Update(float deltaTime)
 
 void Widget::Paint(Render::UIDrawContext& context)
 {
+    if (!visible)
+        return;
+
     const std::optional<Rect> clipRect = GetClipRect();
     if (clipRect)
         context.PushClipRect(*clipRect);

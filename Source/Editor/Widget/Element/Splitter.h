@@ -28,6 +28,7 @@ public:
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
+    void OnPointerCancel() override;
 
     void Arrange(const Rect& rect) override;
 
