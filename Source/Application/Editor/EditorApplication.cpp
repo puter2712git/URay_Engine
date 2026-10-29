@@ -5,6 +5,7 @@
 #include <Editor/Editor.h>
 #include <Engine/Engine.h>
 #include <Platform/Window/Window.h>
+#include <Platform/Window/WindowSystem.h>
 
 namespace URay
 {
@@ -35,10 +36,12 @@ bool EditorApplication::Initialize(
 
 void EditorApplication::Run()
 {
-    Window& window = engine->GetWindow();
+    WindowSystem& window = engine->GetWindowSystem();
+    Window* mainWindow = &window.GetMainWindow();
+
     PerformanceAnalytics& analytics = engine->GetPerformanceAnalytics();
 
-    while (!window.ShouldClose())
+    while (!mainWindow->ShouldClose())
     {
         analytics.BeginFrame();
 

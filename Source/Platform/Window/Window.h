@@ -14,6 +14,15 @@
 namespace URay
 {
 
+struct WindowDesc
+{
+    String title;
+    int32 width;
+    int32 height;
+    bool resizable = true;
+    bool maximized = false;
+};
+
 class Window : public RayEmitter
 {
 public:
@@ -21,7 +30,7 @@ public:
     ~Window() = default;
 
 public:
-    bool Initialize();
+    bool Initialize(const WindowDesc& desc);
     void Finalize();
 
     void ChangeCursor(CursorType type);
@@ -43,7 +52,6 @@ private:
     static void FramebufferSizeCallback(GLFWwindow* glfwWindow, int width, int height);
 
 private:
-    bool glfwInitialized = false;
     GLFWwindow* glfwWindow = nullptr;
 
     std::unordered_map<CursorType, GLFWcursor*> cursors;

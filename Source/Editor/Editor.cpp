@@ -32,6 +32,7 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 #include <Engine/UI/UISystem.h>
+#include <Platform/Window/WindowSystem.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>
 #include <Render/Rendering/RenderPipeline.h>
@@ -96,7 +97,7 @@ bool Editor::Initialize()
         renderSystem.GetRenderer(),
         renderSystem.GetResourceManager(),
         renderSystem.GetSceneSystem(),
-        gEngine->GetWindow(),
+        gEngine->GetWindowSystem().GetMainWindow(),
         gEngine->GetInputActionSystem(),
         *selectionSystem,
         *playSession,

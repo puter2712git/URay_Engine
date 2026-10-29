@@ -1,16 +1,16 @@
 #include "RenderSystem.h"
 
+#include <Core/Log/LogSystem.h>
+#include <Engine/Asset/AssetSystem.h>
+#include <Engine/Engine.h>
+#include <Platform/Window/Window.h>
+#include <Platform/Window/WindowSystem.h>
 #include <Render/RHI/Device.h>
 #include <Render/RHI/Vulkan/VulkanContext.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
 #include <Render/ResourceManager.h>
-
-#include <Engine/Asset/AssetSystem.h>
-#include <Engine/Engine.h>
-
-#include <Core/Log/LogSystem.h>
 
 namespace URay::Render
 {
@@ -21,14 +21,14 @@ RenderSystem::~RenderSystem() = default;
 
 bool RenderSystem::Initialize()
 {
-    Window& window = gEngine->GetWindow();
+    Window& window = gEngine->GetWindowSystem().GetMainWindow();
 
     VulkanContextDesc desc = {};
     desc.appName = "URay Editor";
     desc.engineName = "URay Engine";
 
     vulkanContext = std::make_unique<VulkanContext>();
-    if (!vulkanContext->Initialize(gEngine->GetWindow(), desc))
+    if (!vulkanContext->Initialize(window, desc))
     {
         URAY_LOG("[RenderSystem] Failed to initialize vulkan context.");
         Finalize();

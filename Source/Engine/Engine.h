@@ -8,7 +8,7 @@
 namespace URay
 {
 
-class Window;
+class WindowSystem;
 class Timer;
 class Scheduler;
 class LogSystem;
@@ -45,7 +45,7 @@ public:
     void Render(const Render::RenderRequest& request);
 
     LogSystem& GetLogSystem() const { return *logSystem; }
-    Window& GetWindow() const { return *window; }
+    WindowSystem& GetWindowSystem() const { return *windowSystem; }
     Timer& GetTimer() const { return *timer; }
     Scheduler& GetScheduler() const { return *scheduler; }
     InputSystem& GetInputSystem() const { return *inputSystem; }
@@ -65,7 +65,7 @@ private:
     std::unique_ptr<StdErrLogSink> stdErrLogSink = nullptr;
     std::unique_ptr<FileLogSink> fileLogSink = nullptr;
 
-    std::unique_ptr<Window> window = nullptr;
+    std::unique_ptr<WindowSystem> windowSystem = nullptr;
     std::unique_ptr<Timer> timer = nullptr;
     std::unique_ptr<Scheduler> scheduler = nullptr;
 

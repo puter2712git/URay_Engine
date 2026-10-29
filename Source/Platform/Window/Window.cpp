@@ -6,14 +6,6 @@
 namespace URay
 {
 
-void GLFWErrorCallback(int errorCode, const char* description)
-{
-    URAY_LOG(
-        "[GLFW] Error %d: %s",
-        errorCode,
-        description ? description : "No description");
-}
-
 Window::Window()
 {
     URAY_DECLARE_RAY(FocusChanged, bool);
@@ -25,18 +17,11 @@ Window::Window()
     URAY_DECLARE_RAY(FramebufferResized, Extent2D);
 }
 
-bool Window::Initialize()
+bool Window::Initialize(const WindowDesc& desc)
 {
-    glfwSetErrorCallback(GLFWErrorCallback);
-
-    if (!glfwInit())
-    {
-        URAY_LOG("[Window] glfwInit failed.");
-        return false;
-    }
-    glfwInitialized = true;
-
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, desc.resizable ? GLFW_TRUE : GLFW_FALSE);
+    glfwWindowHint(GLFW_MAXIMIZED, desc.maximized ? GLFW_TRUE : GLFW_FALSE);
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     if (!monitor)
@@ -54,7 +39,7 @@ bool Window::Initialize()
         return false;
     }
 
-    glfwWindow = glfwCreateWindow(mode->width, mode->height, "URay Engine", nullptr, nullptr);
+    glfwWindow = glfwCreateWindow(desc.width, desc.height, desc.title.c_str(), nullptr, nullptr);
     if (!glfwWindow)
     {
         URAY_LOG("[Window] Failed to create GLFW window.");
@@ -114,12 +99,6 @@ void Window::Finalize()
     {
         glfwDestroyWindow(glfwWindow);
         glfwWindow = nullptr;
-    }
-
-    if (glfwInitialized)
-    {
-        glfwTerminate();
-        glfwInitialized = false;
     }
 }
 

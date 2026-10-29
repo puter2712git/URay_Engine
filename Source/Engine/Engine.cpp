@@ -18,12 +18,11 @@
 #include <Engine/UI/UISystem.h>
 #include <Platform/Input/GLFWInputAdapter.h>
 #include <Platform/Window/Window.h>
+#include <Platform/Window/WindowSystem.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/RenderPass/UIPass.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
-
-#include <GLFW/glfw3.h>
 
 #include <algorithm>
 #include <cassert>
@@ -50,10 +49,17 @@ bool Engine::Initialize(
     logSystem->RegisterSink(stdErrLogSink.get());
     logSystem->RegisterSink(fileLogSink.get());
 
-    window = std::make_unique<Window>();
-    if (!window->Initialize())
+    const WindowDesc mainWindowDesc{
+        .title = "URay Engine",
+        .width = 1280,
+        .height = 720,
+        .resizable = true,
+        .maximized = true
+    };
+    windowSystem = std::make_unique<WindowSystem>();
+    if (!windowSystem->Initialize(mainWindowDesc))
     {
-        URAY_LOG("[Engine] Failed to initialize window.");
+        URAY_LOG("[Engine] Failed to initialize window system.");
         Finalize();
         return false;
     }
@@ -84,7 +90,7 @@ bool Engine::Initialize(
         return false;
     }
 
-    uiSystem = std::make_unique<UISystem>(*window, *inputSystem);
+    uiSystem = std::make_unique<UISystem>(windowSystem->GetMainWindow(), *inputSystem);
     uiSystem->Initialize();
     renderSystem->GetPipeline().AddRenderPass(std::make_unique<Render::UIPass>());
 
@@ -96,12 +102,12 @@ bool Engine::Initialize(
         return false;
     }
 
-    window->Register("Key", inputSystem.get(), &InputSystem::OnKey);
-    window->Register("MouseButton", inputSystem.get(), &InputSystem::OnMouseButton);
-    window->Register("CursorMoved", inputSystem.get(), &InputSystem::OnCursorMoved);
-    window->Register("TextInput", inputSystem.get(), &InputSystem::OnTextInput);
-    window->Register("Scroll", inputSystem.get(), &InputSystem::OnScroll);
-    window->Register("FocusChanged", inputSystem.get(), &InputSystem::OnWindowFocusChanged);
+    windowSystem->GetMainWindow().Register("Key", inputSystem.get(), &InputSystem::OnKey);
+    windowSystem->GetMainWindow().Register("MouseButton", inputSystem.get(), &InputSystem::OnMouseButton);
+    windowSystem->GetMainWindow().Register("CursorMoved", inputSystem.get(), &InputSystem::OnCursorMoved);
+    windowSystem->GetMainWindow().Register("TextInput", inputSystem.get(), &InputSystem::OnTextInput);
+    windowSystem->GetMainWindow().Register("Scroll", inputSystem.get(), &InputSystem::OnScroll);
+    windowSystem->GetMainWindow().Register("FocusChanged", inputSystem.get(), &InputSystem::OnWindowFocusChanged);
 
     std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
     for (Material* material : materials)
@@ -177,9 +183,9 @@ void Engine::Finalize()
         inputActionSystem.reset();
     }
 
-    if (window && inputSystem)
+    if (windowSystem && inputSystem)
     {
-        window->UnregisterAll(inputSystem.get());
+        windowSystem->GetMainWindow().UnregisterAll(inputSystem.get());
     }
 
     if (inputSystem)
@@ -192,10 +198,10 @@ void Engine::Finalize()
         timer.reset();
     }
 
-    if (window)
+    if (windowSystem)
     {
-        window->Finalize();
-        window.reset();
+        windowSystem->Finalize();
+        windowSystem.reset();
     }
 
     if (logSystem)
