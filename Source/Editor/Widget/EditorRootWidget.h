@@ -16,6 +16,9 @@ public:
     explicit EditorRootWidget(std::unique_ptr<Widget> mainContent);
 
 public:
+    // Main content can be replaced by the docking system, so resolve it from the tree.
+    Widget* GetMainContent() { return children.empty() ? nullptr : children.front().get(); }
+    const Widget* GetMainContent() const { return children.empty() ? nullptr : children.front().get(); }
     PopupLayer& GetPopupLayer() const { return *popupLayer; }
     DialogLayer& GetDialogLayer() const { return *dialogLayer; }
 

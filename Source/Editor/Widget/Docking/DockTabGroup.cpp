@@ -59,6 +59,20 @@ const DockedTab* DockTabGroup::FindTab(ObjectId panelId) const
     return nullptr;
 }
 
+bool DockTabGroup::SetInitialActiveTab(ObjectId panelId)
+{
+    if (GetParent() || !FindTab(panelId))
+        return false;
+
+    for (const DockedTab& tab : tabs)
+        tab.panel->SetVisible(tab.panel->GetId() == panelId);
+
+    activeId = panelId;
+    pendingId.reset();
+    UpdateTabColors();
+    return true;
+}
+
 Rect DockTabGroup::GetPanelRect() const
 {
     const float actualTabHeight = Math::Min(tabHeight, Math::Max(0.0f, rect.size.y));

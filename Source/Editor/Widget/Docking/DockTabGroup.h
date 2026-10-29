@@ -38,6 +38,11 @@ public:
 
     bool HasTab(ObjectId panelId) const;
     const DockedTab* FindTab(ObjectId panelId) const;
+    const std::vector<DockedTab>& GetTabs() const { return tabs; }
+    std::optional<ObjectId> GetActiveTabId() const { return activeId; }
+
+    // Sets the initial selection before the group is attached to a widget tree.
+    bool SetInitialActiveTab(ObjectId panelId);
 
     Rect GetPanelRect() const;
     size_t GetTabCount() const { return tabs.size(); }

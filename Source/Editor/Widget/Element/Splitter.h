@@ -33,6 +33,7 @@ public:
 
     void Arrange(const Rect& rect) override;
 
+    SplitAxis GetAxis() const { return axis; }
     float GetSplitRatio() const { return splitRatio; }
     void SetSplitRatio(float ratio) { splitRatio = ratio; }
 
