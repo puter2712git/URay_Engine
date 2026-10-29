@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Math/Vector2.h>
 #include <Engine/Object/ObjectId.h>
 
 #include <optional>
@@ -17,6 +18,7 @@ public:
 
 public:
     void RequestMove(ObjectId sourceGroupId, ObjectId targetGroupId, ObjectId panelId);
+    void RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position);
 
     void ProcessPendingMove();
 

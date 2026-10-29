@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Math/Vector2.h>
+
 #include <memory>
 
 namespace URay::Render
@@ -21,6 +23,7 @@ public:
     UISystem(Window& window, InputSystem& inputSystem);
     ~UISystem();
 
+public:
     void Initialize();
     void Finalize();
 
@@ -35,6 +38,8 @@ public:
 
     bool TryHideWidget(Widget& widget);
     bool PrepareForDetach(Widget& subtree);
+
+    Widget* FindWidgetAt(const Vector2& position) const;
 
     Widget& GetRootWidget() const { return *root; }
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }

@@ -3,7 +3,6 @@
 
 #include <Engine/Asset/AssetHandle.h>
 
-
 namespace URay
 {
 
@@ -12,12 +11,14 @@ class Checkbox;
 class Label;
 class TextBox;
 class Widget;
+class DockTabButton;
 
 Label* CreateEditorLabel(Widget& parent, StringView text = {});
 Button* CreateEditorButton(Widget& parent, StringView text);
-Button* CreateDockTabButton(Widget& parent, StringView text);
+DockTabButton* CreateDockTabButton(Widget& parent, StringView text);
 Button* CreateEditorIconButton(Widget& parent, AssetHandle textureHandle);
 Checkbox* CreateEditorCheckbox(Widget& parent);
+
 void ConfigureEditorCheckbox(Checkbox& checkbox);
 TextBox* CreateEditorTextBox(Widget& parent, StringView text = {});
 void ConfigureEditorTextBox(TextBox& textBox);

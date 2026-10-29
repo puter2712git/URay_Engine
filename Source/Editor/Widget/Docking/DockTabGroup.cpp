@@ -1,6 +1,10 @@
 #include "DockTabGroup.h"
 
 #include <Core/Math/Math.h>
+#include <Editor/Editor.h>
+#include <Editor/Widget/Docking/DockSystem.h>
+#include <Editor/Widget/Docking/DockTabButton.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/UI/UISystem.h>
@@ -25,8 +29,9 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
     panelPtr->SetVisible(!activeId.has_value());
     AddChild(std::move(panel));
 
-    Button* button = CreateDockTabButton(*this, title);
+    DockTabButton* button = CreateDockTabButton(*this, title);
     button->Register("Clicked", this, &DockTabGroup::RequestActivate, panelPtr->GetId());
+    button->Register("DragReleased", this, &DockTabGroup::OnTabDragReleased, panelPtr->GetId());
 
     tabs.push_back(DockedTab{ .title = title, .button = button, .panel = panelPtr });
 
@@ -66,7 +71,7 @@ std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
     const bool wasActive = activeId.has_value() && *activeId == panelId;
     String title = it->title;
     Widget* panel = it->panel;
-    Button* button = it->button;
+    DockTabButton* button = it->button;
 
     std::unique_ptr<Widget> removedButton = RemoveChild(button);
     std::unique_ptr<Widget> detachedPanel = RemoveChild(panel);
@@ -177,7 +182,7 @@ void DockTabGroup::UpdateTabColors()
     for (size_t i = 0; i < tabs.size(); ++i)
     {
         const bool active = activeId.has_value() && *activeId == tabs[i].panel->GetId();
-        Button& button = *tabs[i].button;
+        DockTabButton& button = *tabs[i].button;
         button.SetNormalColor(active ? EditorStyle::DockTabActive : EditorStyle::DockTabInactive);
         button.SetHoverColor(active ? EditorStyle::DockTabActiveHovered : EditorStyle::DockTabInactiveHovered);
         button.SetPressedColor(active ? EditorStyle::DockTabActivePressed : EditorStyle::DockTabInactivePressed);
@@ -190,6 +195,17 @@ void DockTabGroup::RequestActivate(ObjectId panelId)
         return;
 
     pendingId = panelId;
+}
+
+void DockTabGroup::OnTabDragReleased(Vector2 position, ObjectId panelId)
+{
+    if (panelId == ObjectId{})
+        return;
+
+    EditorUI& editorUI = gEditor->GetEditorUI();
+    DockSystem& dockSystem = editorUI.GetDockSystem();
+
+    dockSystem.RequestDrop(GetId(), panelId, position);
 }
 
 } // namespace URay

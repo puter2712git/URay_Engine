@@ -9,13 +9,13 @@
 namespace URay
 {
 
-class Button;
+class DockTabButton;
 class UISystem;
 
 struct DockedTab
 {
     String title;
-    Button* button = nullptr;
+    DockTabButton* button = nullptr;
     Widget* panel = nullptr;
 };
 
@@ -50,6 +50,8 @@ protected:
 private:
     void RequestActivate(ObjectId panelId);
     void UpdateTabColors();
+
+    void OnTabDragReleased(Vector2 position, ObjectId panelId);
 
 private:
     UISystem& uiSystem;

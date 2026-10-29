@@ -38,6 +38,25 @@ void DockSystem::RequestMove(ObjectId sourceGroupId, ObjectId targetGroupId, Obj
     };
 }
 
+void DockSystem::RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position)
+{
+    Widget* hit = uiSystem.FindWidgetAt(position);
+
+    for (Widget* current = hit; current; current = current->GetParent())
+    {
+        DockTabGroup* target = Cast<DockTabGroup>(current);
+        if (!target)
+            continue;
+
+        if (target->GetId() != sourceGroupId)
+        {
+            RequestMove(sourceGroupId, target->GetId(), panelId);
+        }
+
+        return;
+    }
+}
+
 void DockSystem::ProcessPendingMove()
 {
     if (!pendingMove.has_value())

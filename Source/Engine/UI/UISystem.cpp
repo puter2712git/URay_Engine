@@ -1,6 +1,7 @@
 #include "UISystem.h"
 
 #include <Core/Input/InputSystem.h>
+#include <Core/Math/Vector2.h>
 #include <Engine/UI/Input/UIInputRouter.h>
 #include <Engine/UI/Widget/Widget.h>
 #include <Platform/Window/Window.h>
@@ -105,6 +106,14 @@ bool UISystem::PrepareForDetach(Widget& subtree)
         return false;
 
     return inputRouter->PrepareToHide(*root, subtree);
+}
+
+Widget* UISystem::FindWidgetAt(const Vector2& position) const
+{
+    if (!root || !inputRouter)
+        return nullptr;
+
+    return inputRouter->FindTopWidget(*root, position);
 }
 
 } // namespace URay

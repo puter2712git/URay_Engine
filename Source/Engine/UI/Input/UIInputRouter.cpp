@@ -80,6 +80,27 @@ bool UIInputRouter::PrepareToHide(Widget& root, Widget& subtree)
     return true;
 }
 
+Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) const
+{
+    if (!root.IsVisible() || !root.HitTest(position))
+        return nullptr;
+
+    const auto& children = root.GetChildren();
+
+    for (auto it = children.rbegin(); it != children.rend(); ++it)
+    {
+        Widget* child = it->get();
+
+        if (Widget* hit = FindTopWidget(*child, position))
+            return hit;
+    }
+
+    if (!root.CanHit())
+        return nullptr;
+
+    return &root;
+}
+
 void UIInputRouter::DispatchKeyEvent(Widget& root, const KeyEvent& event)
 {
     Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
@@ -216,27 +237,6 @@ void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& r
     {
         window.ChangeCursor(*reply.cursor);
     }
-}
-
-Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) const
-{
-    if (!root.IsVisible() || !root.HitTest(position))
-        return nullptr;
-
-    const auto& children = root.GetChildren();
-
-    for (auto it = children.rbegin(); it != children.rend(); ++it)
-    {
-        Widget* child = it->get();
-
-        if (Widget* hit = FindTopWidget(*child, position))
-            return hit;
-    }
-
-    if (!root.CanHit())
-        return nullptr;
-
-    return &root;
 }
 
 Widget* UIInputRouter::FindWidgetById(Widget& root, ObjectId id) const
