@@ -83,29 +83,27 @@ bool UISystem::IsTextInputActive() const
 
 bool UISystem::TryHideWidget(Widget& widget)
 {
-    if (!root || !inputRouter)
-        return false;
-
-    if (!inputRouter->PrepareToHide(*root, widget))
+    if (!TryClearInputStateForSubtree(widget))
         return false;
 
     widget.SetVisible(false);
     return true;
 }
 
-bool UISystem::PrepareForDetach(Widget& subtree)
+bool UISystem::TryClearInputStateForWidget(Widget& widget)
 {
     if (!root || !inputRouter)
         return false;
 
-    const Widget* current = &subtree;
-    while (current && current != root.get())
-        current = current->GetParent();
+    return inputRouter->TryClearInputStateForWidget(*root, widget);
+}
 
-    if (!current)
+bool UISystem::TryClearInputStateForSubtree(Widget& subtree)
+{
+    if (!root || !inputRouter)
         return false;
 
-    return inputRouter->PrepareToHide(*root, subtree);
+    return inputRouter->TryClearInputStateForSubtree(*root, subtree);
 }
 
 Widget* UISystem::FindWidgetAt(const Vector2& position) const

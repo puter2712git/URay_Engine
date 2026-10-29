@@ -67,8 +67,7 @@ std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
     if (it == tabs.end())
         return std::nullopt;
 
-    // Preserve ongoing pointer interactions anywhere in the source group.
-    if (!uiSystem.PrepareForDetach(*this))
+    if (!uiSystem.TryClearInputStateForSubtree(*this))
         return std::nullopt;
 
     const bool wasActive = activeId.has_value() && *activeId == panelId;

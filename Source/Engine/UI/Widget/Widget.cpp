@@ -66,6 +66,28 @@ std::unique_ptr<Widget> Widget::RemoveChild(Widget* child)
     return nullptr;
 }
 
+std::unique_ptr<Widget> Widget::ReplaceChild(Widget* child, std::unique_ptr<Widget>& replacement)
+{
+    if (!child || !replacement || replacement->parent)
+        return nullptr;
+
+    for (auto& current : children)
+    {
+        if (current.get() != child)
+            continue;
+
+        std::unique_ptr<Widget> previous = std::move(current);
+        previous->parent = nullptr;
+
+        replacement->parent = this;
+        current = std::move(replacement);
+
+        return previous;
+    }
+
+    return nullptr;
+}
+
 void Widget::Measure()
 {
     for (const auto& child : children)

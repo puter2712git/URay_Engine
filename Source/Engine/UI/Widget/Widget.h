@@ -36,6 +36,7 @@ public:
 
     void AddChild(std::unique_ptr<Widget> child);
     std::unique_ptr<Widget> RemoveChild(Widget* child);
+    std::unique_ptr<Widget> ReplaceChild(Widget* child, std::unique_ptr<Widget>& replacement);
 
     template <typename T, typename... Args>
         requires std::derived_from<T, Widget>

@@ -37,7 +37,8 @@ public:
     bool IsTextInputActive() const;
 
     bool TryHideWidget(Widget& widget);
-    bool PrepareForDetach(Widget& subtree);
+    bool TryClearInputStateForWidget(Widget& widget);
+    bool TryClearInputStateForSubtree(Widget& subtree);
 
     Widget* FindWidgetAt(const Vector2& position) const;
 

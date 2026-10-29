@@ -23,7 +23,8 @@ public:
     void Process(Widget& root, const InputSnapshot& input);
     bool IsTextInputActive(Widget& root) const;
 
-    bool PrepareToHide(Widget& root, Widget& subtree);
+    bool TryClearInputStateForWidget(Widget& root, Widget& widget);
+    bool TryClearInputStateForSubtree(Widget& root, Widget& subtree);
 
     Widget* FindTopWidget(Widget& root, const Vector2& position) const;
 
@@ -37,6 +38,8 @@ private:
 
     void UpdateHoveredWidget(Widget& root, Widget* hitWidget);
     void ApplyReply(Widget& root, Widget* target, const EventReply& reply);
+
+    bool TryClearInputState(Widget& root, Widget& target, bool includeChildren);
 
     Widget* FindWidgetById(Widget& root, ObjectId id) const;
 

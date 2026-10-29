@@ -53,31 +53,14 @@ bool UIInputRouter::IsTextInputActive(Widget& root) const
     return focusedWidget && focusedWidget->IsTextInputActive();
 }
 
-bool UIInputRouter::PrepareToHide(Widget& root, Widget& subtree)
+bool UIInputRouter::TryClearInputStateForWidget(Widget& root, Widget& widget)
 {
-    Widget* captured = FindWidgetById(root, pointerCapturedWidgetId);
+    return TryClearInputState(root, widget, false);
+}
 
-    if (IsInSubtree(captured, subtree))
-        return false;
-
-    Widget* focused = FindWidgetById(root, focusedWidgetId);
-    if (IsInSubtree(focused, subtree))
-    {
-        focused->focused = false;
-        focusedWidgetId = {};
-    }
-
-    Widget* hovered = FindWidgetById(root, hoveredWidgetId);
-    if (IsInSubtree(hovered, subtree))
-    {
-        hovered->hovered = false;
-        hoveredWidgetId = {};
-
-        const EventReply reply = hovered->OnPointerLeave();
-        ApplyReply(root, hovered, reply);
-    }
-
-    return true;
+bool UIInputRouter::TryClearInputStateForSubtree(Widget& root, Widget& subtree)
+{
+    return TryClearInputState(root, subtree, true);
 }
 
 Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) const
@@ -237,6 +220,49 @@ void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& r
     {
         window.ChangeCursor(*reply.cursor);
     }
+}
+
+bool UIInputRouter::TryClearInputState(Widget& root, Widget& target, bool includeChildren)
+{
+    if (FindWidgetById(root, target.GetId()) != &target)
+        return false;
+
+    const auto isTarget = [&target, includeChildren](const Widget* widget)
+    {
+        if (!widget)
+            return false;
+
+        if (includeChildren)
+            return IsInSubtree(widget, target);
+
+        return widget == &target;
+    };
+
+    Widget* captured = FindWidgetById(root, pointerCapturedWidgetId);
+
+    if (isTarget(captured))
+        return false;
+
+    Widget* focused = FindWidgetById(root, focusedWidgetId);
+    if (isTarget(focused))
+    {
+        focused->focused = false;
+        focusedWidgetId = {};
+    }
+
+    Widget* hovered = FindWidgetById(root, hoveredWidgetId);
+    if (isTarget(hovered))
+    {
+        hovered->hovered = false;
+        hoveredWidgetId = {};
+
+        const EventReply reply = hovered->OnPointerLeave();
+
+        if (reply.cursor.has_value())
+            window.ChangeCursor(*reply.cursor);
+    }
+
+    return true;
 }
 
 Widget* UIInputRouter::FindWidgetById(Widget& root, ObjectId id) const
