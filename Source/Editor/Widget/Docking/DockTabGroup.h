@@ -38,6 +38,9 @@ public:
     bool HasTab(ObjectId panelId) const;
     const DockedTab* FindTab(ObjectId panelId) const;
 
+    Rect GetPanelRect() const;
+    size_t GetTabCount() const { return tabs.size(); }
+
     void SetDropHighlighted(bool highlighted) { dropHighlighted = highlighted; }
 
     std::optional<DetachedTab> DetachTab(ObjectId panelId);
@@ -55,8 +58,6 @@ private:
 
     void OnTabDragMoved(Vector2 position, ObjectId panelId);
     void OnTabDragReleased(Vector2 position, ObjectId panelId);
-
-    Rect GetPanelRect() const;
 
 private:
     UISystem& uiSystem;

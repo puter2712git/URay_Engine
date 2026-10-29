@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/Vector2.h>
+#include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Engine/Object/ObjectId.h>
 
 #include <optional>
@@ -35,6 +36,8 @@ public:
     void ProcessPendingCleanup();
 
 private:
+    std::optional<DockDropTarget> FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const;
+
     DockTabGroup* FindDropTarget(ObjectId sourceGroupId, const Vector2& position) const;
     void ClearDropHighlight();
 

@@ -1,11 +1,14 @@
 #include "DockSystem.h"
 
+#include <Core/Math/Math.h>
+#include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Editor/Widget/Docking/DockTabGroup.h>
 #include <Editor/Widget/Element/Splitter.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/UI/UISystem.h>
 
 #include <algorithm>
+#include <optional>
 #include <utility>
 
 namespace URay
@@ -22,6 +25,53 @@ bool IsInRoot(const Widget& widget, const Widget& root)
             return true;
     }
     return false;
+}
+
+std::optional<DockDropZone> FindDropZone(const DockTabGroup& group, const Vector2& position)
+{
+    const Rect& groupRect = group.GetRect();
+    const Rect panelRect = group.GetPanelRect();
+
+    if (groupRect.size.x <= 0.0f || groupRect.size.y <= 0.0f)
+        return std::nullopt;
+
+    // Tab bar
+    if (position.y < panelRect.position.y)
+        return DockDropZone::Center;
+
+    if (panelRect.size.x <= 0.0f || panelRect.size.y <= 0.0f)
+        return std::nullopt;
+
+    const float x = (position.x - panelRect.position.x) / panelRect.size.x;
+    const float y = (position.y - panelRect.position.y) / panelRect.size.y;
+
+    if (x < 0.0f || x >= 1.0f || y < 0.0f || y >= 1.0f)
+        return std::nullopt;
+
+    constexpr float edgeFraction = 0.25f;
+
+    const float left = x;
+    const float right = 1.0f - x;
+    const float top = y;
+    const float bottom = 1.0f - y;
+
+    const float nearest = Math::Min(
+        Math::Min(left, right),
+        Math::Min(top, bottom));
+
+    if (nearest >= edgeFraction)
+        return DockDropZone::Center;
+
+    if (nearest == left)
+        return DockDropZone::Left;
+
+    if (nearest == right)
+        return DockDropZone::Right;
+
+    if (nearest == top)
+        return DockDropZone::Top;
+
+    return DockDropZone::Bottom;
 }
 
 } // namespace
@@ -126,6 +176,41 @@ void DockSystem::ProcessPendingCleanup()
         {
             return TryCleanupEmptyGroup(groupId);
         });
+}
+
+std::optional<DockDropTarget> DockSystem::FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const
+{
+    Widget* hit = uiSystem.FindWidgetAt(position);
+
+    for (Widget* current = hit; current; current = current->GetParent())
+    {
+        DockTabGroup* target = Cast<DockTabGroup>(current);
+        if (!target)
+            continue;
+
+        const std::optional<DockDropZone> zone = FindDropZone(*target, position);
+
+        if (!zone.has_value())
+            return std::nullopt;
+
+        const bool isSource = target->GetId() == sourceGroupId;
+
+        if (isSource)
+        {
+            if (*zone == DockDropZone::Center)
+                return std::nullopt;
+
+            if (target->GetTabCount() <= 1)
+                return std::nullopt;
+        }
+
+        return DockDropTarget{
+            .groupId = target->GetId(),
+            .zone = *zone
+        };
+    }
+
+    return std::nullopt;
 }
 
 DockTabGroup* DockSystem::FindDropTarget(ObjectId sourceGroupId, const Vector2& position) const
