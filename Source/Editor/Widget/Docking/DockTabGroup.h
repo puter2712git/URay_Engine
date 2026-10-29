@@ -12,6 +12,12 @@ namespace URay
 class Button;
 class UISystem;
 
+struct DetachedTab
+{
+    String title;
+    std::unique_ptr<Widget> panel;
+};
+
 class DockTabGroup final : public Widget
 {
     URAY_CLASS(DockTabGroup, Widget)
@@ -22,6 +28,9 @@ public:
 public:
     void AddTab(const String& title, std::unique_ptr<Widget> panel);
 
+    std::optional<DetachedTab> DetachTab(ObjectId panelId);
+    bool IsEmpty() const { return tabs.empty(); }
+
     void Arrange(const Rect& rect) override;
 
 protected:
@@ -31,6 +40,7 @@ protected:
 private:
     struct Tab
     {
+        String title;
         Button* button = nullptr;
         Widget* panel = nullptr;
     };

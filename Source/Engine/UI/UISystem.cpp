@@ -92,4 +92,19 @@ bool UISystem::TryHideWidget(Widget& widget)
     return true;
 }
 
+bool UISystem::PrepareForDetach(Widget& subtree)
+{
+    if (!root || !inputRouter)
+        return false;
+
+    const Widget* current = &subtree;
+    while (current && current != root.get())
+        current = current->GetParent();
+
+    if (!current)
+        return false;
+
+    return inputRouter->PrepareToHide(*root, subtree);
+}
+
 } // namespace URay

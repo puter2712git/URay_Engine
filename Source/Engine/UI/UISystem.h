@@ -34,6 +34,7 @@ public:
     bool IsTextInputActive() const;
 
     bool TryHideWidget(Widget& widget);
+    bool PrepareForDetach(Widget& subtree);
 
     Widget& GetRootWidget() const { return *root; }
     Render::UIDrawContext& GetDrawContext() const { return *drawContext; }

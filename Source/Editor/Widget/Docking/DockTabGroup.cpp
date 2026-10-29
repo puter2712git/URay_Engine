@@ -7,6 +7,9 @@
 #include <Engine/UI/Widget/Element/Button.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
+#include <algorithm>
+#include <cassert>
+
 namespace URay
 {
 
@@ -25,12 +28,56 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
     Button* button = CreateDockTabButton(*this, title);
     button->Register("Clicked", this, &DockTabGroup::RequestActivate, panelPtr->GetId());
 
-    tabs.push_back(Tab{ .button = button, .panel = panelPtr });
+    tabs.push_back(Tab{ .title = title, .button = button, .panel = panelPtr });
 
     if (!activeId.has_value())
         activeId = panelPtr->GetId();
 
     UpdateTabColors();
+}
+
+std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
+{
+    const auto it = std::find_if(tabs.begin(), tabs.end(), [panelId](const Tab& tab)
+    {
+        return tab.panel->GetId() == panelId;
+    });
+
+    if (it == tabs.end())
+        return std::nullopt;
+
+    // Preserve ongoing pointer interactions anywhere in the source group.
+    if (!uiSystem.PrepareForDetach(*this))
+        return std::nullopt;
+
+    const bool wasActive = activeId.has_value() && *activeId == panelId;
+    String title = it->title;
+    Widget* panel = it->panel;
+    Button* button = it->button;
+
+    std::unique_ptr<Widget> removedButton = RemoveChild(button);
+    std::unique_ptr<Widget> detachedPanel = RemoveChild(panel);
+    assert(removedButton && detachedPanel);
+
+    tabs.erase(it);
+
+    if (pendingId.has_value() && *pendingId == panelId)
+        pendingId.reset();
+
+    if (wasActive)
+    {
+        activeId.reset();
+        if (!tabs.empty())
+        {
+            tabs.front().panel->SetVisible(true);
+            activeId = tabs.front().panel->GetId();
+        }
+    }
+
+    detachedPanel->SetVisible(false);
+    UpdateTabColors();
+
+    return DetachedTab{ .title = std::move(title), .panel = std::move(detachedPanel) };
 }
 
 void DockTabGroup::Arrange(const Rect& rect)
