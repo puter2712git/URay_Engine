@@ -464,7 +464,7 @@ void InspectorPanel::OnAddComponentClicked(Button* button, Unit* unit)
     ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(button->GetRect(), *unit);
 
     const ObjectId unitId = unit->GetId();
-    popup->Register("ComponentSelected", gEditor, &Editor::OnComponentPopupSelected, unitId.index, unitId.generation);
+    popup->Register("ComponentSelected", gEditor, &Editor::OnComponentPopupSelected, unitId);
 }
 
 } // namespace URay

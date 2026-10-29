@@ -337,15 +337,15 @@ void Editor::OpenSaveSceneDialog()
     SaveSceneDialog* dialog = editorUI->GetDialogLayer().OpenDialog<SaveSceneDialog>(fileSystem);
 
     const ObjectId sceneId = gameScene ? gameScene->Object::GetId() : ObjectId{};
-    dialog->Register("Closed", this, &Editor::OnSaveSceneDialogClosed, dialog, sceneId.index, sceneId.generation);
+    dialog->Register("Closed", this, &Editor::OnSaveSceneDialogClosed, dialog, sceneId);
 }
 
-void Editor::OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialog, int32 sceneIndex, uint32 sceneGeneration)
+void Editor::OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialog, ObjectId sceneId)
 {
     if (result != DialogResult::Accepted)
         return;
 
-    Object* object = gEngine->GetObjectSystem().Resolve(ObjectId{ sceneIndex, sceneGeneration });
+    Object* object = gEngine->GetObjectSystem().Resolve(sceneId);
     Scene* gameScene = Cast<Scene>(object);
     if (gameScene && dialog)
         SaveSceneToPath(*gameScene, dialog->GetSavePath());
@@ -353,7 +353,7 @@ void Editor::OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialo
     editorUI->GetDialogLayer().CloseDialog();
 }
 
-void Editor::OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, int32 unitIndex, uint32 unitGeneration)
+void Editor::OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, ObjectId unitId)
 {
     if (selection != UnitPopupSelection::EmptyUnit)
         return;
@@ -363,7 +363,7 @@ void Editor::OnUnitPopupSelected(UnitPopupSelection selection, bool createChild,
 
     if (createChild)
     {
-        targetUnit = Cast<Unit>(gEngine->GetObjectSystem().Resolve(ObjectId{unitIndex, unitGeneration}));
+        targetUnit = Cast<Unit>(gEngine->GetObjectSystem().Resolve(unitId));
         if (targetUnit)
             scene = targetUnit->GetOwner();
     }
@@ -382,9 +382,9 @@ void Editor::OnUnitPopupSelected(UnitPopupSelection selection, bool createChild,
     editorUI->GetPopupLayer().ClosePopup();
 }
 
-void Editor::OnComponentPopupSelected(ComponentPickerSelection selection, int32 unitIndex, uint32 unitGeneration)
+void Editor::OnComponentPopupSelected(ComponentPickerSelection selection, ObjectId unitId)
 {
-    Unit* unit = Cast<Unit>(gEngine->GetObjectSystem().Resolve(ObjectId{unitIndex, unitGeneration}));
+    Unit* unit = Cast<Unit>(gEngine->GetObjectSystem().Resolve(unitId));
     if (unit)
     {
         auto component = ComponentFactory::Create(selection.componentTypeName);

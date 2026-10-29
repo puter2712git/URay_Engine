@@ -77,7 +77,7 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
     PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
     UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
-    popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, false, int32{ 0 }, uint32{ 0 });
+    popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, false, ObjectId{});
 
     return EventReply{
         .handled = true,

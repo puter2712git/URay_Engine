@@ -72,7 +72,7 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
         UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
         const ObjectId targetId = unit->GetId();
-        popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, true, targetId.index, targetId.generation);
+        popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, true, targetId);
 
         return EventReply{
             .handled = true,

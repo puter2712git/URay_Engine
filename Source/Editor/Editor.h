@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
+#include <Engine/Object/ObjectId.h>
 #include <Render/Rendering/RenderPipeline.h>
 
 #include <memory>
@@ -42,8 +43,8 @@ public:
     Render::RenderRequest BuildRenderRequest() const;
 
     void LoadGameScene(const VirtualPath& scenePath);
-    void OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, int32 unitIndex, uint32 unitGeneration);
-    void OnComponentPopupSelected(ComponentPickerSelection selection, int32 unitIndex, uint32 unitGeneration);
+    void OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, ObjectId unitId);
+    void OnComponentPopupSelected(ComponentPickerSelection selection, ObjectId unitId);
 
     EditorUI& GetEditorUI() const { return *editorUI; }
     SelectionSystem& GetSelectionSystem() const { return *selectionSystem; }
@@ -60,7 +61,7 @@ private:
     bool SaveCurrentScene();
     bool SaveSceneToPath(Scene& scene, const VirtualPath& path);
     void OpenSaveSceneDialog();
-    void OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialog, int32 sceneIndex, uint32 sceneGeneration);
+    void OnSaveSceneDialogClosed(DialogResult result, SaveSceneDialog* dialog, ObjectId sceneId);
 
     void DeleteSelectedUnits();
 
