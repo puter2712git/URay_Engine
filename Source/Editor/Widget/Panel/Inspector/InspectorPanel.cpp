@@ -12,10 +12,10 @@
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Element/AssetField.h>
 #include <Editor/Widget/Element/ColorField.h>
-#include <Editor/Widget/Element/VectorField.h>
 #include <Editor/Widget/Element/NumberField.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Element/StringField.h>
+#include <Editor/Widget/Element/VectorField.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
@@ -67,11 +67,9 @@ void UpdateInspectedProperty(T value, Object* object, const Property* property)
 
 } // namespace
 
-InspectorPanel::InspectorPanel() : Panel("Inspector"), inspectSystem(gEditor->GetInspectSystem())
+InspectorPanel::InspectorPanel() : inspectSystem(gEditor->GetInspectSystem())
 {
     SetBackgroundColor(EditorStyle::Surface);
-    SetOutlineWidth(2.0f);
-    SetOutlineColor(EditorStyle::Border);
     SetPadding(Padding(5.0f, 5.0f));
 
     scrollView = AddChild<ScrollView>();

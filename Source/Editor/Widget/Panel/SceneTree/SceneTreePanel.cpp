@@ -42,13 +42,11 @@ private:
     std::vector<SceneTreeNode*> nodePool;
 };
 
-SceneTreePanel::SceneTreePanel() : Panel("Scene Tree")
+SceneTreePanel::SceneTreePanel()
 {
     sceneSystem = &gEngine->GetSceneSystem();
 
     SetBackgroundColor(EditorStyle::Surface);
-    SetOutlineWidth(2.0f);
-    SetOutlineColor(EditorStyle::Border);
     SetPadding(Padding(5.0f, 5.0f));
 
     scrollView = AddChild<ScrollView>();
@@ -79,7 +77,7 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
     PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
     UnitPopup* popup = popupLayer.OpenPopup<UnitPopup>(event.position);
 
-    popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, false, int32{0}, uint32{0});
+    popup->Register("UnitSelected", gEditor, &Editor::OnUnitPopupSelected, false, int32{ 0 }, uint32{ 0 });
 
     return EventReply{
         .handled = true,

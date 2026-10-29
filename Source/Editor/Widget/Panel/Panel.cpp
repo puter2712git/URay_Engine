@@ -1,37 +1,19 @@
 #include "Panel.h"
-#include <Core/Type/TypeAlias.h>
 
-#include <Editor/Widget/Style/EditorStyles.h>
 #include <Core/Math/Math.h>
-
-#include <Editor/Widget/Panel/PanelHeader.h>
-
+#include <Core/Type/TypeAlias.h>
+#include <Editor/Widget/Style/EditorStyles.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
 namespace URay
 {
 
 Panel::Panel() = default;
-
-Panel::Panel(const String& name)
-{
-    header = AddChild<PanelHeader>(name);
-}
-
 Panel::~Panel() = default;
 
 void Panel::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
-
-    if (header)
-    {
-        Rect headerRect = {};
-        headerRect.position = rect.position;
-        headerRect.size = Vector2(rect.size.x, EditorStyle::PanelHeaderHeight);
-
-        header->Arrange(headerRect);
-    }
 }
 
 Rect Panel::GetContentRect() const
@@ -49,14 +31,6 @@ Rect Panel::GetContentRect() const
     contentRect.size = Vector2(
         Math::Max(0.0f, rect.size.x - left - right),
         Math::Max(0.0f, rect.size.y - top - bottom));
-
-    if (header)
-    {
-        const float headerHeight = Math::Min(EditorStyle::PanelHeaderHeight, contentRect.size.y);
-
-        contentRect.position.y += headerHeight;
-        contentRect.size.y -= headerHeight;
-    }
 
     return contentRect;
 }

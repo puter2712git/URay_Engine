@@ -88,8 +88,23 @@ void DockTabGroup::OnUpdate(float deltaTime)
 
 void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
 {
+    context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
+
     for (const Tab& tab : tabs)
-        context.AddOutlineRect(tab.button->GetRect(), 1.0f, EditorStyle::Border);
+    {
+        const Rect& tabRect = tab.button->GetRect();
+        if (tabRect.size.x <= 0.0f || tabRect.size.y <= 0.0f)
+            continue;
+
+        const float thickness = Math::Min(1.0f, Math::Min(tabRect.size.x, tabRect.size.y) * 0.5f);
+        context.AddFilledRect({ .position = tabRect.position, .size = Vector2(tabRect.size.x, thickness) }, EditorStyle::Border);
+        context.AddFilledRect({ .position = Vector2(tabRect.position.x, tabRect.position.y + thickness),
+                                .size = Vector2(thickness, tabRect.size.y - thickness) },
+                              EditorStyle::Border);
+        context.AddFilledRect({ .position = Vector2(tabRect.position.x + tabRect.size.x - thickness, tabRect.position.y + thickness),
+                                .size = Vector2(thickness, tabRect.size.y - thickness) },
+                              EditorStyle::Border);
+    }
 }
 
 void DockTabGroup::UpdateTabColors()

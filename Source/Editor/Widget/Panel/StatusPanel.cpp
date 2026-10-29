@@ -5,11 +5,7 @@
 #include <Core/Performance/PerformanceViewModel.h>
 #include <Core/TimeFlow/Timer.h>
 #include <Editor/Editor.h>
-#include <Engine/UI/Widget/Element/Checkbox.h>
-#include <Engine/UI/Widget/Element/Label.h>
 #include <Editor/Widget/Element/StringField.h>
-#include <Engine/UI/Widget/Layout/CrossAxisAlignment.h>
-#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/AssetDatabase.h>
@@ -17,6 +13,10 @@
 #include <Engine/Asset/EngineAsset.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
+#include <Engine/UI/Widget/Element/Checkbox.h>
+#include <Engine/UI/Widget/Element/Label.h>
+#include <Engine/UI/Widget/Layout/CrossAxisAlignment.h>
+#include <Engine/UI/Widget/Layout/VerticalLayout.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 #include <Render/Rendering/RenderPipeline.h>
@@ -50,11 +50,9 @@ void UpdateScopeLabels(
     }
 }
 
-StatusPanel::StatusPanel() : Panel("Status")
+StatusPanel::StatusPanel()
 {
     SetBackgroundColor(EditorStyle::Surface);
-    SetOutlineWidth(2.0f);
-    SetOutlineColor(EditorStyle::Border);
     SetPadding(Padding(2.0f, 2.0f));
 
     layout = AddChild<VerticalLayout>();

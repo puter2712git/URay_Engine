@@ -51,13 +51,25 @@ std::unique_ptr<Widget> EditorUI::CreateDefaultWidgets()
     std::unique_ptr<StatusPanel> status = std::make_unique<StatusPanel>();
     std::unique_ptr<ViewportPanel> viewport = std::make_unique<ViewportPanel>(viewportController);
 
-    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
-    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
-    auto leftPanel2 = std::make_unique<DockTabGroup>(gEngine->GetUISystem());
+    UISystem& uiSystem = gEngine->GetUISystem();
+    auto makeTabGroup = [&uiSystem](const String& title, std::unique_ptr<Widget> panel)
+    {
+        auto group = std::make_unique<DockTabGroup>(uiSystem);
+        group->AddTab(title, std::move(panel));
+        return group;
+    };
+
+    auto sceneTreeGroup = makeTabGroup("Scene Tree", std::move(sceneTree));
+    auto inspectorGroup = makeTabGroup("Inspector", std::move(inspector));
+    auto statusGroup = makeTabGroup("Status", std::move(status));
+    auto viewportGroup = makeTabGroup("Viewport", std::move(viewport));
+
+    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTreeGroup), std::move(inspectorGroup));
+    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(statusGroup), std::move(rightPanel2));
+    auto leftPanel2 = std::make_unique<DockTabGroup>(uiSystem);
     leftPanel2->AddTab("Console", std::move(console));
     leftPanel2->AddTab("File System", std::move(filesystem));
-    // std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>("LeftPanel2", SplitAxis::Horizontal, std::move(console), std::move(filesystem));
-    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
+    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewportGroup), std::move(leftPanel2));
 
     auto mainContent = std::make_unique<Splitter>(
         "Root",

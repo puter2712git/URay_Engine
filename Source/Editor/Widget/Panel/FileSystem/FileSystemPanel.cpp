@@ -24,7 +24,7 @@
 namespace URay
 {
 
-FileSystemPanel::FileSystemPanel() : Panel("File System")
+FileSystemPanel::FileSystemPanel()
 {
     VirtualFileSystem& fileSystem = gEngine->GetAssetSystem().GetFileSystem();
 

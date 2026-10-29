@@ -7,11 +7,8 @@
 #include <Core/Math/Color.h>
 #include <Core/Math/Padding.h>
 
-
 namespace URay
 {
-
-class PanelHeader;
 
 class Panel : public Widget
 {
@@ -19,7 +16,6 @@ class Panel : public Widget
 
 public:
     Panel();
-    Panel(const String& name);
     ~Panel() override;
 
 public:
@@ -46,10 +42,6 @@ protected:
     std::optional<Rect> GetClipRect() const override { return rect; }
 
 protected:
-    PanelHeader* header = nullptr;
-
-    String name;
-
     Color backgroundColor = EditorStyle::Surface;
 
     float outlineWidth = 0.0f;
