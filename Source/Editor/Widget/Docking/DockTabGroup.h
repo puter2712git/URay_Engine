@@ -29,21 +29,24 @@ protected:
     void OnPaintForeground(Render::UIDrawContext& context) override;
 
 private:
-    void RequestActivate(int32 index);
-    void UpdateTabColors();
-
-private:
     struct Tab
     {
         Button* button = nullptr;
         Widget* panel = nullptr;
     };
 
+private:
+    void RequestActivate(ObjectId panelId);
+    void UpdateTabColors();
+
+    const Tab* FindTab(ObjectId panelId);
+
+private:
     UISystem& uiSystem;
     std::vector<Tab> tabs;
 
-    std::optional<int32> activeIndex;
-    std::optional<int32> pendingIndex;
+    std::optional<ObjectId> activeId;
+    std::optional<ObjectId> pendingId;
 };
 
 } // namespace URay

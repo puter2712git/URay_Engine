@@ -17,20 +17,18 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
     if (!panel)
         return;
 
-    const int32 index = static_cast<int32>(tabs.size());
-
     Widget* panelPtr = panel.get();
 
-    panelPtr->SetVisible(!activeIndex.has_value());
+    panelPtr->SetVisible(!activeId.has_value());
     AddChild(std::move(panel));
 
     Button* button = CreateDockTabButton(*this, title);
-    button->Register("Clicked", this, &DockTabGroup::RequestActivate, index);
+    button->Register("Clicked", this, &DockTabGroup::RequestActivate, panelPtr->GetId());
 
     tabs.push_back(Tab{ .button = button, .panel = panelPtr });
 
-    if (!activeIndex.has_value())
-        activeIndex = index;
+    if (!activeId.has_value())
+        activeId = panelPtr->GetId();
 
     UpdateTabColors();
 }
@@ -61,29 +59,36 @@ void DockTabGroup::Arrange(const Rect& rect)
 
 void DockTabGroup::OnUpdate(float deltaTime)
 {
-    if (!pendingIndex.has_value())
+    if (!pendingId.has_value())
         return;
 
-    const int32 nextIndex = *pendingIndex;
+    const ObjectId nextId = *pendingId;
 
-    if (activeIndex == nextIndex)
+    if (activeId == nextId)
     {
-        pendingIndex.reset();
+        pendingId.reset();
         return;
     }
 
-    if (activeIndex.has_value())
+    const Tab* nextTab = FindTab(nextId);
+    if (!nextTab)
     {
-        Widget* currentPanel = tabs[*activeIndex].panel;
+        pendingId.reset();
+        return;
+    }
 
-        if (!uiSystem.TryHideWidget(*currentPanel))
+    if (activeId.has_value())
+    {
+        const Tab* activeTab = FindTab(*activeId);
+
+        if (activeTab && !uiSystem.TryHideWidget(*activeTab->panel))
             return;
     }
 
-    tabs[nextIndex].panel->SetVisible(true);
-    activeIndex = nextIndex;
+    nextTab->panel->SetVisible(true);
+    activeId = nextId;
+    pendingId.reset();
     UpdateTabColors();
-    pendingIndex.reset();
 }
 
 void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
@@ -111,7 +116,7 @@ void DockTabGroup::UpdateTabColors()
 {
     for (size_t i = 0; i < tabs.size(); ++i)
     {
-        const bool active = activeIndex.has_value() && static_cast<size_t>(*activeIndex) == i;
+        const bool active = activeId.has_value() && *activeId == tabs[i].panel->GetId();
         Button& button = *tabs[i].button;
         button.SetNormalColor(active ? EditorStyle::DockTabActive : EditorStyle::DockTabInactive);
         button.SetHoverColor(active ? EditorStyle::DockTabActiveHovered : EditorStyle::DockTabInactiveHovered);
@@ -119,12 +124,22 @@ void DockTabGroup::UpdateTabColors()
     }
 }
 
-void DockTabGroup::RequestActivate(int32 index)
+void DockTabGroup::RequestActivate(ObjectId panelId)
 {
-    if (index < 0 || index >= static_cast<int32>(tabs.size()))
+    if (panelId == ObjectId{})
         return;
 
-    pendingIndex = index;
+    pendingId = panelId;
+}
+
+const DockTabGroup::Tab* DockTabGroup::FindTab(ObjectId panelId)
+{
+    for (Tab& tab : tabs)
+    {
+        if (tab.panel->GetId() == panelId)
+            return &tab;
+    }
+    return nullptr;
 }
 
 } // namespace URay
