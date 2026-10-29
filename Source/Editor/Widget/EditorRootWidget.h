@@ -20,6 +20,8 @@ public:
     DialogLayer& GetDialogLayer() const { return *dialogLayer; }
 
 protected:
+    void OnPaint(Render::UIDrawContext& context) override;
+
     std::optional<Rect> GetClipRect() const override { return rect; }
 
 private:

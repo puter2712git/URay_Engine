@@ -7,6 +7,8 @@
 namespace URay::EditorStyle
 {
 
+inline const Color RootBackground = Color::FromRGB(0x24, 0x24, 0x24);
+
 inline const Color Surface = Color::FromRGB(0x10, 0x10, 0x10);
 inline const Color SurfaceHeader = Color::FromRGB(0x05, 0x05, 0x05);
 inline const Color Border = Color::FromRGB(0x00, 0x00, 0x00);
@@ -20,10 +22,10 @@ inline const Color ControlNormal = Color::FromRGB(0x20, 0x20, 0x20);
 inline const Color ControlHovered = Color::FromRGB(0x60, 0x60, 0x60);
 inline const Color ControlPressed = Color::FromRGB(0x40, 0x40, 0x40);
 
-inline const Color DockTabActive = Color::FromRGB(0x50, 0x50, 0x50);
-inline const Color DockTabActiveHovered = Color::FromRGB(0x60, 0x60, 0x60);
-inline const Color DockTabActivePressed = Color::FromRGB(0x48, 0x48, 0x48);
-inline const Color DockTabInactive = Color::FromRGB(0x20, 0x20, 0x20);
+inline const Color DockTabActive = Surface;
+inline const Color DockTabActiveHovered = Surface;
+inline const Color DockTabActivePressed = Surface;
+inline const Color DockTabInactive = Color::FromRGB(0x08, 0x08, 0x08);
 inline const Color DockTabInactiveHovered = Color::FromRGB(0x38, 0x38, 0x38);
 inline const Color DockTabInactivePressed = Color::FromRGB(0x30, 0x30, 0x30);
 
