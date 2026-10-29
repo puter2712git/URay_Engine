@@ -1,4 +1,6 @@
 #include "InspectorPanel.h"
+
+#include <Editor/Widget/Panel/PanelFactory.h>
 #include <Core/Type/TypeAlias.h>
 
 #include <Core/Math/Color.h>
@@ -45,6 +47,8 @@
 
 namespace URay
 {
+
+URAY_REGISTER_PANEL(InspectorPanel, "Inspector")
 
 namespace
 {

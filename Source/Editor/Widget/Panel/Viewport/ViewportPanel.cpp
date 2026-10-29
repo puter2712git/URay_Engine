@@ -1,5 +1,7 @@
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 
+#include <Editor/Widget/Panel/PanelFactory.h>
+
 #include <Editor/Viewport/ViewportController.h>
 #include <Editor/Widget/Panel/Viewport/ViewportToolbar.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -11,6 +13,12 @@
 
 namespace URay
 {
+
+URAY_REGISTER_PANEL_WITH_CONTEXT(ViewportPanel, "Viewport",
+    [](PanelContext& context) -> std::unique_ptr<Panel>
+    {
+        return std::make_unique<ViewportPanel>(context.viewportController);
+    })
 
 ViewportPanel::ViewportPanel(ViewportController& controller)
     : controller(controller)

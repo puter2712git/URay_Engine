@@ -1,5 +1,7 @@
 #include "SceneTreePanel.h"
 
+#include <Editor/Widget/Panel/PanelFactory.h>
+
 #include <Core/Math/Math.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 
@@ -19,6 +21,8 @@
 
 namespace URay
 {
+
+URAY_REGISTER_PANEL(SceneTreePanel, "Scene Tree")
 
 namespace
 {

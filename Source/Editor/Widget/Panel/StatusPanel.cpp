@@ -1,5 +1,7 @@
 #include "StatusPanel.h"
 
+#include <Editor/Widget/Panel/PanelFactory.h>
+
 #include <Editor/Widget/EditorWidgetFactory.h>
 
 #include <Core/Performance/PerformanceViewModel.h>
@@ -24,6 +26,8 @@
 
 namespace URay
 {
+
+URAY_REGISTER_PANEL(StatusPanel, "Status")
 
 template <size_t Count>
 void UpdateScopeLabels(

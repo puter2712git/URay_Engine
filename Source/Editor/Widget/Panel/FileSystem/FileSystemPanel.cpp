@@ -1,5 +1,7 @@
 #include "FileSystemPanel.h"
 
+#include <Editor/Widget/Panel/PanelFactory.h>
+
 #include <Core/Math/Math.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
 
@@ -23,6 +25,8 @@
 
 namespace URay
 {
+
+URAY_REGISTER_PANEL(FileSystemPanel, "File System")
 
 FileSystemPanel::FileSystemPanel()
 {

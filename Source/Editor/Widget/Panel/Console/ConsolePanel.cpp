@@ -1,4 +1,6 @@
 #include "ConsolePanel.h"
+
+#include <Editor/Widget/Panel/PanelFactory.h>
 #include <Core/Type/TypeAlias.h>
 
 #include <Editor/Widget/EditorWidgetFactory.h>
@@ -13,6 +15,8 @@
 
 namespace URay
 {
+
+URAY_REGISTER_PANEL(ConsolePanel, "Console")
 
 ConsolePanel::ConsolePanel()
 {
