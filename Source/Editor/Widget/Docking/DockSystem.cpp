@@ -40,20 +40,35 @@ void DockSystem::RequestMove(ObjectId sourceGroupId, ObjectId targetGroupId, Obj
 
 void DockSystem::RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position)
 {
-    Widget* hit = uiSystem.FindWidgetAt(position);
+    DockTabGroup* target = FindDropTarget(sourceGroupId, position);
 
-    for (Widget* current = hit; current; current = current->GetParent())
+    ClearDropHighlight();
+
+    if (target)
+        RequestMove(sourceGroupId, target->GetId(), panelId);
+}
+
+void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position)
+{
+    DockTabGroup* source = Cast<DockTabGroup>(objectSystem.Resolve(sourceGroupId));
+
+    if (!source || !source->HasTab(panelId))
     {
-        DockTabGroup* target = Cast<DockTabGroup>(current);
-        if (!target)
-            continue;
-
-        if (target->GetId() != sourceGroupId)
-        {
-            RequestMove(sourceGroupId, target->GetId(), panelId);
-        }
-
+        ClearDropHighlight();
         return;
+    }
+
+    DockTabGroup* target = FindDropTarget(sourceGroupId, position);
+
+    if (target && highlightedGroupId.has_value() && *highlightedGroupId == target->GetId())
+        return;
+
+    ClearDropHighlight();
+
+    if (target)
+    {
+        highlightedGroupId = target->GetId();
+        target->SetDropHighlighted(true);
     }
 }
 
@@ -88,6 +103,38 @@ void DockSystem::ProcessPendingMove()
 
     target->AddTab(detached->title, std::move(detached->panel));
     pendingMove.reset();
+}
+
+DockTabGroup* DockSystem::FindDropTarget(ObjectId sourceGroupId, const Vector2& position) const
+{
+    Widget* hit = uiSystem.FindWidgetAt(position);
+
+    for (Widget* current = hit; current; current = current->GetParent())
+    {
+        DockTabGroup* target = Cast<DockTabGroup>(current);
+        if (!target)
+            continue;
+
+        if (target->GetId() == sourceGroupId)
+            return nullptr;
+
+        return target;
+    }
+
+    return nullptr;
+}
+
+void DockSystem::ClearDropHighlight()
+{
+    if (!highlightedGroupId.has_value())
+        return;
+
+    DockTabGroup* previous = Cast<DockTabGroup>(objectSystem.Resolve(*highlightedGroupId));
+
+    if (previous)
+        previous->SetDropHighlighted(false);
+
+    highlightedGroupId.reset();
 }
 
 } // namespace URay

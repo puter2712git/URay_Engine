@@ -17,6 +17,8 @@
 namespace URay
 {
 
+constexpr float tabHeight = 25.0f;
+
 DockTabGroup::DockTabGroup(UISystem& uiSystem) : uiSystem(uiSystem) {}
 
 void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
@@ -31,6 +33,7 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
 
     DockTabButton* button = CreateDockTabButton(*this, title);
     button->Register("Clicked", this, &DockTabGroup::RequestActivate, panelPtr->GetId());
+    button->Register("DragMoved", this, &DockTabGroup::OnTabDragMoved, panelPtr->GetId());
     button->Register("DragReleased", this, &DockTabGroup::OnTabDragReleased, panelPtr->GetId());
 
     tabs.push_back(DockedTab{ .title = title, .button = button, .panel = panelPtr });
@@ -102,14 +105,11 @@ void DockTabGroup::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    constexpr float tabHeight = 25.0f;
     constexpr float tabWidth = 120.0f;
 
     const float actualTabHeight = Math::Min(tabHeight, Math::Max(0.0f, rect.size.y));
 
-    Rect panelRect = {};
-    panelRect.position = Vector2(rect.position.x, rect.position.y + actualTabHeight);
-    panelRect.size = Vector2(rect.size.x, Math::Max(0.0f, rect.size.y - actualTabHeight));
+    Rect panelRect = GetPanelRect();
 
     for (size_t i = 0; i < tabs.size(); ++i)
     {
@@ -158,6 +158,14 @@ void DockTabGroup::OnUpdate(float deltaTime)
 
 void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
 {
+    if (dropHighlighted)
+    {
+        const Rect panelRect = GetPanelRect();
+
+        if (panelRect.size.x > 0.0f && panelRect.size.y > 0.0f)
+            context.AddFilledRect(panelRect, EditorStyle::DockDropHighlight);
+    }
+
     context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
 
     for (const DockedTab& tab : tabs)
@@ -197,6 +205,13 @@ void DockTabGroup::RequestActivate(ObjectId panelId)
     pendingId = panelId;
 }
 
+void DockTabGroup::OnTabDragMoved(Vector2 position, ObjectId panelId)
+{
+    EditorUI& editorUI = gEditor->GetEditorUI();
+    DockSystem& dockSystem = editorUI.GetDockSystem();
+    dockSystem.UpdateDrag(GetId(), panelId, position);
+}
+
 void DockTabGroup::OnTabDragReleased(Vector2 position, ObjectId panelId)
 {
     if (panelId == ObjectId{})
@@ -206,6 +221,17 @@ void DockTabGroup::OnTabDragReleased(Vector2 position, ObjectId panelId)
     DockSystem& dockSystem = editorUI.GetDockSystem();
 
     dockSystem.RequestDrop(GetId(), panelId, position);
+}
+
+Rect DockTabGroup::GetPanelRect() const
+{
+    const float actualTabHeight = Math::Min(tabHeight, Math::Max(0.0f, rect.size.y));
+
+    Rect panelRect = {};
+    panelRect.position = Vector2(rect.position.x, rect.position.y + actualTabHeight);
+    panelRect.size = Vector2(rect.size.x, Math::Max(0.0f, rect.size.y - actualTabHeight));
+
+    return panelRect;
 }
 
 } // namespace URay

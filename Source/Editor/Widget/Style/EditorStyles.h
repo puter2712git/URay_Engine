@@ -28,6 +28,7 @@ inline const Color DockTabActivePressed = Surface;
 inline const Color DockTabInactive = Color::FromRGB(0x08, 0x08, 0x08);
 inline const Color DockTabInactiveHovered = Color::FromRGB(0x38, 0x38, 0x38);
 inline const Color DockTabInactivePressed = Color::FromRGB(0x30, 0x30, 0x30);
+inline const Color DockDropHighlight = Color::FromRGB(0x26, 0x5D, 0xAB, 0x60);
 
 inline constexpr float PanelHeaderHeight = 25.0f;
 

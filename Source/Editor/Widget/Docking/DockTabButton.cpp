@@ -10,6 +10,7 @@ namespace URay
 DockTabButton::DockTabButton(StringView title)
 {
     URAY_DECLARE_RAY(Clicked);
+    URAY_DECLARE_RAY(DragMoved, Vector2);
     URAY_DECLARE_RAY(DragReleased, Vector2);
 
     label = AddChild<Label>(title);
@@ -54,6 +55,9 @@ EventReply DockTabButton::OnPointerMove(const PointerEvent& event)
     {
         isDragging = true;
     }
+
+    if (isDragging)
+        Emit("DragMoved", event.position);
 
     return EventReply{ .handled = true };
 }

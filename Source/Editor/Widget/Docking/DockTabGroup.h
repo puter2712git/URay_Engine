@@ -38,6 +38,8 @@ public:
     bool HasTab(ObjectId panelId) const;
     const DockedTab* FindTab(ObjectId panelId) const;
 
+    void SetDropHighlighted(bool highlighted) { dropHighlighted = highlighted; }
+
     std::optional<DetachedTab> DetachTab(ObjectId panelId);
     bool IsEmpty() const { return tabs.empty(); }
 
@@ -51,7 +53,10 @@ private:
     void RequestActivate(ObjectId panelId);
     void UpdateTabColors();
 
+    void OnTabDragMoved(Vector2 position, ObjectId panelId);
     void OnTabDragReleased(Vector2 position, ObjectId panelId);
+
+    Rect GetPanelRect() const;
 
 private:
     UISystem& uiSystem;
@@ -59,6 +64,8 @@ private:
 
     std::optional<ObjectId> activeId;
     std::optional<ObjectId> pendingId;
+
+    bool dropHighlighted = false;
 };
 
 } // namespace URay
