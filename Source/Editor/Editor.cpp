@@ -262,7 +262,9 @@ void Editor::Update()
 
     URAY_PROFILE_SCOPE("Editor::Update")
 
-    editorUI->GetDockSystem().ProcessPendingMove();
+    DockSystem& dockSystem = editorUI->GetDockSystem();
+    dockSystem.ProcessPendingMove();
+    dockSystem.ProcessPendingCleanup();
 
     ProcessInputActions();
 }

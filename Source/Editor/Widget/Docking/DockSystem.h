@@ -4,6 +4,7 @@
 #include <Engine/Object/ObjectId.h>
 
 #include <optional>
+#include <vector>
 
 namespace URay
 {
@@ -31,16 +32,20 @@ public:
     void UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position);
 
     void ProcessPendingMove();
+    void ProcessPendingCleanup();
 
 private:
     DockTabGroup* FindDropTarget(ObjectId sourceGroupId, const Vector2& position) const;
     void ClearDropHighlight();
+
+    bool TryCleanupEmptyGroup(ObjectId groupId);
 
 private:
     UISystem& uiSystem;
     ObjectSystem& objectSystem;
 
     std::optional<MoveRequest> pendingMove;
+    std::vector<ObjectId> pendingCleanups;
 
     std::optional<ObjectId> highlightedGroupId;
 };

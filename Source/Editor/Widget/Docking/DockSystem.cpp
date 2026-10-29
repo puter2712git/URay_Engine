@@ -1,9 +1,11 @@
 #include "DockSystem.h"
 
 #include <Editor/Widget/Docking/DockTabGroup.h>
+#include <Editor/Widget/Element/Splitter.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/UI/UISystem.h>
 
+#include <algorithm>
 #include <utility>
 
 namespace URay
@@ -102,7 +104,28 @@ void DockSystem::ProcessPendingMove()
         return;
 
     target->AddTab(detached->title, std::move(detached->panel));
+
+    if (source->IsEmpty())
+    {
+        const ObjectId sourceId = source->GetId();
+
+        const auto it = std::find(pendingCleanups.begin(), pendingCleanups.end(), sourceId);
+
+        if (it == pendingCleanups.end())
+            pendingCleanups.push_back(sourceId);
+    }
+
     pendingMove.reset();
+}
+
+void DockSystem::ProcessPendingCleanup()
+{
+    std::erase_if(
+        pendingCleanups,
+        [this](ObjectId groupId)
+        {
+            return TryCleanupEmptyGroup(groupId);
+        });
 }
 
 DockTabGroup* DockSystem::FindDropTarget(ObjectId sourceGroupId, const Vector2& position) const
@@ -135,6 +158,90 @@ void DockSystem::ClearDropHighlight()
         previous->SetDropHighlighted(false);
 
     highlightedGroupId.reset();
+}
+
+bool DockSystem::TryCleanupEmptyGroup(ObjectId groupId)
+{
+    DockTabGroup* emptyGroup = Cast<DockTabGroup>(objectSystem.Resolve(groupId));
+
+    if (!emptyGroup || !emptyGroup->IsEmpty())
+        return true;
+
+    Widget& root = uiSystem.GetRootWidget();
+
+    if (!IsInRoot(*emptyGroup, root))
+        return true;
+
+    Splitter* splitter = Cast<Splitter>(emptyGroup->GetParent());
+
+    if (!splitter)
+        return true;
+
+    Widget* parent = splitter->GetParent();
+    if (!parent)
+        return true;
+
+    const auto& splitterChildren = splitter->GetChildren();
+
+    if (splitterChildren.size() != 2)
+        return true;
+
+    const bool emptyIsFirst = splitterChildren[0].get() == emptyGroup;
+    const bool emptyIsSecond = splitterChildren[1].get() == emptyGroup;
+
+    if (!emptyIsFirst && !emptyIsSecond)
+        return true;
+
+    Widget* sibling = emptyIsFirst
+                          ? splitterChildren[1].get()
+                          : splitterChildren[0].get();
+
+    const auto& parentChildren = parent->GetChildren();
+
+    const auto parentIt = std::find_if(
+        parentChildren.begin(),
+        parentChildren.end(),
+        [splitter](const std::unique_ptr<Widget>& child)
+        {
+            return child.get() == splitter;
+        });
+
+    if (parentIt == parentChildren.end())
+        return true;
+
+    if (parent == &root && (parentChildren.empty() || parentChildren.front().get() != splitter))
+        return true;
+
+    if (!uiSystem.TryClearInputStateForWidget(*splitter))
+        return false;
+
+    if (!uiSystem.TryClearInputStateForSubtree(*emptyGroup))
+        return false;
+
+    std::unique_ptr<Widget> survivor = splitter->RemoveChild(sibling);
+    if (!survivor)
+        return false;
+
+    std::unique_ptr<Widget> removedSplitter = parent->ReplaceChild(splitter, survivor);
+
+    if (!removedSplitter)
+    {
+        if (emptyIsFirst)
+        {
+            splitter->AddChild(std::move(survivor));
+        }
+        else
+        {
+            std::unique_ptr<Widget> empty = splitter->RemoveChild(emptyGroup);
+
+            splitter->AddChild(std::move(survivor));
+            splitter->AddChild(std::move(empty));
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace URay
