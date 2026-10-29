@@ -2,14 +2,14 @@
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
-#include <atomic>
-
 namespace URay
 {
 
-std::atomic<WidgetId> nextWidgetId = 1;
+URAY_REGISTER_CLASS(Widget)
 
-Widget::Widget() : id(nextWidgetId.fetch_add(1, std::memory_order_relaxed)) {}
+void Widget::RegisterClass() {}
+
+Widget::Widget() {}
 
 void Widget::Update(float deltaTime)
 {
@@ -44,6 +44,23 @@ void Widget::AddChild(std::unique_ptr<Widget> child)
 {
     child->parent = this;
     children.push_back(std::move(child));
+}
+
+std::unique_ptr<Widget> Widget::RemoveChild(Widget* child)
+{
+    for (auto it = children.begin(); it != children.end(); ++it)
+    {
+        if (it->get() != child)
+            continue;
+
+        std::unique_ptr<Widget> removed = std::move(*it);
+        children.erase(it);
+
+        removed->parent = nullptr;
+        return removed;
+    }
+
+    return nullptr;
 }
 
 void Widget::Measure()

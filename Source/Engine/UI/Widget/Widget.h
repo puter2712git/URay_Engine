@@ -3,6 +3,7 @@
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Rect.h>
 #include <Core/Type/Type.h>
+#include <Engine/Object/Object.h>
 #include <Engine/UI/Input/EventReply.h>
 
 #include <memory>
@@ -17,13 +18,9 @@ class UIDrawContext;
 namespace URay
 {
 
-using WidgetId = uint64;
-
-inline constexpr WidgetId InvalidWidgetId = 0;
-
-class Widget
+class Widget : public Object
 {
-    URAY_CLASS(Widget)
+    URAY_OBJECT(Widget, Object)
 
     friend class UIInputRouter;
 
@@ -32,14 +29,13 @@ public:
     virtual ~Widget() = default;
 
 public:
-    WidgetId GetId() const { return id; }
-
     void Update(float deltaTime);
     void Paint(Render::UIDrawContext& context);
 
     Widget* GetParent() const { return parent; }
 
     void AddChild(std::unique_ptr<Widget> child);
+    std::unique_ptr<Widget> RemoveChild(Widget* child);
 
     template <typename T, typename... Args>
         requires std::derived_from<T, Widget>
@@ -114,9 +110,6 @@ protected:
     bool hovered = false;
     bool focused = false;
     bool pointerCaptured = false;
-
-private:
-    WidgetId id = InvalidWidgetId;
 };
 
 } // namespace URay

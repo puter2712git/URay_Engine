@@ -11,6 +11,8 @@ struct ObjectId
 {
     int32 index = InvalidIndex;
     uint32 generation = 0;
+
+    bool operator==(const ObjectId&) const = default;
 };
 
 } // namespace URay

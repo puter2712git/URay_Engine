@@ -135,7 +135,7 @@ void UIInputRouter::UpdateHoveredWidget(Widget& root, Widget* hitWidget)
         ApplyReply(root, hoveredWidget, hoveredWidget->OnPointerLeave());
     }
 
-    hoveredWidgetId = hitWidget ? hitWidget->GetId() : InvalidWidgetId;
+    hoveredWidgetId = hitWidget ? hitWidget->GetId() : ObjectId{};
 
     if (hitWidget)
     {
@@ -159,7 +159,7 @@ void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& r
             captured->pointerCaptured = false;
         }
 
-        pointerCapturedWidgetId = InvalidWidgetId;
+        pointerCapturedWidgetId = ObjectId{};
     }
 
     if (reply.requestFocus && focusedWidgetId != target->GetId())
@@ -200,9 +200,9 @@ Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) cons
     return &root;
 }
 
-Widget* UIInputRouter::FindWidgetById(Widget& root, WidgetId id) const
+Widget* UIInputRouter::FindWidgetById(Widget& root, ObjectId id) const
 {
-    if (id == InvalidWidgetId)
+    if (id == ObjectId{})
         return nullptr;
 
     if (root.GetId() == id)

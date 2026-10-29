@@ -35,14 +35,14 @@ private:
     void ApplyReply(Widget& root, Widget* target, const EventReply& reply);
 
     Widget* FindTopWidget(Widget& root, const Vector2& position) const;
-    Widget* FindWidgetById(Widget& root, WidgetId id) const;
+    Widget* FindWidgetById(Widget& root, ObjectId id) const;
 
 private:
     Window& window;
 
-    WidgetId hoveredWidgetId = InvalidWidgetId;
-    WidgetId focusedWidgetId = InvalidWidgetId;
-    WidgetId pointerCapturedWidgetId = InvalidWidgetId;
+    ObjectId hoveredWidgetId = {};
+    ObjectId focusedWidgetId = {};
+    ObjectId pointerCapturedWidgetId = {};
 };
 
 } // namespace URay
