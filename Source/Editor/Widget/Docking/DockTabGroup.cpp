@@ -28,7 +28,7 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
     Button* button = CreateDockTabButton(*this, title);
     button->Register("Clicked", this, &DockTabGroup::RequestActivate, panelPtr->GetId());
 
-    tabs.push_back(Tab{ .title = title, .button = button, .panel = panelPtr });
+    tabs.push_back(DockedTab{ .title = title, .button = button, .panel = panelPtr });
 
     if (!activeId.has_value())
         activeId = panelPtr->GetId();
@@ -36,12 +36,25 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
     UpdateTabColors();
 }
 
+bool DockTabGroup::HasTab(ObjectId panelId) const
+{
+    return FindTab(panelId) != nullptr;
+}
+
+const DockedTab* DockTabGroup::FindTab(ObjectId panelId) const
+{
+    for (const DockedTab& tab : tabs)
+    {
+        if (tab.panel->GetId() == panelId)
+            return &tab;
+    }
+    return nullptr;
+}
+
 std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
 {
-    const auto it = std::find_if(tabs.begin(), tabs.end(), [panelId](const Tab& tab)
-    {
-        return tab.panel->GetId() == panelId;
-    });
+    const auto it = std::find_if(tabs.begin(), tabs.end(), [panelId](const DockedTab& tab)
+                                 { return tab.panel->GetId() == panelId; });
 
     if (it == tabs.end())
         return std::nullopt;
@@ -117,7 +130,7 @@ void DockTabGroup::OnUpdate(float deltaTime)
         return;
     }
 
-    const Tab* nextTab = FindTab(nextId);
+    const DockedTab* nextTab = FindTab(nextId);
     if (!nextTab)
     {
         pendingId.reset();
@@ -126,7 +139,7 @@ void DockTabGroup::OnUpdate(float deltaTime)
 
     if (activeId.has_value())
     {
-        const Tab* activeTab = FindTab(*activeId);
+        const DockedTab* activeTab = FindTab(*activeId);
 
         if (activeTab && !uiSystem.TryHideWidget(*activeTab->panel))
             return;
@@ -142,7 +155,7 @@ void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
 {
     context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
 
-    for (const Tab& tab : tabs)
+    for (const DockedTab& tab : tabs)
     {
         const Rect& tabRect = tab.button->GetRect();
         if (tabRect.size.x <= 0.0f || tabRect.size.y <= 0.0f)
@@ -177,16 +190,6 @@ void DockTabGroup::RequestActivate(ObjectId panelId)
         return;
 
     pendingId = panelId;
-}
-
-const DockTabGroup::Tab* DockTabGroup::FindTab(ObjectId panelId)
-{
-    for (Tab& tab : tabs)
-    {
-        if (tab.panel->GetId() == panelId)
-            return &tab;
-    }
-    return nullptr;
 }
 
 } // namespace URay

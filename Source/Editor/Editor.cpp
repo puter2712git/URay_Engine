@@ -1,11 +1,11 @@
 #include "Editor.h"
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/File/VirtualPath.h>
 #include <Core/Input/Action/InputActionSystem.h>
 #include <Core/Log/LogSystem.h>
 #include <Core/Performance/PerformanceViewModel.h>
+#include <Core/Type/TypeAlias.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Play/PlaySession.h>
@@ -14,17 +14,18 @@
 #include <Editor/Viewport/ViewportController.h>
 #include <Editor/Visual/VisualSystem.h>
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
+#include <Editor/Widget/Docking/DockSystem.h>
 #include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
-#include <Editor/Widget/Popup/UnitPopup.h>
-#include <Editor/Widget/Popup/ComponentPickerPopup.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
+#include <Editor/Widget/Popup/ComponentPickerPopup.h>
+#include <Editor/Widget/Popup/UnitPopup.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Component/ComponentFactory.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
 #include <Engine/Component/TransformComponent.h>
-#include <Engine/Component/ComponentFactory.h>
 #include <Engine/Engine.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/Scene/Scene.h>
@@ -260,6 +261,8 @@ void Editor::Update()
     UpdatePerformanceViewModel();
 
     URAY_PROFILE_SCOPE("Editor::Update")
+
+    editorUI->GetDockSystem().ProcessPendingMove();
 
     ProcessInputActions();
 }

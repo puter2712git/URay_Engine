@@ -1,6 +1,7 @@
 #include "EditorUI.h"
 
 #include <Editor/Viewport/ViewportController.h>
+#include <Editor/Widget/Docking/DockSystem.h>
 #include <Editor/Widget/Docking/DockTabGroup.h>
 #include <Editor/Widget/EditorRootWidget.h>
 #include <Editor/Widget/Element/Splitter.h>
@@ -11,6 +12,7 @@
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 #include <Engine/Engine.h>
+#include <Engine/Object/ObjectSystem.h>
 #include <Engine/UI/UISystem.h>
 
 namespace URay
@@ -25,6 +27,8 @@ EditorUI::~EditorUI() = default;
 
 bool EditorUI::Initialize(UISystem& uiSystem)
 {
+    dockSystem = std::make_unique<DockSystem>(uiSystem, gEngine->GetObjectSystem());
+
     std::unique_ptr<Widget> root = CreateDefaultWidgets();
     rootWidget = static_cast<EditorRootWidget*>(root.get());
     uiSystem.SetRootWidget(std::move(root));

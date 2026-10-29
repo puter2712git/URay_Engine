@@ -12,6 +12,13 @@ namespace URay
 class Button;
 class UISystem;
 
+struct DockedTab
+{
+    String title;
+    Button* button = nullptr;
+    Widget* panel = nullptr;
+};
+
 struct DetachedTab
 {
     String title;
@@ -28,6 +35,9 @@ public:
 public:
     void AddTab(const String& title, std::unique_ptr<Widget> panel);
 
+    bool HasTab(ObjectId panelId) const;
+    const DockedTab* FindTab(ObjectId panelId) const;
+
     std::optional<DetachedTab> DetachTab(ObjectId panelId);
     bool IsEmpty() const { return tabs.empty(); }
 
@@ -38,22 +48,12 @@ protected:
     void OnPaintForeground(Render::UIDrawContext& context) override;
 
 private:
-    struct Tab
-    {
-        String title;
-        Button* button = nullptr;
-        Widget* panel = nullptr;
-    };
-
-private:
     void RequestActivate(ObjectId panelId);
     void UpdateTabColors();
 
-    const Tab* FindTab(ObjectId panelId);
-
 private:
     UISystem& uiSystem;
-    std::vector<Tab> tabs;
+    std::vector<DockedTab> tabs;
 
     std::optional<ObjectId> activeId;
     std::optional<ObjectId> pendingId;
