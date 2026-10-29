@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <yaml-cpp/yaml.h>
 
 namespace URay
 {
@@ -20,7 +21,8 @@ public:
     ~EditorUI();
 
 public:
-    bool Initialize(UISystem& uiSystem);
+    bool Initialize(UISystem& uiSystem, const YAML::Node& layout);
+    bool SaveLayout(YAML::Node& outLayout) const;
 
     DockSystem& GetDockSystem() const { return *dockSystem; }
     PopupLayer& GetPopupLayer() const;

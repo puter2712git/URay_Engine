@@ -28,8 +28,7 @@ bool EditorSettings::Save(const EditorSettingsContext& context)
 
     settings["CameraTransform"] = cameraNode;
 
-    YAML::Node splitterNode = layout.SaveLayout(context.rootWidget);
-    settings["Layout"] = splitterNode;
+    settings["Layout"] = context.layout;
 
     return filesystem.WriteText("Project://Config/Editor.ini", YAML::Dump(settings));
 }
@@ -44,18 +43,30 @@ bool EditorSettings::Load(EditorSettingsContext& context)
     {
         const YAML::Node settingsNode = YAML::Load(settings);
 
-        EditorSettingsContext loadedContext = {
-            .rootWidget = context.rootWidget
-        };
+        if (!settingsNode.IsMap())
+            return false;
 
-        loadedContext.startScenePath = settingsNode["StartScene"].as<String>();
-        loadedContext.cameraSettings.position = settingsNode["CameraTransform"]["Position"].as<Vector3>();
-        loadedContext.cameraSettings.rotation = settingsNode["CameraTransform"]["Rotation"].as<Vector3>();
-
-        layout.LoadLayout(context.rootWidget, settingsNode["Layout"]);
-
-        context.startScenePath = loadedContext.startScenePath;
-        context.cameraSettings = loadedContext.cameraSettings;
+        if (settingsNode["Layout"])
+            context.layout = settingsNode["Layout"];
+        try
+        {
+            context.startScenePath = settingsNode["StartScene"].as<String>();
+        }
+        catch (const YAML::Exception& exception)
+        {
+            URAY_LOG("[EditorSettings] Invalid start scene: %s", exception.what());
+        }
+        try
+        {
+            EditorCameraSettings camera;
+            camera.position = settingsNode["CameraTransform"]["Position"].as<Vector3>();
+            camera.rotation = settingsNode["CameraTransform"]["Rotation"].as<Vector3>();
+            context.cameraSettings = camera;
+        }
+        catch (const YAML::Exception& exception)
+        {
+            URAY_LOG("[EditorSettings] Invalid camera transform: %s", exception.what());
+        }
 
         return true;
     }

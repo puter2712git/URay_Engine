@@ -2,24 +2,20 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <memory>
+
 namespace URay
 {
 
+class UISystem;
 class Widget;
-
+struct PanelContext;
 
 class EditorLayout
 {
 public:
-    EditorLayout();
-
-public:
-    YAML::Node SaveLayout(const Widget& root);
-    void LoadLayout(Widget& root, const YAML::Node& layout);
-
-private:
-    void CollectSplitters(const Widget& root, YAML::Node& splitters);
-    void ApplySplitters(Widget& root, const YAML::Node& layout);
+    bool SaveLayout(const Widget& root, YAML::Node& outLayout) const;
+    std::unique_ptr<Widget> LoadLayout(const YAML::Node& layout, UISystem& uiSystem, PanelContext& context) const;
 };
 
 } // namespace URay

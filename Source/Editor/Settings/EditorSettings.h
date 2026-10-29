@@ -2,7 +2,7 @@
 
 #include <Core/File/VirtualPath.h>
 #include <Core/Math/Vector3.h>
-#include <Editor/Settings/EditorLayout.h>
+#include <yaml-cpp/yaml.h>
 
 #include <string>
 
@@ -19,7 +19,7 @@ struct EditorCameraSettings
 
 struct EditorSettingsContext
 {
-    Widget& rootWidget;
+    YAML::Node layout;
     VirtualPath startScenePath = {};
     EditorCameraSettings cameraSettings = {};
 };
@@ -37,7 +37,6 @@ public:
 private:
     VirtualFileSystem& filesystem;
 
-    EditorLayout layout;
 };
 
 } // namespace URay

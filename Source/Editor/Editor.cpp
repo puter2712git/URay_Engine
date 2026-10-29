@@ -105,17 +105,16 @@ bool Editor::Initialize()
     performanceViewModel = std::make_unique<PerformanceViewModel>();
     renderSystem.GetRenderer().SetPerformanceViewModel(performanceViewModel.get());
 
+    EditorSettingsContext settingsContext;
+    const bool settingsLoaded = editorSettings->Load(settingsContext);
+
     editorUI = std::make_unique<EditorUI>(*viewportController);
-    if (!editorUI->Initialize(gEngine->GetUISystem()))
+    if (!editorUI->Initialize(gEngine->GetUISystem(), settingsContext.layout))
     {
         URAY_LOG("[Editor] Failed to initialize widget system.");
         Finalize();
         return false;
     }
-
-    EditorSettingsContext settingsContext = {
-        .rootWidget = gEngine->GetUISystem().GetRootWidget()
-    };
 
     auto createEmptyGameScene = [&]()
     {
@@ -126,7 +125,7 @@ bool Editor::Initialize()
         gameScene->AddUnit(std::move(unit));
     };
 
-    if (editorSettings->Load(settingsContext))
+    if (settingsLoaded)
     {
         EditorView& editorView = viewportController->GetEditorCamera().GetView();
         editorView.position = settingsContext.cameraSettings.position;
@@ -192,7 +191,6 @@ void Editor::Finalize()
     if (editorSettings && editorUI && gameScene)
     {
         EditorSettingsContext settingsContext = {
-            .rootWidget = gEngine->GetUISystem().GetRootWidget(),
             .startScenePath = gameScene->GetFilePath().ToString(),
             .cameraSettings = {
                 .position = editorView.position,
@@ -200,6 +198,10 @@ void Editor::Finalize()
             },
         };
 
+        if (!editorUI->SaveLayout(settingsContext.layout))
+        {
+            URAY_LOG("[Editor] Failed to save editor layout.");
+        }
         if (!editorSettings->Save(settingsContext))
         {
             URAY_LOG("[Editor] Failed to save editor settings.");
