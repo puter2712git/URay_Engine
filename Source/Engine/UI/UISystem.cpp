@@ -80,4 +80,16 @@ bool UISystem::IsTextInputActive() const
     return inputRouter && root && inputRouter->IsTextInputActive(*root);
 }
 
+bool UISystem::TryHideWidget(Widget& widget)
+{
+    if (!root || !inputRouter)
+        return false;
+
+    if (!inputRouter->PrepareToHide(*root, widget))
+        return false;
+
+    widget.SetVisible(false);
+    return true;
+}
+
 } // namespace URay

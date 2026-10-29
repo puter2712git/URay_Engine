@@ -7,10 +7,22 @@
 namespace URay
 {
 
-UIInputRouter::UIInputRouter(Window& window)
-    : window(window)
+namespace
 {
+
+bool IsInSubtree(const Widget* widget, const Widget& subtree)
+{
+    for (const Widget* current = widget; current; current = current->GetParent())
+    {
+        if (current == &subtree)
+            return true;
+    }
+    return false;
 }
+
+} // namespace
+
+UIInputRouter::UIInputRouter(Window& window) : window(window) {}
 
 void UIInputRouter::Process(Widget& root, const InputSnapshot& input)
 {
@@ -39,6 +51,33 @@ bool UIInputRouter::IsTextInputActive(Widget& root) const
 {
     Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
     return focusedWidget && focusedWidget->IsTextInputActive();
+}
+
+bool UIInputRouter::PrepareToHide(Widget& root, Widget& subtree)
+{
+    Widget* captured = FindWidgetById(root, pointerCapturedWidgetId);
+
+    if (IsInSubtree(captured, subtree))
+        return false;
+
+    Widget* focused = FindWidgetById(root, focusedWidgetId);
+    if (IsInSubtree(focused, subtree))
+    {
+        focused->focused = false;
+        focusedWidgetId = {};
+    }
+
+    Widget* hovered = FindWidgetById(root, hoveredWidgetId);
+    if (IsInSubtree(hovered, subtree))
+    {
+        hovered->hovered = false;
+        hoveredWidgetId = {};
+
+        const EventReply reply = hovered->OnPointerLeave();
+        ApplyReply(root, hovered, reply);
+    }
+
+    return true;
 }
 
 void UIInputRouter::DispatchKeyEvent(Widget& root, const KeyEvent& event)

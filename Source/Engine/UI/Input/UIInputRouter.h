@@ -23,6 +23,8 @@ public:
     void Process(Widget& root, const InputSnapshot& input);
     bool IsTextInputActive(Widget& root) const;
 
+    bool PrepareToHide(Widget& root, Widget& subtree);
+
 private:
     void DispatchKeyEvent(Widget& root, const KeyEvent& event);
     void DispatchPointerEvent(Widget& root, const PointerEvent& event);

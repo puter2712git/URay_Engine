@@ -37,6 +37,20 @@ Button* CreateEditorButton(Widget& parent, StringView text)
     return button;
 }
 
+Button* CreateDockTabButton(Widget& parent, StringView text)
+{
+    auto label = std::make_unique<Label>(text);
+    label->SetTextStyle(EditorStyle::SmallText());
+    label->SetHorizontalAlignment(HorizontalTextAlignment::Center);
+    label->SetVerticalAlignment(VerticalTextAlignment::Center);
+
+    Button* button = parent.AddChild<Button>(std::move(label));
+    button->SetNormalColor(EditorStyle::DockTabInactive);
+    button->SetHoverColor(EditorStyle::DockTabInactiveHovered);
+    button->SetPressedColor(EditorStyle::DockTabInactivePressed);
+    return button;
+}
+
 Button* CreateEditorIconButton(Widget& parent, AssetHandle textureHandle)
 {
     Button* button = parent.AddChild<Button>(std::make_unique<Image>(textureHandle));

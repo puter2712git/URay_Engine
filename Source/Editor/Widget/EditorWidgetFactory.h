@@ -15,6 +15,7 @@ class Widget;
 
 Label* CreateEditorLabel(Widget& parent, StringView text = {});
 Button* CreateEditorButton(Widget& parent, StringView text);
+Button* CreateDockTabButton(Widget& parent, StringView text);
 Button* CreateEditorIconButton(Widget& parent, AssetHandle textureHandle);
 Checkbox* CreateEditorCheckbox(Widget& parent);
 void ConfigureEditorCheckbox(Checkbox& checkbox);

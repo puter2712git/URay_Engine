@@ -20,6 +20,13 @@ inline const Color ControlNormal = Color::FromRGB(0x20, 0x20, 0x20);
 inline const Color ControlHovered = Color::FromRGB(0x60, 0x60, 0x60);
 inline const Color ControlPressed = Color::FromRGB(0x40, 0x40, 0x40);
 
+inline const Color DockTabActive = Color::FromRGB(0x50, 0x50, 0x50);
+inline const Color DockTabActiveHovered = Color::FromRGB(0x60, 0x60, 0x60);
+inline const Color DockTabActivePressed = Color::FromRGB(0x48, 0x48, 0x48);
+inline const Color DockTabInactive = Color::FromRGB(0x20, 0x20, 0x20);
+inline const Color DockTabInactiveHovered = Color::FromRGB(0x38, 0x38, 0x38);
+inline const Color DockTabInactivePressed = Color::FromRGB(0x30, 0x30, 0x30);
+
 inline constexpr float PanelHeaderHeight = 25.0f;
 
 inline Render::TextStyle SmallText()

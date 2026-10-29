@@ -1,6 +1,8 @@
 #include "EditorUI.h"
 
 #include <Editor/Viewport/ViewportController.h>
+#include <Editor/Widget/Docking/DockTabGroup.h>
+#include <Editor/Widget/EditorRootWidget.h>
 #include <Editor/Widget/Element/Splitter.h>
 #include <Editor/Widget/Panel/Console/ConsolePanel.h>
 #include <Editor/Widget/Panel/FileSystem/FileSystemPanel.h>
@@ -8,7 +10,7 @@
 #include <Editor/Widget/Panel/SceneTree/SceneTreePanel.h>
 #include <Editor/Widget/Panel/StatusPanel.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
-#include <Editor/Widget/EditorRootWidget.h>
+#include <Engine/Engine.h>
 #include <Engine/UI/UISystem.h>
 
 namespace URay
@@ -51,7 +53,10 @@ std::unique_ptr<Widget> EditorUI::CreateDefaultWidgets()
 
     std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTree), std::move(inspector));
     std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(status), std::move(rightPanel2));
-    std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>("LeftPanel2", SplitAxis::Horizontal, std::move(console), std::move(filesystem));
+    auto leftPanel2 = std::make_unique<DockTabGroup>(gEngine->GetUISystem());
+    leftPanel2->AddTab("Console", std::move(console));
+    leftPanel2->AddTab("File System", std::move(filesystem));
+    // std::unique_ptr<Splitter> leftPanel2 = std::make_unique<Splitter>("LeftPanel2", SplitAxis::Horizontal, std::move(console), std::move(filesystem));
     std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewport), std::move(leftPanel2));
 
     auto mainContent = std::make_unique<Splitter>(
