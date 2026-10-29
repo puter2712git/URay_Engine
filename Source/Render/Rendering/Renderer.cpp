@@ -1,10 +1,10 @@
 #include "Renderer.h"
-#include <Core/Math/Math.h>
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Core/Log/LogSystem.h>
+#include <Core/Math/Math.h>
 #include <Core/Performance/PerformanceViewModel.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Engine.h>
@@ -21,10 +21,10 @@
 #include <Render/RHI/PipelineLayout/PipelineLayout.h>
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/RenderTarget.h>
+#include <Render/RHI/Surface.h>
 #include <Render/RHI/SwapChain.h>
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/RHI/Texture/TextureView.h>
-#include <Render/RHI/Vulkan/VulkanContext.h>
 #include <Render/RHI/Vulkan/VulkanUtils.h>
 #include <Render/Rendering/Cluster/ClusterGrid.h>
 #include <Render/Rendering/Cluster/ClusterLightList.h>
@@ -82,8 +82,8 @@ static StringView GetRenderPassName(RenderPassId passId)
     return "Unknown";
 }
 
-Renderer::Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager)
-    : window(window), context(context), device(device), resourceManager(resourceManager)
+Renderer::Renderer(Window& window, Surface& surface, Device& device, ResourceManager& resourceManager)
+    : window(window), surface(surface), device(device), resourceManager(resourceManager)
 {
     URAY_DECLARE_RAY(ViewportRenderTargetsRecreated);
     URAY_DECLARE_RAY(ObjectIdReadback, ObjectIdReadbackResult);
@@ -98,7 +98,7 @@ bool Renderer::Initialize()
     int32 width, height;
     glfwGetFramebufferSize(window.GetGLFWWindow(), &width, &height);
 
-    SwapChainDesc swapChainDesc = {};
+    SwapChainDesc swapChainDesc = { .surface = surface };
     swapChainDesc.extent = {
         .width = static_cast<uint32>(width),
         .height = static_cast<uint32>(height),
@@ -438,7 +438,7 @@ void Renderer::RecreateSwapChain()
 
     CleanupSwapChain();
 
-    SwapChainDesc swapChainDesc = {};
+    SwapChainDesc swapChainDesc = { .surface = surface };
     swapChainDesc.extent = {
         static_cast<uint32>(width),
         static_cast<uint32>(height),

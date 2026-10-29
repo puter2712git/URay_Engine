@@ -28,7 +28,7 @@ class PerformanceViewModel;
 namespace URay::Render
 {
 
-class VulkanContext;
+class Surface;
 class Device;
 class DescriptorSetLayout;
 class RenderTarget;
@@ -43,7 +43,7 @@ class RenderTargetRegistry;
 class Renderer : public RayEmitter
 {
 public:
-    Renderer(Window& window, VulkanContext& context, Device& device, ResourceManager& resourceManager);
+    Renderer(Window& window, Surface& surface, Device& device, ResourceManager& resourceManager);
     ~Renderer();
 
 public:
@@ -101,7 +101,7 @@ private:
 
 private:
     Window& window;
-    VulkanContext& context;
+    Surface& surface;
     Device& device;
     ResourceManager& resourceManager;
 

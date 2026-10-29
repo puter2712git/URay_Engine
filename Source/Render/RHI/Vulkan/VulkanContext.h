@@ -1,16 +1,13 @@
-#include <Render/RHI/RHIContext.h>
+#pragma once
+
 #include <Core/Type/TypeAlias.h>
+#include <Render/RHI/RHIContext.h>
 
 #include <vulkan/vulkan.h>
 
 #include <vector>
 
-namespace URay
-{
-
-class Window;
-
-namespace Render
+namespace URay::Render
 {
 
 struct VulkanContextDesc
@@ -22,11 +19,10 @@ struct VulkanContextDesc
 class VulkanContext final : public RHIContext
 {
 public:
-    bool Initialize(Window& window, const VulkanContextDesc& desc);
+    bool Initialize(const VulkanContextDesc& desc);
     void Finalize();
 
     VkInstance GetInstance() const { return instance; }
-    VkSurfaceKHR GetSurface() const { return surface; }
 
     const std::vector<const char*>& GetValidationLayers() const { return validationLayers; }
     const std::vector<const char*>& GetDeviceExtensions() const { return deviceExtensions; }
@@ -34,7 +30,6 @@ public:
 private:
     bool CreateInstance(const VulkanContextDesc& desc);
     bool SetupDebugMessenger();
-    bool CreateSurface(Window& window);
 
     bool CheckValidationLayerSupport() const;
     bool GetRequiredExtensions(std::vector<const char*>& outExtensions) const;
@@ -43,7 +38,6 @@ private:
 private:
     VkInstance instance = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
-    VkSurfaceKHR surface = VK_NULL_HANDLE;
 
 #ifdef NDEBUG
     inline static constexpr bool enableValidationLayers = false;
@@ -63,6 +57,4 @@ private:
     };
 };
 
-} // namespace Render
-
-} // namespace URay
+} // namespace URay::Render

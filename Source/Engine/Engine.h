@@ -41,7 +41,7 @@ public:
 
     void Update();
 
-    void BeginRender();
+    bool BeginRender();
     void Render(const Render::RenderRequest& request);
 
     LogSystem& GetLogSystem() const { return *logSystem; }

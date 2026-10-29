@@ -11,17 +11,18 @@ namespace URay::Render
 {
 
 class Device;
-class VulkanContext;
+class Surface;
 
 struct SwapChainDesc
 {
+    Surface& surface;
     VkExtent2D extent = {};
 };
 
 class SwapChain
 {
 public:
-    SwapChain(Device& device, VulkanContext& context);
+    SwapChain(Device& device);
 
 public:
     bool Initialize(const SwapChainDesc& desc);
@@ -49,7 +50,6 @@ private:
 
 private:
     Device& device;
-    VulkanContext& context;
 
     VkSwapchainKHR handle = VK_NULL_HANDLE;
     std::vector<VkImage> images;

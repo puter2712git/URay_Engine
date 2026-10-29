@@ -46,12 +46,12 @@ void EditorApplication::Run()
         analytics.BeginFrame();
 
         engine->Update();
-
         editor->Update();
 
-        engine->BeginRender();
-
-        engine->Render(editor->BuildRenderRequest());
+        if (engine->BeginRender())
+        {
+            engine->Render(editor->BuildRenderRequest());
+        }
 
         analytics.EndFrame();
     }

@@ -6,6 +6,7 @@
 #include <Platform/Window/Window.h>
 #include <Platform/Window/WindowSystem.h>
 #include <Render/RHI/Device.h>
+#include <Render/RHI/Surface.h>
 #include <Render/RHI/Vulkan/VulkanContext.h>
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
@@ -28,15 +29,23 @@ bool RenderSystem::Initialize()
     desc.engineName = "URay Engine";
 
     vulkanContext = std::make_unique<VulkanContext>();
-    if (!vulkanContext->Initialize(window, desc))
+    if (!vulkanContext->Initialize(desc))
     {
         URAY_LOG("[RenderSystem] Failed to initialize vulkan context.");
         Finalize();
         return false;
     }
 
+    mainSurface = std::make_unique<Surface>();
+    if (!mainSurface->Initialize(vulkanContext->GetInstance(), window))
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize main surface.");
+        Finalize();
+        return false;
+    }
+
     device = std::make_unique<Device>(*vulkanContext);
-    if (!device->Initialize())
+    if (!device->Initialize(*mainSurface))
     {
         URAY_LOG("[RenderSystem] Failed to initialize RHI device.");
         Finalize();
@@ -51,7 +60,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    renderer = std::make_unique<Renderer>(window, *vulkanContext, *device, *resourceManager);
+    renderer = std::make_unique<Renderer>(window, *mainSurface, *device, *resourceManager);
     if (!renderer->Initialize())
     {
         URAY_LOG("[RenderSystem] Failed to initialize renderer.");
@@ -110,6 +119,12 @@ void RenderSystem::Finalize()
     {
         device->Finalize();
         device.reset();
+    }
+
+    if (mainSurface)
+    {
+        mainSurface->Finalize();
+        mainSurface.reset();
     }
 
     if (vulkanContext)

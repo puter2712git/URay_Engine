@@ -3,10 +3,9 @@
 #include <Core/Log/LogSystem.h>
 #include <Core/Type/TypeAlias.h>
 
-#include <Platform/Window/Window.h>
-
 #include <glfw/glfw3.h>
-#include <iostream>
+
+#include <cstring>
 
 namespace URay::Render
 {
@@ -51,9 +50,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
-bool VulkanContext::Initialize(
-    Window& window,
-    const VulkanContextDesc& desc)
+bool VulkanContext::Initialize(const VulkanContextDesc& desc)
 {
     if (!CreateInstance(desc))
     {
@@ -68,24 +65,11 @@ bool VulkanContext::Initialize(
         return false;
     }
 
-    if (!CreateSurface(window))
-    {
-        URAY_LOG("[VulkanContext] Failed to create surface.");
-        Finalize();
-        return false;
-    }
-
     return true;
 }
 
 void VulkanContext::Finalize()
 {
-    if (surface)
-    {
-        vkDestroySurfaceKHR(instance, surface, nullptr);
-        surface = VK_NULL_HANDLE;
-    }
-
     if (debugMessenger)
     {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
@@ -166,18 +150,6 @@ bool VulkanContext::SetupDebugMessenger()
     if (result != VK_SUCCESS)
     {
         URAY_LOG("[VulkanContext] vkCreateDebugUtilsMessengerEXT failed. (VkResult: %d)", static_cast<int>(result));
-        return false;
-    }
-
-    return true;
-}
-
-bool VulkanContext::CreateSurface(Window& window)
-{
-    const VkResult result = glfwCreateWindowSurface(instance, window.GetGLFWWindow(), nullptr, &surface);
-    if (result != VK_SUCCESS)
-    {
-        URAY_LOG("[VulkanContext] glfwCreateWindowSurface failed. (VkResult: %d)", static_cast<int>(result));
         return false;
     }
 

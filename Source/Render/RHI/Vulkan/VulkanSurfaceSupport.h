@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 
+#include <optional>
 #include <vector>
 
 namespace URay::Render::Vulkan
@@ -14,7 +15,7 @@ struct SurfaceSupportDetails
     std::vector<VkPresentModeKHR> presentModes;
 };
 
-SurfaceSupportDetails QuerySurfaceSupport(
+std::optional<SurfaceSupportDetails> QuerySurfaceSupport(
     VkPhysicalDevice physicalDevice,
     VkSurfaceKHR surface);
 

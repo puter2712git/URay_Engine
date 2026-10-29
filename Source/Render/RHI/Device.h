@@ -1,10 +1,9 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/CommandBuffer/CommandPoolFlags.h>
 #include <Render/RHI/Queue/QueueType.h>
 #include <Render/RHI/Vertex/Vertex.h>
-
-#include <Core/Type/TypeAlias.h>
 
 #include <spirv/spirv_reflect.h>
 #include <vulkan/vulkan.h>
@@ -24,7 +23,7 @@ namespace URay::Render
 {
 
 class VulkanContext;
-class Renderer;
+class Surface;
 class Buffer;
 class MeshBuffer;
 class Texture;
@@ -74,7 +73,7 @@ public:
     ~Device();
 
 public:
-    bool Initialize();
+    bool Initialize(const Surface& initialSurface);
     void Finalize();
 
 public:
@@ -116,23 +115,26 @@ public:
                            uint32 width, uint32 height) const;
     VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags) const;
 
-    QueueFamilyIndices FindQueueFamilyIndices(VkPhysicalDevice device) const;
+    QueueFamilyIndices FindQueueFamilyIndices(VkPhysicalDevice device, const Surface& surface) const;
 
     DescriptorSetLayoutDesc MakeFrameDescriptorSetLayoutDescription() const;
 
     Buffer* CreateBuffer(const BufferDesc& desc);
+
+    bool SupportsPresent(const Surface& surface) const;
 
     VkPhysicalDevice GetPhysicalDevice() const { return physicalDevice; }
     VkDevice GetVKDevice() const { return device; }
 
     VkQueue GetGraphicsQueue() const { return graphicsQueue; }
     VkQueue GetPresentQueue() const { return presentQueue; }
+    const QueueFamilyIndices& GetQueueFamilyIndices() const { return queueFamilyIndices; }
 
 private:
-    bool PickPhysicalDevice();
-    bool CreateLogicalDevice();
+    bool PickPhysicalDevice(const Surface& initialSurface);
+    bool CreateLogicalDevice(const Surface& initialSurface);
 
-    bool IsDeviceSuitable(VkPhysicalDevice device) const;
+    bool IsDeviceSuitable(VkPhysicalDevice device, const Surface& initialSurface) const;
     bool CheckDeviceExtensionSupport(VkPhysicalDevice device) const;
 
     CommandBuffer* BeginSingleTimeCommands() const;
@@ -148,14 +150,14 @@ private:
 private:
     VulkanContext& context;
 
-    Renderer* renderer = nullptr;
-
     VkInstance instance = VK_NULL_HANDLE;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
 
     VkQueue graphicsQueue = VK_NULL_HANDLE;
     VkQueue presentQueue = VK_NULL_HANDLE;
+
+    QueueFamilyIndices queueFamilyIndices;
 
     std::unique_ptr<CommandPool> commandPool = nullptr;
 

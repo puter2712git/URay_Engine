@@ -241,15 +241,19 @@ void Engine::Update()
     sceneSystem->Update(timer->GetDeltaTime());
 }
 
-void Engine::BeginRender()
+bool Engine::BeginRender()
 {
     URAY_PROFILE_SCOPE("Engine::BeginRender");
 
     renderSystem->GetPipeline().Reset();
-    renderSystem->BeginFrame();
+
+    if (!renderSystem->BeginFrame())
+        return false;
 
     uiSystem->PrepareRender();
     uiSystem->Paint();
+
+    return true;
 }
 
 void Engine::Render(const Render::RenderRequest& request)

@@ -13,6 +13,7 @@ namespace URay::Render
 {
 
 class VulkanContext;
+class Surface;
 class Renderer;
 class Device;
 class ResourceManager;
@@ -44,6 +45,7 @@ public:
 
 private:
     std::unique_ptr<VulkanContext> vulkanContext = nullptr;
+    std::unique_ptr<Surface> mainSurface = nullptr;
     std::unique_ptr<Renderer> renderer = nullptr;
     std::unique_ptr<Device> device = nullptr;
 

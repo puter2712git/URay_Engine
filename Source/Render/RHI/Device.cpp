@@ -1,6 +1,6 @@
 #include "Device.h"
-#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Render/RHI/Buffer/Buffer.h>
@@ -17,6 +17,7 @@
 #include <Render/RHI/PipelineLayout/PipelineLayoutDesc.h>
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/PipelineState/PipelineStateDesc.h>
+#include <Render/RHI/Surface.h>
 #include <Render/RHI/SwapChain.h>
 #include <Render/RHI/Texture/Sampler.h>
 #include <Render/RHI/Texture/Texture.h>
@@ -43,17 +44,17 @@ Device::Device(VulkanContext& context) : context(context) {}
 
 Device::~Device() = default;
 
-bool Device::Initialize()
+bool Device::Initialize(const Surface& initialSurface)
 {
     instance = context.GetInstance();
 
-    if (!PickPhysicalDevice())
+    if (!PickPhysicalDevice(initialSurface))
     {
         URAY_LOG("[Device] Failed to pick physical device.");
         return false;
     }
 
-    if (!CreateLogicalDevice())
+    if (!CreateLogicalDevice(initialSurface))
     {
         URAY_LOG("[Device] Failed to create logical device.");
         return false;
@@ -82,15 +83,19 @@ void Device::Finalize()
     DestroyDescriptorPool();
 
     if (commandPool)
-    {
         commandPool.reset();
-    }
 
     if (device)
     {
         vkDestroyDevice(device, nullptr);
         device = VK_NULL_HANDLE;
     }
+
+    graphicsQueue = VK_NULL_HANDLE;
+    presentQueue = VK_NULL_HANDLE;
+    queueFamilyIndices = {};
+    physicalDevice = VK_NULL_HANDLE;
+    instance = VK_NULL_HANDLE;
 }
 
 Buffer* Device::CreateVertexBuffer(const VertexBufferDesc& desc)
@@ -869,7 +874,7 @@ Framebuffer* Device::CreateFramebuffer(const FramebufferDesc& desc)
 
 SwapChain* Device::CreateSwapChain(const SwapChainDesc& desc)
 {
-    SwapChain* swapChain = new SwapChain(*this, context);
+    SwapChain* swapChain = new SwapChain(*this);
     if (!swapChain->Initialize(desc))
     {
         delete swapChain;
@@ -881,13 +886,15 @@ SwapChain* Device::CreateSwapChain(const SwapChainDesc& desc)
 
 CommandPool* Device::CreateCommandPool(QueueType queueType, CommandPoolFlags poolFlags)
 {
-    const QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+    if (!queueFamilyIndices.IsComplete())
+        return nullptr;
+
     uint32 queueFamilyIndex = 0;
 
     switch (queueType)
     {
     case QueueType::Graphics:
-        queueFamilyIndex = indices.graphicsFamily.value();
+        queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         break;
     default:
         break;
@@ -1156,7 +1163,36 @@ Buffer* Device::CreateBuffer(const BufferDesc& desc)
     return buffer;
 }
 
-bool Device::PickPhysicalDevice()
+bool Device::SupportsPresent(const Surface& surface) const
+{
+    if (physicalDevice == VK_NULL_HANDLE || device == VK_NULL_HANDLE ||
+        !queueFamilyIndices.presentFamily.has_value() ||
+        surface.GetSurface() == VK_NULL_HANDLE)
+    {
+        return false;
+    }
+
+    VkBool32 supported = VK_FALSE;
+
+    const VkResult result = vkGetPhysicalDeviceSurfaceSupportKHR(
+        physicalDevice,
+        queueFamilyIndices.presentFamily.value(),
+        surface.GetSurface(),
+        &supported);
+
+    if (result != VK_SUCCESS)
+    {
+        URAY_LOG(
+            "[Device] Failed to query surface presentation support. "
+            "(VkResult: %d)",
+            static_cast<int>(result));
+        return false;
+    }
+
+    return supported == VK_TRUE;
+}
+
+bool Device::PickPhysicalDevice(const Surface& initialSurface)
 {
     uint32 deviceCount = 0;
     VkResult result = vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -1182,11 +1218,11 @@ bool Device::PickPhysicalDevice()
         return false;
     }
 
-    for (const auto& device : devices)
+    for (const auto& candidate : devices)
     {
-        if (IsDeviceSuitable(device))
+        if (IsDeviceSuitable(candidate, initialSurface))
         {
-            physicalDevice = device;
+            physicalDevice = candidate;
             break;
         }
     }
@@ -1201,11 +1237,11 @@ bool Device::PickPhysicalDevice()
     return true;
 }
 
-bool Device::CreateLogicalDevice()
+bool Device::CreateLogicalDevice(const Surface& initialSurface)
 {
-    QueueFamilyIndices indices = FindQueueFamilyIndices(physicalDevice);
+    const QueueFamilyIndices selected = FindQueueFamilyIndices(physicalDevice, initialSurface);
 
-    if (!indices.IsComplete())
+    if (!selected.IsComplete())
     {
         URAY_LOG("[Device] Required graphics/present queue families are unavailable.");
         return false;
@@ -1213,8 +1249,8 @@ bool Device::CreateLogicalDevice()
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32> uniqueQueueFamilies = {
-        indices.graphicsFamily.value(),
-        indices.presentFamily.value(),
+        selected.graphicsFamily.value(),
+        selected.presentFamily.value(),
     };
 
     float queuePriority = 1.0f;
@@ -1262,13 +1298,15 @@ bool Device::CreateLogicalDevice()
         return false;
     }
 
-    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-    vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+    vkGetDeviceQueue(device, selected.graphicsFamily.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, selected.presentFamily.value(), 0, &presentQueue);
+
+    queueFamilyIndices = selected;
 
     return true;
 }
 
-bool Device::IsDeviceSuitable(VkPhysicalDevice device) const
+bool Device::IsDeviceSuitable(VkPhysicalDevice device, const Surface& initialSurface) const
 {
     VkPhysicalDeviceProperties properties = {};
     vkGetPhysicalDeviceProperties(device, &properties);
@@ -1276,15 +1314,19 @@ bool Device::IsDeviceSuitable(VkPhysicalDevice device) const
     if (properties.apiVersion < VK_API_VERSION_1_3)
         return false;
 
-    QueueFamilyIndices indices = FindQueueFamilyIndices(device);
+    const QueueFamilyIndices indices = FindQueueFamilyIndices(device, initialSurface);
 
     bool extensionsSupported = CheckDeviceExtensionSupport(device);
 
     bool swapChainAdequate = false;
     if (extensionsSupported)
     {
-        Vulkan::SurfaceSupportDetails swapChainSupport = Vulkan::QuerySurfaceSupport(device, context.GetSurface());
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+        const auto swapChainSupport = Vulkan::QuerySurfaceSupport(device, initialSurface.GetSurface());
+
+        if (!swapChainSupport)
+            return false;
+
+        swapChainAdequate = !swapChainSupport->formats.empty() && !swapChainSupport->presentModes.empty();
     }
 
     VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures = {};
@@ -1309,7 +1351,7 @@ bool Device::IsDeviceSuitable(VkPhysicalDevice device) const
            supportsDynamicRendering && supportsSynchronization;
 }
 
-QueueFamilyIndices Device::FindQueueFamilyIndices(VkPhysicalDevice device) const
+QueueFamilyIndices Device::FindQueueFamilyIndices(VkPhysicalDevice device, const Surface& surface) const
 {
     QueueFamilyIndices indices = {};
 
@@ -1319,7 +1361,7 @@ QueueFamilyIndices Device::FindQueueFamilyIndices(VkPhysicalDevice device) const
     std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-    int index = 0;
+    uint32 index = 0;
     for (const auto& queueFamily : queueFamilies)
     {
         if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
@@ -1328,9 +1370,9 @@ QueueFamilyIndices Device::FindQueueFamilyIndices(VkPhysicalDevice device) const
         }
 
         VkBool32 presentSupport = false;
-        vkGetPhysicalDeviceSurfaceSupportKHR(device, index, context.GetSurface(), &presentSupport);
+        const VkResult result = vkGetPhysicalDeviceSurfaceSupportKHR(device, index, surface.GetSurface(), &presentSupport);
 
-        if (presentSupport)
+        if (result == VK_SUCCESS && presentSupport == VK_TRUE)
         {
             indices.presentFamily = index;
         }

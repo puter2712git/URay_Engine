@@ -1,12 +1,11 @@
 #include "SwapChain.h"
 
+#include <Core/Log/LogSystem.h>
 #include <Core/Math/Math.h>
-
-#include <Render/RHI/Device.h>
-#include <Render/RHI/Vulkan/VulkanContext.h>
-#include <Render/RHI/Vulkan/VulkanSurfaceSupport.h>
-
 #include <Core/Type/TypeAlias.h>
+#include <Render/RHI/Device.h>
+#include <Render/RHI/Surface.h>
+#include <Render/RHI/Vulkan/VulkanSurfaceSupport.h>
 
 #include <algorithm>
 #include <limits>
@@ -14,10 +13,7 @@
 namespace URay::Render
 {
 
-SwapChain::SwapChain(Device& device, VulkanContext& context)
-    : device(device), context(context)
-{
-}
+SwapChain::SwapChain(Device& device) : device(device) {}
 
 bool SwapChain::Initialize(const SwapChainDesc& desc)
 {
@@ -49,26 +45,45 @@ void SwapChain::Finalize()
 
 bool SwapChain::Recreate(const SwapChainDesc& desc)
 {
+    const QueueFamilyIndices& indices = device.GetQueueFamilyIndices();
+
+    if (!indices.IsComplete())
+        return false;
+
+    if (!device.SupportsPresent(desc.surface))
+    {
+        URAY_LOG("[SwapChain] Present queue does not support the surface.");
+        return false;
+    }
+
+    const auto support = Vulkan::QuerySurfaceSupport(device.GetPhysicalDevice(), desc.surface.GetSurface());
+
+    if (!support)
+        return false;
+
+    if (support->formats.empty() || support->presentModes.empty())
+    {
+        URAY_LOG("[SwapChain] Surface has no usable format or present mode.");
+        return false;
+    }
+
     Finalize();
 
-    Vulkan::SurfaceSupportDetails details =
-        Vulkan::QuerySurfaceSupport(device.GetPhysicalDevice(), context.GetSurface());
+    VkSurfaceFormatKHR surfaceFormat = ChooseFormat(support->formats);
+    VkPresentModeKHR presentMode = ChoosePresentMode(support->presentModes);
+    VkExtent2D extent = ChooseExtent(support->capabilities, desc.extent);
 
-    VkSurfaceFormatKHR surfaceFormat = ChooseFormat(details.formats);
-    VkPresentModeKHR presentMode = ChoosePresentMode(details.presentModes);
-    VkExtent2D extent = ChooseExtent(details.capabilities, desc.extent);
+    uint32 imageCount = support->capabilities.minImageCount + 1;
 
-    uint32 imageCount = details.capabilities.minImageCount + 1;
-
-    if (details.capabilities.maxImageCount > 0 &&
-        imageCount > details.capabilities.maxImageCount)
+    if (support->capabilities.maxImageCount > 0 &&
+        imageCount > support->capabilities.maxImageCount)
     {
-        imageCount = details.capabilities.maxImageCount;
+        imageCount = support->capabilities.maxImageCount;
     }
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = context.GetSurface();
+    createInfo.surface = desc.surface.GetSurface();
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -76,7 +91,6 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
     createInfo.imageArrayLayers = 1;
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    QueueFamilyIndices indices = device.FindQueueFamilyIndices(device.GetPhysicalDevice());
     uint32 queueFamilyIndices[] = {
         indices.graphicsFamily.value(),
         indices.presentFamily.value(),
@@ -95,7 +109,7 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
         createInfo.pQueueFamilyIndices = nullptr;
     }
 
-    createInfo.preTransform = details.capabilities.currentTransform;
+    createInfo.preTransform = support->capabilities.currentTransform;
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
