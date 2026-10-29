@@ -127,6 +127,12 @@ void RenderSystem::Finalize()
         mainSurface.reset();
     }
 
+    for (auto& [window, surface] : windowSurfaces)
+    {
+        surface->Finalize();
+    }
+    windowSurfaces.clear();
+
     if (vulkanContext)
     {
         vulkanContext->Finalize();
@@ -150,6 +156,47 @@ bool RenderSystem::BeginFrame()
 void RenderSystem::EndFrame()
 {
     renderer->EndFrame();
+}
+
+bool RenderSystem::CreateWindowSurface(Window& window)
+{
+    if (!vulkanContext || !device)
+        return false;
+
+    if (&window == &gEngine->GetWindowSystem().GetMainWindow())
+        return false;
+
+    if (windowSurfaces.contains(&window))
+        return false;
+
+    auto surface = std::make_unique<Surface>();
+    if (!surface->Initialize(vulkanContext->GetInstance(), window))
+    {
+        URAY_LOG("[RenderSystem] Failed to create window surface.");
+        return false;
+    }
+
+    if (!device->SupportsPresent(*surface))
+    {
+        URAY_LOG("[RenderSystem] Present queue does not support window surface.");
+        surface->Finalize();
+        return false;
+    }
+
+    windowSurfaces.emplace(&window, std::move(surface));
+
+    return true;
+}
+
+void RenderSystem::DestroyWindowSurface(Window& window)
+{
+    const auto it = windowSurfaces.find(&window);
+
+    if (it == windowSurfaces.end())
+        return;
+
+    it->second->Finalize();
+    windowSurfaces.erase(it);
 }
 
 } // namespace URay::Render

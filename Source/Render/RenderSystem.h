@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <unordered_map>
 
 namespace URay
 {
@@ -35,6 +36,9 @@ public:
     bool BeginFrame();
     void EndFrame();
 
+    bool CreateWindowSurface(Window& window);
+    void DestroyWindowSurface(Window& window);
+
     Renderer& GetRenderer() const { return *renderer; }
     Device& GetDevice() const { return *device; }
     ResourceManager& GetResourceManager() const { return *resourceManager; }
@@ -50,10 +54,10 @@ private:
     std::unique_ptr<Device> device = nullptr;
 
     std::unique_ptr<ResourceManager> resourceManager = nullptr;
-
     std::unique_ptr<RenderPipeline> pipeline = nullptr;
-
     std::unique_ptr<SceneSystem> sceneSystem = nullptr;
+
+    std::unordered_map<Window*, std::unique_ptr<Surface>> windowSurfaces;
 };
 
 } // namespace URay::Render
