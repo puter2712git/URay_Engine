@@ -29,12 +29,12 @@ namespace URay::Render
 {
 
 class Surface;
+class SurfaceRenderResource;
 class Device;
 class DescriptorSetLayout;
 class RenderTarget;
 class ResourceManager;
 class Framebuffer;
-class SwapChain;
 class CommandPool;
 class Texture;
 class TextureView;
@@ -78,9 +78,6 @@ private:
     bool CreateSelectionMaskRenderTarget();
     bool CreateGizmoDepthRenderTarget();
 
-    void CleanupSwapChain();
-    void RecreateSwapChain();
-
     bool CreateCommandPool();
     void DestroyCommandPool();
 
@@ -91,8 +88,6 @@ private:
 
     bool ConsumeGPUTimestampResults(FrameResource& frameResource);
 
-    void OnFramebufferResized(Extent2D);
-
     Format FindDepthFormat() const;
     bool HasStencilComponent(VkFormat format) const;
 
@@ -100,13 +95,10 @@ private:
                                  VkFormatFeatureFlags features) const;
 
 private:
-    Window& window;
-    Surface& surface;
     Device& device;
     ResourceManager& resourceManager;
 
-    std::unique_ptr<SwapChain> swapChain = nullptr;
-    uint32 imageIndex = 0;
+    std::unique_ptr<SurfaceRenderResource> mainSurfaceResource;
 
     std::unique_ptr<RenderTargetRegistry> renderTargetRegistry = nullptr;
 
@@ -122,8 +114,6 @@ private:
     PerformanceViewModel* performanceViewModel = nullptr;
 
     std::unique_ptr<ObjectIdReadback> objectIdReadback = nullptr;
-
-    bool framebufferResized = false;
 };
 
 constexpr uint32 GpuTimestampQueryCount = 2 * static_cast<uint32>(RenderPassId::Count);

@@ -23,7 +23,6 @@ struct GPUTimeStampState
 
 struct FrameResource
 {
-    VkSemaphore imageAvailableSemaphore = VK_NULL_HANDLE;
     VkFence inFlightFence = VK_NULL_HANDLE;
 
     GPUTimeStampState gpuTimeStamps = {};

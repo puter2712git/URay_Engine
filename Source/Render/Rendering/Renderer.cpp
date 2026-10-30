@@ -9,7 +9,6 @@
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/Scene.h>
-#include <Platform/Window/Window.h>
 #include <Render/RHI/Buffer/Buffer.h>
 #include <Render/RHI/Buffer/BufferDesc.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
@@ -21,8 +20,6 @@
 #include <Render/RHI/PipelineLayout/PipelineLayout.h>
 #include <Render/RHI/PipelineState/PipelineState.h>
 #include <Render/RHI/RenderTarget.h>
-#include <Render/RHI/Surface.h>
-#include <Render/RHI/SwapChain.h>
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/RHI/Vulkan/VulkanUtils.h>
@@ -34,11 +31,9 @@
 #include <Render/Rendering/RenderTargetRegistry.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/Rendering/Shadow/ShadowSystem.h>
+#include <Render/Rendering/SurfaceRenderResource.h>
 #include <Render/ResourceManager.h>
 #include <Render/Shader/Shader.h>
-
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 
 #include <stb/stb_image.h>
 
@@ -83,7 +78,8 @@ static StringView GetRenderPassName(RenderPassId passId)
 }
 
 Renderer::Renderer(Window& window, Surface& surface, Device& device, ResourceManager& resourceManager)
-    : window(window), surface(surface), device(device), resourceManager(resourceManager)
+    : device(device), resourceManager(resourceManager),
+      mainSurfaceResource(std::make_unique<SurfaceRenderResource>(window, surface, device))
 {
     URAY_DECLARE_RAY(ViewportRenderTargetsRecreated);
     URAY_DECLARE_RAY(ObjectIdReadback, ObjectIdReadbackResult);
@@ -93,21 +89,9 @@ Renderer::~Renderer() = default;
 
 bool Renderer::Initialize()
 {
-    window.Register("FramebufferResized", this, &Renderer::OnFramebufferResized);
-
-    int32 width, height;
-    glfwGetFramebufferSize(window.GetGLFWWindow(), &width, &height);
-
-    SwapChainDesc swapChainDesc = { .surface = surface };
-    swapChainDesc.extent = {
-        .width = static_cast<uint32>(width),
-        .height = static_cast<uint32>(height),
-    };
-
-    swapChain.reset(device.CreateSwapChain(swapChainDesc));
-    if (!swapChain)
+    if (!mainSurfaceResource->Initialize())
     {
-        URAY_LOG("[Renderer] Failed to create swap chain.");
+        URAY_LOG("[Renderer] Failed to initialize main surface resources.");
         return false;
     }
 
@@ -167,8 +151,6 @@ void Renderer::Finalize()
 {
     vkDeviceWaitIdle(device.GetVKDevice());
 
-    CleanupSwapChain();
-
     if (objectIdReadback)
     {
         objectIdReadback->Finalize();
@@ -183,9 +165,13 @@ void Renderer::Finalize()
         renderTargetRegistry.reset();
     }
 
-    DestroyCommandPool();
+    if (mainSurfaceResource)
+    {
+        mainSurfaceResource->Finalize();
+        mainSurfaceResource.reset();
+    }
 
-    window.UnregisterAll(this);
+    DestroyCommandPool();
 }
 
 bool Renderer::BeginFrame()
@@ -197,6 +183,23 @@ bool Renderer::BeginFrame()
     {
         URAY_PROFILE_SCOPE("Renderer::WaitForInFlightFence");
         vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
+    }
+
+    if (mainSurfaceResource->NeedsSwapChainRecreate())
+    {
+        const Extent2D size = mainSurfaceResource->GetFramebufferSize();
+
+        if (size.width == 0 || size.height == 0)
+            return false;
+
+        vkDeviceWaitIdle(device.GetVKDevice());
+
+        if (!mainSurfaceResource->RecreateSwapChain())
+        {
+            throw std::runtime_error("Failed to recreate swapchain.");
+        }
+
+        mainSurfaceResource->ClearFramebufferResized();
     }
 
     if (frameResource.gpuTimeStamps.hasPendingResults)
@@ -222,15 +225,20 @@ bool Renderer::BeginFrame()
     VkResult result = VK_SUCCESS;
     {
         URAY_PROFILE_SCOPE("Renderer::AcquireSwapChainImage");
-        result = swapChain->AcquireNextImage(frameResources[currentFrame].imageAvailableSemaphore, imageIndex);
+        result = mainSurfaceResource->AcquireNextImage(currentFrame);
     }
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_NOT_READY)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        RecreateSwapChain();
+        mainSurfaceResource->RequestSwapChainRecreate();
         return false;
     }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+
+    if (result == VK_SUBOPTIMAL_KHR)
+    {
+        mainSurfaceResource->RequestSwapChainRecreate();
+    }
+    else if (result != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to acquire swap chain image.");
     }
@@ -282,7 +290,7 @@ void Renderer::EndFrame()
 
     VkCommandBuffer vkCommandBuffer = commandBuffer.GetHandle();
 
-    VkSemaphore waitSemaphores[] = { frameResource.imageAvailableSemaphore };
+    VkSemaphore waitSemaphores[] = { mainSurfaceResource->GetImageAvailableSemaphore(currentFrame) };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -290,7 +298,7 @@ void Renderer::EndFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &vkCommandBuffer;
 
-    VkSemaphore signalSemaphores[] = { swapChain->GetRenderFinishedSemaphore(imageIndex) };
+    VkSemaphore signalSemaphores[] = { mainSurfaceResource->GetRenderFinishedSemaphore() };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -309,7 +317,9 @@ void Renderer::EndFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    VkSwapchainKHR swapChains[] = { swapChain->GetHandle() };
+    uint32 imageIndex = mainSurfaceResource->GetImageIndex();
+
+    VkSwapchainKHR swapChains[] = { mainSurfaceResource->GetSwapChainHandle() };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
@@ -321,10 +331,9 @@ void Renderer::EndFrame()
         result = vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
     }
 
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized)
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        framebufferResized = false;
-        RecreateSwapChain();
+        mainSurfaceResource->RequestSwapChainRecreate();
     }
     else if (result != VK_SUCCESS)
     {
@@ -401,51 +410,17 @@ SceneRenderTargets Renderer::GetViewportSceneRenderTargets() const
 
 VkImage Renderer::GetSwapChainImage() const
 {
-    return swapChain->GetImage(imageIndex);
+    return mainSurfaceResource->GetImage();
 }
 
 VkImageView Renderer::GetSwapChainImageView() const
 {
-    return swapChain->GetImageView(imageIndex);
+    return mainSurfaceResource->GetImageView();
 }
 
 VkExtent2D Renderer::GetSwapChainExtent() const
 {
-    return swapChain->GetExtent();
-}
-
-void Renderer::CleanupSwapChain()
-{
-    if (swapChain)
-    {
-        swapChain->Finalize();
-        swapChain.reset();
-    }
-}
-
-void Renderer::RecreateSwapChain()
-{
-    int width = 0;
-    int height = 0;
-    glfwGetFramebufferSize(window.GetGLFWWindow(), &width, &height);
-    while (width == 0 || height == 0)
-    {
-        glfwGetFramebufferSize(window.GetGLFWWindow(), &width, &height);
-        glfwWaitEvents();
-    }
-
-    vkDeviceWaitIdle(device.GetVKDevice());
-
-    CleanupSwapChain();
-
-    SwapChainDesc swapChainDesc = { .surface = surface };
-    swapChainDesc.extent = {
-        static_cast<uint32>(width),
-        static_cast<uint32>(height),
-    };
-    swapChain.reset(device.CreateSwapChain(swapChainDesc));
-    if (!swapChain)
-        return;
+    return mainSurfaceResource->GetExtent();
 }
 
 bool Renderer::CreateSceneRenderTarget()
@@ -453,7 +428,7 @@ bool Renderer::CreateSceneRenderTarget()
     if (!renderTargetRegistry)
         return false;
 
-    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+    const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
     std::vector<RenderTargetAttachmentDesc> colorAttachments;
     colorAttachments.push_back(RenderTargetAttachmentDesc{
@@ -477,7 +452,7 @@ bool Renderer::CreateSceneRenderTarget()
 
 bool Renderer::CreatePostProcessRenderTarget()
 {
-    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+    const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
     std::vector<RenderTargetAttachmentDesc> colorAttachments;
     colorAttachments.push_back(RenderTargetAttachmentDesc{
@@ -498,7 +473,7 @@ bool Renderer::CreatePostProcessRenderTarget()
 
 bool Renderer::CreateSelectionMaskRenderTarget()
 {
-    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+    const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
     std::vector<RenderTargetAttachmentDesc> colorAttachments;
     colorAttachments.push_back(RenderTargetAttachmentDesc{
@@ -519,7 +494,7 @@ bool Renderer::CreateSelectionMaskRenderTarget()
 
 bool Renderer::CreateGizmoDepthRenderTarget()
 {
-    const VkExtent2D swapChainExtent = swapChain->GetExtent();
+    const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
     RenderTargetDesc desc = {};
     desc.extent.width = swapChainExtent.width;
@@ -566,19 +541,10 @@ bool Renderer::CreateFrameResources()
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i)
     {
-        VkSemaphoreCreateInfo semaphoreInfo = {};
-        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
         VkFenceCreateInfo fenceInfo = {};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        if (vkCreateSemaphore(
-                device.GetVKDevice(), &semaphoreInfo, nullptr,
-                &frameResources[i].imageAvailableSemaphore) != VK_SUCCESS)
-        {
-            return false;
-        }
         if (vkCreateFence(
                 device.GetVKDevice(), &fenceInfo, nullptr,
                 &frameResources[i].inFlightFence) != VK_SUCCESS)
@@ -704,15 +670,6 @@ void Renderer::DestroyFrameResources()
                 nullptr);
             frameResources[i].inFlightFence = VK_NULL_HANDLE;
         }
-
-        if (frameResources[i].imageAvailableSemaphore != VK_NULL_HANDLE)
-        {
-            vkDestroySemaphore(
-                device.GetVKDevice(),
-                frameResources[i].imageAvailableSemaphore,
-                nullptr);
-            frameResources[i].imageAvailableSemaphore = VK_NULL_HANDLE;
-        }
     }
 
     frameDescriptorSetLayout.reset();
@@ -791,11 +748,6 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
 
     frameResource.gpuTimeStamps.hasPendingResults = false;
     return true;
-}
-
-void Renderer::OnFramebufferResized(Extent2D extent)
-{
-    framebufferResized = true;
 }
 
 Format Renderer::FindDepthFormat() const
