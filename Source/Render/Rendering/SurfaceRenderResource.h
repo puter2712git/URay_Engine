@@ -42,6 +42,7 @@ public:
     VkExtent2D GetExtent() const;
     Extent2D GetFramebufferSize() const;
     uint32 GetImageIndex() const { return imageIndex; }
+    VkFormat GetFormat() const;
 
     bool NeedsSwapChainRecreate() const { return needsSwapChainRecreate; }
     void ClearFramebufferResized() { needsSwapChainRecreate = false; }

@@ -79,7 +79,8 @@ static StringView GetRenderPassName(RenderPassId passId)
 
 Renderer::Renderer(Window& window, Surface& surface, Device& device, ResourceManager& resourceManager)
     : device(device), resourceManager(resourceManager),
-      mainSurfaceResource(std::make_unique<SurfaceRenderResource>(window, surface, device))
+      mainSurfaceResource(std::make_unique<SurfaceRenderResource>(window, surface, device)),
+      activeSurfaceResource(mainSurfaceResource.get())
 {
     URAY_DECLARE_RAY(ViewportRenderTargetsRecreated);
     URAY_DECLARE_RAY(ObjectIdReadback, ObjectIdReadbackResult);
@@ -165,6 +166,8 @@ void Renderer::Finalize()
         renderTargetRegistry.reset();
     }
 
+    activeSurfaceResource = nullptr;
+
     if (mainSurfaceResource)
     {
         mainSurfaceResource->Finalize();
@@ -176,30 +179,70 @@ void Renderer::Finalize()
 
 bool Renderer::BeginFrame()
 {
+    return BeginFrame(*mainSurfaceResource);
+}
+
+bool Renderer::BeginFrame(SurfaceRenderResource& surfaceResource)
+{
+    if (frameInProgress)
+        throw std::runtime_error("A render frame is already in progress.");
+
+    if (vkDeviceWaitIdle(device.GetVKDevice()) != VK_SUCCESS)
+        throw std::runtime_error("Failed to wait for device idle.");
+
+    activeSurfaceResource = &surfaceResource;
+    frameInProgress = true;
+
+    if (!BeginFrameInternal())
+    {
+        activeSurfaceResource = mainSurfaceResource.get();
+        frameInProgress = false;
+        return false;
+    }
+
+    return true;
+}
+
+bool Renderer::BeginFrameInternal()
+{
     URAY_PROFILE_SCOPE("Renderer::BeginFrame");
 
     FrameResource& frameResource = frameResources[currentFrame];
 
     {
         URAY_PROFILE_SCOPE("Renderer::WaitForInFlightFence");
-        vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX);
+
+        if (vkWaitForFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence, VK_TRUE, UINT64_MAX) != VK_SUCCESS)
+            throw std::runtime_error("Failed to wait for in-flight fence.");
     }
 
-    if (mainSurfaceResource->NeedsSwapChainRecreate())
+    if (activeSurfaceResource->NeedsSwapChainRecreate())
     {
-        const Extent2D size = mainSurfaceResource->GetFramebufferSize();
+        const Extent2D size = activeSurfaceResource->GetFramebufferSize();
 
         if (size.width == 0 || size.height == 0)
             return false;
 
         vkDeviceWaitIdle(device.GetVKDevice());
 
-        if (!mainSurfaceResource->RecreateSwapChain())
+        if (!activeSurfaceResource->RecreateSwapChain())
         {
-            throw std::runtime_error("Failed to recreate swapchain.");
+            if (activeSurfaceResource == mainSurfaceResource.get())
+                throw std::runtime_error("Failed to recreate swapchain.");
+
+            URAY_LOG("[Renderer] Failed to recreate window swapchain.");
+            return false;
         }
 
-        mainSurfaceResource->ClearFramebufferResized();
+        if (activeSurfaceResource != mainSurfaceResource.get() &&
+            activeSurfaceResource->GetFormat() != VK_FORMAT_B8G8R8A8_SRGB)
+        {
+            URAY_LOG("[Renderer] Window swapchain format is not supported by UIPass.");
+            activeSurfaceResource->RequestSwapChainRecreate();
+            return false;
+        }
+
+        activeSurfaceResource->ClearFramebufferResized();
     }
 
     if (frameResource.gpuTimeStamps.hasPendingResults)
@@ -225,18 +268,18 @@ bool Renderer::BeginFrame()
     VkResult result = VK_SUCCESS;
     {
         URAY_PROFILE_SCOPE("Renderer::AcquireSwapChainImage");
-        result = mainSurfaceResource->AcquireNextImage(currentFrame);
+        result = activeSurfaceResource->AcquireNextImage(currentFrame);
     }
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
     {
-        mainSurfaceResource->RequestSwapChainRecreate();
+        activeSurfaceResource->RequestSwapChainRecreate();
         return false;
     }
 
     if (result == VK_SUBOPTIMAL_KHR)
     {
-        mainSurfaceResource->RequestSwapChainRecreate();
+        activeSurfaceResource->RequestSwapChainRecreate();
     }
     else if (result != VK_SUCCESS)
     {
@@ -244,22 +287,17 @@ bool Renderer::BeginFrame()
     }
 
     {
-        URAY_PROFILE_SCOPE("Renderer::ResetInFlightFence");
-        vkResetFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence);
-    }
-
-    {
         URAY_PROFILE_SCOPE("Renderer::ResetCommandBuffer");
 
         if (!frameResources[currentFrame].commandBuffer->Reset())
-            return false;
+            throw std::runtime_error("Failed to reset command buffer.");
     }
 
     {
         URAY_PROFILE_SCOPE("Renderer::BeginCommandBuffer");
 
         if (!frameResource.commandBuffer->Begin(CommandBufferUsage::None))
-            return false;
+            throw std::runtime_error("Failed to begin command buffer.");
 
         vkCmdResetQueryPool(
             frameResource.commandBuffer->GetHandle(),
@@ -273,6 +311,9 @@ bool Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
+    if (!frameInProgress)
+        throw std::runtime_error("No render frame is in progress.");
+
     URAY_PROFILE_SCOPE("Renderer::EndFrame");
 
     FrameResource& frameResource = frameResources[currentFrame];
@@ -282,7 +323,7 @@ void Renderer::EndFrame()
         URAY_PROFILE_SCOPE("Renderer::EndCommandBuffer");
 
         if (!commandBuffer.End())
-            return;
+            throw std::runtime_error("Failed to end command buffer.");
     }
 
     VkSubmitInfo submitInfo = {};
@@ -290,7 +331,7 @@ void Renderer::EndFrame()
 
     VkCommandBuffer vkCommandBuffer = commandBuffer.GetHandle();
 
-    VkSemaphore waitSemaphores[] = { mainSurfaceResource->GetImageAvailableSemaphore(currentFrame) };
+    VkSemaphore waitSemaphores[] = { activeSurfaceResource->GetImageAvailableSemaphore(currentFrame) };
     VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
@@ -298,15 +339,23 @@ void Renderer::EndFrame()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &vkCommandBuffer;
 
-    VkSemaphore signalSemaphores[] = { mainSurfaceResource->GetRenderFinishedSemaphore() };
+    VkSemaphore signalSemaphores[] = { activeSurfaceResource->GetRenderFinishedSemaphore() };
     submitInfo.signalSemaphoreCount = 1;
     submitInfo.pSignalSemaphores = signalSemaphores;
+
+    {
+        URAY_PROFILE_SCOPE("Renderer::ResetInFlightFence");
+        if (vkResetFences(device.GetVKDevice(), 1, &frameResources[currentFrame].inFlightFence) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to reset in-flight fence.");
+        }
+    }
 
     {
         URAY_PROFILE_SCOPE("Renderer::QueueSubmit");
 
         if (vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, frameResource.inFlightFence) != VK_SUCCESS)
-            return;
+            throw std::runtime_error("Failed to submit command buffer.");
     }
 
     frameResource.gpuTimeStamps.hasPendingResults = true;
@@ -317,9 +366,9 @@ void Renderer::EndFrame()
     presentInfo.waitSemaphoreCount = 1;
     presentInfo.pWaitSemaphores = signalSemaphores;
 
-    uint32 imageIndex = mainSurfaceResource->GetImageIndex();
+    uint32 imageIndex = activeSurfaceResource->GetImageIndex();
 
-    VkSwapchainKHR swapChains[] = { mainSurfaceResource->GetSwapChainHandle() };
+    VkSwapchainKHR swapChains[] = { activeSurfaceResource->GetSwapChainHandle() };
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
@@ -333,7 +382,7 @@ void Renderer::EndFrame()
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
     {
-        mainSurfaceResource->RequestSwapChainRecreate();
+        activeSurfaceResource->RequestSwapChainRecreate();
     }
     else if (result != VK_SUCCESS)
     {
@@ -341,6 +390,8 @@ void Renderer::EndFrame()
     }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    activeSurfaceResource = mainSurfaceResource.get();
+    frameInProgress = false;
 }
 
 void Renderer::WaitIdle()
@@ -410,17 +461,17 @@ SceneRenderTargets Renderer::GetViewportSceneRenderTargets() const
 
 VkImage Renderer::GetSwapChainImage() const
 {
-    return mainSurfaceResource->GetImage();
+    return activeSurfaceResource->GetImage();
 }
 
 VkImageView Renderer::GetSwapChainImageView() const
 {
-    return mainSurfaceResource->GetImageView();
+    return activeSurfaceResource->GetImageView();
 }
 
 VkExtent2D Renderer::GetSwapChainExtent() const
 {
-    return mainSurfaceResource->GetExtent();
+    return activeSurfaceResource->GetExtent();
 }
 
 bool Renderer::CreateSceneRenderTarget()

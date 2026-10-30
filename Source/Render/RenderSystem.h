@@ -20,6 +20,8 @@ class Device;
 class ResourceManager;
 class RenderPipeline;
 class SceneSystem;
+class SurfaceRenderResource;
+struct WindowRenderContext;
 
 class RenderSystem
 {
@@ -34,10 +36,13 @@ public:
     void WaitIdle();
 
     bool BeginFrame();
+    bool BeginFrame(Window& window);
     void EndFrame();
 
     bool CreateWindowSurface(Window& window);
     void DestroyWindowSurface(Window& window);
+
+    SurfaceRenderResource* FindWindowRenderResource(Window& window) const;
 
     Renderer& GetRenderer() const { return *renderer; }
     Device& GetDevice() const { return *device; }
@@ -57,7 +62,7 @@ private:
     std::unique_ptr<RenderPipeline> pipeline = nullptr;
     std::unique_ptr<SceneSystem> sceneSystem = nullptr;
 
-    std::unordered_map<Window*, std::unique_ptr<Surface>> windowSurfaces;
+    std::unordered_map<Window*, std::unique_ptr<WindowRenderContext>> windowContexts;
 };
 
 } // namespace URay::Render

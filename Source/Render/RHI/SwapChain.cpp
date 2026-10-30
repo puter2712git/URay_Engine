@@ -24,13 +24,15 @@ void SwapChain::Finalize()
 {
     for (VkSemaphore semaphore : renderFinishedSemaphores)
     {
-        vkDestroySemaphore(device.GetVKDevice(), semaphore, nullptr);
+        if (semaphore != VK_NULL_HANDLE)
+            vkDestroySemaphore(device.GetVKDevice(), semaphore, nullptr);
     }
     renderFinishedSemaphores.clear();
 
     for (VkImageView view : imageViews)
     {
-        vkDestroyImageView(device.GetVKDevice(), view, nullptr);
+        if (view != VK_NULL_HANDLE)
+            vkDestroyImageView(device.GetVKDevice(), view, nullptr);
     }
 
     imageViews.clear();
@@ -41,6 +43,9 @@ void SwapChain::Finalize()
         vkDestroySwapchainKHR(device.GetVKDevice(), handle, nullptr);
         handle = VK_NULL_HANDLE;
     }
+
+    format = VK_FORMAT_UNDEFINED;
+    extent = {};
 }
 
 bool SwapChain::Recreate(const SwapChainDesc& desc)
@@ -118,17 +123,38 @@ bool SwapChain::Recreate(const SwapChainDesc& desc)
     if (vkCreateSwapchainKHR(device.GetVKDevice(), &createInfo, nullptr, &handle) != VK_SUCCESS)
         return false;
 
-    vkGetSwapchainImagesKHR(device.GetVKDevice(), handle, &imageCount, nullptr);
+    if (vkGetSwapchainImagesKHR(device.GetVKDevice(), handle, &imageCount, nullptr) != VK_SUCCESS ||
+        imageCount == 0)
+    {
+        URAY_LOG("[SwapChain] Failed to get swapchain image count.");
+        return false;
+    }
+
     images.resize(imageCount);
-    vkGetSwapchainImagesKHR(device.GetVKDevice(), handle, &imageCount, images.data());
+
+    if (vkGetSwapchainImagesKHR(device.GetVKDevice(), handle, &imageCount, images.data()) != VK_SUCCESS ||
+        imageCount == 0)
+    {
+        URAY_LOG("[SwapChain] Failed to get swapchain images.");
+        return false;
+    }
+
+    images.resize(imageCount);
 
     this->format = surfaceFormat.format;
     this->extent = extent;
 
     imageViews.resize(images.size());
+
     for (size_t i = 0; i < images.size(); ++i)
     {
         imageViews[i] = device.CreateImageView(images[i], format, VK_IMAGE_ASPECT_COLOR_BIT);
+
+        if (imageViews[i] == VK_NULL_HANDLE)
+        {
+            URAY_LOG("[SwapChain] Failed to create image view.");
+            return false;
+        }
     }
 
     renderFinishedSemaphores.resize(images.size());

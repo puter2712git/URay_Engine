@@ -105,6 +105,11 @@ Extent2D SurfaceRenderResource::GetFramebufferSize() const
     return window.GetFramebufferSize();
 }
 
+VkFormat SurfaceRenderResource::GetFormat() const
+{
+    return swapChain ? swapChain->GetFormat() : VK_FORMAT_UNDEFINED;
+}
+
 bool SurfaceRenderResource::RecreateSwapChain()
 {
     const Extent2D framebufferSize = window.GetFramebufferSize();

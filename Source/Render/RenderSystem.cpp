@@ -11,10 +11,34 @@
 #include <Render/Rendering/RenderPipeline.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/SceneSystem.h>
+#include <Render/Rendering/SurfaceRenderResource.h>
 #include <Render/ResourceManager.h>
+
+#include <stdexcept>
 
 namespace URay::Render
 {
+
+struct WindowRenderContext
+{
+    std::unique_ptr<Surface> surface;
+    std::unique_ptr<SurfaceRenderResource> renderResource;
+
+    void Finalize()
+    {
+        if (renderResource)
+        {
+            renderResource->Finalize();
+            renderResource.reset();
+        }
+
+        if (surface)
+        {
+            surface->Finalize();
+            surface.reset();
+        }
+    }
+};
 
 RenderSystem::RenderSystem() {}
 
@@ -103,6 +127,12 @@ void RenderSystem::Finalize()
         pipeline.reset();
     }
 
+    for (auto& [window, context] : windowContexts)
+    {
+        context->Finalize();
+    }
+    windowContexts.clear();
+
     if (renderer)
     {
         renderer->Finalize();
@@ -127,12 +157,6 @@ void RenderSystem::Finalize()
         mainSurface.reset();
     }
 
-    for (auto& [window, surface] : windowSurfaces)
-    {
-        surface->Finalize();
-    }
-    windowSurfaces.clear();
-
     if (vulkanContext)
     {
         vulkanContext->Finalize();
@@ -153,6 +177,18 @@ bool RenderSystem::BeginFrame()
     return renderer->BeginFrame();
 }
 
+bool RenderSystem::BeginFrame(Window& window)
+{
+    if (&window == &gEngine->GetWindowSystem().GetMainWindow())
+        return renderer->BeginFrame();
+
+    SurfaceRenderResource* resource = FindWindowRenderResource(window);
+    if (!resource)
+        return false;
+
+    return renderer->BeginFrame(*resource);
+}
+
 void RenderSystem::EndFrame()
 {
     renderer->EndFrame();
@@ -166,37 +202,69 @@ bool RenderSystem::CreateWindowSurface(Window& window)
     if (&window == &gEngine->GetWindowSystem().GetMainWindow())
         return false;
 
-    if (windowSurfaces.contains(&window))
+    if (windowContexts.contains(&window))
         return false;
 
-    auto surface = std::make_unique<Surface>();
-    if (!surface->Initialize(vulkanContext->GetInstance(), window))
+    auto context = std::make_unique<WindowRenderContext>();
+    context->surface = std::make_unique<Surface>();
+
+    if (!context->surface->Initialize(vulkanContext->GetInstance(), window))
     {
         URAY_LOG("[RenderSystem] Failed to create window surface.");
+        context->Finalize();
         return false;
     }
 
-    if (!device->SupportsPresent(*surface))
+    if (!device->SupportsPresent(*context->surface))
     {
         URAY_LOG("[RenderSystem] Present queue does not support window surface.");
-        surface->Finalize();
+        context->Finalize();
         return false;
     }
 
-    windowSurfaces.emplace(&window, std::move(surface));
+    context->renderResource = std::make_unique<SurfaceRenderResource>(window, *context->surface, *device);
+
+    if (!context->renderResource->Initialize())
+    {
+        URAY_LOG("[RenderSystem] Failed to initialize window render resource.");
+        context->Finalize();
+        return false;
+    }
+
+    if (context->renderResource->GetFormat() != VK_FORMAT_B8G8R8A8_SRGB)
+    {
+        URAY_LOG("[RenderSystem] Window swapchain format is not supported by UIPass.");
+        context->Finalize();
+        return false;
+    }
+
+    windowContexts.emplace(&window, std::move(context));
 
     return true;
 }
 
 void RenderSystem::DestroyWindowSurface(Window& window)
 {
-    const auto it = windowSurfaces.find(&window);
-
-    if (it == windowSurfaces.end())
+    const auto it = windowContexts.find(&window);
+    if (it == windowContexts.end())
         return;
 
+    if (renderer && renderer->IsFrameInProgress())
+        throw std::runtime_error("Cannot destroy window render resources during a frame.");
+
+    WaitIdle();
+
     it->second->Finalize();
-    windowSurfaces.erase(it);
+    windowContexts.erase(it);
+}
+
+SurfaceRenderResource* RenderSystem::FindWindowRenderResource(Window& window) const
+{
+    const auto it = windowContexts.find(&window);
+    if (it == windowContexts.end())
+        return nullptr;
+
+    return it->second->renderResource.get();
 }
 
 } // namespace URay::Render

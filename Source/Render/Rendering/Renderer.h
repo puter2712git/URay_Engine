@@ -51,6 +51,7 @@ public:
     void Finalize();
 
     bool BeginFrame();
+    bool BeginFrame(SurfaceRenderResource& surfaceResource);
     void EndFrame();
 
     void WaitIdle();
@@ -72,7 +73,11 @@ public:
 
     void SetPerformanceViewModel(PerformanceViewModel* viewModel) { performanceViewModel = viewModel; }
 
+    bool IsFrameInProgress() const { return frameInProgress; }
+
 private:
+    bool BeginFrameInternal();
+
     bool CreateSceneRenderTarget();
     bool CreatePostProcessRenderTarget();
     bool CreateSelectionMaskRenderTarget();
@@ -99,6 +104,7 @@ private:
     ResourceManager& resourceManager;
 
     std::unique_ptr<SurfaceRenderResource> mainSurfaceResource;
+    SurfaceRenderResource* activeSurfaceResource = nullptr;
 
     std::unique_ptr<RenderTargetRegistry> renderTargetRegistry = nullptr;
 
@@ -114,6 +120,8 @@ private:
     PerformanceViewModel* performanceViewModel = nullptr;
 
     std::unique_ptr<ObjectIdReadback> objectIdReadback = nullptr;
+
+    bool frameInProgress = false;
 };
 
 constexpr uint32 GpuTimestampQueryCount = 2 * static_cast<uint32>(RenderPassId::Count);

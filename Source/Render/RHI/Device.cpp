@@ -875,8 +875,10 @@ Framebuffer* Device::CreateFramebuffer(const FramebufferDesc& desc)
 SwapChain* Device::CreateSwapChain(const SwapChainDesc& desc)
 {
     SwapChain* swapChain = new SwapChain(*this);
+
     if (!swapChain->Initialize(desc))
     {
+        swapChain->Finalize();
         delete swapChain;
         return nullptr;
     }
