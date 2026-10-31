@@ -4,11 +4,21 @@
 #include <Core/Math/Vector2.h>
 #include <Engine/UI/Input/UIInputRouter.h>
 #include <Engine/UI/Widget/Widget.h>
+#include <Engine/UI/Widget/WindowWidget.h>
 #include <Platform/Window/Window.h>
 #include <Render/Rendering/Batch/UIDrawContext.h>
 
 namespace URay
 {
+
+struct WindowUIContext
+{
+    std::unique_ptr<WindowWidget> windowWidget;
+    Widget* root = nullptr;
+
+    std::unique_ptr<UIInputRouter> inputRouter;
+    std::unique_ptr<Render::UIDrawContext> drawContext;
+};
 
 UISystem::UISystem(Window& window, InputSystem& inputSystem)
     : window(window), inputSystem(inputSystem)
@@ -19,39 +29,60 @@ UISystem::~UISystem() = default;
 
 void UISystem::Initialize()
 {
-    inputRouter = std::make_unique<UIInputRouter>(window);
-    drawContext = std::make_unique<Render::UIDrawContext>();
+    mainContext = std::make_unique<WindowUIContext>();
+
+    mainContext->windowWidget = std::make_unique<WindowWidget>(window);
+    mainContext->inputRouter = std::make_unique<UIInputRouter>(window);
+    mainContext->drawContext = std::make_unique<Render::UIDrawContext>();
 }
 
 void UISystem::Finalize()
 {
-    drawContext.reset();
-    inputRouter.reset();
-    root.reset();
+    if (!mainContext)
+        return;
+
+    mainContext->drawContext.reset();
+    mainContext->inputRouter.reset();
+    mainContext->root = nullptr;
+    mainContext->windowWidget.reset();
+
+    mainContext.reset();
 }
 
-void UISystem::SetRootWidget(std::unique_ptr<Widget> root)
+void UISystem::SetRootWidget(std::unique_ptr<Widget> newRoot)
 {
-    this->root = std::move(root);
+    ClearRootWidget();
+
+    if (!newRoot)
+        return;
+
+    mainContext->root = newRoot.get();
+    mainContext->windowWidget->AddChild(std::move(newRoot));
 }
 
 void UISystem::ClearRootWidget()
 {
-    root.reset();
+    if (!mainContext)
+        return;
+
+    mainContext->root = nullptr;
+
+    if (mainContext->windowWidget)
+        mainContext->windowWidget->ClearChildren();
 }
 
 void UISystem::Update(float deltaTime)
 {
-    if (!root)
+    if (!mainContext->root)
         return;
 
-    inputRouter->Process(*root, inputSystem.GetSnapshot());
-    root->Update(deltaTime);
+    mainContext->inputRouter->Process(*mainContext->root, inputSystem.GetSnapshot());
+    mainContext->root->Update(deltaTime);
 }
 
 void UISystem::PrepareRender()
 {
-    if (!root)
+    if (!mainContext->root)
         return;
 
     const Extent2D clientSize = window.GetClientSize();
@@ -62,23 +93,25 @@ void UISystem::PrepareRender()
         static_cast<float>(clientSize.width),
         static_cast<float>(clientSize.height));
 
-    root->Measure();
-    root->Arrange(finalRect);
+    mainContext->windowWidget->Measure();
+    mainContext->windowWidget->Arrange(finalRect);
 }
 
 void UISystem::Paint()
 {
-    drawContext->Clear();
+    mainContext->drawContext->Clear();
 
-    if (!root)
+    if (!mainContext->root)
         return;
 
-    root->Paint(*drawContext);
+    mainContext->windowWidget->Paint(*mainContext->drawContext);
 }
 
 bool UISystem::IsTextInputActive() const
 {
-    return inputRouter && root && inputRouter->IsTextInputActive(*root);
+    return mainContext->inputRouter &&
+           mainContext->root &&
+           mainContext->inputRouter->IsTextInputActive(*mainContext->root);
 }
 
 bool UISystem::TryHideWidget(Widget& widget)
@@ -92,26 +125,36 @@ bool UISystem::TryHideWidget(Widget& widget)
 
 bool UISystem::TryClearInputStateForWidget(Widget& widget)
 {
-    if (!root || !inputRouter)
+    if (!mainContext->root || !mainContext->inputRouter)
         return false;
 
-    return inputRouter->TryClearInputStateForWidget(*root, widget);
+    return mainContext->inputRouter->TryClearInputStateForWidget(*mainContext->root, widget);
 }
 
 bool UISystem::TryClearInputStateForSubtree(Widget& subtree)
 {
-    if (!root || !inputRouter)
+    if (!mainContext->root || !mainContext->inputRouter)
         return false;
 
-    return inputRouter->TryClearInputStateForSubtree(*root, subtree);
+    return mainContext->inputRouter->TryClearInputStateForSubtree(*mainContext->root, subtree);
 }
 
 Widget* UISystem::FindWidgetAt(const Vector2& position) const
 {
-    if (!root || !inputRouter)
+    if (!mainContext->root || !mainContext->inputRouter)
         return nullptr;
 
-    return inputRouter->FindTopWidget(*root, position);
+    return mainContext->inputRouter->FindTopWidget(*mainContext->root, position);
+}
+
+Widget& UISystem::GetRootWidget() const
+{
+    return *mainContext->root;
+}
+
+Render::UIDrawContext& UISystem::GetDrawContext() const
+{
+    return *mainContext->drawContext;
 }
 
 } // namespace URay

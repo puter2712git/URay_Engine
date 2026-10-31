@@ -15,7 +15,9 @@ namespace URay
 class InputSystem;
 class UIInputRouter;
 class Widget;
+class WindowWidget;
 class Window;
+struct WindowUIContext;
 
 class UISystem
 {
@@ -42,16 +44,14 @@ public:
 
     Widget* FindWidgetAt(const Vector2& position) const;
 
-    Widget& GetRootWidget() const { return *root; }
-    Render::UIDrawContext& GetDrawContext() const { return *drawContext; }
+    Widget& GetRootWidget() const;
+    Render::UIDrawContext& GetDrawContext() const;
 
 private:
     Window& window;
     InputSystem& inputSystem;
 
-    std::unique_ptr<Widget> root = nullptr;
-    std::unique_ptr<UIInputRouter> inputRouter = nullptr;
-    std::unique_ptr<Render::UIDrawContext> drawContext = nullptr;
+    std::unique_ptr<WindowUIContext> mainContext = nullptr;
 };
 
 } // namespace URay
