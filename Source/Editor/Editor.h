@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/File/VirtualPath.h>
+#include <Engine/Asset/AssetHandle.h>
 #include <Engine/Object/ObjectId.h>
 #include <Render/Rendering/RenderPipeline.h>
 
@@ -23,6 +24,7 @@ class ViewportController;
 class PerformanceViewModel;
 class SaveSceneDialog;
 class AssetEditorSystem;
+class Window;
 enum class DialogResult;
 enum class UnitPopupSelection;
 struct ComponentPickerSelection;
@@ -42,6 +44,8 @@ public:
     bool UsingEditorCamera() const { return useEditorCamera; }
 
     Render::RenderRequest BuildRenderRequest() const;
+    void BuildAdditionalWindowRenderRequest(
+        Window& window, Render::RenderRequest& request) const;
 
     void LoadGameScene(const VirtualPath& scenePath);
     void OnUnitPopupSelected(UnitPopupSelection selection, bool createChild, ObjectId unitId);
@@ -58,6 +62,7 @@ public:
     AssetEditorSystem& GetAssetEditorSystem() const { return *assetEditorSystem; }
 
 private:
+    void OpenMeshPreview(const AssetHandle& meshHandle);
     void PrepareGrid();
     void ProcessInputActions();
 

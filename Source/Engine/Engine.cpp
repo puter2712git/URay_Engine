@@ -273,7 +273,8 @@ void Engine::Render(const Render::RenderRequest& request)
     renderSystem->EndFrame();
 }
 
-void Engine::RenderAdditionalWindows()
+void Engine::RenderAdditionalWindows(
+    const AdditionalWindowRenderRequestBuilder& buildRequest)
 {
     for (Window* window : additionalWindows)
     {
@@ -295,6 +296,10 @@ void Engine::RenderAdditionalWindows()
             throw std::runtime_error("Missing UI context for an active additional window.");
 
         Render::RenderRequest request = {};
+
+        if (buildRequest)
+            buildRequest(*window, request);
+
         request.uiDrawContext = drawContext;
         request.updateStats = false;
 

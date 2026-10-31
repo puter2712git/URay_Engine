@@ -7,6 +7,7 @@
 #include <Core/Performance/PerformanceViewModel.h>
 #include <Core/Type/TypeAlias.h>
 #include <Editor/Asset/AssetEditorSystem.h>
+#include <Editor/Asset/Mesh/MeshPreviewSession.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Play/PlaySession.h>
@@ -16,13 +17,17 @@
 #include <Editor/Visual/VisualSystem.h>
 #include <Editor/Widget/Dialog/SaveSceneDialog.h>
 #include <Editor/Widget/Docking/DockSystem.h>
+#include <Editor/Widget/Docking/DockTabGroup.h>
 #include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
+#include <Editor/Widget/Panel/MeshPreviewPanel.h>
 #include <Editor/Widget/Popup/ComponentPickerPopup.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
+#include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/GridComponent.h>
@@ -33,6 +38,7 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 #include <Engine/UI/UISystem.h>
+#include <Platform/Window/Window.h>
 #include <Platform/Window/WindowSystem.h>
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>
@@ -176,6 +182,17 @@ bool Editor::Initialize()
     gEngine->GetInputActionSystem().SetActionMap(inputActionMap.get());
 
     PrepareGrid();
+
+    if (!assetEditorSystem->Register(
+            Mesh::StaticType(),
+            [this](const AssetHandle& handle)
+            {
+                OpenMeshPreview(handle);
+            }))
+    {
+        URAY_LOG("[Editor] Failed to register the mesh preview handler.");
+        return false;
+    }
 
     return true;
 }
@@ -462,6 +479,83 @@ void Editor::DeleteSelectedUnits()
     {
         gameScene->DestroyUnit(root);
     }
+}
+
+void Editor::OpenMeshPreview(const AssetHandle& meshHandle)
+{
+    AssetDatabase& database = gEngine->GetAssetSystem().GetDatabase();
+    Mesh* mesh = database.Find<Mesh>(meshHandle);
+    if (!mesh)
+    {
+        URAY_LOG("[Editor] Mesh preview asset was not found.");
+        return;
+    }
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    auto session = std::make_unique<MeshPreviewSession>(
+        gEngine->GetSceneSystem(),
+        database,
+        renderSystem.GetSceneSystem(),
+        renderSystem.GetDevice());
+
+    constexpr Extent2D initialExtent = { 800, 600 };
+    if (!session->Initialize(meshHandle, initialExtent))
+    {
+        URAY_LOG("[Editor] Failed to initialize the mesh preview session.");
+        return;
+    }
+
+    WindowDesc windowDesc = {};
+    windowDesc.title = mesh->GetName();
+    windowDesc.width = 800;
+    windowDesc.height = 600;
+
+    Window* window = gEngine->CreateAdditionalWindow(windowDesc);
+    if (!window)
+    {
+        URAY_LOG("[Editor] Failed to create the mesh preview window.");
+        return;
+    }
+
+    UISystem& uiSystem = gEngine->GetUISystem();
+    auto group = std::make_unique<DockTabGroup>(uiSystem);
+    group->AddTab(
+        mesh->GetName(),
+        std::make_unique<MeshPreviewPanel>(std::move(session)));
+
+    std::unique_ptr<Widget> root = std::move(group);
+    if (!uiSystem.SetAdditionalWindowRoot(*window, root))
+    {
+        URAY_LOG("[Editor] Failed to attach the mesh preview UI.");
+        if (!gEngine->DestroyAdditionalWindow(*window))
+            URAY_LOG("[Editor] Failed to destroy the mesh preview window.");
+        return;
+    }
+}
+
+void Editor::BuildAdditionalWindowRenderRequest(
+    Window& window, Render::RenderRequest& request) const
+{
+    Widget* root = gEngine->GetUISystem().FindAdditionalWindowRoot(window);
+    DockTabGroup* group = root ? Cast<DockTabGroup>(root) : nullptr;
+    if (!group)
+        return;
+
+    const std::optional<ObjectId> activeId = group->GetActiveTabId();
+    if (!activeId)
+        return;
+
+    const DockedTab* tab = group->FindTab(*activeId);
+    if (!tab)
+        return;
+
+    MeshPreviewPanel* panel = Cast<MeshPreviewPanel>(tab->panel);
+    if (!panel)
+        return;
+
+    auto sceneInfo = panel->GetSession().BuildSceneRenderInfo();
+    if (sceneInfo)
+        request.sceneRenderInfos.push_back(std::move(*sceneInfo));
 }
 
 Render::RenderRequest Editor::BuildRenderRequest() const

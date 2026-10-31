@@ -88,6 +88,8 @@ void UIBatcher::Finalize()
 
 std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
 {
+    // descriptorSets.clear();
+
     const std::vector<UIDrawBatch>& batches = context.GetBatches();
     const std::vector<VertexUI>& vertices = context.GetVertices();
     const std::vector<uint32>& indices = context.GetIndices();

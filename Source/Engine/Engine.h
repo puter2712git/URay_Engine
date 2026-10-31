@@ -3,6 +3,7 @@
 
 #include <Core/Performance/ScopeTimer.h>
 
+#include <functional>
 #include <vector>
 
 namespace URay
@@ -45,7 +46,11 @@ public:
     bool BeginRender();
     void Render(const Render::RenderRequest& request);
 
-    void RenderAdditionalWindows();
+    using AdditionalWindowRenderRequestBuilder =
+        std::function<void(Window&, Render::RenderRequest&)>;
+
+    void RenderAdditionalWindows(
+        const AdditionalWindowRenderRequestBuilder& buildRequest = {});
 
     Window* CreateAdditionalWindow(const WindowDesc& desc);
     bool DestroyAdditionalWindow(Window& window);

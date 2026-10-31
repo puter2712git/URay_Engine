@@ -55,7 +55,11 @@ void EditorApplication::Run()
             engine->Render(editor->BuildRenderRequest());
         }
 
-        engine->RenderAdditionalWindows();
+        engine->RenderAdditionalWindows(
+            [this](Window& window, Render::RenderRequest& request)
+            {
+                editor->BuildAdditionalWindowRenderRequest(window, request);
+            });
 
         analytics.EndFrame();
     }
