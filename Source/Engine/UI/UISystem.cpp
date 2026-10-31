@@ -324,10 +324,16 @@ bool UISystem::TryClearInputStateForSubtree(Widget& subtree)
 
 Widget* UISystem::FindWidgetAt(const Vector2& position) const
 {
-    if (!mainContext->root)
+    return FindWidgetAt(window, position);
+}
+
+Widget* UISystem::FindWidgetAt(Window& targetWindow, const Vector2& position) const
+{
+    WindowUIContext* context = FindContext(targetWindow);
+    if (!inputRouter || !context || !context->root)
         return nullptr;
 
-    return inputRouter->FindTopWidget(*mainContext->root, position);
+    return inputRouter->FindTopWidget(*context->root, position);
 }
 
 Widget& UISystem::GetRootWidget() const
@@ -347,6 +353,15 @@ Widget* UISystem::FindWindowRoot(Window& targetWindow) const
         return nullptr;
 
     return context->root;
+}
+
+Window* UISystem::FindWidgetWindow(const Widget& widget) const
+{
+    WindowUIContext* context = FindContext(widget);
+    if (!context || !context->windowWidget)
+        return nullptr;
+
+    return &context->windowWidget->GetWindow();
 }
 
 ObjectId UISystem::GetLastFocusedWidget(Window& targetWindow) const

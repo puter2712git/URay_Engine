@@ -2,6 +2,7 @@
 
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
+#include <Core/Math/Vector2.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Platform/Window/Cursor.h>
 
@@ -37,6 +38,9 @@ public:
 
     Extent2D GetClientSize() const;
     Extent2D GetFramebufferSize() const;
+
+    Vector2 ClientToScreen(const Vector2& clientPosition) const;
+    Vector2 ScreenToClient(const Vector2& screenPosition) const;
 
     void RequestClose();
     bool ShouldClose() const;

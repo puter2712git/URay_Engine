@@ -134,6 +134,28 @@ Extent2D Window::GetFramebufferSize() const
     };
 }
 
+Vector2 Window::ClientToScreen(const Vector2& clientPosition) const
+{
+    int32 windowX, windowY;
+    glfwGetWindowPos(glfwWindow, &windowX, &windowY);
+
+    return Vector2{
+        static_cast<float>(windowX) + clientPosition.x,
+        static_cast<float>(windowY) + clientPosition.y
+    };
+}
+
+Vector2 Window::ScreenToClient(const Vector2& screenPosition) const
+{
+    int32 windowX, windowY;
+    glfwGetWindowPos(glfwWindow, &windowX, &windowY);
+
+    return Vector2{
+        screenPosition.x - static_cast<float>(windowX),
+        screenPosition.y - static_cast<float>(windowY)
+    };
+}
+
 void Window::RequestClose()
 {
     glfwSetWindowShouldClose(glfwWindow, GLFW_TRUE);

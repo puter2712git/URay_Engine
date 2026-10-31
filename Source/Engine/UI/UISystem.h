@@ -52,11 +52,13 @@ public:
     bool TryClearInputStateForSubtree(Widget& subtree);
 
     Widget* FindWidgetAt(const Vector2& position) const;
+    Widget* FindWidgetAt(Window& targetWindow, const Vector2& position) const;
 
     Widget& GetRootWidget() const;
     Render::UIDrawContext& GetDrawContext() const;
 
     Widget* FindWindowRoot(Window& targetWindow) const;
+    Window* FindWidgetWindow(const Widget& widget) const;
 
     ObjectId GetLastFocusedWidget(Window& targetWindow) const;
     void SetLastFocusedWidget(Window& targetWindow, ObjectId widgetId);

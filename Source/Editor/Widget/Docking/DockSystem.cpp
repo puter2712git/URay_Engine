@@ -6,6 +6,7 @@
 #include <Editor/Widget/Element/Splitter.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/UI/UISystem.h>
+#include <Platform/Window/Window.h>
 
 #include <algorithm>
 #include <optional>
@@ -389,7 +390,25 @@ bool DockSystem::CanSplitGroup(const DockTabGroup& target, DockDropZone zone) co
 
 std::optional<DockDropTarget> DockSystem::FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const
 {
-    Widget* hit = uiSystem.FindWidgetAt(position);
+    DockTabGroup* source = Cast<DockTabGroup>(objectSystem.Resolve(sourceGroupId));
+    if (!source)
+        return std::nullopt;
+
+    Window* sourceWindow = uiSystem.FindWidgetWindow(*source);
+    Window* mainWindow = uiSystem.FindWidgetWindow(uiSystem.GetRootWidget());
+
+    if (!sourceWindow || !mainWindow)
+        return std::nullopt;
+
+    Vector2 mainPosition = position;
+
+    if (sourceWindow != mainWindow)
+    {
+        const Vector2 screenPosition = sourceWindow->ClientToScreen(position);
+        mainPosition = mainWindow->ScreenToClient(screenPosition);
+    }
+
+    Widget* hit = uiSystem.FindWidgetAt(*mainWindow, mainPosition);
 
     for (Widget* current = hit; current; current = current->GetParent())
     {
@@ -397,7 +416,7 @@ std::optional<DockDropTarget> DockSystem::FindDockDropTarget(ObjectId sourceGrou
         if (!target)
             continue;
 
-        const std::optional<DockDropZone> zone = FindDropZone(*target, position);
+        const std::optional<DockDropZone> zone = FindDropZone(*target, mainPosition);
 
         if (!zone.has_value())
             return std::nullopt;
