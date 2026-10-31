@@ -172,6 +172,20 @@ void WindowInputState::OnWindowFocusChanged(bool focused)
         pendingSnapshot.mouseDelta = Vector2::Zero;
         pendingSnapshot.scrollDelta = Vector2::Zero;
 
+        for (InputButtonState& state : pendingSnapshot.keys)
+        {
+            state.released = state.released || state.held;
+            state.held = false;
+            state.pressed = false;
+        }
+
+        for (InputButtonState& state : pendingSnapshot.mouseButtons)
+        {
+            state.released = state.released || state.held;
+            state.held = false;
+            state.pressed = false;
+        }
+
         lastClickButton = MouseButton::None;
         consecutiveClickCount = 0;
     }

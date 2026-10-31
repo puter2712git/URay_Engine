@@ -44,6 +44,21 @@ void UIInputRouter::Process(Widget& root, const InputSnapshot& input)
         {
             DispatchTextInputEvent(root, *textEvent);
         }
+        else if (const auto* focusEvent = std::get_if<WindowFocusEvent>(&inputEvent))
+        {
+            if (!focusEvent->focused)
+            {
+                Widget* captured = FindWidgetById(root, pointerCapturedWidgetId);
+
+                pointerCapturedWidgetId = {};
+
+                if (captured)
+                {
+                    captured->pointerCaptured = false;
+                    captured->OnPointerCancel();
+                }
+            }
+        }
     }
 }
 
