@@ -20,4 +20,17 @@ struct DockDropTarget
     DockDropZone zone = DockDropZone::Center;
 };
 
+enum class DockDropKind
+{
+    Dock,
+    Float,
+    NoOp
+};
+
+struct DockDropResult
+{
+    DockDropKind kind = DockDropKind::NoOp;
+    DockDropTarget target = {};
+};
+
 } // namespace URay

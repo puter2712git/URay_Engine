@@ -235,10 +235,13 @@ void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
 
         if (indicators)
         {
-            for (const DockIndicator& indicator : *indicators)
+            for (size_t i = 0; i < indicators->size(); ++i)
             {
-                context.AddFilledRect(indicator.rect, EditorStyle::ControlNormal);
-                context.AddOutlineRect(indicator.rect, 1.0f, EditorStyle::TextPrimary);
+                const DockIndicator& indicator = (*indicators)[i];
+                const bool enabled = dockIndicatorEnabled[i];
+
+                context.AddFilledRect(indicator.rect, enabled ? EditorStyle::ControlNormal : EditorStyle::DockIndicatorDisabled);
+                context.AddOutlineRect(indicator.rect, 1.0f, enabled ? EditorStyle::TextPrimary : EditorStyle::DockIndicatorDisabledBorder);
             }
         }
     }

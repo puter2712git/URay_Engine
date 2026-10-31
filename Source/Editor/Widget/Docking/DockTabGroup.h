@@ -46,6 +46,7 @@ public:
 
     bool HasTab(ObjectId panelId) const;
     const DockedTab* FindTab(ObjectId panelId) const;
+
     const std::vector<DockedTab>& GetTabs() const { return tabs; }
     std::optional<ObjectId> GetActiveTabId() const { return activeId; }
 
@@ -63,6 +64,7 @@ public:
     std::optional<std::array<DockIndicator, 5>> GetDockIndicators() const;
 
     void SetDockIndicatorsVisible(bool visible) { dockIndicatorsVisible = visible; }
+    void SetDockIndicatorEnabled(const std::array<bool, 5>& enabled) { dockIndicatorEnabled = enabled; }
 
     void Arrange(const Rect& rect) override;
 
@@ -89,6 +91,7 @@ private:
     std::optional<DockDropZone> dropHighlight;
 
     bool dockIndicatorsVisible = false;
+    std::array<bool, 5> dockIndicatorEnabled = { true, true, true, true, true };
 };
 
 } // namespace URay

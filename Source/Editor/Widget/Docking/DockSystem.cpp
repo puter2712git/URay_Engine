@@ -74,14 +74,14 @@ void DockSystem::RequestMove(ObjectId sourceGroupId, ObjectId targetGroupId, Obj
 
 void DockSystem::RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position)
 {
-    const std::optional<DockDropTarget> target = FindDockDropTarget(sourceGroupId, position);
+    const DockDropResult result = FindDockDropTarget(sourceGroupId, position);
 
     CancelDrag();
 
-    if (!target.has_value())
+    if (result.kind != DockDropKind::Dock)
         return;
 
-    RequestMove(sourceGroupId, target->groupId, panelId, target->zone);
+    RequestMove(sourceGroupId, result.target.groupId, panelId, result.target.zone);
 }
 
 void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position)
@@ -114,23 +114,59 @@ void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vect
         }
     }
 
-    const std::optional<DockDropTarget> target = FindDockDropTarget(sourceGroupId, position);
+    if (indicatorGroup)
+    {
+        const auto indicators = indicatorGroup->GetDockIndicators();
 
-    if (target.has_value() && highlightedTarget.has_value() && target->groupId == highlightedTarget->groupId && target->zone == highlightedTarget->zone)
+        if (indicators)
+        {
+            std::array<bool, 5> enabled = {};
+            const bool isSource = indicatorGroup->GetId() == sourceGroupId;
+
+            for (size_t i = 0; i < indicators->size(); ++i)
+            {
+                const DockDropZone zone = (*indicators)[i].zone;
+
+                if (zone == DockDropZone::Center)
+                {
+                    enabled[i] = !isSource;
+                }
+                else
+                {
+                    enabled[i] = CanSplitGroup(*indicatorGroup, zone) && (!isSource || indicatorGroup->GetTabCount() > 1);
+                }
+            }
+
+            indicatorGroup->SetDockIndicatorEnabled(enabled);
+        }
+    }
+
+    const DockDropResult result = FindDockDropTarget(sourceGroupId, position);
+
+    if (result.kind != DockDropKind::Dock)
+    {
+        ClearDropHighlight();
         return;
+    }
+
+    const DockDropTarget& target = result.target;
+
+    if (highlightedTarget.has_value() &&
+        target.groupId == highlightedTarget->groupId &&
+        target.zone == highlightedTarget->zone)
+    {
+        return;
+    }
 
     ClearDropHighlight();
 
-    if (!target.has_value())
-        return;
-
-    DockTabGroup* targetGroup = Cast<DockTabGroup>(objectSystem.Resolve(target->groupId));
+    DockTabGroup* targetGroup = Cast<DockTabGroup>(objectSystem.Resolve(target.groupId));
 
     if (!targetGroup)
         return;
 
-    targetGroup->SetDropHighlight(target->zone);
-    highlightedTarget = *target;
+    targetGroup->SetDropHighlight(target.zone);
+    highlightedTarget = target;
 }
 
 void DockSystem::CancelDrag()
@@ -428,17 +464,17 @@ bool DockSystem::CanSplitGroup(const DockTabGroup& target, DockDropZone zone) co
     return Cast<Splitter>(parent) != nullptr;
 }
 
-std::optional<DockDropTarget> DockSystem::FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const
+DockDropResult DockSystem::FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const
 {
     DockTabGroup* source = Cast<DockTabGroup>(objectSystem.Resolve(sourceGroupId));
     if (!source)
-        return std::nullopt;
+        return DockDropResult{ .kind = DockDropKind::NoOp };
 
     Window* sourceWindow = uiSystem.FindWidgetWindow(*source);
     Window* mainWindow = uiSystem.FindWidgetWindow(uiSystem.GetRootWidget());
 
     if (!sourceWindow || !mainWindow)
-        return std::nullopt;
+        return DockDropResult{ .kind = DockDropKind::NoOp };
 
     Vector2 mainPosition = position;
 
@@ -459,29 +495,31 @@ std::optional<DockDropTarget> DockSystem::FindDockDropTarget(ObjectId sourceGrou
         const std::optional<DockDropZone> zone = FindDropZone(*target, mainPosition);
 
         if (!zone.has_value())
-            return std::nullopt;
+            return DockDropResult{ .kind = DockDropKind::Float };
 
         if (*zone != DockDropZone::Center && !CanSplitGroup(*target, *zone))
-            return std::nullopt;
+            return DockDropResult{ .kind = DockDropKind::NoOp };
 
         const bool isSource = target->GetId() == sourceGroupId;
 
         if (isSource)
         {
             if (*zone == DockDropZone::Center)
-                return std::nullopt;
+                return DockDropResult{ .kind = DockDropKind::NoOp };
 
             if (target->GetTabCount() <= 1)
-                return std::nullopt;
+                return DockDropResult{ .kind = DockDropKind::NoOp };
         }
 
-        return DockDropTarget{
-            .groupId = target->GetId(),
-            .zone = *zone
+        return DockDropResult{
+            .kind = DockDropKind::Dock,
+            .target = {
+                .groupId = target->GetId(),
+                .zone = *zone }
         };
     }
 
-    return std::nullopt;
+    return DockDropResult{ .kind = DockDropKind::Float };
 }
 
 void DockSystem::ClearDropHighlight()

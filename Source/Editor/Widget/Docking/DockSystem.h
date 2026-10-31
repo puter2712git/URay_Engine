@@ -49,7 +49,7 @@ private:
     bool SplitGroup(DockTabGroup& target, DockDropZone zone, std::unique_ptr<Widget>& newGroup);
     bool CanSplitGroup(const DockTabGroup& target, DockDropZone zone) const;
 
-    std::optional<DockDropTarget> FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const;
+    DockDropResult FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const;
     void ClearDropHighlight();
 
     bool TryCleanupEmptyGroup(ObjectId groupId);
