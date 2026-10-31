@@ -1,9 +1,12 @@
 #include "DockSystem.h"
 
+#include <Core/Log/LogSystem.h>
 #include <Core/Math/Math.h>
 #include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Editor/Widget/Docking/DockTabGroup.h>
 #include <Editor/Widget/Element/Splitter.h>
+#include <Editor/Widget/Panel/MeshPreviewPanel.h>
+#include <Engine/Engine.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/UI/UISystem.h>
 #include <Platform/Window/Window.h>
@@ -33,46 +36,23 @@ std::optional<DockDropZone> FindDropZone(const DockTabGroup& group, const Vector
     const Rect& groupRect = group.GetRect();
     const Rect panelRect = group.GetPanelRect();
 
-    if (groupRect.size.x <= 0.0f || groupRect.size.y <= 0.0f)
+    if (!groupRect.Contains(position))
         return std::nullopt;
 
-    // Tab bar
     if (position.y < panelRect.position.y)
         return DockDropZone::Center;
 
-    if (panelRect.size.x <= 0.0f || panelRect.size.y <= 0.0f)
+    const auto indicators = group.GetDockIndicators();
+    if (!indicators)
         return std::nullopt;
 
-    const float x = (position.x - panelRect.position.x) / panelRect.size.x;
-    const float y = (position.y - panelRect.position.y) / panelRect.size.y;
+    for (const DockIndicator& indicator : *indicators)
+    {
+        if (indicator.rect.Contains(position))
+            return indicator.zone;
+    }
 
-    if (x < 0.0f || x >= 1.0f || y < 0.0f || y >= 1.0f)
-        return std::nullopt;
-
-    constexpr float edgeFraction = 0.25f;
-
-    const float left = x;
-    const float right = 1.0f - x;
-    const float top = y;
-    const float bottom = 1.0f - y;
-
-    const float nearest = Math::Min(
-        Math::Min(left, right),
-        Math::Min(top, bottom));
-
-    if (nearest >= edgeFraction)
-        return DockDropZone::Center;
-
-    if (nearest == left)
-        return DockDropZone::Left;
-
-    if (nearest == right)
-        return DockDropZone::Right;
-
-    if (nearest == top)
-        return DockDropZone::Top;
-
-    return DockDropZone::Bottom;
+    return std::nullopt;
 }
 
 } // namespace
@@ -96,7 +76,7 @@ void DockSystem::RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vec
 {
     const std::optional<DockDropTarget> target = FindDockDropTarget(sourceGroupId, position);
 
-    ClearDropHighlight();
+    CancelDrag();
 
     if (!target.has_value())
         return;
@@ -110,8 +90,28 @@ void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vect
 
     if (!source || !source->HasTab(panelId))
     {
-        ClearDropHighlight();
+        CancelDrag();
         return;
+    }
+
+    dragState = DragState{
+        .sourceGroupId = sourceGroupId,
+        .panelId = panelId
+    };
+
+    DockTabGroup* indicatorGroup = FindIndicatorGroup(sourceGroupId, position);
+
+    if (!indicatorGroupId.has_value() ||
+        !indicatorGroup ||
+        *indicatorGroupId != indicatorGroup->GetId())
+    {
+        ClearIndicatorGroup();
+
+        if (indicatorGroup)
+        {
+            indicatorGroup->SetDockIndicatorsVisible(true);
+            indicatorGroupId = indicatorGroup->GetId();
+        }
     }
 
     const std::optional<DockDropTarget> target = FindDockDropTarget(sourceGroupId, position);
@@ -135,7 +135,9 @@ void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vect
 
 void DockSystem::CancelDrag()
 {
+    dragState.reset();
     ClearDropHighlight();
+    ClearIndicatorGroup();
 }
 
 void DockSystem::ProcessPendingMove()
@@ -156,11 +158,37 @@ void DockSystem::ProcessPendingMove()
 
     Widget& root = uiSystem.GetRootWidget();
 
-    if (!IsInRoot(*source, root) || !IsInRoot(*target, root) || !source->HasTab(request.panelId))
+    Window* sourceWindow = uiSystem.FindWidgetWindow(*source);
+    Window* mainWindow = uiSystem.FindWidgetWindow(root);
+    const DockedTab* sourceTab = source->FindTab(request.panelId);
+
+    if (!sourceWindow || !mainWindow || !sourceTab || !IsInRoot(*target, root))
     {
         pendingMove.reset();
         return;
     }
+
+    const bool sourceIsMain = sourceWindow == mainWindow;
+
+    if (sourceIsMain)
+    {
+        if (!IsInRoot(*source, root))
+        {
+            pendingMove.reset();
+            return;
+        }
+    }
+    else
+    {
+        Widget* additionalRoot = uiSystem.FindAdditionalWindowRoot(*sourceWindow);
+
+        if (additionalRoot != source || !Cast<MeshPreviewPanel>(sourceTab->panel))
+        {
+            pendingMove.reset();
+            return;
+        }
+    }
+
     const bool isCenter = request.zone == DockDropZone::Center;
 
     if (isCenter && source == target)
@@ -215,6 +243,7 @@ void DockSystem::ProcessPendingMove()
         newTabGroup->AddTab(
             detached->title,
             std::move(detached->panel));
+        newTabGroup->RequestActivate(request.panelId);
     }
     else
     {
@@ -227,19 +256,30 @@ void DockSystem::ProcessPendingMove()
         target->AddTab(
             detached->title,
             std::move(detached->panel));
+        target->RequestActivate(request.panelId);
     }
 
     if (source->IsEmpty())
     {
-        const ObjectId sourceId = source->GetId();
+        if (!sourceIsMain)
+        {
+            if (!gEngine->RequestCloseAdditionalWindow(*sourceWindow))
+            {
+                URAY_LOG("[DockSystem] Failed to request closing the empty preview window.");
+            }
+        }
+        else
+        {
+            const ObjectId sourceId = source->GetId();
 
-        const auto it = std::find(
-            pendingCleanups.begin(),
-            pendingCleanups.end(),
-            sourceId);
+            const auto it = std::find(
+                pendingCleanups.begin(),
+                pendingCleanups.end(),
+                sourceId);
 
-        if (it == pendingCleanups.end())
-            pendingCleanups.push_back(sourceId);
+            if (it == pendingCleanups.end())
+                pendingCleanups.push_back(sourceId);
+        }
     }
 
     pendingMove.reset();
@@ -539,6 +579,51 @@ bool DockSystem::TryCleanupEmptyGroup(ObjectId groupId)
     }
 
     return true;
+}
+
+DockTabGroup* DockSystem::FindIndicatorGroup(ObjectId sourceGroupId, const Vector2& position) const
+{
+    DockTabGroup* source = Cast<DockTabGroup>(objectSystem.Resolve(sourceGroupId));
+
+    if (!source)
+        return nullptr;
+
+    Window* sourceWindow = uiSystem.FindWidgetWindow(*source);
+    Window* mainWindow = uiSystem.FindWidgetWindow(uiSystem.GetRootWidget());
+
+    if (!sourceWindow || !mainWindow)
+        return nullptr;
+
+    Vector2 mainPosition = position;
+
+    if (sourceWindow != mainWindow)
+    {
+        const Vector2 screenPosition = sourceWindow->ClientToScreen(position);
+        mainPosition = mainWindow->ScreenToClient(screenPosition);
+    }
+
+    Widget* hit = uiSystem.FindWidgetAt(*mainWindow, mainPosition);
+
+    for (Widget* current = hit; current; current = current->GetParent())
+    {
+        if (auto* group = Cast<DockTabGroup>(current))
+            return group;
+    }
+
+    return nullptr;
+}
+
+void DockSystem::ClearIndicatorGroup()
+{
+    if (!indicatorGroupId.has_value())
+        return;
+
+    DockTabGroup* group = Cast<DockTabGroup>(objectSystem.Resolve(*indicatorGroupId));
+
+    if (group)
+        group->SetDockIndicatorsVisible(false);
+
+    indicatorGroupId.reset();
 }
 
 } // namespace URay

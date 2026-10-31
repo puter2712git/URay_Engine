@@ -3,6 +3,7 @@
 #include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Engine/UI/Widget/Widget.h>
 
+#include <array>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -12,6 +13,12 @@ namespace URay
 
 class DockTabButton;
 class UISystem;
+
+struct DockIndicator
+{
+    DockDropZone zone = DockDropZone::Center;
+    Rect rect = {};
+};
 
 struct DockedTab
 {
@@ -35,6 +42,7 @@ public:
 
 public:
     void AddTab(const String& title, std::unique_ptr<Widget> panel);
+    void RequestActivate(ObjectId panelId);
 
     bool HasTab(ObjectId panelId) const;
     const DockedTab* FindTab(ObjectId panelId) const;
@@ -52,6 +60,10 @@ public:
     std::optional<DetachedTab> DetachTab(ObjectId panelId);
     bool IsEmpty() const { return tabs.empty(); }
 
+    std::optional<std::array<DockIndicator, 5>> GetDockIndicators() const;
+
+    void SetDockIndicatorsVisible(bool visible) { dockIndicatorsVisible = visible; }
+
     void Arrange(const Rect& rect) override;
 
 protected:
@@ -59,7 +71,6 @@ protected:
     void OnPaintForeground(Render::UIDrawContext& context) override;
 
 private:
-    void RequestActivate(ObjectId panelId);
     void UpdateTabColors();
 
     void OnTabDragMoved(Vector2 position, ObjectId panelId);
@@ -76,6 +87,8 @@ private:
     std::optional<ObjectId> pendingId;
 
     std::optional<DockDropZone> dropHighlight;
+
+    bool dockIndicatorsVisible = false;
 };
 
 } // namespace URay

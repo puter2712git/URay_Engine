@@ -26,6 +26,12 @@ class DockSystem
         DockDropZone zone = DockDropZone::Center;
     };
 
+    struct DragState
+    {
+        ObjectId sourceGroupId = {};
+        ObjectId panelId = {};
+    };
+
 public:
     DockSystem(UISystem& uiSystem, ObjectSystem& objectSystem);
 
@@ -48,13 +54,19 @@ private:
 
     bool TryCleanupEmptyGroup(ObjectId groupId);
 
+    DockTabGroup* FindIndicatorGroup(ObjectId sourceGroupId, const Vector2& position) const;
+    void ClearIndicatorGroup();
+
 private:
     UISystem& uiSystem;
     ObjectSystem& objectSystem;
 
+    std::optional<DragState> dragState;
+
     std::optional<MoveRequest> pendingMove;
     std::vector<ObjectId> pendingCleanups;
 
+    std::optional<ObjectId> indicatorGroupId;
     std::optional<DockDropTarget> highlightedTarget;
 };
 

@@ -85,6 +85,44 @@ Rect DockTabGroup::GetPanelRect() const
     return panelRect;
 }
 
+std::optional<std::array<DockIndicator, 5>> DockTabGroup::GetDockIndicators() const
+{
+    constexpr float indicatorSize = 32.0f;
+    constexpr float indicatorGap = 4.0f;
+
+    constexpr float requiredSize = indicatorSize * 3.0f + indicatorGap * 2.0f;
+
+    const Rect panelRect = GetPanelRect();
+
+    if (panelRect.size.x < requiredSize || panelRect.size.y < requiredSize)
+        return std::nullopt;
+
+    const Vector2 center(
+        panelRect.position.x + panelRect.size.x * 0.5f,
+        panelRect.position.y + panelRect.size.y * 0.5f);
+
+    constexpr float offset = indicatorSize + indicatorGap;
+    constexpr float halfSize = indicatorSize * 0.5f;
+
+    const auto makeIndicator = [&center](DockDropZone zone, float offsetX, float offsetY)
+    {
+        return DockIndicator{
+            .zone = zone,
+            .rect = Rect{
+                .position = Vector2(center.x + offsetX - halfSize, center.y + offsetY - halfSize),
+                .size = Vector2(indicatorSize, indicatorSize) }
+        };
+    };
+
+    return std::array<DockIndicator, 5>{
+        makeIndicator(DockDropZone::Center, 0.0f, 0.0f),
+        makeIndicator(DockDropZone::Left, -offset, 0.0f),
+        makeIndicator(DockDropZone::Right, offset, 0.0f),
+        makeIndicator(DockDropZone::Top, 0.0f, -offset),
+        makeIndicator(DockDropZone::Bottom, 0.0f, offset)
+    };
+}
+
 std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
 {
     const auto it = std::find_if(tabs.begin(), tabs.end(), [panelId](const DockedTab& tab)
@@ -189,6 +227,20 @@ void DockTabGroup::OnPaintForeground(Render::UIDrawContext& context)
 
         if (highlightRect.size.x > 0.0f && highlightRect.size.y > 0.0f)
             context.AddFilledRect(highlightRect, EditorStyle::DockDropHighlight);
+    }
+
+    if (dockIndicatorsVisible)
+    {
+        const auto indicators = GetDockIndicators();
+
+        if (indicators)
+        {
+            for (const DockIndicator& indicator : *indicators)
+            {
+                context.AddFilledRect(indicator.rect, EditorStyle::ControlNormal);
+                context.AddOutlineRect(indicator.rect, 1.0f, EditorStyle::TextPrimary);
+            }
+        }
     }
 
     context.AddOutlineRect(rect, 1.0f, EditorStyle::Border);
