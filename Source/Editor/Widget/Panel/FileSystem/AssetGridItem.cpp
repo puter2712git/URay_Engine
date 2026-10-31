@@ -17,6 +17,8 @@ AssetGridItem::AssetGridItem(AssetEntry entry) : entry(std::move(entry))
 {
     URAY_DECLARE_RAY(Selected, AssetEntry);
     URAY_DECLARE_RAY(Activated, AssetEntry);
+    URAY_DECLARE_RAY(DoubleClicked, AssetEntry);
+
     surface = AddChild<Surface>();
     surface->SetOutlineWidth(1.0f);
     surface->SetOutlineColor(EditorStyle::Border);
@@ -61,6 +63,8 @@ EventReply AssetGridItem::OnPointerDown(const PointerEvent& event)
     if (event.changedButton != MouseButton::Left)
         return {};
 
+    pendingClickCount = event.clickCount;
+
     return EventReply{
         .handled = true,
         .requestFocus = true,
@@ -73,16 +77,27 @@ EventReply AssetGridItem::OnPointerUp(const PointerEvent& event)
     if (event.changedButton != MouseButton::Left)
         return {};
 
+    const bool doubleClicked = pendingClickCount == 2;
+    pendingClickCount = 0;
+
     if (IsHovered())
     {
         Emit("Selected", entry);
         Emit("Activated", entry);
+
+        if (doubleClicked)
+            Emit("DoubleClicked", entry);
     }
 
     return EventReply{
         .handled = true,
         .releasePointer = true
     };
+}
+
+void AssetGridItem::OnPointerCancel()
+{
+    pendingClickCount = 0;
 }
 
 Vector2 AssetGridItem::OnMeasure()

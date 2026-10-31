@@ -26,6 +26,7 @@ public:
 
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
+    void OnPointerCancel() override;
 
 protected:
     Vector2 OnMeasure() override;
@@ -45,6 +46,7 @@ private:
     Image* thumbnailImage = nullptr;
     Label* nameLabel = nullptr;
 
+    uint8 pendingClickCount = 0;
 };
 
 } // namespace URay

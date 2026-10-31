@@ -29,6 +29,7 @@ private:
     void RebuildItems(const std::vector<AssetEntry>& entries);
     void OnItemSelected(AssetEntry entry);
     void OnItemActivated(AssetEntry entry);
+    void OnItemDoubleClicked(AssetEntry entry);
 
 private:
     VirtualPath directory = {};
