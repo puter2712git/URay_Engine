@@ -25,7 +25,8 @@ struct UUID;
 enum class SceneType
 {
     Game,
-    Play
+    Play,
+    Preview
 };
 
 using SceneId = uint64;

@@ -529,6 +529,9 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     {
         for (const auto& scene : sceneSystem.GetScenes())
         {
+            if (scene->GetSceneType() == SceneType::Preview)
+                continue;
+
             Render::RenderScene* renderScene = renderSceneSystem.GetRenderScene(scene.get());
             sceneRenderInfo.scenes.push_back(renderScene);
         }

@@ -7,13 +7,13 @@
 #include <Editor/Visual/Visualizer/PointLightVisualizer.h>
 #include <Editor/Visual/Visualizer/SpotLightVisualizer.h>
 #include <Engine/Component/Component.h>
-#include <Engine/Object/Property/Property.h>
 #include <Engine/Component/Render/CameraComponent.h>
 #include <Engine/Component/Render/DecalComponent.h>
 #include <Engine/Component/Render/Light/DirectionalLightComponent.h>
 #include <Engine/Component/Render/Light/PointLightComponent.h>
 #include <Engine/Component/Render/Light/SpotLightComponent.h>
 #include <Engine/Engine.h>
+#include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
@@ -80,8 +80,11 @@ void VisualSystem::OnUnitTransformUpdated(Scene* scene, Unit* unit)
 
 void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* component)
 {
-    if (scene->GetSceneType() == SceneType::Play)
+    if (scene->GetSceneType() == SceneType::Play ||
+        scene->GetSceneType() == SceneType::Preview)
+    {
         return;
+    }
 
     Render::SceneSystem& sceneSystem = gEngine->GetRenderSystem().GetSceneSystem();
     Render::RenderScene* renderScene = sceneSystem.GetRenderScene(scene);
