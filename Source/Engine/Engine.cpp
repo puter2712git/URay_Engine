@@ -26,6 +26,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <stdexcept>
 
 namespace URay
 {
@@ -142,6 +143,14 @@ void Engine::Finalize()
     if (renderSystem)
     {
         renderSystem->WaitIdle();
+    }
+
+    while (!additionalWindows.empty())
+    {
+        Window* window = additionalWindows.back();
+
+        if (!DestroyAdditionalWindow(*window))
+            throw std::runtime_error("Failed to destroy an additional window during engine finalization.");
     }
 
     if (uiSystem)
@@ -262,6 +271,54 @@ void Engine::Render(const Render::RenderRequest& request)
 
     renderSystem->GetPipeline().Execute(request);
     renderSystem->EndFrame();
+}
+
+Window* Engine::CreateAdditionalWindow(const WindowDesc& desc)
+{
+    if (!windowSystem || !renderSystem)
+        return nullptr;
+
+    if (renderSystem->GetRenderer().IsFrameInProgress())
+    {
+        URAY_LOG("[Engine] Cannot create a window during a render frame.");
+        return nullptr;
+    }
+
+    Window* window = windowSystem->CreateWindow(desc);
+    if (!window)
+        return nullptr;
+
+    if (!renderSystem->CreateWindowSurface(*window))
+    {
+        windowSystem->DestroyWindow(*window);
+        return nullptr;
+    }
+
+    additionalWindows.push_back(window);
+    return window;
+}
+
+bool Engine::DestroyAdditionalWindow(Window& window)
+{
+    if (!windowSystem || !renderSystem)
+        return false;
+
+    const auto it = std::find(additionalWindows.begin(), additionalWindows.end(), &window);
+
+    if (it == additionalWindows.end())
+        return false;
+
+    if (renderSystem->GetRenderer().IsFrameInProgress())
+    {
+        URAY_LOG("[Engine] Cannot destroy a window during a render frame.");
+        return false;
+    }
+
+    renderSystem->DestroyWindowSurface(window);
+    additionalWindows.erase(it);
+    windowSystem->DestroyWindow(window);
+
+    return true;
 }
 
 } // namespace URay

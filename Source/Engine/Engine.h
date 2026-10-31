@@ -18,10 +18,11 @@ class UISystem;
 class PerformanceAnalytics;
 class StdErrLogSink;
 class FileLogSink;
-
 class ObjectSystem;
 class AssetSystem;
 class SceneSystem;
+class Window;
+struct WindowDesc;
 
 namespace Render
 {
@@ -43,6 +44,9 @@ public:
 
     bool BeginRender();
     void Render(const Render::RenderRequest& request);
+
+    Window* CreateAdditionalWindow(const WindowDesc& desc);
+    bool DestroyAdditionalWindow(Window& window);
 
     LogSystem& GetLogSystem() const { return *logSystem; }
     WindowSystem& GetWindowSystem() const { return *windowSystem; }
@@ -78,6 +82,8 @@ private:
     std::unique_ptr<AssetSystem> assetSystem = nullptr;
     std::unique_ptr<SceneSystem> sceneSystem = nullptr;
     std::unique_ptr<Render::RenderSystem> renderSystem = nullptr;
+
+    std::vector<Window*> additionalWindows;
 };
 
 extern Engine* gEngine;
