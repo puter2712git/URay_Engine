@@ -64,6 +64,7 @@ private:
 
     void OnTabDragMoved(Vector2 position, ObjectId panelId);
     void OnTabDragReleased(Vector2 position, ObjectId panelId);
+    void OnTabDragCancelled();
 
     Rect GetDropHighlightRect(DockDropZone zone) const;
 

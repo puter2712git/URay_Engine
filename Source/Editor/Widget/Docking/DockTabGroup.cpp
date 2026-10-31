@@ -35,6 +35,7 @@ void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
     button->Register("Clicked", this, &DockTabGroup::RequestActivate, panelPtr->GetId());
     button->Register("DragMoved", this, &DockTabGroup::OnTabDragMoved, panelPtr->GetId());
     button->Register("DragReleased", this, &DockTabGroup::OnTabDragReleased, panelPtr->GetId());
+    button->Register("DragCancelled", this, &DockTabGroup::OnTabDragCancelled);
 
     tabs.push_back(DockedTab{ .title = title, .button = button, .panel = panelPtr });
 
@@ -245,6 +246,12 @@ void DockTabGroup::OnTabDragReleased(Vector2 position, ObjectId panelId)
     DockSystem& dockSystem = editorUI.GetDockSystem();
 
     dockSystem.RequestDrop(GetId(), panelId, position);
+}
+
+void DockTabGroup::OnTabDragCancelled()
+{
+    DockSystem& dockSystem = gEditor->GetEditorUI().GetDockSystem();
+    dockSystem.CancelDrag();
 }
 
 Rect DockTabGroup::GetDropHighlightRect(DockDropZone zone) const

@@ -34,6 +34,7 @@ public:
     void RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position);
 
     void UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position);
+    void CancelDrag();
 
     void ProcessPendingMove();
     void ProcessPendingCleanup();

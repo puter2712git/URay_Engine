@@ -12,6 +12,7 @@ DockTabButton::DockTabButton(StringView title)
     URAY_DECLARE_RAY(Clicked);
     URAY_DECLARE_RAY(DragMoved, Vector2);
     URAY_DECLARE_RAY(DragReleased, Vector2);
+    URAY_DECLARE_RAY(DragCancelled);
 
     label = AddChild<Label>(title);
     label->SetTextStyle(EditorStyle::SmallText());
@@ -85,6 +86,16 @@ EventReply DockTabButton::OnPointerUp(const PointerEvent& event)
         .handled = true,
         .releasePointer = true
     };
+}
+
+void DockTabButton::OnPointerCancel()
+{
+    const bool wasDragging = isDragging;
+    isPointerDown = false;
+    isDragging = false;
+
+    if (wasDragging)
+        Emit("DragCancelled");
 }
 
 Vector2 DockTabButton::OnMeasure()

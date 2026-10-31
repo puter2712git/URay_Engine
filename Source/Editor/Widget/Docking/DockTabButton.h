@@ -22,6 +22,7 @@ public:
     EventReply OnPointerDown(const PointerEvent& event) override;
     EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
+    void OnPointerCancel() override;
 
     void SetNormalColor(const Color& color) { normalColor = color; }
     void SetHoverColor(const Color& color) { hoverColor = color; }

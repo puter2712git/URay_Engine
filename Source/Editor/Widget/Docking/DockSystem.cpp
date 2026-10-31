@@ -132,6 +132,11 @@ void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vect
     highlightedTarget = *target;
 }
 
+void DockSystem::CancelDrag()
+{
+    ClearDropHighlight();
+}
+
 void DockSystem::ProcessPendingMove()
 {
     if (!pendingMove.has_value())
