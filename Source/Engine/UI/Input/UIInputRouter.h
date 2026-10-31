@@ -7,8 +7,8 @@
 namespace URay
 {
 
+class UISystem;
 class Window;
-
 struct EventReply;
 struct InputSnapshot;
 
@@ -16,39 +16,54 @@ class UIInputRouter
 {
     using PointerEventHandler = EventReply (Widget::*)(const PointerEvent&);
 
-public:
-    UIInputRouter(Window& window);
+    struct WidgetInputTarget
+    {
+        Window* window = nullptr;
+        ObjectId widgetId = {};
+    };
 
 public:
-    void Process(Widget& root, const InputSnapshot& input);
+    UIInputRouter(UISystem& uiSystem);
+
+public:
+    void Process(Window& window, Widget& root, const InputSnapshot& input);
+    void ProcessEvent(Window& window, Widget& root, const InputEvent& event);
+
     bool IsTextInputActive(Widget& root) const;
 
-    bool TryClearInputStateForWidget(Widget& root, Widget& widget);
-    bool TryClearInputStateForSubtree(Widget& root, Widget& subtree);
+    bool TryClearInputStateForWidget(Window& window, Widget& root, Widget& widget);
+    bool TryClearInputStateForSubtree(Window& window, Widget& root, Widget& subtree);
+
+    void ClearHoverForWindow(Window& window);
+    void ClearFocusForWindow(Window& window);
+    void CancelCaptureForWindow(Window& window);
+
+    void RestoreFocusForWindow(Window& window);
 
     Widget* FindTopWidget(Widget& root, const Vector2& position) const;
 
 private:
     void DispatchKeyEvent(Widget& root, const KeyEvent& event);
-    void DispatchPointerEvent(Widget& root, const PointerEvent& event);
-    void DispatchScrollEvent(Widget& root, const ScrollEvent& event);
-    void DispatchTextInputEvent(Widget& root, const TextInputEvent& event);
+    void DispatchPointerEvent(Window& window, Widget& root, const PointerEvent& event);
+    void DispatchScrollEvent(Window& window, Widget& root, const ScrollEvent& event);
+    void DispatchTextInputEvent(Window& window, Widget& root, const TextInputEvent& event);
 
-    void BubblePointerEvent(Widget& root, Widget* target, const PointerEvent& event, PointerEventHandler handler);
+    void BubblePointerEvent(Window& window, Widget& root, Widget* target, const PointerEvent& event, PointerEventHandler handler);
 
-    void UpdateHoveredWidget(Widget& root, Widget* hitWidget);
-    void ApplyReply(Widget& root, Widget* target, const EventReply& reply);
+    void UpdateHoveredWidget(Window& window, Widget& root, Widget* hitWidget);
+    void ApplyReply(Window& window, Widget& root, Widget* target, const EventReply& reply);
 
-    bool TryClearInputState(Widget& root, Widget& target, bool includeChildren);
+    bool TryClearInputState(Window& window, Widget& root, Widget& target, bool includeChildren);
 
     Widget* FindWidgetById(Widget& root, ObjectId id) const;
+    Widget* FindTargetWidget(const WidgetInputTarget& target) const;
 
 private:
-    Window& window;
+    UISystem& uiSystem;
 
-    ObjectId hoveredWidgetId = {};
-    ObjectId focusedWidgetId = {};
-    ObjectId pointerCapturedWidgetId = {};
+    WidgetInputTarget hoveredTarget = {};
+    WidgetInputTarget focusedTarget = {};
+    WidgetInputTarget capturedTarget = {};
 };
 
 } // namespace URay

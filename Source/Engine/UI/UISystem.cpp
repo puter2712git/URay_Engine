@@ -16,7 +16,8 @@ struct WindowUIContext
     std::unique_ptr<WindowWidget> windowWidget;
     Widget* root = nullptr;
 
-    std::unique_ptr<UIInputRouter> inputRouter;
+    ObjectId lastFocusedWidgetId = {};
+
     std::unique_ptr<Render::UIDrawContext> drawContext;
 };
 
@@ -29,30 +30,49 @@ UISystem::~UISystem() = default;
 
 void UISystem::Initialize()
 {
+    inputRouter = std::make_unique<UIInputRouter>(*this);
+
     mainContext = std::make_unique<WindowUIContext>();
 
     mainContext->windowWidget = std::make_unique<WindowWidget>(window);
-    mainContext->inputRouter = std::make_unique<UIInputRouter>(window);
     mainContext->drawContext = std::make_unique<Render::UIDrawContext>();
 }
 
 void UISystem::Finalize()
 {
+    if (inputRouter)
+    {
+        inputRouter->CancelCaptureForWindow(window);
+        inputRouter->ClearHoverForWindow(window);
+        inputRouter->ClearFocusForWindow(window);
+
+        for (const auto& [window, context] : windowContexts)
+        {
+            inputRouter->CancelCaptureForWindow(*window);
+            inputRouter->ClearHoverForWindow(*window);
+            inputRouter->ClearFocusForWindow(*window);
+        }
+    }
+
+    activeInputWindow = nullptr;
+
     windowContexts.clear();
 
     if (!mainContext)
         return;
 
     mainContext->drawContext.reset();
-    mainContext->inputRouter.reset();
     mainContext->root = nullptr;
     mainContext->windowWidget.reset();
 
     mainContext.reset();
+    inputRouter.reset();
 }
 
 void UISystem::SetRootWidget(std::unique_ptr<Widget> newRoot)
 {
+    mainContext->lastFocusedWidgetId = {};
+
     ClearRootWidget();
 
     if (!newRoot)
@@ -67,6 +87,14 @@ void UISystem::ClearRootWidget()
     if (!mainContext)
         return;
 
+    if (inputRouter)
+    {
+        inputRouter->CancelCaptureForWindow(window);
+        inputRouter->ClearHoverForWindow(window);
+        inputRouter->ClearFocusForWindow(window);
+    }
+
+    mainContext->lastFocusedWidgetId = {};
     mainContext->root = nullptr;
 
     if (mainContext->windowWidget)
@@ -75,22 +103,63 @@ void UISystem::ClearRootWidget()
 
 void UISystem::Update(float deltaTime)
 {
+    Window* nextActiveWindow = nullptr;
+
+    if (inputSystem.GetSnapshot().IsWindowFocused())
+    {
+        nextActiveWindow = &window;
+    }
+    else
+    {
+        for (const auto& [targetWindow, context] : windowContexts)
+        {
+            WindowInputState* inputState = inputSystem.FindWindowState(*targetWindow);
+
+            if (inputState && inputState->GetSnapshot().IsWindowFocused())
+            {
+                nextActiveWindow = targetWindow;
+                break;
+            }
+        }
+    }
+
+    if (activeInputWindow != nextActiveWindow)
+    {
+        if (activeInputWindow)
+        {
+            inputRouter->CancelCaptureForWindow(*activeInputWindow);
+            inputRouter->ClearHoverForWindow(*activeInputWindow);
+            inputRouter->ClearFocusForWindow(*activeInputWindow);
+        }
+
+        activeInputWindow = nextActiveWindow;
+
+        if (activeInputWindow)
+            inputRouter->RestoreFocusForWindow(*activeInputWindow);
+    }
+
     if (mainContext->root)
     {
-        mainContext->inputRouter->Process(*mainContext->root, inputSystem.GetSnapshot());
+        if (activeInputWindow == &window)
+        {
+            inputRouter->Process(window, *mainContext->root, inputSystem.GetSnapshot());
+        }
         mainContext->root->Update(deltaTime);
     }
 
-    for (auto& [window, context] : windowContexts)
+    for (auto& [targetWindow, context] : windowContexts)
     {
         if (!context->root)
             continue;
 
-        WindowInputState* inputState = inputSystem.FindWindowState(*window);
+        WindowInputState* inputState = inputSystem.FindWindowState(*targetWindow);
         if (!inputState)
             continue;
 
-        context->inputRouter->Process(*context->root, inputState->GetSnapshot());
+        if (activeInputWindow == targetWindow)
+        {
+            inputRouter->Process(*targetWindow, *context->root, inputState->GetSnapshot());
+        }
         context->root->Update(deltaTime);
     }
 }
@@ -133,7 +202,6 @@ bool UISystem::RegisterWindow(Window& targetWindow)
     auto context = std::make_unique<WindowUIContext>();
 
     context->windowWidget = std::make_unique<WindowWidget>(targetWindow);
-    context->inputRouter = std::make_unique<UIInputRouter>(targetWindow);
     context->drawContext = std::make_unique<Render::UIDrawContext>();
 
     windowContexts.emplace(&targetWindow, std::move(context));
@@ -142,7 +210,22 @@ bool UISystem::RegisterWindow(Window& targetWindow)
 
 bool UISystem::UnregisterWindow(Window& targetWindow)
 {
-    return windowContexts.erase(&targetWindow) != 0;
+    const auto it = windowContexts.find(&targetWindow);
+    if (it == windowContexts.end())
+        return false;
+
+    if (inputRouter)
+    {
+        inputRouter->CancelCaptureForWindow(targetWindow);
+        inputRouter->ClearHoverForWindow(targetWindow);
+        inputRouter->ClearFocusForWindow(targetWindow);
+    }
+
+    if (activeInputWindow == &targetWindow)
+        activeInputWindow = nullptr;
+
+    windowContexts.erase(it);
+    return true;
 }
 
 bool UISystem::SetAdditionalWindowRoot(Window& window, std::unique_ptr<Widget>& root)
@@ -205,9 +288,11 @@ Render::UIDrawContext* UISystem::PrepareAdditionalWindowUI(Window& window)
 
 bool UISystem::IsTextInputActive() const
 {
-    return mainContext->inputRouter &&
-           mainContext->root &&
-           mainContext->inputRouter->IsTextInputActive(*mainContext->root);
+    if (!inputRouter || !activeInputWindow)
+        return false;
+
+    Widget* root = FindWindowRoot(*activeInputWindow);
+    return root && inputRouter->IsTextInputActive(*root);
 }
 
 bool UISystem::TryHideWidget(Widget& widget)
@@ -221,26 +306,28 @@ bool UISystem::TryHideWidget(Widget& widget)
 
 bool UISystem::TryClearInputStateForWidget(Widget& widget)
 {
-    if (!mainContext->root || !mainContext->inputRouter)
+    WindowUIContext* context = FindContext(widget);
+    if (!context || !context->root)
         return false;
 
-    return mainContext->inputRouter->TryClearInputStateForWidget(*mainContext->root, widget);
+    return inputRouter->TryClearInputStateForWidget(context->windowWidget->GetWindow(), *context->root, widget);
 }
 
 bool UISystem::TryClearInputStateForSubtree(Widget& subtree)
 {
-    if (!mainContext->root || !mainContext->inputRouter)
+    WindowUIContext* context = FindContext(subtree);
+    if (!context || !context->root)
         return false;
 
-    return mainContext->inputRouter->TryClearInputStateForSubtree(*mainContext->root, subtree);
+    return inputRouter->TryClearInputStateForSubtree(context->windowWidget->GetWindow(), *context->root, subtree);
 }
 
 Widget* UISystem::FindWidgetAt(const Vector2& position) const
 {
-    if (!mainContext->root || !mainContext->inputRouter)
+    if (!mainContext->root)
         return nullptr;
 
-    return mainContext->inputRouter->FindTopWidget(*mainContext->root, position);
+    return inputRouter->FindTopWidget(*mainContext->root, position);
 }
 
 Widget& UISystem::GetRootWidget() const
@@ -251,6 +338,62 @@ Widget& UISystem::GetRootWidget() const
 Render::UIDrawContext& UISystem::GetDrawContext() const
 {
     return *mainContext->drawContext;
+}
+
+Widget* UISystem::FindWindowRoot(Window& targetWindow) const
+{
+    WindowUIContext* context = FindContext(targetWindow);
+    if (!context)
+        return nullptr;
+
+    return context->root;
+}
+
+ObjectId UISystem::GetLastFocusedWidget(Window& targetWindow) const
+{
+    WindowUIContext* context = FindContext(targetWindow);
+    if (!context)
+        return {};
+
+    return context->lastFocusedWidgetId;
+}
+
+void UISystem::SetLastFocusedWidget(Window& targetWindow, ObjectId widgetId)
+{
+    WindowUIContext* context = FindContext(targetWindow);
+    if (context)
+        context->lastFocusedWidgetId = widgetId;
+}
+
+WindowUIContext* UISystem::FindContext(Window& targetWindow) const
+{
+    if (&targetWindow == &window)
+        return mainContext.get();
+
+    const auto it = windowContexts.find(&targetWindow);
+    if (it == windowContexts.end())
+        return nullptr;
+
+    return it->second.get();
+}
+
+WindowUIContext* UISystem::FindContext(const Widget& widget) const
+{
+    for (const Widget* current = &widget; current; current = current->GetParent())
+    {
+        const auto* windowWidget = Cast<const WindowWidget>(current);
+        if (!windowWidget)
+            continue;
+
+        WindowUIContext* context = FindContext(windowWidget->GetWindow());
+
+        if (context && context->windowWidget.get() == windowWidget)
+            return context;
+
+        return nullptr;
+    }
+
+    return nullptr;
 }
 
 } // namespace URay

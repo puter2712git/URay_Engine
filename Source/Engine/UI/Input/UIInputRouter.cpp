@@ -1,6 +1,7 @@
 #include "UIInputRouter.h"
 
 #include <Core/Input/InputSnapshot.h>
+#include <Engine/UI/UISystem.h>
 #include <Engine/UI/Widget/Widget.h>
 #include <Platform/Window/Window.h>
 
@@ -22,60 +23,137 @@ bool IsInSubtree(const Widget* widget, const Widget& subtree)
 
 } // namespace
 
-UIInputRouter::UIInputRouter(Window& window) : window(window) {}
+UIInputRouter::UIInputRouter(UISystem& uiSystem) : uiSystem(uiSystem) {}
 
-void UIInputRouter::Process(Widget& root, const InputSnapshot& input)
+void UIInputRouter::Process(Window& window, Widget& root, const InputSnapshot& input)
 {
-    for (const InputEvent& inputEvent : input.GetEvents())
+    for (const InputEvent& event : input.GetEvents())
     {
-        if (const auto* keyEvent = std::get_if<KeyEvent>(&inputEvent))
-        {
-            DispatchKeyEvent(root, *keyEvent);
-        }
-        else if (const auto* pointerEvent = std::get_if<PointerEvent>(&inputEvent))
-        {
-            DispatchPointerEvent(root, *pointerEvent);
-        }
-        else if (const auto* scrollEvent = std::get_if<ScrollEvent>(&inputEvent))
-        {
-            DispatchScrollEvent(root, *scrollEvent);
-        }
-        else if (const auto* textEvent = std::get_if<TextInputEvent>(&inputEvent))
-        {
-            DispatchTextInputEvent(root, *textEvent);
-        }
-        else if (const auto* focusEvent = std::get_if<WindowFocusEvent>(&inputEvent))
-        {
-            if (!focusEvent->focused)
-            {
-                Widget* captured = FindWidgetById(root, pointerCapturedWidgetId);
+        ProcessEvent(window, root, event);
+    }
+}
 
-                pointerCapturedWidgetId = {};
-
-                if (captured)
-                {
-                    captured->pointerCaptured = false;
-                    captured->OnPointerCancel();
-                }
-            }
+void UIInputRouter::ProcessEvent(Window& window, Widget& root, const InputEvent& event)
+{
+    if (const auto* keyEvent = std::get_if<KeyEvent>(&event))
+    {
+        DispatchKeyEvent(root, *keyEvent);
+    }
+    else if (const auto* pointerEvent = std::get_if<PointerEvent>(&event))
+    {
+        DispatchPointerEvent(window, root, *pointerEvent);
+    }
+    else if (const auto* scrollEvent = std::get_if<ScrollEvent>(&event))
+    {
+        DispatchScrollEvent(window, root, *scrollEvent);
+    }
+    else if (const auto* textEvent = std::get_if<TextInputEvent>(&event))
+    {
+        DispatchTextInputEvent(window, root, *textEvent);
+    }
+    else if (const auto* focusEvent = std::get_if<WindowFocusEvent>(&event))
+    {
+        if (!focusEvent->focused)
+        {
+            CancelCaptureForWindow(window);
         }
     }
 }
 
 bool UIInputRouter::IsTextInputActive(Widget& root) const
 {
-    Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
+    Widget* focusedWidget = FindWidgetById(root, focusedTarget.widgetId);
     return focusedWidget && focusedWidget->IsTextInputActive();
 }
 
-bool UIInputRouter::TryClearInputStateForWidget(Widget& root, Widget& widget)
+bool UIInputRouter::TryClearInputStateForWidget(Window& window, Widget& root, Widget& widget)
 {
-    return TryClearInputState(root, widget, false);
+    return TryClearInputState(window, root, widget, false);
 }
 
-bool UIInputRouter::TryClearInputStateForSubtree(Widget& root, Widget& subtree)
+bool UIInputRouter::TryClearInputStateForSubtree(Window& window, Widget& root, Widget& subtree)
 {
-    return TryClearInputState(root, subtree, true);
+    return TryClearInputState(window, root, subtree, true);
+}
+
+void UIInputRouter::ClearHoverForWindow(Window& window)
+{
+    if (hoveredTarget.window != &window)
+        return;
+
+    Widget* hovered = FindTargetWidget(hoveredTarget);
+    hoveredTarget = {};
+
+    if (!hovered)
+        return;
+
+    hovered->hovered = false;
+
+    const EventReply reply = hovered->OnPointerLeave();
+    if (reply.cursor.has_value())
+        window.ChangeCursor(*reply.cursor);
+}
+
+void UIInputRouter::ClearFocusForWindow(Window& window)
+{
+    if (focusedTarget.window != &window)
+        return;
+
+    if (Widget* focused = FindTargetWidget(focusedTarget))
+    {
+        focused->focused = false;
+    }
+
+    focusedTarget = {};
+}
+
+void UIInputRouter::CancelCaptureForWindow(Window& window)
+{
+    if (capturedTarget.window != &window)
+        return;
+
+    Widget* captured = FindTargetWidget(capturedTarget);
+    capturedTarget = {};
+
+    if (captured)
+    {
+        captured->pointerCaptured = false;
+        captured->OnPointerCancel();
+    }
+}
+
+void UIInputRouter::RestoreFocusForWindow(Window& window)
+{
+    Widget* root = uiSystem.FindWindowRoot(window);
+    if (!root)
+        return;
+
+    const ObjectId widgetId = uiSystem.GetLastFocusedWidget(window);
+    Widget* candidate = FindWidgetById(*root, widgetId);
+
+    if (!candidate)
+    {
+        uiSystem.SetLastFocusedWidget(window, {});
+        return;
+    }
+
+    for (Widget* current = candidate; current; current = current->GetParent())
+    {
+        if (!current->IsVisible())
+            return;
+    }
+
+    if (focusedTarget.window == &window && focusedTarget.widgetId == widgetId)
+        return;
+
+    if (Widget* previous = FindTargetWidget(focusedTarget))
+        previous->focused = false;
+
+    focusedTarget = {
+        .window = &window,
+        .widgetId = widgetId
+    };
+    candidate->focused = true;
 }
 
 Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) const
@@ -101,7 +179,7 @@ Widget* UIInputRouter::FindTopWidget(Widget& root, const Vector2& position) cons
 
 void UIInputRouter::DispatchKeyEvent(Widget& root, const KeyEvent& event)
 {
-    Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
+    Widget* focusedWidget = FindWidgetById(root, focusedTarget.widgetId);
     if (!focusedWidget)
         return;
 
@@ -115,12 +193,17 @@ void UIInputRouter::DispatchKeyEvent(Widget& root, const KeyEvent& event)
     }
 }
 
-void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event)
+void UIInputRouter::DispatchPointerEvent(Window& window, Widget& root, const PointerEvent& event)
 {
     Widget* hitWidget = FindTopWidget(root, event.position);
-    UpdateHoveredWidget(root, hitWidget);
+    UpdateHoveredWidget(window, root, hitWidget);
 
-    Widget* pointerCapturedWidget = FindWidgetById(root, pointerCapturedWidgetId);
+    Widget* pointerCapturedWidget = nullptr;
+
+    if (capturedTarget.window == &window)
+    {
+        pointerCapturedWidget = FindWidgetById(root, capturedTarget.widgetId);
+    }
 
     Widget* target = pointerCapturedWidget ? pointerCapturedWidget : hitWidget;
     if (!target)
@@ -131,104 +214,130 @@ void UIInputRouter::DispatchPointerEvent(Widget& root, const PointerEvent& event
     switch (event.action)
     {
     case PointerAction::Moved:
-        BubblePointerEvent(root, target, event, &Widget::OnPointerMove);
+        BubblePointerEvent(window, root, target, event, &Widget::OnPointerMove);
         return;
 
     case PointerAction::Pressed:
-        BubblePointerEvent(root, target, event, &Widget::OnPointerDown);
+        BubblePointerEvent(window, root, target, event, &Widget::OnPointerDown);
         break;
 
     case PointerAction::Released:
-        BubblePointerEvent(root, target, event, &Widget::OnPointerUp);
+        BubblePointerEvent(window, root, target, event, &Widget::OnPointerUp);
         break;
     }
 }
 
-void UIInputRouter::DispatchScrollEvent(Widget& root, const ScrollEvent& event)
+void UIInputRouter::DispatchScrollEvent(Window& window, Widget& root, const ScrollEvent& event)
 {
     Widget* target = FindTopWidget(root, event.position);
 
     for (Widget* widget = target; widget; widget = widget->GetParent())
     {
         const EventReply reply = widget->OnScroll(event);
-        ApplyReply(root, widget, reply);
+        ApplyReply(window, root, widget, reply);
 
         if (reply.handled)
             return;
     }
 }
 
-void UIInputRouter::DispatchTextInputEvent(Widget& root, const TextInputEvent& event)
+void UIInputRouter::DispatchTextInputEvent(Window& window, Widget& root, const TextInputEvent& event)
 {
-    Widget* focusedWidget = FindWidgetById(root, focusedWidgetId);
+    Widget* focusedWidget = FindWidgetById(root, focusedTarget.widgetId);
 
     if (focusedWidget)
     {
-        ApplyReply(root, focusedWidget, focusedWidget->OnTextInput(event));
+        ApplyReply(window, root, focusedWidget, focusedWidget->OnTextInput(event));
     }
 }
 
-void UIInputRouter::BubblePointerEvent(Widget& root, Widget* target, const PointerEvent& event, PointerEventHandler handler)
+void UIInputRouter::BubblePointerEvent(Window& window, Widget& root, Widget* target, const PointerEvent& event, PointerEventHandler handler)
 {
     for (Widget* widget = target; widget; widget = widget->GetParent())
     {
         const EventReply reply = (widget->*handler)(event);
-        ApplyReply(root, widget, reply);
+        ApplyReply(window, root, widget, reply);
 
         if (reply.handled)
             return;
     }
 }
 
-void UIInputRouter::UpdateHoveredWidget(Widget& root, Widget* hitWidget)
+void UIInputRouter::UpdateHoveredWidget(Window& window, Widget& root, Widget* hitWidget)
 {
-    Widget* hoveredWidget = FindWidgetById(root, hoveredWidgetId);
+    Widget* previous = FindTargetWidget(hoveredTarget);
 
-    if (hitWidget == hoveredWidget)
+    if (hoveredTarget.window == &window && previous == hitWidget)
         return;
 
-    if (hoveredWidget)
+    if (previous)
     {
-        hoveredWidget->hovered = false;
-        ApplyReply(root, hoveredWidget, hoveredWidget->OnPointerLeave());
+        Window* previousWindow = hoveredTarget.window;
+        Widget* previousRoot = uiSystem.FindWindowRoot(*previousWindow);
+
+        previous->hovered = false;
+
+        if (previousRoot)
+        {
+            const EventReply reply = previous->OnPointerLeave();
+            ApplyReply(*previousWindow, *previousRoot, previous, reply);
+        }
     }
 
-    hoveredWidgetId = hitWidget ? hitWidget->GetId() : ObjectId{};
+    hoveredTarget = {};
 
     if (hitWidget)
     {
+        hoveredTarget = {
+            .window = &window,
+            .widgetId = hitWidget->GetId()
+        };
+
         hitWidget->hovered = true;
-        ApplyReply(root, hitWidget, hitWidget->OnPointerEnter());
+        ApplyReply(window, root, hitWidget, hitWidget->OnPointerEnter());
     }
 }
 
-void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& reply)
+void UIInputRouter::ApplyReply(Window& window, Widget& root, Widget* target, const EventReply& reply)
 {
     if (reply.capturePointer)
     {
-        pointerCapturedWidgetId = target->GetId();
+        if (capturedTarget.window && (capturedTarget.window != &window || capturedTarget.widgetId != target->GetId()))
+        {
+            CancelCaptureForWindow(*capturedTarget.window);
+        }
+
+        capturedTarget = {
+            .window = &window,
+            .widgetId = target->GetId()
+        };
         target->pointerCaptured = true;
     }
 
-    if (reply.releasePointer)
+    if (reply.releasePointer && capturedTarget.window == &window)
     {
-        if (Widget* captured = FindWidgetById(root, pointerCapturedWidgetId))
+        if (Widget* captured = FindTargetWidget(capturedTarget))
         {
             captured->pointerCaptured = false;
         }
 
-        pointerCapturedWidgetId = ObjectId{};
+        capturedTarget = {};
     }
 
-    if (reply.requestFocus && focusedWidgetId != target->GetId())
+    if (reply.requestFocus && (focusedTarget.window != &window || focusedTarget.widgetId != target->GetId()))
     {
-        if (Widget* previous = FindWidgetById(root, focusedWidgetId))
+        if (Widget* previous = FindTargetWidget(focusedTarget))
         {
             previous->focused = false;
         }
 
-        focusedWidgetId = target->GetId();
+        focusedTarget = {
+            .window = &window,
+            .widgetId = target->GetId()
+        };
         target->focused = true;
+
+        uiSystem.SetLastFocusedWidget(window, target->GetId());
     }
 
     if (reply.cursor.has_value())
@@ -237,7 +346,7 @@ void UIInputRouter::ApplyReply(Widget& root, Widget* target, const EventReply& r
     }
 }
 
-bool UIInputRouter::TryClearInputState(Widget& root, Widget& target, bool includeChildren)
+bool UIInputRouter::TryClearInputState(Window& window, Widget& root, Widget& target, bool includeChildren)
 {
     if (FindWidgetById(root, target.GetId()) != &target)
         return false;
@@ -253,23 +362,33 @@ bool UIInputRouter::TryClearInputState(Widget& root, Widget& target, bool includ
         return widget == &target;
     };
 
-    Widget* captured = FindWidgetById(root, pointerCapturedWidgetId);
+    Widget* captured = capturedTarget.window == &window
+                           ? FindWidgetById(root, capturedTarget.widgetId)
+                           : nullptr;
 
     if (isTarget(captured))
         return false;
 
-    Widget* focused = FindWidgetById(root, focusedWidgetId);
+    const ObjectId lastFocusedId = uiSystem.GetLastFocusedWidget(window);
+    Widget* lastFocused = FindWidgetById(root, lastFocusedId);
+
+    if (isTarget(lastFocused))
+    {
+        uiSystem.SetLastFocusedWidget(window, {});
+    }
+
+    Widget* focused = FindWidgetById(root, focusedTarget.widgetId);
     if (isTarget(focused))
     {
         focused->focused = false;
-        focusedWidgetId = {};
+        focusedTarget = {};
     }
 
-    Widget* hovered = FindWidgetById(root, hoveredWidgetId);
-    if (isTarget(hovered))
+    Widget* hovered = FindWidgetById(root, hoveredTarget.widgetId);
+    if (hoveredTarget.window == &window && isTarget(hovered))
     {
         hovered->hovered = false;
-        hoveredWidgetId = {};
+        hoveredTarget = {};
 
         const EventReply reply = hovered->OnPointerLeave();
 
@@ -295,6 +414,15 @@ Widget* UIInputRouter::FindWidgetById(Widget& root, ObjectId id) const
     }
 
     return nullptr;
+}
+
+Widget* UIInputRouter::FindTargetWidget(const WidgetInputTarget& target) const
+{
+    if (!target.window)
+        return nullptr;
+
+    Widget* root = uiSystem.FindWindowRoot(*target.window);
+    return root ? FindWidgetById(*root, target.widgetId) : nullptr;
 }
 
 } // namespace URay

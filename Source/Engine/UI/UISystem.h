@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/Vector2.h>
+#include <Engine/Object/ObjectId.h>
 
 #include <memory>
 #include <unordered_map>
@@ -55,12 +56,25 @@ public:
     Widget& GetRootWidget() const;
     Render::UIDrawContext& GetDrawContext() const;
 
+    Widget* FindWindowRoot(Window& targetWindow) const;
+
+    ObjectId GetLastFocusedWidget(Window& targetWindow) const;
+    void SetLastFocusedWidget(Window& targetWindow, ObjectId widgetId);
+
+private:
+    WindowUIContext* FindContext(Window& targetWindow) const;
+    WindowUIContext* FindContext(const Widget& widget) const;
+
 private:
     Window& window;
     InputSystem& inputSystem;
 
+    std::unique_ptr<UIInputRouter> inputRouter = nullptr;
+
     std::unique_ptr<WindowUIContext> mainContext = nullptr;
     std::unordered_map<Window*, std::unique_ptr<WindowUIContext>> windowContexts;
+
+    Window* activeInputWindow = nullptr;
 };
 
 } // namespace URay
