@@ -38,6 +38,7 @@
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
 #include <Engine/UI/UISystem.h>
+#include <Engine/UI/Widget/Widget.h>
 #include <Platform/Window/Window.h>
 #include <Platform/Window/WindowSystem.h>
 #include <Render/RenderSystem.h>
@@ -54,6 +55,29 @@
 
 namespace URay
 {
+
+namespace
+{
+
+void AppendVisiblePreviewRequests(Widget& widget, Render::RenderRequest& request)
+{
+    if (!widget.IsVisible())
+        return;
+
+    if (auto* panel = Cast<MeshPreviewPanel>(&widget))
+    {
+        auto sceneInfo = panel->GetSession().BuildSceneRenderInfo();
+        if (sceneInfo)
+            request.sceneRenderInfos.push_back(std::move(*sceneInfo));
+    }
+
+    for (const auto& child : widget.GetChildren())
+    {
+        AppendVisiblePreviewRequests(*child, request);
+    }
+}
+
+} // namespace
 
 Editor* gEditor;
 
@@ -537,25 +561,10 @@ void Editor::BuildAdditionalWindowRenderRequest(
     Window& window, Render::RenderRequest& request) const
 {
     Widget* root = gEngine->GetUISystem().FindAdditionalWindowRoot(window);
-    DockTabGroup* group = root ? Cast<DockTabGroup>(root) : nullptr;
-    if (!group)
+    if (!root)
         return;
 
-    const std::optional<ObjectId> activeId = group->GetActiveTabId();
-    if (!activeId)
-        return;
-
-    const DockedTab* tab = group->FindTab(*activeId);
-    if (!tab)
-        return;
-
-    MeshPreviewPanel* panel = Cast<MeshPreviewPanel>(tab->panel);
-    if (!panel)
-        return;
-
-    auto sceneInfo = panel->GetSession().BuildSceneRenderInfo();
-    if (sceneInfo)
-        request.sceneRenderInfos.push_back(std::move(*sceneInfo));
+    AppendVisiblePreviewRequests(*root, request);
 }
 
 Render::RenderRequest Editor::BuildRenderRequest() const
@@ -644,6 +653,8 @@ Render::RenderRequest Editor::BuildRenderRequest() const
     }
 
     sceneRenderInfo.targets = renderSystem.GetRenderer().GetViewportSceneRenderTargets();
+
+    AppendVisiblePreviewRequests(gEngine->GetUISystem().GetRootWidget(), request);
 
     request.sceneRenderInfos.push_back(std::move(sceneRenderInfo));
     request.uiDrawContext = &gEngine->GetUISystem().GetDrawContext();
