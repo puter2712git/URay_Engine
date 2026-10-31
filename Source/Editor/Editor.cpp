@@ -316,6 +316,7 @@ void Editor::Update()
 
     DockSystem& dockSystem = editorUI->GetDockSystem();
     dockSystem.ProcessPendingMove();
+    dockSystem.ProcessPendingDetach();
     dockSystem.ProcessPendingCleanup();
 
     assetEditorSystem->ProcessPendingRequests();

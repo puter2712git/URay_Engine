@@ -156,6 +156,11 @@ Vector2 Window::ScreenToClient(const Vector2& screenPosition) const
     };
 }
 
+void Window::SetClientPosition(int32 x, int32 y)
+{
+    glfwSetWindowPos(glfwWindow, x, y);
+}
+
 void Window::RequestClose()
 {
     glfwSetWindowShouldClose(glfwWindow, GLFW_TRUE);

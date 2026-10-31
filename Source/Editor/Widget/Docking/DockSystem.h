@@ -32,6 +32,13 @@ class DockSystem
         ObjectId panelId = {};
     };
 
+    struct DetachRequest
+    {
+        ObjectId sourceGroupId = {};
+        ObjectId panelId = {};
+        Vector2 screenPosition = Vector2::Zero;
+    };
+
 public:
     DockSystem(UISystem& uiSystem, ObjectSystem& objectSystem);
 
@@ -43,6 +50,7 @@ public:
     void CancelDrag();
 
     void ProcessPendingMove();
+    void ProcessPendingDetach();
     void ProcessPendingCleanup();
 
 private:
@@ -64,6 +72,7 @@ private:
     std::optional<DragState> dragState;
 
     std::optional<MoveRequest> pendingMove;
+    std::optional<DetachRequest> pendingDetach;
     std::vector<ObjectId> pendingCleanups;
 
     std::optional<ObjectId> indicatorGroupId;

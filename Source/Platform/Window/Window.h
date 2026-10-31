@@ -42,6 +42,8 @@ public:
     Vector2 ClientToScreen(const Vector2& clientPosition) const;
     Vector2 ScreenToClient(const Vector2& screenPosition) const;
 
+    void SetClientPosition(int32 x, int32 y);
+
     void RequestClose();
     bool ShouldClose() const;
 

@@ -78,10 +78,35 @@ void DockSystem::RequestDrop(ObjectId sourceGroupId, ObjectId panelId, const Vec
 
     CancelDrag();
 
-    if (result.kind != DockDropKind::Dock)
+    if (result.kind == DockDropKind::Dock)
+    {
+        RequestMove(sourceGroupId, result.target.groupId, panelId, result.target.zone);
+        return;
+    }
+
+    if (result.kind != DockDropKind::Float)
         return;
 
-    RequestMove(sourceGroupId, result.target.groupId, panelId, result.target.zone);
+    DockTabGroup* source = Cast<DockTabGroup>(objectSystem.Resolve(sourceGroupId));
+
+    if (!source)
+        return;
+
+    Window* sourceWindow = uiSystem.FindWidgetWindow(*source);
+    Window* mainWindow = uiSystem.FindWidgetWindow(uiSystem.GetRootWidget());
+
+    if (!sourceWindow || sourceWindow != mainWindow)
+        return;
+
+    const DockedTab* tab = source->FindTab(panelId);
+    if (!tab || !Cast<MeshPreviewPanel>(tab->panel))
+        return;
+
+    pendingDetach = DetachRequest{
+        .sourceGroupId = sourceGroupId,
+        .panelId = panelId,
+        .screenPosition = sourceWindow->ClientToScreen(position)
+    };
 }
 
 void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vector2& position)
@@ -319,6 +344,103 @@ void DockSystem::ProcessPendingMove()
     }
 
     pendingMove.reset();
+}
+
+void DockSystem::ProcessPendingDetach()
+{
+    if (!pendingDetach.has_value())
+        return;
+
+    const DetachRequest request = *pendingDetach;
+
+    DockTabGroup* source = Cast<DockTabGroup>(objectSystem.Resolve(request.sourceGroupId));
+
+    Widget& mainRoot = uiSystem.GetRootWidget();
+
+    if (!source || !IsInRoot(*source, mainRoot))
+    {
+        pendingDetach.reset();
+        return;
+    }
+
+    const DockedTab* tab = source->FindTab(request.panelId);
+    if (!tab || !Cast<MeshPreviewPanel>(tab->panel))
+    {
+        pendingDetach.reset();
+        return;
+    }
+
+    if (!uiSystem.TryClearInputStateForSubtree(*source))
+        return;
+
+    const String title = tab->title;
+
+    WindowDesc windowDesc = {};
+
+    windowDesc.title = title;
+    windowDesc.width = 800;
+    windowDesc.height = 600;
+
+    Window* newWindow = gEngine->CreateAdditionalWindow(windowDesc);
+    if (!newWindow)
+    {
+        URAY_LOG("[DockSystem] Failed to create a floating preview window.");
+        pendingDetach.reset();
+        return;
+    }
+
+    newWindow->SetClientPosition(
+        static_cast<int32>(request.screenPosition.x),
+        static_cast<int32>(request.screenPosition.y));
+
+    auto newGroup = std::make_unique<DockTabGroup>(uiSystem);
+    DockTabGroup* newGroupPtr = newGroup.get();
+
+    std::unique_ptr<Widget> newRoot = std::move(newGroup);
+
+    if (!uiSystem.SetAdditionalWindowRoot(*newWindow, newRoot))
+    {
+        URAY_LOG("[DockSystem] Failed to attach the floating preview UI.");
+
+        if (!gEngine->DestroyAdditionalWindow(*newWindow))
+            URAY_LOG("[DockSystem] Failed to destroy the preview window.");
+
+        pendingDetach.reset();
+        return;
+    }
+
+    std::optional<DetachedTab> detached =
+        source->DetachTab(request.panelId);
+
+    if (!detached.has_value())
+    {
+        URAY_LOG("[DockSystem] Failed to detach the preview tab.");
+
+        if (!gEngine->DestroyAdditionalWindow(*newWindow))
+            URAY_LOG("[DockSystem] Failed to destroy the preview window.");
+
+        pendingDetach.reset();
+        return;
+    }
+
+    newGroupPtr->AddTab(
+        detached->title,
+        std::move(detached->panel));
+
+    if (source->IsEmpty())
+    {
+        const ObjectId sourceId = source->GetId();
+
+        const auto it = std::find(
+            pendingCleanups.begin(),
+            pendingCleanups.end(),
+            sourceId);
+
+        if (it == pendingCleanups.end())
+            pendingCleanups.push_back(sourceId);
+    }
+
+    pendingDetach.reset();
 }
 
 void DockSystem::ProcessPendingCleanup()
