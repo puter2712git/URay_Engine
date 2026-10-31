@@ -38,6 +38,7 @@ private:
     void OnImportDialogClosed(DialogResult result);
     void OnPathActivated(VirtualPath path);
     void OnEntryActivated(AssetEntry entry);
+    void OnEntryDoubleClicked(AssetEntry entry);
 
 private:
     VirtualPath currentPath = "Project://Asset";

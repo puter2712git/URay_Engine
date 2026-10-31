@@ -6,6 +6,7 @@
 #include <Core/Log/LogSystem.h>
 #include <Core/Performance/PerformanceViewModel.h>
 #include <Core/Type/TypeAlias.h>
+#include <Editor/Asset/AssetEditorSystem.h>
 #include <Editor/EditorCamera.h>
 #include <Editor/Input/EditorInputActions.h>
 #include <Editor/Play/PlaySession.h>
@@ -63,6 +64,8 @@ bool Editor::Initialize()
     VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
 
     editorSettings = std::make_unique<EditorSettings>(filesystem);
+
+    assetEditorSystem = std::make_unique<AssetEditorSystem>(assetSystem.GetDatabase());
 
     selectionSystem = std::make_unique<SelectionSystem>();
     if (!selectionSystem->Initialize())
@@ -215,6 +218,11 @@ void Editor::Finalize()
         editorUI.reset();
     }
 
+    if (assetEditorSystem)
+    {
+        assetEditorSystem.reset();
+    }
+
     if (performanceViewModel)
     {
         gEngine->GetRenderSystem().GetRenderer().SetPerformanceViewModel(nullptr);
@@ -268,6 +276,8 @@ void Editor::Update()
     DockSystem& dockSystem = editorUI->GetDockSystem();
     dockSystem.ProcessPendingMove();
     dockSystem.ProcessPendingCleanup();
+
+    assetEditorSystem->ProcessPendingRequests();
 
     ProcessInputActions();
 }

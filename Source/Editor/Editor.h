@@ -22,6 +22,7 @@ class InputActionMap;
 class ViewportController;
 class PerformanceViewModel;
 class SaveSceneDialog;
+class AssetEditorSystem;
 enum class DialogResult;
 enum class UnitPopupSelection;
 struct ComponentPickerSelection;
@@ -54,6 +55,8 @@ public:
 
     const PerformanceViewModel& GetPerformanceViewModel() const { return *performanceViewModel; }
 
+    AssetEditorSystem& GetAssetEditorSystem() const { return *assetEditorSystem; }
+
 private:
     void PrepareGrid();
     void ProcessInputActions();
@@ -85,6 +88,8 @@ private:
 
     std::unique_ptr<PerformanceViewModel> performanceViewModel = nullptr;
     uint64 lastProfileFrameNumber = 0;
+
+    std::unique_ptr<AssetEditorSystem> assetEditorSystem = nullptr;
 };
 
 extern Editor* gEditor;

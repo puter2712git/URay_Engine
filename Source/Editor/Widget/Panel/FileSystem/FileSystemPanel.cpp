@@ -1,21 +1,20 @@
 #include "FileSystemPanel.h"
 
-#include <Editor/Widget/Panel/PanelFactory.h>
-
-#include <Core/Math/Math.h>
-#include <Editor/Widget/EditorWidgetFactory.h>
-
 #include <Core/File/VirtualFileSystem.h>
+#include <Core/Math/Math.h>
+#include <Editor/Asset/AssetEditorSystem.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/Dialog/ImportAssetDialog.h>
 #include <Editor/Widget/EditorUI.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
 #include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
+#include <Editor/Widget/Panel/PanelFactory.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
@@ -48,6 +47,7 @@ FileSystemPanel::FileSystemPanel()
     NavigateTo(currentPath);
 
     assetGrid->Register("EntryActivated", this, &FileSystemPanel::OnEntryActivated);
+    assetGrid->Register("EntryDoubleClicked", this, &FileSystemPanel::OnEntryDoubleClicked);
 
     breadcrumbBar->Register("PathActivated", this, &FileSystemPanel::OnPathActivated);
     directoryTree->Register("DirectoryActivated", this, &FileSystemPanel::OnPathActivated);
@@ -71,6 +71,14 @@ void FileSystemPanel::OnEntryActivated(AssetEntry entry)
     {
         gEditor->LoadGameScene(entry.path);
     }
+}
+
+void FileSystemPanel::OnEntryDoubleClicked(AssetEntry entry)
+{
+    if (entry.kind != AssetEntryKind::Asset)
+        return;
+
+    gEditor->GetAssetEditorSystem().RequestOpen(entry.assetHandle);
 }
 
 void FileSystemPanel::OnPathActivated(VirtualPath path)
