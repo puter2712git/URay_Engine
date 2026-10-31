@@ -38,6 +38,8 @@ void UISystem::Initialize()
 
 void UISystem::Finalize()
 {
+    windowContexts.clear();
+
     if (!mainContext)
         return;
 
@@ -105,6 +107,29 @@ void UISystem::Paint()
         return;
 
     mainContext->windowWidget->Paint(*mainContext->drawContext);
+}
+
+bool UISystem::RegisterWindow(Window& targetWindow)
+{
+    if (!mainContext || &targetWindow == &window || windowContexts.contains(&targetWindow))
+        return false;
+
+    if (!inputSystem.FindWindowState(targetWindow))
+        return false;
+
+    auto context = std::make_unique<WindowUIContext>();
+
+    context->windowWidget = std::make_unique<WindowWidget>(targetWindow);
+    context->inputRouter = std::make_unique<UIInputRouter>(targetWindow);
+    context->drawContext = std::make_unique<Render::UIDrawContext>();
+
+    windowContexts.emplace(&targetWindow, std::move(context));
+    return true;
+}
+
+bool UISystem::UnregisterWindow(Window& targetWindow)
+{
+    return windowContexts.erase(&targetWindow) != 0;
 }
 
 bool UISystem::IsTextInputActive() const

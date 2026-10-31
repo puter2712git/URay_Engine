@@ -3,6 +3,7 @@
 #include <Core/Math/Vector2.h>
 
 #include <memory>
+#include <unordered_map>
 
 namespace URay::Render
 {
@@ -36,6 +37,9 @@ public:
     void PrepareRender();
     void Paint();
 
+    bool RegisterWindow(Window& window);
+    bool UnregisterWindow(Window& window);
+
     bool IsTextInputActive() const;
 
     bool TryHideWidget(Widget& widget);
@@ -52,6 +56,7 @@ private:
     InputSystem& inputSystem;
 
     std::unique_ptr<WindowUIContext> mainContext = nullptr;
+    std::unordered_map<Window*, std::unique_ptr<WindowUIContext>> windowContexts;
 };
 
 } // namespace URay

@@ -275,7 +275,7 @@ void Engine::Render(const Render::RenderRequest& request)
 
 Window* Engine::CreateAdditionalWindow(const WindowDesc& desc)
 {
-    if (!windowSystem || !renderSystem || !inputSystem)
+    if (!windowSystem || !renderSystem || !inputSystem || !uiSystem)
         return nullptr;
 
     if (renderSystem->GetRenderer().IsFrameInProgress())
@@ -334,13 +334,24 @@ Window* Engine::CreateAdditionalWindow(const WindowDesc& desc)
     inputState->OnCursorMoved(Vector2(static_cast<float>(cursorX), static_cast<float>(cursorY)));
     inputState->PublishSnapshot(frameIndex);
 
+    if (!uiSystem->RegisterWindow(*window))
+    {
+        URAY_LOG("[Engine] Failed to register window UI.");
+
+        window->UnregisterAll(inputState);
+        inputSystem->UnregisterWindow(*window);
+        renderSystem->DestroyWindowSurface(*window);
+        windowSystem->DestroyWindow(*window);
+        return nullptr;
+    }
+
     additionalWindows.push_back(window);
     return window;
 }
 
 bool Engine::DestroyAdditionalWindow(Window& window)
 {
-    if (!windowSystem || !renderSystem || !inputSystem)
+    if (!windowSystem || !renderSystem || !inputSystem || !uiSystem)
         return false;
 
     const auto it = std::find(additionalWindows.begin(), additionalWindows.end(), &window);
@@ -351,6 +362,14 @@ bool Engine::DestroyAdditionalWindow(Window& window)
     if (renderSystem->GetRenderer().IsFrameInProgress())
     {
         URAY_LOG("[Engine] Cannot destroy a window during a render frame.");
+        return false;
+    }
+
+    renderSystem->WaitIdle();
+
+    if (!uiSystem->UnregisterWindow(window))
+    {
+        URAY_LOG("[Engine] Window UI context was not unregistered.");
         return false;
     }
 
