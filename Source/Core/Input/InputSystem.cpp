@@ -3,16 +3,6 @@
 namespace URay
 {
 
-void InputSystem::BeginFrame()
-{
-    mainWindowState.BeginFrame();
-
-    for (auto& [window, state] : windowStates)
-    {
-        state->BeginFrame();
-    }
-}
-
 void InputSystem::PublishSnapshot(uint64 frameIndex)
 {
     mainWindowState.PublishSnapshot(frameIndex);

@@ -13,7 +13,6 @@ namespace URay
 class WindowInputState
 {
 public:
-    void BeginFrame();
     void PublishSnapshot(uint64 frameIndex);
 
     void OnKey(KeyCode key, KeyAction action, ModifierKey modifiers);

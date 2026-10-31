@@ -236,7 +236,6 @@ void Engine::Update()
 {
     URAY_PROFILE_SCOPE("Engine::Update");
 
-    inputSystem->BeginFrame();
     glfwPollEvents();
     inputSystem->PublishSnapshot(++frameIndex);
 

@@ -3,9 +3,10 @@
 namespace URay
 {
 
-void WindowInputState::BeginFrame()
+void WindowInputState::PublishSnapshot(uint64 frameIndex)
 {
-    pendingSnapshot = publishedSnapshot;
+    pendingSnapshot.frameIndex = frameIndex;
+    publishedSnapshot = pendingSnapshot;
 
     for (InputButtonState& state : pendingSnapshot.keys)
     {
@@ -22,12 +23,6 @@ void WindowInputState::BeginFrame()
     pendingSnapshot.mouseDelta = Vector2::Zero;
     pendingSnapshot.scrollDelta = Vector2::Zero;
     pendingSnapshot.events.clear();
-}
-
-void WindowInputState::PublishSnapshot(uint64 frameIndex)
-{
-    pendingSnapshot.frameIndex = frameIndex;
-    publishedSnapshot = pendingSnapshot;
 }
 
 void WindowInputState::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
