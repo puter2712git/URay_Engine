@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Engine/UI/Widget/UIRootWidget.h>
+#include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
 
@@ -10,13 +10,14 @@ namespace URay
 class PopupLayer;
 class DialogLayer;
 
-class EditorRootWidget final : public UIRootWidget
+class EditorRootWidget final : public Widget
 {
 public:
     explicit EditorRootWidget(std::unique_ptr<Widget> mainContent);
 
 public:
-    // Main content can be replaced by the docking system, so resolve it from the tree.
+    void Arrange(const Rect& rect) override;
+
     Widget* GetMainContent() { return children.empty() ? nullptr : children.front().get(); }
     const Widget* GetMainContent() const { return children.empty() ? nullptr : children.front().get(); }
     PopupLayer& GetPopupLayer() const { return *popupLayer; }

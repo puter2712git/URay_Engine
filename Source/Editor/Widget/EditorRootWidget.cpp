@@ -9,10 +9,21 @@ namespace URay
 {
 
 EditorRootWidget::EditorRootWidget(std::unique_ptr<Widget> mainContent)
-    : UIRootWidget(std::move(mainContent))
 {
-    popupLayer = AddLayer<PopupLayer>();
-    dialogLayer = AddLayer<DialogLayer>();
+    AddChild(std::move(mainContent));
+
+    popupLayer = AddChild<PopupLayer>();
+    dialogLayer = AddChild<DialogLayer>();
+}
+
+void EditorRootWidget::Arrange(const Rect& rect)
+{
+    Widget::Arrange(rect);
+
+    for (const auto& child : GetChildren())
+    {
+        child->Arrange(rect);
+    }
 }
 
 void EditorRootWidget::OnPaint(Render::UIDrawContext& context)
