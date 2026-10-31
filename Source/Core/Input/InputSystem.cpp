@@ -5,192 +5,78 @@ namespace URay
 
 void InputSystem::BeginFrame()
 {
-    pendingSnapshot = publishedSnapshot;
+    mainWindowState.BeginFrame();
 
-    for (InputButtonState& state : pendingSnapshot.keys)
+    for (auto& [window, state] : windowStates)
     {
-        state.pressed = false;
-        state.released = false;
+        state->BeginFrame();
     }
-
-    for (InputButtonState& state : pendingSnapshot.mouseButtons)
-    {
-        state.pressed = false;
-        state.released = false;
-    }
-
-    pendingSnapshot.mouseDelta = Vector2::Zero;
-    pendingSnapshot.scrollDelta = Vector2::Zero;
-    pendingSnapshot.events.clear();
 }
 
 void InputSystem::PublishSnapshot(uint64 frameIndex)
 {
-    pendingSnapshot.frameIndex = frameIndex;
-    publishedSnapshot = pendingSnapshot;
+    mainWindowState.PublishSnapshot(frameIndex);
+
+    for (auto& [window, state] : windowStates)
+    {
+        state->PublishSnapshot(frameIndex);
+    }
 }
 
 void InputSystem::OnKey(KeyCode key, KeyAction action, ModifierKey modifiers)
 {
-    const size_t keyIndex = static_cast<size_t>(key);
-    if (keyIndex >= static_cast<size_t>(KeyCode::Count))
-        return;
-
-    InputButtonState& state = pendingSnapshot.keys[keyIndex];
-
-    switch (action)
-    {
-    case KeyAction::Pressed:
-        if (!state.held)
-            state.pressed = true;
-        state.held = true;
-        break;
-
-    case KeyAction::Repeated:
-        state.held = true;
-        break;
-
-    case KeyAction::Released:
-        if (state.held)
-            state.released = true;
-        state.held = false;
-        break;
-    }
-
-    pendingSnapshot.events.push_back(KeyEvent{
-        .key = key,
-        .modifiers = modifiers,
-        .action = action,
-    });
+    mainWindowState.OnKey(key, action, modifiers);
 }
 
 void InputSystem::OnMouseButton(MouseButton button, KeyAction action, ModifierKey modifiers)
 {
-    const std::optional<size_t> buttonIndex = InputSnapshot::GetMouseButtonIndex(button);
-    if (!buttonIndex)
-        return;
-
-    InputButtonState& state = pendingSnapshot.mouseButtons[*buttonIndex];
-
-    switch (action)
-    {
-    case KeyAction::Pressed:
-        if (!state.held)
-            state.pressed = true;
-        state.held = true;
-        break;
-
-    case KeyAction::Repeated:
-        state.held = true;
-        break;
-
-    case KeyAction::Released:
-        if (state.held)
-            state.released = true;
-        state.held = false;
-        break;
-    }
-
-    uint8 clickCount = 0;
-
-    if (action == KeyAction::Pressed)
-    {
-        constexpr auto multiClickInterval = std::chrono::milliseconds(500);
-        constexpr float multiClickMaxDistance = 4.0f;
-
-        const auto currentTime = std::chrono::steady_clock::now();
-
-        const float deltaX = pendingSnapshot.mousePosition.x - lastClickPosition.x;
-        const float deltaY = pendingSnapshot.mousePosition.y - lastClickPosition.y;
-
-        const bool isSameClickSequence = button == lastClickButton &&
-                                         currentTime - lastClickTime <= multiClickInterval &&
-                                         deltaX * deltaX + deltaY * deltaY <= multiClickMaxDistance * multiClickMaxDistance;
-
-        if (isSameClickSequence)
-            ++consecutiveClickCount;
-        else
-            consecutiveClickCount = 1;
-
-        lastClickTime = currentTime;
-        lastClickPosition = pendingSnapshot.mousePosition;
-        lastClickButton = button;
-
-        clickCount = consecutiveClickCount;
-    }
-
-    pendingSnapshot.events.push_back(PointerEvent{
-        .action = action == KeyAction::Released
-                      ? PointerAction::Released
-                      : PointerAction::Pressed,
-        .position = pendingSnapshot.mousePosition,
-        .delta = Vector2::Zero,
-        .changedButton = button,
-        .pressedButtons = BuildPressedMouseButtonMask(),
-        .modifiers = modifiers,
-        .clickCount = clickCount });
+    mainWindowState.OnMouseButton(button, action, modifiers);
 }
 
 void InputSystem::OnCursorMoved(Vector2 position)
 {
-    const Vector2 delta = position - pendingSnapshot.mousePosition;
-
-    pendingSnapshot.mouseDelta += delta;
-    pendingSnapshot.mousePosition = position;
-
-    pendingSnapshot.events.push_back(PointerEvent{
-        .action = PointerAction::Moved,
-        .position = position,
-        .delta = delta,
-        .changedButton = MouseButton::None,
-        .pressedButtons = BuildPressedMouseButtonMask(),
-        .modifiers = pendingSnapshot.GetHeldModifiers() });
+    mainWindowState.OnCursorMoved(position);
 }
 
 void InputSystem::OnTextInput(char32_t codepoint)
 {
-    pendingSnapshot.events.push_back(TextInputEvent{
-        .codepoint = codepoint });
+    mainWindowState.OnTextInput(codepoint);
 }
 
 void InputSystem::OnScroll(Vector2 delta)
 {
-    pendingSnapshot.scrollDelta += delta;
-
-    pendingSnapshot.events.push_back(ScrollEvent{
-        .position = pendingSnapshot.mousePosition,
-        .delta = delta,
-        .modifiers = pendingSnapshot.GetHeldModifiers() });
+    mainWindowState.OnScroll(delta);
 }
 
 void InputSystem::OnWindowFocusChanged(bool focused)
 {
-    pendingSnapshot.windowFocused = focused;
-
-    if (!focused)
-    {
-        pendingSnapshot.mouseDelta = Vector2::Zero;
-        pendingSnapshot.scrollDelta = Vector2::Zero;
-
-        lastClickButton = MouseButton::None;
-        consecutiveClickCount = 0;
-    }
-
-    pendingSnapshot.events.push_back(WindowFocusEvent{
-        .focused = focused });
+    mainWindowState.OnWindowFocusChanged(focused);
 }
 
-MouseButtonMask InputSystem::BuildPressedMouseButtonMask() const
+WindowInputState* InputSystem::RegisterWindow(Window& window)
 {
-    MouseButtonMask mask = 0;
+    if (windowStates.contains(&window))
+        return nullptr;
 
-    for (size_t index = 0; index < pendingSnapshot.mouseButtons.size(); ++index)
-    {
-        if (pendingSnapshot.mouseButtons[index].held)
-            mask |= static_cast<MouseButtonMask>(InputSnapshot::GetMouseButtonByIndex(index));
-    }
+    auto state = std::make_unique<WindowInputState>();
+    WindowInputState* statePtr = state.get();
 
-    return mask;
+    windowStates.emplace(&window, std::move(state));
+    return statePtr;
+}
+
+bool InputSystem::UnregisterWindow(Window& window)
+{
+    return windowStates.erase(&window) != 0;
+}
+
+WindowInputState* InputSystem::FindWindowState(Window& window) const
+{
+    const auto it = windowStates.find(&window);
+    if (it == windowStates.end())
+        return nullptr;
+
+    return it->second.get();
 }
 
 } // namespace URay

@@ -275,7 +275,7 @@ void Engine::Render(const Render::RenderRequest& request)
 
 Window* Engine::CreateAdditionalWindow(const WindowDesc& desc)
 {
-    if (!windowSystem || !renderSystem)
+    if (!windowSystem || !renderSystem || !inputSystem)
         return nullptr;
 
     if (renderSystem->GetRenderer().IsFrameInProgress())
@@ -294,13 +294,53 @@ Window* Engine::CreateAdditionalWindow(const WindowDesc& desc)
         return nullptr;
     }
 
+    WindowInputState* inputState = inputSystem->RegisterWindow(*window);
+
+    if (!inputState)
+    {
+        URAY_LOG("[Engine] Failed to register window input state.");
+
+        renderSystem->DestroyWindowSurface(*window);
+        windowSystem->DestroyWindow(*window);
+        return nullptr;
+    }
+
+    const bool inputRegistered =
+        window->Register("Key", inputState, &WindowInputState::OnKey) &&
+        window->Register("MouseButton", inputState, &WindowInputState::OnMouseButton) &&
+        window->Register("CursorMoved", inputState, &WindowInputState::OnCursorMoved) &&
+        window->Register("TextInput", inputState, &WindowInputState::OnTextInput) &&
+        window->Register("Scroll", inputState, &WindowInputState::OnScroll) &&
+        window->Register("FocusChanged", inputState, &WindowInputState::OnWindowFocusChanged);
+
+    if (!inputRegistered)
+    {
+        URAY_LOG("[Engine] Failed to register window input handlers.");
+
+        window->UnregisterAll(inputState);
+        inputSystem->UnregisterWindow(*window);
+        renderSystem->DestroyWindowSurface(*window);
+        windowSystem->DestroyWindow(*window);
+        return nullptr;
+    }
+
+    const bool focused = glfwGetWindowAttrib(window->GetGLFWWindow(), GLFW_FOCUSED) == GLFW_TRUE;
+
+    double cursorX = 0.0;
+    double cursorY = 0.0;
+    glfwGetCursorPos(window->GetGLFWWindow(), &cursorX, &cursorY);
+
+    inputState->OnWindowFocusChanged(focused);
+    inputState->OnCursorMoved(Vector2(static_cast<float>(cursorX), static_cast<float>(cursorY)));
+    inputState->PublishSnapshot(frameIndex);
+
     additionalWindows.push_back(window);
     return window;
 }
 
 bool Engine::DestroyAdditionalWindow(Window& window)
 {
-    if (!windowSystem || !renderSystem)
+    if (!windowSystem || !renderSystem || !inputSystem)
         return false;
 
     const auto it = std::find(additionalWindows.begin(), additionalWindows.end(), &window);
@@ -315,6 +355,13 @@ bool Engine::DestroyAdditionalWindow(Window& window)
     }
 
     renderSystem->DestroyWindowSurface(window);
+
+    if (WindowInputState* inputState = inputSystem->FindWindowState(window))
+    {
+        window.UnregisterAll(inputState);
+        inputSystem->UnregisterWindow(window);
+    }
+
     additionalWindows.erase(it);
     windowSystem->DestroyWindow(window);
 

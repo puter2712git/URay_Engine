@@ -21,6 +21,7 @@ struct InputButtonState
 struct InputSnapshot
 {
     friend class InputSystem;
+    friend class WindowInputState;
 
 public:
     uint64 GetFrameIndex() const { return frameIndex; }
