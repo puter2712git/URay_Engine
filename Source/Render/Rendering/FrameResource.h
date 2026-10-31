@@ -1,9 +1,11 @@
 #pragma once
 
 #include <Core/Type/TypeAlias.h>
+#include <Render/Rendering/RenderPass/RenderPassId.h>
 
 #include <vulkan/vulkan.h>
 
+#include <array>
 #include <memory>
 
 namespace URay::Render
@@ -19,6 +21,7 @@ struct GPUTimeStampState
 
     bool hasPendingResults = false;
     uint64 submissionFrameNumber = 0;
+    std::array<bool, static_cast<uint32>(RenderPassId::Count)> recordedPasses = {};
 };
 
 struct FrameResource

@@ -48,10 +48,14 @@ void EditorApplication::Run()
         engine->Update();
         editor->Update();
 
+        engine->ProcessAdditionalWindowCloseRequests();
+
         if (engine->BeginRender())
         {
             engine->Render(editor->BuildRenderRequest());
         }
+
+        engine->RenderAdditionalWindows();
 
         analytics.EndFrame();
     }

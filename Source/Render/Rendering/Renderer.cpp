@@ -299,6 +299,8 @@ bool Renderer::BeginFrameInternal()
         if (!frameResource.commandBuffer->Begin(CommandBufferUsage::None))
             throw std::runtime_error("Failed to begin command buffer.");
 
+        frameResource.gpuTimeStamps.recordedPasses.fill(false);
+
         vkCmdResetQueryPool(
             frameResource.commandBuffer->GetHandle(),
             frameResource.gpuTimeStamps.queryPool,
@@ -745,22 +747,29 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
 {
     std::array<uint64, GpuTimestampQueryCount> timestamps = {};
 
-    const VkResult result = vkGetQueryPoolResults(
-        device.GetVKDevice(),
-        frameResource.gpuTimeStamps.queryPool,
-        0,
-        GpuTimestampQueryCount,
-        sizeof(timestamps),
-        timestamps.data(),
-        sizeof(uint64),
-        VK_QUERY_RESULT_64_BIT);
-
-    if (result != VK_SUCCESS)
+    for (uint32 passIndex = 0; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
     {
-        URAY_LOG(
-            "[Renderer] Failed to read GPU timestamp queries. (VkResult: %d)",
-            static_cast<int>(result));
-        return false;
+        if (!frameResource.gpuTimeStamps.recordedPasses[passIndex])
+            continue;
+
+        const uint32 beginQuery = passIndex * 2;
+        const VkResult result = vkGetQueryPoolResults(
+            device.GetVKDevice(),
+            frameResource.gpuTimeStamps.queryPool,
+            beginQuery,
+            2,
+            sizeof(uint64) * 2,
+            &timestamps[beginQuery],
+            sizeof(uint64),
+            VK_QUERY_RESULT_64_BIT);
+
+        if (result != VK_SUCCESS)
+        {
+            URAY_LOG(
+                "[Renderer] Failed to read GPU timestamp queries. (VkResult: %d)",
+                static_cast<int>(result));
+            return false;
+        }
     }
 
     if (performanceViewModel)
@@ -770,10 +779,15 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
 
         const double tickToMs = static_cast<double>(properties.limits.timestampPeriod) / 1'000'000.0;
 
-        uint64 firstTimestamp = timestamps[0];
-        for (uint32 passIndex = 1; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
+        std::optional<uint64> firstTimestamp;
+        for (uint32 passIndex = 0; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
         {
-            firstTimestamp = Math::Min(firstTimestamp, timestamps[passIndex * 2]);
+            if (!frameResource.gpuTimeStamps.recordedPasses[passIndex])
+                continue;
+
+            const uint64 beginTimestamp = timestamps[passIndex * 2];
+            if (!firstTimestamp || beginTimestamp < *firstTimestamp)
+                firstTimestamp = beginTimestamp;
         }
 
         std::vector<ProfileSample> samples;
@@ -781,20 +795,26 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
 
         for (uint32 passIndex = 0; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
         {
+            if (!frameResource.gpuTimeStamps.recordedPasses[passIndex])
+                continue;
+
             const uint64 beginTimestamp = timestamps[passIndex * 2];
             const uint64 endTimestamp = timestamps[passIndex * 2 + 1];
             const RenderPassId passId = static_cast<RenderPassId>(passIndex);
 
             samples.push_back(ProfileSample{
                 .name = String(GetRenderPassName(passId)),
-                .startMs = static_cast<double>(beginTimestamp - firstTimestamp) * tickToMs,
+                .startMs = static_cast<double>(beginTimestamp - *firstTimestamp) * tickToMs,
                 .durationMs = static_cast<double>(endTimestamp - beginTimestamp) * tickToMs,
                 .depth = 0 });
         }
 
-        performanceViewModel->AddGPUFrame(
-            frameResource.gpuTimeStamps.submissionFrameNumber,
-            samples);
+        if (firstTimestamp)
+        {
+            performanceViewModel->AddGPUFrame(
+                frameResource.gpuTimeStamps.submissionFrameNumber,
+                samples);
+        }
     }
 
     frameResource.gpuTimeStamps.hasPendingResults = false;

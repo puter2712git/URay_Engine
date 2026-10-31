@@ -75,11 +75,24 @@ void UISystem::ClearRootWidget()
 
 void UISystem::Update(float deltaTime)
 {
-    if (!mainContext->root)
-        return;
+    if (mainContext->root)
+    {
+        mainContext->inputRouter->Process(*mainContext->root, inputSystem.GetSnapshot());
+        mainContext->root->Update(deltaTime);
+    }
 
-    mainContext->inputRouter->Process(*mainContext->root, inputSystem.GetSnapshot());
-    mainContext->root->Update(deltaTime);
+    for (auto& [window, context] : windowContexts)
+    {
+        if (!context->root)
+            continue;
+
+        WindowInputState* inputState = inputSystem.FindWindowState(*window);
+        if (!inputState)
+            continue;
+
+        context->inputRouter->Process(*context->root, inputState->GetSnapshot());
+        context->root->Update(deltaTime);
+    }
 }
 
 void UISystem::PrepareRender()
@@ -130,6 +143,64 @@ bool UISystem::RegisterWindow(Window& targetWindow)
 bool UISystem::UnregisterWindow(Window& targetWindow)
 {
     return windowContexts.erase(&targetWindow) != 0;
+}
+
+bool UISystem::SetAdditionalWindowRoot(Window& window, std::unique_ptr<Widget>& root)
+{
+    const auto it = windowContexts.find(&window);
+
+    if (it == windowContexts.end() || !root)
+        return false;
+
+    WindowUIContext& context = *it->second;
+
+    if (context.root || root->GetParent())
+        return false;
+
+    Widget* rootPtr = root.get();
+
+    context.windowWidget->AddChild(std::move(root));
+    context.root = rootPtr;
+
+    return true;
+}
+
+Widget* UISystem::FindAdditionalWindowRoot(Window& window) const
+{
+    const auto it = windowContexts.find(&window);
+
+    if (it == windowContexts.end())
+        return nullptr;
+
+    return it->second->root;
+}
+
+Render::UIDrawContext* UISystem::PrepareAdditionalWindowUI(Window& window)
+{
+    const auto it = windowContexts.find(&window);
+    if (it == windowContexts.end())
+        return nullptr;
+
+    WindowUIContext& context = *it->second;
+    context.drawContext->Clear();
+
+    if (!context.root)
+        return context.drawContext.get();
+
+    const Extent2D clientSize = window.GetClientSize();
+
+    if (clientSize.width == 0 || clientSize.height == 0)
+        return context.drawContext.get();
+
+    Rect finalRect = {};
+    finalRect.position = Vector2::Zero;
+    finalRect.size = Vector2(static_cast<float>(clientSize.width), static_cast<float>(clientSize.height));
+
+    context.windowWidget->Measure();
+    context.windowWidget->Arrange(finalRect);
+    context.windowWidget->Paint(*context.drawContext);
+
+    return context.drawContext.get();
 }
 
 bool UISystem::IsTextInputActive() const

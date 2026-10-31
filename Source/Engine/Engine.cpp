@@ -273,6 +273,35 @@ void Engine::Render(const Render::RenderRequest& request)
     renderSystem->EndFrame();
 }
 
+void Engine::RenderAdditionalWindows()
+{
+    for (Window* window : additionalWindows)
+    {
+        if (window->ShouldClose())
+            continue;
+
+        const Extent2D clientSize = window->GetClientSize();
+        if (clientSize.width == 0 || clientSize.height == 0)
+            continue;
+
+        renderSystem->GetPipeline().Reset();
+
+        if (!renderSystem->BeginFrame(*window))
+            continue;
+
+        Render::UIDrawContext* drawContext = uiSystem->PrepareAdditionalWindowUI(*window);
+
+        if (!drawContext)
+            throw std::runtime_error("Missing UI context for an active additional window.");
+
+        Render::RenderRequest request = {};
+        request.uiDrawContext = drawContext;
+        request.updateStats = false;
+
+        Render(request);
+    }
+}
+
 Window* Engine::CreateAdditionalWindow(const WindowDesc& desc)
 {
     if (!windowSystem || !renderSystem || !inputSystem || !uiSystem)
@@ -385,6 +414,37 @@ bool Engine::DestroyAdditionalWindow(Window& window)
     windowSystem->DestroyWindow(window);
 
     return true;
+}
+
+bool Engine::RequestCloseAdditionalWindow(Window& window)
+{
+    const auto it = std::find(additionalWindows.begin(), additionalWindows.end(), &window);
+    if (it == additionalWindows.end())
+        return false;
+
+    window.RequestClose();
+    return true;
+}
+
+void Engine::ProcessAdditionalWindowCloseRequests()
+{
+    size_t index = 0;
+
+    while (index < additionalWindows.size())
+    {
+        Window* window = additionalWindows[index];
+        if (!window->ShouldClose())
+        {
+            ++index;
+            continue;
+        }
+
+        if (!DestroyAdditionalWindow(*window))
+        {
+            URAY_LOG("[Engine] Failed to process an additional window close request.");
+            return;
+        }
+    }
 }
 
 } // namespace URay

@@ -134,6 +134,11 @@ Extent2D Window::GetFramebufferSize() const
     };
 }
 
+void Window::RequestClose()
+{
+    glfwSetWindowShouldClose(glfwWindow, GLFW_TRUE);
+}
+
 bool Window::ShouldClose() const
 {
     return glfwWindowShouldClose(glfwWindow);

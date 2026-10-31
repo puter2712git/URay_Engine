@@ -40,6 +40,10 @@ public:
     bool RegisterWindow(Window& window);
     bool UnregisterWindow(Window& window);
 
+    bool SetAdditionalWindowRoot(Window& window, std::unique_ptr<Widget>& root);
+    Widget* FindAdditionalWindowRoot(Window& window) const;
+    Render::UIDrawContext* PrepareAdditionalWindowUI(Window& window);
+
     bool IsTextInputActive() const;
 
     bool TryHideWidget(Widget& widget);

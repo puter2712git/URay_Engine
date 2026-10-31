@@ -45,8 +45,12 @@ public:
     bool BeginRender();
     void Render(const Render::RenderRequest& request);
 
+    void RenderAdditionalWindows();
+
     Window* CreateAdditionalWindow(const WindowDesc& desc);
     bool DestroyAdditionalWindow(Window& window);
+    bool RequestCloseAdditionalWindow(Window& window);
+    void ProcessAdditionalWindowCloseRequests();
 
     LogSystem& GetLogSystem() const { return *logSystem; }
     WindowSystem& GetWindowSystem() const { return *windowSystem; }

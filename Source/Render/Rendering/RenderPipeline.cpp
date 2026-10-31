@@ -105,7 +105,8 @@ void RenderPipeline::Execute(const RenderRequest& request)
                             : request.sceneRenderInfos.back().view;
     ExecuteUI(*request.uiDrawContext, uiView);
 
-    latestStats = workingStats;
+    if (request.updateStats)
+        latestStats = workingStats;
 }
 
 void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
@@ -377,6 +378,8 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
             VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
             queryPool,
             endQuery);
+
+        passContext.frameResource.gpuTimeStamps.recordedPasses[passIndex] = true;
     }
 
     Texture* idTexture = sceneInfo.targets.scene->GetColorTexture(1);
@@ -445,6 +448,8 @@ void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
             VK_PIPELINE_STAGE_2_BOTTOM_OF_PIPE_BIT,
             queryPool,
             endQuery);
+
+        passContext.frameResource.gpuTimeStamps.recordedPasses[passIndex] = true;
     }
 }
 

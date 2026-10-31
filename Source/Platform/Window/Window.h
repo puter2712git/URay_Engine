@@ -38,6 +38,7 @@ public:
     Extent2D GetClientSize() const;
     Extent2D GetFramebufferSize() const;
 
+    void RequestClose();
     bool ShouldClose() const;
 
     GLFWwindow* GetGLFWWindow() const { return glfwWindow; }

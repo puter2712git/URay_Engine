@@ -43,6 +43,7 @@ struct RenderRequest
 {
     std::vector<SceneRenderInfo> sceneRenderInfos;
     const UIDrawContext* uiDrawContext = nullptr;
+    bool updateStats = true;
 };
 
 class RenderPipeline
