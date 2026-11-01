@@ -1,9 +1,8 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/FunctionSignature.h>
+#include <Core/Type/TypeAlias.h>
 
-#include <span>
 #include <utility>
 
 namespace URay

@@ -1,11 +1,11 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/UUID.h>
 
 #include <yaml-cpp/yaml.h>

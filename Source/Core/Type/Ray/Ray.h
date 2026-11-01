@@ -1,15 +1,12 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/Callable/Callable.h>
 #include <Core/Type/Function/FunctionSignature.h>
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Variant/Variant.h>
 
 #include <cstddef>
-#include <memory>
-#include <span>
 #include <utility>
-#include <vector>
 
 namespace URay
 {

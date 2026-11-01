@@ -3,8 +3,6 @@
 #include <Core/Type/TypeAlias.h>
 
 #include <chrono>
-#include <string>
-#include <vector>
 
 namespace URay
 {

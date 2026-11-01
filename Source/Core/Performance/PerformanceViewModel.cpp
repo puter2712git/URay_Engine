@@ -1,11 +1,10 @@
 #include "PerformanceViewModel.h"
-#include <Core/Type/TypeAlias.h>
+
 #include <Core/Math/Math.h>
 
 #include <algorithm>
 #include <cmath>
 #include <numeric>
-#include <unordered_map>
 
 namespace URay
 {

@@ -1,11 +1,9 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/Performance/PerformanceAnalytics.h>
+#include <Core/Type/TypeAlias.h>
 
-#include <array>
 #include <deque>
-#include <vector>
 
 namespace URay
 {

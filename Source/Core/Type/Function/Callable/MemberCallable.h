@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/Callable/Callable.h>
 #include <Core/Type/Function/Callable/CallableArgument.h>
 #include <Core/Type/Function/FunctionTraits.h>
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Variant/Variant.h>
 
 #include <functional>
@@ -12,7 +12,6 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 namespace URay
 {

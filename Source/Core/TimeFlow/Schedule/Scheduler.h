@@ -3,7 +3,6 @@
 #include <Core/Type/TypeAlias.h>
 
 #include <functional>
-#include <unordered_map>
 
 namespace URay
 {

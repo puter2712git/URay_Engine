@@ -1,5 +1,4 @@
 #include "Scheduler.h"
-#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

@@ -1,5 +1,4 @@
 #include "ScopeTimer.h"
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/Performance/PerformanceAnalytics.h>
 

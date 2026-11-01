@@ -1,15 +1,13 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/FunctionParameter.h>
 #include <Core/Type/Function/FunctionTraits.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <optional>
-#include <span>
 #include <tuple>
 #include <type_traits>
 #include <utility>
-#include <vector>
 
 namespace URay
 {
