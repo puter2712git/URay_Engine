@@ -15,9 +15,11 @@
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
+#include <Render/Rendering/Batch/UIDrawContext.h>
 
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 
 namespace URay
 {
@@ -27,6 +29,8 @@ URAY_REGISTER_PANEL(SceneTreePanel, "Scene Tree")
 namespace
 {
 constexpr float SceneTreeRowHeight = 20.0f;
+constexpr float SceneTreeInsertZoneHeight = 4.0f;
+constexpr float SceneTreeIndentWidth = 16.0f;
 constexpr int32 SceneTreeRowOverscan = 3;
 } // namespace
 
@@ -198,6 +202,46 @@ void SceneTreePanel::OnUpdate(float deltaTime)
     UpdateTree();
 }
 
+void SceneTreePanel::OnPaintForeground(Render::UIDrawContext& context)
+{
+    Panel::OnPaintForeground(context);
+
+    if (!dragState || !dragState->isDragging)
+        return;
+
+    const DropTarget target = FindDropTarget(dragState->pointerPosition);
+    if (!IsValidInsertTarget(target))
+        return;
+
+    Scene* scene = sceneSystem->GetScene(target.sceneId);
+    if (!scene)
+        return;
+
+    Unit* parent = target.parentId.IsValid()
+                       ? scene->FindUnit(target.parentId)
+                       : nullptr;
+
+    uint32 depth = 0;
+    for (Unit* current = parent; current; current = current->GetParent())
+        ++depth;
+
+    const Rect& viewport = scrollView->GetRect();
+    const float lineX = viewport.position.x + static_cast<float>(depth) * SceneTreeIndentWidth;
+    const float lineY = virtualContent->GetRect().position.y +
+                        static_cast<float>(target.boundaryIndex) * SceneTreeRowHeight;
+    constexpr float lineThickness = 2.0f;
+
+    Rect lineRect;
+    lineRect.position = Vector2(lineX, lineY - lineThickness * 0.5f);
+    lineRect.size = Vector2(
+        Math::Max(0.0f, viewport.position.x + viewport.size.x - lineX),
+        lineThickness);
+
+    context.PushClipRect(viewport);
+    context.AddFilledRect(lineRect, EditorStyle::TextSelection);
+    context.PopClipRect();
+}
+
 void SceneTreePanel::UpdateTree()
 {
     rows.clear();
@@ -262,6 +306,18 @@ SceneTreePanel::DropTarget SceneTreePanel::FindDropTarget(const Vector2& positio
         };
     }
 
+    const float rowLocalY = localY - static_cast<float>(rowIndex) * SceneTreeRowHeight;
+
+    if (rowLocalY < SceneTreeInsertZoneHeight)
+    {
+        return FindInsertTarget(rowIndex, position.x);
+    }
+
+    if (rowLocalY >= SceneTreeRowHeight - SceneTreeInsertZoneHeight)
+    {
+        return FindInsertTarget(rowIndex + 1, position.x);
+    }
+
     const TreeRow& row = rows[rowIndex];
 
     return DropTarget{
@@ -269,6 +325,123 @@ SceneTreePanel::DropTarget SceneTreePanel::FindDropTarget(const Vector2& positio
         .sceneId = row.sceneId,
         .unitId = row.unitId
     };
+}
+
+SceneTreePanel::DropTarget SceneTreePanel::FindInsertTarget(int32 boundaryIndex, float pointerX) const
+{
+    if (!dragState || boundaryIndex < 0 || boundaryIndex > static_cast<int32>(rows.size()))
+        return {};
+
+    Scene* scene = sceneSystem->GetScene(dragState->sceneId);
+    if (!scene)
+        return {};
+
+    const int32 minDepth = boundaryIndex < static_cast<int32>(rows.size())
+                               ? static_cast<int32>(rows[boundaryIndex].depth)
+                               : 0;
+    const int32 maxDepth = boundaryIndex > 0
+                               ? static_cast<int32>(rows[boundaryIndex - 1].depth) + 1
+                               : 0;
+    if (minDepth > maxDepth)
+        return {};
+
+    const float localX = pointerX - scrollView->GetRect().position.x;
+    const int32 requestedDepth = static_cast<int32>(
+        Math::Floor((localX + SceneTreeIndentWidth * 0.5f) / SceneTreeIndentWidth));
+    const int32 depth = Math::Clamp(requestedDepth, minDepth, maxDepth);
+
+    Unit* parent = nullptr;
+    if (depth > 0)
+    {
+        for (int32 i = boundaryIndex - 1; i >= 0; --i)
+        {
+            if (static_cast<int32>(rows[i].depth) == depth - 1)
+            {
+                if (rows[i].sceneId != dragState->sceneId)
+                    return {};
+
+                parent = scene->FindUnit(rows[i].unitId);
+                break;
+            }
+        }
+
+        if (!parent)
+            return {};
+    }
+
+    const auto& siblings = parent ? parent->GetChildren() : scene->GetRootUnits();
+    uint32 siblingIndex = static_cast<uint32>(siblings.size());
+
+    if (boundaryIndex < static_cast<int32>(rows.size()) &&
+        static_cast<int32>(rows[boundaryIndex].depth) == depth)
+    {
+        const TreeRow& nextRow = rows[boundaryIndex];
+        if (nextRow.sceneId != dragState->sceneId)
+            return {};
+
+        Unit* nextUnit = scene->FindUnit(nextRow.unitId);
+        const auto next = std::find(siblings.begin(), siblings.end(), nextUnit);
+        if (!nextUnit || next == siblings.end())
+            return {};
+
+        siblingIndex = static_cast<uint32>(std::distance(siblings.begin(), next));
+    }
+
+    DropTarget target;
+    target.type = DropTargetType::Insert;
+    target.sceneId = dragState->sceneId;
+    target.boundaryIndex = boundaryIndex;
+    target.siblingIndex = siblingIndex;
+    if (parent)
+        target.parentId = parent->GetPersistentId();
+
+    return target;
+}
+
+bool SceneTreePanel::IsValidInsertTarget(const DropTarget& target) const
+{
+    if (!dragState || target.type != DropTargetType::Insert || target.sceneId != dragState->sceneId)
+        return false;
+
+    Scene* scene = sceneSystem->GetScene(dragState->sceneId);
+    if (!scene)
+        return false;
+
+    Unit* source = scene->FindUnit(dragState->unitId);
+    if (!source)
+        return false;
+
+    Unit* parent = nullptr;
+    if (target.parentId.IsValid())
+    {
+        parent = scene->FindUnit(target.parentId);
+        if (!parent)
+            return false;
+    }
+
+    for (Unit* ancestor = parent; ancestor; ancestor = ancestor->GetParent())
+    {
+        if (ancestor == source)
+            return false;
+    }
+
+    const auto& siblings = parent ? parent->GetChildren() : scene->GetRootUnits();
+    if (target.siblingIndex > siblings.size())
+        return false;
+
+    if (source->GetParent() != parent)
+        return true;
+
+    const auto current = std::find(siblings.begin(), siblings.end(), source);
+    if (current == siblings.end())
+        return false;
+
+    const uint32 currentIndex = static_cast<uint32>(std::distance(siblings.begin(), current));
+    uint32 destinationIndex = target.siblingIndex;
+    if (destinationIndex > currentIndex)
+        --destinationIndex;
+
+    return destinationIndex != currentIndex;
 }
 
 void SceneTreePanel::ApplyDrop(const DropTarget& target)
@@ -283,6 +456,41 @@ void SceneTreePanel::ApplyDrop(const DropTarget& target)
     Unit* source = scene->FindUnit(dragState->unitId);
     if (!source)
         return;
+
+    if (target.type == DropTargetType::Insert)
+    {
+        if (!IsValidInsertTarget(target))
+            return;
+
+        Unit* parent = target.parentId.IsValid()
+                           ? scene->FindUnit(target.parentId)
+                           : nullptr;
+        uint32 destinationIndex = target.siblingIndex;
+
+        if (source->GetParent() == parent)
+        {
+            const auto& siblings = parent ? parent->GetChildren() : scene->GetRootUnits();
+            const auto current = std::find(siblings.begin(), siblings.end(), source);
+            if (current == siblings.end())
+                return;
+
+            const uint32 currentIndex = static_cast<uint32>(std::distance(siblings.begin(), current));
+            if (destinationIndex > currentIndex)
+                --destinationIndex;
+        }
+        else
+        {
+            if (!source->SetParent(parent, ReparentMode::KeepWorld))
+                return;
+        }
+
+        if (parent)
+            parent->MoveChild(source, destinationIndex);
+        else
+            scene->MoveRootUnit(source, destinationIndex);
+
+        return;
+    }
 
     Unit* newParent = nullptr;
 

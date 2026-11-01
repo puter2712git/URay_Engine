@@ -45,7 +45,8 @@ class SceneTreePanel final : public Panel
     {
         None,
         Root,
-        Unit
+        Unit,
+        Insert
     };
 
     struct DropTarget
@@ -53,6 +54,13 @@ class SceneTreePanel final : public Panel
         DropTargetType type = DropTargetType::None;
         SceneId sceneId = InvalidSceneId;
         UUID unitId = {};
+
+        // Index 0: Insert before the first row
+        // Index 1: Insert between the first and second rows
+        // Index rows.size(): Insert after the last row
+        int32 boundaryIndex = -1;
+        UUID parentId = {};
+        uint32 siblingIndex = 0;
     };
 
 public:
@@ -73,6 +81,7 @@ public:
 
 protected:
     void OnUpdate(float deltaTime) override;
+    void OnPaintForeground(Render::UIDrawContext& context) override;
 
 private:
     void UpdateTree();
@@ -83,6 +92,8 @@ private:
     void OnUnitRemoved(Scene* scene, Unit* unit);
 
     DropTarget FindDropTarget(const Vector2& position) const;
+    DropTarget FindInsertTarget(int32 boundaryIndex, float pointerX) const;
+    bool IsValidInsertTarget(const DropTarget& target) const;
 
     void ApplyDrop(const DropTarget& target);
 
