@@ -42,6 +42,8 @@ class Scene : public Object
 {
     URAY_OBJECT(Scene, Object)
 
+    friend class Unit;
+
 public:
     Scene(SceneSystem& sceneSystem, SceneId id, SceneType type, const VirtualPath& filePath);
 
@@ -72,7 +74,13 @@ public:
     bool IsLoaded() const { return loaded; }
 
     SceneType GetSceneType() const { return type; }
+
     const std::vector<std::unique_ptr<Unit>>& GetUnits() const { return units; }
+    const std::vector<Unit*>& GetRootUnits() const { return rootUnits; }
+    bool MoveRootUnit(Unit* unit, uint32 index);
+
+private:
+    void OnUnitParentChanged(Unit* unit, Unit* oldParent);
 
 private:
     SceneSystem& sceneSystem;
@@ -83,6 +91,7 @@ private:
 
     SceneType type = SceneType::Game;
     std::vector<std::unique_ptr<Unit>> units;
+    std::vector<Unit*> rootUnits;
 
     std::map<int, UpdateGroup, std::greater<int>> updateGroups;
 };

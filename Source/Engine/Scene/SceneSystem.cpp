@@ -11,6 +11,7 @@ namespace URay
 
 SceneSystem::SceneSystem()
 {
+    URAY_DECLARE_RAY(SceneHierarchyChanged, Scene*);
     URAY_DECLARE_RAY(SceneAdded, Scene*);
     URAY_DECLARE_RAY(SceneDestroyed, Scene*);
     URAY_DECLARE_RAY(UnitAdded, Scene*, Unit*);

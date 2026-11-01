@@ -56,6 +56,7 @@ SceneTreePanel::SceneTreePanel()
     scrollView = AddChild<ScrollView>();
     virtualContent = scrollView->SetContent<SceneTreeVirtualContent>(*this);
 
+    sceneSystem->Register("SceneHierarchyChanged", this, &SceneTreePanel::OnSceneHierarchyChanged);
     sceneSystem->Register("UnitAdded", this, &SceneTreePanel::OnUnitAdded);
     sceneSystem->Register("UnitRemoved", this, &SceneTreePanel::OnUnitRemoved);
 
@@ -207,10 +208,9 @@ void SceneTreePanel::UpdateTree()
     if (!gameScene)
         return;
 
-    for (const auto& unit : gameScene->GetUnits())
+    for (const auto& unit : gameScene->GetRootUnits())
     {
-        if (!unit->GetParent())
-            AddSubtree(*unit, 0);
+        AddSubtree(*unit, 0);
     }
 }
 
@@ -227,6 +227,11 @@ void SceneTreePanel::AddSubtree(const Unit& unit, uint32 depth)
         if (child)
             AddSubtree(*child, depth + 1);
     }
+}
+
+void SceneTreePanel::OnSceneHierarchyChanged(Scene* scene)
+{
+    isTreeDirty = true;
 }
 
 void SceneTreePanel::OnUnitAdded(Scene* scene, Unit* unit)

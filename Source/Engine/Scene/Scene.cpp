@@ -1,8 +1,8 @@
 #include "Scene.h"
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Core/Serialization/YAMLConverters.h>
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Component/ComponentFactory.h>
 #include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Component/TransformComponent.h>
@@ -10,6 +10,9 @@
 #include <Engine/Scene/Unit.h>
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Scene/RenderScene.h>
+
+#include <algorithm>
+#include <iterator>
 
 namespace URay
 {
@@ -235,6 +238,7 @@ void Scene::AddUnit(std::unique_ptr<Unit> unit)
 
     units.push_back(std::move(unit));
     unitPtr->SetOwner(this);
+    rootUnits.push_back(unitPtr);
 
     sceneSystem.Emit("UnitAdded", this, unitPtr);
 
@@ -287,6 +291,8 @@ void Scene::DestroyUnit(Unit* unit)
         component->Finalize();
     }
 
+    std::erase(rootUnits, targetUnit);
+
     sceneSystem.Emit("UnitRemoved", this, unit);
     units.erase(it);
 }
@@ -323,6 +329,53 @@ Unit* Scene::CreateEmptyUnit(const String& name, Unit* parent)
     }
 
     return unitPtr;
+}
+
+bool Scene::MoveRootUnit(Unit* unit, uint32 index)
+{
+    if (!unit || index >= rootUnits.size())
+        return false;
+
+    const auto current = std::find(rootUnits.begin(), rootUnits.end(), unit);
+    if (current == rootUnits.end())
+        return false;
+
+    const uint32 currentIndex = static_cast<uint32>(std::distance(rootUnits.begin(), current));
+
+    if (currentIndex == index)
+        return false;
+
+    if (currentIndex < index)
+    {
+        std::rotate(
+            rootUnits.begin() + currentIndex,
+            rootUnits.begin() + currentIndex + 1,
+            rootUnits.begin() + index + 1);
+    }
+    else
+    {
+        std::rotate(
+            rootUnits.begin() + index,
+            rootUnits.begin() + currentIndex,
+            rootUnits.begin() + currentIndex + 1);
+    }
+
+    sceneSystem.Emit("SceneHierarchyChanged", this);
+    return true;
+}
+
+void Scene::OnUnitParentChanged(Unit* unit, Unit* oldParent)
+{
+    Unit* newParent = unit->GetParent();
+
+    if (!oldParent && newParent)
+    {
+        std::erase(rootUnits, unit);
+    }
+    else if (oldParent && !newParent)
+    {
+        rootUnits.push_back(unit);
+    }
 }
 
 } // namespace URay

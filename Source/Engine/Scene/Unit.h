@@ -25,6 +25,8 @@ class Unit : public Object
 {
     URAY_OBJECT(Unit, Object)
 
+    friend class Scene;
+
 public:
     Unit();
     ~Unit() override;
@@ -63,8 +65,9 @@ public:
 
     const std::vector<Unit*>& GetChildren() const { return children; }
 
+    bool MoveChild(Unit* child, uint32 index);
+
     Scene* GetOwner() const { return scene; }
-    void SetOwner(Scene* scene) { this->scene = scene; }
 
 private:
     static TransformComponent* FindClosestTransform(Unit* unit);
@@ -72,6 +75,8 @@ private:
     void CollectTransformRoots(std::vector<TransformComponent*>& results, bool hasTransformAncestor) const;
 
     void MarkTransformHierarchyDirty();
+
+    void SetOwner(Scene* owner) { scene = owner; }
 
 private:
     String name;

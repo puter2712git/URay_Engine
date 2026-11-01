@@ -78,6 +78,7 @@ private:
     void UpdateTree();
     void AddSubtree(const Unit& unit, uint32 depth);
 
+    void OnSceneHierarchyChanged(Scene* scene);
     void OnUnitAdded(Scene* scene, Unit* unit);
     void OnUnitRemoved(Scene* scene, Unit* unit);
 

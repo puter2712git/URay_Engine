@@ -1,16 +1,16 @@
 #include "Unit.h"
-#include <Core/Type/TypeAlias.h>
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Component/Component.h>
 #include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Component/TransformComponent.h>
 #include <Engine/Scene/Scene.h>
 #include <Engine/Scene/SceneSystem.h>
-
 #include <Render/Rendering/Object/RenderObject.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 
 #include <algorithm>
+#include <iterator>
 
 namespace URay
 {
@@ -69,6 +69,9 @@ bool Unit::SetParent(Unit* unit, ReparentMode mode)
     if (unit == this)
         return false;
 
+    if (unit && (!scene || unit->GetOwner() != scene))
+        return false;
+
     for (Unit* ancestor = unit; ancestor; ancestor = ancestor->parent)
     {
         if (ancestor == this)
@@ -104,6 +107,7 @@ bool Unit::SetParent(Unit* unit, ReparentMode mode)
         siblings.erase(std::remove(siblings.begin(), siblings.end(), this), siblings.end());
     }
 
+    Unit* oldParent = parent;
     parent = unit;
 
     if (parent)
@@ -121,6 +125,13 @@ bool Unit::SetParent(Unit* unit, ReparentMode mode)
     }
 
     MarkTransformHierarchyDirty();
+
+    if (scene)
+    {
+        scene->OnUnitParentChanged(this, oldParent);
+        scene->GetSceneSystem().Emit("SceneHierarchyChanged", scene);
+    }
+
     return true;
 }
 
@@ -150,6 +161,43 @@ Component* Unit::AddComponent(std::unique_ptr<Component> component)
     }
 
     return componentPtr;
+}
+
+bool Unit::MoveChild(Unit* child, uint32 index)
+{
+    if (!child || index >= static_cast<uint32>(children.size()))
+        return false;
+
+    const auto current = std::find(children.begin(), children.end(), child);
+    if (current == children.end())
+        return false;
+
+    const uint32 currentIndex = static_cast<uint32>(std::distance(children.begin(), current));
+
+    if (currentIndex == index)
+        return false;
+
+    if (currentIndex < index)
+    {
+        std::rotate(
+            children.begin() + currentIndex,
+            children.begin() + currentIndex + 1,
+            children.begin() + index + 1);
+    }
+    else
+    {
+        std::rotate(
+            children.begin() + index,
+            children.begin() + currentIndex,
+            children.begin() + currentIndex + 1);
+    }
+
+    if (scene)
+    {
+        scene->GetSceneSystem().Emit("SceneHierarchyChanged", scene);
+    }
+
+    return true;
 }
 
 TransformComponent* Unit::FindClosestTransform(Unit* unit)
