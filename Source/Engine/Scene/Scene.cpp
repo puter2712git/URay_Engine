@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <unordered_map>
 
 namespace URay
 {
@@ -98,7 +99,24 @@ void Scene::Update(float deltaTime)
 YAML::Node Scene::Serialize() const
 {
     YAML::Node sceneNode;
-    sceneNode["Version"] = 4;
+    sceneNode["Version"] = 5;
+
+    std::unordered_map<const Unit*, uint32> siblingIndices;
+
+    for (uint32 i = 0; i < rootUnits.size(); ++i)
+    {
+        siblingIndices.emplace(rootUnits[i], i);
+    }
+
+    for (const auto& unit : units)
+    {
+        const auto& children = unit->GetChildren();
+
+        for (uint32 i = 0; i < children.size(); ++i)
+        {
+            siblingIndices.emplace(children[i], i);
+        }
+    }
 
     YAML::Node unitNodes(YAML::NodeType::Sequence);
 
@@ -106,6 +124,7 @@ YAML::Node Scene::Serialize() const
     {
         YAML::Node unitNode;
         unitNode["Id"] = unit->GetPersistentId();
+        unitNode["SiblingIndex"] = siblingIndices.at(unit.get());
 
         if (const Unit* parent = unit->GetParent())
             unitNode["ParentId"] = parent->GetPersistentId();
@@ -139,6 +158,7 @@ void Scene::Deserialize(const YAML::Node& node)
     };
 
     std::unordered_map<UUID, Unit*, UUIDHash> unitsById;
+    std::unordered_map<Unit*, uint32> siblingIndices;
     std::vector<ParentLink> pendingParentLinks;
 
     for (const YAML::Node& unitNode : unitNodes)
@@ -212,6 +232,19 @@ void Scene::Deserialize(const YAML::Node& node)
                 .parentId = parentIdNode.as<UUID>() });
         }
 
+        const YAML::Node siblingIndexNode = unitNode["SiblingIndex"];
+        if (siblingIndexNode && siblingIndexNode.IsScalar())
+        {
+            try
+            {
+                siblingIndices.emplace(newUnit.get(), siblingIndexNode.as<uint32>());
+            }
+            catch (const YAML::Exception&)
+            {
+                URAY_LOG("Failed to read Unit sibling index.");
+            }
+        }
+
         AddUnit(std::move(newUnit));
     }
 
@@ -229,6 +262,55 @@ void Scene::Deserialize(const YAML::Node& node)
         {
             URAY_LOG("Failed to deserialize scene: Invalid parent relationship.");
         }
+    }
+
+    const auto restoreSiblingOrder =
+        [&siblingIndices](std::vector<Unit*> siblings, auto moveUnit)
+    {
+        std::vector<bool> usedIndices(siblings.size(), false);
+
+        for (Unit* unit : siblings)
+        {
+            const auto it = siblingIndices.find(unit);
+            if (it == siblingIndices.end() ||
+                it->second >= siblings.size() ||
+                usedIndices[it->second])
+            {
+                return;
+            }
+
+            usedIndices[it->second] = true;
+        }
+
+        std::sort(
+            siblings.begin(),
+            siblings.end(),
+            [&siblingIndices](Unit* left, Unit* right)
+            {
+                return siblingIndices.at(left) < siblingIndices.at(right);
+            });
+
+        for (uint32 index = 0; index < siblings.size(); ++index)
+        {
+            moveUnit(siblings[index], index);
+        }
+    };
+
+    restoreSiblingOrder(
+        rootUnits,
+        [this](Unit* unit, uint32 index)
+        {
+            MoveRootUnit(unit, index);
+        });
+
+    for (const auto& unit : units)
+    {
+        restoreSiblingOrder(
+            unit->GetChildren(),
+            [parent = unit.get()](Unit* child, uint32 index)
+            {
+                parent->MoveChild(child, index);
+            });
     }
 }
 
