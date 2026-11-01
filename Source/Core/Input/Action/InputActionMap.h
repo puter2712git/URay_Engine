@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/Action/InputAction.h>
 #include <Core/Input/InputEvent.h>
 
@@ -46,7 +47,7 @@ struct InputActionDefinition
     InputActionId id = {};
     InputActionValueType valueType = InputActionValueType::Button;
 
-    std::vector<InputBinding> bindings;
+    Vector<InputBinding> bindings;
 };
 
 class InputActionMap
@@ -54,10 +55,10 @@ class InputActionMap
 public:
     bool AddAction(InputActionDefinition definition);
     const InputActionDefinition* FindAction(InputActionId id) const;
-    const std::vector<InputActionDefinition>& GetActions() const { return actions; }
+    const Vector<InputActionDefinition>& GetActions() const { return actions; }
 
 private:
-    std::vector<InputActionDefinition> actions;
+    Vector<InputActionDefinition> actions;
 };
 
 } // namespace URay

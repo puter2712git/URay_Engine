@@ -1,4 +1,5 @@
 #include "InputActionEvaluator.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Math/Math.h>
 
@@ -53,7 +54,7 @@ Vector2 EvaluateAxis2D(
 }
 
 const InputActionValue* FindPreviousAction(
-    const std::vector<InputActionState>& actions,
+    const Vector<InputActionState>& actions,
     InputActionId id)
 {
     const auto iterator = std::find_if(
@@ -76,7 +77,7 @@ InputActionSnapshot InputActionEvaluator::Evaluate(
     InputActionSnapshot result;
     result.frameIndex = input.GetFrameIndex();
 
-    const std::vector<InputActionDefinition>& definitions = actionMap.GetActions();
+    const Vector<InputActionDefinition>& definitions = actionMap.GetActions();
 
     result.actions.reserve(definitions.size());
 

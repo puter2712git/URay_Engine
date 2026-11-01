@@ -25,7 +25,7 @@ public:
 public:
     void Arrange(const Rect& rect) override;
 
-    const std::array<Button*, static_cast<size_t>(GizmoMode::Count)>& GetGizmoModeButtons() const { return gizmoModeButtons; }
+    const Array<Button*, static_cast<size_t>(GizmoMode::Count)>& GetGizmoModeButtons() const { return gizmoModeButtons; }
     Button* GetGizmoSpaceToggleButton() const { return gizmoSpaceToggleButton; }
     Button* GetViewModeToggleButton() const { return viewModeToggleButton; }
     void SetGizmoSpaceLocal(bool isLocal);
@@ -37,7 +37,7 @@ private:
     HorizontalLayout* gizmoModeButtonLayout = nullptr;
     HorizontalLayout* playControlLayout = nullptr;
 
-    std::array<Button*, static_cast<size_t>(GizmoMode::Count)> gizmoModeButtons;
+    Array<Button*, static_cast<size_t>(GizmoMode::Count)> gizmoModeButtons;
     Button* gizmoSpaceToggleButton = nullptr;
     Image* gizmoSpaceImage = nullptr;
     Button* viewModeToggleButton = nullptr;

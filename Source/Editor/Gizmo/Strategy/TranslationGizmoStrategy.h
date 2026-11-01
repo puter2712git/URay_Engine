@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Vector3.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 
@@ -36,7 +37,7 @@ private:
     Vector3 startWorldPosition = Vector3::Zero;
     Vector3 startLineDirection = Vector3::Forward;
     Vector3 pivotPosition = Vector3::Zero;
-    std::vector<TargetState> targets;
+    Vector<TargetState> targets;
     GizmoHandleId selectedHandle = GizmoHandleId::None;
     Vector3 xAxis = Vector3::Right;
     Vector3 yAxis = Vector3::Forward;

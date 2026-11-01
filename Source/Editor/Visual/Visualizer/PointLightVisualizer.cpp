@@ -115,7 +115,7 @@ Render::LineObjectState PointLightVisualizer::MakeLineState(
 }
 
 void PointLightVisualizer::AddCircle(
-    std::vector<Render::Line>& lines,
+    Vector<Render::Line>& lines,
     const Vector3& center,
     float radius,
     const Vector3& axisA,

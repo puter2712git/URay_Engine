@@ -39,26 +39,26 @@ public:
     VkFormat GetFormat() const { return format; }
     VkImage GetImage(uint32 index) const;
     VkImageView GetImageView(uint32 index) const;
-    const std::vector<VkImageView>& GetImageViews() const { return imageViews; }
+    const Vector<VkImageView>& GetImageViews() const { return imageViews; }
 
     VkSemaphore GetRenderFinishedSemaphore(uint32 imageInex) const;
 
 private:
-    VkSurfaceFormatKHR ChooseFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const;
-    VkPresentModeKHR ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const;
+    VkSurfaceFormatKHR ChooseFormat(const Vector<VkSurfaceFormatKHR>& availableFormats) const;
+    VkPresentModeKHR ChoosePresentMode(const Vector<VkPresentModeKHR>& availablePresentModes) const;
     VkExtent2D ChooseExtent(const VkSurfaceCapabilitiesKHR& capabilities, const VkExtent2D& requestedExtent) const;
 
 private:
     Device& device;
 
     VkSwapchainKHR handle = VK_NULL_HANDLE;
-    std::vector<VkImage> images;
-    std::vector<VkImageView> imageViews;
+    Vector<VkImage> images;
+    Vector<VkImageView> imageViews;
 
     VkExtent2D extent = {};
     VkFormat format = VK_FORMAT_UNDEFINED;
 
-    std::vector<VkSemaphore> renderFinishedSemaphores;
+    Vector<VkSemaphore> renderFinishedSemaphores;
 };
 
 } // namespace URay::Render

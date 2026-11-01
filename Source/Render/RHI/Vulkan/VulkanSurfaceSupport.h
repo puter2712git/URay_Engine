@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <vulkan/vulkan.h>
 
 #include <optional>
@@ -11,8 +12,8 @@ namespace URay::Render::Vulkan
 struct SurfaceSupportDetails
 {
     VkSurfaceCapabilitiesKHR capabilities = {};
-    std::vector<VkSurfaceFormatKHR> formats;
-    std::vector<VkPresentModeKHR> presentModes;
+    Vector<VkSurfaceFormatKHR> formats;
+    Vector<VkPresentModeKHR> presentModes;
 };
 
 std::optional<SurfaceSupportDetails> QuerySurfaceSupport(

@@ -1,10 +1,12 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 namespace URay
 {
@@ -21,6 +23,12 @@ using int64 = std::int64_t;
 
 using String = std::string;
 using StringView = std::string_view;
+
+template <typename T, std::size_t N>
+using Array = std::array<T, N>;
+
+template <typename T>
+using Vector = std::vector<T>;
 
 template <typename T>
 using UniquePtr = std::unique_ptr<T>;

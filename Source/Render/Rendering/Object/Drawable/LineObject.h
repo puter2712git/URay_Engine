@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 
 #include <Core/Math/Color.h>
@@ -19,7 +20,7 @@ struct Line
 
 struct LineObjectState
 {
-    std::vector<Line> lines;
+    Vector<Line> lines;
 };
 
 class LineObject : public DrawableObject

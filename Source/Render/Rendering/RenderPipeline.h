@@ -33,15 +33,15 @@ class UIDrawContext;
 
 struct SceneRenderInfo
 {
-    std::vector<RenderScene*> scenes;
+    Vector<RenderScene*> scenes;
     RenderView view = {};
-    std::vector<Unit*> selectedUnits;
+    Vector<Unit*> selectedUnits;
     SceneRenderTargets targets = {};
 };
 
 struct RenderRequest
 {
-    std::vector<SceneRenderInfo> sceneRenderInfos;
+    Vector<SceneRenderInfo> sceneRenderInfos;
     const UIDrawContext* uiDrawContext = nullptr;
     bool updateStats = true;
 };
@@ -76,8 +76,8 @@ private:
 
     UniquePtr<DrawCommandBuilder> builder = nullptr;
 
-    std::vector<UniquePtr<RenderPass>> passes;
-    std::array<std::vector<DrawCommand>, static_cast<uint8>(RenderPassId::Count)> drawCmds;
+    Vector<UniquePtr<RenderPass>> passes;
+    Array<Vector<DrawCommand>, static_cast<uint8>(RenderPassId::Count)> drawCmds;
 
     RenderFrameStats workingStats = {};
     RenderFrameStats latestStats = {};

@@ -146,7 +146,7 @@ void DockSystem::UpdateDrag(ObjectId sourceGroupId, ObjectId panelId, const Vect
 
         if (indicators)
         {
-            std::array<bool, 5> enabled = {};
+            Array<bool, 5> enabled = {};
             const bool isSource = indicatorGroup->GetId() == sourceGroupId;
 
             for (size_t i = 0; i < indicators->size(); ++i)

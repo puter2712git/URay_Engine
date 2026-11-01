@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/Action/InputActionMap.h>
 #include <Core/Input/Action/InputActionSnapshot.h>
 
@@ -16,7 +17,7 @@ public:
     InputActionSnapshot Evaluate(const InputSnapshot& input, const InputActionMap& actionMap);
 
 private:
-    std::vector<InputActionState> previousActions;
+    Vector<InputActionState> previousActions;
 };
 
 } // namespace URay

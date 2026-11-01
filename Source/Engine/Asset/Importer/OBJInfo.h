@@ -42,18 +42,18 @@ struct OBJIndexHash
 
 struct Face
 {
-    std::vector<OBJIndex> indices;
+    Vector<OBJIndex> indices;
 };
 
 struct OBJInfo
 {
     String mtllib;
 
-    std::vector<Vector3> positions;
-    std::vector<Vector3> normals;
-    std::vector<Vector2> uvs;
+    Vector<Vector3> positions;
+    Vector<Vector3> normals;
+    Vector<Vector2> uvs;
 
-    std::unordered_map<String, std::vector<Face>> mtlTofaces;
+    std::unordered_map<String, Vector<Face>> mtlTofaces;
 };
 
 struct MTLData
@@ -72,7 +72,7 @@ struct MTLData
 
 struct MTLInfo
 {
-    std::vector<MTLData> datas;
+    Vector<MTLData> datas;
 };
 
 } // namespace URay::OBJ

@@ -1,4 +1,5 @@
 #include "SelectionOutlinePass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/Buffer/Buffer.h>
@@ -44,7 +45,7 @@ void SelectionOutlinePass::Begin(const RenderPassContext& context)
 
     const Extent2D& extent = selectionMaskRT.GetExtent();
 
-    const std::array colorAttachments = {
+    const Array<RenderingAttachmentInfo, 1> colorAttachments = {
         RenderingAttachmentInfo{
             .imageView = postProcessRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
@@ -84,7 +85,7 @@ void SelectionOutlinePass::End(const RenderPassContext& context)
 
 void SelectionOutlinePass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     RenderTarget& selectionMaskRT = *context.sceneTargets->selectionMask;
 
@@ -179,7 +180,7 @@ void SelectionOutlinePass::EnsureResources(const RenderPassContext& context)
 
     if (!pso)
     {
-        std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+        Vector<ColorBlendAttachmentState> colorBlendAttachments;
         colorBlendAttachments.push_back(ColorBlendAttachmentState{
             .mode = BlendMode::AlphaBlend,
             .writeMask = ColorWriteMask::RGBA });

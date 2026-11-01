@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/File/VirtualPath.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/UI/Widget/Widget.h>
@@ -25,7 +26,7 @@ protected:
     Vector2 OnMeasure() override;
 
 private:
-    void RebuildItems(const std::vector<VirtualFileEntry>& entries);
+    void RebuildItems(const Vector<VirtualFileEntry>& entries);
     void OnItemActivated(const VirtualFileEntry* entry);
 
 private:

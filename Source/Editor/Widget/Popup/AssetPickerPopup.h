@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Popup/PopupMenu.h>
 #include <Engine/Asset/AssetHandle.h>
 
@@ -18,7 +19,7 @@ public:
 
 private:
     void OnMenuItemSelected(int32 id);
-    std::vector<AssetHandle> handles;
+    Vector<AssetHandle> handles;
     std::shared_ptr<void> lifetimeToken = std::make_shared<int>(0);
 };
 

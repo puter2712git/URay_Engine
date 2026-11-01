@@ -1,4 +1,5 @@
 #include "UIPass.h"
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
@@ -39,7 +40,7 @@ void UIPass::End(const RenderPassContext& context)
 
 void UIPass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     ExecuteCustomUI(context, drawCmds);
 }
@@ -126,7 +127,7 @@ void UIPass::EndSwapChainPass(const RenderPassContext& context)
         .imageBarriers = std::span(&toPresent, 1) });
 }
 
-void UIPass::ExecuteCustomUI(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+void UIPass::ExecuteCustomUI(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

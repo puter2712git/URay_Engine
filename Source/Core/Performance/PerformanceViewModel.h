@@ -38,7 +38,7 @@ struct ProfileFrame
 {
     uint64 frameNumber = 0;
     double capturedMs = 0.0;
-    std::vector<ProfileScopeRow> scopes;
+    Vector<ProfileScopeRow> scopes;
 };
 
 struct ProfileScopeStatistics
@@ -55,7 +55,7 @@ struct ProfileScopeStatistics
 struct ProfileChannel
 {
     std::deque<ProfileFrame> frames;
-    std::vector<ProfileScopeStatistics> statistics;
+    Vector<ProfileScopeStatistics> statistics;
 };
 
 class PerformanceViewModel
@@ -64,20 +64,20 @@ public:
     explicit PerformanceViewModel(size_t historyCapacity = 120);
 
 public:
-    void AddCPUFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples);
-    void AddGPUFrame(uint64 submissionNumber, const std::vector<ProfileSample>& samples);
+    void AddCPUFrame(uint64 frameNumber, const Vector<ScopeSample>& samples);
+    void AddGPUFrame(uint64 submissionNumber, const Vector<ProfileSample>& samples);
 
     const ProfileFrame* GetLatestFrame(ProfileDomain domain) const;
-    const std::vector<ProfileScopeStatistics>& GetStatistics(ProfileDomain domain) const { return channels[static_cast<size_t>(domain)].statistics; }
+    const Vector<ProfileScopeStatistics>& GetStatistics(ProfileDomain domain) const { return channels[static_cast<size_t>(domain)].statistics; }
 
 private:
-    void AddFrame(ProfileDomain domain, uint64 frameNumber, const std::vector<ProfileSample>& samples);
+    void AddFrame(ProfileDomain domain, uint64 frameNumber, const Vector<ProfileSample>& samples);
 
     void RebuildStatistics(ProfileChannel& channel);
 
 private:
     size_t historyCapacity = 120;
-    std::array<ProfileChannel, static_cast<size_t>(ProfileDomain::Count)> channels;
+    Array<ProfileChannel, static_cast<size_t>(ProfileDomain::Count)> channels;
 };
 
 } // namespace URay

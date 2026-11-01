@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Visual/Visualizer/EditorComponentVisualizer.h>
 #include <Render/Rendering/Object/Drawable/LineObject.h>
 
@@ -38,7 +39,7 @@ private:
 
     static Render::BillboardObjectState MakeBillboardState(EditorVisualContext& context, Unit& unit, Component& component);
     static Render::LineObjectState MakeLineState(EditorVisualContext& context, Unit& unit, Component& component);
-    static void AddCircle(std::vector<Render::Line>& lines, const Vector3& center, float radius, const Vector3& axisA, const Vector3& axisB, const Color& color);
+    static void AddCircle(Vector<Render::Line>& lines, const Vector3& center, float radius, const Vector3& axisA, const Vector3& axisB, const Color& color);
 
     void OnSelectionChanged(Unit* previousUnit, Unit* selectedUnit);
     void CreateLine(EditorVisualContext& context, Component& component, PointLightVisual& visual);

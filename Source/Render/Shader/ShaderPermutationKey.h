@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Shader/ShaderDefine.h>
 
 #include <vector>
@@ -21,7 +22,7 @@ enum class ShaderKind : uint8
 struct ShaderPermutationKey
 {
     const URay::Shader* shader = nullptr;
-    std::vector<ShaderDefine> defines;
+    Vector<ShaderDefine> defines;
     ShaderKind kind = ShaderKind::Graphics;
 
     bool operator==(const ShaderPermutationKey&) const = default;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Type.h>
 #include <Engine/Object/Property/Property.h>
 
@@ -15,17 +16,17 @@ public:
     ~Class();
 
 public:
-    std::vector<Property> GetAllProperties() const;
+    Vector<Property> GetAllProperties() const;
 
     void AddProperty(Property prop) { properties.push_back(prop); }
-    const std::vector<Property>& GetProperties() const { return properties; }
+    const Vector<Property>& GetProperties() const { return properties; }
 
     const Type& GetType() const { return type; }
 
 private:
     const Type& type;
 
-    std::vector<Property> properties;
+    Vector<Property> properties;
 };
 
 #define URAY_OBJECT(self, parent)        \

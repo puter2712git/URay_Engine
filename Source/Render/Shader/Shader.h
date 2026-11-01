@@ -16,14 +16,14 @@ struct ShaderStageData
 {
     ShaderStageFlags stage = ShaderStageFlags::None;
     String entryPoint;
-    std::vector<uint8> code;
+    Vector<uint8> code;
     ShaderReflection reflection = {};
 };
 
 class Shader
 {
 public:
-    Shader(std::vector<ShaderStageData> stages);
+    Shader(Vector<ShaderStageData> stages);
     ~Shader();
 
 public:
@@ -39,7 +39,7 @@ public:
     const std::map<uint32, DescriptorSetLayoutDesc>& GetLayoutDescriptions() const { return layoutDescriptions; }
     const DescriptorSetLayoutDesc* GetLayoutDescription(uint32 set) const;
 
-    const std::vector<PushConstantRange>& GetPushConstantRanges() const { return pushConstantRanges; }
+    const Vector<PushConstantRange>& GetPushConstantRanges() const { return pushConstantRanges; }
 
 private:
     // Merge Reflections
@@ -63,7 +63,7 @@ private:
     ShaderReflection mergedReflection = {};
 
     std::map<uint32, DescriptorSetLayoutDesc> layoutDescriptions;
-    std::vector<PushConstantRange> pushConstantRanges;
+    Vector<PushConstantRange> pushConstantRanges;
 };
 
 } // namespace URay::Render

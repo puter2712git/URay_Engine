@@ -64,8 +64,8 @@ public:
     Sampler* GetOrCreateSampler(const SamplerDesc& samplerDesc);
     void DestroySamplers();
 
-    Render::Shader* GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
-    Render::Shader* GetOrCreateComputeShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines);
+    Render::Shader* GetOrCreateShader(URay::Shader* shader, const Vector<ShaderDefine>& defines);
+    Render::Shader* GetOrCreateComputeShader(URay::Shader* shader, const Vector<ShaderDefine>& defines);
 
     void DestroyShaders();
 

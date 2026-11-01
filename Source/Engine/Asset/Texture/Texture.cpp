@@ -8,7 +8,7 @@ namespace URay
 URAY_REGISTER_CLASS(Texture)
 
 Texture::Texture(int32 width, int32 height, int32 channels,
-                 const std::vector<uint8>& pixels)
+                 const Vector<uint8>& pixels)
     : width(width), height(height), channels(channels),
       pixels(pixels) {}
 

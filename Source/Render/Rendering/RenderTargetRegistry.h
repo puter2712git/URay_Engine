@@ -47,7 +47,7 @@ public:
 private:
     Device& device;
 
-    std::array<RenderTargetEntry, static_cast<size_t>(RenderTargetId::Count)> entries;
+    Array<RenderTargetEntry, static_cast<size_t>(RenderTargetId::Count)> entries;
 };
 
 } // namespace URay::Render

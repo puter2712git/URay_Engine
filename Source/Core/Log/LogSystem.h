@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Engine.h>
 
 #include <cstdarg>
@@ -22,7 +23,7 @@ private:
     void LogV(const char* format, va_list args);
 
 private:
-    std::vector<LogSink*> sinks;
+    Vector<LogSink*> sinks;
 };
 
 #define URAY_LOG(...)                             \

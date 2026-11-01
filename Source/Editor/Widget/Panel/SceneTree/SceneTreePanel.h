@@ -103,7 +103,7 @@ private:
     ScrollView* scrollView = nullptr;
     SceneTreeVirtualContent* virtualContent = nullptr;
 
-    std::vector<TreeRow> rows;
+    Vector<TreeRow> rows;
 
     bool isTreeDirty = false;
 

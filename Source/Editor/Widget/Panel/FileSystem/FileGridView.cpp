@@ -1,4 +1,5 @@
 #include "FileGridView.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Widget/Panel/FileSystem/FileGridItem.h>
@@ -34,7 +35,7 @@ void FileGridView::SetDirectory(VirtualFileSystem& fileSystem, const VirtualPath
 {
     directory = path;
 
-    std::vector<VirtualFileEntry> entries = fileSystem.ListDirectory(path);
+    Vector<VirtualFileEntry> entries = fileSystem.ListDirectory(path);
 
     std::sort(entries.begin(), entries.end(),
               [](const VirtualFileEntry& lhs, const VirtualFileEntry& rhs)

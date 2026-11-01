@@ -10,7 +10,7 @@ UniquePtr<InputActionMap> CreateEditorInputActionMap()
 {
     auto actionMap = MakeUnique<InputActionMap>();
 
-    std::vector<InputBinding> viewportMoveBindings;
+    Vector<InputBinding> viewportMoveBindings;
     viewportMoveBindings.push_back(Axis2DCompositeBinding{
         .negativeX = KeyCode::A,
         .positiveX = KeyCode::D,
@@ -22,7 +22,7 @@ UniquePtr<InputActionMap> CreateEditorInputActionMap()
           .valueType = InputActionValueType::Axis2D,
           .bindings = viewportMoveBindings });
 
-    std::vector<InputBinding> viewportElevateBindings;
+    Vector<InputBinding> viewportElevateBindings;
     viewportElevateBindings.push_back(Axis1DCompositeBinding{
         .negative = KeyCode::Q,
         .positive = KeyCode::E });

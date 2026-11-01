@@ -34,7 +34,7 @@ protected:
 
 private:
     struct MenuItem;
-    std::vector<UniquePtr<MenuItem>> menuItems;
+    Vector<UniquePtr<MenuItem>> menuItems;
 
     Surface* surface = nullptr;
     VerticalLayout* layout = nullptr;

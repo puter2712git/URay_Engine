@@ -1,4 +1,5 @@
 #include "Texture.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Barrier/ImageBarrier.h>
 #include <Render/RHI/Barrier/PipelineBarrierDesc.h>
@@ -53,7 +54,7 @@ void Texture::Transition(CommandBuffer& commandBuffer, ImageLayout newLayout)
     const SyncInfo src = GetSyncInfo(imageLayout);
     const SyncInfo dst = GetSyncInfo(newLayout);
 
-    const std::array<ImageBarrierDesc, 1> barriers = {
+    const Array<ImageBarrierDesc, 1> barriers = {
         ImageBarrierDesc{
             .image = handle,
             .subresourceRange = range,

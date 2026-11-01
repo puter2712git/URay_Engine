@@ -22,7 +22,7 @@ public:
     Window& GetMainWindow() const { return *mainWindow; }
 
 private:
-    std::vector<UniquePtr<Window>> windows;
+    Vector<UniquePtr<Window>> windows;
     Window* mainWindow = nullptr;
     bool glfwInitialized = false;
 };

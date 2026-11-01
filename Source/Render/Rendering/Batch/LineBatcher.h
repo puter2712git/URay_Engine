@@ -42,7 +42,7 @@ private:
     Device& device;
     ResourceManager& resourceManager;
 
-    std::vector<Vertex> vertices;
+    Vector<Vertex> vertices;
 
     Shader* renderShader = nullptr;
 

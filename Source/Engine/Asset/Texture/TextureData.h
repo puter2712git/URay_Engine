@@ -21,7 +21,7 @@ struct TextureData
     uint32 width = 0;
     uint32 height = 0;
     TexturePixelFormat format = TexturePixelFormat::RGBA8;
-    std::vector<uint8> pixels;
+    Vector<uint8> pixels;
 
     bool Serialize(BinaryWriter& writer) const;
     bool Deserialize(BinaryReader& reader);

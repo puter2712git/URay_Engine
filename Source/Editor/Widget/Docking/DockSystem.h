@@ -74,7 +74,7 @@ private:
 
     std::optional<MoveRequest> pendingMove;
     std::optional<DetachRequest> pendingDetach;
-    std::vector<ObjectId> pendingCleanups;
+    Vector<ObjectId> pendingCleanups;
 
     std::optional<ObjectId> indicatorGroupId;
     std::optional<DockDropTarget> highlightedTarget;

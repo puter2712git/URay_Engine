@@ -68,7 +68,7 @@ public:
         if (it == rays.end())
             return false;
 
-        std::array<Variant, sizeof...(Args)> arguments{
+        Array<Variant, sizeof...(Args)> arguments{
             Variant(std::forward<Args>(args))...
         };
 

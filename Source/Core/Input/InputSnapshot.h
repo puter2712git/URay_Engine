@@ -37,7 +37,7 @@ public:
     const Vector2& GetMousePosition() const { return mousePosition; }
     const Vector2& GetMouseDelta() const { return mouseDelta; }
     const Vector2& GetScrollDelta() const { return scrollDelta; }
-    const std::vector<InputEvent>& GetEvents() const { return events; }
+    const Vector<InputEvent>& GetEvents() const { return events; }
 
     bool IsWindowFocused() const { return windowFocused; }
 
@@ -53,14 +53,14 @@ private:
 private:
     uint64 frameIndex = 0;
 
-    std::array<InputButtonState, static_cast<size_t>(KeyCode::Count)> keys = {};
-    std::array<InputButtonState, 3> mouseButtons = {};
+    Array<InputButtonState, static_cast<size_t>(KeyCode::Count)> keys = {};
+    Array<InputButtonState, 3> mouseButtons = {};
 
     Vector2 mousePosition = Vector2::Zero;
     Vector2 mouseDelta = Vector2::Zero;
     Vector2 scrollDelta = Vector2::Zero;
 
-    std::vector<InputEvent> events;
+    Vector<InputEvent> events;
 
     bool windowFocused = true;
 };

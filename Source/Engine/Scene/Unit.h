@@ -50,7 +50,7 @@ public:
         return nullptr;
     }
 
-    const std::vector<UniquePtr<Component>>& GetComponents() const { return components; }
+    const Vector<UniquePtr<Component>>& GetComponents() const { return components; }
 
     TransformComponent* GetTransform() const { return transform; }
 
@@ -63,7 +63,7 @@ public:
     Unit* GetParent() const { return parent; }
     bool SetParent(Unit* unit, ReparentMode mode = ReparentMode::KeepLocal);
 
-    const std::vector<Unit*>& GetChildren() const { return children; }
+    const Vector<Unit*>& GetChildren() const { return children; }
 
     bool MoveChild(Unit* child, uint32 index);
 
@@ -72,7 +72,7 @@ public:
 private:
     static TransformComponent* FindClosestTransform(Unit* unit);
 
-    void CollectTransformRoots(std::vector<TransformComponent*>& results, bool hasTransformAncestor) const;
+    void CollectTransformRoots(Vector<TransformComponent*>& results, bool hasTransformAncestor) const;
 
     void MarkTransformHierarchyDirty();
 
@@ -84,9 +84,9 @@ private:
     UUID persistentId = UUID::Generate();
 
     Unit* parent = nullptr;
-    std::vector<Unit*> children;
+    Vector<Unit*> children;
 
-    std::vector<UniquePtr<Component>> components;
+    Vector<UniquePtr<Component>> components;
     TransformComponent* transform = nullptr;
 
     Scene* scene = nullptr;

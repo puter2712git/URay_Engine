@@ -26,7 +26,7 @@ struct SkinnedMeshObjectState
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     SkinnedMesh* skinnedMesh = nullptr;
-    std::vector<Material*> materials;
+    Vector<Material*> materials;
     bool castsShadow = true;
 };
 
@@ -55,7 +55,7 @@ private:
     SkinnedMeshObjectState state = {};
     AABB worldBounds = {};
 
-    std::vector<Matrix> skinMatrices;
+    Vector<Matrix> skinMatrices;
     UniquePtr<Buffer> skinningBuffer = nullptr;
     UniquePtr<DescriptorSet> skinningDescriptorSet = nullptr;
 };

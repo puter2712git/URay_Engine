@@ -77,7 +77,7 @@ DrawCommand LineBatcher::Flush()
     cmd.vertexBuffer = vertexBuffer.get();
     cmd.vertexCount = static_cast<uint32>(vertices.size());
 
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
         .mode = BlendMode::Opaque });
 

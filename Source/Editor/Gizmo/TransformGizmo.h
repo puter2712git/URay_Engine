@@ -30,12 +30,12 @@ public:
     ~TransformGizmo();
 
 public:
-    void SetTargets(const std::vector<Unit*>& units, Unit* activeUnit);
+    void SetTargets(const Vector<Unit*>& units, Unit* activeUnit);
     bool HasTargets() const { return !selectedUnits.empty(); }
     Unit* GetActiveUnit() const { return activeUnit; }
     TransformComponent* GetActiveTransform();
     const TransformComponent* GetActiveTransform() const;
-    std::vector<TransformComponent*> GetTargetTransforms() const;
+    Vector<TransformComponent*> GetTargetTransforms() const;
     Vector3 GetPivotPosition() const;
 
     void SetMode(GizmoMode newMode);
@@ -55,7 +55,7 @@ public:
     void EndDragging();
     void Deactivate();
 
-    const std::vector<GizmoHandle>& GetHandles() const;
+    const Vector<GizmoHandle>& GetHandles() const;
 
 private:
     GizmoStrategy* FindStrategy(GizmoMode mode) const;
@@ -64,7 +64,7 @@ private:
     void UpdateRenderObject();
 
 private:
-    std::vector<UniquePtr<GizmoStrategy>> strategies;
+    Vector<UniquePtr<GizmoStrategy>> strategies;
     GizmoStrategy* currentStrategy = nullptr;
 
     bool dragging = false;
@@ -74,7 +74,7 @@ private:
 
     bool isLocal = false;
 
-    std::vector<Unit*> selectedUnits;
+    Vector<Unit*> selectedUnits;
     Unit* activeUnit = nullptr;
     PlaySession& playSession;
     Material* material = nullptr;

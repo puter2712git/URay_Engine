@@ -31,13 +31,13 @@ public:
     bool Exists(const VirtualPath& path) const;
     bool IsDirectory(const VirtualPath& path) const;
 
-    std::vector<uint8> ReadBinary(const VirtualPath& virtualPath) const;
+    Vector<uint8> ReadBinary(const VirtualPath& virtualPath) const;
     String ReadText(const VirtualPath& path) const;
 
-    bool WriteBinary(const VirtualPath& path, const std::vector<uint8>& bin) const;
+    bool WriteBinary(const VirtualPath& path, const Vector<uint8>& bin) const;
     bool WriteText(const VirtualPath& path, const String& text) const;
 
-    std::vector<VirtualFileEntry> ListDirectory(const VirtualPath& directory) const;
+    Vector<VirtualFileEntry> ListDirectory(const VirtualPath& directory) const;
 
     std::filesystem::path ResolveToPhysicalPath(const VirtualPath& virtualPath) const;
 

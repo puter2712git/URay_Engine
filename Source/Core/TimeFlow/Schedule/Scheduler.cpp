@@ -1,11 +1,12 @@
 #include "Scheduler.h"
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {
 
 void Scheduler::Update(double deltaTime)
 {
-    std::vector<TaskId> finishedTaskIds;
+    Vector<TaskId> finishedTaskIds;
 
     for (auto& [id, task] : tasks)
     {

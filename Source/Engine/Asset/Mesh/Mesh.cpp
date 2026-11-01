@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
 
 #include <algorithm>
@@ -16,7 +17,7 @@ void Mesh::RegisterClass()
 {
 }
 
-void Mesh::SetVertices(const std::vector<Render::VertexPNT>& newVertices)
+void Mesh::SetVertices(const Vector<Render::VertexPNT>& newVertices)
 {
     vertices = newVertices;
 

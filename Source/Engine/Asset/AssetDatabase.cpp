@@ -23,9 +23,9 @@ Asset* AssetDatabase::Find(const AssetHandle& handle, Class* assetClass) const
     return nullptr;
 }
 
-std::vector<Asset*> AssetDatabase::GetAssets(Class* assetClass) const
+Vector<Asset*> AssetDatabase::GetAssets(Class* assetClass) const
 {
-    std::vector<Asset*> ret;
+    Vector<Asset*> ret;
 
     for (const auto& [handle, asset] : assets)
     {

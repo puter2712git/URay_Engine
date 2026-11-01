@@ -1,4 +1,5 @@
 #include "SkinnedMeshComponent.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -48,7 +49,7 @@ Render::RenderObject* SkinnedMeshComponent::CreateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    std::vector<Material*> materials;
+    Vector<Material*> materials;
     for (const AssetHandle& handle : materialHandles)
     {
         Material* material = assetDatabase.Find<Material>(handle);
@@ -75,7 +76,7 @@ void SkinnedMeshComponent::SetSkinnedMeshHandle(const AssetHandle& handle)
     SkinnedMesh* skinnedMesh = assetDatabase.Find<SkinnedMesh>(skinnedMeshHandle);
     materialHandles = skinnedMesh
                           ? skinnedMesh->GetDefaultMaterials()
-                          : std::vector<AssetHandle>{};
+                          : Vector<AssetHandle>{};
 
     MarkDirty();
 }
@@ -95,7 +96,7 @@ void SkinnedMeshComponent::SetMaterial(const AssetHandle& newMaterialHandle, siz
     MarkDirty();
 }
 
-void SkinnedMeshComponent::SetMaterials(const std::vector<AssetHandle>& newMaterialHandles)
+void SkinnedMeshComponent::SetMaterials(const Vector<AssetHandle>& newMaterialHandles)
 {
     materialHandles = newMaterialHandles;
     MarkDirty();
@@ -112,7 +113,7 @@ void SkinnedMeshComponent::UpdateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    std::vector<Material*> materials;
+    Vector<Material*> materials;
     for (const AssetHandle& handle : materialHandles)
     {
         Material* material = assetDatabase.Find<Material>(handle);

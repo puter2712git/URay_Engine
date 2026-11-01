@@ -19,7 +19,7 @@ public:
     std::optional<String> Get(const String& option) const;
 
 private:
-    std::vector<String> arguments;
+    Vector<String> arguments;
 };
 
 } // namespace URay

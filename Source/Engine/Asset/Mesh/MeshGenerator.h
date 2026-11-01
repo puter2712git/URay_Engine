@@ -13,9 +13,9 @@ namespace URay
 
 struct MeshInfo
 {
-    std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32> indices;
-    std::vector<MeshSection> sections;
+    Vector<Render::VertexPNT> vertices;
+    Vector<uint32> indices;
+    Vector<MeshSection> sections;
 };
 
 class MeshGenerator

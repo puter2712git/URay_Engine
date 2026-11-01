@@ -99,7 +99,7 @@ bool ShaderCompiler::Compile(
         .Encoding = DXC_CP_UTF8
     };
 
-    std::vector<LPCWSTR> args = {
+    Vector<LPCWSTR> args = {
         L"-spirv",
         L"-T", profile.data(),
         L"-E", entryPoint.data(),
@@ -190,7 +190,7 @@ bool ShaderCompiler::Compile(
         return false;
     }
 
-    std::vector<uint8> bytes(
+    Vector<uint8> bytes(
         static_cast<const uint8*>(spirv->GetBufferPointer()),
         static_cast<const uint8*>(spirv->GetBufferPointer()) +
             spirv->GetBufferSize());

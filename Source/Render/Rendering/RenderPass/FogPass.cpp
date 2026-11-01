@@ -1,4 +1,5 @@
 #include "FogPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/Buffer/Buffer.h>
@@ -40,7 +41,7 @@ void FogPass::Begin(const RenderPassContext& context)
 
     const Extent2D& extent = postProcessRT.GetExtent();
 
-    const std::array colorAttachments = {
+    const Array<RenderingAttachmentInfo, 1> colorAttachments = {
         RenderingAttachmentInfo{
             .imageView = postProcessRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
@@ -75,7 +76,7 @@ void FogPass::End(const RenderPassContext& context)
 
 void FogPass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>&)
+    const Vector<DrawCommand>&)
 {
     RenderTarget& sceneRT = *context.sceneTargets->scene;
 
@@ -193,7 +194,7 @@ void FogPass::EnsureResources(const RenderPassContext& context)
 
     if (!pso)
     {
-        std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+        Vector<ColorBlendAttachmentState> colorBlendAttachments;
         colorBlendAttachments.push_back(ColorBlendAttachmentState{
             .mode = BlendMode::Opaque });
 

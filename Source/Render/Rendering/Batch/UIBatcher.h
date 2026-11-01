@@ -56,7 +56,7 @@ public:
     bool Initialize();
     void Finalize();
 
-    std::vector<DrawCommand> Flush(const UIDrawContext& context);
+    Vector<DrawCommand> Flush(const UIDrawContext& context);
 
 private:
     void EnsureResources();
@@ -69,11 +69,11 @@ private:
     Device& device;
     ResourceManager& resourceManager;
 
-    std::array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> vertexBuffers;
-    std::array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> indexBuffers;
+    Array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> vertexBuffers;
+    Array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> indexBuffers;
 
-    std::array<void*, MAX_FRAMES_IN_FLIGHT> mappedVertexData = {};
-    std::array<void*, MAX_FRAMES_IN_FLIGHT> mappedIndexData = {};
+    Array<void*, MAX_FRAMES_IN_FLIGHT> mappedVertexData = {};
+    Array<void*, MAX_FRAMES_IN_FLIGHT> mappedIndexData = {};
 
     Shader* shader = nullptr;
 

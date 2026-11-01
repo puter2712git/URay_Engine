@@ -1,4 +1,5 @@
 #include "Class.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Object/Class/ClassRegistry.h>
 
@@ -9,9 +10,9 @@ Class::Class(const Type& type) : type(type) {}
 
 Class::~Class() = default;
 
-std::vector<Property> Class::GetAllProperties() const
+Vector<Property> Class::GetAllProperties() const
 {
-    std::vector<Property> result;
+    Vector<Property> result;
 
     const Type& type = GetType();
     const Type* parentType = type.parent;

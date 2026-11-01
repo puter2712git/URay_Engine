@@ -1,4 +1,5 @@
 #include "SkinnedMesh.h"
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
 
 namespace URay
@@ -8,7 +9,7 @@ URAY_REGISTER_CLASS(SkinnedMesh)
 
 void SkinnedMesh::RegisterClass() {}
 
-void SkinnedMesh::SetVertices(const std::vector<Render::VertexSkinnedPNT>& newVertices)
+void SkinnedMesh::SetVertices(const Vector<Render::VertexSkinnedPNT>& newVertices)
 {
     vertices = newVertices;
 

@@ -37,13 +37,13 @@ public:
 
     size_t GetObjectCount() const { return objects.size(); }
     RenderObject* GetObject(size_t index) const { return objects[index].get(); }
-    const std::vector<RenderObject*>& GetObjects(const Unit* unit) const;
+    const Vector<RenderObject*>& GetObjects(const Unit* unit) const;
 
     ViewObject* GetView() const { return viewObjects.empty() ? nullptr : viewObjects[0]; }
     RenderEnvironment& GetEnvironment() { return environment; }
     const RenderEnvironment& GetEnvironment() const { return environment; }
-    const std::vector<PointLightObject*>& GetPointLights() const { return pointLightObjects; }
-    const std::vector<SpotLightObject*>& GetSpotLights() const { return spotLightObjects; }
+    const Vector<PointLightObject*>& GetPointLights() const { return pointLightObjects; }
+    const Vector<SpotLightObject*>& GetSpotLights() const { return spotLightObjects; }
 
 private:
     void Add(UniquePtr<RenderObject> object, Unit* unit);
@@ -56,12 +56,12 @@ private:
 
     RenderEnvironment environment = {};
 
-    std::vector<UniquePtr<RenderObject>> objects;
-    std::vector<ViewObject*> viewObjects;
-    std::vector<PointLightObject*> pointLightObjects;
-    std::vector<SpotLightObject*> spotLightObjects;
+    Vector<UniquePtr<RenderObject>> objects;
+    Vector<ViewObject*> viewObjects;
+    Vector<PointLightObject*> pointLightObjects;
+    Vector<SpotLightObject*> spotLightObjects;
 
-    std::unordered_map<const Unit*, std::vector<RenderObject*>> objectsByUnit;
+    std::unordered_map<const Unit*, Vector<RenderObject*>> objectsByUnit;
     std::unordered_map<RenderObject*, const Unit*> unitByObject;
 };
 

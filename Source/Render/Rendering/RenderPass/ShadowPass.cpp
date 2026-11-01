@@ -1,4 +1,5 @@
 #include "ShadowPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/Buffer/Buffer.h>
@@ -59,7 +60,7 @@ void ShadowPass::End(const RenderPassContext& context)
 {
 }
 
-void ShadowPass::Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+void ShadowPass::Execute(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds)
 {
     ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
 
@@ -72,7 +73,7 @@ void ShadowPass::Execute(const RenderPassContext& context, const std::vector<Dra
     RecordPointLightsDepth(context, drawCmds);
 }
 
-void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds)
 {
     DirectionalLightObject* directionalLight = context.directionalLight;
     if (!directionalLight)
@@ -199,14 +200,14 @@ void ShadowPass::RecordDirectionalDepth(const RenderPassContext& context, const 
     renderTarget->TransitionDepth(context.commandBuffer, ImageLayout::DepthReadOnly);
 }
 
-void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds)
 {
     ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
     RenderTarget* renderTarget = shadowSystem.GetShadowAtlasRT();
 
     bool firstTime = true;
 
-    std::vector<SpotLightShadowConstants> shadowConstants;
+    Vector<SpotLightShadowConstants> shadowConstants;
 
     for (SpotLightObject* spotLight : context.spotLights)
     {
@@ -346,7 +347,7 @@ void ShadowPass::RecordSpotLightsDepth(const RenderPassContext& context, const s
     }
 }
 
-void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds)
+void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds)
 {
     ShadowSystem& shadowSystem = context.resourceManager.GetShadowSystem();
     Texture* textureCube = shadowSystem.GetDepthTextureCubeArray();
@@ -355,7 +356,7 @@ void ShadowPass::RecordPointLightsDepth(const RenderPassContext& context, const 
     const uint32 width = textureDesc.width;
     const uint32 height = textureDesc.height;
 
-    std::vector<PointLightShadowConstants> shadowConstants;
+    Vector<PointLightShadowConstants> shadowConstants;
 
     textureCube->Transition(context.commandBuffer, ImageLayout::DepthAttachment);
 

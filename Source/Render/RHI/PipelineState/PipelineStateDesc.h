@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include "BlendState.h"
 #include "DepthStencilState.h"
 #include "PrimitiveTopology.h"
@@ -18,7 +19,7 @@ class Shader;
 
 struct PipelineRenderingDesc
 {
-    std::vector<Format> colorAttachmentFormats;
+    Vector<Format> colorAttachmentFormats;
 
     Format depthAttachmentFormat = Format::Unknown;
     Format stencilAttachmentFormat = Format::Unknown;
@@ -36,7 +37,7 @@ struct PipelineStateDesc
 
     DepthStencilState depthStencil = {};
     RasterizerState rasterizer = {};
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
 
     PipelineRenderingDesc rendering = {};
 

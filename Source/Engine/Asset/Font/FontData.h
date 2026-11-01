@@ -12,7 +12,7 @@ class BinaryWriter;
 
 struct FontData
 {
-    std::vector<uint8> bytes;
+    Vector<uint8> bytes;
 
     bool Serialize(BinaryWriter& writer) const;
     bool Deserialize(BinaryReader& reader);

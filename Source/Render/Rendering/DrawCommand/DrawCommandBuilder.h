@@ -55,7 +55,7 @@ public:
 
     void BuildGizmo(const GizmoCommandContext& context);
 
-    const std::vector<DrawCommand>& GetCommands() const { return drawCmds; }
+    const Vector<DrawCommand>& GetCommands() const { return drawCmds; }
 
 private:
     AssetSystem& assetSystem;
@@ -63,7 +63,7 @@ private:
     Renderer& renderer;
     ResourceManager& resourceManager;
 
-    std::vector<DrawCommand> drawCmds;
+    Vector<DrawCommand> drawCmds;
 
     UniquePtr<LineBatcher> lineBatcher = nullptr;
     UniquePtr<UIBatcher> uiBatcher = nullptr;

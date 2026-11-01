@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/FunctionParameter.h>
 #include <Core/Type/Function/FunctionTraits.h>
 
@@ -15,7 +16,7 @@ namespace URay
 
 struct FunctionSignature
 {
-    std::vector<FunctionParameter> parameters;
+    Vector<FunctionParameter> parameters;
     std::optional<FunctionParameter> returnValue;
 
     bool AcceptsArguments(std::span<const Variant> args) const;

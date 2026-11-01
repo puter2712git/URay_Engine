@@ -50,7 +50,7 @@ public:
         return result;
     }
 
-    const std::vector<UniquePtr<Widget>>& GetChildren() const { return children; }
+    const Vector<UniquePtr<Widget>>& GetChildren() const { return children; }
 
     void ClearChildren() { children.clear(); }
 
@@ -106,7 +106,7 @@ protected:
 
 protected:
     Widget* parent = nullptr;
-    std::vector<UniquePtr<Widget>> children;
+    Vector<UniquePtr<Widget>> children;
 
     Rect rect = {};
     Vector2 desiredSize = Vector2::Zero;

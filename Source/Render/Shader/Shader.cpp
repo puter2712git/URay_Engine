@@ -8,7 +8,7 @@
 namespace URay::Render
 {
 
-Shader::Shader(std::vector<ShaderStageData> stages)
+Shader::Shader(Vector<ShaderStageData> stages)
 {
     for (const ShaderStageData& stage : stages)
     {
@@ -94,7 +94,7 @@ void Shader::MergeReflection()
 
 void Shader::MergeDescriptorBindings()
 {
-    std::vector<ShaderReflection*> reflections;
+    Vector<ShaderReflection*> reflections;
 
     if (vertexStageData)
     {
@@ -130,7 +130,7 @@ void Shader::MergeDescriptorBindings()
 
 void Shader::MergeUniformBuffers()
 {
-    std::vector<ShaderReflection*> reflections;
+    Vector<ShaderReflection*> reflections;
 
     if (vertexStageData)
     {
@@ -220,7 +220,7 @@ ShaderUniformBuffer* Shader::FindUniformBuffer(uint32 set, uint32 binding)
 
 void Shader::CreateSetLayoutDescriptions()
 {
-    std::map<uint32, std::vector<ShaderDescriptorBinding*>> bindingsPerSet;
+    std::map<uint32, Vector<ShaderDescriptorBinding*>> bindingsPerSet;
 
     for (ShaderDescriptorBinding& binding : mergedReflection.descriptorBindings)
     {

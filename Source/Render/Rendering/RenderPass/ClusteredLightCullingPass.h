@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/RenderPass/RenderPass.h>
 
 namespace URay::Render
@@ -18,7 +19,7 @@ public:
     void Begin(const RenderPassContext& context) override;
     void End(const RenderPassContext& context) override;
 
-    void Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCommands) override;
+    void Execute(const RenderPassContext& context, const Vector<DrawCommand>& drawCommands) override;
 
     RenderPassId GetPassId() const override { return RenderPassId::ClusteredLightCulling; }
 

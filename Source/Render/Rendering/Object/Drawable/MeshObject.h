@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
@@ -23,7 +24,7 @@ struct MeshObjectState
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     Mesh* mesh = nullptr;
-    std::vector<Material*> materials;
+    Vector<Material*> materials;
     bool castsShadow = true;
 };
 

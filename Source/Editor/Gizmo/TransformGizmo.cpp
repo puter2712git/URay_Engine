@@ -46,7 +46,7 @@ TransformGizmo::~TransformGizmo()
     Deactivate();
 }
 
-void TransformGizmo::SetTargets(const std::vector<Unit*>& units, Unit* newActiveUnit)
+void TransformGizmo::SetTargets(const Vector<Unit*>& units, Unit* newActiveUnit)
 {
     if (dragging)
         EndDragging();
@@ -65,7 +65,7 @@ const TransformComponent* TransformGizmo::GetActiveTransform() const
     return activeUnit ? activeUnit->GetTransform() : nullptr;
 }
 
-std::vector<TransformComponent*> TransformGizmo::GetTargetTransforms() const
+Vector<TransformComponent*> TransformGizmo::GetTargetTransforms() const
 {
     std::unordered_set<Unit*> selectedSet;
     selectedSet.reserve(selectedUnits.size());
@@ -73,7 +73,7 @@ std::vector<TransformComponent*> TransformGizmo::GetTargetTransforms() const
         if (unit)
             selectedSet.insert(unit);
 
-    std::vector<TransformComponent*> transforms;
+    Vector<TransformComponent*> transforms;
     transforms.reserve(selectedSet.size());
     for (Unit* unit : selectedUnits)
     {
@@ -99,7 +99,7 @@ std::vector<TransformComponent*> TransformGizmo::GetTargetTransforms() const
 
 Vector3 TransformGizmo::GetPivotPosition() const
 {
-    const std::vector<TransformComponent*> transforms = GetTargetTransforms();
+    const Vector<TransformComponent*> transforms = GetTargetTransforms();
     if (transforms.empty())
         return Vector3::Zero;
 
@@ -136,8 +136,8 @@ std::optional<GizmoHandleId> TransformGizmo::HitTest(const Vector3& worldOrigin,
         Vector3 localOrigin = inverseWorld.TransformPoint(worldOrigin);
         Vector3 localDirection = inverseWorld.TransformVector(worldDirection).GetNormalized();
 
-        const std::vector<Render::VertexPNT>& vertices = mesh->GetVertices();
-        const std::vector<uint32>& indices = mesh->GetIndices();
+        const Vector<Render::VertexPNT>& vertices = mesh->GetVertices();
+        const Vector<uint32>& indices = mesh->GetIndices();
 
         for (size_t index = 0; index + 2 < indices.size(); index += 3)
         {
@@ -236,9 +236,9 @@ void TransformGizmo::EndDragging()
     selectedHandle = GizmoHandleId::None;
 }
 
-const std::vector<GizmoHandle>& TransformGizmo::GetHandles() const
+const Vector<GizmoHandle>& TransformGizmo::GetHandles() const
 {
-    static const std::vector<GizmoHandle> empty;
+    static const Vector<GizmoHandle> empty;
     return currentStrategy ? currentStrategy->GetHandles() : empty;
 }
 
@@ -278,7 +278,7 @@ Render::RenderScene* TransformGizmo::FindTargetRenderScene() const
     Scene* targetScene = playSession.IsPlaying() ? playSession.GetScene() : nullptr;
     if (!targetScene)
     {
-        const std::vector<Scene*> gameScenes = gEngine->GetSceneSystem().GetScenes(SceneType::Game);
+        const Vector<Scene*> gameScenes = gEngine->GetSceneSystem().GetScenes(SceneType::Game);
         targetScene = gameScenes.empty() ? nullptr : gameScenes.front();
     }
 

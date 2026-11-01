@@ -21,7 +21,7 @@ struct MaterialParameterData
 struct MaterialData
 {
     AssetHandle shaderHandle;
-    std::vector<MaterialParameterData> parameters;
+    Vector<MaterialParameterData> parameters;
 
     YAML::Node Serialize(YAML::Node& inNode) const;
     void Deserialize(const YAML::Node& node);

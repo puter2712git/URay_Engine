@@ -13,9 +13,9 @@ namespace URay
 PerformanceViewModel::PerformanceViewModel(size_t historyCapacity)
     : historyCapacity(Math::Max<size_t>(1, historyCapacity)) {}
 
-void PerformanceViewModel::AddCPUFrame(uint64 frameNumber, const std::vector<ScopeSample>& samples)
+void PerformanceViewModel::AddCPUFrame(uint64 frameNumber, const Vector<ScopeSample>& samples)
 {
-    std::vector<ProfileSample> profileSamples;
+    Vector<ProfileSample> profileSamples;
     profileSamples.reserve(samples.size());
 
     for (const ScopeSample& sample : samples)
@@ -30,7 +30,7 @@ void PerformanceViewModel::AddCPUFrame(uint64 frameNumber, const std::vector<Sco
     AddFrame(ProfileDomain::CPU, frameNumber, profileSamples);
 }
 
-void PerformanceViewModel::AddGPUFrame(uint64 submissionNumber, const std::vector<ProfileSample>& samples)
+void PerformanceViewModel::AddGPUFrame(uint64 submissionNumber, const Vector<ProfileSample>& samples)
 {
     AddFrame(ProfileDomain::GPU, submissionNumber, samples);
 }
@@ -44,9 +44,9 @@ const ProfileFrame* PerformanceViewModel::GetLatestFrame(ProfileDomain domain) c
 void PerformanceViewModel::AddFrame(
     ProfileDomain domain,
     uint64 frameNumber,
-    const std::vector<ProfileSample>& samples)
+    const Vector<ProfileSample>& samples)
 {
-    std::vector<ProfileSample> orderedSamples = samples;
+    Vector<ProfileSample> orderedSamples = samples;
 
     std::sort(orderedSamples.begin(), orderedSamples.end(),
               [](const ProfileSample& lhs, const ProfileSample& rhs)
@@ -60,8 +60,8 @@ void PerformanceViewModel::AddFrame(
     ProfileFrame frame = {};
     frame.frameNumber = frameNumber;
 
-    std::vector<size_t> scopeStack;
-    std::vector<double> directChildDuration;
+    Vector<size_t> scopeStack;
+    Vector<double> directChildDuration;
 
     for (const ProfileSample& sample : orderedSamples)
     {
@@ -120,7 +120,7 @@ void PerformanceViewModel::RebuildStatistics(ProfileChannel& channel)
 {
     struct ScopeValues
     {
-        std::vector<double> durations;
+        Vector<double> durations;
         double latestMs = 0.0;
     };
 

@@ -92,7 +92,7 @@ private:
     UniquePtr<SceneSystem> sceneSystem = nullptr;
     UniquePtr<Render::RenderSystem> renderSystem = nullptr;
 
-    std::vector<Window*> additionalWindows;
+    Vector<Window*> additionalWindows;
 };
 
 extern Engine* gEngine;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include "ResourceBinding.h"
 
 #include <vector>
@@ -9,7 +10,7 @@ namespace URay::Render
 
 struct DescriptorSetLayoutDesc
 {
-    std::vector<ResourceBinding> bindings;
+    Vector<ResourceBinding> bindings;
 
     bool operator==(const DescriptorSetLayoutDesc&) const = default;
 };

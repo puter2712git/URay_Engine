@@ -48,7 +48,7 @@ public:
     bool HasTab(ObjectId panelId) const;
     const DockedTab* FindTab(ObjectId panelId) const;
 
-    const std::vector<DockedTab>& GetTabs() const { return tabs; }
+    const Vector<DockedTab>& GetTabs() const { return tabs; }
     std::optional<ObjectId> GetActiveTabId() const { return activeId; }
 
     // Sets the initial selection before the group is attached to a widget tree.
@@ -62,10 +62,10 @@ public:
     std::optional<DetachedTab> DetachTab(ObjectId panelId);
     bool IsEmpty() const { return tabs.empty(); }
 
-    std::optional<std::array<DockIndicator, 5>> GetDockIndicators() const;
+    std::optional<Array<DockIndicator, 5>> GetDockIndicators() const;
 
     void SetDockIndicatorsVisible(bool visible) { dockIndicatorsVisible = visible; }
-    void SetDockIndicatorEnabled(const std::array<bool, 5>& enabled) { dockIndicatorEnabled = enabled; }
+    void SetDockIndicatorEnabled(const Array<bool, 5>& enabled) { dockIndicatorEnabled = enabled; }
 
     void Arrange(const Rect& rect) override;
 
@@ -84,7 +84,7 @@ private:
 
 private:
     UISystem& uiSystem;
-    std::vector<DockedTab> tabs;
+    Vector<DockedTab> tabs;
 
     std::optional<ObjectId> activeId;
     std::optional<ObjectId> pendingId;
@@ -92,7 +92,7 @@ private:
     std::optional<DockDropZone> dropHighlight;
 
     bool dockIndicatorsVisible = false;
-    std::array<bool, 5> dockIndicatorEnabled = { true, true, true, true, true };
+    Array<bool, 5> dockIndicatorEnabled = { true, true, true, true, true };
 };
 
 } // namespace URay

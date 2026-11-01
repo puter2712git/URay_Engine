@@ -81,8 +81,8 @@ bool Unit::SetParent(Unit* unit, ReparentMode mode)
     if (parent == unit)
         return true;
 
-    std::vector<TransformComponent*> transformRoots;
-    std::vector<Matrix> localMatrices;
+    Vector<TransformComponent*> transformRoots;
+    Vector<Matrix> localMatrices;
 
     if (mode == ReparentMode::KeepWorld)
     {
@@ -212,7 +212,7 @@ TransformComponent* Unit::FindClosestTransform(Unit* unit)
 }
 
 void Unit::CollectTransformRoots(
-    std::vector<TransformComponent*>& results,
+    Vector<TransformComponent*>& results,
     bool hasTransformAncestor) const
 {
     const bool hasTransform = transform != nullptr;

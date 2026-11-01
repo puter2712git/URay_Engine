@@ -1,4 +1,5 @@
 #include "SceneTreePanel.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Editor/Widget/Panel/PanelFactory.h>
 
@@ -47,7 +48,7 @@ protected:
 
 private:
     SceneTreePanel& owner;
-    std::vector<SceneTreeNode*> nodePool;
+    Vector<SceneTreeNode*> nodePool;
 };
 
 SceneTreePanel::SceneTreePanel()

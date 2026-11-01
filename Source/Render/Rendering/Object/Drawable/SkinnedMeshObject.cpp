@@ -1,4 +1,5 @@
 #include "SkinnedMeshObject.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Engine/Asset/Material/Material.h>
@@ -22,8 +23,8 @@ namespace
 bool BuildGlobalBindTransform(
     const URay::SkinnedMesh& mesh,
     uint32_t boneIndex,
-    std::vector<URay::Matrix>& outGlobalTransforms,
-    std::vector<uint8_t>& visitStates)
+    URay::Vector<URay::Matrix>& outGlobalTransforms,
+    URay::Vector<uint8_t>& visitStates)
 {
     constexpr uint8_t Visiting = 1;
     constexpr uint8_t Visited = 2;
@@ -159,8 +160,8 @@ void SkinnedMeshObject::RebuildSkinningResources()
         return;
 
     const uint32 boneCount = state.skinnedMesh->GetBoneCount();
-    std::vector<Matrix> globalBindTransforms(boneCount);
-    std::vector<uint8_t> visitStates(boneCount, 0);
+    Vector<Matrix> globalBindTransforms(boneCount);
+    Vector<uint8_t> visitStates(boneCount, 0);
 
     for (uint32 boneIndex = 0; boneIndex < boneCount; ++boneIndex)
     {

@@ -62,14 +62,14 @@ protected:
 
     Render::DescriptorSetLayoutDesc* descriptorSetLayoutDescription = nullptr;
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::vector<Render::DescriptorSet*> descriptorSets;
+    Vector<Render::DescriptorSet*> descriptorSets;
 
-    std::map<uint32, std::array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
+    std::map<uint32, Array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
 
     std::unordered_map<String, MaterialParameter> parameters;
 
     uint64 descriptorRevision = 1;
-    std::array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};
+    Array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};
 };
 
 } // namespace URay

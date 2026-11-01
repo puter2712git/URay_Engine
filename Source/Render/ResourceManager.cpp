@@ -90,7 +90,7 @@ MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(URay::Mesh* asset)
     if (it != meshBuffers.end())
         return it->second;
 
-    const std::vector<VertexPNT>& vertices = asset->GetVertices();
+    const Vector<VertexPNT>& vertices = asset->GetVertices();
     const VertexBufferDesc vertexBufferDesc = {
         .size = sizeof(VertexPNT) * vertices.size(),
         .vertexCount = static_cast<uint32>(vertices.size()),
@@ -103,7 +103,7 @@ MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(URay::Mesh* asset)
     if (!vertexBuffer)
         return nullptr;
 
-    const std::vector<uint32>& indices = asset->GetIndices();
+    const Vector<uint32>& indices = asset->GetIndices();
     const IndexBufferDesc indexBufferDesc = {
         .size = sizeof(uint32) * indices.size(),
         .indexCount = static_cast<uint32>(indices.size()),
@@ -137,7 +137,7 @@ MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(URay::SkinnedMesh* asset)
     if (it != skinnedMeshBuffers.end())
         return it->second;
 
-    const std::vector<VertexSkinnedPNT>& vertices = asset->GetVertices();
+    const Vector<VertexSkinnedPNT>& vertices = asset->GetVertices();
     const VertexBufferDesc vertexBufferDesc = {
         .size = sizeof(VertexSkinnedPNT) * vertices.size(),
         .vertexCount = static_cast<uint32>(vertices.size()),
@@ -150,7 +150,7 @@ MeshBuffer* ResourceManager::GetOrCreateMeshBuffer(URay::SkinnedMesh* asset)
     if (!vertexBuffer)
         return nullptr;
 
-    const std::vector<uint32>& indices = asset->GetIndices();
+    const Vector<uint32>& indices = asset->GetIndices();
     const IndexBufferDesc indexBufferDesc = {
         .size = sizeof(uint32) * indices.size(),
         .indexCount = static_cast<uint32>(indices.size()),
@@ -293,7 +293,7 @@ void ResourceManager::DestroySamplers()
     textureSamplers.clear();
 }
 
-Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines)
+Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const Vector<ShaderDefine>& defines)
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
@@ -315,7 +315,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
 
     const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Shader").wstring();
 
-    std::vector<std::wstring> compilerDefines;
+    Vector<std::wstring> compilerDefines;
     compilerDefines.reserve(defines.size());
 
     for (const ShaderDefine& define : defines)
@@ -361,14 +361,14 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
 
     const VirtualPath fragmentShaderPath = importAssetPath;
 
-    std::vector<uint8> vertexShaderCode = fileSystem.ReadBinary(vertexShaderPath);
+    Vector<uint8> vertexShaderCode = fileSystem.ReadBinary(vertexShaderPath);
     if (vertexShaderCode.empty())
     {
         URAY_LOG("[ResourceManager] Failed to read vertex SPIR-V: %s", vertexShaderPath.ToString().c_str());
         return nullptr;
     }
 
-    std::vector<uint8> fragmentShaderCode = fileSystem.ReadBinary(fragmentShaderPath);
+    Vector<uint8> fragmentShaderCode = fileSystem.ReadBinary(fragmentShaderPath);
     if (fragmentShaderCode.empty())
     {
         URAY_LOG("[ResourceManager] Failed to read fragment SPIR-V: %s", fragmentShaderPath.ToString().c_str());
@@ -389,7 +389,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
         return nullptr;
     }
 
-    std::vector<ShaderStageData> shaderStages = {
+    Vector<ShaderStageData> shaderStages = {
         { .stage = ShaderStageFlags::Vertex,
           .entryPoint = "VSMain",
           .code = std::move(vertexShaderCode),
@@ -406,7 +406,7 @@ Render::Shader* ResourceManager::GetOrCreateShader(URay::Shader* shader, const s
     return newShader;
 }
 
-Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, const std::vector<ShaderDefine>& defines)
+Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, const Vector<ShaderDefine>& defines)
 {
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
@@ -427,7 +427,7 @@ Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, 
 
     const std::wstring includeDirectory = fileSystem.ResolveToPhysicalPath("Engine://Asset/Shader").wstring();
 
-    std::vector<std::wstring> compilerDefines;
+    Vector<std::wstring> compilerDefines;
     compilerDefines.reserve(defines.size());
 
     for (const ShaderDefine& define : defines)
@@ -454,7 +454,7 @@ Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, 
 
     const VirtualPath computeShaderPath = importAssetPath;
 
-    std::vector<uint8> computeShaderCode = fileSystem.ReadBinary(computeShaderPath);
+    Vector<uint8> computeShaderCode = fileSystem.ReadBinary(computeShaderPath);
     if (computeShaderCode.empty())
     {
         URAY_LOG("[ResourceManager] Failed to read compute SPIR-V: %s", computeShaderPath.ToString().c_str());
@@ -468,7 +468,7 @@ Render::Shader* ResourceManager::GetOrCreateComputeShader(URay::Shader* shader, 
         return nullptr;
     }
 
-    std::vector<ShaderStageData> shaderStages = {
+    Vector<ShaderStageData> shaderStages = {
         { .stage = ShaderStageFlags::Compute,
           .entryPoint = "CSMain",
           .code = std::move(computeShaderCode),

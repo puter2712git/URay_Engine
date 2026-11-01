@@ -36,15 +36,15 @@ public:
 
     uint64 GetCompletedFrameNumber() const { return completedFrameNumber; }
 
-    const std::vector<ScopeSample>& GetCompletedSamples() const { return completedSamples; }
+    const Vector<ScopeSample>& GetCompletedSamples() const { return completedSamples; }
 
 private:
     std::chrono::steady_clock::time_point frameBeginTime;
     uint32 activeScopeDepth = 0;
     uint64 completedFrameNumber = 0;
 
-    std::vector<ScopeSample> currSamples;
-    std::vector<ScopeSample> completedSamples;
+    Vector<ScopeSample> currSamples;
+    Vector<ScopeSample> completedSamples;
 };
 
 } // namespace URay

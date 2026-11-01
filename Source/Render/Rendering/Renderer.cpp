@@ -483,7 +483,7 @@ bool Renderer::CreateSceneRenderTarget()
 
     const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
-    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    Vector<RenderTargetAttachmentDesc> colorAttachments;
     colorAttachments.push_back(RenderTargetAttachmentDesc{
         .format = Format::BGRA8_sRGB,
         .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled });
@@ -507,7 +507,7 @@ bool Renderer::CreatePostProcessRenderTarget()
 {
     const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
-    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    Vector<RenderTargetAttachmentDesc> colorAttachments;
     colorAttachments.push_back(RenderTargetAttachmentDesc{
         .format = Format::BGRA8_sRGB,
         .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled });
@@ -528,7 +528,7 @@ bool Renderer::CreateSelectionMaskRenderTarget()
 {
     const VkExtent2D swapChainExtent = mainSurfaceResource->GetExtent();
 
-    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    Vector<RenderTargetAttachmentDesc> colorAttachments;
     colorAttachments.push_back(RenderTargetAttachmentDesc{
         .format = Format::BGRA8_sRGB,
         .usage = TextureUsage::ColorAttachment | TextureUsage::Sampled });
@@ -745,7 +745,7 @@ void Renderer::ProcessPendingSceneRenderTargetResize()
 
 bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
 {
-    std::array<uint64, GpuTimestampQueryCount> timestamps = {};
+    Array<uint64, GpuTimestampQueryCount> timestamps = {};
 
     for (uint32 passIndex = 0; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
     {
@@ -790,7 +790,7 @@ bool Renderer::ConsumeGPUTimestampResults(FrameResource& frameResource)
                 firstTimestamp = beginTimestamp;
         }
 
-        std::vector<ProfileSample> samples;
+        Vector<ProfileSample> samples;
         samples.reserve(static_cast<size_t>(RenderPassId::Count));
 
         for (uint32 passIndex = 0; passIndex < static_cast<uint32>(RenderPassId::Count); ++passIndex)
@@ -838,7 +838,7 @@ bool Renderer::HasStencilComponent(VkFormat format) const
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
 }
 
-VkFormat Renderer::FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
+VkFormat Renderer::FindSupportedFormat(const Vector<VkFormat>& candidates, VkImageTiling tiling,
                                        VkFormatFeatureFlags features) const
 {
     for (VkFormat format : candidates)

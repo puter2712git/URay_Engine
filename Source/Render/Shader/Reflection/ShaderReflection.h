@@ -60,7 +60,7 @@ struct ShaderUniformBuffer
 
     ShaderStageFlags stageFlags = ShaderStageFlags::None;
 
-    std::vector<ShaderParameter> parameters;
+    Vector<ShaderParameter> parameters;
 };
 
 struct ShaderPushConstant
@@ -70,14 +70,14 @@ struct ShaderPushConstant
 
     ShaderStageFlags stageFlags = ShaderStageFlags::None;
 
-    std::vector<ShaderParameter> parameters;
+    Vector<ShaderParameter> parameters;
 };
 
 struct ShaderReflection
 {
-    std::vector<ShaderVertexInput> vertexInputs;
-    std::vector<ShaderDescriptorBinding> descriptorBindings;
-    std::vector<ShaderUniformBuffer> uniformBuffers;
+    Vector<ShaderVertexInput> vertexInputs;
+    Vector<ShaderDescriptorBinding> descriptorBindings;
+    Vector<ShaderUniformBuffer> uniformBuffers;
     ShaderPushConstant pushConstant = {};
 };
 

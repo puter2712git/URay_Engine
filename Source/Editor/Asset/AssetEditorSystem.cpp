@@ -1,4 +1,5 @@
 #include "AssetEditorSystem.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Core/Type/Type.h>
@@ -34,7 +35,7 @@ void AssetEditorSystem::RequestOpen(const AssetHandle& handle)
 
 void AssetEditorSystem::ProcessPendingRequests()
 {
-    std::vector<AssetHandle> requests;
+    Vector<AssetHandle> requests;
     requests.swap(pendingRequests);
 
     for (const AssetHandle& handle : requests)

@@ -60,10 +60,10 @@ private:
 
     DecalConstants constants = {};
     uint64 constantsVersion = 0;
-    std::array<uint64, MAX_FRAMES_IN_FLIGHT> uploadedVersions;
+    Array<uint64, MAX_FRAMES_IN_FLIGHT> uploadedVersions;
 
-    std::array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> uniformBuffers;
-    std::array<UniquePtr<DescriptorSet>, MAX_FRAMES_IN_FLIGHT> descriptorSets;
+    Array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> uniformBuffers;
+    Array<UniquePtr<DescriptorSet>, MAX_FRAMES_IN_FLIGHT> descriptorSets;
 };
 
 } // namespace URay::Render

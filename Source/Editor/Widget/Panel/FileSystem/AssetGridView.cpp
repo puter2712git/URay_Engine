@@ -1,4 +1,5 @@
 #include "AssetGridView.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
@@ -40,8 +41,8 @@ void AssetGridView::SetDirectory(AssetSystem& assetSystem, const VirtualPath& pa
     directory = path;
 
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
-    const std::vector<VirtualFileEntry> fileEntries = fileSystem.ListDirectory(path);
-    std::vector<AssetEntry> assetEntries;
+    const Vector<VirtualFileEntry> fileEntries = fileSystem.ListDirectory(path);
+    Vector<AssetEntry> assetEntries;
 
     for (const VirtualFileEntry& entry : fileEntries)
     {
@@ -95,7 +96,7 @@ void AssetGridView::SetDirectory(AssetSystem& assetSystem, const VirtualPath& pa
     RebuildItems(assetEntries);
 }
 
-void AssetGridView::RebuildItems(const std::vector<AssetEntry>& entries)
+void AssetGridView::RebuildItems(const Vector<AssetEntry>& entries)
 {
     ClearChildren();
 

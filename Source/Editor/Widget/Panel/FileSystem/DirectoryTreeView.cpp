@@ -114,7 +114,7 @@ void DirectoryTreeView::AppendDirectory(const VirtualPath& path, uint32 depth)
     if (!expanded)
         return;
 
-    std::vector<VirtualFileEntry> entries = fileSystem.ListDirectory(path);
+    Vector<VirtualFileEntry> entries = fileSystem.ListDirectory(path);
 
     entries.erase(
         std::remove_if(

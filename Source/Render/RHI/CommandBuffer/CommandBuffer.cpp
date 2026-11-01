@@ -67,7 +67,7 @@ void CommandBuffer::BeginRenderPass(
     VkRenderPass pass,
     Framebuffer& framebuffer,
     VkRect2D renderArea,
-    const std::vector<VkClearValue>& clearValues)
+    const Vector<VkClearValue>& clearValues)
 {
     VkRenderPassBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -87,7 +87,7 @@ void CommandBuffer::EndRenderPass()
 
 void CommandBuffer::BeginRendering(const RenderingInfo& info)
 {
-    std::vector<VkRenderingAttachmentInfo> colorAttachments;
+    Vector<VkRenderingAttachmentInfo> colorAttachments;
     colorAttachments.reserve(info.colorAttachments.size());
 
     for (const RenderingAttachmentInfo& attachment : info.colorAttachments)
@@ -221,8 +221,8 @@ void CommandBuffer::PipelineBarrier(const PipelineBarrierDesc& desc)
     if (desc.bufferBarriers.empty() && desc.imageBarriers.empty())
         return;
 
-    std::vector<VkBufferMemoryBarrier2> vkBufferBarriers;
-    std::vector<VkImageMemoryBarrier2> vkImageBarriers;
+    Vector<VkBufferMemoryBarrier2> vkBufferBarriers;
+    Vector<VkImageMemoryBarrier2> vkImageBarriers;
 
     if (!desc.bufferBarriers.empty())
     {

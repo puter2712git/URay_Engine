@@ -35,7 +35,7 @@ constexpr SceneId InvalidSceneId = 0;
 struct UpdateGroup
 {
     int priority = 0;
-    std::vector<std::function<void(float)>> functions;
+    Vector<std::function<void(float)>> functions;
 };
 
 class Scene : public Object
@@ -75,8 +75,8 @@ public:
 
     SceneType GetSceneType() const { return type; }
 
-    const std::vector<UniquePtr<Unit>>& GetUnits() const { return units; }
-    const std::vector<Unit*>& GetRootUnits() const { return rootUnits; }
+    const Vector<UniquePtr<Unit>>& GetUnits() const { return units; }
+    const Vector<Unit*>& GetRootUnits() const { return rootUnits; }
     bool MoveRootUnit(Unit* unit, uint32 index);
 
 private:
@@ -90,8 +90,8 @@ private:
     bool loaded = false;
 
     SceneType type = SceneType::Game;
-    std::vector<UniquePtr<Unit>> units;
-    std::vector<Unit*> rootUnits;
+    Vector<UniquePtr<Unit>> units;
+    Vector<Unit*> rootUnits;
 
     std::map<int, UpdateGroup, std::greater<int>> updateGroups;
 };

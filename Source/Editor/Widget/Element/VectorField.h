@@ -23,19 +23,19 @@ struct VectorFieldTraits;
 template <>
 struct VectorFieldTraits<Vector2>
 {
-    static constexpr std::array members{ &Vector2::x, &Vector2::y };
+    static constexpr Array<float Vector2::*, 2> members{ &Vector2::x, &Vector2::y };
 };
 
 template <>
 struct VectorFieldTraits<Vector3>
 {
-    static constexpr std::array members{ &Vector3::x, &Vector3::y, &Vector3::z };
+    static constexpr Array<float Vector3::*, 3> members{ &Vector3::x, &Vector3::y, &Vector3::z };
 };
 
 template <>
 struct VectorFieldTraits<Vector4>
 {
-    static constexpr std::array members{ &Vector4::x, &Vector4::y, &Vector4::z, &Vector4::w };
+    static constexpr Array<float Vector4::*, 4> members{ &Vector4::x, &Vector4::y, &Vector4::z, &Vector4::w };
 };
 
 template <typename T>
@@ -56,7 +56,7 @@ public:
     VectorField()
     {
         URAY_DECLARE_RAY(ValueChanged, T);
-        constexpr std::array names{ "X", "Y", "Z", "W" };
+        constexpr Array<const char*, 4> names{ "X", "Y", "Z", "W" };
 
         for (std::size_t i = 0; i < ComponentCount; ++i)
         {
@@ -121,7 +121,7 @@ private:
     }
 
     T value{};
-    std::array<Component, ComponentCount> components{};
+    Array<Component, ComponentCount> components{};
 };
 
 } // namespace URay

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Ray/RayEmitter.h>
 
 #include <vector>
@@ -26,7 +27,7 @@ public:
 
     bool IsSelected(const Unit* unit) const;
 
-    const std::vector<Unit*>& GetSelectedUnits() const { return selectedUnits; }
+    const Vector<Unit*>& GetSelectedUnits() const { return selectedUnits; }
     Unit* GetActiveUnit() const { return activeUnit; }
 
 private:
@@ -34,7 +35,7 @@ private:
     void NotifySelectionChanged(Unit* previousActive);
 
 private:
-    std::vector<Unit*> selectedUnits;
+    Vector<Unit*> selectedUnits;
     Unit* activeUnit = nullptr;
 };
 

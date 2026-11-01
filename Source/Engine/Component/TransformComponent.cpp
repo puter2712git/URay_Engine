@@ -1,4 +1,5 @@
 #include "TransformComponent.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Object/Class/Class.h>
@@ -151,7 +152,7 @@ void TransformComponent::SetDirty(bool dirty)
     if (!owner)
         return;
 
-    std::vector<Unit*> pendingUnits(owner->GetChildren().begin(), owner->GetChildren().end());
+    Vector<Unit*> pendingUnits(owner->GetChildren().begin(), owner->GetChildren().end());
 
     while (!pendingUnits.empty())
     {

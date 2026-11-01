@@ -61,7 +61,7 @@ private:
 
     UniquePtr<SwapChain> swapChain;
 
-    std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores = {};
+    Array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores = {};
 
     uint32 imageIndex = 0;
     bool needsSwapChainRecreate = false;

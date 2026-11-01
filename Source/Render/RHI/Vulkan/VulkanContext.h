@@ -24,15 +24,15 @@ public:
 
     VkInstance GetInstance() const { return instance; }
 
-    const std::vector<const char*>& GetValidationLayers() const { return validationLayers; }
-    const std::vector<const char*>& GetDeviceExtensions() const { return deviceExtensions; }
+    const Vector<const char*>& GetValidationLayers() const { return validationLayers; }
+    const Vector<const char*>& GetDeviceExtensions() const { return deviceExtensions; }
 
 private:
     bool CreateInstance(const VulkanContextDesc& desc);
     bool SetupDebugMessenger();
 
     bool CheckValidationLayerSupport() const;
-    bool GetRequiredExtensions(std::vector<const char*>& outExtensions) const;
+    bool GetRequiredExtensions(Vector<const char*>& outExtensions) const;
     void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) const;
 
 private:
@@ -45,11 +45,11 @@ private:
     inline static constexpr bool enableValidationLayers = true;
 #endif
 
-    inline static const std::vector<const char*> validationLayers = {
+    inline static const Vector<const char*> validationLayers = {
         "VK_LAYER_KHRONOS_validation"
     };
 
-    inline static const std::vector<const char*> deviceExtensions = {
+    inline static const Vector<const char*> deviceExtensions = {
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 #ifdef __APPLE__
         VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,

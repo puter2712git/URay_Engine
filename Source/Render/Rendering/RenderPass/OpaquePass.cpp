@@ -1,4 +1,5 @@
 #include "OpaquePass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
@@ -28,7 +29,7 @@ void OpaquePass::Begin(const RenderPassContext& context)
 
     const Extent2D& extent = sceneRT.GetExtent();
 
-    std::vector<RenderingAttachmentInfo> colorAttachments;
+    Vector<RenderingAttachmentInfo> colorAttachments;
     colorAttachments.push_back(RenderingAttachmentInfo{
         .imageView = sceneRT.GetColorView(0)->GetHandle(),
         .layout = ImageLayout::ColorAttachment,
@@ -91,7 +92,7 @@ void OpaquePass::End(const RenderPassContext& context)
 
 void OpaquePass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

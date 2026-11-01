@@ -20,7 +20,7 @@ struct SkinInfluence
 
 struct SkinVertex
 {
-    std::array<SkinInfluence, 4> influences = {};
+    Array<SkinInfluence, 4> influences = {};
     uint32 count = 0;
 };
 
@@ -41,14 +41,14 @@ struct BoneInfo
 struct MeshInfo
 {
     String name;
-    std::vector<SkinVertex> skinVertices;
-    std::vector<SkinClusterInfo> clusters;
+    Vector<SkinVertex> skinVertices;
+    Vector<SkinClusterInfo> clusters;
 };
 
 struct FBXInfo
 {
-    std::vector<BoneInfo> bones;
-    std::vector<MeshInfo> meshes;
+    Vector<BoneInfo> bones;
+    Vector<MeshInfo> meshes;
 };
 
 } // namespace URay::FBX

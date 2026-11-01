@@ -17,10 +17,10 @@ public:
 
     BinaryWriter& WriteBytes(std::span<const uint8> bytes);
 
-    const std::vector<uint8>& GetBuffer() const { return buffer; }
+    const Vector<uint8>& GetBuffer() const { return buffer; }
 
 private:
-    std::vector<uint8> buffer;
+    Vector<uint8> buffer;
 };
 
 } // namespace URay

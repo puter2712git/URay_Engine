@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/File/VirtualPath.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Editor/Widget/Panel/FileSystem/AssetEntry.h>
@@ -26,7 +27,7 @@ protected:
     Vector2 OnMeasure() override;
 
 private:
-    void RebuildItems(const std::vector<AssetEntry>& entries);
+    void RebuildItems(const Vector<AssetEntry>& entries);
     void OnItemSelected(AssetEntry entry);
     void OnItemActivated(AssetEntry entry);
     void OnItemDoubleClicked(AssetEntry entry);

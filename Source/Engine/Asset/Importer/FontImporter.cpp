@@ -46,7 +46,7 @@ bool FontImporter::CanImport(const String& extension) const
 
 bool FontImporter::DecodeFont(FontData& outFont, const VirtualPath& sourcePath) const
 {
-    std::vector<uint8> fileBytes = fileSystem.ReadBinary(sourcePath);
+    Vector<uint8> fileBytes = fileSystem.ReadBinary(sourcePath);
     if (fileBytes.empty())
         return false;
 

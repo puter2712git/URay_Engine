@@ -38,7 +38,7 @@ struct DrawCommand
 
     PipelineStateDesc pipelineState = {};
 
-    std::array<DescriptorSet*, 4> descriptorSets;
+    Array<DescriptorSet*, 4> descriptorSets;
 
     std::optional<Rect> scissor = std::nullopt;
 };

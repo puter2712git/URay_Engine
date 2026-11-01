@@ -1,4 +1,5 @@
 #include "OverlayPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/Barrier/ImageBarrier.h>
@@ -37,7 +38,7 @@ void OverlayPass::End(const RenderPassContext& context)
 
 void OverlayPass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

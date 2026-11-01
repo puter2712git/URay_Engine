@@ -22,7 +22,7 @@ public:
 
 private:
     void OnMenuItemSelected(int32 id);
-    std::vector<String> componentNames;
+    Vector<String> componentNames;
 
 };
 

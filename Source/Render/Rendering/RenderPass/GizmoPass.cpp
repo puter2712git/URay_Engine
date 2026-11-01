@@ -1,4 +1,5 @@
 #include "GizmoPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
@@ -30,7 +31,7 @@ void GizmoPass::Begin(const RenderPassContext& context)
 
     const Extent2D& extent = postProcessRT.GetExtent();
 
-    const std::array colorAttachments = {
+    const Array<RenderingAttachmentInfo, 2> colorAttachments = {
         RenderingAttachmentInfo{
             .imageView = postProcessRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
@@ -87,7 +88,7 @@ void GizmoPass::End(const RenderPassContext& context)
 
 void GizmoPass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

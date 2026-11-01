@@ -60,7 +60,7 @@ ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
 } // namespace
 
 bool ShaderReflector::Reflect(
-    const std::vector<uint8>& shaderCode,
+    const Vector<uint8>& shaderCode,
     const String& entryPoint,
     ShaderReflection& outReflection)
 {
@@ -114,7 +114,7 @@ bool ShaderReflector::ReflectVertexInputs(
     if (result != SPV_REFLECT_RESULT_SUCCESS)
         return false;
 
-    std::vector<SpvReflectInterfaceVariable*> inputs(inputCount);
+    Vector<SpvReflectInterfaceVariable*> inputs(inputCount);
 
     result = spvReflectEnumerateEntryPointInputVariables(
         &module,
@@ -148,7 +148,7 @@ bool ShaderReflector::ReflectDescriptorBindings(
     uint32 bindingCount = 0;
     spvReflectEnumerateDescriptorBindings(&module, &bindingCount, nullptr);
 
-    std::vector<SpvReflectDescriptorBinding*> bindings(bindingCount);
+    Vector<SpvReflectDescriptorBinding*> bindings(bindingCount);
     spvReflectEnumerateDescriptorBindings(&module, &bindingCount, bindings.data());
 
     for (SpvReflectDescriptorBinding* binding : bindings)
@@ -183,7 +183,7 @@ bool ShaderReflector::ReflectUniformBuffers(
     uint32 bindingCount = 0;
     spvReflectEnumerateDescriptorBindings(&module, &bindingCount, nullptr);
 
-    std::vector<SpvReflectDescriptorBinding*> bindings(bindingCount);
+    Vector<SpvReflectDescriptorBinding*> bindings(bindingCount);
     spvReflectEnumerateDescriptorBindings(&module, &bindingCount, bindings.data());
 
     for (SpvReflectDescriptorBinding* binding : bindings)
@@ -226,7 +226,7 @@ bool ShaderReflector::ReflectPushConstants(
     uint32 pushConstantCount = 0;
     spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, nullptr);
 
-    std::vector<SpvReflectBlockVariable*> blocks(pushConstantCount);
+    Vector<SpvReflectBlockVariable*> blocks(pushConstantCount);
     spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, blocks.data());
 
     ShaderPushConstant& pushConstant = outReflection.pushConstant;

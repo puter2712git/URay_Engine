@@ -1,4 +1,5 @@
 #include "SelectionMaskPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
@@ -26,7 +27,7 @@ void SelectionMaskPass::Begin(const RenderPassContext& context)
     RenderTarget& selectionMaskRT = *context.sceneTargets->selectionMask;
     const Extent2D& extent = selectionMaskRT.GetExtent();
 
-    const std::array colorAttachments = {
+    const Array<RenderingAttachmentInfo, 1> colorAttachments = {
         RenderingAttachmentInfo{
             .imageView = selectionMaskRT.GetColorView(0)->GetHandle(),
             .layout = ImageLayout::ColorAttachment,
@@ -81,7 +82,7 @@ void SelectionMaskPass::End(const RenderPassContext& context)
 
 void SelectionMaskPass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

@@ -58,7 +58,7 @@ bool FontSystem::FlushAtlasUploads()
 
             const size_t rowByteSize = static_cast<size_t>(region.width) * 4;
 
-            std::vector<uint8> packedPixels(rowByteSize * region.height);
+            Vector<uint8> packedPixels(rowByteSize * region.height);
 
             for (uint32 y = 0; y < region.height; ++y)
             {
@@ -138,7 +138,7 @@ FontFace* FontSystem::GetOrCreateFace(AssetHandle fontHandle)
     if (!font)
         return nullptr;
 
-    const std::vector<uint8>& data = font->GetData();
+    const Vector<uint8>& data = font->GetData();
 
     FT_Face nativeFace = nullptr;
 

@@ -96,7 +96,7 @@ private:
     Format FindDepthFormat() const;
     bool HasStencilComponent(VkFormat format) const;
 
-    VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
+    VkFormat FindSupportedFormat(const Vector<VkFormat>& candidates, VkImageTiling tiling,
                                  VkFormatFeatureFlags features) const;
 
 private:
@@ -115,7 +115,7 @@ private:
     std::optional<Scheduler::TaskId> sceneResizeTaskId;
     static constexpr double SceneResizeDebounceSeconds = 0.15;
     UniquePtr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
-    std::array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;
+    Array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;
     uint64 gpuTimestampSubmissionSequence = 0;
     PerformanceViewModel* performanceViewModel = nullptr;
 

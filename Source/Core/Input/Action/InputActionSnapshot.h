@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/Action/InputAction.h>
 
 #include <vector>
@@ -24,7 +25,7 @@ public:
 
 private:
     uint64 frameIndex = 0;
-    std::vector<InputActionState> actions;
+    Vector<InputActionState> actions;
 };
 
 } // namespace URay

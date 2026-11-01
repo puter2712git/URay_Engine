@@ -121,9 +121,9 @@ Scene* SceneSystem::GetScene(SceneId id) const
     return nullptr;
 }
 
-std::vector<Scene*> SceneSystem::GetScenes(SceneType type) const
+Vector<Scene*> SceneSystem::GetScenes(SceneType type) const
 {
-    std::vector<Scene*> matchingScenes;
+    Vector<Scene*> matchingScenes;
 
     for (const auto& scene : scenes)
     {

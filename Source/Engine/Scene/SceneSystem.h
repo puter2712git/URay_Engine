@@ -32,14 +32,14 @@ public:
     bool UnloadScene(SceneId id);
 
     Scene* GetScene(SceneId id) const;
-    std::vector<Scene*> GetScenes(SceneType type) const;
+    Vector<Scene*> GetScenes(SceneType type) const;
 
-    const std::vector<UniquePtr<Scene>>& GetScenes() const { return scenes; }
+    const Vector<UniquePtr<Scene>>& GetScenes() const { return scenes; }
 
 private:
     SceneId nextSceneId = 1;
 
-    std::vector<UniquePtr<Scene>> scenes;
+    Vector<UniquePtr<Scene>> scenes;
 };
 
 } // namespace URay

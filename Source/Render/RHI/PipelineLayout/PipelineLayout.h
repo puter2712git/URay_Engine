@@ -19,7 +19,7 @@ public:
         VkDevice device,
         VkPipelineLayout handle,
         uint32 descriptorSetCount,
-        std::vector<PushConstantRange> pushConstantRanges);
+        Vector<PushConstantRange> pushConstantRanges);
     ~PipelineLayout();
 
 public:
@@ -34,7 +34,7 @@ private:
     VkPipelineLayout handle = VK_NULL_HANDLE;
     uint32 descriptorSetCount = 0;
 
-    std::vector<PushConstantRange> pushConstantRanges;
+    Vector<PushConstantRange> pushConstantRanges;
 };
 
 } // namespace URay::Render

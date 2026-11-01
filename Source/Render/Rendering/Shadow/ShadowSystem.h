@@ -56,10 +56,10 @@ private:
 
     UniquePtr<Texture> depthTextureCubeArray = nullptr;
     UniquePtr<TextureView> pointShadowSamplingView = nullptr;
-    std::vector<UniquePtr<TextureView>> pointShadowFaceViews;
+    Vector<UniquePtr<TextureView>> pointShadowFaceViews;
 
-    std::vector<SpotLightObject*> allocatedSpotLights;
-    std::vector<PointLightObject*> allocatedPointLights;
+    Vector<SpotLightObject*> allocatedSpotLights;
+    Vector<PointLightObject*> allocatedPointLights;
 };
 
 } // namespace URay::Render

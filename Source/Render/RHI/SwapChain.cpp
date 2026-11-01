@@ -218,7 +218,7 @@ VkImageView SwapChain::GetImageView(uint32 index) const
     return imageViews[index];
 }
 
-VkSurfaceFormatKHR SwapChain::ChooseFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) const
+VkSurfaceFormatKHR SwapChain::ChooseFormat(const Vector<VkSurfaceFormatKHR>& availableFormats) const
 {
     for (const auto& availableFormat : availableFormats)
     {
@@ -232,7 +232,7 @@ VkSurfaceFormatKHR SwapChain::ChooseFormat(const std::vector<VkSurfaceFormatKHR>
     return availableFormats[0];
 }
 
-VkPresentModeKHR SwapChain::ChoosePresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) const
+VkPresentModeKHR SwapChain::ChoosePresentMode(const Vector<VkPresentModeKHR>& availablePresentModes) const
 {
     // TODO: Choose optimal present mode by OS or device.
     return VK_PRESENT_MODE_FIFO_KHR;

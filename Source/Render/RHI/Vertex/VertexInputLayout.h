@@ -30,8 +30,8 @@ struct VertexInputAttribute
 
 struct VertexInputLayout
 {
-    std::vector<VertexInputBinding> bindings;
-    std::vector<VertexInputAttribute> attributes;
+    Vector<VertexInputBinding> bindings;
+    Vector<VertexInputAttribute> attributes;
 
     void AddBinding(uint32 binding, uint32 stride, VkVertexInputRate inputRate = VK_VERTEX_INPUT_RATE_VERTEX)
     {

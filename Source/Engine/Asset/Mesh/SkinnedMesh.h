@@ -27,32 +27,32 @@ class SkinnedMesh : public Asset
     URAY_OBJECT(SkinnedMesh, Asset)
 
 public:
-    const std::vector<Render::VertexSkinnedPNT>& GetVertices() const { return vertices; }
-    void SetVertices(const std::vector<Render::VertexSkinnedPNT>& newVertices);
+    const Vector<Render::VertexSkinnedPNT>& GetVertices() const { return vertices; }
+    void SetVertices(const Vector<Render::VertexSkinnedPNT>& newVertices);
 
-    const std::vector<uint32>& GetIndices() const { return indices; }
-    void SetIndices(const std::vector<uint32>& newIndices) { indices = newIndices; }
+    const Vector<uint32>& GetIndices() const { return indices; }
+    void SetIndices(const Vector<uint32>& newIndices) { indices = newIndices; }
 
-    const std::vector<MeshSection>& GetSections() const { return sections; }
-    void SetSections(const std::vector<MeshSection>& newSections) { sections = newSections; }
+    const Vector<MeshSection>& GetSections() const { return sections; }
+    void SetSections(const Vector<MeshSection>& newSections) { sections = newSections; }
 
     const AssetHandle& GetDefaultMaterialHandle(size_t index) const { return index < defaultMaterialHandles.size() ? defaultMaterialHandles[index] : AssetHandle{}; }
-    const std::vector<AssetHandle>& GetDefaultMaterials() const { return defaultMaterialHandles; }
-    void SetDefaultMaterials(const std::vector<AssetHandle>& newMaterialHandles) { defaultMaterialHandles = newMaterialHandles; }
+    const Vector<AssetHandle>& GetDefaultMaterials() const { return defaultMaterialHandles; }
+    void SetDefaultMaterials(const Vector<AssetHandle>& newMaterialHandles) { defaultMaterialHandles = newMaterialHandles; }
 
-    const std::vector<Bone>& GetBones() const { return bones; }
-    void SetBones(const std::vector<Bone>& newBones) { bones = newBones; }
+    const Vector<Bone>& GetBones() const { return bones; }
+    void SetBones(const Vector<Bone>& newBones) { bones = newBones; }
     uint32 GetBoneCount() const { return static_cast<uint32>(bones.size()); }
     const Bone& GetBone(uint32 index) const { return bones[index]; }
 
     const AABB& GetLocalBounds() const { return localBounds; }
 
 private:
-    std::vector<Render::VertexSkinnedPNT> vertices;
-    std::vector<uint32> indices;
-    std::vector<MeshSection> sections;
-    std::vector<AssetHandle> defaultMaterialHandles;
-    std::vector<Bone> bones;
+    Vector<Render::VertexSkinnedPNT> vertices;
+    Vector<uint32> indices;
+    Vector<MeshSection> sections;
+    Vector<AssetHandle> defaultMaterialHandles;
+    Vector<Bone> bones;
 
     AABB localBounds = {};
 };

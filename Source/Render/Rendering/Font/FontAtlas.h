@@ -85,7 +85,7 @@ private:
     uint32 height = 1024;
     uint32 padding = 1;
 
-    std::vector<uint8> pixels;
+    Vector<uint8> pixels;
     std::unordered_map<char32_t, Glyph> glyphs;
 
     uint32 cursorX = 0;

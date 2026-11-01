@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <vulkan/vulkan.h>
 
 #include <vector>
@@ -19,7 +20,7 @@ public:
     DescriptorSetLayout* Build(VkDevice device) const;
 
 private:
-    std::vector<VkDescriptorSetLayoutBinding> bindings;
+    Vector<VkDescriptorSetLayoutBinding> bindings;
 };
 
 } // namespace URay::Render

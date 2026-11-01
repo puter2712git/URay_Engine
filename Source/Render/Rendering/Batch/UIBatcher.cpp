@@ -87,20 +87,20 @@ void UIBatcher::Finalize()
     }
 }
 
-std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
+Vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
 {
     // descriptorSets.clear();
 
-    const std::vector<UIDrawBatch>& batches = context.GetBatches();
-    const std::vector<VertexUI>& vertices = context.GetVertices();
-    const std::vector<uint32>& indices = context.GetIndices();
+    const Vector<UIDrawBatch>& batches = context.GetBatches();
+    const Vector<VertexUI>& vertices = context.GetVertices();
+    const Vector<uint32>& indices = context.GetIndices();
 
     if (vertices.empty())
         return {};
 
     EnsureResources();
 
-    std::vector<DrawCommand> ret;
+    Vector<DrawCommand> ret;
 
     const size_t frameIndex = static_cast<size_t>(currentFrame);
     Buffer* vertexBuffer = vertexBuffers[frameIndex].get();
@@ -136,7 +136,7 @@ std::vector<DrawCommand> UIBatcher::Flush(const UIDrawContext& context)
 
         cmd.descriptorSets[1] = descriptorSet;
 
-        std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+        Vector<ColorBlendAttachmentState> colorBlendAttachments;
         colorBlendAttachments.push_back(ColorBlendAttachmentState{
             .mode = BlendMode::AlphaBlend,
             .writeMask = ColorWriteMask::RGBA });

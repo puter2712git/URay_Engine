@@ -1,4 +1,5 @@
 #include "ClusteredLightCullingPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSystem.h>
 #include <Engine/Asset/AssetDatabase.h>
@@ -31,7 +32,7 @@ void ClusteredLightCullingPass::End(const RenderPassContext& context)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
 
-    const std::vector<BufferBarrierDesc> barriers = {
+    const Vector<BufferBarrierDesc> barriers = {
         BufferBarrierDesc{
             .buffer = context.frameResource.clusterLightListStorageBuffer->GetHandle(),
             .srcStage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
@@ -50,7 +51,7 @@ void ClusteredLightCullingPass::End(const RenderPassContext& context)
         .bufferBarriers = barriers });
 }
 
-void ClusteredLightCullingPass::Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCommands)
+void ClusteredLightCullingPass::Execute(const RenderPassContext& context, const Vector<DrawCommand>& drawCommands)
 {
     if (!pso)
         return;

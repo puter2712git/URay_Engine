@@ -39,7 +39,7 @@ public:
         VkRenderPass pass,
         Framebuffer& framebuffer,
         VkRect2D renderArea,
-        const std::vector<VkClearValue>& clearValues);
+        const Vector<VkClearValue>& clearValues);
     void EndRenderPass();
 
     void BeginRendering(const RenderingInfo& info);

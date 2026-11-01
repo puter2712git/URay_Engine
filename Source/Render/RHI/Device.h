@@ -143,7 +143,7 @@ private:
     bool CreateDescriptorPool();
     void DestroyDescriptorPool();
 
-    VkShaderModule CreateShaderModule(const std::vector<uint8>& code) const;
+    VkShaderModule CreateShaderModule(const Vector<uint8>& code) const;
 
     uint32 FindMemoryType(uint32 typeFilter, VkMemoryPropertyFlags properties) const;
 

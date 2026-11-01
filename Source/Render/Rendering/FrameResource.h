@@ -21,7 +21,7 @@ struct GPUTimeStampState
 
     bool hasPendingResults = false;
     uint64 submissionFrameNumber = 0;
-    std::array<bool, static_cast<uint32>(RenderPassId::Count)> recordedPasses = {};
+    Array<bool, static_cast<uint32>(RenderPassId::Count)> recordedPasses = {};
 };
 
 struct FrameResource

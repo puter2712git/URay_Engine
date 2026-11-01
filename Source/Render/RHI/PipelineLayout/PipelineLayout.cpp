@@ -1,4 +1,5 @@
 #include "PipelineLayout.h"
+#include <Core/Type/TypeAlias.h>
 
 namespace URay::Render
 {
@@ -7,7 +8,7 @@ PipelineLayout::PipelineLayout(
     VkDevice device,
     VkPipelineLayout handle,
     uint32 descriptorSetCount,
-    std::vector<PushConstantRange> pushConstantRanges)
+    Vector<PushConstantRange> pushConstantRanges)
     : device(device),
       handle(handle),
       descriptorSetCount(descriptorSetCount),

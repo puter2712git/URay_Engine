@@ -60,9 +60,9 @@ public:
     void AddText(const Vector2& baselinePosition, StringView utf8Text, const TextStyle& style);
     void AddImage(const Rect& rect, const UIImage& image, const Color& color = Color::White);
 
-    const std::vector<UIDrawBatch>& GetBatches() const { return batches; }
-    const std::vector<Render::VertexUI>& GetVertices() const { return vertices; }
-    const std::vector<uint32>& GetIndices() const { return indices; }
+    const Vector<UIDrawBatch>& GetBatches() const { return batches; }
+    const Vector<Render::VertexUI>& GetVertices() const { return vertices; }
+    const Vector<uint32>& GetIndices() const { return indices; }
 
 private:
     void AddQuad(const Rect& rect, const Vector2& uvMin, const Vector2& uvMax, const Color& color, TextureView* view, Sampler* sampler);
@@ -70,11 +70,11 @@ private:
     Rect Intersect(const Rect& rectA, const Rect& rectB) const;
 
 private:
-    std::vector<Rect> clipStack;
-    std::vector<UIDrawBatch> batches;
+    Vector<Rect> clipStack;
+    Vector<UIDrawBatch> batches;
 
-    std::vector<Render::VertexUI> vertices;
-    std::vector<uint32> indices;
+    Vector<Render::VertexUI> vertices;
+    Vector<uint32> indices;
 };
 
 } // namespace URay::Render

@@ -29,7 +29,7 @@ private:
     bool Unregister(Object& object) noexcept;
 
 private:
-    std::vector<ObjectSlot> slots;
+    Vector<ObjectSlot> slots;
     int32 firstFree = InvalidIndex;
 };
 

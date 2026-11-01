@@ -1,4 +1,5 @@
 #include <Engine/Component/Render/MeshComponent.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -57,7 +58,7 @@ Render::RenderObject* MeshComponent::CreateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    std::vector<Material*> materials;
+    Vector<Material*> materials;
     for (const AssetHandle& handle : materialHandles)
     {
         Material* material = assetDatabase.Find<Material>(handle);
@@ -83,7 +84,7 @@ void MeshComponent::SetMeshHandle(const AssetHandle& newMeshHandle)
 
     Mesh* mesh = assetDatabase.Find<Mesh>(meshHandle);
     materialHandles = mesh ? mesh->GetDefaultMaterials()
-                           : std::vector<AssetHandle>();
+                           : Vector<AssetHandle>();
 
     MarkDirty();
 }
@@ -103,7 +104,7 @@ void MeshComponent::SetMaterial(const AssetHandle& newMaterialHandle, size_t ind
     MarkDirty();
 }
 
-void MeshComponent::SetMaterials(const std::vector<AssetHandle>& newMaterialHandles)
+void MeshComponent::SetMaterials(const Vector<AssetHandle>& newMaterialHandles)
 {
     materialHandles = newMaterialHandles;
     MarkDirty();
@@ -120,7 +121,7 @@ void MeshComponent::UpdateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    std::vector<Material*> materials;
+    Vector<Material*> materials;
     for (const AssetHandle& handle : materialHandles)
     {
         Material* material = assetDatabase.Find<Material>(handle);

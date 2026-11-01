@@ -477,13 +477,13 @@ PipelineLayout* Device::CreatePipelineLayout(const PipelineLayoutDesc& desc)
         maxSetNum = Math::Max(maxSetNum, set);
     }
 
-    std::vector<VkDescriptorSetLayout> setLayouts(maxSetNum + 1, VK_NULL_HANDLE);
+    Vector<VkDescriptorSetLayout> setLayouts(maxSetNum + 1, VK_NULL_HANDLE);
     for (auto& [set, layout] : desc.setLayouts)
     {
         setLayouts[set] = layout->GetHandle();
     }
 
-    std::vector<VkPushConstantRange> pushConstantRanges(desc.pushConstantRanges.size());
+    Vector<VkPushConstantRange> pushConstantRanges(desc.pushConstantRanges.size());
     for (size_t i = 0; i < desc.pushConstantRanges.size(); ++i)
     {
         pushConstantRanges[i].offset = desc.pushConstantRanges[i].offset;
@@ -539,7 +539,7 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
 
     VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-    std::vector<VkDynamicState> dynamicStates = {
+    Vector<VkDynamicState> dynamicStates = {
         VK_DYNAMIC_STATE_VIEWPORT,
         VK_DYNAMIC_STATE_SCISSOR
     };
@@ -587,7 +587,7 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
         }
     }
 
-    std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
+    Vector<VkVertexInputAttributeDescription> attributeDescriptions;
     std::set<uint32> usedBindings;
 
     for (const VertexInputAttribute& attribute : inputLayout.attributes)
@@ -614,7 +614,7 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
         usedBindings.insert(attribute.binding);
     }
 
-    std::vector<VkVertexInputBindingDescription> bindingDescriptions;
+    Vector<VkVertexInputBindingDescription> bindingDescriptions;
 
     for (const VertexInputBinding& binding : inputLayout.bindings)
     {
@@ -725,7 +725,7 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
     depthStencil.front = {};
     depthStencil.back = {};
 
-    std::vector<VkFormat> colorFormats;
+    Vector<VkFormat> colorFormats;
     colorFormats.reserve(desc.rendering.colorAttachmentFormats.size());
 
     for (Format format : desc.rendering.colorAttachmentFormats)
@@ -739,7 +739,7 @@ PipelineState* Device::CreatePSO(const PipelineStateDesc& desc, PipelineLayout& 
         return nullptr;
     }
 
-    std::vector<VkPipelineColorBlendAttachmentState> vkBlendAttachments;
+    Vector<VkPipelineColorBlendAttachmentState> vkBlendAttachments;
     vkBlendAttachments.reserve(desc.colorBlendAttachments.size());
 
     for (const ColorBlendAttachmentState& state : desc.colorBlendAttachments)
@@ -1211,7 +1211,7 @@ bool Device::PickPhysicalDevice(const Surface& initialSurface)
         return false;
     }
 
-    std::vector<VkPhysicalDevice> devices(deviceCount);
+    Vector<VkPhysicalDevice> devices(deviceCount);
     result = vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
     if (result != VK_SUCCESS)
@@ -1249,7 +1249,7 @@ bool Device::CreateLogicalDevice(const Surface& initialSurface)
         return false;
     }
 
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    Vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32> uniqueQueueFamilies = {
         selected.graphicsFamily.value(),
         selected.presentFamily.value(),
@@ -1360,7 +1360,7 @@ QueueFamilyIndices Device::FindQueueFamilyIndices(VkPhysicalDevice device, const
     uint32 queueFamilyCount = 0;
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
-    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    Vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
     uint32 index = 0;
@@ -1464,7 +1464,7 @@ bool Device::CheckDeviceExtensionSupport(VkPhysicalDevice device) const
     uint32 extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    Vector<VkExtensionProperties> availableExtensions(extensionCount);
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
     const auto& deviceExtensions = context.GetDeviceExtensions();
@@ -1511,7 +1511,7 @@ void Device::EndSingleTimeCommands(CommandBuffer* commandBuffer) const
 
 bool Device::CreateDescriptorPool()
 {
-    std::array<VkDescriptorPoolSize, 6> poolSizes = {};
+    Array<VkDescriptorPoolSize, 6> poolSizes = {};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32>(MAX_FRAMES_IN_FLIGHT) * 1000;
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
@@ -1551,7 +1551,7 @@ void Device::DestroyDescriptorPool()
     }
 }
 
-VkShaderModule Device::CreateShaderModule(const std::vector<uint8>& code) const
+VkShaderModule Device::CreateShaderModule(const Vector<uint8>& code) const
 {
     VkShaderModuleCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

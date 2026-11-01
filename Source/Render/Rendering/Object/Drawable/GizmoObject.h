@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 
 #include <Core/Math/Color.h>
@@ -24,7 +25,7 @@ struct GizmoObjectState
         Mesh* mesh = nullptr;
     };
 
-    std::vector<Handle> handles;
+    Vector<Handle> handles;
     Material* material = nullptr;
 };
 

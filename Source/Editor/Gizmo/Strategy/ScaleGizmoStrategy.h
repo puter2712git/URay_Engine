@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 
 #include <Core/Math/Vector3.h>
@@ -39,6 +40,6 @@ private:
     Vector3 yAxis = Vector3::Forward;
     Vector3 zAxis = Vector3::Up;
     Vector3 planeNormal = Vector3::Up;
-    std::vector<TargetState> targets;
+    Vector<TargetState> targets;
 };
 } // namespace URay

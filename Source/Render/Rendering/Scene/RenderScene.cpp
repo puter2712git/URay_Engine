@@ -22,9 +22,9 @@ RenderScene::RenderScene(SceneSystem& sceneSystem) : sceneSystem(sceneSystem) {}
 
 RenderScene::~RenderScene() = default;
 
-const std::vector<RenderObject*>& RenderScene::GetObjects(const Unit* unit) const
+const Vector<RenderObject*>& RenderScene::GetObjects(const Unit* unit) const
 {
-    static const std::vector<RenderObject*> emptyObjects;
+    static const Vector<RenderObject*> emptyObjects;
 
     const auto it = objectsByUnit.find(unit);
     return it != objectsByUnit.end() ? it->second : emptyObjects;

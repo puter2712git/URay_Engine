@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetHandle.h>
 
 #include <functional>
@@ -29,7 +30,7 @@ private:
     AssetDatabase& assetDatabase;
 
     std::unordered_map<const Type*, OpenHandler> handlers;
-    std::vector<AssetHandle> pendingRequests;
+    Vector<AssetHandle> pendingRequests;
 };
 
 } // namespace URay

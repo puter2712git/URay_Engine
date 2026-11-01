@@ -28,7 +28,7 @@ enum class FrustumPlane : uint8
 
 struct Frustum
 {
-    std::array<Plane, 6> planes;
+    Array<Plane, 6> planes;
 
     static Frustum FromViewProjection(const Matrix& viewProjection)
     {

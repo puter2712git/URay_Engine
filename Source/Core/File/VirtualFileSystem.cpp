@@ -49,19 +49,19 @@ bool VirtualFileSystem::IsDirectory(const VirtualPath& path) const
         ResolveToPhysicalPath(path), error);
 }
 
-std::vector<uint8> VirtualFileSystem::ReadBinary(const VirtualPath& virtualPath) const
+Vector<uint8> VirtualFileSystem::ReadBinary(const VirtualPath& virtualPath) const
 {
     if (!Exists(virtualPath))
-        return std::vector<uint8>();
+        return Vector<uint8>();
 
     std::filesystem::path physicalPath = ResolveToPhysicalPath(virtualPath);
 
     std::ifstream file(physicalPath, std::ios::ate | std::ios::binary);
     if (!file.is_open())
-        return std::vector<uint8>();
+        return Vector<uint8>();
 
     const size_t size = static_cast<size_t>(file.tellg());
-    std::vector<uint8> buffer(size);
+    Vector<uint8> buffer(size);
 
     file.seekg(0, std::ios::beg);
     file.read(reinterpret_cast<char*>(buffer.data()), size);
@@ -85,7 +85,7 @@ String VirtualFileSystem::ReadText(const VirtualPath& virtualPath) const
         std::istreambuf_iterator<char>());
 }
 
-bool VirtualFileSystem::WriteBinary(const VirtualPath& path, const std::vector<uint8>& bin) const
+bool VirtualFileSystem::WriteBinary(const VirtualPath& path, const Vector<uint8>& bin) const
 {
     std::filesystem::path physicalPath = ResolveToPhysicalPath(path);
 
@@ -133,10 +133,10 @@ bool VirtualFileSystem::WriteText(const VirtualPath& virtualPath, const String& 
     return file.good();
 }
 
-std::vector<VirtualFileEntry> VirtualFileSystem::ListDirectory(
+Vector<VirtualFileEntry> VirtualFileSystem::ListDirectory(
     const VirtualPath& directory) const
 {
-    std::vector<VirtualFileEntry> result;
+    Vector<VirtualFileEntry> result;
 
     const std::filesystem::path physicalDirectory = ResolveToPhysicalPath(directory);
 

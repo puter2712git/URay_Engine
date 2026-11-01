@@ -38,9 +38,9 @@ public:
     Asset* Find(const AssetHandle& handle, Class* assetClass) const;
 
     template <typename T>
-    std::vector<T*> GetAssets() const
+    Vector<T*> GetAssets() const
     {
-        std::vector<T*> ret;
+        Vector<T*> ret;
 
         for (const auto& [handle, asset] : assets)
         {
@@ -50,7 +50,7 @@ public:
 
         return ret;
     }
-    std::vector<Asset*> GetAssets(Class* assetClass) const;
+    Vector<Asset*> GetAssets(Class* assetClass) const;
 
     void InsertOrReplace(UniquePtr<Asset> asset);
 

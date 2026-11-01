@@ -30,8 +30,8 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
     RenderTargetDesc newDesc = desc;
     newDesc.extent = newExtent;
 
-    std::vector<UniquePtr<Texture>> newColorTextures;
-    std::vector<UniquePtr<TextureView>> newColorViews;
+    Vector<UniquePtr<Texture>> newColorTextures;
+    Vector<UniquePtr<TextureView>> newColorViews;
 
     newColorTextures.reserve(newDesc.colorAttachments.size());
     newColorViews.reserve(newDesc.colorAttachments.size());

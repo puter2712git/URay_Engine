@@ -464,7 +464,7 @@ void Editor::DeleteSelectedUnits()
     if (!gameScene)
         return;
 
-    const std::vector<Unit*> selectedUnits = selectionSystem->GetSelectedUnits();
+    const Vector<Unit*> selectedUnits = selectionSystem->GetSelectedUnits();
 
     std::unordered_set<Unit*> selectedGameUnits;
 
@@ -476,7 +476,7 @@ void Editor::DeleteSelectedUnits()
         selectedGameUnits.insert(unit);
     }
 
-    std::vector<Unit*> selectedRoots;
+    Vector<Unit*> selectedRoots;
 
     for (Unit* unit : selectedUnits)
     {
@@ -702,7 +702,7 @@ void Editor::LoadGameScene(const VirtualPath& scenePath)
     selectionSystem->ClearSelection();
     inspectSystem->ClearTarget();
 
-    const std::vector<Scene*> gameScenes = sceneSystem.GetScenes(SceneType::Game);
+    const Vector<Scene*> gameScenes = sceneSystem.GetScenes(SceneType::Game);
 
     for (Scene* scene : gameScenes)
         sceneSystem.UnloadScene(scene->GetId());

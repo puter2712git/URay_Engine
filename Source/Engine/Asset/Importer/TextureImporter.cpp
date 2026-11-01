@@ -50,7 +50,7 @@ bool TextureImporter::CanImport(const String& extension) const
 bool TextureImporter::DecodeTexture(TextureData& outTexture, const VirtualPath& sourcePath) const
 {
     int32 width, height, channels;
-    std::vector<uint8> fileBytes = fileSystem.ReadBinary(sourcePath);
+    Vector<uint8> fileBytes = fileSystem.ReadBinary(sourcePath);
 
     stbi_uc* data = stbi_load_from_memory(
         fileBytes.data(),
@@ -64,7 +64,7 @@ bool TextureImporter::DecodeTexture(TextureData& outTexture, const VirtualPath& 
     outTexture.width = width;
     outTexture.height = height;
     outTexture.format = TexturePixelFormat::RGBA8;
-    outTexture.pixels = std::vector<uint8>(data, data + width * height * 4);
+    outTexture.pixels = Vector<uint8>(data, data + width * height * 4);
 
     stbi_image_free(data);
 

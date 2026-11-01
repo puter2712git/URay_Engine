@@ -100,7 +100,7 @@ bool VulkanContext::CreateInstance(const VulkanContextDesc& desc)
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    std::vector<const char*> extensions;
+    Vector<const char*> extensions;
     if (!GetRequiredExtensions(extensions))
         return false;
 
@@ -161,7 +161,7 @@ bool VulkanContext::CheckValidationLayerSupport() const
     uint32 layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-    std::vector<VkLayerProperties> availableLayers(layerCount);
+    Vector<VkLayerProperties> availableLayers(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
     for (const char* layerName : validationLayers)
@@ -189,7 +189,7 @@ bool VulkanContext::CheckValidationLayerSupport() const
     return true;
 }
 
-bool VulkanContext::GetRequiredExtensions(std::vector<const char*>& outExtensions) const
+bool VulkanContext::GetRequiredExtensions(Vector<const char*>& outExtensions) const
 {
     uint32 glfwExtensionCount = 0;
     const char** glfwExtensions;
@@ -202,7 +202,7 @@ bool VulkanContext::GetRequiredExtensions(std::vector<const char*>& outExtension
         return false;
     }
 
-    outExtensions = std::vector<const char*>(glfwExtensions, glfwExtensions + glfwExtensionCount);
+    outExtensions = Vector<const char*>(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
     if (enableValidationLayers)
     {

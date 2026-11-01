@@ -15,7 +15,7 @@ class DescriptorSetLayout;
 struct PipelineLayoutDesc
 {
     std::map<uint32, DescriptorSetLayout*> setLayouts;
-    std::vector<PushConstantRange> pushConstantRanges;
+    Vector<PushConstantRange> pushConstantRanges;
 
     bool operator==(const PipelineLayoutDesc&) const = default;
 };

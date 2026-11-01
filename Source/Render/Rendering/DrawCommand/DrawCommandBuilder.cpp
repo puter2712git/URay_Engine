@@ -71,7 +71,7 @@ void DrawCommandBuilder::FlushLines()
 
 void DrawCommandBuilder::FlushUI(const UIDrawContext& context)
 {
-    std::vector<DrawCommand> cmds = uiBatcher->Flush(context);
+    Vector<DrawCommand> cmds = uiBatcher->Flush(context);
     drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 
@@ -84,7 +84,7 @@ void DrawCommandBuilder::BuildMesh(
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
-    std::vector<ShaderDefine> defines;
+    Vector<ShaderDefine> defines;
 
     switch (params.viewMode)
     {
@@ -121,7 +121,7 @@ void DrawCommandBuilder::BuildMesh(
     stateDesc.vertexInputLayout = &VertexPNT::GetInputLayout();
     stateDesc.depthStencil = depthStencil;
 
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
         .mode = BlendMode::Opaque });
 
@@ -158,7 +158,7 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.skinnedMesh);
 
-    std::vector<ShaderDefine> defines;
+    Vector<ShaderDefine> defines;
     defines.push_back({ ShaderDefine{ .name = L"URAY_SKINNED_MESH", .value = L"1" } });
 
     switch (params.viewMode)
@@ -194,7 +194,7 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
                                  ? PolygonMode::Line
                                  : PolygonMode::Fill;
 
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
         .mode = BlendMode::Opaque });
 
@@ -235,7 +235,7 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context, 
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
-    std::vector<ShaderDefine> defines;
+    Vector<ShaderDefine> defines;
     if (passId == RenderPassId::SelectionMask)
     {
         defines.push_back({ ShaderDefine{ .name = L"URAY_SELECTION_MASK", .value = L"1" } });
@@ -264,7 +264,7 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context, 
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
 
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
         .mode = passId == RenderPassId::Overlay ? BlendMode::AlphaBlend : BlendMode::Opaque,
         .writeMask = ColorWriteMask::RGBA });
@@ -400,7 +400,7 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::Back;
 
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
         .mode = BlendMode::AlphaBlend,
         .writeMask = ColorWriteMask::RGBA });
@@ -446,7 +446,7 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     RasterizerState rasterizer = {};
     rasterizer.cullMode = CullMode::None;
 
-    std::vector<ColorBlendAttachmentState> colorBlendAttachments;
+    Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
         .mode = BlendMode::Opaque });
 

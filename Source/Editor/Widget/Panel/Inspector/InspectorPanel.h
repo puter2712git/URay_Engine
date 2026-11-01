@@ -77,7 +77,7 @@ private:
 
     ScrollView* scrollView = nullptr;
     VerticalLayout* layout = nullptr;
-    std::vector<UniquePtr<Property>> propertyCopies;
+    Vector<UniquePtr<Property>> propertyCopies;
 
     bool isDirty = true;
 };

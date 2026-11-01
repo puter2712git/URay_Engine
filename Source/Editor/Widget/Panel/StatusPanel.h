@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Panel/Panel.h>
 
 #include <array>
@@ -40,8 +41,8 @@ private:
     Label* cullingStatsLabel = nullptr;
     Label* cpuFrameLabel = nullptr;
     Label* gpuFrameLabel = nullptr;
-    std::array<Label*, MaxScopeRows> cpuScopeLabels = {};
-    std::array<Label*, MaxScopeRows> gpuScopeLabels = {};
+    Array<Label*, MaxScopeRows> cpuScopeLabels = {};
+    Array<Label*, MaxScopeRows> gpuScopeLabels = {};
 
     float scopeRefreshElapsed = ScopeRefreshInterval;
 };

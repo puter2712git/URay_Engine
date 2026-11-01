@@ -159,7 +159,7 @@ void Scene::Deserialize(const YAML::Node& node)
 
     std::unordered_map<UUID, Unit*, UUIDHash> unitsById;
     std::unordered_map<Unit*, uint32> siblingIndices;
-    std::vector<ParentLink> pendingParentLinks;
+    Vector<ParentLink> pendingParentLinks;
 
     for (const YAML::Node& unitNode : unitNodes)
     {
@@ -265,9 +265,9 @@ void Scene::Deserialize(const YAML::Node& node)
     }
 
     const auto restoreSiblingOrder =
-        [&siblingIndices](std::vector<Unit*> siblings, auto moveUnit)
+        [&siblingIndices](Vector<Unit*> siblings, auto moveUnit)
     {
-        std::vector<bool> usedIndices(siblings.size(), false);
+        Vector<bool> usedIndices(siblings.size(), false);
 
         for (Unit* unit : siblings)
         {
@@ -349,7 +349,7 @@ void Scene::DestroyUnit(Unit* unit)
     if (it == units.end())
         return;
 
-    const std::vector<Unit*> children = unit->GetChildren();
+    const Vector<Unit*> children = unit->GetChildren();
 
     for (Unit* child : children)
     {

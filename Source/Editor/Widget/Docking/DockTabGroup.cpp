@@ -86,7 +86,7 @@ Rect DockTabGroup::GetPanelRect() const
     return panelRect;
 }
 
-std::optional<std::array<DockIndicator, 5>> DockTabGroup::GetDockIndicators() const
+std::optional<Array<DockIndicator, 5>> DockTabGroup::GetDockIndicators() const
 {
     constexpr float indicatorSize = 32.0f;
     constexpr float indicatorGap = 4.0f;
@@ -115,7 +115,7 @@ std::optional<std::array<DockIndicator, 5>> DockTabGroup::GetDockIndicators() co
         };
     };
 
-    return std::array<DockIndicator, 5>{
+    return Array<DockIndicator, 5>{
         makeIndicator(DockDropZone::Center, 0.0f, 0.0f),
         makeIndicator(DockDropZone::Left, -offset, 0.0f),
         makeIndicator(DockDropZone::Right, offset, 0.0f),

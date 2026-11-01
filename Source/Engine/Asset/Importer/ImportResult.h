@@ -14,7 +14,7 @@ struct DependencyResult
     bool succeeded = false;
     String errorMessage;
 
-    std::vector<VirtualPath> sourcePaths;
+    Vector<VirtualPath> sourcePaths;
 
     explicit operator bool() const { return succeeded; }
 
@@ -39,7 +39,7 @@ struct ImportResult
     bool succeeded = false;
     String errorMessage;
 
-    std::vector<AssetMetadata> metadatas;
+    Vector<AssetMetadata> metadatas;
 
     explicit operator bool() const { return succeeded; }
 

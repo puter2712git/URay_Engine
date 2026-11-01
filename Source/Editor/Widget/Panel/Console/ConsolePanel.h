@@ -37,7 +37,7 @@ private:
     ScrollView* scrollView = nullptr;
     VerticalLayout* logLayout = nullptr;
 
-    std::vector<String> logEntries;
+    Vector<String> logEntries;
     bool isLogDirty = false;
 };
 

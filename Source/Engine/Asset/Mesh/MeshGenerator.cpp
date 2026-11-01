@@ -1,4 +1,5 @@
 #include "MeshGenerator.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Math/Math.h>
 
@@ -23,7 +24,7 @@ Render::VertexPNT TransformVertex(const Render::VertexPNT& source, const Matrix&
 MeshInfo MeshGenerator::CreateCube() const
 {
     // clang-format off
-    std::vector<Render::VertexPNT> vertices = {
+    Vector<Render::VertexPNT> vertices = {
         // -Z
         MakeVertex({ -0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f }, { 0.0f, 0.0f }),
         MakeVertex({  0.5f, -0.5f, -0.5f }, {  0.0f,  0.0f, -1.0f }, { 1.0f, 0.0f }),
@@ -55,7 +56,7 @@ MeshInfo MeshGenerator::CreateCube() const
         MakeVertex({  0.5f, -0.5f,  0.5f }, {  0.0f, -1.0f,  0.0f }, { 0.0f, 1.0f }),
         MakeVertex({  0.5f, -0.5f, -0.5f }, {  0.0f, -1.0f,  0.0f }, { 1.0f, 1.0f }),
     };
-    std::vector<uint32> indices = {
+    Vector<uint32> indices = {
          0,  2,  1,  1,  2,  3,
          4,  5,  6,  5,  7,  6,
          8,  9, 10,  9, 11, 10,
@@ -65,7 +66,7 @@ MeshInfo MeshGenerator::CreateCube() const
     };
     // clang-format on
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),
@@ -83,19 +84,19 @@ MeshInfo MeshGenerator::CreateCube() const
 MeshInfo MeshGenerator::CreateQuad() const
 {
     // clang-format off
-    std::vector<Render::VertexPNT> vertices = {
+    Vector<Render::VertexPNT> vertices = {
         MakeVertex({ -0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }),
         MakeVertex({  0.5f, 0.0f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }),
         MakeVertex({  0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }),
         MakeVertex({ -0.5f, 0.0f,  0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }),
     };
-    std::vector<uint32> indices = {
+    Vector<uint32> indices = {
         0, 1, 2,
         0, 2, 3,
     };
     // clang-format on
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),
@@ -112,8 +113,8 @@ MeshInfo MeshGenerator::CreateQuad() const
 
 MeshInfo MeshGenerator::CreateCylinder() const
 {
-    std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32> indices;
+    Vector<Render::VertexPNT> vertices;
+    Vector<uint32> indices;
 
     const float radius = 0.5f;
     const float height = 2.0f;
@@ -175,7 +176,7 @@ MeshInfo MeshGenerator::CreateCylinder() const
         indices.insert(indices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),
@@ -192,8 +193,8 @@ MeshInfo MeshGenerator::CreateCylinder() const
 
 MeshInfo MeshGenerator::CreateCone() const
 {
-    std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32> indices;
+    Vector<Render::VertexPNT> vertices;
+    Vector<uint32> indices;
 
     const float radius = 0.5f;
     const float height = 2.0f;
@@ -233,7 +234,7 @@ MeshInfo MeshGenerator::CreateCone() const
         indices.insert(indices.end(), { bottomBaseIndex, bottomBaseIndex + 2 + i, bottomBaseIndex + 1 + i });
     }
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),
@@ -250,8 +251,8 @@ MeshInfo MeshGenerator::CreateCone() const
 
 MeshInfo MeshGenerator::CreateArrow() const
 {
-    std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32> indices;
+    Vector<Render::VertexPNT> vertices;
+    Vector<uint32> indices;
 
     auto appendMesh = [&vertices, &indices](const MeshInfo& info, const Matrix& transform)
     {
@@ -276,7 +277,7 @@ MeshInfo MeshGenerator::CreateArrow() const
     const Matrix headTransform = Matrix::MakeScale(Vector3(0.2f, 0.2f, 0.2f)) * Matrix::MakeRotationX(-90.0f) * Matrix::MakeTranslation(Vector3(0.0f, 2.0f, 0.0f));
     appendMesh(coneInfo, headTransform);
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),
@@ -293,8 +294,8 @@ MeshInfo MeshGenerator::CreateArrow() const
 
 MeshInfo MeshGenerator::CreateRotationGizmo() const
 {
-    std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32> indices;
+    Vector<Render::VertexPNT> vertices;
+    Vector<uint32> indices;
 
     constexpr float outerRadius = 1.5f;
     constexpr float innerRadius = 1.35f;
@@ -326,7 +327,7 @@ MeshInfo MeshGenerator::CreateRotationGizmo() const
         indices.insert(indices.end(), { currentOuter, currentInner, nextOuter, nextOuter, currentInner, nextInner });
     }
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),
@@ -343,8 +344,8 @@ MeshInfo MeshGenerator::CreateRotationGizmo() const
 
 MeshInfo MeshGenerator::CreateScaleGizmo() const
 {
-    std::vector<Render::VertexPNT> vertices;
-    std::vector<uint32> indices;
+    Vector<Render::VertexPNT> vertices;
+    Vector<uint32> indices;
 
     auto appendMesh = [&vertices, &indices](const MeshInfo& info, const Matrix& transform)
     {
@@ -369,7 +370,7 @@ MeshInfo MeshGenerator::CreateScaleGizmo() const
     const Matrix handleTransform = Matrix::MakeScale(Vector3(0.28f, 0.28f, 0.28f)) * Matrix::MakeTranslation(Vector3(0.0f, 1.9f, 0.0f));
     appendMesh(cubeInfo, handleTransform);
 
-    std::vector<MeshSection> sections;
+    Vector<MeshSection> sections;
     sections.push_back(MeshSection{
         .indexOffset = 0,
         .indexCount = static_cast<uint32>(indices.size()),

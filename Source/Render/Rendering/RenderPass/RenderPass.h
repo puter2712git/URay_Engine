@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/RenderPass/RenderPassId.h>
 #include <Render/Rendering/SceneRenderTargets.h>
@@ -42,8 +43,8 @@ struct RenderPassContext
 
     FogObject* fogObject = nullptr;
     DirectionalLightObject* directionalLight = nullptr;
-    std::vector<SpotLightObject*>& spotLights;
-    std::vector<PointLightObject*>& pointLights;
+    Vector<SpotLightObject*>& spotLights;
+    Vector<PointLightObject*>& pointLights;
 };
 
 class RenderPass
@@ -55,7 +56,7 @@ public:
     virtual void Begin(const RenderPassContext&) = 0;
     virtual void End(const RenderPassContext&) = 0;
 
-    virtual void Execute(const RenderPassContext&, const std::vector<DrawCommand>&) = 0;
+    virtual void Execute(const RenderPassContext&, const Vector<DrawCommand>&) = 0;
 
     virtual RenderPassId GetPassId() const = 0;
 };

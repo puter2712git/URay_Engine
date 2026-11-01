@@ -118,8 +118,8 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
     FogObject* fog = nullptr;
     AmbientLightObject* ambientLight = nullptr;
     DirectionalLightObject* directionalLight = nullptr;
-    std::vector<PointLightObject*> pointLights;
-    std::vector<SpotLightObject*> spotLights;
+    Vector<PointLightObject*> pointLights;
+    Vector<SpotLightObject*> spotLights;
 
     for (RenderScene* scene : sceneInfo.scenes)
     {
@@ -137,10 +137,10 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
         if (!directionalLight)
             directionalLight = environment.GetDirectionalLight();
 
-        const std::vector<PointLightObject*>& scenePointLights = scene->GetPointLights();
+        const Vector<PointLightObject*>& scenePointLights = scene->GetPointLights();
         pointLights.insert(pointLights.end(), scenePointLights.begin(), scenePointLights.end());
 
-        const std::vector<SpotLightObject*>& sceneSpotLights = scene->GetSpotLights();
+        const Vector<SpotLightObject*>& sceneSpotLights = scene->GetSpotLights();
         spotLights.insert(spotLights.end(), sceneSpotLights.begin(), sceneSpotLights.end());
     }
 
@@ -184,7 +184,7 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
     frameConstants.pointLightCount = Math::Min(static_cast<uint32>(pointLights.size()), 256u);
     frameConstants.spotLightCount = Math::Min(static_cast<uint32>(spotLights.size()), 256u);
 
-    std::vector<PointLightConstants> pointLightConstants;
+    Vector<PointLightConstants> pointLightConstants;
     uint32 shadowIndex = 0;
     for (size_t i = 0; i < frameConstants.pointLightCount; ++i)
     {
@@ -196,7 +196,7 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
             .shadowIndex = pointLights[i]->CastsShadow() ? shadowIndex++ : UINT_MAX });
     }
 
-    std::vector<SpotLightConstants> spotLightConstants;
+    Vector<SpotLightConstants> spotLightConstants;
     shadowIndex = 0;
     for (size_t i = 0; i < frameConstants.spotLightCount; ++i)
     {
@@ -219,8 +219,8 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
     {
         size_t objectCount = scene->GetObjectCount();
 
-        std::vector<MeshObject*> meshReceivers;
-        std::vector<DecalObject*> decals;
+        Vector<MeshObject*> meshReceivers;
+        Vector<DecalObject*> decals;
 
         for (size_t i = 0; i < objectCount; ++i)
         {
@@ -315,7 +315,7 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
         }
     }
 
-    const std::vector<DrawCommand>& cmds = builder->GetCommands();
+    const Vector<DrawCommand>& cmds = builder->GetCommands();
 
     workingStats.opaqueCommandCount = static_cast<uint32>(drawCmds[static_cast<size_t>(RenderPassId::Opaque)].size());
     workingStats.decalCommandCount = static_cast<uint32>(drawCmds[static_cast<size_t>(RenderPassId::Decal)].size());
@@ -401,8 +401,8 @@ void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
     }
 
     Renderer& renderer = renderSystem.GetRenderer();
-    std::vector<SpotLightObject*> spotLights;
-    std::vector<PointLightObject*> pointLights;
+    Vector<SpotLightObject*> spotLights;
+    Vector<PointLightObject*> pointLights;
 
     const RenderPassContext passContext = {
         .commandBuffer = *renderer.GetFrameResource().commandBuffer,

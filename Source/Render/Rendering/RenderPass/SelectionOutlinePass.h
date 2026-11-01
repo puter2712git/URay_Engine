@@ -42,7 +42,7 @@ public:
     void Begin(const RenderPassContext& context) override;
     void End(const RenderPassContext& conetext) override;
 
-    void Execute(const RenderPassContext& context, const std::vector<DrawCommand>& drawCmds) override;
+    void Execute(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds) override;
 
     RenderPassId GetPassId() const override { return RenderPassId::SelectionOutline; }
 
@@ -54,8 +54,8 @@ private:
     PipelineState* pso = nullptr;
 
     DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::vector<UniquePtr<DescriptorSet>> descriptorSets;
-    std::vector<UniquePtr<Buffer>> uniformBuffers;
+    Vector<UniquePtr<DescriptorSet>> descriptorSets;
+    Vector<UniquePtr<Buffer>> uniformBuffers;
 
     Sampler* sampler = nullptr;
 };

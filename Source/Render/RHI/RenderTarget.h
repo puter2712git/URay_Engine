@@ -28,7 +28,7 @@ struct RenderTargetAttachmentDesc
 struct RenderTargetDesc
 {
     Extent2D extent = {};
-    std::vector<RenderTargetAttachmentDesc> colorAttachments;
+    Vector<RenderTargetAttachmentDesc> colorAttachments;
     std::optional<RenderTargetAttachmentDesc> depth;
 };
 
@@ -57,8 +57,8 @@ private:
 
     RenderTargetDesc desc = {};
 
-    std::vector<UniquePtr<Texture>> colorTextures;
-    std::vector<UniquePtr<TextureView>> colorViews;
+    Vector<UniquePtr<Texture>> colorTextures;
+    Vector<UniquePtr<TextureView>> colorViews;
 
     UniquePtr<Texture> depthTexture = nullptr;
     UniquePtr<TextureView> depthView = nullptr;

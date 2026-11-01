@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector3.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
@@ -40,6 +41,6 @@ private:
     Vector3 pivotPosition = Vector3::Zero;
     Quaternion activeInitWorldRotation = Quaternion::Identity;
     Vector3 axisDirection = Vector3::Forward;
-    std::vector<TargetState> targets;
+    Vector<TargetState> targets;
 };
 } // namespace URay

@@ -14,7 +14,7 @@ class ShaderReflector
 {
 public:
     static bool Reflect(
-        const std::vector<uint8>& shaderCode,
+        const Vector<uint8>& shaderCode,
         const String& entryPoint,
         ShaderReflection& outReflection);
 

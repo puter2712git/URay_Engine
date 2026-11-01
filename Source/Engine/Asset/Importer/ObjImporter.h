@@ -18,7 +18,7 @@ class VirtualFileSystem;
 
 struct ImportedMaterials
 {
-    std::vector<AssetHandle> handles;
+    Vector<AssetHandle> handles;
     std::unordered_map<String, uint32> indicesByName;
 };
 
@@ -47,7 +47,7 @@ private:
     uint32 GetOrCreateVertex(
         const OBJ::OBJInfo& objInfo,
         const OBJ::OBJIndex& objIndex,
-        std::vector<Render::VertexPNT>& verticesRef,
+        Vector<Render::VertexPNT>& verticesRef,
         std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const;
 };
 

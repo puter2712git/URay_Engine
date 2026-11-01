@@ -31,7 +31,7 @@ private:
         "Ray callbacks must return void.");
 
 public:
-    MemberCallable(Owner* target, const void* targetIdentity, Method method, FunctionSignature signature, std::vector<Variant> boundArguments)
+    MemberCallable(Owner* target, const void* targetIdentity, Method method, FunctionSignature signature, Vector<Variant> boundArguments)
         : Callable(std::move(signature)), method(method), targetIdentity(targetIdentity), boundArguments(std::move(boundArguments))
     {
         if constexpr (std::is_convertible_v<Owner*, Object*>)
@@ -107,7 +107,7 @@ private:
     Method method;
     const void* targetIdentity = nullptr;
 
-    std::vector<Variant> boundArguments;
+    Vector<Variant> boundArguments;
 
     Owner* plainTarget = nullptr;
     std::optional<Variant> objectTarget;
@@ -140,7 +140,7 @@ UniquePtr<Callable> MakeMemberCallable(Target* target, Method method, BoundArgs&
     if (boundCount > signature->parameters.size())
         return nullptr;
 
-    std::vector<Variant> boundArguments;
+    Vector<Variant> boundArguments;
     boundArguments.reserve(boundCount);
     (boundArguments.emplace_back(std::forward<BoundArgs>(boundArgs)), ...);
 

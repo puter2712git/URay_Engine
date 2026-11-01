@@ -1,4 +1,5 @@
 #include "StatusPanel.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Editor/Widget/Panel/PanelFactory.h>
 
@@ -31,8 +32,8 @@ URAY_REGISTER_PANEL(StatusPanel, "Status")
 
 template <size_t Count>
 void UpdateScopeLabels(
-    const std::vector<ProfileScopeStatistics>& statistics,
-    const std::array<Label*, Count>& labels)
+    const Vector<ProfileScopeStatistics>& statistics,
+    const Array<Label*, Count>& labels)
 {
     for (size_t index = 0; index < labels.size(); ++index)
     {

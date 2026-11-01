@@ -110,7 +110,7 @@ bool Engine::Initialize(
     windowSystem->GetMainWindow().Register("Scroll", inputSystem.get(), &InputSystem::OnScroll);
     windowSystem->GetMainWindow().Register("FocusChanged", inputSystem.get(), &InputSystem::OnWindowFocusChanged);
 
-    std::vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
+    Vector<Material*> materials = assetSystem->GetDatabase().GetAssets<Material>();
     for (Material* material : materials)
     {
         if (!material->Initialize())

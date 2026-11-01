@@ -55,11 +55,11 @@ public:
     virtual void UpdateDragging(const Vector3& origin, const Vector3& direction) = 0;
     virtual void EndDragging() = 0;
 
-    const std::vector<GizmoHandle>& GetHandles() const { return handles; }
-    std::vector<GizmoHandle>& GetHandles() { return handles; }
+    const Vector<GizmoHandle>& GetHandles() const { return handles; }
+    Vector<GizmoHandle>& GetHandles() { return handles; }
 
 protected:
-    std::vector<GizmoHandle> handles;
+    Vector<GizmoHandle> handles;
 };
 
 } // namespace URay

@@ -1,4 +1,5 @@
 #include "DecalPass.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
 #include <Render/RHI/Descriptor/DescriptorSet.h>
@@ -26,7 +27,7 @@ void DecalPass::End(const RenderPassContext& context)
 
 void DecalPass::Execute(
     const RenderPassContext& context,
-    const std::vector<DrawCommand>& drawCmds)
+    const Vector<DrawCommand>& drawCmds)
 {
     CommandBuffer& commandBuffer = context.commandBuffer;
     ResourceManager& resourceManager = context.resourceManager;

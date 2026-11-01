@@ -37,7 +37,7 @@ private:
     };
 
     FunctionSignature signature;
-    std::vector<std::shared_ptr<Connection>> callbacks;
+    Vector<std::shared_ptr<Connection>> callbacks;
 };
 
 } // namespace URay
