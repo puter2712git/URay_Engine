@@ -4,9 +4,7 @@
 #include <Core/Math/Vector2.h>
 #include <Core/Type/TypeAlias.h>
 
-#include <array>
 #include <optional>
-#include <vector>
 
 namespace URay
 {

@@ -23,15 +23,14 @@ Matrix::Matrix()
 {
 }
 
-Matrix::Matrix(
-    float inM00, float inM01, float inM02, float inM03,
-    float inM10, float inM11, float inM12, float inM13,
-    float inM20, float inM21, float inM22, float inM23,
-    float inM30, float inM31, float inM32, float inM33)
-    : m00(inM00), m01(inM01), m02(inM02), m03(inM03),
-      m10(inM10), m11(inM11), m12(inM12), m13(inM13),
-      m20(inM20), m21(inM21), m22(inM22), m23(inM23),
-      m30(inM30), m31(inM31), m32(inM32), m33(inM33)
+Matrix::Matrix(float m00, float m01, float m02, float m03,
+               float m10, float m11, float m12, float m13,
+               float m20, float m21, float m22, float m23,
+               float m30, float m31, float m32, float m33)
+    : m00(m00), m01(m01), m02(m02), m03(m03),
+      m10(m10), m11(m11), m12(m12), m13(m13),
+      m20(m20), m21(m21), m22(m22), m23(m23),
+      m30(m30), m31(m31), m32(m32), m33(m33)
 {
 }
 
@@ -337,6 +336,25 @@ Matrix Matrix::MakeOrthogonal(
         0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f / (near - far), 0.0f,
         -(right + left) / (right - left), -(top + bottom) / (top - bottom), near / (near - far), 1.0f);
+}
+
+Matrix Matrix::operator*(const Matrix& rhs) const
+{
+    Matrix ret = Matrix();
+
+    for (size_t row = 0; row < 4; ++row)
+    {
+        for (size_t col = 0; col < 4; ++col)
+        {
+            for (size_t index = 0; index < 4; ++index)
+            {
+                ret.elements[row][col] +=
+                    elements[row][index] * rhs.elements[index][col];
+            }
+        }
+    }
+
+    return ret;
 }
 
 Vector4 operator*(const Vector4& lhs, const Matrix& rhs)

@@ -1,10 +1,7 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Input/WindowInputState.h>
-
-#include <memory>
-#include <unordered_map>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

@@ -1,12 +1,10 @@
 #pragma once
+
+#include <Core/File/VirtualPath.h>
 #include <Core/Type/Type.h>
 #include <Core/Type/TypeAlias.h>
 
-#include <Core/File/VirtualPath.h>
-
 #include <filesystem>
-#include <unordered_map>
-#include <vector>
 
 namespace URay
 {

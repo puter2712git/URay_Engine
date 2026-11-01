@@ -11,7 +11,38 @@ namespace URay
 Quaternion Quaternion::Identity = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
 
 Quaternion::Quaternion(float x, float y, float z, float w)
-    : x(x), y(y), z(z), w(w) {}
+    : x(x), y(y), z(z), w(w)
+{
+}
+
+Quaternion Quaternion::GetNormalized() const
+{
+    const float lengthSquared = x * x + y * y + z * z + w * w;
+    if (lengthSquared < Math::EPSILON * Math::EPSILON)
+        return Identity;
+
+    const float inverseLength = 1.0f / Math::Sqrt(lengthSquared);
+
+    return Quaternion(
+        x * inverseLength,
+        y * inverseLength,
+        z * inverseLength,
+        w * inverseLength);
+}
+
+Quaternion Quaternion::Inverse() const
+{
+    const float lengthSquared = x * x + y * y + z * z + w * w;
+    if (lengthSquared < Math::EPSILON * Math::EPSILON)
+        return Identity;
+
+    const float inverseLengthSquared = 1.0f / lengthSquared;
+    return Quaternion(
+        -x * inverseLengthSquared,
+        -y * inverseLengthSquared,
+        -z * inverseLengthSquared,
+        w * inverseLengthSquared);
+}
 
 Quaternion Quaternion::FromAxisAngle(const Vector3& axis, float degrees)
 {
@@ -78,33 +109,13 @@ Vector3 Quaternion::ToEulerDegrees() const
         Math::RadToDeg(z));
 }
 
-Quaternion Quaternion::GetNormalized() const
+Vector3 Quaternion::RotateVector(const Vector3& value) const
 {
-    const float lengthSquared = x * x + y * y + z * z + w * w;
-    if (lengthSquared < Math::EPSILON * Math::EPSILON)
-        return Identity;
+    const Quaternion q = GetNormalized();
+    const Vector3 qv(q.x, q.y, q.z);
 
-    const float inverseLength = 1.0f / Math::Sqrt(lengthSquared);
-
-    return Quaternion(
-        x * inverseLength,
-        y * inverseLength,
-        z * inverseLength,
-        w * inverseLength);
-}
-
-Quaternion Quaternion::Inverse() const
-{
-    const float lengthSquared = x * x + y * y + z * z + w * w;
-    if (lengthSquared < Math::EPSILON * Math::EPSILON)
-        return Identity;
-
-    const float inverseLengthSquared = 1.0f / lengthSquared;
-    return Quaternion(
-        -x * inverseLengthSquared,
-        -y * inverseLengthSquared,
-        -z * inverseLengthSquared,
-        w * inverseLengthSquared);
+    const Vector3 t = 2.0f * Vector3::Cross(qv, value);
+    return value + q.w * t + Vector3::Cross(qv, t);
 }
 
 Quaternion Quaternion::operator*(const Quaternion& rhs) const
@@ -114,15 +125,6 @@ Quaternion Quaternion::operator*(const Quaternion& rhs) const
         w * rhs.y - x * rhs.z + y * rhs.w + z * rhs.x,
         w * rhs.z + x * rhs.y - y * rhs.x + z * rhs.w,
         w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z);
-}
-
-Vector3 Quaternion::RotateVector(const Vector3& value) const
-{
-    const Quaternion q = GetNormalized();
-    const Vector3 qv(q.x, q.y, q.z);
-
-    const Vector3 t = 2.0f * Vector3::Cross(qv, value);
-    return value + q.w * t + Vector3::Cross(qv, t);
 }
 
 } // namespace URay

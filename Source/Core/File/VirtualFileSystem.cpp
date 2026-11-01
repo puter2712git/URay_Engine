@@ -1,6 +1,4 @@
 #include "VirtualFileSystem.h"
-#include <Core/Type/TypeAlias.h>
-
 
 #include <fstream>
 #include <iostream>

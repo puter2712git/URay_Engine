@@ -1,7 +1,7 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/Log/LogSink.h>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

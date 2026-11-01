@@ -1,9 +1,7 @@
 #include "InputActionEvaluator.h"
-#include <Core/Type/TypeAlias.h>
-
-#include <Core/Math/Math.h>
 
 #include <Core/Input/InputSnapshot.h>
+#include <Core/Math/Math.h>
 
 #include <algorithm>
 #include <type_traits>

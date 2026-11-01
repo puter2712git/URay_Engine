@@ -17,54 +17,15 @@ struct Vector2
     static Vector2 Zero;
     static Vector2 One;
 
-    Vector2 operator+(const Vector2& rhs) const
-    {
-        Vector2 ret;
-        ret.x = x + rhs.x;
-        ret.y = y + rhs.y;
+    Vector2 operator+(const Vector2& rhs) const;
+    Vector2 operator-(const Vector2& rhs) const;
+    Vector2 operator*(const float& rhs) const;
+    Vector2 operator/(const float& rhs) const;
 
-        return ret;
-    }
-
-    Vector2 operator-(const Vector2& rhs) const
-    {
-        Vector2 ret;
-        ret.x = x - rhs.x;
-        ret.y = y - rhs.y;
-
-        return ret;
-    }
-
-    Vector2& operator+=(const Vector2& rhs)
-    {
-        x += rhs.x;
-        y += rhs.y;
-
-        return *this;
-    }
-
-    Vector2& operator-=(const Vector2& rhs)
-    {
-        x -= rhs.x;
-        y -= rhs.y;
-
-        return *this;
-    }
-
-    Vector2 operator*(const float& rhs) const
-    {
-        return Vector2(x * rhs, y * rhs);
-    }
-
-    Vector2 operator/(const float& rhs) const
-    {
-        return Vector2(x / rhs, y / rhs);
-    }
+    Vector2& operator+=(const Vector2& rhs);
+    Vector2& operator-=(const Vector2& rhs);
 };
 
-inline Vector2 operator*(float lhs, const Vector2& rhs)
-{
-    return rhs * lhs;
-}
+Vector2 operator*(float lhs, const Vector2& rhs);
 
 } // namespace URay

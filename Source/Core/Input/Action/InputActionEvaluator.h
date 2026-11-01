@@ -1,10 +1,8 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Input/Action/InputActionMap.h>
 #include <Core/Input/Action/InputActionSnapshot.h>
-
-#include <vector>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

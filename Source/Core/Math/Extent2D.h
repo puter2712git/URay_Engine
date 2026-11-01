@@ -3,8 +3,6 @@
 #include <Core/Type/Type.h>
 #include <Core/Type/TypeAlias.h>
 
-#include <cstdint>
-
 namespace URay
 {
 

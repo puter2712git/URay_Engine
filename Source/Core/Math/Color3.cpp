@@ -14,10 +14,10 @@ Color3 Color3::Yellow = Color3(1.0f, 1.0f, 0.0f);
 Color3 Color3::Black = Color3(0.0f, 0.0f, 0.0f);
 Color3 Color3::White = Color3(1.0f, 1.0f, 1.0f);
 
-Color3::Color3(float inR, float inG, float inB)
-    : r(Math::Clamp(inR, 0.0f, 1.0f)),
-      g(Math::Clamp(inG, 0.0f, 1.0f)),
-      b(Math::Clamp(inB, 0.0f, 1.0f))
+Color3::Color3(float r, float g, float b)
+    : r(Math::Clamp(r, 0.0f, 1.0f)),
+      g(Math::Clamp(g, 0.0f, 1.0f)),
+      b(Math::Clamp(b, 0.0f, 1.0f))
 {
 }
 

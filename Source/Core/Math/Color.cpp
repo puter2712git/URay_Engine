@@ -1,5 +1,7 @@
 #include "Color.h"
 
+#include <Core/Math/Math.h>
+
 namespace URay
 {
 
@@ -10,8 +12,13 @@ Color Color::Yellow = Color(1.0f, 1.0f, 0.0f, 1.0f);
 Color Color::Black = Color(0.0f, 0.0f, 0.0f, 1.0f);
 Color Color::White = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
-Color::Color(float inR, float inG, float inB, float inA)
-    : r(inR), g(inG), b(inB), a(inA) {}
+Color::Color(float r, float g, float b, float a)
+    : r(Math::Clamp(r, 0.0f, 1.0f)),
+      g(Math::Clamp(g, 0.0f, 1.0f)),
+      b(Math::Clamp(b, 0.0f, 1.0f)),
+      a(Math::Clamp(a, 0.0f, 1.0f))
+{
+}
 
 Color Color::FromRGB(uint8 r, uint8 g, uint8 b, uint8 a)
 {

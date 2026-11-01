@@ -1,7 +1,6 @@
 #include "InputSnapshot.h"
 
 #include <iterator>
-#include <optional>
 
 namespace URay
 {
@@ -10,10 +9,14 @@ std::optional<size_t> InputSnapshot::GetMouseButtonIndex(MouseButton button)
 {
     switch (button)
     {
-    case MouseButton::Left: return 0;
-    case MouseButton::Right: return 1;
-    case MouseButton::Middle: return 2;
-    default: return std::nullopt;
+    case MouseButton::Left:
+        return 0;
+    case MouseButton::Right:
+        return 1;
+    case MouseButton::Middle:
+        return 2;
+    default:
+        return std::nullopt;
     }
 }
 
