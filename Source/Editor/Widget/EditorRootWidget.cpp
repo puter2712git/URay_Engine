@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "EditorRootWidget.h"
 
 #include <Editor/Widget/Layer/DialogLayer.h>
@@ -8,7 +9,7 @@
 namespace URay
 {
 
-EditorRootWidget::EditorRootWidget(std::unique_ptr<Widget> mainContent)
+EditorRootWidget::EditorRootWidget(UniquePtr<Widget> mainContent)
 {
     AddChild(std::move(mainContent));
 

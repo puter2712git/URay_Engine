@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "RenderTargetRegistry.h"
 
 #include <Render/RHI/Device.h>
@@ -17,7 +18,7 @@ bool RenderTargetRegistry::Create(
     const size_t index = static_cast<size_t>(id);
     RenderTargetEntry& entry = entries[index];
 
-    auto renderTarget = std::make_unique<RenderTarget>(device, desc);
+    auto renderTarget = MakeUnique<RenderTarget>(device, desc);
     if (!renderTarget)
         return false;
 

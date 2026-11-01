@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/RenderPipeline.h>
 
 #include <Core/Math/Frustum.h>
@@ -52,19 +53,19 @@ RenderPipeline::~RenderPipeline() = default;
 
 bool RenderPipeline::Initialize()
 {
-    builder = std::make_unique<DrawCommandBuilder>(assetSystem, renderSystem);
+    builder = MakeUnique<DrawCommandBuilder>(assetSystem, renderSystem);
     if (!builder->Initialize())
         return false;
 
-    passes.push_back(std::make_unique<ShadowPass>());
-    passes.push_back(std::make_unique<ClusteredLightCullingPass>());
-    passes.push_back(std::make_unique<OpaquePass>());
-    passes.push_back(std::make_unique<DecalPass>());
-    passes.push_back(std::make_unique<OverlayPass>());
-    passes.push_back(std::make_unique<SelectionMaskPass>());
-    passes.push_back(std::make_unique<FogPass>());
-    passes.push_back(std::make_unique<SelectionOutlinePass>());
-    passes.push_back(std::make_unique<GizmoPass>());
+    passes.push_back(MakeUnique<ShadowPass>());
+    passes.push_back(MakeUnique<ClusteredLightCullingPass>());
+    passes.push_back(MakeUnique<OpaquePass>());
+    passes.push_back(MakeUnique<DecalPass>());
+    passes.push_back(MakeUnique<OverlayPass>());
+    passes.push_back(MakeUnique<SelectionMaskPass>());
+    passes.push_back(MakeUnique<FogPass>());
+    passes.push_back(MakeUnique<SelectionOutlinePass>());
+    passes.push_back(MakeUnique<GizmoPass>());
 
     return true;
 }
@@ -453,7 +454,7 @@ void RenderPipeline::ExecuteUI(const UIDrawContext& context, RenderView& view)
     }
 }
 
-void RenderPipeline::AddRenderPass(std::unique_ptr<RenderPass> pass)
+void RenderPipeline::AddRenderPass(UniquePtr<RenderPass> pass)
 {
     passes.push_back(std::move(pass));
 }

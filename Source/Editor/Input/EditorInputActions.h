@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/Action/InputAction.h>
 
 #include <memory>
@@ -9,7 +10,7 @@ namespace URay
 
 class InputActionMap;
 
-std::unique_ptr<InputActionMap> CreateEditorInputActionMap();
+UniquePtr<InputActionMap> CreateEditorInputActionMap();
 
 } // namespace URay
 

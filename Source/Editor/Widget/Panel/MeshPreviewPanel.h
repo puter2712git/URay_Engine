@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Panel/Panel.h>
 
 #include <memory>
@@ -15,7 +16,7 @@ class MeshPreviewPanel final : public Panel
     URAY_CLASS(MeshPreviewPanel, Panel)
 
 public:
-    explicit MeshPreviewPanel(std::unique_ptr<MeshPreviewSession> session);
+    explicit MeshPreviewPanel(UniquePtr<MeshPreviewSession> session);
     ~MeshPreviewPanel() override;
 
 public:
@@ -34,7 +35,7 @@ private:
     const InputSnapshot* FindWindowInputSnapshot() const;
 
 private:
-    std::unique_ptr<MeshPreviewSession> session;
+    UniquePtr<MeshPreviewSession> session;
     bool isCameraRotating = false;
     Vector2 cameraMouseDelta = Vector2::Zero;
 };

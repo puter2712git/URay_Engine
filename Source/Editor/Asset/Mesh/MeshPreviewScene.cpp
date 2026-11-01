@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "MeshPreviewScene.h"
 
 #include <Engine/Asset/AssetDatabase.h>
@@ -40,19 +41,19 @@ bool MeshPreviewScene::Initialize(const AssetHandle& meshHandle)
 
     sceneId = scenePtr->GetId();
 
-    auto meshUnit = std::make_unique<Unit>();
+    auto meshUnit = MakeUnique<Unit>();
     meshUnit->SetName(mesh->GetName());
-    meshUnit->AddComponent(std::make_unique<TransformComponent>());
+    meshUnit->AddComponent(MakeUnique<TransformComponent>());
 
-    auto meshComponent = std::make_unique<MeshComponent>();
+    auto meshComponent = MakeUnique<MeshComponent>();
     meshComponent->SetMeshHandle(meshHandle);
     meshUnit->AddComponent(std::move(meshComponent));
 
     scenePtr->AddUnit(std::move(meshUnit));
 
-    auto lightUnit = std::make_unique<Unit>();
+    auto lightUnit = MakeUnique<Unit>();
     lightUnit->SetName("Preview Ambient Light");
-    lightUnit->AddComponent(std::make_unique<AmbientLightComponent>());
+    lightUnit->AddComponent(MakeUnique<AmbientLightComponent>());
 
     scenePtr->AddUnit(std::move(lightUnit));
 

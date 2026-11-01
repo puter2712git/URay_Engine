@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "ViewportController.h"
 
 #include <Core/Math/Math.h>
@@ -42,10 +43,10 @@ ViewportController::ViewportController(
       playSession(playSession),
       useEditorCamera(useEditorCamera)
 {
-    gizmo = std::make_unique<TransformGizmo>(playSession);
-    objectIdTargets = std::make_unique<ObjectIdTargetRegistry>(renderSceneSystem);
+    gizmo = MakeUnique<TransformGizmo>(playSession);
+    objectIdTargets = MakeUnique<ObjectIdTargetRegistry>(renderSceneSystem);
 
-    this->editorCamera = std::make_unique<EditorCamera>();
+    this->editorCamera = MakeUnique<EditorCamera>();
 
     selectionSystem.Register("SelectionSetChanged", this, &ViewportController::OnSelectionSetChanged);
     renderer.Register("ObjectIdReadback", this, &ViewportController::OnObjectIdReadback);

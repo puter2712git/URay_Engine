@@ -21,8 +21,8 @@ public:
     void Finalize();
 
 private:
-    std::unique_ptr<Engine> engine = nullptr;
-    std::unique_ptr<Editor> editor = nullptr;
+    UniquePtr<Engine> engine = nullptr;
+    UniquePtr<Editor> editor = nullptr;
 };
 
 } // namespace URay

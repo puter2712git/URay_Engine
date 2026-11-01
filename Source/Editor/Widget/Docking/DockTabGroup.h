@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Engine/UI/Widget/Widget.h>
 
@@ -30,7 +31,7 @@ struct DockedTab
 struct DetachedTab
 {
     String title;
-    std::unique_ptr<Widget> panel;
+    UniquePtr<Widget> panel;
 };
 
 class DockTabGroup final : public Widget
@@ -41,7 +42,7 @@ public:
     explicit DockTabGroup(UISystem& uiSystem);
 
 public:
-    void AddTab(const String& title, std::unique_ptr<Widget> panel);
+    void AddTab(const String& title, UniquePtr<Widget> panel);
     void RequestActivate(ObjectId panelId);
 
     bool HasTab(ObjectId panelId) const;

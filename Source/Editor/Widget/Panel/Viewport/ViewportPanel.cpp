@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Panel/Viewport/ViewportPanel.h>
 
 #include <Editor/Widget/Panel/PanelFactory.h>
@@ -15,9 +16,9 @@ namespace URay
 {
 
 URAY_REGISTER_PANEL_WITH_CONTEXT(ViewportPanel, "Viewport",
-    [](PanelContext& context) -> std::unique_ptr<Panel>
+    [](PanelContext& context) -> UniquePtr<Panel>
     {
-        return std::make_unique<ViewportPanel>(context.viewportController);
+        return MakeUnique<ViewportPanel>(context.viewportController);
     })
 
 ViewportPanel::ViewportPanel(ViewportController& controller)
@@ -25,7 +26,7 @@ ViewportPanel::ViewportPanel(ViewportController& controller)
 {
     SetBackgroundColor(EditorStyle::Surface);
 
-    auto viewportToolbar = std::make_unique<ViewportToolbar>();
+    auto viewportToolbar = MakeUnique<ViewportToolbar>();
     toolbar = viewportToolbar.get();
     AddChild(std::move(viewportToolbar));
 

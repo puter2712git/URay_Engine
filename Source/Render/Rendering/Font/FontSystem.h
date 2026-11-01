@@ -41,8 +41,8 @@ private:
 
     FT_Library library = nullptr;
 
-    std::unordered_map<AssetHandle, std::unique_ptr<FontFace>, AssetHandleHash> faces;
-    std::unordered_map<FontAtlasKey, std::unique_ptr<FontAtlas>, FontAtlasKeyHash> atlases;
+    std::unordered_map<AssetHandle, UniquePtr<FontFace>, AssetHandleHash> faces;
+    std::unordered_map<FontAtlasKey, UniquePtr<FontAtlas>, FontAtlasKeyHash> atlases;
 };
 
 } // namespace URay::Render

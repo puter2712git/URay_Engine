@@ -51,12 +51,12 @@ public:
 private:
     Device& device;
 
-    std::unique_ptr<RenderTarget> directionalRenderTarget = nullptr;
-    std::unique_ptr<RenderTarget> shadowAtlasRT = nullptr;
+    UniquePtr<RenderTarget> directionalRenderTarget = nullptr;
+    UniquePtr<RenderTarget> shadowAtlasRT = nullptr;
 
-    std::unique_ptr<Texture> depthTextureCubeArray = nullptr;
-    std::unique_ptr<TextureView> pointShadowSamplingView = nullptr;
-    std::vector<std::unique_ptr<TextureView>> pointShadowFaceViews;
+    UniquePtr<Texture> depthTextureCubeArray = nullptr;
+    UniquePtr<TextureView> pointShadowSamplingView = nullptr;
+    std::vector<UniquePtr<TextureView>> pointShadowFaceViews;
 
     std::vector<SpotLightObject*> allocatedSpotLights;
     std::vector<PointLightObject*> allocatedPointLights;

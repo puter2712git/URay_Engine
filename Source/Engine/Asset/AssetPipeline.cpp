@@ -20,10 +20,10 @@ namespace URay
 AssetPipeline::AssetPipeline(AssetSystem& assetSystem, VirtualFileSystem& fileSystem)
     : assetSystem(assetSystem), fileSystem(fileSystem)
 {
-    importers.push_back(std::make_unique<TextureImporter>(assetSystem, fileSystem));
-    importers.push_back(std::make_unique<FontImporter>(assetSystem, fileSystem));
-    importers.push_back(std::make_unique<OBJImporter>(assetSystem, fileSystem));
-    importers.push_back(std::make_unique<FBXImporter>(assetSystem, fileSystem));
+    importers.push_back(MakeUnique<TextureImporter>(assetSystem, fileSystem));
+    importers.push_back(MakeUnique<FontImporter>(assetSystem, fileSystem));
+    importers.push_back(MakeUnique<OBJImporter>(assetSystem, fileSystem));
+    importers.push_back(MakeUnique<FBXImporter>(assetSystem, fileSystem));
 }
 
 AssetPipeline::~AssetPipeline() = default;

@@ -40,7 +40,7 @@ bool ResourceManager::Initialize()
         return false;
     }
 
-    fontSystem = std::make_unique<FontSystem>(device);
+    fontSystem = MakeUnique<FontSystem>(device);
     if (!fontSystem->Initialize())
     {
         URAY_LOG("[ResourceManager] Failed to initialize font system.");
@@ -48,7 +48,7 @@ bool ResourceManager::Initialize()
         return false;
     }
 
-    shadowSystem = std::make_unique<ShadowSystem>(device);
+    shadowSystem = MakeUnique<ShadowSystem>(device);
     if (!shadowSystem->Initialize())
     {
         URAY_LOG("[ResourceManager] Failed to initialize shadow system.");
@@ -278,7 +278,7 @@ Sampler* ResourceManager::GetOrCreateSampler(const SamplerDesc& samplerDesc)
     if (it != textureSamplers.end())
         return it->second.get();
 
-    std::unique_ptr<Sampler> sampler(device.CreateSampler(samplerDesc));
+    UniquePtr<Sampler> sampler(device.CreateSampler(samplerDesc));
     if (!sampler)
         return nullptr;
 

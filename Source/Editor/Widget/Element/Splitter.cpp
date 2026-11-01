@@ -10,7 +10,7 @@
 namespace URay
 {
 
-Splitter::Splitter(const String& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second)
+Splitter::Splitter(const String& layoutId, SplitAxis axis, UniquePtr<Widget> first, UniquePtr<Widget> second)
     : layoutId(layoutId), axis(axis)
 {
     AddChild(std::move(first));

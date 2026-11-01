@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Visual/Visualizer/EditorComponentVisualizer.h>
 
 #include <functional>
@@ -16,7 +17,7 @@ class Unit;
 class EditorVisualizerRegistry
 {
 public:
-    using Constructor = std::function<std::unique_ptr<EditorComponentVisualizer>(EditorVisualContext&, Unit&, Component&)>;
+    using Constructor = std::function<UniquePtr<EditorComponentVisualizer>(EditorVisualContext&, Unit&, Component&)>;
 
     template <typename T>
     void Register(Constructor constructor)

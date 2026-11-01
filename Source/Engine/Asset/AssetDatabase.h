@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/Asset.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
@@ -51,10 +52,10 @@ public:
     }
     std::vector<Asset*> GetAssets(Class* assetClass) const;
 
-    void InsertOrReplace(std::unique_ptr<Asset> asset);
+    void InsertOrReplace(UniquePtr<Asset> asset);
 
 private:
-    std::unordered_map<AssetHandle, std::unique_ptr<Asset>, AssetHandleHash> assets;
+    std::unordered_map<AssetHandle, UniquePtr<Asset>, AssetHandleHash> assets;
 };
 
 } // namespace URay

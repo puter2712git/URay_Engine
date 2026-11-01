@@ -135,7 +135,7 @@ bool Unit::SetParent(Unit* unit, ReparentMode mode)
     return true;
 }
 
-Component* Unit::AddComponent(std::unique_ptr<Component> component)
+Component* Unit::AddComponent(UniquePtr<Component> component)
 {
     Component* componentPtr = component.get();
 

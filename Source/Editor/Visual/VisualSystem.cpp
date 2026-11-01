@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "VisualSystem.h"
 
 #include <Editor/Selection/SelectionSystem.h>
@@ -32,15 +33,15 @@ VisualSystem::~VisualSystem() = default;
 bool VisualSystem::Initialize()
 {
     visualizerRegistry.Register<CameraComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                 { return std::make_unique<CameraVisualizer>(context, unit, component, selectionSystem); });
+                                                 { return MakeUnique<CameraVisualizer>(context, unit, component, selectionSystem); });
     visualizerRegistry.Register<DirectionalLightComponent>([](EditorVisualContext& context, Unit& unit, Component& component)
-                                                           { return std::make_unique<DirectionalLightVisualizer>(context, unit, component); });
+                                                           { return MakeUnique<DirectionalLightVisualizer>(context, unit, component); });
     visualizerRegistry.Register<PointLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                     { return std::make_unique<PointLightVisualizer>(context, unit, component, selectionSystem); });
+                                                     { return MakeUnique<PointLightVisualizer>(context, unit, component, selectionSystem); });
     visualizerRegistry.Register<SpotLightComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                    { return std::make_unique<SpotLightVisualizer>(context, unit, component, selectionSystem); });
+                                                    { return MakeUnique<SpotLightVisualizer>(context, unit, component, selectionSystem); });
     visualizerRegistry.Register<DecalComponent>([this](EditorVisualContext& context, Unit& unit, Component& component)
-                                                { return std::make_unique<DecalVisualizer>(context, unit, component, selectionSystem); });
+                                                { return MakeUnique<DecalVisualizer>(context, unit, component, selectionSystem); });
 
     SceneSystem& sceneSystem = engine.GetSceneSystem();
     sceneSystem.Register("UnitWorldTransformUpdated", this, &VisualSystem::OnUnitTransformUpdated);
@@ -103,7 +104,7 @@ void VisualSystem::OnComponentAdded(Scene* scene, Unit* unit, Component* compone
     const EditorVisualizerRegistry::Constructor* constructor = visualizerRegistry.Find(&component->GetType());
     if (constructor)
     {
-        std::unique_ptr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);
+        UniquePtr<EditorComponentVisualizer> visualizer = (*constructor)(context, *unit, *component);
         visualizers.insert_or_assign(component, std::move(visualizer));
     }
 }

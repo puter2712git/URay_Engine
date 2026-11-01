@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "CameraVisualizer.h"
 
 #include <Core/Math/Math.h>
@@ -153,7 +154,7 @@ void CameraVisualizer::CreateLine(EditorVisualContext& context, Component& compo
     if (visual.line)
         return;
 
-    std::unique_ptr<Render::LineObject> line = std::make_unique<Render::LineObject>(MakeLineState(component));
+    UniquePtr<Render::LineObject> line = MakeUnique<Render::LineObject>(MakeLineState(component));
     visual.line = line.get();
 
     Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();

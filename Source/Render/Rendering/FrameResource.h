@@ -30,17 +30,17 @@ struct FrameResource
 
     GPUTimeStampState gpuTimeStamps = {};
 
-    std::unique_ptr<CommandBuffer> commandBuffer = nullptr;
-    std::unique_ptr<Buffer> uniformBuffer = nullptr;
-    std::unique_ptr<Buffer> pointLightStorageBuffer = nullptr;
-    std::unique_ptr<Buffer> spotLightStorageBuffer = nullptr;
-    std::unique_ptr<Buffer> shadowUniformBuffer = nullptr;
-    std::unique_ptr<Buffer> spotLightShadowStorageBuffer = nullptr;
-    std::unique_ptr<Buffer> pointLightShadowStorageBuffer = nullptr;
-    std::unique_ptr<Buffer> clusterLightListStorageBuffer = nullptr;
-    std::unique_ptr<Buffer> clusterLightIndexListStorageBuffer = nullptr;
+    UniquePtr<CommandBuffer> commandBuffer = nullptr;
+    UniquePtr<Buffer> uniformBuffer = nullptr;
+    UniquePtr<Buffer> pointLightStorageBuffer = nullptr;
+    UniquePtr<Buffer> spotLightStorageBuffer = nullptr;
+    UniquePtr<Buffer> shadowUniformBuffer = nullptr;
+    UniquePtr<Buffer> spotLightShadowStorageBuffer = nullptr;
+    UniquePtr<Buffer> pointLightShadowStorageBuffer = nullptr;
+    UniquePtr<Buffer> clusterLightListStorageBuffer = nullptr;
+    UniquePtr<Buffer> clusterLightIndexListStorageBuffer = nullptr;
 
-    std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
+    UniquePtr<DescriptorSet> descriptorSet = nullptr;
 };
 
 } // namespace URay::Render

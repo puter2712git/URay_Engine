@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "Widget.h"
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
@@ -43,20 +44,20 @@ void Widget::Paint(Render::UIDrawContext& context)
         context.PopClipRect();
 }
 
-void Widget::AddChild(std::unique_ptr<Widget> child)
+void Widget::AddChild(UniquePtr<Widget> child)
 {
     child->parent = this;
     children.push_back(std::move(child));
 }
 
-std::unique_ptr<Widget> Widget::RemoveChild(Widget* child)
+UniquePtr<Widget> Widget::RemoveChild(Widget* child)
 {
     for (auto it = children.begin(); it != children.end(); ++it)
     {
         if (it->get() != child)
             continue;
 
-        std::unique_ptr<Widget> removed = std::move(*it);
+        UniquePtr<Widget> removed = std::move(*it);
         children.erase(it);
 
         removed->parent = nullptr;
@@ -66,7 +67,7 @@ std::unique_ptr<Widget> Widget::RemoveChild(Widget* child)
     return nullptr;
 }
 
-std::unique_ptr<Widget> Widget::ReplaceChild(Widget* child, std::unique_ptr<Widget>& replacement)
+UniquePtr<Widget> Widget::ReplaceChild(Widget* child, UniquePtr<Widget>& replacement)
 {
     if (!child || !replacement || replacement->parent)
         return nullptr;
@@ -76,7 +77,7 @@ std::unique_ptr<Widget> Widget::ReplaceChild(Widget* child, std::unique_ptr<Widg
         if (current.get() != child)
             continue;
 
-        std::unique_ptr<Widget> previous = std::move(current);
+        UniquePtr<Widget> previous = std::move(current);
         previous->parent = nullptr;
 
         replacement->parent = this;

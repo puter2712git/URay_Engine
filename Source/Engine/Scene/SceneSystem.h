@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Ray/RayEmitter.h>
 #include <Engine/Scene/Scene.h>
 
@@ -25,20 +26,20 @@ public:
 public:
     void Update(float deltaTime);
 
-    std::unique_ptr<Scene> CreateScene(SceneType type, const VirtualPath& filePath);
+    UniquePtr<Scene> CreateScene(SceneType type, const VirtualPath& filePath);
 
-    Scene* LoadScene(std::unique_ptr<Scene> scene);
+    Scene* LoadScene(UniquePtr<Scene> scene);
     bool UnloadScene(SceneId id);
 
     Scene* GetScene(SceneId id) const;
     std::vector<Scene*> GetScenes(SceneType type) const;
 
-    const std::vector<std::unique_ptr<Scene>>& GetScenes() const { return scenes; }
+    const std::vector<UniquePtr<Scene>>& GetScenes() const { return scenes; }
 
 private:
     SceneId nextSceneId = 1;
 
-    std::vector<std::unique_ptr<Scene>> scenes;
+    std::vector<UniquePtr<Scene>> scenes;
 };
 
 } // namespace URay

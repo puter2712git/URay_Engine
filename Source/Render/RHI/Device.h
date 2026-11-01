@@ -159,7 +159,7 @@ private:
 
     QueueFamilyIndices queueFamilyIndices;
 
-    std::unique_ptr<CommandPool> commandPool = nullptr;
+    UniquePtr<CommandPool> commandPool = nullptr;
 
     VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 };

@@ -63,17 +63,17 @@ private:
     void CreateDefaultMesh(const AssetHandle& handle, const String& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle);
 
 private:
-    std::unique_ptr<VirtualFileSystem> fileSystem = nullptr;
+    UniquePtr<VirtualFileSystem> fileSystem = nullptr;
 
-    std::unique_ptr<AssetDatabase> database = nullptr;
-    std::unique_ptr<AssetPipeline> pipeline = nullptr;
-    std::unique_ptr<AssetFactory> factory = nullptr;
-    std::unique_ptr<AssetMetadataSerializer> metadataSerializer = nullptr;
+    UniquePtr<AssetDatabase> database = nullptr;
+    UniquePtr<AssetPipeline> pipeline = nullptr;
+    UniquePtr<AssetFactory> factory = nullptr;
+    UniquePtr<AssetMetadataSerializer> metadataSerializer = nullptr;
 
-    std::unique_ptr<TextureSerializer> textureSerializer = nullptr;
-    std::unique_ptr<MaterialSerializer> materialSerializer = nullptr;
-    std::unique_ptr<FontSerializer> fontSerializer = nullptr;
-    std::unique_ptr<MeshSerializer> meshSerializer = nullptr;
+    UniquePtr<TextureSerializer> textureSerializer = nullptr;
+    UniquePtr<MaterialSerializer> materialSerializer = nullptr;
+    UniquePtr<FontSerializer> fontSerializer = nullptr;
+    UniquePtr<MeshSerializer> meshSerializer = nullptr;
 };
 
 } // namespace URay

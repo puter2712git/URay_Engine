@@ -59,7 +59,7 @@ private:
     Surface& surface;
     Device& device;
 
-    std::unique_ptr<SwapChain> swapChain;
+    UniquePtr<SwapChain> swapChain;
 
     std::array<VkSemaphore, MAX_FRAMES_IN_FLIGHT> imageAvailableSemaphores = {};
 

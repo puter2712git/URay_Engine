@@ -20,7 +20,7 @@ struct PanelContext
 struct PanelRegistration
 {
     String title;
-    std::function<std::unique_ptr<Panel>(PanelContext&)> constructor;
+    std::function<UniquePtr<Panel>(PanelContext&)> constructor;
 };
 
 class PanelFactory
@@ -28,7 +28,7 @@ class PanelFactory
 public:
     static bool Register(const String& typeName, PanelRegistration registration);
     static const PanelRegistration* Find(const String& typeName);
-    static std::unique_ptr<Panel> Create(const String& typeName, PanelContext& context);
+    static UniquePtr<Panel> Create(const String& typeName, PanelContext& context);
 
 private:
     static std::unordered_map<String, PanelRegistration>& GetRegistry();
@@ -43,6 +43,6 @@ private:
 
 #define URAY_REGISTER_PANEL(panel, title)                                             \
     URAY_REGISTER_PANEL_WITH_CONTEXT(panel, title,                                    \
-        [](PanelContext&) -> std::unique_ptr<Panel> { return std::make_unique<panel>(); })
+        [](PanelContext&) -> UniquePtr<Panel> { return MakeUnique<panel>(); })
 
 } // namespace URay

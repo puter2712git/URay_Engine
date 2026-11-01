@@ -103,23 +103,23 @@ private:
     Device& device;
     ResourceManager& resourceManager;
 
-    std::unique_ptr<SurfaceRenderResource> mainSurfaceResource;
+    UniquePtr<SurfaceRenderResource> mainSurfaceResource;
     SurfaceRenderResource* activeSurfaceResource = nullptr;
 
-    std::unique_ptr<RenderTargetRegistry> renderTargetRegistry = nullptr;
+    UniquePtr<RenderTargetRegistry> renderTargetRegistry = nullptr;
 
-    std::unique_ptr<CommandPool> commandPool = nullptr;
+    UniquePtr<CommandPool> commandPool = nullptr;
 
     std::optional<Extent2D> scheduledSceneResizeExtent;
     std::optional<Extent2D> pendingSceneRenderTargetExtent;
     std::optional<Scheduler::TaskId> sceneResizeTaskId;
     static constexpr double SceneResizeDebounceSeconds = 0.15;
-    std::unique_ptr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
+    UniquePtr<DescriptorSetLayout> frameDescriptorSetLayout = nullptr;
     std::array<FrameResource, MAX_FRAMES_IN_FLIGHT> frameResources;
     uint64 gpuTimestampSubmissionSequence = 0;
     PerformanceViewModel* performanceViewModel = nullptr;
 
-    std::unique_ptr<ObjectIdReadback> objectIdReadback = nullptr;
+    UniquePtr<ObjectIdReadback> objectIdReadback = nullptr;
 
     bool frameInProgress = false;
 };

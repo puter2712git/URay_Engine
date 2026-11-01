@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Rect.h>
 #include <Core/Type/Type.h>
@@ -34,22 +35,22 @@ public:
 
     Widget* GetParent() const { return parent; }
 
-    void AddChild(std::unique_ptr<Widget> child);
-    std::unique_ptr<Widget> RemoveChild(Widget* child);
-    std::unique_ptr<Widget> ReplaceChild(Widget* child, std::unique_ptr<Widget>& replacement);
+    void AddChild(UniquePtr<Widget> child);
+    UniquePtr<Widget> RemoveChild(Widget* child);
+    UniquePtr<Widget> ReplaceChild(Widget* child, UniquePtr<Widget>& replacement);
 
     template <typename T, typename... Args>
         requires std::derived_from<T, Widget>
     T* AddChild(Args&&... args)
     {
-        auto child = std::make_unique<T>(std::forward<Args>(args)...);
+        auto child = MakeUnique<T>(std::forward<Args>(args)...);
         T* result = child.get();
 
         AddChild(std::move(child));
         return result;
     }
 
-    const std::vector<std::unique_ptr<Widget>>& GetChildren() const { return children; }
+    const std::vector<UniquePtr<Widget>>& GetChildren() const { return children; }
 
     void ClearChildren() { children.clear(); }
 
@@ -105,7 +106,7 @@ protected:
 
 protected:
     Widget* parent = nullptr;
-    std::vector<std::unique_ptr<Widget>> children;
+    std::vector<UniquePtr<Widget>> children;
 
     Rect rect = {};
     Vector2 desiredSize = Vector2::Zero;

@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "EditorUI.h"
 
 #include <Core/Log/LogSystem.h>
@@ -30,14 +31,14 @@ EditorUI::~EditorUI() = default;
 
 bool EditorUI::Initialize(UISystem& uiSystem, const YAML::Node& layout)
 {
-    dockSystem = std::make_unique<DockSystem>(uiSystem, gEngine->GetObjectSystem());
+    dockSystem = MakeUnique<DockSystem>(uiSystem, gEngine->GetObjectSystem());
 
     PanelContext context{viewportController};
     EditorLayout editorLayout;
-    std::unique_ptr<Widget> content = editorLayout.LoadLayout(layout, uiSystem, context);
-    std::unique_ptr<Widget> root;
+    UniquePtr<Widget> content = editorLayout.LoadLayout(layout, uiSystem, context);
+    UniquePtr<Widget> root;
     if (content)
-        root = std::make_unique<EditorRootWidget>(std::move(content));
+        root = MakeUnique<EditorRootWidget>(std::move(content));
     else
     {
         if (layout && !layout.IsNull())
@@ -68,7 +69,7 @@ DialogLayer& EditorUI::GetDialogLayer() const
     return rootWidget->GetDialogLayer();
 }
 
-std::unique_ptr<Widget> EditorUI::CreateDefaultWidgets()
+UniquePtr<Widget> EditorUI::CreateDefaultWidgets()
 {
     UISystem& uiSystem = gEngine->GetUISystem();
     PanelContext context{viewportController};
@@ -85,11 +86,11 @@ std::unique_ptr<Widget> EditorUI::CreateDefaultWidgets()
         return true;
     };
 
-    auto sceneTreeGroup = std::make_unique<DockTabGroup>(uiSystem);
-    auto inspectorGroup = std::make_unique<DockTabGroup>(uiSystem);
-    auto statusGroup = std::make_unique<DockTabGroup>(uiSystem);
-    auto viewportGroup = std::make_unique<DockTabGroup>(uiSystem);
-    auto leftPanel2 = std::make_unique<DockTabGroup>(uiSystem);
+    auto sceneTreeGroup = MakeUnique<DockTabGroup>(uiSystem);
+    auto inspectorGroup = MakeUnique<DockTabGroup>(uiSystem);
+    auto statusGroup = MakeUnique<DockTabGroup>(uiSystem);
+    auto viewportGroup = MakeUnique<DockTabGroup>(uiSystem);
+    auto leftPanel2 = MakeUnique<DockTabGroup>(uiSystem);
 
     if (!addPanel(*sceneTreeGroup, String{SceneTreePanel::StaticType().name}) ||
         !addPanel(*inspectorGroup, String{InspectorPanel::StaticType().name}) ||
@@ -99,22 +100,22 @@ std::unique_ptr<Widget> EditorUI::CreateDefaultWidgets()
         !addPanel(*leftPanel2, String{FileSystemPanel::StaticType().name}))
         return nullptr;
 
-    std::unique_ptr<Splitter> rightPanel2 = std::make_unique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTreeGroup), std::move(inspectorGroup));
+    UniquePtr<Splitter> rightPanel2 = MakeUnique<Splitter>("RightPanel2", SplitAxis::Vertical, std::move(sceneTreeGroup), std::move(inspectorGroup));
     rightPanel2->SetSplitRatio(0.5f);
-    std::unique_ptr<Splitter> rightPanel = std::make_unique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(statusGroup), std::move(rightPanel2));
-    std::unique_ptr<Splitter> leftPanel = std::make_unique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewportGroup), std::move(leftPanel2));
+    UniquePtr<Splitter> rightPanel = MakeUnique<Splitter>("RightPanel", SplitAxis::Vertical, std::move(statusGroup), std::move(rightPanel2));
+    UniquePtr<Splitter> leftPanel = MakeUnique<Splitter>("LeftPanel", SplitAxis::Vertical, std::move(viewportGroup), std::move(leftPanel2));
 
     rightPanel->SetSplitRatio(0.5f);
     leftPanel->SetSplitRatio(0.5f);
 
-    auto mainContent = std::make_unique<Splitter>(
+    auto mainContent = MakeUnique<Splitter>(
         "Root",
         SplitAxis::Horizontal,
         std::move(leftPanel),
         std::move(rightPanel));
     mainContent->SetSplitRatio(0.5f);
 
-    return std::make_unique<EditorRootWidget>(std::move(mainContent));
+    return MakeUnique<EditorRootWidget>(std::move(mainContent));
 }
 
 } // namespace URay

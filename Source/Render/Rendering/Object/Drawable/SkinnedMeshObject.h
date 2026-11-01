@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/AABB.h>
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
@@ -55,8 +56,8 @@ private:
     AABB worldBounds = {};
 
     std::vector<Matrix> skinMatrices;
-    std::unique_ptr<Buffer> skinningBuffer = nullptr;
-    std::unique_ptr<DescriptorSet> skinningDescriptorSet = nullptr;
+    UniquePtr<Buffer> skinningBuffer = nullptr;
+    UniquePtr<DescriptorSet> skinningDescriptorSet = nullptr;
 };
 
 } // namespace URay::Render

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/RenderPass/RenderPass.h>
 
 #include <vulkan/vulkan.h>
@@ -53,8 +54,8 @@ private:
     PipelineState* pso = nullptr;
 
     DescriptorSetLayout* descriptorSetLayout = nullptr;
-    std::vector<std::unique_ptr<DescriptorSet>> descriptorSets;
-    std::vector<std::unique_ptr<Buffer>> uniformBuffers;
+    std::vector<UniquePtr<DescriptorSet>> descriptorSets;
+    std::vector<UniquePtr<Buffer>> uniformBuffers;
 
     Sampler* sampler = nullptr;
 };

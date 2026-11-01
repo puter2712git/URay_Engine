@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "TransformGizmo.h"
 
 #include <Core/Math/Math.h>
@@ -34,9 +35,9 @@ TransformGizmo::TransformGizmo(PlaySession& playSession)
     AssetDatabase& assetDatabase = assetSystem.GetDatabase();
     material = assetDatabase.Find<Material>(EngineAsset::MeshMaterial);
 
-    strategies.push_back(std::make_unique<TranslationGizmoStrategy>(*this));
-    strategies.push_back(std::make_unique<RotationGizmoStrategy>(*this));
-    strategies.push_back(std::make_unique<ScaleGizmoStrategy>(*this));
+    strategies.push_back(MakeUnique<TranslationGizmoStrategy>(*this));
+    strategies.push_back(MakeUnique<RotationGizmoStrategy>(*this));
+    strategies.push_back(MakeUnique<ScaleGizmoStrategy>(*this));
     currentStrategy = FindStrategy(GizmoMode::Translation);
 }
 
@@ -257,7 +258,7 @@ void TransformGizmo::Activate()
 
     Deactivate();
 
-    auto renderGizmo = std::make_unique<Render::GizmoObject>(Render::GizmoObjectState{});
+    auto renderGizmo = MakeUnique<Render::GizmoObject>(Render::GizmoObjectState{});
     renderObject = renderGizmo.get();
     renderScene = targetRenderScene;
     renderScene->GetSceneSystem().AddObject(*renderScene, std::move(renderGizmo), nullptr);

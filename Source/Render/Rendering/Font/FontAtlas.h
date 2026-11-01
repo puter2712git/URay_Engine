@@ -94,8 +94,8 @@ private:
 
     bool isDirty = false;
 
-    std::unique_ptr<Texture> texture;
-    std::unique_ptr<TextureView> view;
+    UniquePtr<Texture> texture;
+    UniquePtr<TextureView> view;
 
     TextureRegion dirtyRegion = {};
 };

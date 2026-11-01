@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "EditorInputActions.h"
 
 #include <Core/Input/Action/InputActionMap.h>
@@ -5,9 +6,9 @@
 namespace URay
 {
 
-std::unique_ptr<InputActionMap> CreateEditorInputActionMap()
+UniquePtr<InputActionMap> CreateEditorInputActionMap()
 {
-    auto actionMap = std::make_unique<InputActionMap>();
+    auto actionMap = MakeUnique<InputActionMap>();
 
     std::vector<InputBinding> viewportMoveBindings;
     viewportMoveBindings.push_back(Axis2DCompositeBinding{

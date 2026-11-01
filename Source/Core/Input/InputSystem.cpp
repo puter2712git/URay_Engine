@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "InputSystem.h"
 
 namespace URay
@@ -48,7 +49,7 @@ WindowInputState* InputSystem::RegisterWindow(Window& window)
     if (windowStates.contains(&window))
         return nullptr;
 
-    auto state = std::make_unique<WindowInputState>();
+    auto state = MakeUnique<WindowInputState>();
     WindowInputState* statePtr = state.get();
 
     windowStates.emplace(&window, std::move(state));

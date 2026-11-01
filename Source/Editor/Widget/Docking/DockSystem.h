@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Vector2.h>
 #include <Editor/Widget/Docking/DockDropTarget.h>
 #include <Engine/Object/ObjectId.h>
@@ -54,7 +55,7 @@ public:
     void ProcessPendingCleanup();
 
 private:
-    bool SplitGroup(DockTabGroup& target, DockDropZone zone, std::unique_ptr<Widget>& newGroup);
+    bool SplitGroup(DockTabGroup& target, DockDropZone zone, UniquePtr<Widget>& newGroup);
     bool CanSplitGroup(const DockTabGroup& target, DockDropZone zone) const;
 
     DockDropResult FindDockDropTarget(ObjectId sourceGroupId, const Vector2& position) const;

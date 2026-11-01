@@ -177,7 +177,7 @@ void Scene::Deserialize(const YAML::Node& node)
             continue;
         }
 
-        auto newUnit = std::make_unique<Unit>();
+        auto newUnit = MakeUnique<Unit>();
 
         newUnit->SetPersistentId(id);
         unitsById.emplace(id, newUnit.get());
@@ -314,7 +314,7 @@ void Scene::Deserialize(const YAML::Node& node)
     }
 }
 
-void Scene::AddUnit(std::unique_ptr<Unit> unit)
+void Scene::AddUnit(UniquePtr<Unit> unit)
 {
     Unit* unitPtr = unit.get();
 
@@ -343,7 +343,7 @@ void Scene::DestroyUnit(Unit* unit)
         return;
 
     auto it = std::find_if(units.begin(), units.end(),
-                           [unit](const std::unique_ptr<Unit>& candidate)
+                           [unit](const UniquePtr<Unit>& candidate)
                            { return candidate.get() == unit; });
 
     if (it == units.end())
@@ -357,7 +357,7 @@ void Scene::DestroyUnit(Unit* unit)
     }
 
     it = std::find_if(units.begin(), units.end(),
-                      [unit](const std::unique_ptr<Unit>& candidate)
+                      [unit](const UniquePtr<Unit>& candidate)
                       { return candidate.get() == unit; });
 
     if (it == units.end())
@@ -391,7 +391,7 @@ Unit* Scene::FindUnit(const UUID& id) const
 {
     const auto it = std::find_if(
         units.begin(), units.end(),
-        [&id](const std::unique_ptr<Unit>& unit)
+        [&id](const UniquePtr<Unit>& unit)
         { return unit->GetPersistentId() == id; });
 
     return it != units.end() ? it->get() : nullptr;
@@ -399,7 +399,7 @@ Unit* Scene::FindUnit(const UUID& id) const
 
 Unit* Scene::CreateEmptyUnit(const String& name, Unit* parent)
 {
-    auto unit = std::make_unique<Unit>();
+    auto unit = MakeUnique<Unit>();
     unit->SetName(name);
 
     Unit* unitPtr = unit.get();

@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "MeshPreviewPanel.h"
 
 #include <Core/Input/InputSystem.h>
@@ -13,7 +14,7 @@
 namespace URay
 {
 
-MeshPreviewPanel::MeshPreviewPanel(std::unique_ptr<MeshPreviewSession> session)
+MeshPreviewPanel::MeshPreviewPanel(UniquePtr<MeshPreviewSession> session)
     : session(std::move(session))
 {
     assert(this->session);

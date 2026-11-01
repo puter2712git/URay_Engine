@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace URay
 {
@@ -19,5 +21,14 @@ using int64 = std::int64_t;
 
 using String = std::string;
 using StringView = std::string_view;
+
+template <typename T>
+using UniquePtr = std::unique_ptr<T>;
+
+template <typename T, typename... Args>
+UniquePtr<T> MakeUnique(Args&&... args)
+{
+    return std::make_unique<T>(std::forward<Args>(args)...);
+}
 
 } // namespace URay

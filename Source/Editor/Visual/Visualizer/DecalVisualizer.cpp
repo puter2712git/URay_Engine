@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "DecalVisualizer.h"
 
 #include <Editor/Selection/SelectionSystem.h>
@@ -24,8 +25,8 @@ DecalVisualizer::DecalVisualizer(EditorVisualContext& context, Unit& unit, Compo
 {
     selectionSystem.Register("ActiveSelectionChanged", this, &DecalVisualizer::OnSelectionChanged);
 
-    std::unique_ptr<Render::BillboardObject> billboard =
-        std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit));
+    UniquePtr<Render::BillboardObject> billboard =
+        MakeUnique<Render::BillboardObject>(MakeBillboardState(context, unit));
     visual = {
         .unit = &unit,
         .component = &component,
@@ -147,8 +148,8 @@ void DecalVisualizer::CreateLine(EditorVisualContext& context, Component& compon
     if (visual.line)
         return;
 
-    std::unique_ptr<Render::LineObject> line =
-        std::make_unique<Render::LineObject>(MakeLineState(*visual.unit, component));
+    UniquePtr<Render::LineObject> line =
+        MakeUnique<Render::LineObject>(MakeLineState(*visual.unit, component));
     visual.line = line.get();
 
     Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();

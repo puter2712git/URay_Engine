@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <memory>
 #include <yaml-cpp/yaml.h>
 
@@ -29,10 +30,10 @@ public:
     DialogLayer& GetDialogLayer() const;
 
 private:
-    std::unique_ptr<Widget> CreateDefaultWidgets();
+    UniquePtr<Widget> CreateDefaultWidgets();
 
 private:
-    std::unique_ptr<DockSystem> dockSystem = nullptr;
+    UniquePtr<DockSystem> dockSystem = nullptr;
     EditorRootWidget* rootWidget = nullptr;
     ViewportController& viewportController;
 };

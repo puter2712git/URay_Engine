@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "PreviewRenderTargets.h"
 
 #include <Core/Log/LogSystem.h>
@@ -71,10 +72,10 @@ bool PreviewRenderTargets::Initialize(const Extent2D& extent)
 
     try
     {
-        auto newScene = std::make_unique<RenderTarget>(device, sceneDesc);
-        auto newPostProcess = std::make_unique<RenderTarget>(device, postProcessDesc);
-        auto newSelectionMask = std::make_unique<RenderTarget>(device, selectionMaskDesc);
-        auto newGizmoDepth = std::make_unique<RenderTarget>(device, gizmoDepthDesc);
+        auto newScene = MakeUnique<RenderTarget>(device, sceneDesc);
+        auto newPostProcess = MakeUnique<RenderTarget>(device, postProcessDesc);
+        auto newSelectionMask = MakeUnique<RenderTarget>(device, selectionMaskDesc);
+        auto newGizmoDepth = MakeUnique<RenderTarget>(device, gizmoDepthDesc);
 
         scene = std::move(newScene);
         postProcess = std::move(newPostProcess);

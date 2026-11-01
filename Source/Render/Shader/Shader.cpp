@@ -14,15 +14,15 @@ Shader::Shader(std::vector<ShaderStageData> stages)
     {
         if (stage.stage == ShaderStageFlags::Vertex)
         {
-            vertexStageData = std::make_unique<ShaderStageData>(stage);
+            vertexStageData = MakeUnique<ShaderStageData>(stage);
         }
         else if (stage.stage == ShaderStageFlags::Fragment)
         {
-            fragmentStageData = std::make_unique<ShaderStageData>(stage);
+            fragmentStageData = MakeUnique<ShaderStageData>(stage);
         }
         else if (stage.stage == ShaderStageFlags::Compute)
         {
-            computeStageData = std::make_unique<ShaderStageData>(stage);
+            computeStageData = MakeUnique<ShaderStageData>(stage);
         }
     }
 

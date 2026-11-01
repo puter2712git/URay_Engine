@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "PanelFactory.h"
 
 #include <cstdio>
@@ -31,7 +32,7 @@ const PanelRegistration* PanelFactory::Find(const String& typeName)
     return it != registry.end() ? &it->second : nullptr;
 }
 
-std::unique_ptr<Panel> PanelFactory::Create(const String& typeName, PanelContext& context)
+UniquePtr<Panel> PanelFactory::Create(const String& typeName, PanelContext& context)
 {
     const PanelRegistration* registration = Find(typeName);
     return registration ? registration->constructor(context) : nullptr;

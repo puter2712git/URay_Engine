@@ -56,9 +56,9 @@ private:
     void CreateSetLayoutDescriptions();
 
 private:
-    std::unique_ptr<ShaderStageData> vertexStageData = nullptr;
-    std::unique_ptr<ShaderStageData> fragmentStageData = nullptr;
-    std::unique_ptr<ShaderStageData> computeStageData = nullptr;
+    UniquePtr<ShaderStageData> vertexStageData = nullptr;
+    UniquePtr<ShaderStageData> fragmentStageData = nullptr;
+    UniquePtr<ShaderStageData> computeStageData = nullptr;
 
     ShaderReflection mergedReflection = {};
 

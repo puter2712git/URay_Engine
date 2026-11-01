@@ -74,23 +74,23 @@ public:
 private:
     uint64 frameIndex = 0;
 
-    std::unique_ptr<LogSystem> logSystem = nullptr;
-    std::unique_ptr<StdErrLogSink> stdErrLogSink = nullptr;
-    std::unique_ptr<FileLogSink> fileLogSink = nullptr;
+    UniquePtr<LogSystem> logSystem = nullptr;
+    UniquePtr<StdErrLogSink> stdErrLogSink = nullptr;
+    UniquePtr<FileLogSink> fileLogSink = nullptr;
 
-    std::unique_ptr<WindowSystem> windowSystem = nullptr;
-    std::unique_ptr<Timer> timer = nullptr;
-    std::unique_ptr<Scheduler> scheduler = nullptr;
+    UniquePtr<WindowSystem> windowSystem = nullptr;
+    UniquePtr<Timer> timer = nullptr;
+    UniquePtr<Scheduler> scheduler = nullptr;
 
-    std::unique_ptr<InputSystem> inputSystem = nullptr;
-    std::unique_ptr<InputActionSystem> inputActionSystem = nullptr;
-    std::unique_ptr<UISystem> uiSystem = nullptr;
-    std::unique_ptr<PerformanceAnalytics> performanceAnalytics = nullptr;
+    UniquePtr<InputSystem> inputSystem = nullptr;
+    UniquePtr<InputActionSystem> inputActionSystem = nullptr;
+    UniquePtr<UISystem> uiSystem = nullptr;
+    UniquePtr<PerformanceAnalytics> performanceAnalytics = nullptr;
 
-    std::unique_ptr<ObjectSystem> objectSystem = nullptr;
-    std::unique_ptr<AssetSystem> assetSystem = nullptr;
-    std::unique_ptr<SceneSystem> sceneSystem = nullptr;
-    std::unique_ptr<Render::RenderSystem> renderSystem = nullptr;
+    UniquePtr<ObjectSystem> objectSystem = nullptr;
+    UniquePtr<AssetSystem> assetSystem = nullptr;
+    UniquePtr<SceneSystem> sceneSystem = nullptr;
+    UniquePtr<Render::RenderSystem> renderSystem = nullptr;
 
     std::vector<Window*> additionalWindows;
 };

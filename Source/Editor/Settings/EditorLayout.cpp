@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "EditorLayout.h"
 
 #include <Editor/Widget/Docking/DockTabGroup.h>
@@ -94,7 +95,7 @@ YAML::Node SaveNode(const Widget& widget, size_t depth)
     return node;
 }
 
-std::unique_ptr<Widget> BuildNode(const YAML::Node& node, UISystem& uiSystem, PanelContext& context)
+UniquePtr<Widget> BuildNode(const YAML::Node& node, UISystem& uiSystem, PanelContext& context)
 {
     if (node["Kind"].as<String>() == "Splitter")
     {
@@ -103,12 +104,12 @@ std::unique_ptr<Widget> BuildNode(const YAML::Node& node, UISystem& uiSystem, Pa
         if (!first || !second)
             return nullptr;
         const auto axis = node["Axis"].as<String>() == "Horizontal" ? SplitAxis::Horizontal : SplitAxis::Vertical;
-        auto splitter = std::make_unique<Splitter>("", axis, std::move(first), std::move(second));
+        auto splitter = MakeUnique<Splitter>("", axis, std::move(first), std::move(second));
         splitter->SetSplitRatio(node["Ratio"].as<float>());
         return splitter;
     }
 
-    auto group = std::make_unique<DockTabGroup>(uiSystem);
+    auto group = MakeUnique<DockTabGroup>(uiSystem);
     const String active = node["ActivePanel"].as<String>();
     ObjectId activeId{};
     for (const auto& panelNode : node["Panels"])
@@ -146,7 +147,7 @@ bool EditorLayout::SaveLayout(const Widget& root, YAML::Node& outLayout) const
     }
 }
 
-std::unique_ptr<Widget> EditorLayout::LoadLayout(const YAML::Node& layout, UISystem& uiSystem, PanelContext& context) const
+UniquePtr<Widget> EditorLayout::LoadLayout(const YAML::Node& layout, UISystem& uiSystem, PanelContext& context) const
 {
     try
     {

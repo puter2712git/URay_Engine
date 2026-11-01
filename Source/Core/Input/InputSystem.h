@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/WindowInputState.h>
 
 #include <memory>
@@ -32,7 +33,7 @@ public:
 private:
     WindowInputState mainWindowState;
 
-    std::unordered_map<Window*, std::unique_ptr<WindowInputState>> windowStates;
+    std::unordered_map<Window*, UniquePtr<WindowInputState>> windowStates;
 };
 
 } // namespace URay

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Type.h>
 #include <Render/Rendering/Scene/RenderEnvironment.h>
 
@@ -45,7 +46,7 @@ public:
     const std::vector<SpotLightObject*>& GetSpotLights() const { return spotLightObjects; }
 
 private:
-    void Add(std::unique_ptr<RenderObject> object, Unit* unit);
+    void Add(UniquePtr<RenderObject> object, Unit* unit);
     void Destroy(RenderObject* object);
     void AddToTypeIndexes(RenderObject* object);
     void RemoveFromTypeIndexes(RenderObject* object);
@@ -55,7 +56,7 @@ private:
 
     RenderEnvironment environment = {};
 
-    std::vector<std::unique_ptr<RenderObject>> objects;
+    std::vector<UniquePtr<RenderObject>> objects;
     std::vector<ViewObject*> viewObjects;
     std::vector<PointLightObject*> pointLightObjects;
     std::vector<SpotLightObject*> spotLightObjects;

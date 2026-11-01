@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "RenderTarget.h"
 
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>
@@ -29,8 +30,8 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
     RenderTargetDesc newDesc = desc;
     newDesc.extent = newExtent;
 
-    std::vector<std::unique_ptr<Texture>> newColorTextures;
-    std::vector<std::unique_ptr<TextureView>> newColorViews;
+    std::vector<UniquePtr<Texture>> newColorTextures;
+    std::vector<UniquePtr<TextureView>> newColorViews;
 
     newColorTextures.reserve(newDesc.colorAttachments.size());
     newColorViews.reserve(newDesc.colorAttachments.size());
@@ -43,11 +44,11 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
         textureDesc.format = attachment.format;
         textureDesc.usage = attachment.usage;
 
-        std::unique_ptr<Texture> texture(device.CreateTexture(textureDesc));
+        UniquePtr<Texture> texture(device.CreateTexture(textureDesc));
         if (!texture)
             return false;
 
-        std::unique_ptr<TextureView> view(device.CreateTextureView(texture.get(), TextureViewDesc{}));
+        UniquePtr<TextureView> view(device.CreateTextureView(texture.get(), TextureViewDesc{}));
         if (!view)
             return false;
 
@@ -55,8 +56,8 @@ bool RenderTarget::Recreate(const Extent2D& newExtent)
         newColorViews.push_back(std::move(view));
     }
 
-    std::unique_ptr<Texture> newDepthTexture = nullptr;
-    std::unique_ptr<TextureView> newDepthView = nullptr;
+    UniquePtr<Texture> newDepthTexture = nullptr;
+    UniquePtr<TextureView> newDepthView = nullptr;
 
     if (newDesc.depth)
     {

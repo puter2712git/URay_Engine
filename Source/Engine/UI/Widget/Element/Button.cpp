@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "Button.h"
 
 #include <Render/Rendering/Batch/UIDrawContext.h>
@@ -5,7 +6,7 @@
 namespace URay
 {
 
-Button::Button(std::unique_ptr<Widget> content)
+Button::Button(UniquePtr<Widget> content)
 {
     URAY_DECLARE_RAY(Clicked);
     this->content = content.get();

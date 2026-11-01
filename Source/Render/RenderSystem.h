@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <memory>
 #include <unordered_map>
 
@@ -53,16 +54,16 @@ public:
     SceneSystem& GetSceneSystem() const { return *sceneSystem; }
 
 private:
-    std::unique_ptr<VulkanContext> vulkanContext = nullptr;
-    std::unique_ptr<Surface> mainSurface = nullptr;
-    std::unique_ptr<Renderer> renderer = nullptr;
-    std::unique_ptr<Device> device = nullptr;
+    UniquePtr<VulkanContext> vulkanContext = nullptr;
+    UniquePtr<Surface> mainSurface = nullptr;
+    UniquePtr<Renderer> renderer = nullptr;
+    UniquePtr<Device> device = nullptr;
 
-    std::unique_ptr<ResourceManager> resourceManager = nullptr;
-    std::unique_ptr<RenderPipeline> pipeline = nullptr;
-    std::unique_ptr<SceneSystem> sceneSystem = nullptr;
+    UniquePtr<ResourceManager> resourceManager = nullptr;
+    UniquePtr<RenderPipeline> pipeline = nullptr;
+    UniquePtr<SceneSystem> sceneSystem = nullptr;
 
-    std::unordered_map<Window*, std::unique_ptr<WindowRenderContext>> windowContexts;
+    std::unordered_map<Window*, UniquePtr<WindowRenderContext>> windowContexts;
 };
 
 } // namespace URay::Render

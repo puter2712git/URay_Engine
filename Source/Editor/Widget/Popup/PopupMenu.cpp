@@ -59,7 +59,7 @@ Button* PopupMenu::AddMenuItem(
     Label* label = Cast<Label>(button->GetChildren()[0].get());
     label->SetTextStyle(EditorStyle::SmallText());
 
-    auto item = std::make_unique<MenuItem>();
+    auto item = MakeUnique<MenuItem>();
     item->owner = this;
     item->button = button;
     item->id = itemId;

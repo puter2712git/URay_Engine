@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "Ray.h"
 
 #include <algorithm>
@@ -7,7 +8,7 @@ namespace URay
 
 Ray::Ray(FunctionSignature signature) : signature(std::move(signature)) {}
 
-bool Ray::Register(std::unique_ptr<Callable> callback)
+bool Ray::Register(UniquePtr<Callable> callback)
 {
     if (!callback)
         return false;

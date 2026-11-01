@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <vulkan/vulkan.h>
 
 #include <memory>
@@ -20,8 +21,8 @@ public:
     Buffer* GetIndexBuffer() const { return indexBuffer.get(); }
 
 private:
-    std::unique_ptr<Buffer> vertexBuffer = nullptr;
-    std::unique_ptr<Buffer> indexBuffer = nullptr;
+    UniquePtr<Buffer> vertexBuffer = nullptr;
+    UniquePtr<Buffer> indexBuffer = nullptr;
 };
 
 } // namespace URay::Render

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/Callable/Callable.h>
 #include <Core/Type/Function/Callable/CallableArgument.h>
 #include <Core/Type/Function/FunctionTraits.h>
@@ -113,7 +114,7 @@ private:
 };
 
 template <typename Target, typename Method, typename... BoundArgs>
-std::unique_ptr<Callable> MakeMemberCallable(Target* target, Method method, BoundArgs&&... boundArgs)
+UniquePtr<Callable> MakeMemberCallable(Target* target, Method method, BoundArgs&&... boundArgs)
 {
     using Traits = FunctionTraits<Method>;
     using Owner = typename Traits::OwnerType;
@@ -155,7 +156,7 @@ std::unique_ptr<Callable> MakeMemberCallable(Target* target, Method method, Boun
 
     signature->parameters.resize(eventArgumentCount);
 
-    return std::make_unique<MemberCallable<Method>>(
+    return MakeUnique<MemberCallable<Method>>(
         static_cast<Owner*>(target),
         static_cast<const void*>(target),
         method,

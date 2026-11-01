@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Texture/Texture.h>
 
 #include <Core/Math/Extent2D.h>
@@ -56,11 +57,11 @@ private:
 
     RenderTargetDesc desc = {};
 
-    std::vector<std::unique_ptr<Texture>> colorTextures;
-    std::vector<std::unique_ptr<TextureView>> colorViews;
+    std::vector<UniquePtr<Texture>> colorTextures;
+    std::vector<UniquePtr<TextureView>> colorViews;
 
-    std::unique_ptr<Texture> depthTexture = nullptr;
-    std::unique_ptr<TextureView> depthView = nullptr;
+    UniquePtr<Texture> depthTexture = nullptr;
+    UniquePtr<TextureView> depthView = nullptr;
 };
 
 } // namespace URay::Render

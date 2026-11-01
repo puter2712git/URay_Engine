@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "UISystem.h"
 
 #include <Core/Input/InputSystem.h>
@@ -13,12 +14,12 @@ namespace URay
 
 struct WindowUIContext
 {
-    std::unique_ptr<WindowWidget> windowWidget;
+    UniquePtr<WindowWidget> windowWidget;
     Widget* root = nullptr;
 
     ObjectId lastFocusedWidgetId = {};
 
-    std::unique_ptr<Render::UIDrawContext> drawContext;
+    UniquePtr<Render::UIDrawContext> drawContext;
 };
 
 UISystem::UISystem(Window& window, InputSystem& inputSystem)
@@ -30,12 +31,12 @@ UISystem::~UISystem() = default;
 
 void UISystem::Initialize()
 {
-    inputRouter = std::make_unique<UIInputRouter>(*this);
+    inputRouter = MakeUnique<UIInputRouter>(*this);
 
-    mainContext = std::make_unique<WindowUIContext>();
+    mainContext = MakeUnique<WindowUIContext>();
 
-    mainContext->windowWidget = std::make_unique<WindowWidget>(window);
-    mainContext->drawContext = std::make_unique<Render::UIDrawContext>();
+    mainContext->windowWidget = MakeUnique<WindowWidget>(window);
+    mainContext->drawContext = MakeUnique<Render::UIDrawContext>();
 }
 
 void UISystem::Finalize()
@@ -69,7 +70,7 @@ void UISystem::Finalize()
     inputRouter.reset();
 }
 
-void UISystem::SetRootWidget(std::unique_ptr<Widget> newRoot)
+void UISystem::SetRootWidget(UniquePtr<Widget> newRoot)
 {
     mainContext->lastFocusedWidgetId = {};
 
@@ -199,10 +200,10 @@ bool UISystem::RegisterWindow(Window& targetWindow)
     if (!inputSystem.FindWindowState(targetWindow))
         return false;
 
-    auto context = std::make_unique<WindowUIContext>();
+    auto context = MakeUnique<WindowUIContext>();
 
-    context->windowWidget = std::make_unique<WindowWidget>(targetWindow);
-    context->drawContext = std::make_unique<Render::UIDrawContext>();
+    context->windowWidget = MakeUnique<WindowWidget>(targetWindow);
+    context->drawContext = MakeUnique<Render::UIDrawContext>();
 
     windowContexts.emplace(&targetWindow, std::move(context));
     return true;
@@ -228,7 +229,7 @@ bool UISystem::UnregisterWindow(Window& targetWindow)
     return true;
 }
 
-bool UISystem::SetAdditionalWindowRoot(Window& window, std::unique_ptr<Widget>& root)
+bool UISystem::SetAdditionalWindowRoot(Window& window, UniquePtr<Widget>& root)
 {
     const auto it = windowContexts.find(&window);
 

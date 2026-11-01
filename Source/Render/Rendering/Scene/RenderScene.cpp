@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "RenderScene.h"
 
 #include <Engine/Component/Component.h>
@@ -83,7 +84,7 @@ void RenderScene::RemoveFromTypeIndexes(RenderObject* object)
         std::erase(spotLightObjects, spotLightObject);
 }
 
-void RenderScene::Add(std::unique_ptr<RenderObject> object, Unit* unit)
+void RenderScene::Add(UniquePtr<RenderObject> object, Unit* unit)
 {
     if (!object)
         return;
@@ -125,7 +126,7 @@ void RenderScene::Destroy(RenderObject* object)
         unitByObject.erase(ownerIt);
     }
 
-    std::erase_if(objects, [&](std::unique_ptr<RenderObject>& robj)
+    std::erase_if(objects, [&](UniquePtr<RenderObject>& robj)
                   { return object == robj.get(); });
 }
 

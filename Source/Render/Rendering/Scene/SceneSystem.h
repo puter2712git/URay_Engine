@@ -30,7 +30,7 @@ public:
     bool Initialize();
     void Finalize();
 
-    RenderObject* AddObject(RenderScene& scene, std::unique_ptr<RenderObject> object, Component* component);
+    RenderObject* AddObject(RenderScene& scene, UniquePtr<RenderObject> object, Component* component);
     void DestroyObject(RenderScene& scene, RenderObject* object);
 
     uint32 AllocateObjectId();
@@ -45,7 +45,7 @@ private:
     void OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Component* component);
 
 private:
-    std::unordered_map<Scene*, std::unique_ptr<RenderScene>> scenes;
+    std::unordered_map<Scene*, UniquePtr<RenderScene>> scenes;
 
     uint32 nextObjectId = 1;
 };

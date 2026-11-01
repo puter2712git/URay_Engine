@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Vector2.h>
 #include <Engine/Object/ObjectId.h>
 
@@ -31,7 +32,7 @@ public:
     void Initialize();
     void Finalize();
 
-    void SetRootWidget(std::unique_ptr<Widget> root);
+    void SetRootWidget(UniquePtr<Widget> root);
     void ClearRootWidget();
 
     void Update(float deltaTime);
@@ -41,7 +42,7 @@ public:
     bool RegisterWindow(Window& window);
     bool UnregisterWindow(Window& window);
 
-    bool SetAdditionalWindowRoot(Window& window, std::unique_ptr<Widget>& root);
+    bool SetAdditionalWindowRoot(Window& window, UniquePtr<Widget>& root);
     Widget* FindAdditionalWindowRoot(Window& window) const;
     Render::UIDrawContext* PrepareAdditionalWindowUI(Window& window);
 
@@ -71,10 +72,10 @@ private:
     Window& window;
     InputSystem& inputSystem;
 
-    std::unique_ptr<UIInputRouter> inputRouter = nullptr;
+    UniquePtr<UIInputRouter> inputRouter = nullptr;
 
-    std::unique_ptr<WindowUIContext> mainContext = nullptr;
-    std::unordered_map<Window*, std::unique_ptr<WindowUIContext>> windowContexts;
+    UniquePtr<WindowUIContext> mainContext = nullptr;
+    std::unordered_map<Window*, UniquePtr<WindowUIContext>> windowContexts;
 
     Window* activeInputWindow = nullptr;
 };

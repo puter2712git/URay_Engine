@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <Core/Math/Color.h>
@@ -22,7 +23,7 @@ class Button final : public Widget, public RayEmitter
     URAY_CLASS(Button, Widget)
 
 public:
-    explicit Button(std::unique_ptr<Widget> content);
+    explicit Button(UniquePtr<Widget> content);
     ~Button() override;
 
 public:

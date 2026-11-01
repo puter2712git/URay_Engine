@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/File/VirtualPath.h>
 #include <Engine/Asset/AssetHandle.h>
 #include <Engine/Object/ObjectId.h>
@@ -78,23 +79,23 @@ private:
     void OnActiveSelectionChanged(Unit* previousUnit, Unit* activeUnit);
 
 private:
-    std::unique_ptr<EditorUI> editorUI = nullptr;
-    std::unique_ptr<ViewportController> viewportController = nullptr;
-    std::unique_ptr<SelectionSystem> selectionSystem = nullptr;
-    std::unique_ptr<VisualSystem> visualSystem = nullptr;
-    std::unique_ptr<InspectSystem> inspectSystem = nullptr;
+    UniquePtr<EditorUI> editorUI = nullptr;
+    UniquePtr<ViewportController> viewportController = nullptr;
+    UniquePtr<SelectionSystem> selectionSystem = nullptr;
+    UniquePtr<VisualSystem> visualSystem = nullptr;
+    UniquePtr<InspectSystem> inspectSystem = nullptr;
 
-    std::unique_ptr<EditorSettings> editorSettings = nullptr;
+    UniquePtr<EditorSettings> editorSettings = nullptr;
 
-    std::unique_ptr<PlaySession> playSession = nullptr;
+    UniquePtr<PlaySession> playSession = nullptr;
     bool useEditorCamera = false;
 
-    std::unique_ptr<InputActionMap> inputActionMap = nullptr;
+    UniquePtr<InputActionMap> inputActionMap = nullptr;
 
-    std::unique_ptr<PerformanceViewModel> performanceViewModel = nullptr;
+    UniquePtr<PerformanceViewModel> performanceViewModel = nullptr;
     uint64 lastProfileFrameNumber = 0;
 
-    std::unique_ptr<AssetEditorSystem> assetEditorSystem = nullptr;
+    UniquePtr<AssetEditorSystem> assetEditorSystem = nullptr;
 };
 
 extern Editor* gEditor;

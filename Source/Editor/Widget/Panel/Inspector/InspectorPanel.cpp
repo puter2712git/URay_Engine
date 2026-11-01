@@ -251,7 +251,7 @@ void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, c
 
 const Property* InspectorPanel::KeepProperty(const Property& property)
 {
-    propertyCopies.push_back(std::make_unique<Property>(property));
+    propertyCopies.push_back(MakeUnique<Property>(property));
     return propertyCopies.back().get();
 }
 

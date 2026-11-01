@@ -93,11 +93,11 @@ bool Editor::Initialize()
     SceneSystem& sceneSystem = gEngine->GetSceneSystem();
     VirtualFileSystem& filesystem = assetSystem.GetFileSystem();
 
-    editorSettings = std::make_unique<EditorSettings>(filesystem);
+    editorSettings = MakeUnique<EditorSettings>(filesystem);
 
-    assetEditorSystem = std::make_unique<AssetEditorSystem>(assetSystem.GetDatabase());
+    assetEditorSystem = MakeUnique<AssetEditorSystem>(assetSystem.GetDatabase());
 
-    selectionSystem = std::make_unique<SelectionSystem>();
+    selectionSystem = MakeUnique<SelectionSystem>();
     if (!selectionSystem->Initialize())
     {
         URAY_LOG("[Editor] Failed to initialize selection system.");
@@ -105,7 +105,7 @@ bool Editor::Initialize()
         return false;
     }
 
-    inspectSystem = std::make_unique<InspectSystem>(sceneSystem);
+    inspectSystem = MakeUnique<InspectSystem>(sceneSystem);
     if (!inspectSystem->Initialize())
     {
         URAY_LOG("[Editor] Failed to initialize inspect system.");
@@ -115,7 +115,7 @@ bool Editor::Initialize()
 
     selectionSystem->Register("ActiveSelectionChanged", this, &Editor::OnActiveSelectionChanged);
 
-    visualSystem = std::make_unique<VisualSystem>(*gEngine, *selectionSystem);
+    visualSystem = MakeUnique<VisualSystem>(*gEngine, *selectionSystem);
     if (!visualSystem->Initialize())
     {
         URAY_LOG("[Editor] Failed to initialize visual system.");
@@ -123,10 +123,10 @@ bool Editor::Initialize()
         return false;
     }
 
-    playSession = std::make_unique<PlaySession>(sceneSystem);
+    playSession = MakeUnique<PlaySession>(sceneSystem);
 
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    viewportController = std::make_unique<ViewportController>(
+    viewportController = MakeUnique<ViewportController>(
         renderSystem.GetRenderer(),
         renderSystem.GetResourceManager(),
         renderSystem.GetSceneSystem(),
@@ -136,13 +136,13 @@ bool Editor::Initialize()
         *playSession,
         useEditorCamera);
 
-    performanceViewModel = std::make_unique<PerformanceViewModel>();
+    performanceViewModel = MakeUnique<PerformanceViewModel>();
     renderSystem.GetRenderer().SetPerformanceViewModel(performanceViewModel.get());
 
     EditorSettingsContext settingsContext;
     const bool settingsLoaded = editorSettings->Load(settingsContext);
 
-    editorUI = std::make_unique<EditorUI>(*viewportController);
+    editorUI = MakeUnique<EditorUI>(*viewportController);
     if (!editorUI->Initialize(gEngine->GetUISystem(), settingsContext.layout))
     {
         URAY_LOG("[Editor] Failed to initialize widget system.");
@@ -154,7 +154,7 @@ bool Editor::Initialize()
     {
         Scene* gameScene = sceneSystem.LoadScene(sceneSystem.CreateScene(SceneType::Game, ""));
 
-        auto unit = std::make_unique<Unit>();
+        auto unit = MakeUnique<Unit>();
         unit->SetName("New Unit");
         gameScene->AddUnit(std::move(unit));
     };
@@ -517,7 +517,7 @@ void Editor::OpenMeshPreview(const AssetHandle& meshHandle)
     }
 
     Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    auto session = std::make_unique<MeshPreviewSession>(
+    auto session = MakeUnique<MeshPreviewSession>(
         gEngine->GetSceneSystem(),
         database,
         renderSystem.GetSceneSystem(),
@@ -543,12 +543,12 @@ void Editor::OpenMeshPreview(const AssetHandle& meshHandle)
     }
 
     UISystem& uiSystem = gEngine->GetUISystem();
-    auto group = std::make_unique<DockTabGroup>(uiSystem);
+    auto group = MakeUnique<DockTabGroup>(uiSystem);
     group->AddTab(
         mesh->GetName(),
-        std::make_unique<MeshPreviewPanel>(std::move(session)));
+        MakeUnique<MeshPreviewPanel>(std::move(session)));
 
-    std::unique_ptr<Widget> root = std::move(group);
+    UniquePtr<Widget> root = std::move(group);
     if (!uiSystem.SetAdditionalWindowRoot(*window, root))
     {
         URAY_LOG("[Editor] Failed to attach the mesh preview UI.");
@@ -681,7 +681,7 @@ void Editor::LoadGameScene(const VirtualPath& scenePath)
         return;
     }
 
-    std::unique_ptr<Scene> newScene = nullptr;
+    UniquePtr<Scene> newScene = nullptr;
 
     try
     {
@@ -747,7 +747,7 @@ void Editor::PrepareGrid()
                               yCoordLine,
                               zCoordLine };
 
-    auto lineObject = std::make_unique<Render::LineObject>(lineObjectState);
+    auto lineObject = MakeUnique<Render::LineObject>(lineObjectState);
 
     renderSceneSystem.AddObject(*renderGameScene, std::move(lineObject), nullptr);
 }

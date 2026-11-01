@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <memory>
 #include <vector>
 
@@ -21,7 +22,7 @@ public:
     Window& GetMainWindow() const { return *mainWindow; }
 
 private:
-    std::vector<std::unique_ptr<Window>> windows;
+    std::vector<UniquePtr<Window>> windows;
     Window* mainWindow = nullptr;
     bool glfwInitialized = false;
 };

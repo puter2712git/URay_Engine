@@ -158,7 +158,7 @@ FontFace* FontSystem::GetOrCreateFace(AssetHandle fontHandle)
         return nullptr;
     }
 
-    auto newFace = std::make_unique<FontFace>(font, nativeFace);
+    auto newFace = MakeUnique<FontFace>(font, nativeFace);
 
     ret = newFace.get();
     faces.insert({ fontHandle, std::move(newFace) });
@@ -199,7 +199,7 @@ FontAtlas* FontSystem::GetOrCreateAtlas(AssetHandle fontHandle, uint32 pixelHeig
         .lineHeight = static_cast<float>(metrics.height) / 64.0f
     };
 
-    std::unique_ptr<FontAtlas> atlas = std::make_unique<FontAtlas>(face, pixelHeight, fontMetrics);
+    UniquePtr<FontAtlas> atlas = MakeUnique<FontAtlas>(face, pixelHeight, fontMetrics);
 
     ret = atlas.get();
     atlases.insert({ key, std::move(atlas) });

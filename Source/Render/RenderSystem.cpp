@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "RenderSystem.h"
 
 #include <Core/Log/LogSystem.h>
@@ -21,8 +22,8 @@ namespace URay::Render
 
 struct WindowRenderContext
 {
-    std::unique_ptr<Surface> surface;
-    std::unique_ptr<SurfaceRenderResource> renderResource;
+    UniquePtr<Surface> surface;
+    UniquePtr<SurfaceRenderResource> renderResource;
 
     void Finalize()
     {
@@ -52,7 +53,7 @@ bool RenderSystem::Initialize()
     desc.appName = "URay Editor";
     desc.engineName = "URay Engine";
 
-    vulkanContext = std::make_unique<VulkanContext>();
+    vulkanContext = MakeUnique<VulkanContext>();
     if (!vulkanContext->Initialize(desc))
     {
         URAY_LOG("[RenderSystem] Failed to initialize vulkan context.");
@@ -60,7 +61,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    mainSurface = std::make_unique<Surface>();
+    mainSurface = MakeUnique<Surface>();
     if (!mainSurface->Initialize(vulkanContext->GetInstance(), window))
     {
         URAY_LOG("[RenderSystem] Failed to initialize main surface.");
@@ -68,7 +69,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    device = std::make_unique<Device>(*vulkanContext);
+    device = MakeUnique<Device>(*vulkanContext);
     if (!device->Initialize(*mainSurface))
     {
         URAY_LOG("[RenderSystem] Failed to initialize RHI device.");
@@ -76,7 +77,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    resourceManager = std::make_unique<ResourceManager>(*device);
+    resourceManager = MakeUnique<ResourceManager>(*device);
     if (!resourceManager->Initialize())
     {
         URAY_LOG("[RenderSystem] Failed to initialize resource manager.");
@@ -84,7 +85,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    renderer = std::make_unique<Renderer>(window, *mainSurface, *device, *resourceManager);
+    renderer = MakeUnique<Renderer>(window, *mainSurface, *device, *resourceManager);
     if (!renderer->Initialize())
     {
         URAY_LOG("[RenderSystem] Failed to initialize renderer.");
@@ -92,7 +93,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    pipeline = std::make_unique<RenderPipeline>(*this);
+    pipeline = MakeUnique<RenderPipeline>(*this);
     if (!pipeline->Initialize())
     {
         URAY_LOG("[RenderSystem] Failed to initialize render pipeline.");
@@ -100,7 +101,7 @@ bool RenderSystem::Initialize()
         return false;
     }
 
-    sceneSystem = std::make_unique<SceneSystem>();
+    sceneSystem = MakeUnique<SceneSystem>();
     if (!sceneSystem->Initialize())
     {
         URAY_LOG("[RenderSystem] Failed to initialize render scene system.");
@@ -205,8 +206,8 @@ bool RenderSystem::CreateWindowSurface(Window& window)
     if (windowContexts.contains(&window))
         return false;
 
-    auto context = std::make_unique<WindowRenderContext>();
-    context->surface = std::make_unique<Surface>();
+    auto context = MakeUnique<WindowRenderContext>();
+    context->surface = MakeUnique<Surface>();
 
     if (!context->surface->Initialize(vulkanContext->GetInstance(), window))
     {
@@ -222,7 +223,7 @@ bool RenderSystem::CreateWindowSurface(Window& window)
         return false;
     }
 
-    context->renderResource = std::make_unique<SurfaceRenderResource>(window, *context->surface, *device);
+    context->renderResource = MakeUnique<SurfaceRenderResource>(window, *context->surface, *device);
 
     if (!context->renderResource->Initialize())
     {

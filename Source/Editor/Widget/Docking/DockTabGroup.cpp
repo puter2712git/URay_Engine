@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "DockTabGroup.h"
 
 #include <Core/Math/Math.h>
@@ -21,7 +22,7 @@ constexpr float tabHeight = 25.0f;
 
 DockTabGroup::DockTabGroup(UISystem& uiSystem) : uiSystem(uiSystem) {}
 
-void DockTabGroup::AddTab(const String& title, std::unique_ptr<Widget> panel)
+void DockTabGroup::AddTab(const String& title, UniquePtr<Widget> panel)
 {
     if (!panel)
         return;
@@ -139,8 +140,8 @@ std::optional<DetachedTab> DockTabGroup::DetachTab(ObjectId panelId)
     Widget* panel = it->panel;
     DockTabButton* button = it->button;
 
-    std::unique_ptr<Widget> removedButton = RemoveChild(button);
-    std::unique_ptr<Widget> detachedPanel = RemoveChild(panel);
+    UniquePtr<Widget> removedButton = RemoveChild(button);
+    UniquePtr<Widget> detachedPanel = RemoveChild(panel);
     assert(removedButton && detachedPanel);
 
     tabs.erase(it);

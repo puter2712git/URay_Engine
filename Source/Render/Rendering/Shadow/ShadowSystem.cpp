@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "ShadowSystem.h"
 
 #include <Render/RHI/Device.h>
@@ -21,7 +22,7 @@ bool ShadowSystem::Initialize()
             .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
     };
 
-    directionalRenderTarget = std::make_unique<RenderTarget>(device, directionalTargetDesc);
+    directionalRenderTarget = MakeUnique<RenderTarget>(device, directionalTargetDesc);
     if (!directionalRenderTarget)
         return false;
 
@@ -32,7 +33,7 @@ bool ShadowSystem::Initialize()
             .usage = TextureUsage::DepthAttachment | TextureUsage::Sampled }
     };
 
-    shadowAtlasRT = std::make_unique<RenderTarget>(device, shadowAtlasDesc);
+    shadowAtlasRT = MakeUnique<RenderTarget>(device, shadowAtlasDesc);
     if (!shadowAtlasRT)
         return false;
 
@@ -77,7 +78,7 @@ bool ShadowSystem::Initialize()
             };
 
             pointShadowFaceViews.push_back(
-                std::unique_ptr<TextureView>(
+                UniquePtr<TextureView>(
                     device.CreateTextureView(depthTextureCubeArray.get(), faceViewDesc)));
         }
     }

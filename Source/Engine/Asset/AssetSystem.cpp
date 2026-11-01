@@ -39,18 +39,18 @@ bool AssetSystem::Initialize(
     const String& enginePath,
     const String& projectPath)
 {
-    fileSystem = std::make_unique<VirtualFileSystem>();
+    fileSystem = MakeUnique<VirtualFileSystem>();
     if (!fileSystem->Initialize(enginePath, projectPath))
         return false;
 
-    database = std::make_unique<AssetDatabase>();
-    pipeline = std::make_unique<AssetPipeline>(*this, *fileSystem);
-    factory = std::make_unique<AssetFactory>(*this);
-    metadataSerializer = std::make_unique<AssetMetadataSerializer>(*fileSystem);
-    textureSerializer = std::make_unique<TextureSerializer>(*fileSystem);
-    materialSerializer = std::make_unique<MaterialSerializer>(*fileSystem);
-    fontSerializer = std::make_unique<FontSerializer>(*fileSystem);
-    meshSerializer = std::make_unique<MeshSerializer>(*fileSystem);
+    database = MakeUnique<AssetDatabase>();
+    pipeline = MakeUnique<AssetPipeline>(*this, *fileSystem);
+    factory = MakeUnique<AssetFactory>(*this);
+    metadataSerializer = MakeUnique<AssetMetadataSerializer>(*fileSystem);
+    textureSerializer = MakeUnique<TextureSerializer>(*fileSystem);
+    materialSerializer = MakeUnique<MaterialSerializer>(*fileSystem);
+    fontSerializer = MakeUnique<FontSerializer>(*fileSystem);
+    meshSerializer = MakeUnique<MeshSerializer>(*fileSystem);
 
     LoadAssetsRecursive("Engine://Asset");
     LoadAssetsRecursive("Project://Asset");
@@ -118,7 +118,7 @@ void AssetSystem::LoadAssetsRecursive(const VirtualPath& path)
 
 bool AssetSystem::RegisterAsset(const AssetMetadata& metadata)
 {
-    std::unique_ptr<Asset> asset = factory->Create(metadata);
+    UniquePtr<Asset> asset = factory->Create(metadata);
     if (!asset)
         return false;
 
@@ -146,7 +146,7 @@ VirtualPath AssetSystem::GetMetadataPath(const VirtualPath& sourcePath) const
 
 void AssetSystem::CreateDefaultMesh(const AssetHandle& handle, const String& name, const MeshInfo& meshInfo, const AssetHandle& materialHandle)
 {
-    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
+    UniquePtr<Mesh> mesh = MakeUnique<Mesh>();
     mesh->SetHandle(handle);
     mesh->SetName(name);
     mesh->SetVertices(meshInfo.vertices);

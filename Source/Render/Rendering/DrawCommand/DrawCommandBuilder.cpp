@@ -31,11 +31,11 @@ DrawCommandBuilder::~DrawCommandBuilder() = default;
 
 bool DrawCommandBuilder::Initialize()
 {
-    lineBatcher = std::make_unique<LineBatcher>(device, resourceManager);
+    lineBatcher = MakeUnique<LineBatcher>(device, resourceManager);
     if (!lineBatcher->Initialize())
         return false;
 
-    uiBatcher = std::make_unique<UIBatcher>(device, resourceManager);
+    uiBatcher = MakeUnique<UIBatcher>(device, resourceManager);
     if (!uiBatcher->Initialize())
         return false;
 

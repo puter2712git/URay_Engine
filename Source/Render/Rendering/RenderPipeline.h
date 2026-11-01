@@ -60,7 +60,7 @@ public:
 
     void Execute(const RenderRequest& request);
 
-    void AddRenderPass(std::unique_ptr<RenderPass> pass);
+    void AddRenderPass(UniquePtr<RenderPass> pass);
 
     DrawCommandBuilder& GetBuilder() const { return *builder; }
 
@@ -74,9 +74,9 @@ private:
     AssetSystem& assetSystem;
     RenderSystem& renderSystem;
 
-    std::unique_ptr<DrawCommandBuilder> builder = nullptr;
+    UniquePtr<DrawCommandBuilder> builder = nullptr;
 
-    std::vector<std::unique_ptr<RenderPass>> passes;
+    std::vector<UniquePtr<RenderPass>> passes;
     std::array<std::vector<DrawCommand>, static_cast<uint8>(RenderPassId::Count)> drawCmds;
 
     RenderFrameStats workingStats = {};

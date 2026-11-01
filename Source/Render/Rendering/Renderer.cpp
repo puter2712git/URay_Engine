@@ -79,7 +79,7 @@ static StringView GetRenderPassName(RenderPassId passId)
 
 Renderer::Renderer(Window& window, Surface& surface, Device& device, ResourceManager& resourceManager)
     : device(device), resourceManager(resourceManager),
-      mainSurfaceResource(std::make_unique<SurfaceRenderResource>(window, surface, device)),
+      mainSurfaceResource(MakeUnique<SurfaceRenderResource>(window, surface, device)),
       activeSurfaceResource(mainSurfaceResource.get())
 {
     URAY_DECLARE_RAY(ViewportRenderTargetsRecreated);
@@ -103,7 +103,7 @@ bool Renderer::Initialize()
         return false;
     }
 
-    renderTargetRegistry = std::make_unique<RenderTargetRegistry>(device);
+    renderTargetRegistry = MakeUnique<RenderTargetRegistry>(device);
 
     if (!CreateSceneRenderTarget())
     {
@@ -137,7 +137,7 @@ bool Renderer::Initialize()
         return false;
     }
 
-    objectIdReadback = std::make_unique<ObjectIdReadback>(device);
+    objectIdReadback = MakeUnique<ObjectIdReadback>(device);
     if (!objectIdReadback->Initialize())
     {
         URAY_LOG("[Renderer] Failed to initialize object ID readback.");

@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "SpotLightVisualizer.h"
 
 #include <Core/Math/Math.h>
@@ -156,8 +157,8 @@ void SpotLightVisualizer::CreateLine(EditorVisualContext& context, Component& co
     if (visual.line)
         return;
 
-    std::unique_ptr<Render::LineObject> line =
-        std::make_unique<Render::LineObject>(MakeLineState(*visual.unit, component));
+    UniquePtr<Render::LineObject> line =
+        MakeUnique<Render::LineObject>(MakeLineState(*visual.unit, component));
     visual.line = line.get();
 
     Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();

@@ -24,7 +24,7 @@ struct RenderTargetEntry
 {
     RenderTargetDesc desc = {};
     bool isViewportRelative = false;
-    std::unique_ptr<RenderTarget> target = nullptr;
+    UniquePtr<RenderTarget> target = nullptr;
 };
 
 class RenderTargetRegistry

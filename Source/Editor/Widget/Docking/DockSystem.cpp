@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "DockSystem.h"
 
 #include <Core/Log/LogSystem.h>
@@ -275,8 +276,8 @@ void DockSystem::ProcessPendingMove()
         if (!uiSystem.TryClearInputStateForSubtree(*source))
             return;
 
-        std::unique_ptr<Widget> newGroup =
-            std::make_unique<DockTabGroup>(uiSystem);
+        UniquePtr<Widget> newGroup =
+            MakeUnique<DockTabGroup>(uiSystem);
 
         DockTabGroup* newTabGroup =
             static_cast<DockTabGroup*>(newGroup.get());
@@ -393,10 +394,10 @@ void DockSystem::ProcessPendingDetach()
         static_cast<int32>(request.screenPosition.x),
         static_cast<int32>(request.screenPosition.y));
 
-    auto newGroup = std::make_unique<DockTabGroup>(uiSystem);
+    auto newGroup = MakeUnique<DockTabGroup>(uiSystem);
     DockTabGroup* newGroupPtr = newGroup.get();
 
-    std::unique_ptr<Widget> newRoot = std::move(newGroup);
+    UniquePtr<Widget> newRoot = std::move(newGroup);
 
     if (!uiSystem.SetAdditionalWindowRoot(*newWindow, newRoot))
     {
@@ -453,7 +454,7 @@ void DockSystem::ProcessPendingCleanup()
         });
 }
 
-bool DockSystem::SplitGroup(DockTabGroup& target, DockDropZone zone, std::unique_ptr<Widget>& newGroup)
+bool DockSystem::SplitGroup(DockTabGroup& target, DockDropZone zone, UniquePtr<Widget>& newGroup)
 {
     if (!CanSplitGroup(target, zone))
         return false;
@@ -518,11 +519,11 @@ bool DockSystem::SplitGroup(DockTabGroup& target, DockDropZone zone, std::unique
         return false;
     }
 
-    std::unique_ptr<Widget> wrapper = std::make_unique<Splitter>("", axis);
+    UniquePtr<Widget> wrapper = MakeUnique<Splitter>("", axis);
 
     Splitter* splitter = static_cast<Splitter*>(wrapper.get());
 
-    std::unique_ptr<Widget> existing = parent->ReplaceChild(&target, wrapper);
+    UniquePtr<Widget> existing = parent->ReplaceChild(&target, wrapper);
 
     if (!existing)
         return false;
@@ -698,7 +699,7 @@ bool DockSystem::TryCleanupEmptyGroup(ObjectId groupId)
     const auto parentIt = std::find_if(
         parentChildren.begin(),
         parentChildren.end(),
-        [splitter](const std::unique_ptr<Widget>& child)
+        [splitter](const UniquePtr<Widget>& child)
         {
             return child.get() == splitter;
         });
@@ -715,11 +716,11 @@ bool DockSystem::TryCleanupEmptyGroup(ObjectId groupId)
     if (!uiSystem.TryClearInputStateForSubtree(*emptyGroup))
         return false;
 
-    std::unique_ptr<Widget> survivor = splitter->RemoveChild(sibling);
+    UniquePtr<Widget> survivor = splitter->RemoveChild(sibling);
     if (!survivor)
         return false;
 
-    std::unique_ptr<Widget> removedSplitter = parent->ReplaceChild(splitter, survivor);
+    UniquePtr<Widget> removedSplitter = parent->ReplaceChild(splitter, survivor);
 
     if (!removedSplitter)
     {
@@ -729,7 +730,7 @@ bool DockSystem::TryCleanupEmptyGroup(ObjectId groupId)
         }
         else
         {
-            std::unique_ptr<Widget> empty = splitter->RemoveChild(emptyGroup);
+            UniquePtr<Widget> empty = splitter->RemoveChild(emptyGroup);
 
             splitter->AddChild(std::move(survivor));
             splitter->AddChild(std::move(empty));

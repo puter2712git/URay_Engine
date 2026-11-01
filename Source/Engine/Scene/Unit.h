@@ -37,7 +37,7 @@ public:
     virtual YAML::Node Serialize() const override;
     virtual void Deserialize(const YAML::Node& node) override;
 
-    Component* AddComponent(std::unique_ptr<Component> component);
+    Component* AddComponent(UniquePtr<Component> component);
 
     template <typename T>
     T* GetComponent() const
@@ -50,7 +50,7 @@ public:
         return nullptr;
     }
 
-    const std::vector<std::unique_ptr<Component>>& GetComponents() const { return components; }
+    const std::vector<UniquePtr<Component>>& GetComponents() const { return components; }
 
     TransformComponent* GetTransform() const { return transform; }
 
@@ -86,7 +86,7 @@ private:
     Unit* parent = nullptr;
     std::vector<Unit*> children;
 
-    std::vector<std::unique_ptr<Component>> components;
+    std::vector<UniquePtr<Component>> components;
     TransformComponent* transform = nullptr;
 
     Scene* scene = nullptr;

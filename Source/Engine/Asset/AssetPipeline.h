@@ -34,7 +34,7 @@ private:
     AssetSystem& assetSystem;
     VirtualFileSystem& fileSystem;
 
-    std::vector<std::unique_ptr<Importer>> importers;
+    std::vector<UniquePtr<Importer>> importers;
 };
 
 } // namespace URay

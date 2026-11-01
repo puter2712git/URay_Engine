@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "WindowSystem.h"
 
 #include <Core/Log/LogSystem.h>
@@ -60,7 +61,7 @@ void WindowSystem::Finalize()
 
 Window* WindowSystem::CreateWindow(const WindowDesc& desc)
 {
-    auto window = std::make_unique<Window>();
+    auto window = MakeUnique<Window>();
     if (!window->Initialize(desc))
     {
         URAY_LOG("[WindowSystem] Failed to initialize window.");
@@ -84,7 +85,7 @@ void WindowSystem::DestroyWindow(Window& window)
     auto it = std::find_if(
         windows.begin(),
         windows.end(),
-        [&window](const std::unique_ptr<Window>& wnd)
+        [&window](const UniquePtr<Window>& wnd)
         {
             return wnd.get() == &window;
         });

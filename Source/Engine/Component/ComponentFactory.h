@@ -14,18 +14,18 @@ class Component;
 class ComponentFactory
 {
 public:
-    using ConstructorFunc = std::function<std::unique_ptr<Component>()>;
+    using ConstructorFunc = std::function<UniquePtr<Component>()>;
 
     template <typename T>
     static void RegisterComponent(const String& name)
     {
-        GetRegistry()[name] = []() -> std::unique_ptr<Component>
+        GetRegistry()[name] = []() -> UniquePtr<Component>
         {
-            return std::make_unique<T>();
+            return MakeUnique<T>();
         };
     }
 
-    static std::unique_ptr<Component> Create(const String& name)
+    static UniquePtr<Component> Create(const String& name)
     {
         auto& registry = GetRegistry();
         auto it = registry.find(name);

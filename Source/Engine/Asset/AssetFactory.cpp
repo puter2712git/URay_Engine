@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "AssetFactory.h"
 
 #include <Core/File/VirtualFileSystem.h>
@@ -23,7 +24,7 @@ namespace URay
 AssetFactory::AssetFactory(AssetSystem& assetSystem)
     : assetSystem(assetSystem) {}
 
-std::unique_ptr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
+UniquePtr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
 {
     if (metadata.className == Texture::StaticType().name)
     {
@@ -49,13 +50,13 @@ std::unique_ptr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
     return nullptr;
 }
 
-std::unique_ptr<Texture> AssetFactory::CreateTexture(const AssetMetadata& metadata) const
+UniquePtr<Texture> AssetFactory::CreateTexture(const AssetMetadata& metadata) const
 {
     TextureData data;
     if (!assetSystem.GetTextureSerializer().Load(data, metadata.assetPath))
         return nullptr;
 
-    auto texture = std::make_unique<Texture>(
+    auto texture = MakeUnique<Texture>(
         data.width,
         data.height,
         4,
@@ -67,13 +68,13 @@ std::unique_ptr<Texture> AssetFactory::CreateTexture(const AssetMetadata& metada
     return texture;
 }
 
-std::unique_ptr<Material> AssetFactory::CreateMaterial(const AssetMetadata& metadata) const
+UniquePtr<Material> AssetFactory::CreateMaterial(const AssetMetadata& metadata) const
 {
     MaterialData data;
     if (!assetSystem.GetMaterialSerializer().Load(data, metadata.assetPath))
         return nullptr;
 
-    auto material = std::make_unique<Material>(data.shaderHandle);
+    auto material = MakeUnique<Material>(data.shaderHandle);
     material->SetHandle(metadata.handle);
     material->SetName(metadata.assetPath.GetStem());
 
@@ -88,9 +89,9 @@ std::unique_ptr<Material> AssetFactory::CreateMaterial(const AssetMetadata& meta
     return material;
 }
 
-std::unique_ptr<Shader> AssetFactory::CreateShader(const AssetMetadata& metadata) const
+UniquePtr<Shader> AssetFactory::CreateShader(const AssetMetadata& metadata) const
 {
-    auto shader = std::make_unique<Shader>(metadata.assetPath);
+    auto shader = MakeUnique<Shader>(metadata.assetPath);
 
     shader->SetHandle(metadata.handle);
     shader->SetName(metadata.assetPath.GetStem());
@@ -98,26 +99,26 @@ std::unique_ptr<Shader> AssetFactory::CreateShader(const AssetMetadata& metadata
     return shader;
 }
 
-std::unique_ptr<Font> AssetFactory::CreateFont(const AssetMetadata& metadata) const
+UniquePtr<Font> AssetFactory::CreateFont(const AssetMetadata& metadata) const
 {
     FontData data;
     if (!assetSystem.GetFontSerializer().Load(data, metadata.assetPath))
         return nullptr;
 
-    auto font = std::make_unique<Font>(data.bytes);
+    auto font = MakeUnique<Font>(data.bytes);
     font->SetHandle(metadata.handle);
     font->SetName(metadata.assetPath.GetStem());
 
     return font;
 }
 
-std::unique_ptr<Mesh> AssetFactory::CreateMesh(const AssetMetadata& metadata) const
+UniquePtr<Mesh> AssetFactory::CreateMesh(const AssetMetadata& metadata) const
 {
     MeshData data;
     if (!assetSystem.GetMeshSerializer().Load(data, metadata.assetPath))
         return nullptr;
 
-    auto mesh = std::make_unique<Mesh>();
+    auto mesh = MakeUnique<Mesh>();
     mesh->SetHandle(metadata.handle);
     mesh->SetName(metadata.assetPath.GetStem());
     mesh->SetVertices(data.vertices);

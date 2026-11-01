@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Extent2D.h>
 #include <Render/Rendering/SceneRenderTargets.h>
 
@@ -32,10 +33,10 @@ public:
 private:
     Render::Device& device;
 
-    std::unique_ptr<Render::RenderTarget> scene;
-    std::unique_ptr<Render::RenderTarget> postProcess;
-    std::unique_ptr<Render::RenderTarget> selectionMask;
-    std::unique_ptr<Render::RenderTarget> gizmoDepth;
+    UniquePtr<Render::RenderTarget> scene;
+    UniquePtr<Render::RenderTarget> postProcess;
+    UniquePtr<Render::RenderTarget> selectionMask;
+    UniquePtr<Render::RenderTarget> gizmoDepth;
 };
 
 } // namespace URay

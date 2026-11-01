@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Vector2.h>
 #include <Editor/Gizmo/Strategy/GizmoStrategy.h>
 #include <Editor/Viewport/EditorView.h>
@@ -63,7 +64,7 @@ private:
     void UpdateRenderObject();
 
 private:
-    std::vector<std::unique_ptr<GizmoStrategy>> strategies;
+    std::vector<UniquePtr<GizmoStrategy>> strategies;
     GizmoStrategy* currentStrategy = nullptr;
 
     bool dragging = false;

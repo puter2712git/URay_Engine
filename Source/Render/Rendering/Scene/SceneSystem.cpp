@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "SceneSystem.h"
 
 #include <Render/Rendering/Object/RenderObject.h>
@@ -42,7 +43,7 @@ void SceneSystem::Finalize()
     sceneSystem.UnregisterAll(this);
 }
 
-RenderObject* SceneSystem::AddObject(RenderScene& scene, std::unique_ptr<RenderObject> object, Component* component)
+RenderObject* SceneSystem::AddObject(RenderScene& scene, UniquePtr<RenderObject> object, Component* component)
 {
     if (!object)
         return nullptr;
@@ -87,7 +88,7 @@ void SceneSystem::OnEngineSceneAdded(Scene* scene)
     const auto it = scenes.find(scene);
     assert(it == scenes.end());
 
-    std::unique_ptr<RenderScene> newRenderScene = std::make_unique<RenderScene>(*this);
+    UniquePtr<RenderScene> newRenderScene = MakeUnique<RenderScene>(*this);
     scenes.insert({ scene, std::move(newRenderScene) });
 }
 
@@ -108,7 +109,7 @@ void SceneSystem::OnEngineSceneComponentAdded(Scene* scene, Unit* unit, Componen
     if (!renderComponent)
         return;
 
-    std::unique_ptr<RenderObject> newRenderObject(renderComponent->CreateRenderObject());
+    UniquePtr<RenderObject> newRenderObject(renderComponent->CreateRenderObject());
 
     AddObject(*renderScene, std::move(newRenderObject), component);
 }

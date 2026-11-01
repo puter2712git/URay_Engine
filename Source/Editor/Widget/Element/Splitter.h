@@ -19,7 +19,7 @@ class Splitter : public Widget
     URAY_CLASS(Splitter, Widget)
 
 public:
-    Splitter(const String& layoutId, SplitAxis axis, std::unique_ptr<Widget> first, std::unique_ptr<Widget> second);
+    Splitter(const String& layoutId, SplitAxis axis, UniquePtr<Widget> first, UniquePtr<Widget> second);
     Splitter(const String& layoutId, SplitAxis axis);
     ~Splitter() override;
 

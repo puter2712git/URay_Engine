@@ -17,14 +17,14 @@ bool EditorApplication::Initialize(
     const String& enginePath,
     const String& projectPath)
 {
-    engine = std::make_unique<Engine>();
+    engine = MakeUnique<Engine>();
     if (!engine->Initialize(enginePath, projectPath))
     {
         Finalize();
         return false;
     }
 
-    editor = std::make_unique<Editor>();
+    editor = MakeUnique<Editor>();
     if (!editor->Initialize())
     {
         Finalize();

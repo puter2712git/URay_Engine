@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "UIBatcher.h"
 
 #include <Render/RHI/Buffer/Buffer.h>
@@ -198,7 +199,7 @@ DescriptorSet* UIBatcher::GetOrCreateDescriptorSet(const TextureSamplerKey& key)
     if (it != descriptorSets.end())
         return it->second.get();
 
-    std::unique_ptr<DescriptorSet> descriptorSet = nullptr;
+    UniquePtr<DescriptorSet> descriptorSet = nullptr;
     descriptorSet.reset(device.CreateDescriptorSet(textureSetLayout));
     if (!descriptorSet)
         return nullptr;

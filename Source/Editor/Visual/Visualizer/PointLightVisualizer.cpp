@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "PointLightVisualizer.h"
 
 #include <Core/Math/Math.h>
@@ -25,8 +26,8 @@ PointLightVisualizer::PointLightVisualizer(EditorVisualContext& context, Unit& u
 {
     selectionSystem.Register("ActiveSelectionChanged", this, &PointLightVisualizer::OnSelectionChanged);
 
-    std::unique_ptr<Render::BillboardObject> billboard =
-        std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
+    UniquePtr<Render::BillboardObject> billboard =
+        MakeUnique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
     visual = {
         .unit = &unit,
         .component = &component,
@@ -187,8 +188,8 @@ void PointLightVisualizer::CreateLine(EditorVisualContext& context, Component& c
     if (visual.line)
         return;
 
-    std::unique_ptr<Render::LineObject> line =
-        std::make_unique<Render::LineObject>(MakeLineState(context, *visual.unit, component));
+    UniquePtr<Render::LineObject> line =
+        MakeUnique<Render::LineObject>(MakeLineState(context, *visual.unit, component));
     visual.line = line.get();
 
     Render::SceneSystem& sceneSystem = context.renderScene.GetSceneSystem();

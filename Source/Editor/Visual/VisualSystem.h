@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Visual/Visualizer/EditorVisualizerRegistry.h>
 
 #include <memory>
@@ -37,7 +38,7 @@ private:
     SelectionSystem& selectionSystem;
 
     EditorVisualizerRegistry visualizerRegistry;
-    std::unordered_map<Component*, std::unique_ptr<EditorComponentVisualizer>> visualizers;
+    std::unordered_map<Component*, UniquePtr<EditorComponentVisualizer>> visualizers;
 };
 
 } // namespace URay

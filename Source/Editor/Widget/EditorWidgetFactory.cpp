@@ -26,7 +26,7 @@ Label* CreateEditorLabel(Widget& parent, StringView text)
 
 Button* CreateEditorButton(Widget& parent, StringView text)
 {
-    auto label = std::make_unique<Label>(text);
+    auto label = MakeUnique<Label>(text);
     label->SetTextStyle(EditorStyle::ButtonText());
     label->SetHorizontalAlignment(HorizontalTextAlignment::Center);
     label->SetVerticalAlignment(VerticalTextAlignment::Center);
@@ -51,7 +51,7 @@ DockTabButton* CreateDockTabButton(Widget& parent, StringView text)
 
 Button* CreateEditorIconButton(Widget& parent, AssetHandle textureHandle)
 {
-    Button* button = parent.AddChild<Button>(std::make_unique<Image>(textureHandle));
+    Button* button = parent.AddChild<Button>(MakeUnique<Image>(textureHandle));
     button->SetNormalColor(EditorStyle::ControlNormal);
     button->SetHoverColor(EditorStyle::ControlHovered);
     button->SetPressedColor(EditorStyle::ControlPressed);

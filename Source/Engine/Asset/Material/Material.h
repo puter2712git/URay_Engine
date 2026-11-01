@@ -64,7 +64,7 @@ protected:
     Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
     std::vector<Render::DescriptorSet*> descriptorSets;
 
-    std::map<uint32, std::array<std::unique_ptr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
+    std::map<uint32, std::array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
 
     std::unordered_map<String, MaterialParameter> parameters;
 

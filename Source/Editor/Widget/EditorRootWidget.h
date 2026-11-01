@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/UI/Widget/Widget.h>
 
 #include <memory>
@@ -13,7 +14,7 @@ class DialogLayer;
 class EditorRootWidget final : public Widget
 {
 public:
-    explicit EditorRootWidget(std::unique_ptr<Widget> mainContent);
+    explicit EditorRootWidget(UniquePtr<Widget> mainContent);
 
 public:
     void Arrange(const Rect& rect) override;

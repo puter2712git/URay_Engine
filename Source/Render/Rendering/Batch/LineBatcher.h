@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/RHI/Vertex/Vertex.h>
 
@@ -45,7 +46,7 @@ private:
 
     Shader* renderShader = nullptr;
 
-    std::unique_ptr<Buffer> vertexBuffer = nullptr;
+    UniquePtr<Buffer> vertexBuffer = nullptr;
     void* mappedVertexBufferData = nullptr;
 };
 

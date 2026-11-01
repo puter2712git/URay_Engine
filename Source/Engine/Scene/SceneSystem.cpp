@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "SceneSystem.h"
 
 #include <Engine/Component/Component.h>
@@ -45,16 +46,16 @@ void SceneSystem::Update(float deltaTime)
     }
 }
 
-std::unique_ptr<Scene> SceneSystem::CreateScene(SceneType type, const VirtualPath& filePath)
+UniquePtr<Scene> SceneSystem::CreateScene(SceneType type, const VirtualPath& filePath)
 {
     assert(nextSceneId != InvalidSceneId);
 
     const SceneId id = nextSceneId++;
-    std::unique_ptr<Scene> newScene = std::make_unique<Scene>(*this, id, type, filePath);
+    UniquePtr<Scene> newScene = MakeUnique<Scene>(*this, id, type, filePath);
     return newScene;
 }
 
-Scene* SceneSystem::LoadScene(std::unique_ptr<Scene> scene)
+Scene* SceneSystem::LoadScene(UniquePtr<Scene> scene)
 {
     if (!scene)
         return nullptr;
@@ -98,7 +99,7 @@ bool SceneSystem::UnloadScene(SceneId id)
     Emit("SceneDestroyed", targetScene);
 
     scenes.erase(std::remove_if(scenes.begin(), scenes.end(),
-                                [targetScene](const std::unique_ptr<Scene>& scene)
+                                [targetScene](const UniquePtr<Scene>& scene)
                                 {
                                     return scene.get() == targetScene;
                                 }),

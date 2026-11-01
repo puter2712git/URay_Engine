@@ -43,10 +43,10 @@ bool Engine::Initialize(
 {
     gEngine = this;
 
-    stdErrLogSink = std::make_unique<StdErrLogSink>();
-    fileLogSink = std::make_unique<FileLogSink>(std::filesystem::path(projectPath) / "Log/Log.txt");
+    stdErrLogSink = MakeUnique<StdErrLogSink>();
+    fileLogSink = MakeUnique<FileLogSink>(std::filesystem::path(projectPath) / "Log/Log.txt");
 
-    logSystem = std::make_unique<LogSystem>();
+    logSystem = MakeUnique<LogSystem>();
     logSystem->RegisterSink(stdErrLogSink.get());
     logSystem->RegisterSink(fileLogSink.get());
 
@@ -57,7 +57,7 @@ bool Engine::Initialize(
         .resizable = true,
         .maximized = true
     };
-    windowSystem = std::make_unique<WindowSystem>();
+    windowSystem = MakeUnique<WindowSystem>();
     if (!windowSystem->Initialize(mainWindowDesc))
     {
         URAY_LOG("[Engine] Failed to initialize window system.");
@@ -65,17 +65,17 @@ bool Engine::Initialize(
         return false;
     }
 
-    timer = std::make_unique<Timer>();
-    scheduler = std::make_unique<Scheduler>();
+    timer = MakeUnique<Timer>();
+    scheduler = MakeUnique<Scheduler>();
 
-    inputSystem = std::make_unique<InputSystem>();
-    inputActionSystem = std::make_unique<InputActionSystem>();
+    inputSystem = MakeUnique<InputSystem>();
+    inputActionSystem = MakeUnique<InputActionSystem>();
 
-    performanceAnalytics = std::make_unique<PerformanceAnalytics>();
+    performanceAnalytics = MakeUnique<PerformanceAnalytics>();
 
-    objectSystem = std::make_unique<ObjectSystem>();
+    objectSystem = MakeUnique<ObjectSystem>();
 
-    sceneSystem = std::make_unique<SceneSystem>();
+    sceneSystem = MakeUnique<SceneSystem>();
     if (!sceneSystem->Initialize())
     {
         URAY_LOG("[Engine] Failed to initialize scene system.");
@@ -83,7 +83,7 @@ bool Engine::Initialize(
         return false;
     }
 
-    renderSystem = std::make_unique<Render::RenderSystem>();
+    renderSystem = MakeUnique<Render::RenderSystem>();
     if (!renderSystem->Initialize())
     {
         URAY_LOG("[Engine] Failed to initialize render system.");
@@ -91,11 +91,11 @@ bool Engine::Initialize(
         return false;
     }
 
-    uiSystem = std::make_unique<UISystem>(windowSystem->GetMainWindow(), *inputSystem);
+    uiSystem = MakeUnique<UISystem>(windowSystem->GetMainWindow(), *inputSystem);
     uiSystem->Initialize();
-    renderSystem->GetPipeline().AddRenderPass(std::make_unique<Render::UIPass>());
+    renderSystem->GetPipeline().AddRenderPass(MakeUnique<Render::UIPass>());
 
-    assetSystem = std::make_unique<AssetSystem>();
+    assetSystem = MakeUnique<AssetSystem>();
     if (!assetSystem->Initialize(enginePath, projectPath))
     {
         URAY_LOG("[Engine] Failed to initialize asset system.");

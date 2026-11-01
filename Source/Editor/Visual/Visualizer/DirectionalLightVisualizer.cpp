@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "DirectionalLightVisualizer.h"
 
 #include <Engine/Asset/AssetDatabase.h>
@@ -51,8 +52,8 @@ Render::BillboardObjectState DirectionalLightVisualizer::MakeBillboardState(Edit
 DirectionalLightVisualizer::DirectionalLightVisualizer(EditorVisualContext& context, Unit& unit, Component& component)
     : renderScene(context.renderScene)
 {
-    std::unique_ptr<Render::MeshObject> arrow = std::make_unique<Render::MeshObject>(MakeArrowState(context, unit));
-    std::unique_ptr<Render::BillboardObject> billboard = std::make_unique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
+    UniquePtr<Render::MeshObject> arrow = MakeUnique<Render::MeshObject>(MakeArrowState(context, unit));
+    UniquePtr<Render::BillboardObject> billboard = MakeUnique<Render::BillboardObject>(MakeBillboardState(context, unit, component));
 
     visual.arrow = arrow.get();
     visual.billboard = billboard.get();

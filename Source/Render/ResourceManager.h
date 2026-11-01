@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Descriptor/DescriptorSetLayoutDesc.h>
 #include <Render/RHI/PipelineLayout/PipelineLayoutDesc.h>
 #include <Render/RHI/PipelineState/PipelineStateDesc.h>
@@ -88,15 +89,15 @@ private:
 
     ShaderCompiler shaderCompiler;
 
-    std::unique_ptr<FontSystem> fontSystem = nullptr;
-    std::unique_ptr<ShadowSystem> shadowSystem = nullptr;
+    UniquePtr<FontSystem> fontSystem = nullptr;
+    UniquePtr<ShadowSystem> shadowSystem = nullptr;
 
     std::unordered_map<URay::Mesh*, MeshBuffer*> meshBuffers;
     std::unordered_map<URay::SkinnedMesh*, MeshBuffer*> skinnedMeshBuffers;
 
     std::unordered_map<URay::Texture*, Texture*> textures;
     std::unordered_map<TextureViewKey, TextureView*, TextureViewKeyHash> textureViews;
-    std::unordered_map<SamplerDesc, std::unique_ptr<Sampler>, SamplerDescHash> textureSamplers;
+    std::unordered_map<SamplerDesc, UniquePtr<Sampler>, SamplerDescHash> textureSamplers;
 
     std::unordered_map<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 

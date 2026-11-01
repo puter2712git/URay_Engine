@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/Callable/Callable.h>
 #include <Core/Type/Function/FunctionSignature.h>
 #include <Core/Type/Variant/Variant.h>
@@ -19,7 +20,7 @@ public:
     explicit Ray(FunctionSignature signature);
 
 public:
-    bool Register(std::unique_ptr<Callable> callback);
+    bool Register(UniquePtr<Callable> callback);
     void UnregisterAll(const void* target);
 
     bool Emit(std::span<const Variant> args);
@@ -29,9 +30,9 @@ public:
 private:
     struct Connection
     {
-        explicit Connection(std::unique_ptr<Callable> callback) : callback(std::move(callback)) {}
+        explicit Connection(UniquePtr<Callable> callback) : callback(std::move(callback)) {}
 
-        std::unique_ptr<Callable> callback;
+        UniquePtr<Callable> callback;
         bool active = true;
     };
 

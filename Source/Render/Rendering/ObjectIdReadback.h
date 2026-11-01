@@ -53,7 +53,7 @@ private:
     };
 
     Device& device;
-    std::unique_ptr<Buffer> buffer = nullptr;
+    UniquePtr<Buffer> buffer = nullptr;
 
     std::optional<PendingRequest> pendingRequest = std::nullopt;
     std::optional<InFlightRequest> inFlightRequest = std::nullopt;

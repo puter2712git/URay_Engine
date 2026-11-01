@@ -108,9 +108,9 @@ private:
     PlaySession& playSession;
     bool& useEditorCamera;
 
-    std::unique_ptr<EditorCamera> editorCamera = nullptr;
-    std::unique_ptr<TransformGizmo> gizmo = nullptr;
-    std::unique_ptr<ObjectIdTargetRegistry> objectIdTargets = nullptr;
+    UniquePtr<EditorCamera> editorCamera = nullptr;
+    UniquePtr<TransformGizmo> gizmo = nullptr;
+    UniquePtr<ObjectIdTargetRegistry> objectIdTargets = nullptr;
 
     bool isCameraRotating = false;
     Vector2 cameraMouseDelta = Vector2::Zero;

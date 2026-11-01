@@ -1,3 +1,4 @@
+#include <Core/Type/TypeAlias.h>
 #include "AssetDatabase.h"
 
 #include <Engine/Object/Class/Class.h>
@@ -35,7 +36,7 @@ std::vector<Asset*> AssetDatabase::GetAssets(Class* assetClass) const
     return ret;
 }
 
-void AssetDatabase::InsertOrReplace(std::unique_ptr<Asset> asset)
+void AssetDatabase::InsertOrReplace(UniquePtr<Asset> asset)
 {
     if (!asset || !asset->GetHandle().IsValid())
         return;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <yaml-cpp/yaml.h>
 
 #include <memory>
@@ -15,7 +16,7 @@ class EditorLayout
 {
 public:
     bool SaveLayout(const Widget& root, YAML::Node& outLayout) const;
-    std::unique_ptr<Widget> LoadLayout(const YAML::Node& layout, UISystem& uiSystem, PanelContext& context) const;
+    UniquePtr<Widget> LoadLayout(const YAML::Node& layout, UISystem& uiSystem, PanelContext& context) const;
 };
 
 } // namespace URay

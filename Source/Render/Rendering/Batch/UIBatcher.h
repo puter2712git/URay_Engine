@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Vertex/Vertex.h>
 #include <Render/Rendering/DrawCommand/DrawCommand.h>
 #include <Render/Rendering/RenderInfo.h>
@@ -68,8 +69,8 @@ private:
     Device& device;
     ResourceManager& resourceManager;
 
-    std::array<std::unique_ptr<Buffer>, MAX_FRAMES_IN_FLIGHT> vertexBuffers;
-    std::array<std::unique_ptr<Buffer>, MAX_FRAMES_IN_FLIGHT> indexBuffers;
+    std::array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> vertexBuffers;
+    std::array<UniquePtr<Buffer>, MAX_FRAMES_IN_FLIGHT> indexBuffers;
 
     std::array<void*, MAX_FRAMES_IN_FLIGHT> mappedVertexData = {};
     std::array<void*, MAX_FRAMES_IN_FLIGHT> mappedIndexData = {};
@@ -79,7 +80,7 @@ private:
     DescriptorSetLayout* textureSetLayout = nullptr;
     Sampler* sampler = nullptr;
 
-    std::unordered_map<TextureSamplerKey, std::unique_ptr<DescriptorSet>, TextureSamplerKeyHash> descriptorSets;
+    std::unordered_map<TextureSamplerKey, UniquePtr<DescriptorSet>, TextureSamplerKeyHash> descriptorSets;
 
     TextureView* whiteTextureView = nullptr;
 };

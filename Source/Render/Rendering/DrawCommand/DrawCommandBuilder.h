@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include "DrawCommand.h"
 #include "DrawCommandContext.h"
 
@@ -64,8 +65,8 @@ private:
 
     std::vector<DrawCommand> drawCmds;
 
-    std::unique_ptr<LineBatcher> lineBatcher = nullptr;
-    std::unique_ptr<UIBatcher> uiBatcher = nullptr;
+    UniquePtr<LineBatcher> lineBatcher = nullptr;
+    UniquePtr<UIBatcher> uiBatcher = nullptr;
 };
 
 } // namespace URay::Render
