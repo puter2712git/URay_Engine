@@ -75,6 +75,15 @@ void SceneTreePanel::Arrange(const Rect& rect)
 
 EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
 {
+    if (event.changedButton == MouseButton::Left && dragState)
+    {
+        return EventReply{
+            .handled = true,
+            .requestFocus = true,
+            .capturePointer = true
+        };
+    }
+
     if (event.changedButton != MouseButton::Right)
         return {};
 
@@ -87,6 +96,95 @@ EventReply SceneTreePanel::OnPointerDown(const PointerEvent& event)
         .handled = true,
         .requestFocus = true
     };
+}
+
+EventReply SceneTreePanel::OnPointerMove(const PointerEvent& event)
+{
+    if (!dragState)
+        return {};
+
+    constexpr float dragThreshold = 4.0f;
+
+    const float dx = event.position.x - dragState->pressPosition.x;
+    const float dy = event.position.y - dragState->pressPosition.y;
+
+    if (!dragState->isDragging && dx * dx + dy * dy >= dragThreshold * dragThreshold)
+    {
+        dragState->isDragging = true;
+    }
+
+    dragState->pointerPosition = event.position;
+
+    return EventReply{ .handled = true };
+}
+
+EventReply SceneTreePanel::OnPointerUp(const PointerEvent& event)
+{
+    if (event.changedButton != MouseButton::Left || !dragState)
+        return {};
+
+    if (dragState->isDragging)
+    {
+        const DropTarget target = FindDropTarget(event.position);
+        ApplyDrop(target);
+    }
+
+    dragState.reset();
+
+    return EventReply{
+        .handled = true,
+        .releasePointer = true
+    };
+}
+
+void SceneTreePanel::OnPointerCancel()
+{
+    dragState.reset();
+}
+
+void SceneTreePanel::BeginDrag(SceneId sceneId, const UUID& unitId, const Vector2& position)
+{
+    dragState = DragState{
+        .sceneId = sceneId,
+        .unitId = unitId,
+        .pressPosition = position,
+        .pointerPosition = position,
+        .isDragging = false
+    };
+}
+
+bool SceneTreePanel::IsUnitDropTarget(SceneId sceneId, const UUID& unitId) const
+{
+    if (!dragState || !dragState->isDragging)
+        return false;
+
+    const DropTarget target = FindDropTarget(dragState->pointerPosition);
+
+    if (target.type != DropTargetType::Unit ||
+        target.sceneId != sceneId ||
+        target.unitId != unitId ||
+        sceneId != dragState->sceneId)
+    {
+        return false;
+    }
+
+    Scene* scene = sceneSystem->GetScene(sceneId);
+    if (!scene)
+        return false;
+
+    Unit* source = scene->FindUnit(dragState->unitId);
+    Unit* candidate = scene->FindUnit(unitId);
+
+    if (!source || !candidate || source->GetParent() == candidate)
+        return false;
+
+    for (Unit* ancestor = candidate; ancestor; ancestor = ancestor->GetParent())
+    {
+        if (ancestor == source)
+            return false;
+    }
+
+    return true;
 }
 
 void SceneTreePanel::OnUpdate(float deltaTime)
@@ -141,6 +239,65 @@ void SceneTreePanel::OnUnitRemoved(Scene* scene, Unit* unit)
     isTreeDirty = true;
 }
 
+SceneTreePanel::DropTarget SceneTreePanel::FindDropTarget(const Vector2& position) const
+{
+    if (!scrollView->GetRect().Contains(position))
+        return {};
+
+    const float localY = position.y - virtualContent->GetRect().position.y;
+    if (localY < 0.0f)
+        return {};
+
+    const int32 rowIndex = static_cast<int32>(Math::Floor(localY / SceneTreeRowHeight));
+
+    if (rowIndex >= static_cast<int32>(rows.size()))
+    {
+        return DropTarget{
+            .type = DropTargetType::Root
+        };
+    }
+
+    const TreeRow& row = rows[rowIndex];
+
+    return DropTarget{
+        .type = DropTargetType::Unit,
+        .sceneId = row.sceneId,
+        .unitId = row.unitId
+    };
+}
+
+void SceneTreePanel::ApplyDrop(const DropTarget& target)
+{
+    if (!dragState || target.type == DropTargetType::None)
+        return;
+
+    Scene* scene = sceneSystem->GetScene(dragState->sceneId);
+    if (!scene)
+        return;
+
+    Unit* source = scene->FindUnit(dragState->unitId);
+    if (!source)
+        return;
+
+    Unit* newParent = nullptr;
+
+    if (target.type == DropTargetType::Unit)
+    {
+        if (target.sceneId != dragState->sceneId)
+            return;
+
+        newParent = scene->FindUnit(target.unitId);
+        if (!newParent)
+            return;
+    }
+
+    if (source->GetParent() == newParent)
+        return;
+
+    if (source->SetParent(newParent, ReparentMode::KeepWorld))
+        isTreeDirty = true;
+}
+
 SceneTreeVirtualContent::SceneTreeVirtualContent(SceneTreePanel& owner) : owner(owner) {}
 
 void SceneTreeVirtualContent::Arrange(const Rect& rect)
@@ -176,7 +333,7 @@ void SceneTreeVirtualContent::Arrange(const Rect& rect)
 
     while (static_cast<int32>(nodePool.size()) < requiredNodeCount)
     {
-        nodePool.push_back(AddChild<SceneTreeNode>());
+        nodePool.push_back(AddChild<SceneTreeNode>(owner));
     }
 
     for (int32 poolIndex = 0; poolIndex < requiredNodeCount; ++poolIndex)

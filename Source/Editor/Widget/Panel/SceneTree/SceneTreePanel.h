@@ -1,10 +1,12 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
+#include <Core/Math/Vector2.h>
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/UUID.h>
 #include <Editor/Widget/Panel/Panel.h>
 #include <Engine/Scene/Scene.h>
 
+#include <optional>
 #include <vector>
 
 namespace URay
@@ -22,19 +24,6 @@ class SceneTreePanel final : public Panel
 
     friend class SceneTreeVirtualContent;
 
-public:
-    SceneTreePanel();
-    ~SceneTreePanel() override;
-
-public:
-    void Arrange(const Rect& rect) override;
-
-    EventReply OnPointerDown(const PointerEvent& event) override;
-
-protected:
-    void OnUpdate(float deltaTime) override;
-
-private:
     struct TreeRow
     {
         SceneId sceneId = InvalidSceneId;
@@ -43,12 +32,58 @@ private:
         uint32 depth = 0;
     };
 
+    struct DragState
+    {
+        SceneId sceneId = InvalidSceneId;
+        UUID unitId = {};
+        Vector2 pressPosition = Vector2::Zero;
+        Vector2 pointerPosition = Vector2::Zero;
+        bool isDragging = false;
+    };
+
+    enum class DropTargetType
+    {
+        None,
+        Root,
+        Unit
+    };
+
+    struct DropTarget
+    {
+        DropTargetType type = DropTargetType::None;
+        SceneId sceneId = InvalidSceneId;
+        UUID unitId = {};
+    };
+
+public:
+    SceneTreePanel();
+    ~SceneTreePanel() override;
+
+public:
+    void Arrange(const Rect& rect) override;
+
+    EventReply OnPointerDown(const PointerEvent& event) override;
+    EventReply OnPointerMove(const PointerEvent& event) override;
+    EventReply OnPointerUp(const PointerEvent& event) override;
+    void OnPointerCancel() override;
+
+    void BeginDrag(SceneId sceneId, const UUID& unitId, const Vector2& position);
+
+    bool IsUnitDropTarget(SceneId sceneId, const UUID& unitId) const;
+
+protected:
+    void OnUpdate(float deltaTime) override;
+
 private:
     void UpdateTree();
     void AddSubtree(const Unit& unit, uint32 depth);
 
     void OnUnitAdded(Scene* scene, Unit* unit);
     void OnUnitRemoved(Scene* scene, Unit* unit);
+
+    DropTarget FindDropTarget(const Vector2& position) const;
+
+    void ApplyDrop(const DropTarget& target);
 
 private:
     SceneSystem* sceneSystem = nullptr;
@@ -59,6 +94,8 @@ private:
     std::vector<TreeRow> rows;
 
     bool isTreeDirty = false;
+
+    std::optional<DragState> dragState;
 };
 
 } // namespace URay

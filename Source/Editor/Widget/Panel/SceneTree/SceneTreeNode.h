@@ -5,10 +5,10 @@
 #include <Engine/Scene/Scene.h>
 #include <Engine/UI/Widget/Widget.h>
 
-
 namespace URay
 {
 
+class SceneTreePanel;
 class Unit;
 class HorizontalLayout;
 class Label;
@@ -18,7 +18,7 @@ class SelectionSystem;
 class SceneTreeNode final : public Widget
 {
 public:
-    SceneTreeNode();
+    explicit SceneTreeNode(SceneTreePanel& owner);
 
 public:
     void Bind(SceneId sceneId, const UUID& unitId, StringView name, uint32 depth);
@@ -35,6 +35,8 @@ private:
     Unit* ResolveUnit() const;
 
 private:
+    SceneTreePanel& owner;
+
     SelectionSystem* selectionSystem = nullptr;
 
     SceneId sceneId = InvalidSceneId;

@@ -6,6 +6,7 @@
 #include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
+#include <Editor/Widget/Panel/SceneTree/SceneTreePanel.h>
 #include <Editor/Widget/Popup/UnitPopup.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Engine.h>
@@ -20,7 +21,7 @@
 namespace URay
 {
 
-SceneTreeNode::SceneTreeNode()
+SceneTreeNode::SceneTreeNode(SceneTreePanel& owner) : owner(owner)
 {
     selectionSystem = &gEditor->GetSelectionSystem();
 
@@ -93,10 +94,9 @@ EventReply SceneTreeNode::OnPointerDown(const PointerEvent& event)
             selectionSystem->SetSelection(unit);
         }
 
-        return EventReply{
-            .handled = true,
-            .requestFocus = true
-        };
+        owner.BeginDrag(sceneId, unitId, event.position);
+
+        return {};
     }
 
     return {};
@@ -110,7 +110,11 @@ void SceneTreeNode::OnUpdate(float deltaTime)
 
     Color surfaceColor = EditorStyle::Surface;
 
-    if (selectionSystem->IsSelected(unit))
+    if (owner.IsUnitDropTarget(sceneId, unitId))
+    {
+        surfaceColor = EditorStyle::TextSelection;
+    }
+    else if (selectionSystem->IsSelected(unit))
     {
         surfaceColor = EditorStyle::ControlPressed;
     }
