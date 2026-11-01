@@ -44,7 +44,7 @@ public:
         }
     }
 
-    bool Invoke(std::span<const Variant> args) override
+    bool Invoke(Span<const Variant> args) override
     {
         Owner* target = ResolveTarget();
 
@@ -79,7 +79,7 @@ private:
     }
 
     template <std::size_t... Indices>
-    bool InvokeImpl(Owner* target, std::span<const Variant> args, std::index_sequence<Indices...>)
+    bool InvokeImpl(Owner* target, Span<const Variant> args, std::index_sequence<Indices...>)
     {
         auto values = std::tuple{
             ReadCallableArgument<

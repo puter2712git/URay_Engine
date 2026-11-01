@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <vulkan/vulkan.h>
 
 #include <span>
@@ -10,7 +11,7 @@ namespace URay::Render
 struct FramebufferDesc
 {
     VkRenderPass renderPass = VK_NULL_HANDLE;
-    std::span<const VkImageView> attachments;
+    Span<const VkImageView> attachments;
     VkExtent2D extent = {};
 };
 

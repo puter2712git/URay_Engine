@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Texture/Texture.h>
 
 #include <Core/Math/Color.h>
@@ -55,7 +56,7 @@ struct RenderingInfo
     VkRect2D renderArea = {};
     uint32 layerCount = 1;
 
-    std::span<const RenderingAttachmentInfo> colorAttachments;
+    Span<const RenderingAttachmentInfo> colorAttachments;
     const RenderingAttachmentInfo* depthAttachment = nullptr;
     const RenderingAttachmentInfo* stencilAttachment = nullptr;
 };

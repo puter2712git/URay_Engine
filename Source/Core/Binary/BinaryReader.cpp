@@ -3,7 +3,7 @@
 namespace URay
 {
 
-BinaryReader::BinaryReader(std::span<const uint8> buffer)
+BinaryReader::BinaryReader(Span<const uint8> buffer)
     : buffer(buffer), offset(0) {}
 
 BinaryReader& BinaryReader::operator>>(uint32& value)
@@ -27,7 +27,7 @@ BinaryReader& BinaryReader::operator>>(float& value)
     return *this;
 }
 
-BinaryReader& BinaryReader::ReadBytes(std::span<uint8> bytes)
+BinaryReader& BinaryReader::ReadBytes(Span<uint8> bytes)
 {
     std::copy(buffer.begin() + offset, buffer.begin() + offset + bytes.size(), bytes.begin());
     offset += bytes.size();

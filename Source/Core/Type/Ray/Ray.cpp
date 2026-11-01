@@ -39,7 +39,7 @@ void Ray::UnregisterAll(const void* target)
         });
 }
 
-bool Ray::Emit(std::span<const Variant> args)
+bool Ray::Emit(Span<const Variant> args)
 {
     if (!signature.AcceptsArguments(args))
         return false;

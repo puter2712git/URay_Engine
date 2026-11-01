@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Render/RHI/Barrier/BufferBarrier.h>
 #include <Render/RHI/Barrier/ImageBarrier.h>
 
@@ -10,8 +11,8 @@ namespace URay::Render
 
 struct PipelineBarrierDesc
 {
-    std::span<const BufferBarrierDesc> bufferBarriers = {};
-    std::span<const ImageBarrierDesc> imageBarriers = {};
+    Span<const BufferBarrierDesc> bufferBarriers = {};
+    Span<const ImageBarrierDesc> imageBarriers = {};
 };
 
 } // namespace URay::Render

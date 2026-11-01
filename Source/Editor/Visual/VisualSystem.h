@@ -38,7 +38,7 @@ private:
     SelectionSystem& selectionSystem;
 
     EditorVisualizerRegistry visualizerRegistry;
-    std::unordered_map<Component*, UniquePtr<EditorComponentVisualizer>> visualizers;
+    HashMap<Component*, UniquePtr<EditorComponentVisualizer>> visualizers;
 };
 
 } // namespace URay

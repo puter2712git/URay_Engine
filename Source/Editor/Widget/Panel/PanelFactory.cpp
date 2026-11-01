@@ -8,9 +8,9 @@
 namespace URay
 {
 
-std::unordered_map<String, PanelRegistration>& PanelFactory::GetRegistry()
+HashMap<String, PanelRegistration>& PanelFactory::GetRegistry()
 {
-    static std::unordered_map<String, PanelRegistration> registry;
+    static HashMap<String, PanelRegistration> registry;
     return registry;
 }
 

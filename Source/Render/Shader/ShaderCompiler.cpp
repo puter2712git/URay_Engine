@@ -62,7 +62,7 @@ bool ShaderCompiler::Compile(
     std::wstring_view profile,
     std::wstring_view entryPoint,
     std::wstring_view includePath,
-    std::span<const std::wstring> defines)
+    Span<const std::wstring> defines)
 {
     if (!utils || !compiler || !includeHandler)
     {

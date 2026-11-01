@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Windows.h>
 #undef RegisterClass
 #undef GetObject
@@ -36,7 +37,7 @@ public:
         std::wstring_view profile,
         std::wstring_view entryPoint,
         std::wstring_view includePath,
-        std::span<const std::wstring> defines);
+        Span<const std::wstring> defines);
 
 private:
     Microsoft::WRL::ComPtr<IDxcUtils> utils = nullptr;

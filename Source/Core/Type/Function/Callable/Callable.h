@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Type/Function/FunctionSignature.h>
 
 #include <span>
@@ -24,7 +25,7 @@ public:
 public:
     const FunctionSignature& GetSignature() const { return signature; }
 
-    virtual bool Invoke(std::span<const Variant> args) = 0;
+    virtual bool Invoke(Span<const Variant> args) = 0;
     virtual bool HasTarget(const void* target) const = 0;
 
 private:

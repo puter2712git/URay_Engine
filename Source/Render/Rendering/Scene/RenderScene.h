@@ -61,8 +61,8 @@ private:
     Vector<PointLightObject*> pointLightObjects;
     Vector<SpotLightObject*> spotLightObjects;
 
-    std::unordered_map<const Unit*, Vector<RenderObject*>> objectsByUnit;
-    std::unordered_map<RenderObject*, const Unit*> unitByObject;
+    HashMap<const Unit*, Vector<RenderObject*>> objectsByUnit;
+    HashMap<RenderObject*, const Unit*> unitByObject;
 };
 
 } // namespace URay::Render

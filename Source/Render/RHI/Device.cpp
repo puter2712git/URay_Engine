@@ -293,7 +293,7 @@ Texture* Device::CreateTexture(const TextureDesc& desc)
     return newTexture;
 }
 
-bool Device::UploadTextureData(Texture* texture, std::span<const uint8> pixels)
+bool Device::UploadTextureData(Texture* texture, Span<const uint8> pixels)
 {
     if (!texture)
         return false;
@@ -309,7 +309,7 @@ bool Device::UploadTextureData(Texture* texture, std::span<const uint8> pixels)
     return UploadTextureRegion(texture, region, pixels);
 }
 
-bool Device::UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels)
+bool Device::UploadTextureRegion(Texture* texture, const TextureRegion& region, Span<const uint8> pixels)
 {
     if (!texture || region.IsEmpty())
         return false;

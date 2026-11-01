@@ -29,7 +29,7 @@ public:
 private:
     AssetDatabase& assetDatabase;
 
-    std::unordered_map<const Type*, OpenHandler> handlers;
+    HashMap<const Type*, OpenHandler> handlers;
     Vector<AssetHandle> pendingRequests;
 };
 

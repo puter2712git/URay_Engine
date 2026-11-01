@@ -31,7 +31,7 @@ public:
     static UniquePtr<Panel> Create(const String& typeName, PanelContext& context);
 
 private:
-    static std::unordered_map<String, PanelRegistration>& GetRegistry();
+    static HashMap<String, PanelRegistration>& GetRegistry();
 };
 
 #define URAY_REGISTER_PANEL_WITH_CONTEXT(panel, title, ...)                           \

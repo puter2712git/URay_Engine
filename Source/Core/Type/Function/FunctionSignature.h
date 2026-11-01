@@ -19,7 +19,7 @@ struct FunctionSignature
     Vector<FunctionParameter> parameters;
     std::optional<FunctionParameter> returnValue;
 
-    bool AcceptsArguments(std::span<const Variant> args) const;
+    bool AcceptsArguments(Span<const Variant> args) const;
     bool Accepts(const FunctionSignature& source) const;
 };
 

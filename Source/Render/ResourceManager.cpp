@@ -213,7 +213,7 @@ Texture* ResourceManager::GetOrCreateTexture(URay::Texture* texture)
     if (!newTexture)
         return nullptr;
 
-    std::span<const uint8> pixelData = texture->GetPixels();
+    Span<const uint8> pixelData = texture->GetPixels();
     if (!device.UploadTextureData(newTexture, pixelData))
     {
         delete newTexture;

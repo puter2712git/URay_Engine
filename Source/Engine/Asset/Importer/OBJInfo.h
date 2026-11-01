@@ -53,7 +53,7 @@ struct OBJInfo
     Vector<Vector3> normals;
     Vector<Vector2> uvs;
 
-    std::unordered_map<String, Vector<Face>> mtlTofaces;
+    HashMap<String, Vector<Face>> mtlTofaces;
 };
 
 struct MTLData

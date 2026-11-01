@@ -1,4 +1,5 @@
 #include "FontData.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Binary/BinaryReader.h>
 #include <Core/Binary/BinaryWriter.h>
@@ -10,7 +11,7 @@ bool FontData::Serialize(BinaryWriter& writer) const
 {
     const uint64 dataSize = static_cast<uint64>(bytes.size());
     writer << dataSize;
-    writer.WriteBytes(std::span<const uint8>(bytes));
+    writer.WriteBytes(Span<const uint8>(bytes));
 
     return true;
 }
@@ -21,7 +22,7 @@ bool FontData::Deserialize(BinaryReader& reader)
     reader >> dataSize;
 
     bytes.resize(static_cast<size_t>(dataSize));
-    reader.ReadBytes(std::span<uint8>(bytes));
+    reader.ReadBytes(Span<uint8>(bytes));
 
     return true;
 }

@@ -75,7 +75,7 @@ private:
     UniquePtr<UIInputRouter> inputRouter = nullptr;
 
     UniquePtr<WindowUIContext> mainContext = nullptr;
-    std::unordered_map<Window*, UniquePtr<WindowUIContext>> windowContexts;
+    HashMap<Window*, UniquePtr<WindowUIContext>> windowContexts;
 
     Window* activeInputWindow = nullptr;
 };

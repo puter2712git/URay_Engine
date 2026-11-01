@@ -33,7 +33,7 @@ public:
 private:
     WindowInputState mainWindowState;
 
-    std::unordered_map<Window*, UniquePtr<WindowInputState>> windowStates;
+    HashMap<Window*, UniquePtr<WindowInputState>> windowStates;
 };
 
 } // namespace URay

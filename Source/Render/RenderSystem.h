@@ -63,7 +63,7 @@ private:
     UniquePtr<RenderPipeline> pipeline = nullptr;
     UniquePtr<SceneSystem> sceneSystem = nullptr;
 
-    std::unordered_map<Window*, UniquePtr<WindowRenderContext>> windowContexts;
+    HashMap<Window*, UniquePtr<WindowRenderContext>> windowContexts;
 };
 
 } // namespace URay::Render

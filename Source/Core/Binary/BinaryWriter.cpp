@@ -24,7 +24,7 @@ BinaryWriter& BinaryWriter::operator<<(float value)
     return *this;
 }
 
-BinaryWriter& BinaryWriter::WriteBytes(std::span<const uint8> bytes)
+BinaryWriter& BinaryWriter::WriteBytes(Span<const uint8> bytes)
 {
     buffer.insert(buffer.end(), bytes.begin(), bytes.end());
     return *this;

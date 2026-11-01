@@ -3,8 +3,10 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -29,6 +31,12 @@ using Array = std::array<T, N>;
 
 template <typename T>
 using Vector = std::vector<T>;
+
+template <typename T>
+using Span = std::span<T>;
+
+template <typename K, typename V, typename Hash = std::hash<K>>
+using HashMap = std::unordered_map<K, V, Hash>;
 
 template <typename T>
 using UniquePtr = std::unique_ptr<T>;

@@ -19,7 +19,7 @@ class VirtualFileSystem;
 struct ImportedMaterials
 {
     Vector<AssetHandle> handles;
-    std::unordered_map<String, uint32> indicesByName;
+    HashMap<String, uint32> indicesByName;
 };
 
 class OBJImporter : public Importer
@@ -48,7 +48,7 @@ private:
         const OBJ::OBJInfo& objInfo,
         const OBJ::OBJIndex& objIndex,
         Vector<Render::VertexPNT>& verticesRef,
-        std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const;
+        HashMap<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const;
 };
 
 } // namespace URay

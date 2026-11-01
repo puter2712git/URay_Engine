@@ -1,7 +1,6 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
-#include <memory>
+#include <Core/Type/TypeAlias.h>
 
 namespace URay
 {

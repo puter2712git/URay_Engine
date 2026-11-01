@@ -1,4 +1,5 @@
 #include "TextureData.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Binary/BinaryReader.h>
 #include <Core/Binary/BinaryWriter.h>
@@ -14,7 +15,7 @@ bool TextureData::Serialize(BinaryWriter& writer) const
 
     const uint64 pixelDataSize = static_cast<uint64>(pixels.size());
     writer << pixelDataSize;
-    writer.WriteBytes(std::span<const uint8>(pixels));
+    writer.WriteBytes(Span<const uint8>(pixels));
 
     return true;
 }
@@ -32,7 +33,7 @@ bool TextureData::Deserialize(BinaryReader& reader)
     reader >> pixelDataSize;
 
     pixels.resize(static_cast<size_t>(pixelDataSize));
-    reader.ReadBytes(std::span<uint8>(pixels));
+    reader.ReadBytes(Span<uint8>(pixels));
 
     return true;
 }

@@ -145,7 +145,7 @@ bool OBJImporter::ImportMesh(
     Vector<uint32> indices;
     Vector<MeshSection> sections;
 
-    std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash> vertexMap;
+    HashMap<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash> vertexMap;
 
     for (const auto& [mtlName, faces] : objInfo.mtlTofaces)
     {
@@ -393,7 +393,7 @@ uint32 OBJImporter::GetOrCreateVertex(
     const OBJ::OBJInfo& objInfo,
     const OBJ::OBJIndex& objIndex,
     Vector<Render::VertexPNT>& verticesRef,
-    std::unordered_map<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const
+    HashMap<OBJ::OBJIndex, uint32, OBJ::OBJIndexHash>& vertexMap) const
 {
     const auto it = vertexMap.find(objIndex);
     if (it != vertexMap.end())

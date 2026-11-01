@@ -87,8 +87,8 @@ public:
     MeshBuffer* CreateMeshBuffer(Buffer* vertexBuffer, Buffer* indexBuffer);
 
     Texture* CreateTexture(const TextureDesc& desc);
-    bool UploadTextureData(Texture* texture, std::span<const uint8> pixels);
-    bool UploadTextureRegion(Texture* texture, const TextureRegion& region, std::span<const uint8> pixels);
+    bool UploadTextureData(Texture* texture, Span<const uint8> pixels);
+    bool UploadTextureRegion(Texture* texture, const TextureRegion& region, Span<const uint8> pixels);
     TextureView* CreateTextureView(Texture* texture, const TextureViewDesc& viewDesc);
     Sampler* CreateSampler(const SamplerDesc& samplerDesc);
 

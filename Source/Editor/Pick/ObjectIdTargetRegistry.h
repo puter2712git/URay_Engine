@@ -38,7 +38,7 @@ private:
 
 private:
     Render::SceneSystem& sceneSystem;
-    std::unordered_map<uint32, Unit*> objectTargets;
+    HashMap<uint32, Unit*> objectTargets;
 };
 
 } // namespace URay

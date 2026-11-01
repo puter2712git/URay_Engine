@@ -67,7 +67,7 @@ void UIPass::BeginSwapChainPass(const RenderPassContext& context)
     };
 
     context.commandBuffer.PipelineBarrier(PipelineBarrierDesc{
-        .imageBarriers = std::span(&toColorAttachment, 1) });
+        .imageBarriers = Span<const ImageBarrierDesc>(&toColorAttachment, 1) });
 
     RenderingAttachmentInfo colorAttachment = {};
     colorAttachment.imageView = context.swapChainImageView;
@@ -82,7 +82,7 @@ void UIPass::BeginSwapChainPass(const RenderPassContext& context)
     const RenderingInfo renderingInfo = {
         .renderArea = { .offset = { 0, 0 }, .extent = context.swapChainExtent },
         .layerCount = 1,
-        .colorAttachments = std::span(&colorAttachment, 1)
+        .colorAttachments = Span<RenderingAttachmentInfo>(&colorAttachment, 1)
     };
 
     context.commandBuffer.BeginRendering(renderingInfo);
@@ -124,7 +124,7 @@ void UIPass::EndSwapChainPass(const RenderPassContext& context)
         .dstAccess = VK_ACCESS_2_NONE,
     };
     context.commandBuffer.PipelineBarrier(PipelineBarrierDesc{
-        .imageBarriers = std::span(&toPresent, 1) });
+        .imageBarriers = Span<const ImageBarrierDesc>(&toPresent, 1) });
 }
 
 void UIPass::ExecuteCustomUI(const RenderPassContext& context, const Vector<DrawCommand>& drawCmds)

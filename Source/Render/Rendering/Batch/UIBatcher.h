@@ -80,7 +80,7 @@ private:
     DescriptorSetLayout* textureSetLayout = nullptr;
     Sampler* sampler = nullptr;
 
-    std::unordered_map<TextureSamplerKey, UniquePtr<DescriptorSet>, TextureSamplerKeyHash> descriptorSets;
+    HashMap<TextureSamplerKey, UniquePtr<DescriptorSet>, TextureSamplerKeyHash> descriptorSets;
 
     TextureView* whiteTextureView = nullptr;
 };

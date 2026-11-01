@@ -36,15 +36,15 @@ public:
         return it->second();
     }
 
-    static const std::unordered_map<String, ConstructorFunc>& GetRegisteredComponents()
+    static const HashMap<String, ConstructorFunc>& GetRegisteredComponents()
     {
         return GetRegistry();
     }
 
 private:
-    static std::unordered_map<String, ConstructorFunc>& GetRegistry()
+    static HashMap<String, ConstructorFunc>& GetRegistry()
     {
-        static std::unordered_map<String, ConstructorFunc> registry;
+        static HashMap<String, ConstructorFunc> registry;
         return registry;
     }
 };

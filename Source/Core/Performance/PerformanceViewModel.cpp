@@ -124,7 +124,7 @@ void PerformanceViewModel::RebuildStatistics(ProfileChannel& channel)
         double latestMs = 0.0;
     };
 
-    std::unordered_map<String, ScopeValues> valuesByName;
+    HashMap<String, ScopeValues> valuesByName;
 
     for (const ProfileFrame& frame : channel.frames)
     {

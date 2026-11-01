@@ -23,7 +23,7 @@ public:
     bool Register(UniquePtr<Callable> callback);
     void UnregisterAll(const void* target);
 
-    bool Emit(std::span<const Variant> args);
+    bool Emit(Span<const Variant> args);
 
     const FunctionSignature& GetSignature() const { return signature; }
 

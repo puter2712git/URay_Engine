@@ -92,21 +92,21 @@ private:
     UniquePtr<FontSystem> fontSystem = nullptr;
     UniquePtr<ShadowSystem> shadowSystem = nullptr;
 
-    std::unordered_map<URay::Mesh*, MeshBuffer*> meshBuffers;
-    std::unordered_map<URay::SkinnedMesh*, MeshBuffer*> skinnedMeshBuffers;
+    HashMap<URay::Mesh*, MeshBuffer*> meshBuffers;
+    HashMap<URay::SkinnedMesh*, MeshBuffer*> skinnedMeshBuffers;
 
-    std::unordered_map<URay::Texture*, Texture*> textures;
-    std::unordered_map<TextureViewKey, TextureView*, TextureViewKeyHash> textureViews;
-    std::unordered_map<SamplerDesc, UniquePtr<Sampler>, SamplerDescHash> textureSamplers;
+    HashMap<URay::Texture*, Texture*> textures;
+    HashMap<TextureViewKey, TextureView*, TextureViewKeyHash> textureViews;
+    HashMap<SamplerDesc, UniquePtr<Sampler>, SamplerDescHash> textureSamplers;
 
-    std::unordered_map<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
+    HashMap<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 
-    std::unordered_map<DescriptorSetLayoutDesc, DescriptorSetLayout*, DescriptorSetLayoutDescHash> descriptorSetLayouts;
+    HashMap<DescriptorSetLayoutDesc, DescriptorSetLayout*, DescriptorSetLayoutDescHash> descriptorSetLayouts;
 
-    std::unordered_map<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
+    HashMap<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
 
-    std::unordered_map<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
-    std::unordered_map<ComputePipelineStateDesc, ComputePipelineState*, ComputePipelineStateDescHash> computePipelines;
+    HashMap<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
+    HashMap<ComputePipelineStateDesc, ComputePipelineState*, ComputePipelineStateDescHash> computePipelines;
 };
 
 } // namespace URay::Render

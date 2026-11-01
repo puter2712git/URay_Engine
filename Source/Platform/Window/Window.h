@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <Core/Input/InputEvent.h>
 #include <Core/Math/Extent2D.h>
 #include <Core/Math/Vector2.h>
@@ -61,7 +62,7 @@ private:
 private:
     GLFWwindow* glfwWindow = nullptr;
 
-    std::unordered_map<CursorType, GLFWcursor*> cursors;
+    HashMap<CursorType, GLFWcursor*> cursors;
 };
 
 } // namespace URay

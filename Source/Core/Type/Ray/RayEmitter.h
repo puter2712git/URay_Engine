@@ -76,7 +76,7 @@ public:
     }
 
 private:
-    std::unordered_map<String, Ray> rays;
+    HashMap<String, Ray> rays;
 };
 
 #define URAY_DECLARE_RAY(name, ...) \

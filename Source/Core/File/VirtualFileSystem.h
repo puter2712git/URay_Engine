@@ -42,7 +42,7 @@ public:
     std::filesystem::path ResolveToPhysicalPath(const VirtualPath& virtualPath) const;
 
 private:
-    std::unordered_map<String, std::filesystem::path> mountMap;
+    HashMap<String, std::filesystem::path> mountMap;
 };
 
 } // namespace URay

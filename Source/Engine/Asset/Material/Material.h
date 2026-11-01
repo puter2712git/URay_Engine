@@ -66,7 +66,7 @@ protected:
 
     std::map<uint32, Array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
 
-    std::unordered_map<String, MaterialParameter> parameters;
+    HashMap<String, MaterialParameter> parameters;
 
     uint64 descriptorRevision = 1;
     Array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};

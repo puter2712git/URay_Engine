@@ -194,7 +194,7 @@ void CommandBuffer::PushConstants(
     uint32 size,
     const void* data)
 {
-    const std::span<const PushConstantRange> pushConstantRanges = layout.GetPushConstantRanges();
+    const Span<const PushConstantRange> pushConstantRanges = layout.GetPushConstantRanges();
 
     if (rangeIndex >= pushConstantRanges.size())
         return;

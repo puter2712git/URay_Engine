@@ -55,7 +55,7 @@ public:
     void InsertOrReplace(UniquePtr<Asset> asset);
 
 private:
-    std::unordered_map<AssetHandle, UniquePtr<Asset>, AssetHandleHash> assets;
+    HashMap<AssetHandle, UniquePtr<Asset>, AssetHandleHash> assets;
 };
 
 } // namespace URay

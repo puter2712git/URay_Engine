@@ -2,9 +2,6 @@
 
 #include <Core/Type/TypeAlias.h>
 
-#include <span>
-#include <vector>
-
 namespace URay
 {
 
@@ -15,7 +12,7 @@ public:
     BinaryWriter& operator<<(uint64 value);
     BinaryWriter& operator<<(float value);
 
-    BinaryWriter& WriteBytes(std::span<const uint8> bytes);
+    BinaryWriter& WriteBytes(Span<const uint8> bytes);
 
     const Vector<uint8>& GetBuffer() const { return buffer; }
 

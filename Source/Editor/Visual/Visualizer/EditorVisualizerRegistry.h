@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    std::unordered_map<const Type*, Constructor> constructors;
+    HashMap<const Type*, Constructor> constructors;
 };
 
 } // namespace URay

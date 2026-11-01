@@ -86,7 +86,7 @@ private:
     uint32 padding = 1;
 
     Vector<uint8> pixels;
-    std::unordered_map<char32_t, Glyph> glyphs;
+    HashMap<char32_t, Glyph> glyphs;
 
     uint32 cursorX = 0;
     uint32 cursorY = 0;

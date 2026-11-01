@@ -25,7 +25,7 @@ public:
 public:
     VkPipelineLayout GetHandle() const { return handle; }
 
-    std::span<const PushConstantRange> GetPushConstantRanges() const { return pushConstantRanges; }
+    Span<const PushConstantRange> GetPushConstantRanges() const { return pushConstantRanges; }
     bool SupportsPushConstants() const { return !pushConstantRanges.empty(); }
     bool HasDescriptorSet(uint32 set) const { return set < descriptorSetCount; }
 

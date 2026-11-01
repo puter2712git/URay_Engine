@@ -1,11 +1,12 @@
 #include "FunctionSignature.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Type/Variant/Variant.h>
 
 namespace URay
 {
 
-bool FunctionSignature::AcceptsArguments(std::span<const Variant> args) const
+bool FunctionSignature::AcceptsArguments(Span<const Variant> args) const
 {
     if (parameters.size() != args.size())
         return false;

@@ -27,7 +27,7 @@ public:
     void Cancel(TaskId id);
 
 private:
-    std::unordered_map<TaskId, Task> tasks;
+    HashMap<TaskId, Task> tasks;
 
     TaskId nextId = 0;
 };

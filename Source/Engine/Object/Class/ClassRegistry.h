@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Type/TypeAlias.h>
 #include <unordered_map>
 
 namespace URay
@@ -21,7 +22,7 @@ public:
     Class* Find(const Type& type) const;
 
 private:
-    std::unordered_map<const Type*, Class*> classes;
+    HashMap<const Type*, Class*> classes;
 };
 
 } // namespace URay

@@ -101,7 +101,7 @@ YAML::Node Scene::Serialize() const
     YAML::Node sceneNode;
     sceneNode["Version"] = 5;
 
-    std::unordered_map<const Unit*, uint32> siblingIndices;
+    HashMap<const Unit*, uint32> siblingIndices;
 
     for (uint32 i = 0; i < rootUnits.size(); ++i)
     {
@@ -157,8 +157,8 @@ void Scene::Deserialize(const YAML::Node& node)
         UUID parentId = {};
     };
 
-    std::unordered_map<UUID, Unit*, UUIDHash> unitsById;
-    std::unordered_map<Unit*, uint32> siblingIndices;
+    HashMap<UUID, Unit*, UUIDHash> unitsById;
+    HashMap<Unit*, uint32> siblingIndices;
     Vector<ParentLink> pendingParentLinks;
 
     for (const YAML::Node& unitNode : unitNodes)

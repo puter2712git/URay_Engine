@@ -45,7 +45,7 @@ private:
     void OnEngineSceneComponentDestroyed(Scene* scene, Unit* unit, Component* component);
 
 private:
-    std::unordered_map<Scene*, UniquePtr<RenderScene>> scenes;
+    HashMap<Scene*, UniquePtr<RenderScene>> scenes;
 
     uint32 nextObjectId = 1;
 };

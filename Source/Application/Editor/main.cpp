@@ -3,7 +3,6 @@
 #include <Application/CommandLine.h>
 
 #include <iostream>
-#include <string>
 
 using namespace URay;
 
