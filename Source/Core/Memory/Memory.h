@@ -1,15 +1,24 @@
 #pragma once
 
-#include <cstddef>
+#include <utility>
 
 namespace URay
 {
 
-class Memory
+template <typename T, typename... Args>
+T* MemNew(Args&&... args)
 {
-public:
-    static void* Allocate(std::size_t size);
-    static void Free(void* ptr);
-};
+    T* ptr = new T(std::forward<Args>(args)...);
+    return ptr;
+}
+
+template <typename T>
+void MemDelete(T* ptr) noexcept
+{
+    if (!ptr)
+        return;
+
+    delete ptr;
+}
 
 } // namespace URay
