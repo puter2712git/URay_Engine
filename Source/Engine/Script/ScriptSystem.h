@@ -5,7 +5,7 @@
 namespace URay
 {
 
-class DotNetRuntime;
+class ManagedScriptBridge;
 class VirtualPath;
 
 class ScriptSystem
@@ -23,16 +23,7 @@ public:
     int32 UnloadScript(int32 handle);
 
 private:
-    using CreateScriptFn = int32(__cdecl*)(const char*);
-    using UpdateScriptFn = int32(__cdecl*)(int32, float);
-    using UnloadScriptFn = int32(__cdecl*)(int32);
-
-    CreateScriptFn createScript = nullptr;
-    UpdateScriptFn updateScript = nullptr;
-    UnloadScriptFn unloadScript = nullptr;
-
-private:
-    UniquePtr<DotNetRuntime> runtime = nullptr;
+    UniquePtr<ManagedScriptBridge> bridge = nullptr;
 };
 
 } // namespace URay
