@@ -148,12 +148,6 @@ void Engine::Finalize()
             throw std::runtime_error("Failed to destroy an additional window during engine finalization.");
     }
 
-    if (scriptSystem)
-    {
-        scriptSystem->Finalize();
-        scriptSystem.reset();
-    }
-
     if (uiSystem)
     {
         uiSystem->Finalize();
@@ -176,6 +170,12 @@ void Engine::Finalize()
     {
         assetSystem->Finalize();
         assetSystem.reset();
+    }
+
+    if (scriptSystem)
+    {
+        scriptSystem->Finalize();
+        scriptSystem.reset();
     }
 
     if (objectSystem)

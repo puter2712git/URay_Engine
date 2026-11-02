@@ -18,6 +18,19 @@ public:
     bool Initialize(const VirtualPath& enginePath);
     void Finalize();
 
+    int32 CreateHelloScript();
+    int32 UpdateScript(int32 handle, float deltaTime);
+    int32 UnloadScript(int32 handle);
+
+private:
+    using CreateScriptFn = int32(__cdecl*)();
+    using UpdateScriptFn = int32(__cdecl*)(int32, float);
+    using UnloadScriptFn = int32(__cdecl*)(int32);
+
+    CreateScriptFn createScript = nullptr;
+    UpdateScriptFn updateScript = nullptr;
+    UnloadScriptFn unloadScript = nullptr;
+
 private:
     UniquePtr<DotNetRuntime> runtime = nullptr;
 };

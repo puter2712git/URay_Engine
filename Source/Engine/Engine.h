@@ -70,6 +70,7 @@ public:
     ObjectSystem& GetObjectSystem() const { return *objectSystem; }
     AssetSystem& GetAssetSystem() const { return *assetSystem; }
     SceneSystem& GetSceneSystem() const { return *sceneSystem; }
+    ScriptSystem& GetScriptSystem() const { return *scriptSystem; }
     Render::RenderSystem& GetRenderSystem() const { return *renderSystem; }
 
 private:
@@ -91,8 +92,9 @@ private:
     UniquePtr<ObjectSystem> objectSystem = nullptr;
     UniquePtr<AssetSystem> assetSystem = nullptr;
     UniquePtr<SceneSystem> sceneSystem = nullptr;
-    UniquePtr<Render::RenderSystem> renderSystem = nullptr;
     UniquePtr<ScriptSystem> scriptSystem = nullptr;
+
+    UniquePtr<Render::RenderSystem> renderSystem = nullptr;
 
     Vector<Window*> additionalWindows;
 };
