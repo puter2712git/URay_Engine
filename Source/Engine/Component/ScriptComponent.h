@@ -15,7 +15,12 @@ protected:
     void OnUpdate(float deltaTime) override;
     void OnUnload() override;
 
+    const String& GetScriptTypeName() const;
+    void SetScriptTypeName(const String& typeName);
+
 private:
+    String scriptTypeName;
+
     int32 instanceHandle = 0;
     bool updateFailed = false;
 };

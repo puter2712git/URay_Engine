@@ -12,17 +12,27 @@ URAY_REGISTER_COMPONENT(ScriptComponent)
 
 void ScriptComponent::RegisterClass()
 {
+    StaticClass()->AddProperty({ .type = PropertyType::String,
+                                 .name = "Script Type",
+                                 .offset = offsetof(ScriptComponent, scriptTypeName),
+                                 .size = sizeof(String) });
 }
 
 void ScriptComponent::OnLoad()
 {
     updateFailed = false;
 
-    instanceHandle = gEngine->GetScriptSystem().CreateScript("URay.HelloScript");
+    if (scriptTypeName.empty())
+    {
+        URAY_LOG("[ScriptComponent] Script type is not set.");
+        return;
+    }
+
+    instanceHandle = gEngine->GetScriptSystem().CreateScript(scriptTypeName.c_str());
 
     if (instanceHandle == 0)
     {
-        URAY_LOG("[ScriptComponent] Failed to create HelloScript.");
+        URAY_LOG("[ScriptComponent] Failed to create script: %s", scriptTypeName.c_str());
     }
 }
 
@@ -54,6 +64,16 @@ void ScriptComponent::OnUnload()
     {
         URAY_LOG("[ScriptComponent] Script unload failed: %d", result);
     }
+}
+
+const String& ScriptComponent::GetScriptTypeName() const
+{
+    return scriptTypeName;
+}
+
+void ScriptComponent::SetScriptTypeName(const String& typeName)
+{
+    scriptTypeName = typeName;
 }
 
 } // namespace URay
