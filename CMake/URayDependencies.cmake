@@ -54,6 +54,37 @@ target_link_libraries(URay_ThirdParty PRIVATE
     Vulkan::Vulkan
 )
 
+set(URAY_DOTNET_HOST_NATIVE_DIR
+    "C:/Program Files/dotnet/packs/Microsoft.NETCore.App.Host.win-x64/10.0.12/runtimes/win-x64/native"
+    CACHE PATH "Directory containing the .NET native hosting files"
+)
+
+if(NOT EXISTS "${URAY_DOTNET_HOST_NATIVE_DIR}/nethost.h"
+   OR NOT EXISTS "${URAY_DOTNET_HOST_NATIVE_DIR}/hostfxr.h"
+   OR NOT EXISTS "${URAY_DOTNET_HOST_NATIVE_DIR}/coreclr_delegates.h"
+   OR NOT EXISTS "${URAY_DOTNET_HOST_NATIVE_DIR}/nethost.lib"
+   OR NOT EXISTS "${URAY_DOTNET_HOST_NATIVE_DIR}/nethost.dll")
+    message(FATAL_ERROR
+        "Required .NET hosting files were not found in: "
+        "${URAY_DOTNET_HOST_NATIVE_DIR}"
+    )
+endif()
+
+target_include_directories(URay_Engine PRIVATE
+    "${URAY_DOTNET_HOST_NATIVE_DIR}"
+)
+
+target_link_libraries(URay_Engine PRIVATE
+    "${URAY_DOTNET_HOST_NATIVE_DIR}/nethost.lib"
+)
+
+add_custom_command(TARGET URay_Engine POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${URAY_DOTNET_HOST_NATIVE_DIR}/nethost.dll"
+        "$<TARGET_FILE_DIR:URay_Engine>/nethost.dll"
+    VERBATIM
+)
+
 add_custom_command(TARGET URay_Engine POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${uray_dxc_SOURCE_DIR}/bin/x64/dxcompiler.dll"

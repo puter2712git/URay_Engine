@@ -15,6 +15,7 @@
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Object/ObjectSystem.h>
 #include <Engine/Scene/SceneSystem.h>
+#include <Engine/Script/ScriptSystem.h>
 #include <Engine/UI/UISystem.h>
 #include <Platform/Input/GLFWInputAdapter.h>
 #include <Platform/Window/Window.h>
@@ -121,19 +122,13 @@ bool Engine::Initialize(
         }
     }
 
-    Variant keyVariant(KeyCode::A);
-
-    assert(keyVariant.GetType() == &TypeOf<KeyCode>());
-
-    const KeyCode* key = keyVariant.TryGet<KeyCode>();
-
-    assert(key != nullptr);
-    assert(*key == KeyCode::A);
-
-    const auto parameter = MakeFunctionParameter<KeyCode>();
-
-    assert(parameter.has_value());
-    assert(parameter->Accepts(keyVariant));
+    scriptSystem = MakeUnique<ScriptSystem>();
+    if (!scriptSystem->Initialize(enginePath))
+    {
+        URAY_LOG("[Engine] Failed to initialize script system.");
+        Finalize();
+        return false;
+    }
 
     return true;
 }
@@ -151,6 +146,12 @@ void Engine::Finalize()
 
         if (!DestroyAdditionalWindow(*window))
             throw std::runtime_error("Failed to destroy an additional window during engine finalization.");
+    }
+
+    if (scriptSystem)
+    {
+        scriptSystem->Finalize();
+        scriptSystem.reset();
     }
 
     if (uiSystem)

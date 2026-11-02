@@ -1,7 +1,7 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/Performance/ScopeTimer.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <functional>
 #include <vector>
@@ -22,6 +22,7 @@ class FileLogSink;
 class ObjectSystem;
 class AssetSystem;
 class SceneSystem;
+class ScriptSystem;
 class Window;
 struct WindowDesc;
 
@@ -91,6 +92,7 @@ private:
     UniquePtr<AssetSystem> assetSystem = nullptr;
     UniquePtr<SceneSystem> sceneSystem = nullptr;
     UniquePtr<Render::RenderSystem> renderSystem = nullptr;
+    UniquePtr<ScriptSystem> scriptSystem = nullptr;
 
     Vector<Window*> additionalWindows;
 };
