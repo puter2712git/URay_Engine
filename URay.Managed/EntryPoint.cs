@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace URay;
 
@@ -77,4 +78,32 @@ public static unsafe class EntryPoint
         }
     }
 
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int EnumerateScriptTypes(
+        delegate* unmanaged[Cdecl]<void*, byte*, int> callback,
+        void* context)
+    {
+        if (callback == null || context == null)
+            return -1;
+
+        try
+        {
+            foreach (string typeName in ScriptRuntime.DiscoverScriptTypes())
+            {
+                byte[] utf8 = Encoding.UTF8.GetBytes(typeName + "\0");
+
+                fixed (byte* namePtr = utf8)
+                {
+                    if (callback(context, namePtr) != 0)
+                        return -2;
+                }
+            }
+
+            return 0;
+        }
+        catch (Exception)
+        {
+            return -3;
+        }
+    }
 }

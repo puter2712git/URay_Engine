@@ -22,16 +22,24 @@ public:
     int32 UpdateScript(int32 handle, float deltaTime);
     int32 UnloadScript(int32 handle);
 
-private:
-    UniquePtr<DotNetRuntime> runtime;
+    bool GetScriptTypes(Vector<String>& outTypes);
 
+private:
     using CreateScriptFn = int32(__cdecl*)(const char*);
     using UpdateScriptFn = int32(__cdecl*)(int32, float);
     using UnloadScriptFn = int32(__cdecl*)(int32);
 
+    using CollectScriptTypeFn = int32(__cdecl*)(void*, const char*);
+    using EnumerateScriptTypesFn = int32(__cdecl*)(CollectScriptTypeFn, void*);
+
+private:
+    UniquePtr<DotNetRuntime> runtime;
+
     CreateScriptFn createScript = nullptr;
     UpdateScriptFn updateScript = nullptr;
     UnloadScriptFn unloadScript = nullptr;
+
+    EnumerateScriptTypesFn enumerateScriptTypes = nullptr;
 };
 
 } // namespace URay

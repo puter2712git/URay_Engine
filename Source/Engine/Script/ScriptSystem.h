@@ -22,8 +22,12 @@ public:
     int32 UpdateScript(int32 handle, float deltaTime);
     int32 UnloadScript(int32 handle);
 
+    const Vector<String>& GetScriptTypes() const;
+
 private:
     UniquePtr<ManagedScriptBridge> bridge = nullptr;
+
+    Vector<String> scriptTypes;
 };
 
 } // namespace URay

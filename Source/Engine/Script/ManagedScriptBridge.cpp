@@ -23,6 +23,23 @@ void __cdecl NativeLog(const char* message) noexcept
     {
     }
 }
+
+int32 __cdecl CollectScriptType(void* context, const char* typeName) noexcept
+{
+    if (!context || !typeName)
+        return -1;
+
+    try
+    {
+        auto& types = *static_cast<Vector<String>*>(context);
+        types.emplace_back(typeName);
+        return 0;
+    }
+    catch (...)
+    {
+        return -1;
+    }
+}
 } // namespace
 
 ManagedScriptBridge::ManagedScriptBridge() = default;
@@ -68,8 +85,9 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath)
     createScript = runtime->GetFunction<CreateScriptFn>(assemblyPath, typeName, L"CreateScript");
     updateScript = runtime->GetFunction<UpdateScriptFn>(assemblyPath, typeName, L"UpdateScript");
     unloadScript = runtime->GetFunction<UnloadScriptFn>(assemblyPath, typeName, L"UnloadScript");
+    enumerateScriptTypes = runtime->GetFunction<EnumerateScriptTypesFn>(assemblyPath, typeName, L"EnumerateScriptTypes");
 
-    if (!createScript || !updateScript || !unloadScript)
+    if (!createScript || !updateScript || !unloadScript || !enumerateScriptTypes)
     {
         URAY_LOG("[ManagedScriptBridge] A managed script entry point were not found.");
         Finalize();
@@ -84,6 +102,7 @@ void ManagedScriptBridge::Finalize()
     createScript = nullptr;
     updateScript = nullptr;
     unloadScript = nullptr;
+    enumerateScriptTypes = nullptr;
 
     if (runtime)
     {
@@ -114,6 +133,25 @@ int32 ManagedScriptBridge::UnloadScript(int32 handle)
         return -1;
 
     return unloadScript(handle);
+}
+
+bool ManagedScriptBridge::GetScriptTypes(Vector<String>& outTypes)
+{
+    if (!enumerateScriptTypes)
+        return false;
+
+    Vector<String> discoveredTypes;
+
+    const int32 result = enumerateScriptTypes(&CollectScriptType, &discoveredTypes);
+
+    if (result != 0)
+    {
+        URAY_LOG("[ManagedScriptBridge] Script type discovery failed: %d", result);
+        return false;
+    }
+
+    outTypes = std::move(discoveredTypes);
+    return true;
 }
 
 } // namespace URay

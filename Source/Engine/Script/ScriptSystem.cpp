@@ -38,11 +38,25 @@ bool ScriptSystem::Initialize(const VirtualPath& enginePath)
         return false;
     }
 
+    if (!bridge->GetScriptTypes(scriptTypes))
+    {
+        URAY_LOG("[ScriptSystem] Failed to discover script types.");
+        Finalize();
+        return false;
+    }
+
+    for (const String& typeName : scriptTypes)
+    {
+        URAY_LOG("[ScriptSystem] Discovered script: %s", typeName.c_str());
+    }
+
     return true;
 }
 
 void ScriptSystem::Finalize()
 {
+    scriptTypes.clear();
+
     if (bridge)
     {
         bridge->Finalize();
@@ -63,6 +77,11 @@ int32 ScriptSystem::UpdateScript(int32 handle, float deltaTime)
 int32 ScriptSystem::UnloadScript(int32 handle)
 {
     return bridge ? bridge->UnloadScript(handle) : -1;
+}
+
+const Vector<String>& ScriptSystem::GetScriptTypes() const
+{
+    return scriptTypes;
 }
 
 } // namespace URay
