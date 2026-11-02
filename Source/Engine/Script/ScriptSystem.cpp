@@ -65,7 +65,7 @@ bool ScriptSystem::Initialize(const VirtualPath& enginePath)
     const VirtualPath assemblyPath = enginePath.Join("URay.Managed.dll");
     constexpr auto typeName = L"URay.EntryPoint, URay.Managed";
 
-    createScript = runtime->GetFunction<CreateScriptFn>(assemblyPath, typeName, L"CreateHelloScript");
+    createScript = runtime->GetFunction<CreateScriptFn>(assemblyPath, typeName, L"CreateScript");
     updateScript = runtime->GetFunction<UpdateScriptFn>(assemblyPath, typeName, L"UpdateScript");
     unloadScript = runtime->GetFunction<UnloadScriptFn>(assemblyPath, typeName, L"UnloadScript");
 
@@ -92,12 +92,12 @@ void ScriptSystem::Finalize()
     }
 }
 
-int32 ScriptSystem::CreateHelloScript()
+int32 ScriptSystem::CreateScript(const char* typeName)
 {
-    if (!createScript)
+    if (!createScript || !typeName || !*typeName)
         return 0;
 
-    return createScript();
+    return createScript(typeName);
 }
 
 int32 ScriptSystem::UpdateScript(int32 handle, float deltaTime)

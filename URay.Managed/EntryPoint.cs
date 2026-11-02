@@ -17,7 +17,11 @@ public static unsafe class EntryPoint
 
             Debug.Initialize(api->Log);
 
-            Debug.Log("Hello from C#");
+            foreach (string typeName in ScriptRuntime.DiscoverScriptTypes())
+            {
+                Debug.Log($"Discovered script: {typeName}");
+            }
+
             return 0;
         }
         catch (Exception)
@@ -27,11 +31,19 @@ public static unsafe class EntryPoint
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static int CreateHelloScript()
+    public static int CreateScript(byte* typeName)
     {
         try
         {
-            return ScriptRuntime.CreateHelloScript();
+            if (typeName == null)
+                return 0;
+
+            string? name = Marshal.PtrToStringUTF8((nint)typeName);
+
+            if (string.IsNullOrEmpty(name))
+                return 0;
+
+            return ScriptRuntime.CreateScript(name);
         }
         catch (Exception)
         {

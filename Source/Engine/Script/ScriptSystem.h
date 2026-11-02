@@ -18,12 +18,12 @@ public:
     bool Initialize(const VirtualPath& enginePath);
     void Finalize();
 
-    int32 CreateHelloScript();
+    int32 CreateScript(const char* typeName);
     int32 UpdateScript(int32 handle, float deltaTime);
     int32 UnloadScript(int32 handle);
 
 private:
-    using CreateScriptFn = int32(__cdecl*)();
+    using CreateScriptFn = int32(__cdecl*)(const char*);
     using UpdateScriptFn = int32(__cdecl*)(int32, float);
     using UnloadScriptFn = int32(__cdecl*)(int32);
 

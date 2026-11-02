@@ -18,7 +18,7 @@ void ScriptComponent::OnLoad()
 {
     updateFailed = false;
 
-    instanceHandle = gEngine->GetScriptSystem().CreateHelloScript();
+    instanceHandle = gEngine->GetScriptSystem().CreateScript("URay.HelloScript");
 
     if (instanceHandle == 0)
     {
