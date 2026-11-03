@@ -106,6 +106,12 @@ void NumberField<T>::SetValue(T value)
 }
 
 template <typename T>
+bool NumberField<T>::IsInteracting() const
+{
+    return IsEditing() || isPointerDown;
+}
+
+template <typename T>
 bool NumberField<T>::TryCommitText(const String& editingText, String& committedText)
 {
     T value = 0;

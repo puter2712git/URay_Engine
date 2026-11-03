@@ -1,13 +1,11 @@
 #include "InspectorPanel.h"
 
-#include <Editor/Widget/Panel/PanelFactory.h>
-#include <Core/Type/TypeAlias.h>
-
 #include <Core/Math/Color.h>
 #include <Core/Math/Quaternion.h>
 #include <Core/Math/Vector2.h>
 #include <Core/Math/Vector3.h>
 #include <Core/Math/Vector4.h>
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
 #include <Editor/Widget/EditorUI.h>
@@ -22,6 +20,7 @@
 #include <Editor/Widget/Panel/Inspector/ComponentSection.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/Inspector/PropertyRow.h>
+#include <Editor/Widget/Panel/PanelFactory.h>
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/ComponentPickerPopup.h>
 #include <Editor/Widget/Style/EditorStyles.h>
@@ -83,12 +82,14 @@ InspectorPanel::InspectorPanel() : inspectSystem(gEditor->GetInspectSystem())
     layout->SetCrossAxisAlignment(CrossAxisAlignment::Stretch);
 
     inspectSystem.Register("TargetChanged", this, &InspectorPanel::OnTargetChanged);
-    inspectSystem.Register("TargetContentChanged", this, &InspectorPanel::OnTargetContentChanged);
+    inspectSystem.Register("TargetStructureChanged", this, &InspectorPanel::OnTargetStructureChanged);
+    inspectSystem.Register("TargetValuesChanged", this, &InspectorPanel::OnTargetValuesChanged);
 }
 
 InspectorPanel::~InspectorPanel()
 {
     inspectSystem.UnregisterAll(this);
+    propertySynchronizers.clear();
     layout->ClearChildren();
     propertyCopies.clear();
 }
@@ -98,9 +99,14 @@ void InspectorPanel::OnTargetChanged(const InspectTarget*, const InspectTarget*)
     isDirty = true;
 }
 
-void InspectorPanel::OnTargetContentChanged(const InspectTarget*)
+void InspectorPanel::OnTargetStructureChanged(const InspectTarget*)
 {
     isDirty = true;
+}
+
+void InspectorPanel::OnTargetValuesChanged(const InspectTarget*)
+{
+    valuesDirty = true;
 }
 
 void InspectorPanel::Arrange(const Rect& rect)
@@ -118,15 +124,29 @@ EventReply InspectorPanel::OnPointerDown(const PointerEvent& event)
 
 void InspectorPanel::OnUpdate(float)
 {
-    if (!isDirty)
+    if (isDirty)
+    {
+        isDirty = false;
+        valuesDirty = false;
+        RebuildProperties();
         return;
+    }
 
-    isDirty = false;
-    RebuildProperties();
+    if (valuesDirty)
+    {
+        valuesDirty = false;
+
+        for (const auto& synchronize : propertySynchronizers)
+        {
+            if (!synchronize())
+                valuesDirty = true;
+        }
+    }
 }
 
 void InspectorPanel::RebuildProperties()
 {
+    propertySynchronizers.clear();
     layout->ClearChildren();
     propertyCopies.clear();
 
@@ -266,6 +286,11 @@ void InspectorPanel::AddBoolProperty(VerticalLayout& targetLayout, Object& objec
     checkbox->SetChecked(*value);
 
     checkbox->Register("ValueChanged", this, &InspectorPanel::OnBoolChanged, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([checkbox, value]() {
+        checkbox->SetChecked(*value);
+        return true;
+    });
 }
 
 void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -278,6 +303,14 @@ void InspectorPanel::AddFloatProperty(VerticalLayout& targetLayout, Object& obje
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnFloatChanged, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        if (field->IsInteracting())
+            return false;
+
+        field->SetValue(*value);
+        return true;
+    });
 }
 
 void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -290,6 +323,14 @@ void InspectorPanel::AddIntProperty(VerticalLayout& targetLayout, Object& object
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnIntChanged, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        if (field->IsInteracting())
+            return false;
+
+        field->SetValue(*value);
+        return true;
+    });
 }
 
 void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -302,6 +343,10 @@ void InspectorPanel::AddVector2Property(VerticalLayout& targetLayout, Object& ob
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnVector2Changed, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        return field->SynchronizeValue(*value);
+    });
 }
 
 void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -314,6 +359,10 @@ void InspectorPanel::AddVector3Property(VerticalLayout& targetLayout, Object& ob
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnVector3Changed, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        return field->SynchronizeValue(*value);
+    });
 }
 
 void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -326,6 +375,10 @@ void InspectorPanel::AddRotationProperty(VerticalLayout& targetLayout, Object& o
     field->SetValue(value->ToEulerDegrees());
 
     field->Register("ValueChanged", this, &InspectorPanel::OnRotationChanged, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        return field->SynchronizeValue(value->ToEulerDegrees());
+    });
 }
 
 void InspectorPanel::AddColorProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -350,6 +403,10 @@ void InspectorPanel::AddVector4Property(VerticalLayout& targetLayout, Object& ob
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnVector4Changed, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        return field->SynchronizeValue(*value);
+    });
 }
 
 void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -362,6 +419,14 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
     field->SetText(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnStringChanged, &object, KeepProperty(property), field);
+
+    propertySynchronizers.emplace_back([field, value]() {
+        if (field->IsEditing())
+            return false;
+
+        field->SetText(*value);
+        return true;
+    });
 }
 
 void InspectorPanel::OnBoolChanged(bool value, Object* object, const Property* property)
@@ -445,6 +510,11 @@ void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& obje
     field->SetValue(*value);
 
     field->Register("ValueChanged", this, &InspectorPanel::OnAssetChanged, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        field->SetValue(*value);
+        return true;
+    });
 }
 
 void InspectorPanel::OnAssetChanged(AssetHandle value, Object* object, const Property* property)

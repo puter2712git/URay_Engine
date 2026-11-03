@@ -1,8 +1,9 @@
 #pragma once
-#include <Core/Type/TypeAlias.h>
 
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Panel/Panel.h>
 
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -40,7 +41,8 @@ protected:
 
 private:
     void OnTargetChanged(const InspectTarget* previous, const InspectTarget* current);
-    void OnTargetContentChanged(const InspectTarget* target);
+    void OnTargetStructureChanged(const InspectTarget* target);
+    void OnTargetValuesChanged(const InspectTarget* target);
     void RebuildProperties();
 
     void RebuildUnitProperties(Unit& unit);
@@ -77,9 +79,12 @@ private:
 
     ScrollView* scrollView = nullptr;
     VerticalLayout* layout = nullptr;
+
     Vector<UniquePtr<Property>> propertyCopies;
+    Vector<std::function<bool()>> propertySynchronizers;
 
     bool isDirty = true;
+    bool valuesDirty = false;
 };
 
 } // namespace URay

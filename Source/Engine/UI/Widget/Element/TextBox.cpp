@@ -1,6 +1,6 @@
 #include "TextBox.h"
-#include <Core/Type/TypeAlias.h>
 #include <Core/Math/Math.h>
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/Type/String.h>
 #include <Engine/Engine.h>
@@ -196,6 +196,14 @@ Vector2 TextBox::OnMeasure()
     textSize.y += padding.top + padding.bottom + outlineWidth * 2.0f;
 
     return textSize;
+}
+
+void TextBox::OnUpdate(float deltaTime)
+{
+    if (IsEditing() && !IsFocused())
+    {
+        CommitEdit();
+    }
 }
 
 void TextBox::OnPaint(Render::UIDrawContext& context)

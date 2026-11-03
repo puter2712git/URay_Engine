@@ -46,6 +46,7 @@ public:
 protected:
     Vector2 OnMeasure() override;
 
+    void OnUpdate(float deltaTime) override;
     void OnPaint(Render::UIDrawContext& context) override;
     void OnPaintForeground(Render::UIDrawContext& context) override;
 

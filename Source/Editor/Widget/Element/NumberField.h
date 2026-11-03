@@ -26,6 +26,8 @@ public:
     void SetValue(T value);
     void SetDragSpeed(float speed) { dragSpeed = speed; }
 
+    bool IsInteracting() const;
+
 protected:
     bool TryCommitText(const String& editingText, String& committedText) override;
     void OnTextChanged(const String& prevText, const String& currText) override;

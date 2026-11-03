@@ -80,7 +80,7 @@ public:
 
         const float width = Math::Max(
             0.0f, (rect.size.x - ComponentGap * static_cast<float>(ComponentCount - 1)) /
-                static_cast<float>(ComponentCount));
+                      static_cast<float>(ComponentCount));
         Rect componentRect{ .position = rect.position, .size = Vector2(width, rect.size.y) };
 
         for (const Component& component : components)
@@ -96,6 +96,28 @@ public:
             });
             componentRect.position.x += width + ComponentGap;
         }
+    }
+
+    bool SynchronizeValue(const T& newValue)
+    {
+        bool complete = true;
+
+        for (std::size_t i = 0; i < ComponentCount; ++i)
+        {
+            auto* field = components[i].field;
+            const auto member = Traits::members[i];
+
+            if (field->IsInteracting())
+            {
+                complete = false;
+                continue;
+            }
+
+            value.*member = newValue.*member;
+            field->SetValue(value.*member);
+        }
+
+        return complete;
     }
 
 protected:

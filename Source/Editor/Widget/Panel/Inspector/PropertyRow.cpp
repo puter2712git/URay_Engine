@@ -1,8 +1,8 @@
 #include "PropertyRow.h"
 #include <Core/Type/TypeAlias.h>
 
-#include <Editor/Widget/EditorWidgetFactory.h>
 #include <Core/Math/Math.h>
+#include <Editor/Widget/EditorWidgetFactory.h>
 
 #include <Engine/UI/Widget/Element/Label.h>
 
@@ -18,7 +18,7 @@ void PropertyRow::Arrange(const Rect& rect)
 {
     Widget::Arrange(rect);
 
-    constexpr float nameWidth = 250.0f;
+    constexpr float nameWidth = 150.0f;
     constexpr float gap = 8.0f;
 
     Rect nameRect;
@@ -43,7 +43,7 @@ void PropertyRow::Arrange(const Rect& rect)
 
 Vector2 PropertyRow::OnMeasure()
 {
-    constexpr float nameWidth = 250.0f;
+    constexpr float nameWidth = 150.0f;
     constexpr float gap = 8.0f;
 
     const Vector2 nameSize = nameLabel->GetDesiredSize();
