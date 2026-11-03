@@ -6,6 +6,7 @@ namespace URay;
 public unsafe struct NativeAPI
 {
     public LogAPI logAPI;
+    public InputAPI inputAPI;
     public ObjectAPI objectAPI;
     public UnitAPI unitAPI;
     public TransformAPI transformAPI;

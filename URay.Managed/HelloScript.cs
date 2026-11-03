@@ -12,8 +12,22 @@ public sealed class HelloScript : ScriptBehaviour
         if (transform == null)
             return;
 
+        Vector3 direction = Vector3.Zero;
+
+        if (Input.IsKeyHeld(KeyCode.W))
+            direction += Vector3.Forward;
+
+        if (Input.IsKeyHeld(KeyCode.S))
+            direction -= Vector3.Forward;
+
+        if (Input.IsKeyHeld(KeyCode.D))
+            direction += Vector3.Right;
+
+        if (Input.IsKeyHeld(KeyCode.A))
+            direction -= Vector3.Right;
+
         Vector3 position = transform.localPosition;
-        position += Vector3.Right * (2.0f * deltaTime);
+        position += direction * (2.0f * deltaTime);
         transform.localPosition = position;
     }
 
