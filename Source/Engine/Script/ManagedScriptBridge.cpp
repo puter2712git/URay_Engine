@@ -2,6 +2,7 @@
 
 #include <Core/File/VirtualPath.h>
 #include <Core/Type/TypeAlias.h>
+#include <Engine/Object/ObjectId.h>
 #include <Engine/Script/DotNetRuntime.h>
 #include <Engine/Script/NativeAPI.h>
 
@@ -111,12 +112,12 @@ void ManagedScriptBridge::Finalize()
     }
 }
 
-int32 ManagedScriptBridge::CreateScript(const char* typeName)
+int32 ManagedScriptBridge::CreateScript(const char* typeName, const ObjectId& ownerId)
 {
     if (!createScript || !typeName)
         return 0;
 
-    return createScript(typeName);
+    return createScript(typeName, ownerId.index, ownerId.generation);
 }
 
 int32 ManagedScriptBridge::UpdateScript(int32 handle, float deltaTime)

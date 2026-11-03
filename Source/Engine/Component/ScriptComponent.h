@@ -10,13 +10,14 @@ class ScriptComponent : public Component
 {
     URAY_OBJECT(ScriptComponent, Component)
 
+public:
+    const String& GetScriptTypeName() const;
+    void SetScriptTypeName(const String& typeName);
+
 protected:
     void OnLoad() override;
     void OnUpdate(float deltaTime) override;
     void OnUnload() override;
-
-    const String& GetScriptTypeName() const;
-    void SetScriptTypeName(const String& typeName);
 
 private:
     String scriptTypeName;

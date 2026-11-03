@@ -2,6 +2,7 @@
 
 #include <Core/Log/LogSystem.h>
 #include <Engine/Engine.h>
+#include <Engine/Scene/Unit.h>
 #include <Engine/Script/ScriptSystem.h>
 
 namespace URay
@@ -18,6 +19,16 @@ void ScriptComponent::RegisterClass()
                                  .size = sizeof(String) });
 }
 
+const String& ScriptComponent::GetScriptTypeName() const
+{
+    return scriptTypeName;
+}
+
+void ScriptComponent::SetScriptTypeName(const String& typeName)
+{
+    scriptTypeName = typeName;
+}
+
 void ScriptComponent::OnLoad()
 {
     updateFailed = false;
@@ -28,7 +39,14 @@ void ScriptComponent::OnLoad()
         return;
     }
 
-    instanceHandle = gEngine->GetScriptSystem().CreateScript(scriptTypeName.c_str());
+    Unit* ownerUnit = GetOwner();
+    if (!ownerUnit)
+    {
+        URAY_LOG("[ScriptComponent] Owner unit is missing.");
+        return;
+    }
+
+    instanceHandle = gEngine->GetScriptSystem().CreateScript(scriptTypeName.c_str(), ownerUnit->GetId());
 
     if (instanceHandle == 0)
     {
@@ -64,16 +82,6 @@ void ScriptComponent::OnUnload()
     {
         URAY_LOG("[ScriptComponent] Script unload failed: %d", result);
     }
-}
-
-const String& ScriptComponent::GetScriptTypeName() const
-{
-    return scriptTypeName;
-}
-
-void ScriptComponent::SetScriptTypeName(const String& typeName)
-{
-    scriptTypeName = typeName;
 }
 
 } // namespace URay

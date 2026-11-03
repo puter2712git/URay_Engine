@@ -32,7 +32,7 @@ public static unsafe class EntryPoint
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static int CreateScript(byte* typeName)
+    public static int CreateScript(byte* typeName, int ownerIndex, uint ownerGeneration)
     {
         try
         {
@@ -44,7 +44,7 @@ public static unsafe class EntryPoint
             if (string.IsNullOrEmpty(name))
                 return 0;
 
-            return ScriptRuntime.CreateScript(name);
+            return ScriptRuntime.CreateScript(name, ownerIndex, ownerGeneration);
         }
         catch (Exception)
         {

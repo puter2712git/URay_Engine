@@ -2,6 +2,7 @@
 
 #include <Core/File/VirtualPath.h>
 #include <Core/Log/LogSystem.h>
+#include <Engine/Object/ObjectId.h>
 #include <Engine/Script/ManagedScriptBridge.h>
 #include <Engine/Script/NativeAPI.h>
 
@@ -64,9 +65,9 @@ void ScriptSystem::Finalize()
     }
 }
 
-int32 ScriptSystem::CreateScript(const char* typeName)
+int32 ScriptSystem::CreateScript(const char* typeName, const ObjectId& ownerId)
 {
-    return bridge ? bridge->CreateScript(typeName) : 0;
+    return bridge ? bridge->CreateScript(typeName, ownerId) : 0;
 }
 
 int32 ScriptSystem::UpdateScript(int32 handle, float deltaTime)

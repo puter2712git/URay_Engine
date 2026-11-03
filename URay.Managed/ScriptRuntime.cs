@@ -2,7 +2,7 @@
 
 internal static class ScriptRuntime
 {
-    public static int CreateScript(string typeName)
+    public static int CreateScript(string typeName, int ownerIndex, uint ownerGeneration)
     {
         if (!DiscoverScriptTypes().Contains(typeName, StringComparer.Ordinal))
             return 0;
@@ -17,6 +17,8 @@ internal static class ScriptRuntime
 
         if (Activator.CreateInstance(type) is not ScriptBehaviour instance)
             return 0;
+
+        instance.owner = new Unit(new ObjectId(ownerIndex, ownerGeneration));
 
         int handle = ScriptRegistry.Add(instance);
 

@@ -7,6 +7,7 @@ namespace URay
 
 class ManagedScriptBridge;
 class VirtualPath;
+struct ObjectId;
 
 class ScriptSystem
 {
@@ -18,7 +19,7 @@ public:
     bool Initialize(const VirtualPath& enginePath);
     void Finalize();
 
-    int32 CreateScript(const char* typeName);
+    int32 CreateScript(const char* typeName, const ObjectId& ownerId);
     int32 UpdateScript(int32 handle, float deltaTime);
     int32 UnloadScript(int32 handle);
 
