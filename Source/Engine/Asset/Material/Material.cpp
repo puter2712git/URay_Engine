@@ -4,6 +4,7 @@
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/EngineAsset.h>
+#include <Engine/Asset/Material/MaterialStateBuilder.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
@@ -15,6 +16,7 @@
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/RenderSystem.h>
+#include <Render/Rendering/Material/Material.h>
 #include <Render/Rendering/RenderInfo.h>
 #include <Render/ResourceManager.h>
 #include <Render/Shader/Shader.h>
@@ -74,6 +76,96 @@ bool IsValidParameterValue(const MaterialParameter& parameter)
     }
 }
 
+bool ValidateMaterialReflection(const Render::ShaderReflection& reflection)
+{
+    constexpr uint32 materialSet = 1;
+
+    HashSet<String> parameterNames;
+
+    for (const Render::ShaderUniformBuffer& buffer : reflection.uniformBuffers)
+    {
+        if (buffer.set != materialSet)
+            continue;
+
+        for (const Render::ShaderParameter& parameter : buffer.parameters)
+        {
+            if (parameter.name.empty() ||
+                !parameterNames.insert(parameter.name).second)
+            {
+                URAY_LOG(
+                    "[Material] Empty or duplicate shader parameter name: %s",
+                    parameter.name.c_str());
+                return false;
+            }
+
+            uint32 expectedSize = 0;
+
+            switch (parameter.type)
+            {
+            case Render::ShaderParameterType::Float:
+                expectedSize = sizeof(float);
+                break;
+
+            case Render::ShaderParameterType::Float2:
+                expectedSize = sizeof(float) * 2;
+                break;
+
+            case Render::ShaderParameterType::Float3:
+                expectedSize = sizeof(float) * 3;
+                break;
+
+            case Render::ShaderParameterType::Float4:
+                expectedSize = sizeof(float) * 4;
+                break;
+
+            default:
+                URAY_LOG(
+                    "[Material] Unsupported shader parameter type: %s",
+                    parameter.name.c_str());
+                return false;
+            }
+
+            if (parameter.offset > buffer.size ||
+                parameter.size > buffer.size - parameter.offset ||
+                expectedSize > parameter.size)
+            {
+                URAY_LOG(
+                    "[Material] Invalid uniform buffer range: %s",
+                    parameter.name.c_str());
+                return false;
+            }
+        }
+    }
+
+    for (const Render::ShaderDescriptorBinding& binding : reflection.descriptorBindings)
+    {
+        if (binding.set != materialSet ||
+            binding.type != Render::ResourceType::SampledImage)
+        {
+            continue;
+        }
+
+        if (binding.name.empty() ||
+            !parameterNames.insert(binding.name).second)
+        {
+            URAY_LOG(
+                "[Material] Empty or duplicate shader parameter name: %s",
+                binding.name.c_str());
+            return false;
+        }
+
+        if (binding.count != 1)
+        {
+            URAY_LOG(
+                "[Material] Texture arrays are not supported: %s",
+                binding.name.c_str());
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool CreateDefaultParameter(
     Render::ShaderParameterType shaderType,
     MaterialParameter& outParameter)
@@ -113,19 +205,7 @@ void Material::RegisterClass()
 
 Material::Material(const AssetHandle& shaderHandle) : shaderHandle(shaderHandle) {}
 
-Material::~Material()
-{
-    for (Render::DescriptorSet* set : descriptorSets)
-    {
-        if (set)
-        {
-            delete set;
-            set = nullptr;
-        }
-    }
-
-    descriptorSets.clear();
-}
+Material::~Material() = default;
 
 bool Material::Initialize()
 {
@@ -143,38 +223,25 @@ bool Material::Initialize()
     if (!renderShader)
         return false;
 
-    descriptorSetLayoutDescription = const_cast<Render::DescriptorSetLayoutDesc*>(renderShader->GetLayoutDescription(1));
-    if (!descriptorSetLayoutDescription)
-        return true;
-
-    descriptorSetLayout = resourceManager.GetOrCreateDescriptorSetLayout(*descriptorSetLayoutDescription);
-    if (!descriptorSetLayout)
-        return false;
-
-    descriptorSets.resize(Render::MAX_FRAMES_IN_FLIGHT);
-    for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
+    const Render::DescriptorSetLayoutDesc* layoutDesc = renderShader->GetLayoutDescription(1);
+    if (!layoutDesc)
     {
-        descriptorSets[i] = device.CreateDescriptorSet(descriptorSetLayout);
-        if (!descriptorSets[i])
-            return false;
+        isInitialized = true;
+        return true;
     }
 
-    for (const Render::ResourceBinding& binding : descriptorSetLayoutDescription->bindings)
+    if (!ValidateMaterialReflection(renderShader->GetMergedReflection()))
+    {
+        URAY_LOG(
+            "[Material] Invalid shader reflection: material=%s",
+            GetName().c_str());
+        return false;
+    }
+
+    for (const Render::ResourceBinding& binding : layoutDesc->bindings)
     {
         switch (binding.resourceType)
         {
-        case Render::ResourceType::Sampler:
-        {
-            Render::Sampler* sampler = resourceManager.GetOrCreateSampler({});
-            if (!sampler)
-                return false;
-
-            for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
-            {
-                descriptorSets[i]->WriteSampler(binding.binding, *sampler);
-            }
-            break;
-        }
         case Render::ResourceType::SampledImage:
         {
             auto [it, inserted] = parameters.try_emplace(
@@ -195,6 +262,7 @@ bool Material::Initialize()
             parameter.binding = binding.binding;
             break;
         }
+
         default:
             break;
         }
@@ -253,6 +321,21 @@ bool Material::Initialize()
         }
     }
 
+    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(this);
+
+    if (!renderMaterial ||
+        !renderMaterial->Initialize(
+            device,
+            resourceManager,
+            *layoutDesc,
+            renderShader->GetMergedReflection()))
+    {
+        URAY_LOG(
+            "[Material] Failed to initialize render material: %s",
+            GetName().c_str());
+        return false;
+    }
+
     isInitialized = true;
 
     return true;
@@ -273,6 +356,11 @@ bool Material::TryGetParameter(const String& name, MaterialParameter& outParamet
 
     outParameter = it->second;
     return true;
+}
+
+const HashMap<String, MaterialParameter>& Material::GetParameters() const
+{
+    return parameters;
 }
 
 void Material::SetFloat(const String& name, float value)
@@ -316,9 +404,58 @@ Shader* Material::GetShader() const
     return ret;
 }
 
+bool Material::PrepareRenderMaterial(uint32 frameIndex)
+{
+    if (!isInitialized)
+        return false;
+
+    if (frameIndex >= Render::MAX_FRAMES_IN_FLIGHT)
+        return false;
+
+    Shader* shader = GetShader();
+    if (!shader)
+        return false;
+
+    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
+    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
+
+    Render::Shader* renderShader = resourceManager.GetOrCreateShader(shader, {});
+    if (!renderShader)
+        return false;
+
+    if (!renderShader->GetLayoutDescription(1))
+        return true;
+
+    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(this);
+    if (!renderMaterial)
+        return false;
+
+    AssetDatabase& assetDB = gEngine->GetAssetSystem().GetDatabase();
+
+    Render::MaterialState materialState = {};
+
+    if (!BuildMaterialState(
+            *this,
+            renderShader->GetMergedReflection(),
+            assetDB,
+            resourceManager,
+            materialState))
+    {
+        return false;
+    }
+
+    renderMaterial->Update(materialState);
+
+    return renderMaterial->Prepare(frameIndex);
+}
+
 void Material::PrepareDescriptorSet(uint32 frameIndex)
 {
     if (appliedDescriptorRevisions[frameIndex] == descriptorRevision)
+        return;
+
+    Render::DescriptorSet* descriptorSet = GetDescriptorSet(frameIndex);
+    if (!descriptorSet)
         return;
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
@@ -340,7 +477,7 @@ void Material::PrepareDescriptorSet(uint32 frameIndex)
         Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(texture);
         Render::TextureView* view = resourceManager.GetOrCreateTextureView(renderTexture, {});
 
-        descriptorSets[frameIndex]->WriteSampledImage(parameter.binding, view);
+        descriptorSet->WriteSampledImage(parameter.binding, view);
     }
 
     appliedDescriptorRevisions[frameIndex] = descriptorRevision;
@@ -348,10 +485,10 @@ void Material::PrepareDescriptorSet(uint32 frameIndex)
 
 Render::DescriptorSet* Material::GetDescriptorSet(uint32 frameIndex) const
 {
-    if (descriptorSets.size() <= frameIndex)
-        return nullptr;
+    Render::ResourceManager& resourceManager = gEngine->GetRenderSystem().GetResourceManager();
 
-    return descriptorSets[frameIndex];
+    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(const_cast<Material*>(this));
+    return renderMaterial ? renderMaterial->GetDescriptorSet(frameIndex) : nullptr;
 }
 
 } // namespace URay

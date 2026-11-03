@@ -37,11 +37,14 @@ public:
 
     void AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value);
     bool TryGetParameter(const String& name, MaterialParameter& outParameter) const;
+    const HashMap<String, MaterialParameter>& GetParameters() const;
 
     void SetFloat(const String& name, float value);
     void SetTexture(const String& name, const AssetHandle& textureHandle);
 
     Shader* GetShader() const;
+
+    bool PrepareRenderMaterial(uint32 frameIndex);
 
     void PrepareDescriptorSet(uint32 frameIndex);
     Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const;
@@ -54,10 +57,6 @@ protected:
     AssetHandle shaderHandle = {};
 
     std::map<uint32, Array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
-
-    Render::DescriptorSetLayoutDesc* descriptorSetLayoutDescription = nullptr;
-    Render::DescriptorSetLayout* descriptorSetLayout = nullptr;
-    Vector<Render::DescriptorSet*> descriptorSets;
 
     uint64 descriptorRevision = 1;
     Array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};
