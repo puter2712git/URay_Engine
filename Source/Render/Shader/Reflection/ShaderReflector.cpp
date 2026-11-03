@@ -3,7 +3,6 @@
 
 #include <Render/RHI/Descriptor/ResourceBinding.h>
 
-
 #include <limits>
 #include <utility>
 
@@ -54,6 +53,44 @@ ShaderStageFlags ToShaderStageFlags(SpvReflectShaderStageFlagBits stage)
         return ShaderStageFlags::Compute;
     default:
         return ShaderStageFlags::None;
+    }
+}
+
+ShaderParameterType ToShaderParameterType(const SpvReflectBlockVariable& member)
+{
+    if (!member.type_description)
+        return ShaderParameterType::Unsupported;
+
+    const SpvReflectTypeFlags flags = member.type_description->type_flags;
+
+    if ((flags & SPV_REFLECT_TYPE_FLAG_ARRAY) ||
+        (flags & SPV_REFLECT_TYPE_FLAG_MATRIX) ||
+        (flags & SPV_REFLECT_TYPE_FLAG_STRUCT) ||
+        member.array.dims_count != 0 ||
+        member.member_count != 0)
+    {
+        return ShaderParameterType::Unsupported;
+    }
+
+    if (!(flags & SPV_REFLECT_TYPE_FLAG_FLOAT) ||
+        member.numeric.scalar.width != 32)
+    {
+        return ShaderParameterType::Unsupported;
+    }
+
+    if (!(flags & SPV_REFLECT_TYPE_FLAG_VECTOR))
+        return ShaderParameterType::Float;
+
+    switch (member.numeric.vector.component_count)
+    {
+    case 2:
+        return ShaderParameterType::Float2;
+    case 3:
+        return ShaderParameterType::Float3;
+    case 4:
+        return ShaderParameterType::Float4;
+    default:
+        return ShaderParameterType::Unsupported;
     }
 }
 
@@ -207,6 +244,7 @@ bool ShaderReflector::ReflectUniformBuffers(
 
             ShaderParameter parameter = {};
             parameter.name = member.name ? member.name : "";
+            parameter.type = ToShaderParameterType(member);
             parameter.offset = member.offset;
             parameter.size = member.size;
 

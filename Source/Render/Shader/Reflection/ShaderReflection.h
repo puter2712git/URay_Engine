@@ -4,7 +4,6 @@
 #include <Render/RHI/Descriptor/ResourceBinding.h>
 #include <Render/Shader/ShaderStageFlags.h>
 
-
 #include <vulkan/vulkan.h>
 
 #include <vector>
@@ -36,9 +35,20 @@ struct ShaderDescriptorBinding
     ShaderStageFlags stageFlags = ShaderStageFlags::None;
 };
 
+enum class ShaderParameterType
+{
+    Unsupported,
+    Float,
+    Float2,
+    Float3,
+    Float4
+};
+
 struct ShaderParameter
 {
     String name;
+
+    ShaderParameterType type = ShaderParameterType::Unsupported;
 
     uint32 offset = 0;
     uint32 size = 0;
