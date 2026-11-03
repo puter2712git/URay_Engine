@@ -1,13 +1,29 @@
-﻿namespace URay;
+﻿using System.Reflection;
+using System.Runtime.Loader;
+
+namespace URay;
 
 internal static class ScriptRuntime
 {
+    private static Assembly? projectAssembly;
+
+    public static bool LoadProjectAssembly(string assemblyPath)
+    {
+        AssemblyLoadContext? loadContext = AssemblyLoadContext.GetLoadContext(typeof(ScriptBehaviour).Assembly);
+
+        if (loadContext == null)
+            return false;
+
+        projectAssembly = loadContext.LoadFromAssemblyPath(assemblyPath);
+        return true;
+    }
+
     public static int CreateScript(string typeName, int ownerIndex, uint ownerGeneration)
     {
         if (!DiscoverScriptTypes().Contains(typeName, StringComparer.Ordinal))
             return 0;
 
-        Type? type = typeof(ScriptBehaviour).Assembly.GetType(
+        Type? type = projectAssembly?.GetType(
             typeName,
             throwOnError: false,
             ignoreCase: false);
@@ -58,7 +74,10 @@ internal static class ScriptRuntime
 
     public static string[] DiscoverScriptTypes()
     {
-        return typeof(ScriptBehaviour).Assembly
+        if (projectAssembly == null)
+            return Array.Empty<string>();
+
+        return projectAssembly
             .GetTypes()
             .Where(type =>
                 type.IsClass &&

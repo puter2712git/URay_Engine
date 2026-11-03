@@ -123,7 +123,7 @@ bool Engine::Initialize(
     }
 
     scriptSystem = MakeUnique<ScriptSystem>();
-    if (!scriptSystem->Initialize(enginePath))
+    if (!scriptSystem->Initialize(enginePath, projectPath))
     {
         URAY_LOG("[Engine] Failed to initialize script system.");
         Finalize();

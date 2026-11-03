@@ -12,10 +12,10 @@ ScriptSystem::ScriptSystem() = default;
 
 ScriptSystem::~ScriptSystem() = default;
 
-bool ScriptSystem::Initialize(const VirtualPath& enginePath)
+bool ScriptSystem::Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath)
 {
     bridge = MakeUnique<ManagedScriptBridge>();
-    if (!bridge->Initialize(enginePath))
+    if (!bridge->Initialize(enginePath, projectPath))
     {
         Finalize();
         return false;

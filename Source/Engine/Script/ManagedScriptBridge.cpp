@@ -7,6 +7,8 @@
 #include <Engine/Script/DotNetRuntime.h>
 #include <Engine/Script/Native/NativeAPI.h>
 
+#include <filesystem>
+
 namespace URay
 {
 
@@ -35,7 +37,7 @@ ManagedScriptBridge::ManagedScriptBridge() = default;
 
 ManagedScriptBridge::~ManagedScriptBridge() = default;
 
-bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath)
+bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath)
 {
     runtime = MakeUnique<DotNetRuntime>();
     if (!runtime->Initialize(enginePath))
@@ -86,6 +88,45 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath)
     if (!createScript || !updateScript || !unloadScript || !enumerateScriptTypes)
     {
         URAY_LOG("[ManagedScriptBridge] A managed script entry point were not found.");
+        Finalize();
+        return false;
+    }
+
+    using LoadProjectAssemblyFn = int32(__cdecl*)(const char*);
+
+    const auto loadProjectAssembly = runtime->GetFunction<LoadProjectAssemblyFn>(
+        assemblyPath,
+        typeName,
+        L"LoadProjectAssembly");
+
+    if (!loadProjectAssembly)
+    {
+        URAY_LOG("[ManagedScriptBridge] LoadProjectAssembly was not found.");
+        Finalize();
+        return false;
+    }
+
+    const VirtualPath projectAssemblyPath = projectPath.Join("Scripts/Bin/Project.Scripts.dll");
+
+    const std::filesystem::path physicalPath = std::filesystem::absolute(
+        std::filesystem::u8path(projectAssemblyPath.ToString()));
+
+    const std::u8string utf8Path = physicalPath.u8string();
+    const String pathString(utf8Path.begin(), utf8Path.end());
+
+    const int32 loadResult = loadProjectAssembly(pathString.c_str());
+
+    if (loadResult == 1)
+    {
+        URAY_LOG(
+            "[ManagedScriptBridge] Project script assembly was not found: %s",
+            pathString.c_str());
+    }
+    else if (loadResult != 0)
+    {
+        URAY_LOG(
+            "[ManagedScriptBridge] Failed to load project script assembly: %s",
+            pathString.c_str());
         Finalize();
         return false;
     }

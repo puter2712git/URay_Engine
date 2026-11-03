@@ -5,6 +5,9 @@ $engineRoot = Split-Path -Parent $PSScriptRoot
 $editorPath = Join-Path $engineRoot 'Build/Sandbox-Release/URay_Engine.exe'
 $engineAssetPath = Join-Path $engineRoot 'Engine'
 
+$scriptTemplatePath = Join-Path $PSScriptRoot 'ProjectTemplate/Project.Scripts.csproj.template'
+$managedDllPath = Join-Path $engineAssetPath 'URay.Managed.dll'
+
 if (-not (Test-Path -LiteralPath $editorPath -PathType Leaf)) {
     throw "Editor executable not found: $editorPath"
 }
@@ -47,6 +50,7 @@ $directories = @(
     'Config'
     'External'
     'Log'
+    'Scripts'
 )
 
 $null = New-Item -ItemType Directory -Path $projectPath
@@ -55,6 +59,34 @@ foreach ($directory in $directories) {
     $directoryPath = Join-Path -Path $projectPath -ChildPath $directory
     $null = New-Item -ItemType Directory -Path $directoryPath -Force
 }
+
+$template = Get-Content -LiteralPath $scriptTemplatePath -Raw
+
+if (-not $template.Contains('__URAY_MANAGED_DLL__')) {
+    throw "Managed DLL placeholder not found in template: $scriptTemplatePath"
+}
+
+$escapedPath = [regex]::Replace(
+    $managedDllPath,
+    "[%`$@'();?*]",
+    {
+        param($match)
+        '%' + ([int][char]$match.Value).ToString('X2')
+    }
+)
+
+$escapedPath = [System.Security.SecurityElement]::Escape($escapedPath)
+$projectContent = $template.Replace('__URAY_MANAGED_DLL__', $escapedPath)
+
+$scriptProjectPath = Join-Path $projectPath 'Scripts/Project.Scripts.csproj'
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+
+[System.IO.File]::WriteAllText($scriptProjectPath, $projectContent, $utf8)
+
+$helloScriptTemplatePath = Join-Path $PSScriptRoot 'ProjectTemplate/HelloScript.cs'
+$helloScriptPath = Join-Path $projectPath 'Scripts/HelloScript.cs'
+
+Copy-Item -LiteralPath $helloScriptTemplatePath -Destination $helloScriptPath
 
 $shortcutPath = Join-Path $projectPath 'Open Editor.lnk'
 

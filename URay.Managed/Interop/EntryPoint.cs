@@ -32,16 +32,36 @@ public static unsafe class EntryPoint
 
             NativeBindings.Initialize(*api);
 
-            foreach (string typeName in ScriptRuntime.DiscoverScriptTypes())
-            {
-                Debug.Log($"Discovered script: {typeName}");
-            }
-
             return 0;
         }
         catch (Exception)
         {
             return -2;
+        }
+    }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int LoadProjectAssembly(byte* assemblyPath)
+    {
+        try
+        {
+            if (assemblyPath == null)
+                return -1;
+
+            string? path = Marshal.PtrToStringUTF8((nint)assemblyPath);
+
+            if (string.IsNullOrEmpty(path))
+                return -1;
+
+            if (!File.Exists(path))
+                return 1;
+
+            return ScriptRuntime.LoadProjectAssembly(path) ? 0 : -1;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine($"[ScriptRuntime] Failed to load project assembly: {exception}");
+            return -1;
         }
     }
 

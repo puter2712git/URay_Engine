@@ -6,6 +6,10 @@
 		<Nullable>enable</Nullable>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<OutputPath>../Engine/</OutputPath>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
 </Project>
