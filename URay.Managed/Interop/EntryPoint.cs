@@ -11,12 +11,14 @@ public static unsafe class EntryPoint
     {
         try
         {
-            if (api == null || api->Log == null)
+            if (api == null ||
+                api->logAPI.Log == null ||
+                api->objectAPI.IsValid == null)
             {
                 return -1;
             }
 
-            Debug.Initialize(api->Log);
+            NativeBindings.Initialize(*api);
 
             foreach (string typeName in ScriptRuntime.DiscoverScriptTypes())
             {

@@ -1,29 +1,17 @@
 #include "ManagedScriptBridge.h"
 
 #include <Core/File/VirtualPath.h>
+#include <Core/Log/LogSystem.h>
 #include <Core/Type/TypeAlias.h>
 #include <Engine/Object/ObjectId.h>
 #include <Engine/Script/DotNetRuntime.h>
-#include <Engine/Script/NativeAPI.h>
+#include <Engine/Script/Native/NativeAPI.h>
 
 namespace URay
 {
 
 namespace
 {
-void __cdecl NativeLog(const char* message) noexcept
-{
-    if (!message)
-        return;
-
-    try
-    {
-        URAY_LOG("[C#] %s", message);
-    }
-    catch (...)
-    {
-    }
-}
 
 int32 __cdecl CollectScriptType(void* context, const char* typeName) noexcept
 {
@@ -70,7 +58,11 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath)
         return false;
     }
 
-    const NativeAPI api{ &NativeLog };
+    const NativeAPI api{
+        .logAPI = CreateLogAPI(),
+        .objectAPI = CreateObjectAPI()
+    };
+
     const int32 result = init(&api);
 
     if (result != 0)

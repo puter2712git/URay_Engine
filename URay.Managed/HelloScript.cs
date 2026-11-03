@@ -4,7 +4,7 @@ public sealed class HelloScript : ScriptBehaviour
 {
     public override void OnLoad()
     {
-        Debug.Log("Loaded");
+        Debug.Log($"Owner is valid: {owner.IsValid()}");
     }
 
     public override void OnUpdate(float deltaTime)

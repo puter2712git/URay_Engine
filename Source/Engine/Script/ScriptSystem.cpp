@@ -4,27 +4,9 @@
 #include <Core/Log/LogSystem.h>
 #include <Engine/Object/ObjectId.h>
 #include <Engine/Script/ManagedScriptBridge.h>
-#include <Engine/Script/NativeAPI.h>
 
 namespace URay
 {
-
-namespace
-{
-void __cdecl NativeLog(const char* message) noexcept
-{
-    if (!message)
-        return;
-
-    try
-    {
-        URAY_LOG("[C#] %s", message);
-    }
-    catch (...)
-    {
-    }
-}
-} // namespace
 
 ScriptSystem::ScriptSystem() = default;
 
