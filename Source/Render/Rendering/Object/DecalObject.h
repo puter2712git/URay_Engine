@@ -32,7 +32,7 @@ struct DecalObjectState
 {
     Matrix worldMatrix = Matrix::Identity;
     Vector3 extent = Vector3::Zero;
-    Material* material = nullptr;
+    URay::Material* material = nullptr;
 };
 
 class DecalObject : public RenderObject
@@ -50,7 +50,7 @@ public:
     const AABB& GetWorldBounds() const { return worldBounds; }
     const AABB* TryGetWorldBounds() const override { return &worldBounds; }
     const Vector3& GetExtent() const { return state.extent; }
-    Material* GetMaterial() const { return state.material; }
+    URay::Material* GetMaterial() const { return state.material; }
 
     DescriptorSet* GetDescriptorSet(uint32 frameIndex);
 

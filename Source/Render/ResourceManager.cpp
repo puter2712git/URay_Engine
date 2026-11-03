@@ -19,6 +19,7 @@
 #include <Render/RHI/Texture/Texture.h>
 #include <Render/RHI/Texture/TextureView.h>
 #include <Render/Rendering/Font/FontSystem.h>
+#include <Render/Rendering/Material/Material.h>
 #include <Render/Rendering/Shadow/ShadowSystem.h>
 #include <Render/Shader/Shader.h>
 
@@ -72,6 +73,8 @@ void ResourceManager::Finalize()
         fontSystem->Finalize();
         fontSystem.reset();
     }
+
+    DestroyMaterials();
 
     DestroyComputePSOs();
     DestroyPSOs();
@@ -492,6 +495,27 @@ void ResourceManager::DestroyShaders()
         }
     }
     shaders.clear();
+}
+
+Material* ResourceManager::GetOrCreateMaterial(URay::Material* material)
+{
+    if (!material)
+        return nullptr;
+
+    const auto it = materials.find(material);
+    if (it != materials.end())
+        return it->second.get();
+
+    auto renderMaterial = MakeUnique<Material>();
+    Material* renderMaterialPtr = renderMaterial.get();
+
+    materials.emplace(material, std::move(renderMaterial));
+    return renderMaterialPtr;
+}
+
+void ResourceManager::DestroyMaterials()
+{
+    materials.clear();
 }
 
 DescriptorSetLayout* ResourceManager::GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc)

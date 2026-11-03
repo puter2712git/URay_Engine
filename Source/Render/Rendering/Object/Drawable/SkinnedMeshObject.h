@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
 #include <Core/Math/AABB.h>
 #include <Core/Math/Color.h>
 #include <Core/Math/Matrix.h>
+#include <Core/Type/TypeAlias.h>
 #include <Render/Rendering/Object/Drawable/DrawableObject.h>
 
 #include <memory>
@@ -26,7 +26,7 @@ struct SkinnedMeshObjectState
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     SkinnedMesh* skinnedMesh = nullptr;
-    Vector<Material*> materials;
+    Vector<URay::Material*> materials;
     bool castsShadow = true;
 };
 

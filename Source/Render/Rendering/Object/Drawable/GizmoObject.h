@@ -26,7 +26,7 @@ struct GizmoObjectState
     };
 
     Vector<Handle> handles;
-    Material* material = nullptr;
+    URay::Material* material = nullptr;
 };
 
 class GizmoObject : public DrawableObject

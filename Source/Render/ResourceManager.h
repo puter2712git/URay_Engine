@@ -20,6 +20,7 @@
 namespace URay
 {
 class VirtualFileSystem;
+class Material;
 class Mesh;
 class SkinnedMesh;
 class Texture;
@@ -33,6 +34,7 @@ class Device;
 class MeshBuffer;
 class Texture;
 class Shader;
+class Material;
 class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
@@ -66,8 +68,10 @@ public:
 
     Render::Shader* GetOrCreateShader(URay::Shader* shader, const Vector<ShaderDefine>& defines);
     Render::Shader* GetOrCreateComputeShader(URay::Shader* shader, const Vector<ShaderDefine>& defines);
-
     void DestroyShaders();
+
+    Material* GetOrCreateMaterial(URay::Material* material);
+    void DestroyMaterials();
 
     DescriptorSetLayout* GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
     void DestroyDescriptorSetLayouts();
@@ -101,10 +105,11 @@ private:
 
     HashMap<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 
+    HashMap<URay::Material*, UniquePtr<Material>> materials;
+
     HashMap<DescriptorSetLayoutDesc, DescriptorSetLayout*, DescriptorSetLayoutDescHash> descriptorSetLayouts;
 
     HashMap<PipelineLayoutDesc, PipelineLayout*, PipelineLayoutDescHash> pipelineLayouts;
-
     HashMap<PipelineStateDesc, PipelineState*, PipelineStateDescHash> pipelines;
     HashMap<ComputePipelineStateDesc, ComputePipelineState*, ComputePipelineStateDescHash> computePipelines;
 };

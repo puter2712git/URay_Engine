@@ -24,7 +24,7 @@ struct BillboardObjectState
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     Mesh* mesh = nullptr;
-    Vector<Material*> materials;
+    Vector<URay::Material*> materials;
 };
 
 class BillboardObject : public DrawableObject

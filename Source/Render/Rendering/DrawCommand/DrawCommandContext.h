@@ -32,7 +32,7 @@ struct MeshCommandContext
     uint32 objectId = 0;
 
     Mesh* mesh = nullptr;
-    Material* material = nullptr;
+    URay::Material* material = nullptr;
 
     uint32 indexOffset = 0;
     uint32 indexCount = 0;
@@ -45,7 +45,7 @@ struct SkinnedMeshCommandContext
     uint32 objectId = 0;
 
     SkinnedMesh* skinnedMesh = nullptr;
-    Material* material = nullptr;
+    URay::Material* material = nullptr;
     DescriptorSet* skinningDescriptorSet = nullptr;
 
     uint32 indexOffset = 0;
@@ -59,7 +59,7 @@ struct BillboardCommandContext
     uint32 objectId = 0;
 
     Mesh* mesh = nullptr;
-    Material* material = nullptr;
+    URay::Material* material = nullptr;
 
     uint32 indexOffset = 0;
     uint32 indexCount = 0;
@@ -79,7 +79,7 @@ struct DecalCommandContext
     uint32 indexOffset = 0;
     uint32 indexCount = 0;
 
-    Material* decalMaterial = nullptr;
+    URay::Material* decalMaterial = nullptr;
     DescriptorSet* decalDescriptorSet = nullptr;
 };
 
@@ -88,7 +88,7 @@ struct GizmoCommandContext
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     Mesh* mesh = nullptr;
-    Material* material = nullptr;
+    URay::Material* material = nullptr;
 };
 
 } // namespace URay::Render
