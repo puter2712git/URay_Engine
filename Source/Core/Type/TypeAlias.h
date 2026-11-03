@@ -7,6 +7,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -37,6 +38,9 @@ using Span = std::span<T>;
 
 template <typename K, typename V, typename Hash = std::hash<K>>
 using HashMap = std::unordered_map<K, V, Hash>;
+
+template <typename T, typename Hash = std::hash<T>>
+using HashSet = std::unordered_set<T, Hash>;
 
 template <typename T>
 using UniquePtr = std::unique_ptr<T>;
