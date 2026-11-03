@@ -61,7 +61,8 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath)
     const NativeAPI api{
         .logAPI = CreateLogAPI(),
         .objectAPI = CreateObjectAPI(),
-        .unitAPI = CreateUnitAPI()
+        .unitAPI = CreateUnitAPI(),
+        .transformAPI = CreateTransformAPI()
     };
 
     const int32 result = init(&api);

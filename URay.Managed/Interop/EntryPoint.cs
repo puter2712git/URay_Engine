@@ -14,7 +14,17 @@ public static unsafe class EntryPoint
             if (api == null ||
                 api->logAPI.Log == null ||
                 api->objectAPI.IsValid == null ||
-                api->unitAPI.GetTransform == null)
+                api->unitAPI.GetTransform == null ||
+                api->transformAPI.GetLocalPosition == null ||
+                api->transformAPI.SetLocalPosition == null)
+            {
+                return -1;
+            }
+
+            if (sizeof(Vector3) != 12 ||
+                Marshal.OffsetOf<Vector3>(nameof(Vector3.x)).ToInt32() != 0 ||
+                Marshal.OffsetOf<Vector3>(nameof(Vector3.y)).ToInt32() != 4 ||
+                Marshal.OffsetOf<Vector3>(nameof(Vector3.z)).ToInt32() != 8)
             {
                 return -1;
             }

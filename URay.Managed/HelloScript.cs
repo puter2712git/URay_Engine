@@ -4,24 +4,20 @@ public sealed class HelloScript : ScriptBehaviour
 {
     public override void OnLoad()
     {
-        Transform? transform = owner.transform;
-
-        if (transform == null)
-        {
-            Debug.Log("Transform was not found.");
-            return;
-        }
-
-        Debug.Log($"Transform is valid: {transform.IsValid()}");
     }
 
     public override void OnUpdate(float deltaTime)
     {
-        Debug.Log($"Update deltaTime: {deltaTime}");
+        Transform? transform = owner.transform;
+        if (transform == null)
+            return;
+
+        Vector3 position = transform.localPosition;
+        position += Vector3.Right * (2.0f * deltaTime);
+        transform.localPosition = position;
     }
 
     public override void OnUnload()
     {
-        Debug.Log("Unloaded");
     }
 }
