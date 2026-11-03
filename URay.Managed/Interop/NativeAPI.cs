@@ -7,5 +7,6 @@ public unsafe struct NativeAPI
 {
     public LogAPI logAPI;
     public ObjectAPI objectAPI;
+    public UnitAPI unitAPI;
 }
 

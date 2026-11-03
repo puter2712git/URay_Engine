@@ -13,7 +13,8 @@ public static unsafe class EntryPoint
         {
             if (api == null ||
                 api->logAPI.Log == null ||
-                api->objectAPI.IsValid == null)
+                api->objectAPI.IsValid == null ||
+                api->unitAPI.GetTransform == null)
             {
                 return -1;
             }

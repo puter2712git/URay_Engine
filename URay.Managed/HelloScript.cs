@@ -4,7 +4,15 @@ public sealed class HelloScript : ScriptBehaviour
 {
     public override void OnLoad()
     {
-        Debug.Log($"Owner is valid: {owner.IsValid()}");
+        Transform? transform = owner.transform;
+
+        if (transform == null)
+        {
+            Debug.Log("Transform was not found.");
+            return;
+        }
+
+        Debug.Log($"Transform is valid: {transform.IsValid()}");
     }
 
     public override void OnUpdate(float deltaTime)
