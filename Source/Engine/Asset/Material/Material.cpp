@@ -341,11 +341,18 @@ bool Material::Initialize()
     return true;
 }
 
-void Material::AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value)
+bool Material::AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value)
 {
-    parameters.insert({ name, MaterialParameter{
-                                  .type = type,
-                                  .value = value } });
+    MaterialParameter parameter = {};
+    parameter.type = type;
+    parameter.value = std::move(value);
+
+    if (!IsValidParameterValue(parameter))
+        return false;
+
+    const auto [it, inserted] = parameters.emplace(name, std::move(parameter));
+
+    return inserted;
 }
 
 bool Material::TryGetParameter(const String& name, MaterialParameter& outParameter) const
@@ -363,33 +370,29 @@ const HashMap<String, MaterialParameter>& Material::GetParameters() const
     return parameters;
 }
 
-void Material::SetFloat(const String& name, float value)
+bool Material::SetFloat(const String& name, float value)
 {
-    auto it = parameters.find(name);
-    if (it == parameters.end())
-        return;
-
-    auto uniformBufferIt = uniformBuffers.find(it->second.binding);
-    if (uniformBufferIt == uniformBuffers.end())
-        return;
-
-    if (it->second.type != MaterialParameterType::Float)
-        return;
-
-    for (uint32 i = 0; i < Render::MAX_FRAMES_IN_FLIGHT; ++i)
-    {
-        uniformBufferIt->second[i]->Update(&value, sizeof(float), it->second.offset);
-    }
+    return SetParameterValue(name, MaterialParameterType::Float, value);
 }
 
-void Material::SetTexture(const String& name, const AssetHandle& textureHandle)
+bool Material::SetFloat2(const String& name, const Vector2& value)
 {
-    auto it = parameters.find(name);
-    if (it == parameters.end())
-        return;
+    return SetParameterValue(name, MaterialParameterType::Float2, value);
+}
 
-    it->second.value = textureHandle;
-    ++descriptorRevision;
+bool Material::SetFloat3(const String& name, const Vector3& value)
+{
+    return SetParameterValue(name, MaterialParameterType::Float3, value);
+}
+
+bool Material::SetFloat4(const String& name, const Color& value)
+{
+    return SetParameterValue(name, MaterialParameterType::Float4, value);
+}
+
+bool Material::SetTexture(const String& name, const AssetHandle& textureHandle)
+{
+    return SetParameterValue(name, MaterialParameterType::Texture2D, textureHandle);
 }
 
 Shader* Material::GetShader() const
@@ -489,6 +492,32 @@ Render::DescriptorSet* Material::GetDescriptorSet(uint32 frameIndex) const
 
     Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(const_cast<Material*>(this));
     return renderMaterial ? renderMaterial->GetDescriptorSet(frameIndex) : nullptr;
+}
+
+bool Material::SetParameterValue(const String& name, MaterialParameterType expectedType, MaterialParameterValue value)
+{
+    auto it = parameters.find(name);
+    if (it == parameters.end())
+        return false;
+
+    MaterialParameter& parameter = it->second;
+
+    if (parameter.type != expectedType)
+        return false;
+
+    MaterialParameter newParameter = {};
+    newParameter.type = expectedType;
+    newParameter.value = std::move(value);
+
+    if (!IsValidParameterValue(newParameter))
+        return false;
+
+    parameter.value = std::move(newParameter.value);
+
+    if (expectedType == MaterialParameterType::Texture2D)
+        ++descriptorRevision;
+
+    return true;
 }
 
 } // namespace URay

@@ -1,5 +1,5 @@
-#include <Core/Type/TypeAlias.h>
 #include "AssetFactory.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -80,10 +80,13 @@ UniquePtr<Material> AssetFactory::CreateMaterial(const AssetMetadata& metadata) 
 
     for (const MaterialParameterData& parameter : data.parameters)
     {
-        material->AddParameter(
-            parameter.name,
-            parameter.type,
-            parameter.value);
+        if (!material->AddParameter(
+                parameter.name,
+                parameter.type,
+                parameter.value))
+        {
+            return nullptr;
+        }
     }
 
     return material;
