@@ -17,6 +17,17 @@ URAY_REGISTER_COMPONENT(CameraComponent)
 
 void CameraComponent::RegisterClass()
 {
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Bool,
+          .name = "Is Perspective",
+          .offset = offsetof(CameraComponent, isPerspective),
+          .size = sizeof(bool) });
+
+    StaticClass()->AddProperty(
+        { .type = PropertyType::Float,
+          .name = "Orthographic Size",
+          .offset = offsetof(CameraComponent, orthoSize),
+          .size = sizeof(float) });
 }
 
 Render::RenderObject* CameraComponent::CreateRenderObject()
