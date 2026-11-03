@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <span>
 #include <string>
@@ -35,6 +36,9 @@ using Vector = std::vector<T>;
 
 template <typename T>
 using Span = std::span<T>;
+
+template <typename K, typename V, typename Compare = std::less<K>>
+using Map = std::map<K, V, Compare>;
 
 template <typename K, typename V, typename Hash = std::hash<K>>
 using HashMap = std::unordered_map<K, V, Hash>;
