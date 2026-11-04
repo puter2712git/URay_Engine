@@ -1,14 +1,12 @@
 #pragma once
 
-#include <Engine/Component/Render/RenderComponent.h>
 #include <Engine/Asset/AssetHandle.h>
+#include <Engine/Component/Render/RenderComponent.h>
 
 namespace URay
 {
 
-class Texture;
-class Mesh;
-class Material;
+class MaterialInstance;
 
 class SpriteComponent : public RenderComponent
 {
@@ -29,10 +27,14 @@ protected:
     void UpdateRenderObject() override;
 
 private:
+    MaterialInstance* GetOrCreateMaterialInstance();
+
+private:
     AssetHandle textureHandle = {};
 
     AssetHandle quadMeshHandle = {};
     AssetHandle materialHandle = {};
+    AssetHandle materialInstanceHandle = {};
 };
 
 } // namespace URay
