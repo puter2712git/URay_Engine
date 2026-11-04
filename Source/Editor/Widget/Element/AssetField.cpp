@@ -3,13 +3,13 @@
 #include <Editor/Widget/EditorWidgetFactory.h>
 
 #include <Editor/Editor.h>
-#include <Engine/UI/Widget/Element/TextBox.h>
+#include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Popup/AssetPickerPopup.h>
-#include <Editor/Widget/EditorUI.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Engine.h>
+#include <Engine/UI/Widget/Element/TextBox.h>
 
 namespace URay
 {
@@ -29,6 +29,24 @@ AssetField::~AssetField()
         if (auto* popupLayer = static_cast<PopupLayer*>(activePopup->GetParent()))
             popupLayer->ClosePopup();
     }
+}
+
+bool AssetField::CanAcceptAsset(AssetHandle handle) const
+{
+    if (!assetClass)
+        return false;
+
+    AssetDatabase& assetDB = gEngine->GetAssetSystem().GetDatabase();
+    return assetDB.Find(handle, assetClass) != nullptr;
+}
+
+void AssetField::AcceptAsset(AssetHandle handle)
+{
+    if (!CanAcceptAsset(handle) || value == handle)
+        return;
+
+    SetValue(handle);
+    Emit("ValueChanged", handle);
 }
 
 void AssetField::Arrange(const Rect& rect)

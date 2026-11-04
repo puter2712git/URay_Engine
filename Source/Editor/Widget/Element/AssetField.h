@@ -17,11 +17,16 @@ class AssetPickerPopup;
 
 class AssetField final : public Widget, public RayEmitter
 {
+    URAY_CLASS(AssetField, Widget)
+
 public:
     explicit AssetField(Class* assetClass);
     ~AssetField() override;
 
 public:
+    bool CanAcceptAsset(AssetHandle handle) const;
+    void AcceptAsset(AssetHandle handle);
+
     void Arrange(const Rect& rect) override;
 
     EventReply OnPointerDown(const PointerEvent& event) override;
@@ -41,7 +46,6 @@ private:
     AssetHandle value = {};
     AssetPickerPopup* activePopup = nullptr;
     std::weak_ptr<void> popupLifetime;
-
 };
 
 } // namespace URay

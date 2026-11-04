@@ -25,6 +25,7 @@ public:
     const AssetEntry& GetEntry() const { return entry; }
 
     EventReply OnPointerDown(const PointerEvent& event) override;
+    EventReply OnPointerMove(const PointerEvent& event) override;
     EventReply OnPointerUp(const PointerEvent& event) override;
     void OnPointerCancel() override;
 
@@ -47,6 +48,9 @@ private:
     Label* nameLabel = nullptr;
 
     uint8 pendingClickCount = 0;
+    Vector2 pressPosition = Vector2::Zero;
+    bool isPointerDown = false;
+    bool isDragging = false;
 };
 
 } // namespace URay
