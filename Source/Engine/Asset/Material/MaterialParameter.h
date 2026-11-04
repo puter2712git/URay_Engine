@@ -27,11 +27,7 @@ using MaterialParameterValue = std::variant<float, Vector2, Vector3, Color, Asse
 
 struct MaterialParameter
 {
-    uint32 binding = 0;
     MaterialParameterType type;
-    uint32 offset = 0;
-    uint32 size = 0;
-
     MaterialParameterValue value;
 };
 

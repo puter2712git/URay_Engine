@@ -47,9 +47,6 @@ public:
     bool SetFloat4(const String& name, const Color& value);
     bool SetTexture(const String& name, const AssetHandle& textureHandle);
 
-    void PrepareDescriptorSet(uint32 frameIndex);
-    Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const;
-
 protected:
     bool SetParameterValue(const String& name, MaterialParameterType expectedType, MaterialParameterValue value);
 
@@ -59,11 +56,6 @@ protected:
     HashMap<String, MaterialParameter> parameters;
 
     AssetHandle shaderHandle = {};
-
-    Map<uint32, Array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
-
-    uint64 descriptorRevision = 1;
-    Array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};
 };
 
 } // namespace URay

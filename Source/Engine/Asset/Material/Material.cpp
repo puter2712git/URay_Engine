@@ -249,7 +249,6 @@ bool Material::Initialize()
             auto [it, inserted] = parameters.try_emplace(
                 binding.name,
                 MaterialParameter{
-                    .binding = binding.binding,
                     .type = MaterialParameterType::Texture2D,
                     .value = EngineAsset::WhiteTexture });
 
@@ -261,7 +260,6 @@ bool Material::Initialize()
                 return false;
             }
 
-            parameter.binding = binding.binding;
             break;
         }
 
@@ -316,10 +314,6 @@ bool Material::Initialize()
                     shaderParameter.name.c_str());
                 return false;
             }
-
-            materialParameter.binding = uniformBuffer.binding;
-            materialParameter.offset = shaderParameter.offset;
-            materialParameter.size = shaderParameter.size;
         }
     }
 
@@ -414,48 +408,6 @@ bool Material::SetTexture(const String& name, const AssetHandle& textureHandle)
     return SetParameterValue(name, MaterialParameterType::Texture2D, textureHandle);
 }
 
-void Material::PrepareDescriptorSet(uint32 frameIndex)
-{
-    if (appliedDescriptorRevisions[frameIndex] == descriptorRevision)
-        return;
-
-    Render::DescriptorSet* descriptorSet = GetDescriptorSet(frameIndex);
-    if (!descriptorSet)
-        return;
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-
-    for (const auto& [name, parameter] : parameters)
-    {
-        if (parameter.type != MaterialParameterType::Texture2D)
-            continue;
-
-        const AssetHandle textureHandle = std::get<AssetHandle>(parameter.value);
-
-        Texture* texture = assetDatabase.Find<Texture>(textureHandle);
-        if (!texture)
-            texture = assetDatabase.Find<Texture>(EngineAsset::WhiteTexture);
-
-        Render::Texture* renderTexture = resourceManager.GetOrCreateTexture(texture);
-        Render::TextureView* view = resourceManager.GetOrCreateTextureView(renderTexture, {});
-
-        descriptorSet->WriteSampledImage(parameter.binding, view);
-    }
-
-    appliedDescriptorRevisions[frameIndex] = descriptorRevision;
-}
-
-Render::DescriptorSet* Material::GetDescriptorSet(uint32 frameIndex) const
-{
-    Render::ResourceManager& resourceManager = gEngine->GetRenderSystem().GetResourceManager();
-
-    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(this);
-    return renderMaterial ? renderMaterial->GetDescriptorSet(frameIndex) : nullptr;
-}
-
 bool Material::SetParameterValue(const String& name, MaterialParameterType expectedType, MaterialParameterValue value)
 {
     auto it = parameters.find(name);
@@ -475,9 +427,6 @@ bool Material::SetParameterValue(const String& name, MaterialParameterType expec
         return false;
 
     parameter.value = std::move(newParameter.value);
-
-    if (expectedType == MaterialParameterType::Texture2D)
-        ++descriptorRevision;
 
     return true;
 }
