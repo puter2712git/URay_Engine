@@ -17,6 +17,8 @@ public:
 public:
     const Material* GetParent() const;
 
+    bool IsInitialized() const override;
+
     Shader* GetShader() const override;
 
     bool TryGetParameter(const String& name, MaterialParameter& outParameter) const override;

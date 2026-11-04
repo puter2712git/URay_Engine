@@ -17,9 +17,13 @@ public:
     virtual ~MaterialInterface() = default;
 
 public:
+    virtual bool IsInitialized() const = 0;
+
     virtual Shader* GetShader() const = 0;
 
     virtual bool TryGetParameter(const String& name, MaterialParameter& outParameter) const = 0;
+
+    bool PrepareRenderMaterial(uint32 frameIndex);
 };
 
 } // namespace URay

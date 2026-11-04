@@ -20,7 +20,7 @@
 namespace URay
 {
 class VirtualFileSystem;
-class Material;
+class MaterialInterface;
 class Mesh;
 class SkinnedMesh;
 class Texture;
@@ -70,7 +70,7 @@ public:
     Render::Shader* GetOrCreateComputeShader(URay::Shader* shader, const Vector<ShaderDefine>& defines);
     void DestroyShaders();
 
-    Material* GetOrCreateMaterial(URay::Material* material);
+    Material* GetOrCreateMaterial(const URay::MaterialInterface* material);
     void DestroyMaterials();
 
     DescriptorSetLayout* GetOrCreateDescriptorSetLayout(const DescriptorSetLayoutDesc& desc);
@@ -105,7 +105,7 @@ private:
 
     HashMap<ShaderPermutationKey, Render::Shader*, ShaderPermutationKeyHash> shaders;
 
-    HashMap<URay::Material*, UniquePtr<Material>> materials;
+    HashMap<const URay::MaterialInterface*, UniquePtr<Material>> materials;
 
     HashMap<DescriptorSetLayoutDesc, DescriptorSetLayout*, DescriptorSetLayoutDescHash> descriptorSetLayouts;
 

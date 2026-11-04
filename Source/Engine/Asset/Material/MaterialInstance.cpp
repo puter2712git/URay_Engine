@@ -22,6 +22,11 @@ const Material* MaterialInstance::GetParent() const
     return parent;
 }
 
+bool MaterialInstance::IsInitialized() const
+{
+    return parent && parent->IsInitialized();
+}
+
 Shader* MaterialInstance::GetShader() const
 {
     return parent ? parent->GetShader() : nullptr;

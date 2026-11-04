@@ -4,6 +4,7 @@
 #include <Core/Log/LogSystem.h>
 #include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Material/MaterialInterface.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Mesh/SkinnedMesh.h>
 #include <Engine/Asset/Shader/Shader.h>
@@ -497,7 +498,7 @@ void ResourceManager::DestroyShaders()
     shaders.clear();
 }
 
-Material* ResourceManager::GetOrCreateMaterial(URay::Material* material)
+Material* ResourceManager::GetOrCreateMaterial(const URay::MaterialInterface* material)
 {
     if (!material)
         return nullptr;

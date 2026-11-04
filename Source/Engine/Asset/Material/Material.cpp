@@ -343,6 +343,11 @@ bool Material::Initialize()
     return true;
 }
 
+bool Material::IsInitialized() const
+{
+    return isInitialized;
+}
+
 Shader* Material::GetShader() const
 {
     Shader* ret = nullptr;
@@ -409,51 +414,6 @@ bool Material::SetTexture(const String& name, const AssetHandle& textureHandle)
     return SetParameterValue(name, MaterialParameterType::Texture2D, textureHandle);
 }
 
-bool Material::PrepareRenderMaterial(uint32 frameIndex)
-{
-    if (!isInitialized)
-        return false;
-
-    if (frameIndex >= Render::MAX_FRAMES_IN_FLIGHT)
-        return false;
-
-    Shader* shader = GetShader();
-    if (!shader)
-        return false;
-
-    Render::RenderSystem& renderSystem = gEngine->GetRenderSystem();
-    Render::ResourceManager& resourceManager = renderSystem.GetResourceManager();
-
-    Render::Shader* renderShader = resourceManager.GetOrCreateShader(shader, {});
-    if (!renderShader)
-        return false;
-
-    if (!renderShader->GetLayoutDescription(1))
-        return true;
-
-    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(this);
-    if (!renderMaterial)
-        return false;
-
-    AssetDatabase& assetDB = gEngine->GetAssetSystem().GetDatabase();
-
-    Render::MaterialState materialState = {};
-
-    if (!BuildMaterialState(
-            *this,
-            renderShader->GetMergedReflection(),
-            assetDB,
-            resourceManager,
-            materialState))
-    {
-        return false;
-    }
-
-    renderMaterial->Update(materialState);
-
-    return renderMaterial->Prepare(frameIndex);
-}
-
 void Material::PrepareDescriptorSet(uint32 frameIndex)
 {
     if (appliedDescriptorRevisions[frameIndex] == descriptorRevision)
@@ -492,7 +452,7 @@ Render::DescriptorSet* Material::GetDescriptorSet(uint32 frameIndex) const
 {
     Render::ResourceManager& resourceManager = gEngine->GetRenderSystem().GetResourceManager();
 
-    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(const_cast<Material*>(this));
+    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(this);
     return renderMaterial ? renderMaterial->GetDescriptorSet(frameIndex) : nullptr;
 }
 

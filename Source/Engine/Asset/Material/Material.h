@@ -33,6 +33,8 @@ public:
 public:
     bool Initialize();
 
+    bool IsInitialized() const override;
+
     Shader* GetShader() const override;
 
     bool TryGetParameter(const String& name, MaterialParameter& outParameter) const override;
@@ -44,8 +46,6 @@ public:
     bool SetFloat3(const String& name, const Vector3& value);
     bool SetFloat4(const String& name, const Color& value);
     bool SetTexture(const String& name, const AssetHandle& textureHandle);
-
-    bool PrepareRenderMaterial(uint32 frameIndex);
 
     void PrepareDescriptorSet(uint32 frameIndex);
     Render::DescriptorSet* GetDescriptorSet(uint32 frameIndex) const;
