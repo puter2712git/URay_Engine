@@ -199,6 +199,8 @@ bool CreateDefaultParameter(
 
 } // namespace
 
+URAY_REGISTER_CLASS(Material)
+
 void Material::RegisterClass()
 {
 }
@@ -341,6 +343,28 @@ bool Material::Initialize()
     return true;
 }
 
+Shader* Material::GetShader() const
+{
+    Shader* ret = nullptr;
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
+
+    ret = assetDatabase.Find<Shader>(shaderHandle);
+
+    return ret;
+}
+
+bool Material::TryGetParameter(const String& name, MaterialParameter& outParameter) const
+{
+    const auto it = parameters.find(name);
+    if (it == parameters.end())
+        return false;
+
+    outParameter = it->second;
+    return true;
+}
+
 bool Material::AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value)
 {
     MaterialParameter parameter = {};
@@ -353,16 +377,6 @@ bool Material::AddParameter(const String& name, MaterialParameterType type, Mate
     const auto [it, inserted] = parameters.emplace(name, std::move(parameter));
 
     return inserted;
-}
-
-bool Material::TryGetParameter(const String& name, MaterialParameter& outParameter) const
-{
-    const auto it = parameters.find(name);
-    if (it == parameters.end())
-        return false;
-
-    outParameter = it->second;
-    return true;
 }
 
 const HashMap<String, MaterialParameter>& Material::GetParameters() const
@@ -393,18 +407,6 @@ bool Material::SetFloat4(const String& name, const Color& value)
 bool Material::SetTexture(const String& name, const AssetHandle& textureHandle)
 {
     return SetParameterValue(name, MaterialParameterType::Texture2D, textureHandle);
-}
-
-Shader* Material::GetShader() const
-{
-    Shader* ret = nullptr;
-
-    AssetSystem& assetSystem = gEngine->GetAssetSystem();
-    AssetDatabase& assetDatabase = assetSystem.GetDatabase();
-
-    ret = assetDatabase.Find<Shader>(shaderHandle);
-
-    return ret;
 }
 
 bool Material::PrepareRenderMaterial(uint32 frameIndex)

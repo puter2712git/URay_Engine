@@ -2,12 +2,10 @@
 
 #include <Core/Math/Color.h>
 #include <Core/Type/TypeAlias.h>
-#include <Engine/Asset/Asset.h>
-#include <Engine/Asset/Material/MaterialParameter.h>
+#include <Engine/Asset/Material/MaterialInterface.h>
 #include <Render/Rendering/RenderInfo.h>
 
 #include <cstdint>
-#include <unordered_map>
 
 namespace URay
 {
@@ -24,9 +22,9 @@ class Buffer;
 class ResourceManager;
 } // namespace Render
 
-class Material : public Asset
+class Material : public MaterialInterface
 {
-    URAY_OBJECT(Material, Asset)
+    URAY_OBJECT(Material, MaterialInterface)
 
 public:
     Material(const AssetHandle& shaderHandle);
@@ -35,8 +33,10 @@ public:
 public:
     bool Initialize();
 
+    Shader* GetShader() const override;
+
+    bool TryGetParameter(const String& name, MaterialParameter& outParameter) const override;
     bool AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value);
-    bool TryGetParameter(const String& name, MaterialParameter& outParameter) const;
     const HashMap<String, MaterialParameter>& GetParameters() const;
 
     bool SetFloat(const String& name, float value);
@@ -44,8 +44,6 @@ public:
     bool SetFloat3(const String& name, const Vector3& value);
     bool SetFloat4(const String& name, const Color& value);
     bool SetTexture(const String& name, const AssetHandle& textureHandle);
-
-    Shader* GetShader() const;
 
     bool PrepareRenderMaterial(uint32 frameIndex);
 
@@ -62,7 +60,7 @@ protected:
 
     AssetHandle shaderHandle = {};
 
-    std::map<uint32, Array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
+    Map<uint32, Array<UniquePtr<Render::Buffer>, Render::MAX_FRAMES_IN_FLIGHT>> uniformBuffers;
 
     uint64 descriptorRevision = 1;
     Array<uint64, Render::MAX_FRAMES_IN_FLIGHT> appliedDescriptorRevisions = {};

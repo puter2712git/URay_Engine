@@ -2,7 +2,7 @@
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/EngineAsset.h>
-#include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Material/MaterialInterface.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Render/Rendering/Material/Material.h>
 #include <Render/ResourceManager.h>
@@ -99,7 +99,7 @@ bool WriteUniformParameter(
 }
 
 bool BuildUniformBufferStates(
-    const Material& material,
+    const MaterialInterface& material,
     const Render::ShaderReflection& reflection,
     Vector<Render::MaterialUniformBufferState>& outBuffers)
 {
@@ -130,7 +130,7 @@ bool BuildUniformBufferStates(
 }
 
 bool BuildTextureStates(
-    const Material& material,
+    const MaterialInterface& material,
     const Render::ShaderReflection& reflection,
     AssetDatabase& assetDB,
     Render::ResourceManager& resourceManager,
@@ -185,7 +185,7 @@ bool BuildTextureStates(
 } // namespace
 
 bool BuildMaterialState(
-    const Material& material,
+    const MaterialInterface& material,
     const Render::ShaderReflection& reflection,
     AssetDatabase& assetDB,
     Render::ResourceManager& resourceManager,

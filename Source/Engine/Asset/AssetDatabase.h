@@ -53,6 +53,7 @@ public:
     Vector<Asset*> GetAssets(Class* assetClass) const;
 
     void InsertOrReplace(UniquePtr<Asset> asset);
+    bool Insert(UniquePtr<Asset> asset);
 
 private:
     HashMap<AssetHandle, UniquePtr<Asset>, AssetHandleHash> assets;

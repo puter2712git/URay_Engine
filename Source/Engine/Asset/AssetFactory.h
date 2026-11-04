@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Type/TypeAlias.h>
-#include <memory>
+#include <Engine/Asset/AssetHandle.h>
 
 namespace URay
 {
@@ -10,6 +10,7 @@ class AssetSystem;
 class Asset;
 class Texture;
 class Material;
+class MaterialInstance;
 class Shader;
 class Font;
 class Mesh;
@@ -22,6 +23,8 @@ public:
 
 public:
     UniquePtr<Asset> Create(const AssetMetadata& metadata) const;
+
+    UniquePtr<MaterialInstance> CreateMaterialInstance(const AssetHandle& parentHandle) const; // Currently, material instance is runtime only.
 
 private:
     UniquePtr<Texture> CreateTexture(const AssetMetadata& metadata) const;

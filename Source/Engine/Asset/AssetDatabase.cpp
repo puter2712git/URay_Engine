@@ -1,5 +1,5 @@
-#include <Core/Type/TypeAlias.h>
 #include "AssetDatabase.h"
+#include <Core/Type/TypeAlias.h>
 
 #include <Engine/Object/Class/Class.h>
 
@@ -44,6 +44,17 @@ void AssetDatabase::InsertOrReplace(UniquePtr<Asset> asset)
     const AssetHandle handle = asset->GetHandle();
 
     assets.insert_or_assign(handle, std::move(asset));
+}
+
+bool AssetDatabase::Insert(UniquePtr<Asset> asset)
+{
+    if (!asset || !asset->GetHandle().IsValid())
+        return false;
+
+    const AssetHandle handle = asset->GetHandle();
+    const auto [it, inserted] = assets.emplace(handle, std::move(asset));
+
+    return inserted;
 }
 
 } // namespace URay

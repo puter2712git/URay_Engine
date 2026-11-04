@@ -1,13 +1,14 @@
 #include "AssetFactory.h"
-#include <Core/Type/TypeAlias.h>
 
 #include <Core/File/VirtualFileSystem.h>
+#include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Font/Font.h>
 #include <Engine/Asset/Font/FontData.h>
 #include <Engine/Asset/Font/FontSerializer.h>
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Material/MaterialData.h>
+#include <Engine/Asset/Material/MaterialInstance.h>
 #include <Engine/Asset/Material/MaterialSerializer.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Mesh/MeshData.h>
@@ -48,6 +49,20 @@ UniquePtr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
     }
 
     return nullptr;
+}
+
+UniquePtr<MaterialInstance> AssetFactory::CreateMaterialInstance(const AssetHandle& parentHandle) const
+{
+    AssetDatabase& assetDB = assetSystem.GetDatabase();
+
+    Material* parent = assetDB.Find<Material>(parentHandle);
+    if (!parent)
+        return nullptr;
+
+    auto instance = MakeUnique<MaterialInstance>(parent);
+    instance->SetHandle(AssetHandle::Generate());
+
+    return instance;
 }
 
 UniquePtr<Texture> AssetFactory::CreateTexture(const AssetMetadata& metadata) const

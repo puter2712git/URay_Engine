@@ -4,7 +4,7 @@ namespace URay
 {
 
 class AssetDatabase;
-class Material;
+class MaterialInterface;
 
 namespace Render
 {
@@ -14,7 +14,7 @@ struct ShaderReflection;
 } // namespace Render
 
 bool BuildMaterialState(
-    const Material& material,
+    const MaterialInterface& material,
     const Render::ShaderReflection& reflection,
     AssetDatabase& assetDB,
     Render::ResourceManager& resourceManager,
