@@ -24,6 +24,8 @@ struct DrawCommand
 {
     RenderPassId passId = RenderPassId::Opaque;
 
+    Vector3 sortPosition = Vector3::Zero;
+
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     uint32 objectId = 0;

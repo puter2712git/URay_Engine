@@ -21,6 +21,8 @@ public:
 
     Shader* GetShader() const override;
 
+    MaterialRenderMode GetRenderMode() const override;
+
     bool TryGetParameter(const String& name, MaterialParameter& outParameter) const override;
 
     bool SetFloat(const String& name, float value);

@@ -39,9 +39,6 @@
 
 #include <algorithm>
 #include <iostream>
-#include <set>
-#include <string>
-#include <vector>
 
 namespace URay::Render
 {
@@ -60,6 +57,8 @@ static StringView GetRenderPassName(RenderPassId passId)
         return "Selection Mask";
     case RenderPassId::Decal:
         return "Decal";
+    case RenderPassId::Transparent:
+        return "Transparent";
     case RenderPassId::Overlay:
         return "Overlay";
     case RenderPassId::Gizmo:
@@ -436,12 +435,11 @@ void Renderer::RequestSceneRenderTargetResize(const Extent2D& extent)
     scheduledSceneResizeExtent = extent;
     sceneResizeTaskId = scheduler.ScheduleOnce(
         SceneResizeDebounceSeconds,
-        [this, extent]()
-        {
-            pendingSceneRenderTargetExtent = extent;
-            scheduledSceneResizeExtent.reset();
-            sceneResizeTaskId.reset();
-        });
+        [this, extent]() {
+        pendingSceneRenderTargetExtent = extent;
+        scheduledSceneResizeExtent.reset();
+        sceneResizeTaskId.reset();
+    });
 }
 
 Extent2D Renderer::GetSceneRenderTargetExtent() const

@@ -31,6 +31,8 @@ struct MeshCommandContext
     Color colorTint = Color::White;
     uint32 objectId = 0;
 
+    Vector3 sortPosition = Vector3::Zero;
+
     Mesh* mesh = nullptr;
     URay::MaterialInterface* material = nullptr;
 

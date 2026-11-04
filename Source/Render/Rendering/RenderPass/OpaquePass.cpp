@@ -1,5 +1,4 @@
 #include "OpaquePass.h"
-#include <Core/Type/TypeAlias.h>
 
 #include <Render/RHI/Attachment/RenderingInfo.h>
 #include <Render/RHI/CommandBuffer/CommandBuffer.h>

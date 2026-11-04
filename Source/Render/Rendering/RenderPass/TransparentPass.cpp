@@ -1,0 +1,110 @@
+#include "TransparentPass.h"
+
+#include <Render/RHI/CommandBuffer/CommandBuffer.h>
+#include <Render/RHI/Descriptor/DescriptorSet.h>
+#include <Render/RHI/PipelineLayout/PipelineLayout.h>
+#include <Render/RHI/PipelineState/PipelineState.h>
+#include <Render/Rendering/FrameResource.h>
+#include <Render/Rendering/RenderConstants.h>
+#include <Render/ResourceManager.h>
+
+namespace URay::Render
+{
+
+TransparentPass::TransparentPass()
+{
+}
+
+TransparentPass::~TransparentPass()
+{
+}
+
+void TransparentPass::Begin(const RenderPassContext& context)
+{
+}
+
+void TransparentPass::End(const RenderPassContext& context)
+{
+}
+
+void TransparentPass::Execute(
+    const RenderPassContext& context,
+    const Vector<DrawCommand>& drawCmds)
+{
+    CommandBuffer& commandBuffer = context.commandBuffer;
+    ResourceManager& resourceManager = context.resourceManager;
+
+    for (const DrawCommand& cmd : drawCmds)
+    {
+        PipelineStateDesc psoDesc = cmd.pipelineState;
+        psoDesc.rendering = {
+            .colorAttachmentFormats = { Format::BGRA8_sRGB, Format::R32_UInt },
+            .depthAttachmentFormat = Format::D32_Float_S8_UInt,
+            .stencilAttachmentFormat = Format::Unknown
+        };
+        psoDesc.colorBlendAttachments.push_back(ColorBlendAttachmentState{
+            .mode = BlendMode::Opaque,
+            .writeMask = cmd.writeObjectId
+                             ? ColorWriteMask::R
+                             : ColorWriteMask::None });
+
+        PipelineState* pso = resourceManager.GetOrCreatePSO(psoDesc);
+
+        commandBuffer.BindPipeline(*pso);
+
+        commandBuffer.BindDescriptorSet(
+            *pso->GetLayout(),
+            *context.frameResource.descriptorSet,
+            0);
+
+        if (cmd.descriptorSets[1] && pso->GetLayout()->HasDescriptorSet(1))
+        {
+            commandBuffer.BindDescriptorSet(
+                *pso->GetLayout(),
+                *cmd.descriptorSets[1],
+                1);
+        }
+
+        if (cmd.descriptorSets[2] && pso->GetLayout()->HasDescriptorSet(2))
+        {
+            commandBuffer.BindDescriptorSet(
+                *pso->GetLayout(),
+                *cmd.descriptorSets[2],
+                2);
+        }
+
+        ObjectConstants objConstants = {};
+        objConstants.world = cmd.worldMatrix;
+        objConstants.colorTint = cmd.colorTint;
+        objConstants.objectId = cmd.objectId;
+
+        if (pso->GetLayout()->SupportsPushConstants())
+        {
+            commandBuffer.PushConstants(
+                *pso->GetLayout(),
+                0,
+                0,
+                sizeof(objConstants),
+                &objConstants);
+        }
+
+        commandBuffer.BindVertexBuffer(*cmd.vertexBuffer);
+
+        if (cmd.indexBuffer)
+        {
+            commandBuffer.BindIndexBuffer(*cmd.indexBuffer);
+            commandBuffer.DrawIndexed(cmd.indexCount, cmd.indexOffset);
+        }
+        else
+        {
+            commandBuffer.Draw(cmd.vertexCount);
+        }
+    }
+}
+
+RenderPassId TransparentPass::GetPassId() const
+{
+    return RenderPassId::Transparent;
+}
+
+} // namespace URay::Render

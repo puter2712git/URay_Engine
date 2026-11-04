@@ -31,15 +31,23 @@ void MeshObject::Submit(DrawCommandBuilder& builder, const DrawCommandParams& pa
             !state.materials[section.materialIndex])
             continue;
 
+        auto* material = state.materials[section.materialIndex];
+
+        const RenderPassId passId =
+            material->GetRenderMode() == MaterialRenderMode::Transparent
+                ? RenderPassId::Transparent
+                : RenderPassId::Opaque;
+
         builder.BuildMesh(
             { .worldMatrix = state.worldMatrix,
               .colorTint = state.colorTint,
               .objectId = GetId(),
+              .sortPosition = worldBounds.GetCenter(),
               .mesh = state.mesh,
-              .material = state.materials[section.materialIndex],
+              .material = material,
               .indexOffset = section.indexOffset,
               .indexCount = section.indexCount },
-            RenderPassId::Opaque,
+            passId,
             params);
 
         if (state.castsShadow)
@@ -49,7 +57,7 @@ void MeshObject::Submit(DrawCommandBuilder& builder, const DrawCommandParams& pa
                   .colorTint = state.colorTint,
                   .objectId = GetId(),
                   .mesh = state.mesh,
-                  .material = state.materials[section.materialIndex],
+                  .material = material,
                   .indexOffset = section.indexOffset,
                   .indexCount = section.indexCount },
                 RenderPassId::Shadow,

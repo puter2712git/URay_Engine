@@ -32,6 +32,11 @@ Shader* MaterialInstance::GetShader() const
     return parent ? parent->GetShader() : nullptr;
 }
 
+MaterialRenderMode MaterialInstance::GetRenderMode() const
+{
+    return parent ? parent->GetRenderMode() : MaterialRenderMode::Opaque;
+}
+
 bool MaterialInstance::TryGetParameter(const String& name, MaterialParameter& outParameter) const
 {
     if (!parent)

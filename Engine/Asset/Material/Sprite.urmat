@@ -1,5 +1,6 @@
 Version: 1
 Shader: 00000000-0000-0000-0000-000000000002
+RenderMode: Transparent
 Parameters:
   - Name: textureImage
     Type: 4

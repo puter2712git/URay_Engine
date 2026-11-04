@@ -89,7 +89,7 @@ UniquePtr<Material> AssetFactory::CreateMaterial(const AssetMetadata& metadata) 
     if (!assetSystem.GetMaterialSerializer().Load(data, metadata.assetPath))
         return nullptr;
 
-    auto material = MakeUnique<Material>(data.shaderHandle);
+    auto material = MakeUnique<Material>(data.shaderHandle, data.renderMode);
     material->SetHandle(metadata.handle);
     material->SetName(metadata.assetPath.GetStem());
 

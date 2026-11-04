@@ -27,7 +27,7 @@ class Material : public MaterialInterface
     URAY_OBJECT(Material, MaterialInterface)
 
 public:
-    Material(const AssetHandle& shaderHandle);
+    Material(const AssetHandle& shaderHandle, MaterialRenderMode renderMode = MaterialRenderMode::Opaque);
     ~Material();
 
 public:
@@ -36,6 +36,8 @@ public:
     bool IsInitialized() const override;
 
     Shader* GetShader() const override;
+
+    MaterialRenderMode GetRenderMode() const override;
 
     bool TryGetParameter(const String& name, MaterialParameter& outParameter) const override;
     bool AddParameter(const String& name, MaterialParameterType type, MaterialParameterValue value);
@@ -52,6 +54,8 @@ protected:
 
 protected:
     bool isInitialized = false;
+
+    MaterialRenderMode renderMode = MaterialRenderMode::Opaque;
 
     HashMap<String, MaterialParameter> parameters;
 

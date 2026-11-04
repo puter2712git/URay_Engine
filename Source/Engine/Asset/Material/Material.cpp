@@ -205,7 +205,10 @@ void Material::RegisterClass()
 {
 }
 
-Material::Material(const AssetHandle& shaderHandle) : shaderHandle(shaderHandle) {}
+Material::Material(const AssetHandle& shaderHandle, MaterialRenderMode renderMode)
+    : shaderHandle(shaderHandle), renderMode(renderMode)
+{
+}
 
 Material::~Material() = default;
 
@@ -352,6 +355,11 @@ Shader* Material::GetShader() const
     ret = assetDatabase.Find<Shader>(shaderHandle);
 
     return ret;
+}
+
+MaterialRenderMode Material::GetRenderMode() const
+{
+    return renderMode;
 }
 
 bool Material::TryGetParameter(const String& name, MaterialParameter& outParameter) const

@@ -59,6 +59,7 @@ Render::RenderObject* SpriteComponent::CreateRenderObject()
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     objectState.mesh = assetDatabase.Find<Mesh>(quadMeshHandle);
     objectState.materials = { materialInstance };
+    objectState.castsShadow = false;
 
     renderObject = new Render::MeshObject(objectState);
     return renderObject;
@@ -83,6 +84,7 @@ void SpriteComponent::UpdateRenderObject()
     objectState.worldMatrix = transform ? transform->GetWorldMatrix() : Matrix::Identity;
     objectState.mesh = assetDatabase.Find<Mesh>(quadMeshHandle);
     objectState.materials = { materialInstance };
+    objectState.castsShadow = false;
 
     Render::MeshObject* meshObject = static_cast<Render::MeshObject*>(renderObject);
     meshObject->Update(objectState);

@@ -122,9 +122,11 @@ void DrawCommandBuilder::BuildMesh(
     if (!shader)
         return;
 
+    const bool isTransparent = passId == RenderPassId::Transparent;
+
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
-    depthStencil.depthWriteEnable = true;
+    depthStencil.depthWriteEnable = !isTransparent;
     depthStencil.depthCompareOp = CompareOp::Less;
     depthStencil.stencilTestEnable = false;
 
@@ -136,7 +138,7 @@ void DrawCommandBuilder::BuildMesh(
 
     Vector<ColorBlendAttachmentState> colorBlendAttachments;
     colorBlendAttachments.push_back(ColorBlendAttachmentState{
-        .mode = BlendMode::Opaque });
+        .mode = isTransparent ? BlendMode::AlphaBlend : BlendMode::Opaque });
 
     stateDesc.colorBlendAttachments = colorBlendAttachments;
 
@@ -146,6 +148,7 @@ void DrawCommandBuilder::BuildMesh(
 
     DrawCommand cmd = {};
     cmd.passId = passId;
+    cmd.sortPosition = context.sortPosition;
     cmd.worldMatrix = context.worldMatrix;
     cmd.colorTint = context.colorTint;
     cmd.objectId = context.objectId;
@@ -157,7 +160,7 @@ void DrawCommandBuilder::BuildMesh(
     cmd.indexCount = context.indexCount;
     cmd.pipelineState = stateDesc;
 
-    if (passId != RenderPassId::SelectionMask && shader->GetLayoutDescription(1))
+    if (shader->GetLayoutDescription(1))
     {
         cmd.descriptorSets[1] = GetMaterialDescriptorSet(context.material);
 

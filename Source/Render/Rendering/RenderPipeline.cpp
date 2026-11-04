@@ -38,10 +38,13 @@
 #include <Render/Rendering/RenderPass/SelectionMaskPass.h>
 #include <Render/Rendering/RenderPass/SelectionOutlinePass.h>
 #include <Render/Rendering/RenderPass/ShadowPass.h>
+#include <Render/Rendering/RenderPass/TransparentPass.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/Rendering/Scene/RenderEnvironment.h>
 #include <Render/Rendering/Scene/RenderScene.h>
 #include <Render/ResourceManager.h>
+
+#include <algorithm>
 
 namespace URay::Render
 {
@@ -61,6 +64,7 @@ bool RenderPipeline::Initialize()
     passes.push_back(MakeUnique<ClusteredLightCullingPass>());
     passes.push_back(MakeUnique<OpaquePass>());
     passes.push_back(MakeUnique<DecalPass>());
+    passes.push_back(MakeUnique<TransparentPass>());
     passes.push_back(MakeUnique<OverlayPass>());
     passes.push_back(MakeUnique<SelectionMaskPass>());
     passes.push_back(MakeUnique<FogPass>());
@@ -329,6 +333,17 @@ void RenderPipeline::ExecuteSceneRenderInfo(const SceneRenderInfo& sceneInfo)
 
         drawCmds[passIdIndex].push_back(cmd);
     }
+
+    auto& transparentCmds = drawCmds[static_cast<size_t>(RenderPassId::Transparent)];
+
+    std::stable_sort(
+        transparentCmds.begin(),
+        transparentCmds.end(),
+        [&view](const DrawCommand& a, const DrawCommand& b) {
+        const float aDepth = view.viewMatrix.TransformPoint(a.sortPosition).z;
+        const float bDepth = view.viewMatrix.TransformPoint(b.sortPosition).z;
+        return aDepth < bDepth;
+    });
 
     const RenderPassContext passContext = {
         .commandBuffer = *renderer.GetFrameResource().commandBuffer,

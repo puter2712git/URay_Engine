@@ -32,11 +32,18 @@ VertexPNTOut VSMain(VertexPNTIn input)
 SpriteFragOut PSMain(VertexPNTOut input)
 {
     SpriteFragOut output;
+    
+    float4 color = textureImage.Sample(textureSampler, input.outUV) * obj.colorTint;
 
+    if (color.a <= 0.0f)
+    {
+        discard;
+    }
+    
 #if URAY_SELECTION_MASK
     output.outColor = float4(1.0, 1.0, 1.0, 1.0);
 #else
-    output.outColor = textureImage.Sample(textureSampler, input.outUV) * obj.colorTint;
+    output.outColor = color;
     output.outObjectId = obj.objectId;
 #endif
 

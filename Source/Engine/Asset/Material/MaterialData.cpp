@@ -10,6 +10,7 @@ YAML::Node MaterialData::Serialize(YAML::Node& inNode) const
 {
     YAML::Node node = inNode;
     node["Shader"] = shaderHandle;
+    node["RenderMode"] = renderMode == MaterialRenderMode::Opaque ? "Opaque" : "Transparent";
 
     YAML::Node parametersNode;
     for (const auto& parameter : parameters)
@@ -50,6 +51,17 @@ YAML::Node MaterialData::Serialize(YAML::Node& inNode) const
 void MaterialData::Deserialize(const YAML::Node& node)
 {
     shaderHandle = AssetHandle::FromString(node["Shader"].as<String>());
+
+    renderMode = MaterialRenderMode::Opaque;
+    if (const YAML::Node renderModeNode = node["RenderMode"])
+    {
+        const String mode = renderModeNode.as<String>();
+
+        if (mode == "Transparent")
+        {
+            renderMode = MaterialRenderMode::Transparent;
+        }
+    }
 
     parameters.clear();
 
