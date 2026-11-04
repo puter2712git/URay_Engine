@@ -1,5 +1,5 @@
-#include <Engine/Component/Render/MeshComponent.h>
 #include <Core/Type/TypeAlias.h>
+#include <Engine/Component/Render/MeshComponent.h>
 
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -35,11 +35,10 @@ void MeshComponent::RegisterClass()
           .name = "Mesh",
           .offset = offsetof(MeshComponent, meshHandle),
           .size = sizeof(AssetHandle),
-          .OnChangedCallback = [&](Object& owner, const Property& property)
-          {
-              MeshComponent* meshComp = static_cast<MeshComponent*>(&owner);
-              meshComp->SetMeshHandle(meshComp->GetMeshHandle());
-          } });
+          .OnChangedCallback = [&](Object& owner, const Property& property) {
+        MeshComponent* meshComp = static_cast<MeshComponent*>(&owner);
+        meshComp->SetMeshHandle(meshComp->GetMeshHandle());
+    } });
     StaticClass()->AddProperty(
         { .type = PropertyType::Bool,
           .name = "Casts Shadow",
@@ -58,10 +57,11 @@ Render::RenderObject* MeshComponent::CreateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    Vector<Material*> materials;
+    Vector<MaterialInterface*> materials;
+
     for (const AssetHandle& handle : materialHandles)
     {
-        Material* material = assetDatabase.Find<Material>(handle);
+        MaterialInterface* material = assetDatabase.Find<MaterialInterface>(handle);
         materials.push_back(material);
     }
 
@@ -121,10 +121,11 @@ void MeshComponent::UpdateRenderObject()
 
     TransformComponent* transform = owner->GetTransform();
 
-    Vector<Material*> materials;
+    Vector<MaterialInterface*> materials;
+
     for (const AssetHandle& handle : materialHandles)
     {
-        Material* material = assetDatabase.Find<Material>(handle);
+        MaterialInterface* material = assetDatabase.Find<MaterialInterface>(handle);
         materials.push_back(material);
     }
 

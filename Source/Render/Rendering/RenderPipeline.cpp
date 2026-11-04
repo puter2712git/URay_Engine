@@ -1,8 +1,8 @@
-#include <Core/Type/TypeAlias.h>
-#include <Render/Rendering/RenderPipeline.h>
+#include "RenderPipeline.h"
 
 #include <Core/Math/Frustum.h>
 #include <Core/Math/Math.h>
+#include <Core/Type/TypeAlias.h>
 #include <Editor/Editor.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
@@ -89,6 +89,7 @@ void RenderPipeline::Reset()
 void RenderPipeline::Execute(const RenderRequest& request)
 {
     workingStats = {};
+    builder->BeginRequest();
 
     for (const SceneRenderInfo& sceneInfo : request.sceneRenderInfos)
     {

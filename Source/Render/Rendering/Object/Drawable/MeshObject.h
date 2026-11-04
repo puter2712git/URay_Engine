@@ -1,20 +1,16 @@
 #pragma once
 
-#include <Core/Type/TypeAlias.h>
-#include <Render/RHI/Vertex/Vertex.h>
-#include <Render/Rendering/Object/Drawable/DrawableObject.h>
-
-#include <Engine/Asset/Mesh/Mesh.h>
-
 #include <Core/Math/AABB.h>
 #include <Core/Math/Color.h>
-
-#include <vector>
+#include <Core/Type/TypeAlias.h>
+#include <Engine/Asset/Mesh/Mesh.h>
+#include <Render/RHI/Vertex/Vertex.h>
+#include <Render/Rendering/Object/Drawable/DrawableObject.h>
 
 namespace URay
 {
 
-class Material;
+class MaterialInterface;
 
 namespace Render
 {
@@ -24,7 +20,7 @@ struct MeshObjectState
     Matrix worldMatrix = Matrix::Identity;
     Color colorTint = Color::White;
     Mesh* mesh = nullptr;
-    Vector<URay::Material*> materials;
+    Vector<URay::MaterialInterface*> materials;
     bool castsShadow = true;
 };
 

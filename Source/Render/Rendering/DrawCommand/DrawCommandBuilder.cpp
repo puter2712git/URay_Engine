@@ -1,9 +1,11 @@
 #include "DrawCommandBuilder.h"
 
+#include <Core/Log/LogSystem.h>
 #include <Core/Type/TypeAlias.h>
 #include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/AssetSystem.h>
 #include <Engine/Asset/Material/Material.h>
+#include <Engine/Asset/Material/MaterialInterface.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Mesh/SkinnedMesh.h>
 #include <Engine/Asset/Shader/Shader.h>
@@ -12,9 +14,11 @@
 #include <Render/RenderSystem.h>
 #include <Render/Rendering/Batch/LineBatcher.h>
 #include <Render/Rendering/Batch/UIBatcher.h>
+#include <Render/Rendering/Material/Material.h>
 #include <Render/Rendering/RenderInfo.h>
 #include <Render/Rendering/Renderer.h>
 #include <Render/ResourceManager.h>
+#include <Render/Shader/Shader.h>
 
 #include <cstring>
 
@@ -75,12 +79,18 @@ void DrawCommandBuilder::FlushUI(const UIDrawContext& context)
     drawCmds.insert(drawCmds.begin(), cmds.begin(), cmds.end());
 }
 
+void DrawCommandBuilder::BeginRequest()
+{
+    preparedMaterials.clear();
+}
+
 void DrawCommandBuilder::BuildMesh(
     const MeshCommandContext& context,
     RenderPassId passId,
     const DrawCommandParams& params)
 {
-    context.material->PrepareDescriptorSet(currentFrame);
+    if (!PrepareMaterial(context.material))
+        return;
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
@@ -108,6 +118,9 @@ void DrawCommandBuilder::BuildMesh(
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),
         defines);
+
+    if (!shader)
+        return;
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
@@ -144,9 +157,12 @@ void DrawCommandBuilder::BuildMesh(
     cmd.indexCount = context.indexCount;
     cmd.pipelineState = stateDesc;
 
-    if (passId != RenderPassId::SelectionMask)
+    if (passId != RenderPassId::SelectionMask && shader->GetLayoutDescription(1))
     {
-        cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+        cmd.descriptorSets[1] = GetMaterialDescriptorSet(context.material);
+
+        if (!cmd.descriptorSets[1])
+            return;
     }
 
     drawCmds.push_back(cmd);
@@ -154,7 +170,8 @@ void DrawCommandBuilder::BuildMesh(
 
 void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& context, RenderPassId passId, const DrawCommandParams& params)
 {
-    context.material->PrepareDescriptorSet(currentFrame);
+    if (!PrepareMaterial(context.material))
+        return;
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.skinnedMesh);
 
@@ -183,6 +200,9 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),
         defines);
+
+    if (!shader)
+        return;
 
     DepthStencilState depthStencil = {};
     depthStencil.depthTestEnable = true;
@@ -219,9 +239,12 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
     cmd.indexCount = context.indexCount;
     cmd.pipelineState = stateDesc;
 
-    if (passId != RenderPassId::SelectionMask)
+    if (passId != RenderPassId::SelectionMask && shader->GetLayoutDescription(1))
     {
-        cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+        cmd.descriptorSets[1] = GetMaterialDescriptorSet(context.material);
+
+        if (!cmd.descriptorSets[1])
+            return;
     }
 
     cmd.descriptorSets[2] = context.skinningDescriptorSet;
@@ -231,7 +254,8 @@ void DrawCommandBuilder::BuildSkinnedMesh(const SkinnedMeshCommandContext& conte
 
 void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context, RenderPassId passId)
 {
-    context.material->PrepareDescriptorSet(currentFrame);
+    if (!PrepareMaterial(context.material))
+        return;
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
 
@@ -244,6 +268,9 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context, 
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),
         defines);
+
+    if (!shader)
+        return;
 
     DrawCommand cmd = {};
     cmd.passId = passId;
@@ -278,7 +305,14 @@ void DrawCommandBuilder::BuildBillboard(const BillboardCommandContext& context, 
     state.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = state;
-    cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+
+    if (shader->GetLayoutDescription(1))
+    {
+        cmd.descriptorSets[1] = GetMaterialDescriptorSet(context.material);
+
+        if (!cmd.descriptorSets[1])
+            return;
+    }
 
     drawCmds.push_back(cmd);
 }
@@ -377,10 +411,14 @@ void DrawCommandBuilder::BuildOBB(const AABB& localBounds, const Matrix& worldMa
 
 void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 {
-    context.decalMaterial->PrepareDescriptorSet(currentFrame);
+    if (!PrepareMaterial(context.decalMaterial))
+        return;
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.receiverMesh);
+
     Render::Shader* shader = resourceManager.GetOrCreateShader(context.decalMaterial->GetShader(), {});
+    if (!shader)
+        return;
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Decal;
@@ -414,7 +452,15 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
     state.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = state;
-    cmd.descriptorSets[1] = context.decalMaterial->GetDescriptorSet(currentFrame);
+
+    if (shader->GetLayoutDescription(1))
+    {
+        cmd.descriptorSets[1] = GetMaterialDescriptorSet(context.decalMaterial);
+
+        if (!cmd.descriptorSets[1])
+            return;
+    }
+
     cmd.descriptorSets[2] = context.decalDescriptorSet;
 
     drawCmds.push_back(cmd);
@@ -422,12 +468,16 @@ void DrawCommandBuilder::BuildDecal(const DecalCommandContext& context)
 
 void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
 {
-    context.material->PrepareDescriptorSet(currentFrame);
+    if (!PrepareMaterial(context.material))
+        return;
 
     MeshBuffer* meshBuffer = resourceManager.GetOrCreateMeshBuffer(context.mesh);
     Render::Shader* shader = resourceManager.GetOrCreateShader(
         context.material->GetShader(),
         { ShaderDefine{ .name = L"URAY_SHADING_MODEL", .value = L"0" } });
+
+    if (!shader)
+        return;
 
     DrawCommand cmd = {};
     cmd.passId = RenderPassId::Gizmo;
@@ -459,9 +509,47 @@ void DrawCommandBuilder::BuildGizmo(const GizmoCommandContext& context)
     state.colorBlendAttachments = colorBlendAttachments;
 
     cmd.pipelineState = state;
-    cmd.descriptorSets[1] = context.material->GetDescriptorSet(currentFrame);
+
+    if (shader->GetLayoutDescription(1))
+    {
+        cmd.descriptorSets[1] = GetMaterialDescriptorSet(context.material);
+
+        if (!cmd.descriptorSets[1])
+            return;
+    }
 
     drawCmds.push_back(cmd);
+}
+
+bool DrawCommandBuilder::PrepareMaterial(URay::MaterialInterface* material)
+{
+    if (!material)
+        return false;
+
+    const auto it = preparedMaterials.find(material);
+    if (it != preparedMaterials.end())
+        return it->second;
+
+    const bool prepared = material->PrepareRenderMaterial(currentFrame);
+    preparedMaterials.emplace(material, prepared);
+
+    if (!prepared)
+    {
+        URAY_LOG(
+            "[DrawCommandBuilder] Failed to prepare material: %s",
+            material->GetName().c_str());
+    }
+
+    return prepared;
+}
+
+DescriptorSet* DrawCommandBuilder::GetMaterialDescriptorSet(const URay::MaterialInterface* material)
+{
+    Render::Material* renderMaterial = resourceManager.GetOrCreateMaterial(material);
+    if (!renderMaterial)
+        return nullptr;
+
+    return renderMaterial->GetDescriptorSet(currentFrame);
 }
 
 } // namespace URay::Render
