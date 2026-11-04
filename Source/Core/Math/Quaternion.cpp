@@ -64,10 +64,10 @@ Quaternion Quaternion::FromAxisAngle(const Vector3& axis, float degrees)
 Quaternion Quaternion::FromEulerDegrees(const Vector3& euler)
 {
     const Quaternion pitch = FromAxisAngle(Vector3::Right, euler.x);
-    const Quaternion yaw = FromAxisAngle(Vector3::Up, euler.y);
-    const Quaternion roll = FromAxisAngle(Vector3::Forward, euler.z);
+    const Quaternion roll = FromAxisAngle(Vector3::Forward, euler.y);
+    const Quaternion yaw = FromAxisAngle(Vector3::Up, euler.z);
 
-    return (roll * yaw * pitch).GetNormalized();
+    return (yaw * roll * pitch).GetNormalized();
 }
 
 Vector3 Quaternion::ToEulerDegrees() const
