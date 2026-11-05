@@ -80,4 +80,15 @@ const Vector<String>& ScriptSystem::GetScriptTypes() const
     return scriptTypes;
 }
 
+bool ScriptSystem::GetScriptFields(const char* typeName, Vector<ScriptFieldInfo>& outFields)
+{
+    if (!bridge || !typeName)
+        return false;
+
+    if (std::find(scriptTypes.begin(), scriptTypes.end(), typeName) == scriptTypes.end())
+        return false;
+
+    return bridge->GetScriptFields(typeName, outFields);
+}
+
 } // namespace URay

@@ -140,4 +140,51 @@ public static unsafe class EntryPoint
             return -3;
         }
     }
+
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    public static int EnumerateScriptFields(
+        byte* typeName,
+        delegate* unmanaged[Cdecl]<void*, byte*, byte*, int, int> callback,
+        void* context)
+    {
+        if (typeName == null || callback == null || context == null)
+            return -1;
+
+        try
+        {
+            string? name = Marshal.PtrToStringUTF8((nint)typeName);
+
+            if (string.IsNullOrEmpty(name) ||
+                !ScriptRuntime.DiscoverScriptTypes().Contains(name, StringComparer.Ordinal))
+            {
+                return -1;
+            }
+
+            foreach (ScriptFieldInfo field in ScriptRuntime.DiscoverScriptFields(name))
+            {
+                byte[] declaringTypeUTF8 = Encoding.UTF8.GetBytes(field.typeName + "\0");
+                byte[] fieldNameUTF8 = Encoding.UTF8.GetBytes(field.name + "\0");
+
+                fixed (byte* declaringTypePtr = declaringTypeUTF8)
+                fixed (byte* fieldNamePtr = fieldNameUTF8)
+                {
+                    int result = callback(
+                        context,
+                        declaringTypePtr,
+                        fieldNamePtr,
+                        (int)field.type);
+
+                    if (result != 0)
+                        return -2;
+                }
+            }
+
+            return 0;
+        }
+        catch (Exception exception)
+        {
+            Console.Error.WriteLine($"[ScriptRuntime] Failed to enumerate script fields: {exception}");
+            return -3;
+        }
+    }
 }

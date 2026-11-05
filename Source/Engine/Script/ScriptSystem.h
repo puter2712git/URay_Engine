@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Type/TypeAlias.h>
+#include <Engine/Script/ScriptField.h>
 
 namespace URay
 {
@@ -24,6 +25,7 @@ public:
     int32 UnloadScript(int32 handle);
 
     const Vector<String>& GetScriptTypes() const;
+    bool GetScriptFields(const char* typeName, Vector<ScriptFieldInfo>& outFields);
 
 private:
     UniquePtr<ManagedScriptBridge> bridge = nullptr;

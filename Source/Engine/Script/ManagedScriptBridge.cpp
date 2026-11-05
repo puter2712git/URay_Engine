@@ -31,6 +31,45 @@ int32 __cdecl CollectScriptType(void* context, const char* typeName) noexcept
         return -1;
     }
 }
+
+int32 __cdecl CollectScriptField(void* context, const char* typeName, const char* fieldName, int32 type) noexcept
+{
+    if (!context || !typeName || !fieldName)
+        return -1;
+
+    const ScriptFieldType fieldType = static_cast<ScriptFieldType>(type);
+
+    switch (fieldType)
+    {
+    case ScriptFieldType::Bool:
+    case ScriptFieldType::Int:
+    case ScriptFieldType::Float:
+    case ScriptFieldType::String:
+    case ScriptFieldType::Vector3:
+        break;
+
+    default:
+        return -1;
+    }
+
+    try
+    {
+        ScriptFieldInfo fieldInfo = {};
+        fieldInfo.typeName = typeName;
+        fieldInfo.name = fieldName;
+        fieldInfo.type = fieldType;
+
+        auto& fields = *static_cast<Vector<ScriptFieldInfo>*>(context);
+        fields.push_back(std::move(fieldInfo));
+
+        return 0;
+    }
+    catch (...)
+    {
+        return -1;
+    }
+}
+
 } // namespace
 
 ManagedScriptBridge::ManagedScriptBridge() = default;
@@ -84,8 +123,9 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const Virtua
     updateScript = runtime->GetFunction<UpdateScriptFn>(assemblyPath, typeName, L"UpdateScript");
     unloadScript = runtime->GetFunction<UnloadScriptFn>(assemblyPath, typeName, L"UnloadScript");
     enumerateScriptTypes = runtime->GetFunction<EnumerateScriptTypesFn>(assemblyPath, typeName, L"EnumerateScriptTypes");
+    enumerateScriptFields = runtime->GetFunction<EnumerateScriptFieldsFn>(assemblyPath, typeName, L"EnumerateScriptFields");
 
-    if (!createScript || !updateScript || !unloadScript || !enumerateScriptTypes)
+    if (!createScript || !updateScript || !unloadScript || !enumerateScriptTypes || !enumerateScriptFields)
     {
         URAY_LOG("[ManagedScriptBridge] A managed script entry point were not found.");
         Finalize();
@@ -142,6 +182,7 @@ void ManagedScriptBridge::Finalize()
     updateScript = nullptr;
     unloadScript = nullptr;
     enumerateScriptTypes = nullptr;
+    enumerateScriptFields = nullptr;
 
     if (runtime)
     {
@@ -190,6 +231,31 @@ bool ManagedScriptBridge::GetScriptTypes(Vector<String>& outTypes)
     }
 
     outTypes = std::move(discoveredTypes);
+    return true;
+}
+
+bool ManagedScriptBridge::GetScriptFields(const char* typeName, Vector<ScriptFieldInfo>& outFields)
+{
+    if (!enumerateScriptFields || !typeName)
+        return false;
+
+    Vector<ScriptFieldInfo> discoveredFields;
+
+    const int32 result = enumerateScriptFields(
+        typeName,
+        &CollectScriptField,
+        &discoveredFields);
+
+    if (result != 0)
+    {
+        URAY_LOG(
+            "[ManagedScriptBridge] Script field discovery failed: %s (%d)",
+            typeName,
+            result);
+        return false;
+    }
+
+    outFields = std::move(discoveredFields);
     return true;
 }
 

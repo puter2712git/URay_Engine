@@ -90,4 +90,75 @@ internal static class ScriptRuntime
             .OrderBy(name => name, StringComparer.Ordinal)
             .ToArray();
     }
+
+    public static ScriptFieldInfo[] DiscoverScriptFields(string typeName)
+    {
+        if (!DiscoverScriptTypes().Contains(typeName, StringComparer.Ordinal))
+            throw new ArgumentException("Unknown script type.", nameof(typeName));
+
+        Type? scriptType = projectAssembly?.GetType(
+            typeName,
+            throwOnError: false,
+            ignoreCase: false);
+
+        if (scriptType == null)
+            throw new InvalidOperationException($"Script type was not found: {typeName}");
+
+        if (Activator.CreateInstance(scriptType) is not ScriptBehaviour instance)
+            throw new InvalidOperationException($"Failed to create script: {typeName}");
+
+        List<ScriptFieldInfo> fields = new();
+
+        for (Type? current = scriptType;
+            current != null && current != typeof(ScriptBehaviour);
+            current = current.BaseType)
+        {
+            foreach (FieldInfo field in current.GetFields(
+                BindingFlags.Public |
+                BindingFlags.Instance |
+                BindingFlags.DeclaredOnly))
+            {
+                if (field.IsInitOnly || field.IsLiteral)
+                    continue;
+
+                ScriptFieldType fieldType = GetScriptFieldType(field.FieldType);
+
+                if (fieldType == ScriptFieldType.Unsupported)
+                    continue;
+
+                string? declaringTypeName = field.DeclaringType?.FullName;
+
+                if (declaringTypeName == null)
+                    throw new InvalidOperationException($"Declaring type was not found for field: {field.Name}");
+
+                fields.Add(new ScriptFieldInfo(
+                    declaringTypeName,
+                    field.Name,
+                    fieldType,
+                    field.GetValue(instance)));
+            }
+        }
+
+        return fields.ToArray();
+    }
+
+    public static ScriptFieldType GetScriptFieldType(Type type)
+    {
+        if (type == typeof(bool))
+            return ScriptFieldType.Bool;
+
+        if (type == typeof(int))
+            return ScriptFieldType.Int;
+
+        if (type == typeof(float))
+            return ScriptFieldType.Float;
+
+        if (type == typeof(string))
+            return ScriptFieldType.String;
+
+        if (type == typeof(Vector3))
+            return ScriptFieldType.Vector3;
+
+        return ScriptFieldType.Unsupported;
+    }
 }
