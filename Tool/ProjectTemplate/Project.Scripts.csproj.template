@@ -4,6 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<EnableDefaultCompileItems>false</EnableDefaultCompileItems>
 
 		<AssemblyName>Project.Scripts</AssemblyName>
 		<OutputPath>Bin/</OutputPath>

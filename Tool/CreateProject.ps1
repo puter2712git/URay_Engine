@@ -46,11 +46,10 @@ if (Test-Path -LiteralPath $projectPath) {
 }
 
 $directories = @(
-    'Asset/Source'
+    'Asset'
     'Config'
     'External'
     'Log'
-    'Scripts'
 )
 
 $null = New-Item -ItemType Directory -Path $projectPath
@@ -78,15 +77,10 @@ $escapedPath = [regex]::Replace(
 $escapedPath = [System.Security.SecurityElement]::Escape($escapedPath)
 $projectContent = $template.Replace('__URAY_MANAGED_DLL__', $escapedPath)
 
-$scriptProjectPath = Join-Path $projectPath 'Scripts/Project.Scripts.csproj'
+$scriptProjectPath = Join-Path $projectPath 'Project.Scripts.csproj'
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 
 [System.IO.File]::WriteAllText($scriptProjectPath, $projectContent, $utf8)
-
-$helloScriptTemplatePath = Join-Path $PSScriptRoot 'ProjectTemplate/HelloScript.cs'
-$helloScriptPath = Join-Path $projectPath 'Scripts/HelloScript.cs'
-
-Copy-Item -LiteralPath $helloScriptTemplatePath -Destination $helloScriptPath
 
 $shortcutPath = Join-Path $projectPath 'Open Editor.lnk'
 

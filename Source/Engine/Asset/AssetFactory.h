@@ -14,6 +14,7 @@ class MaterialInstance;
 class Shader;
 class Font;
 class Mesh;
+class Script;
 struct AssetMetadata;
 
 class AssetFactory
@@ -32,6 +33,7 @@ private:
     UniquePtr<Shader> CreateShader(const AssetMetadata& metadata) const;
     UniquePtr<Font> CreateFont(const AssetMetadata& metadata) const;
     UniquePtr<Mesh> CreateMesh(const AssetMetadata& metadata) const;
+    UniquePtr<Script> CreateScript(const AssetMetadata& metadata) const;
 
 private:
     AssetSystem& assetSystem;

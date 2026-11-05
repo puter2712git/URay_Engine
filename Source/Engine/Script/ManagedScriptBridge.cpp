@@ -106,7 +106,7 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const Virtua
         return false;
     }
 
-    const VirtualPath projectAssemblyPath = projectPath.Join("Scripts/Bin/Project.Scripts.dll");
+    const VirtualPath projectAssemblyPath = projectPath.Join("Bin/Project.Scripts.dll");
 
     const std::filesystem::path physicalPath = std::filesystem::absolute(
         std::filesystem::u8path(projectAssemblyPath.ToString()));

@@ -14,6 +14,7 @@
 #include <Engine/Asset/Mesh/MeshData.h>
 #include <Engine/Asset/Mesh/MeshSerializer.h>
 #include <Engine/Asset/Metadata/AssetMetadata.h>
+#include <Engine/Asset/Script/Script.h>
 #include <Engine/Asset/Shader/Shader.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Asset/Texture/TextureData.h>
@@ -46,6 +47,10 @@ UniquePtr<Asset> AssetFactory::Create(const AssetMetadata& metadata) const
     else if (metadata.className == Mesh::StaticType().name)
     {
         return CreateMesh(metadata);
+    }
+    else if (metadata.className == Script::StaticType().name)
+    {
+        return CreateScript(metadata);
     }
 
     return nullptr;
@@ -145,6 +150,25 @@ UniquePtr<Mesh> AssetFactory::CreateMesh(const AssetMetadata& metadata) const
     mesh->SetDefaultMaterials(data.defaultMaterials);
 
     return mesh;
+}
+
+UniquePtr<Script> AssetFactory::CreateScript(const AssetMetadata& metadata) const
+{
+    if (!metadata.handle.IsValid())
+        return nullptr;
+
+    if (metadata.assetPath.GetExtension() != ".cs")
+        return nullptr;
+
+    const String typeName = metadata.assetPath.GetStem();
+    if (typeName.empty())
+        return nullptr;
+
+    auto script = MakeUnique<Script>(metadata.assetPath, typeName);
+    script->SetHandle(metadata.handle);
+    script->SetName(typeName);
+
+    return script;
 }
 
 } // namespace URay
