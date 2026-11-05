@@ -13,7 +13,7 @@ DirectoryTreeView::DirectoryTreeView(
     VirtualFileSystem& fileSystem, VirtualPath rootPath)
     : fileSystem(fileSystem), rootPath(rootPath), selectedPath(rootPath)
 {
-    URAY_DECLARE_RAY(DirectoryActivated, VirtualPath);
+    URAY_DECLARE_RAY(DirectoryClicked, VirtualPath);
     expandedPaths.insert(this->rootPath.ToString());
     RebuildItems();
 }
@@ -109,7 +109,7 @@ void DirectoryTreeView::AppendDirectory(const VirtualPath& path, uint32 depth)
         path, depth, expanded, selected);
 
     item->Register("ExpandRequested", this, &DirectoryTreeView::OnExpandRequested);
-    item->Register("Activated", this, &DirectoryTreeView::OnItemActivated);
+    item->Register("Clicked", this, &DirectoryTreeView::OnItemClicked);
 
     if (!expanded)
         return;
@@ -146,10 +146,10 @@ void DirectoryTreeView::OnExpandRequested(VirtualPath path)
     pendingExpandPath = path;
 }
 
-void DirectoryTreeView::OnItemActivated(VirtualPath path)
+void DirectoryTreeView::OnItemClicked(VirtualPath path)
 {
     pendingSelectedPath = path;
-    Emit("DirectoryActivated", path);
+    Emit("DirectoryClicked", path);
 }
 
 void DirectoryTreeView::ExpandAncestors(const VirtualPath& path)

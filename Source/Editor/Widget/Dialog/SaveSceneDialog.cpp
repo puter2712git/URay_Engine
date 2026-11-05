@@ -65,9 +65,9 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
     cancelButton = CreateEditorButton(*actionLayout, "Cancel");
     cancelButton->SetPreferredSize(Vector2(80.0f, ActionHeight));
 
-    breadcrumbBar->Register("PathActivated", this, &SaveSceneDialog::OnPathActivated);
+    breadcrumbBar->Register("PathClicked", this, &SaveSceneDialog::OnPathClicked);
 
-    fileGrid->Register("EntryActivated", this, &SaveSceneDialog::OnFileEntryActivated);
+    fileGrid->Register("EntryClicked", this, &SaveSceneDialog::OnFileEntryClicked);
 
     filenameField->Register("ValueChanged", this, &SaveSceneDialog::OnFilenameChanged);
 
@@ -77,12 +77,12 @@ SaveSceneDialog::SaveSceneDialog(VirtualFileSystem& fileSystem)
     NavigateTo(currentDirectory);
 }
 
-void SaveSceneDialog::OnPathActivated(VirtualPath path)
+void SaveSceneDialog::OnPathClicked(VirtualPath path)
 {
     pendingDirectory = path;
 }
 
-void SaveSceneDialog::OnFileEntryActivated(const VirtualFileEntry* entry)
+void SaveSceneDialog::OnFileEntryClicked(const VirtualFileEntry* entry)
 {
     if (entry && entry->isDirectory)
         pendingDirectory = entry->path;

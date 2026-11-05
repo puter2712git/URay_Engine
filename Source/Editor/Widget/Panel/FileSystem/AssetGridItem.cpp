@@ -19,7 +19,7 @@ namespace URay
 AssetGridItem::AssetGridItem(AssetEntry entry) : entry(std::move(entry))
 {
     URAY_DECLARE_RAY(Selected, AssetEntry);
-    URAY_DECLARE_RAY(Activated, AssetEntry);
+    URAY_DECLARE_RAY(Clicked, AssetEntry);
     URAY_DECLARE_RAY(DoubleClicked, AssetEntry);
 
     surface = AddChild<Surface>();
@@ -135,7 +135,7 @@ EventReply AssetGridItem::OnPointerUp(const PointerEvent& event)
     if (!wasDragging && IsHovered())
     {
         Emit("Selected", entry);
-        Emit("Activated", entry);
+        Emit("Clicked", entry);
 
         if (doubleClicked)
             Emit("DoubleClicked", entry);

@@ -16,7 +16,7 @@ namespace URay
 DirectoryTreeItem::DirectoryTreeItem(VirtualPath path, uint32 depth, bool expanded, bool selected)
     : path(std::move(path)), depth(depth), expanded(expanded), selected(selected)
 {
-    URAY_DECLARE_RAY(Activated, VirtualPath);
+    URAY_DECLARE_RAY(Clicked, VirtualPath);
     URAY_DECLARE_RAY(ExpandRequested, VirtualPath);
     surface = AddChild<Surface>();
 
@@ -76,7 +76,7 @@ EventReply DirectoryTreeItem::OnPointerUp(const PointerEvent& event)
     }
     else
     {
-        Emit("Activated", path);
+        Emit("Clicked", path);
     }
 
     return EventReply{

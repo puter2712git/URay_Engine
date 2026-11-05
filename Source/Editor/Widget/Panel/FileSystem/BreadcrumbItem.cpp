@@ -12,7 +12,7 @@ namespace URay
 
 BreadcrumbItem::BreadcrumbItem(VirtualPath path) : path(path)
 {
-    URAY_DECLARE_RAY(Activated, VirtualPath);
+    URAY_DECLARE_RAY(Clicked, VirtualPath);
     surface = AddChild<Surface>();
     surface->SetPadding(Padding(2.0f, 6.0f));
 
@@ -49,7 +49,7 @@ EventReply BreadcrumbItem::OnPointerUp(const PointerEvent& event)
         return {};
 
     if (IsHovered())
-        Emit("Activated", path);
+        Emit("Clicked", path);
 
     return EventReply{
         .handled = true,

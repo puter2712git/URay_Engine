@@ -36,8 +36,8 @@ protected:
 private:
     void OpenImportDialog();
     void OnImportDialogClosed(DialogResult result);
-    void OnPathActivated(VirtualPath path);
-    void OnEntryActivated(AssetEntry entry);
+    void OnPathClicked(VirtualPath path);
+    void OnEntryClicked(AssetEntry entry);
     void OnEntryDoubleClicked(AssetEntry entry);
 
 private:

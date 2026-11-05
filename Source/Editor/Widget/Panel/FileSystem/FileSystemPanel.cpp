@@ -46,16 +46,16 @@ FileSystemPanel::FileSystemPanel()
 
     NavigateTo(currentPath);
 
-    assetGrid->Register("EntryActivated", this, &FileSystemPanel::OnEntryActivated);
+    assetGrid->Register("EntryClicked", this, &FileSystemPanel::OnEntryClicked);
     assetGrid->Register("EntryDoubleClicked", this, &FileSystemPanel::OnEntryDoubleClicked);
 
-    breadcrumbBar->Register("PathActivated", this, &FileSystemPanel::OnPathActivated);
-    directoryTree->Register("DirectoryActivated", this, &FileSystemPanel::OnPathActivated);
+    breadcrumbBar->Register("PathClicked", this, &FileSystemPanel::OnPathClicked);
+    directoryTree->Register("DirectoryClicked", this, &FileSystemPanel::OnPathClicked);
 
     importButton->Register("Clicked", this, &FileSystemPanel::OpenImportDialog);
 }
 
-void FileSystemPanel::OnEntryActivated(AssetEntry entry)
+void FileSystemPanel::OnEntryClicked(AssetEntry entry)
 {
     if (entry.kind == AssetEntryKind::Asset)
     {
@@ -80,7 +80,7 @@ void FileSystemPanel::OnEntryDoubleClicked(AssetEntry entry)
     }
 }
 
-void FileSystemPanel::OnPathActivated(VirtualPath path)
+void FileSystemPanel::OnPathClicked(VirtualPath path)
 {
     pendingPath = path;
 }

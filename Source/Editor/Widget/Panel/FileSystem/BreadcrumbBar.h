@@ -24,7 +24,7 @@ protected:
 
 private:
     void RebuildItems();
-    void OnItemActivated(VirtualPath path);
+    void OnItemClicked(VirtualPath path);
 
 private:
     VirtualPath currentPath;

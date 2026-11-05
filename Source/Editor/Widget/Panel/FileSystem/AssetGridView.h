@@ -29,7 +29,7 @@ protected:
 private:
     void RebuildItems(const Vector<AssetEntry>& entries);
     void OnItemSelected(AssetEntry entry);
-    void OnItemActivated(AssetEntry entry);
+    void OnItemClicked(AssetEntry entry);
     void OnItemDoubleClicked(AssetEntry entry);
 
 private:

@@ -34,7 +34,7 @@ private:
 
     void ExpandAncestors(const VirtualPath& path);
     void OnExpandRequested(VirtualPath path);
-    void OnItemActivated(VirtualPath path);
+    void OnItemClicked(VirtualPath path);
 
 private:
     VirtualFileSystem& fileSystem;

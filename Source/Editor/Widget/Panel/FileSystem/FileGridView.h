@@ -27,7 +27,7 @@ protected:
 
 private:
     void RebuildItems(const Vector<VirtualFileEntry>& entries);
-    void OnItemActivated(const VirtualFileEntry* entry);
+    void OnItemClicked(const VirtualFileEntry* entry);
 
 private:
     VirtualPath directory = {};

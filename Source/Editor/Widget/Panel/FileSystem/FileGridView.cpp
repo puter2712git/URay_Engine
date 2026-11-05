@@ -11,7 +11,7 @@ namespace URay
 
 FileGridView::FileGridView()
 {
-    URAY_DECLARE_RAY(EntryActivated, const VirtualFileEntry*);
+    URAY_DECLARE_RAY(EntryClicked, const VirtualFileEntry*);
 }
 
 void FileGridView::Arrange(const Rect& rect)
@@ -52,14 +52,14 @@ void FileGridView::SetDirectory(VirtualFileSystem& fileSystem, const VirtualPath
     {
         FileGridItem* item = AddChild<FileGridItem>(entry);
 
-        item->Register("Activated", this, &FileGridView::OnItemActivated);
+        item->Register("Clicked", this, &FileGridView::OnItemClicked);
     }
 }
 
-void FileGridView::OnItemActivated(const VirtualFileEntry* entry)
+void FileGridView::OnItemClicked(const VirtualFileEntry* entry)
 {
     if (entry)
-        Emit("EntryActivated", entry);
+        Emit("EntryClicked", entry);
 }
 
 Vector2 FileGridView::OnMeasure()

@@ -15,7 +15,7 @@ namespace URay
 AssetGridView::AssetGridView()
 {
     URAY_DECLARE_RAY(EntrySelected, AssetEntry);
-    URAY_DECLARE_RAY(EntryActivated, AssetEntry);
+    URAY_DECLARE_RAY(EntryClicked, AssetEntry);
     URAY_DECLARE_RAY(EntryDoubleClicked, AssetEntry);
 }
 
@@ -105,7 +105,7 @@ void AssetGridView::RebuildItems(const Vector<AssetEntry>& entries)
         AssetGridItem* item = AddChild<AssetGridItem>(entry);
 
         item->Register("Selected", this, &AssetGridView::OnItemSelected);
-        item->Register("Activated", this, &AssetGridView::OnItemActivated);
+        item->Register("Clicked", this, &AssetGridView::OnItemClicked);
         item->Register("DoubleClicked", this, &AssetGridView::OnItemDoubleClicked);
     }
 }
@@ -122,9 +122,9 @@ void AssetGridView::OnItemSelected(AssetEntry entry)
     Emit("EntrySelected", entry);
 }
 
-void AssetGridView::OnItemActivated(AssetEntry entry)
+void AssetGridView::OnItemClicked(AssetEntry entry)
 {
-    Emit("EntryActivated", entry);
+    Emit("EntryClicked", entry);
 }
 
 void AssetGridView::OnItemDoubleClicked(AssetEntry entry)
