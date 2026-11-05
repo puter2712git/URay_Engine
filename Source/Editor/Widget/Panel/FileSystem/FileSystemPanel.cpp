@@ -57,28 +57,27 @@ FileSystemPanel::FileSystemPanel()
 
 void FileSystemPanel::OnEntryActivated(AssetEntry entry)
 {
-    if (entry.kind == AssetEntryKind::Directory)
-    {
-        gEditor->GetInspectSystem().ClearTarget();
-        pendingPath = entry.path;
-    }
-    else if (entry.kind == AssetEntryKind::Asset)
+    if (entry.kind == AssetEntryKind::Asset)
     {
         gEditor->GetSelectionSystem().ClearSelection();
         gEditor->GetInspectSystem().SetTarget(InspectTarget::FromAsset(entry.assetHandle));
-    }
-    else if (entry.kind == AssetEntryKind::Scene)
-    {
-        gEditor->LoadGameScene(entry.path);
     }
 }
 
 void FileSystemPanel::OnEntryDoubleClicked(AssetEntry entry)
 {
-    if (entry.kind != AssetEntryKind::Asset)
-        return;
-
-    gEditor->GetAssetEditorSystem().RequestOpen(entry.assetHandle);
+    if (entry.kind == AssetEntryKind::Directory)
+    {
+        pendingPath = entry.path;
+    }
+    else if (entry.kind == AssetEntryKind::Asset)
+    {
+        gEditor->GetAssetEditorSystem().RequestOpen(entry.assetHandle);
+    }
+    else if (entry.kind == AssetEntryKind::Scene)
+    {
+        gEditor->LoadGameScene(entry.path);
+    }
 }
 
 void FileSystemPanel::OnPathActivated(VirtualPath path)
