@@ -1,22 +1,28 @@
 #include "FileSystemPanel.h"
 
 #include <Core/File/VirtualFileSystem.h>
+#include <Core/Log/LogSystem.h>
 #include <Core/Math/Math.h>
 #include <Editor/Asset/AssetEditorSystem.h>
 #include <Editor/Editor.h>
 #include <Editor/Selection/SelectionSystem.h>
+#include <Editor/Widget/Dialog/CreateScriptDialog.h>
 #include <Editor/Widget/Dialog/ImportAssetDialog.h>
 #include <Editor/Widget/EditorUI.h>
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Element/Separator.h>
 #include <Editor/Widget/Layer/DialogLayer.h>
+#include <Editor/Widget/Layer/PopupLayer.h>
 #include <Editor/Widget/Panel/FileSystem/AssetGridView.h>
 #include <Editor/Widget/Panel/FileSystem/BreadcrumbBar.h>
 #include <Editor/Widget/Panel/FileSystem/DirectoryTreeView.h>
 #include <Editor/Widget/Panel/Inspector/InspectSystem.h>
 #include <Editor/Widget/Panel/PanelFactory.h>
 #include <Editor/Widget/Panel/ScrollView.h>
+#include <Editor/Widget/Popup/AssetCreatePopup.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
+#include <Engine/Asset/Script/Script.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/UI/Widget/Element/Button.h>
@@ -159,6 +165,25 @@ void FileSystemPanel::NavigateTo(const VirtualPath& path)
     assetGrid->SetDirectory(assetSystem, currentPath);
 }
 
+EventReply FileSystemPanel::OnPointerDown(const PointerEvent& event)
+{
+    if (event.changedButton != MouseButton::Right)
+        return {};
+
+    if (!contentScroll->GetRect().Contains(event.position))
+        return {};
+
+    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
+    AssetCreatePopup* popup = popupLayer.OpenPopup<AssetCreatePopup>(event.position);
+
+    popup->Register("MenuSelected", this, &FileSystemPanel::OnAssetCreateSelected);
+
+    return EventReply{
+        .handled = true,
+        .requestFocus = true
+    };
+}
+
 void FileSystemPanel::OnUpdate(float deltaTime)
 {
     if (!pendingPath.has_value())
@@ -185,6 +210,104 @@ void FileSystemPanel::OnImportDialogClosed(DialogResult result)
         NavigateTo(currentPath);
 
     gEditor->GetEditorUI().GetDialogLayer().CloseDialog();
+}
+
+void FileSystemPanel::OnAssetCreateSelected(AssetCreateSelection selection)
+{
+    gEditor->GetEditorUI().GetPopupLayer().ClosePopup();
+
+    if (selection == AssetCreateSelection::Script)
+    {
+        CreateScriptDialog* dialog = gEditor->GetEditorUI().GetDialogLayer().OpenDialog<CreateScriptDialog>();
+        dialog->Register("Closed", this, &FileSystemPanel::OnCreateScriptDialogClosed, dialog);
+    }
+}
+
+void FileSystemPanel::OnCreateScriptDialogClosed(DialogResult result, CreateScriptDialog* dialog)
+{
+    if (result == DialogResult::Accepted && dialog)
+    {
+        CreateScriptAsset(dialog->GetScriptName());
+    }
+
+    gEditor->GetEditorUI().GetDialogLayer().CloseDialog();
+}
+
+bool FileSystemPanel::CreateScriptAsset(const String& name)
+{
+    if (name.empty() ||
+        name == "." ||
+        name == ".." ||
+        name.find_first_of("/\\:") != String::npos)
+    {
+        URAY_LOG("[FileSystemPanel] Invalid script path.");
+        return false;
+    }
+
+    AssetSystem& assetSystem = gEngine->GetAssetSystem();
+    VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+
+    const VirtualPath scriptPath = currentPath.Join(name + ".cs");
+    const VirtualPath metadataPath = assetSystem.GetMetadataPath(scriptPath);
+
+    if (fileSystem.Exists(scriptPath) || fileSystem.Exists(metadataPath))
+    {
+        URAY_LOG("[FileSystemPanel] Script or metadata already exists: %s", scriptPath.ToString().c_str());
+        return false;
+    }
+
+    // clang-format off
+    const String source =
+        "using URay;\n"
+        "\n"
+        "public class " + name + " : ScriptBehaviour\n"
+        "{\n"
+        "}\n";
+    // clang-format on
+
+    AssetMetadata metadata;
+    metadata.handle = AssetHandle::Generate();
+    metadata.className = Script::StaticType().name;
+    metadata.assetPath = scriptPath;
+    metadata.sourcePath = scriptPath;
+
+    const auto removeCreatedFile = [&fileSystem](const VirtualPath& path) {
+        std::error_code error;
+        std::filesystem::remove(fileSystem.ResolveToPhysicalPath(path), error);
+
+        if (error)
+        {
+            URAY_LOG(
+                "[FileSystemPanel] Failed to remove file: %s",
+                path.ToString().c_str());
+        }
+    };
+
+    if (!fileSystem.WriteText(scriptPath, source))
+    {
+        removeCreatedFile(scriptPath);
+        URAY_LOG("[FileSystemPanel] Failed to write script.");
+        return false;
+    }
+
+    if (!assetSystem.GetMetadataSerializer().Save(metadata, metadataPath))
+    {
+        removeCreatedFile(metadataPath);
+        removeCreatedFile(scriptPath);
+        URAY_LOG("[FileSystemPanel] Failed to write script metadata.");
+        return false;
+    }
+
+    if (!assetSystem.RegisterAsset(metadata))
+    {
+        removeCreatedFile(metadataPath);
+        removeCreatedFile(scriptPath);
+        URAY_LOG("[FileSystemPanel] Failed to register script asset.");
+        return false;
+    }
+
+    NavigateTo(currentPath);
+    return true;
 }
 
 } // namespace URay
