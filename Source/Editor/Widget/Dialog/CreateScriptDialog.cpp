@@ -4,6 +4,7 @@
 #include <Editor/Widget/Element/StringField.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/UI/Widget/Element/Button.h>
+#include <Engine/UI/Widget/Element/Label.h>
 #include <Engine/UI/Widget/Element/Surface.h>
 #include <Engine/UI/Widget/Layout/VerticalLayout.h>
 
@@ -28,6 +29,10 @@ CreateScriptDialog::CreateScriptDialog()
     nameField->SetPreferredHeight(28.0f);
     nameField->SetText("NewScript");
 
+    validationLabel = CreateEditorLabel(*layout);
+    validationLabel->SetTextStyle(EditorStyle::SmallText());
+    validationLabel->SetPreferredHeight(20.0f);
+
     Button* createButton = CreateEditorButton(*layout, "Create");
     createButton->SetPreferredHeight(28.0f);
     createButton->Register("Clicked", this, &CreateScriptDialog::Accept);
@@ -35,6 +40,24 @@ CreateScriptDialog::CreateScriptDialog()
     Button* cancelButton = CreateEditorButton(*layout, "Cancel");
     cancelButton->SetPreferredHeight(28.0f);
     cancelButton->Register("Clicked", this, &CreateScriptDialog::Cancel);
+}
+
+void CreateScriptDialog::SetCreateHandler(std::function<String(const String&)> handler)
+{
+    createHandler = std::move(handler);
+}
+
+void CreateScriptDialog::Accept()
+{
+    if (GetResult() != DialogResult::None || !createHandler)
+        return;
+    const String error = createHandler(GetScriptName());
+    if (!error.empty())
+    {
+        validationLabel->SetText(error);
+        return;
+    }
+    Dialog::Accept();
 }
 
 void CreateScriptDialog::Arrange(const Rect& rect)
@@ -51,7 +74,7 @@ const String& CreateScriptDialog::GetScriptName() const
 
 Vector2 CreateScriptDialog::OnMeasure()
 {
-    return Vector2(320.0f, 160.0f);
+    return Vector2(440.0f, 190.0f);
 }
 
 } // namespace URay

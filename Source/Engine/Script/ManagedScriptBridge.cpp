@@ -37,7 +37,7 @@ ManagedScriptBridge::ManagedScriptBridge() = default;
 
 ManagedScriptBridge::~ManagedScriptBridge() = default;
 
-bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath)
+bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath, bool shouldLoadProjectAssembly)
 {
     runtime = MakeUnique<DotNetRuntime>();
     if (!runtime->Initialize(enginePath))
@@ -92,6 +92,9 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const Virtua
         return false;
     }
 
+    if (!shouldLoadProjectAssembly)
+        return true;
+
     using LoadProjectAssemblyFn = int32(__cdecl*)(const char*);
 
     const auto loadProjectAssembly = runtime->GetFunction<LoadProjectAssemblyFn>(
@@ -127,8 +130,7 @@ bool ManagedScriptBridge::Initialize(const VirtualPath& enginePath, const Virtua
         URAY_LOG(
             "[ManagedScriptBridge] Failed to load project script assembly: %s",
             pathString.c_str());
-        Finalize();
-        return false;
+        return true;
     }
 
     return true;

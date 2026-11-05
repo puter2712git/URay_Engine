@@ -2,6 +2,7 @@
 
 #include <Editor/Widget/EditorWidgetFactory.h>
 #include <Editor/Widget/Element/AssetField.h>
+#include <Editor/Widget/Panel/Inspector/InspectorPanel.h>
 #include <Editor/Widget/Style/EditorStyles.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Engine.h>
@@ -125,7 +126,16 @@ EventReply AssetGridItem::OnPointerUp(const PointerEvent& event)
             {
                 if (AssetField* field = Cast<AssetField>(widget))
                 {
-                    field->AcceptAsset(entry.assetHandle);
+                    if (field->CanAcceptAsset(entry.assetHandle))
+                    {
+                        field->AcceptAsset(entry.assetHandle);
+                        break;
+                    }
+                }
+
+                if (InspectorPanel* inspector = Cast<InspectorPanel>(widget))
+                {
+                    inspector->AcceptScriptAsset(entry.assetHandle);
                     break;
                 }
             }

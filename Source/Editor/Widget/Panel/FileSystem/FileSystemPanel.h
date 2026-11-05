@@ -47,7 +47,7 @@ private:
     void OnAssetCreateSelected(AssetCreateSelection selection);
     void OnCreateScriptDialogClosed(DialogResult result, CreateScriptDialog* dialog);
 
-    bool CreateScriptAsset(const String& name);
+    String CreateScriptAsset(const String& name);
 
 private:
     VirtualPath currentPath = "Project://Asset";

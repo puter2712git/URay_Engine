@@ -34,14 +34,9 @@ bool AssetMetadataSerializer::Load(AssetMetadata& outMetadata, const VirtualPath
         outMetadata.Deserialize(node);
         return true;
     }
-    catch (const YAML::ParserException& e)
+    catch (const YAML::Exception& e)
     {
         URAY_LOG("[AssetMetadataSerializer] Failed to parse metadata file: %s. Error: %s", metadataPath.ToString().c_str(), e.what());
-        return false;
-    }
-    catch (const YAML::BadFile& e)
-    {
-        URAY_LOG("[AssetMetadataSerializer] Failed to read metadata file: %s. Error: %s", metadataPath.ToString().c_str(), e.what());
         return false;
     }
 }

@@ -33,6 +33,7 @@ public:
 
 public:
     void Arrange(const Rect& rect) override;
+    bool AcceptScriptAsset(AssetHandle handle);
 
     EventReply OnPointerDown(const PointerEvent& event) override;
 

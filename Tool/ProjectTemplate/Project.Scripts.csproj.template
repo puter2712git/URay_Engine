@@ -12,6 +12,8 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
+	<Import Project="ScriptInputs.props" Condition="Exists('ScriptInputs.props')" />
+
 	<ItemGroup>
 		<Reference Include="URay.Managed">
 			<HintPath>__URAY_MANAGED_DLL__</HintPath>

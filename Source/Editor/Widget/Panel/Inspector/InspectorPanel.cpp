@@ -30,8 +30,10 @@
 #include <Engine/Asset/Material/Material.h>
 #include <Engine/Asset/Mesh/Mesh.h>
 #include <Engine/Asset/Mesh/SkinnedMesh.h>
+#include <Engine/Asset/Script/Script.h>
 #include <Engine/Asset/Texture/Texture.h>
 #include <Engine/Component/Component.h>
+#include <Engine/Component/ScriptComponent.h>
 #include <Engine/Engine.h>
 #include <Engine/Object/Object.h>
 #include <Engine/Object/Property/Property.h>
@@ -113,6 +115,19 @@ void InspectorPanel::Arrange(const Rect& rect)
 {
     Panel::Arrange(rect);
     scrollView->Arrange(GetContentRect());
+}
+
+bool InspectorPanel::AcceptScriptAsset(AssetHandle handle)
+{
+    const auto* target = std::get_if<UnitInspectTarget>(&inspectSystem.GetTarget().data);
+    Script* script = gEngine->GetAssetSystem().GetDatabase().Find<Script>(handle);
+    if (!target || !target->unit || !script)
+        return false;
+
+    auto component = MakeUnique<ScriptComponent>();
+    component->SetScriptTypeName(script->GetTypeName());
+    target->unit->AddComponent(std::move(component));
+    return true;
 }
 
 EventReply InspectorPanel::OnPointerDown(const PointerEvent& event)

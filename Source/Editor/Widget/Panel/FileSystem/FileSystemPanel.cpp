@@ -21,12 +21,20 @@
 #include <Editor/Widget/Panel/ScrollView.h>
 #include <Editor/Widget/Popup/AssetCreatePopup.h>
 #include <Engine/Asset/AssetSystem.h>
+#include <Engine/Asset/AssetDatabase.h>
 #include <Engine/Asset/Metadata/AssetMetadataSerializer.h>
 #include <Engine/Asset/Script/Script.h>
 #include <Engine/Engine.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/UI/Widget/Element/Button.h>
 #include <Engine/UI/Widget/Layout/VerticalLayout.h>
+
+#include <Windows.h>
+#include <algorithm>
+#include <array>
+#include <cctype>
+#include <filesystem>
+#include <yaml-cpp/yaml.h>
 
 namespace URay
 {
@@ -219,33 +227,51 @@ void FileSystemPanel::OnAssetCreateSelected(AssetCreateSelection selection)
     if (selection == AssetCreateSelection::Script)
     {
         CreateScriptDialog* dialog = gEditor->GetEditorUI().GetDialogLayer().OpenDialog<CreateScriptDialog>();
+        dialog->SetCreateHandler([this](const String& name) { return CreateScriptAsset(name); });
         dialog->Register("Closed", this, &FileSystemPanel::OnCreateScriptDialogClosed, dialog);
     }
 }
 
 void FileSystemPanel::OnCreateScriptDialogClosed(DialogResult result, CreateScriptDialog* dialog)
 {
-    if (result == DialogResult::Accepted && dialog)
-    {
-        CreateScriptAsset(dialog->GetScriptName());
-    }
-
     gEditor->GetEditorUI().GetDialogLayer().CloseDialog();
 }
 
-bool FileSystemPanel::CreateScriptAsset(const String& name)
+String FileSystemPanel::CreateScriptAsset(const String& name)
 {
-    if (name.empty() ||
-        name == "." ||
-        name == ".." ||
-        name.find_first_of("/\\:") != String::npos)
-    {
-        URAY_LOG("[FileSystemPanel] Invalid script path.");
-        return false;
-    }
+    const auto letter = [](char c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); };
+    if (name.empty() || (!letter(name[0]) && name[0] != '_') ||
+        !std::all_of(name.begin(), name.end(), [&](char c) { return letter(c) || (c >= '0' && c <= '9') || c == '_'; }))
+        return "Use a letter or underscore first, then letters or digits.";
+
+    static constexpr const char* keywords[] = {
+        "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked", "class", "const", "continue",
+        "decimal", "default", "delegate", "do", "double", "else", "enum", "event", "explicit", "extern", "false", "finally",
+        "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int", "interface", "internal", "is", "lock",
+        "long", "namespace", "new", "null", "object", "operator", "out", "override", "params", "private", "protected", "public",
+        "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc", "static", "string", "struct", "switch",
+        "this", "throw", "true", "try", "typeof", "uint", "ulong", "unchecked", "unsafe", "ushort", "using", "virtual", "void",
+        "volatile", "while"
+    };
+    if (std::any_of(std::begin(keywords), std::end(keywords), [&](const char* word) { return name == word; }))
+        return "C# keywords cannot be used as script names.";
+
+    String upper = name;
+    std::transform(upper.begin(), upper.end(), upper.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+    if (upper == "CON" || upper == "PRN" || upper == "AUX" || upper == "NUL" ||
+        (upper.size() == 4 && (upper.rfind("COM", 0) == 0 || upper.rfind("LPT", 0) == 0) && upper[3] >= '1' && upper[3] <= '9'))
+        return "This name is reserved by Windows.";
 
     AssetSystem& assetSystem = gEngine->GetAssetSystem();
     VirtualFileSystem& fileSystem = assetSystem.GetFileSystem();
+
+    for (const Script* script : assetSystem.GetDatabase().GetAssets<Script>())
+    {
+        String existing = script->GetTypeName();
+        std::transform(existing.begin(), existing.end(), existing.begin(), [](unsigned char c) { return static_cast<char>(std::toupper(c)); });
+        if (existing == upper)
+            return "A script with this name already exists.";
+    }
 
     const VirtualPath scriptPath = currentPath.Join(name + ".cs");
     const VirtualPath metadataPath = assetSystem.GetMetadataPath(scriptPath);
@@ -253,7 +279,7 @@ bool FileSystemPanel::CreateScriptAsset(const String& name)
     if (fileSystem.Exists(scriptPath) || fileSystem.Exists(metadataPath))
     {
         URAY_LOG("[FileSystemPanel] Script or metadata already exists: %s", scriptPath.ToString().c_str());
-        return false;
+        return "A file or metadata with this name already exists.";
     }
 
     // clang-format off
@@ -283,19 +309,34 @@ bool FileSystemPanel::CreateScriptAsset(const String& name)
         }
     };
 
-    if (!fileSystem.WriteText(scriptPath, source))
+    const auto createNew = [&fileSystem](const VirtualPath& path, const String& contents) {
+        const std::filesystem::path physicalPath = fileSystem.ResolveToPhysicalPath(path);
+        HANDLE file = CreateFileW(physicalPath.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+        if (file == INVALID_HANDLE_VALUE)
+            return false;
+        DWORD written = 0;
+        const bool ok = contents.size() <= MAXDWORD &&
+            WriteFile(file, contents.data(), static_cast<DWORD>(contents.size()), &written, nullptr) && written == contents.size();
+        CloseHandle(file);
+        if (!ok)
+        {
+            std::error_code error;
+            std::filesystem::remove(physicalPath, error);
+        }
+        return ok;
+    };
+
+    if (!createNew(scriptPath, source))
     {
-        removeCreatedFile(scriptPath);
         URAY_LOG("[FileSystemPanel] Failed to write script.");
-        return false;
+        return "Could not create script file.";
     }
 
-    if (!assetSystem.GetMetadataSerializer().Save(metadata, metadataPath))
+    if (!createNew(metadataPath, YAML::Dump(metadata.Serialize())))
     {
-        removeCreatedFile(metadataPath);
         removeCreatedFile(scriptPath);
         URAY_LOG("[FileSystemPanel] Failed to write script metadata.");
-        return false;
+        return "Could not create script metadata.";
     }
 
     if (!assetSystem.RegisterAsset(metadata))
@@ -303,11 +344,11 @@ bool FileSystemPanel::CreateScriptAsset(const String& name)
         removeCreatedFile(metadataPath);
         removeCreatedFile(scriptPath);
         URAY_LOG("[FileSystemPanel] Failed to register script asset.");
-        return false;
+        return "Could not register script asset.";
     }
 
     NavigateTo(currentPath);
-    return true;
+    return {};
 }
 
 } // namespace URay

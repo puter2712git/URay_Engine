@@ -16,7 +16,7 @@ public:
     ~ManagedScriptBridge();
 
 public:
-    bool Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath);
+    bool Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath, bool loadProjectAssembly);
     void Finalize();
 
     int32 CreateScript(const char* typeName, const ObjectId& ownerId);
