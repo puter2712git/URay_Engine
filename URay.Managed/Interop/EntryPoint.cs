@@ -6,6 +6,16 @@ namespace URay;
 
 public static unsafe class EntryPoint
 {
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ScriptFieldTransfer
+    {
+        public byte* declaringTypeName;
+        public byte* name;
+        public int type;
+        public byte* data;
+        public int size;
+    }
+
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int Initialize(NativeAPI* api)
     {
@@ -66,22 +76,131 @@ public static unsafe class EntryPoint
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static int CreateScript(byte* typeName, int ownerIndex, uint ownerGeneration)
+    public static int CreateScript(
+        byte* typeName,
+        int ownerIndex,
+        uint ownerGeneration,
+        ScriptFieldTransfer* fields,
+        int fieldCount)
     {
         try
         {
-            if (typeName == null)
+            if (typeName == null ||
+                fieldCount < 0 ||
+                (fieldCount > 0 && fields == null))
+            {
+                return 0;
+            }
+
+            string? scriptName = Marshal.PtrToStringUTF8((nint)typeName);
+            if (string.IsNullOrEmpty(scriptName))
                 return 0;
 
-            string? name = Marshal.PtrToStringUTF8((nint)typeName);
+            List<ScriptFieldOverride> overrides = new(fieldCount);
 
-            if (string.IsNullOrEmpty(name))
-                return 0;
+            for (int i = 0; i < fieldCount; ++i)
+            {
+                ScriptFieldTransfer field = fields[i];
 
-            return ScriptRuntime.CreateScript(name, ownerIndex, ownerGeneration);
+                string? declaringTypeName = Marshal.PtrToStringUTF8((nint)field.declaringTypeName);
+                string? fieldName = Marshal.PtrToStringUTF8((nint)field.name);
+
+                if (string.IsNullOrEmpty(declaringTypeName) ||
+                    string.IsNullOrEmpty(fieldName))
+                {
+                    return 0;
+                }
+
+                ScriptFieldType fieldType = (ScriptFieldType)field.type;
+                object? value;
+
+                if (fieldType == ScriptFieldType.String && field.size == -1)
+                {
+                    if (field.data != null)
+                        return 0;
+
+                    value = null;
+                }
+                else
+                {
+                    if (field.size < 0 || (field.size > 0 && field.data == null))
+                        return 0;
+
+                    ReadOnlySpan<byte> data = new ReadOnlySpan<byte>(field.data, field.size);
+
+                    switch (fieldType)
+                    {
+                        case ScriptFieldType.Bool:
+                        {
+                            if (data.Length != sizeof(int))
+                                return 0;
+
+                            int raw = MemoryMarshal.Read<int>(data);
+
+                            if (raw != 0 && raw != 1)
+                                return 0;
+
+                            value = raw == 1;
+                            break;
+                        }
+
+                        case ScriptFieldType.Int:
+                        {
+                            if (data.Length != sizeof(int))
+                                return 0;
+
+                            value = MemoryMarshal.Read<int>(data);
+                            break;
+                        }
+
+                        case ScriptFieldType.Float:
+                        {
+                            if (data.Length != sizeof(float))
+                                return 0;
+
+                            value = MemoryMarshal.Read<float>(data);
+                            break;
+                        }
+
+                        case ScriptFieldType.Vector3:
+                        {
+                            if (data.Length != sizeof(float) * 3)
+                                return 0;
+
+                            value = new Vector3(
+                                MemoryMarshal.Read<float>(data),
+                                MemoryMarshal.Read<float>(data.Slice(sizeof(float))),
+                                MemoryMarshal.Read<float>(data.Slice(sizeof(float) * 2)));
+                            break;
+                        }
+
+                        case ScriptFieldType.String:
+                        {
+                            value = Encoding.UTF8.GetString(data);
+                            break;
+                        }
+
+                        default:
+                            return 0;
+                    }
+                }
+
+                overrides.Add(new ScriptFieldOverride(
+                    declaringTypeName,
+                    fieldName,
+                    fieldType,
+                    value));
+            }
+
+            return ScriptRuntime.CreateScript(
+                scriptName,
+                ownerIndex,
+                ownerGeneration,
+                overrides);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
+            Console.Error.WriteLine($"[ScriptRuntime] Failed to create script: {exception}");
             return 0;
         }
     }
@@ -144,7 +263,7 @@ public static unsafe class EntryPoint
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static int EnumerateScriptFields(
         byte* typeName,
-        delegate* unmanaged[Cdecl]<void*, byte*, byte*, int, int> callback,
+        delegate* unmanaged[Cdecl]<void*, byte*, byte*, int, byte*, int, int> callback,
         void* context)
     {
         if (typeName == null || callback == null || context == null)
@@ -168,11 +287,12 @@ public static unsafe class EntryPoint
                 fixed (byte* declaringTypePtr = declaringTypeUTF8)
                 fixed (byte* fieldNamePtr = fieldNameUTF8)
                 {
-                    int result = callback(
+                    int result = SendScriptField(
+                        field,
+                        callback,
                         context,
                         declaringTypePtr,
-                        fieldNamePtr,
-                        (int)field.type);
+                        fieldNamePtr);
 
                     if (result != 0)
                         return -2;
@@ -185,6 +305,89 @@ public static unsafe class EntryPoint
         {
             Console.Error.WriteLine($"[ScriptRuntime] Failed to enumerate script fields: {exception}");
             return -3;
+        }
+    }
+
+    private static int SendScriptField(
+        ScriptFieldInfo field,
+        delegate* unmanaged[Cdecl]<void*, byte*, byte*, int, byte*, int, int> callback,
+        void* context,
+        byte* declaringTypeName,
+        byte* fieldName)
+    {
+        switch (field.type)
+        {
+            case ScriptFieldType.Bool:
+            {
+                if (field.defaultValue is not bool value)
+                    return -1;
+
+                int data = value ? 1 : 0;
+
+                return callback(
+                    context, declaringTypeName, fieldName,
+                    (int)field.type, (byte*)&data, sizeof(int));
+            }
+
+            case ScriptFieldType.Int:
+            {
+                if (field.defaultValue is not int value)
+                    return -1;
+
+                return callback(
+                    context, declaringTypeName, fieldName,
+                    (int)field.type, (byte*)&value, sizeof(int));
+            }
+
+            case ScriptFieldType.Float:
+            {
+                if (field.defaultValue is not float value)
+                    return -1;
+
+                return callback(
+                    context, declaringTypeName, fieldName,
+                    (int)field.type, (byte*)&value, sizeof(float));
+            }
+
+            case ScriptFieldType.Vector3:
+            {
+                if (field.defaultValue is not Vector3 value)
+                    return -1;
+
+                float* data = stackalloc float[3];
+                data[0] = value.x;
+                data[1] = value.y;
+                data[2] = value.z;
+
+                return callback(
+                    context, declaringTypeName, fieldName,
+                    (int)field.type, (byte*)data, sizeof(float) * 3);
+            }
+
+            case ScriptFieldType.String:
+            {
+                if (field.defaultValue == null)
+                {
+                    return callback(
+                        context, declaringTypeName, fieldName,
+                        (int)field.type, null, -1);
+                }
+
+                if (field.defaultValue is not string value)
+                    return -1;
+
+                byte[] utf8 = Encoding.UTF8.GetBytes(value);
+
+                fixed (byte* data = utf8)
+                {
+                    return callback(
+                        context, declaringTypeName, fieldName,
+                        (int)field.type, data, utf8.Length);
+                }
+            }
+
+            default:
+                return -1;
         }
     }
 }

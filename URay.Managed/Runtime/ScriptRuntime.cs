@@ -18,7 +18,11 @@ internal static class ScriptRuntime
         return true;
     }
 
-    public static int CreateScript(string typeName, int ownerIndex, uint ownerGeneration)
+    public static int CreateScript(
+        string typeName,
+        int ownerIndex,
+        uint ownerGeneration,
+        IReadOnlyList<ScriptFieldOverride>? overrides = null)
     {
         if (!DiscoverScriptTypes().Contains(typeName, StringComparer.Ordinal))
             return 0;
@@ -35,6 +39,59 @@ internal static class ScriptRuntime
             return 0;
 
         instance.owner = new Unit(new ObjectId(ownerIndex, ownerGeneration));
+
+        if (overrides != null)
+        {
+            foreach (ScriptFieldOverride fieldOverride in overrides)
+            {
+                Type? declaringType = type;
+
+                while (declaringType != null &&
+                    declaringType != typeof(ScriptBehaviour) &&
+                    declaringType.FullName != fieldOverride.declaringTypeName)
+                {
+                    declaringType = declaringType.BaseType;
+                }
+
+                if (declaringType == null || declaringType == typeof(ScriptBehaviour))
+                {
+                    Console.Error.WriteLine(
+                        $"[ScriptRuntime] Field declaring type was not found: " +
+                        $"{fieldOverride.declaringTypeName}");
+                    continue;
+                }
+
+                FieldInfo? field = declaringType.GetField(
+                    fieldOverride.name,
+                    BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+
+                if (field == null ||
+                    field.IsInitOnly ||
+                    field.IsLiteral ||
+                    GetScriptFieldType(field.FieldType) != fieldOverride.type ||
+                    fieldOverride.type == ScriptFieldType.Unsupported)
+                {
+                    Console.Error.WriteLine(
+                        $"[ScriptRuntime] Script field was not found or changed: " +
+                        $"{fieldOverride.declaringTypeName}.{fieldOverride.name}");
+                    continue;
+                }
+
+                bool validValue = fieldOverride.value == null
+                    ? field.FieldType == typeof(String)
+                    : field.FieldType.IsInstanceOfType(fieldOverride.value);
+
+                if (!validValue)
+                {
+                    Console.Error.WriteLine(
+                        $"[ScriptRuntime] Invalid value for script field: " +
+                        $"{fieldOverride.declaringTypeName}.{fieldOverride.name}");
+                    continue;
+                }
+
+                field.SetValue(instance, fieldOverride.value);
+            }
+        }
 
         int handle = ScriptRegistry.Add(instance);
 

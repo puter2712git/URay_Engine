@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Core/Type/TypeAlias.h>
+#include <Core/Type/Variant/Variant.h>
+
+#include <optional>
 
 namespace URay
 {
@@ -17,9 +20,18 @@ enum class ScriptFieldType : int32
 
 struct ScriptFieldInfo
 {
-    String typeName;
+    String declaringTypeName;
     String name;
     ScriptFieldType type = ScriptFieldType::Unsupported;
+    std::optional<Variant> defaultValue;
+};
+
+struct ScriptFieldOverride
+{
+    String declaringTypeName;
+    String name;
+    ScriptFieldType type = ScriptFieldType::Unsupported;
+    std::optional<Variant> value;
 };
 
 } // namespace URay

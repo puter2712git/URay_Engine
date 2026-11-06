@@ -20,7 +20,7 @@ public:
     bool Initialize(const VirtualPath& enginePath, const VirtualPath& projectPath);
     void Finalize();
 
-    int32 CreateScript(const char* typeName, const ObjectId& ownerId);
+    int32 CreateScript(const char* typeName, const ObjectId& ownerId, const Vector<ScriptFieldOverride>& overrides);
     int32 UpdateScript(int32 handle, float deltaTime);
     int32 UnloadScript(int32 handle);
 
@@ -31,6 +31,7 @@ private:
     UniquePtr<ManagedScriptBridge> bridge = nullptr;
 
     Vector<String> scriptTypes;
+    HashMap<String, Vector<ScriptFieldInfo>> scriptFields;
 };
 
 } // namespace URay

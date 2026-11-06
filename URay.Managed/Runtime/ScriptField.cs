@@ -15,3 +15,9 @@ internal sealed record ScriptFieldInfo(
     string name,
     ScriptFieldType type,
     object? defaultValue);
+
+internal sealed record ScriptFieldOverride(
+    string declaringTypeName,
+    string name,
+    ScriptFieldType type,
+    object? value);

@@ -12,4 +12,12 @@
 		<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <EditorConfigFiles Remove="C:\Users\puter\repos\URay_Engine\URay.Managed\.editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="C:\Users\puter\repos\URay_Engine\URay.Managed\.editorconfig" />
+	</ItemGroup>
+
 </Project>

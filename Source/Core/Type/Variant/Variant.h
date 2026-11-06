@@ -54,8 +54,23 @@ public:
             type = &TypeOf<T>();
     }
 
-    Variant(const Variant&) = delete;
-    Variant& operator=(const Variant&) = delete;
+    Variant(const Variant& other)
+        : type(other.type),
+          ops(other.ops),
+          value(other.ops ? other.ops->copy(other.value) : nullptr)
+    {
+    }
+
+    Variant& operator=(const Variant& other)
+    {
+        if (this != &other)
+        {
+            Variant copy(other);
+            *this = std::move(copy);
+        }
+
+        return *this;
+    }
 
     Variant(Variant&& other) noexcept
         : type(std::exchange(other.type, nullptr)),

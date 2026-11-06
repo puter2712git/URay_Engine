@@ -50,6 +50,7 @@ bool ScriptSystem::Initialize(const VirtualPath& enginePath, const VirtualPath& 
 void ScriptSystem::Finalize()
 {
     scriptTypes.clear();
+    scriptFields.clear();
 
     if (bridge)
     {
@@ -58,11 +59,12 @@ void ScriptSystem::Finalize()
     }
 }
 
-int32 ScriptSystem::CreateScript(const char* typeName, const ObjectId& ownerId)
+int32 ScriptSystem::CreateScript(const char* typeName, const ObjectId& ownerId, const Vector<ScriptFieldOverride>& overrides)
 {
     if (!bridge || !typeName || std::find(scriptTypes.begin(), scriptTypes.end(), typeName) == scriptTypes.end())
         return 0;
-    return bridge->CreateScript(typeName, ownerId);
+
+    return bridge->CreateScript(typeName, ownerId, overrides);
 }
 
 int32 ScriptSystem::UpdateScript(int32 handle, float deltaTime)
@@ -88,7 +90,22 @@ bool ScriptSystem::GetScriptFields(const char* typeName, Vector<ScriptFieldInfo>
     if (std::find(scriptTypes.begin(), scriptTypes.end(), typeName) == scriptTypes.end())
         return false;
 
-    return bridge->GetScriptFields(typeName, outFields);
+    const auto cached = scriptFields.find(typeName);
+    if (cached != scriptFields.end())
+    {
+        outFields = cached->second;
+        return true;
+    }
+
+    Vector<ScriptFieldInfo> discoveredFields;
+
+    if (!bridge->GetScriptFields(typeName, discoveredFields))
+        return false;
+
+    const auto [it, inserted] = scriptFields.emplace(typeName, std::move(discoveredFields));
+
+    outFields = it->second;
+    return true;
 }
 
 } // namespace URay
