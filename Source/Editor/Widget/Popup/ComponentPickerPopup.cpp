@@ -1,10 +1,10 @@
 #include "ComponentPickerPopup.h"
-#include <Core/Type/TypeAlias.h>
 
+#include <Core/Type/TypeAlias.h>
 #include <Engine/Component/ComponentFactory.h>
+#include <Engine/Component/ScriptComponent.h>
 
 #include <algorithm>
-#include <vector>
 
 namespace URay
 {
@@ -16,6 +16,9 @@ ComponentPickerPopup::ComponentPickerPopup(const Unit& unit)
 
     for (const auto& [name, constructor] : ComponentFactory::GetRegisteredComponents())
     {
+        if (name == ScriptComponent::StaticType().name)
+            continue;
+
         componentNames.push_back(name);
     }
 

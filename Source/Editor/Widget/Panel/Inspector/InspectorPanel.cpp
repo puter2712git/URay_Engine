@@ -44,6 +44,7 @@
 #include <Engine/UI/Widget/Element/Checkbox.h>
 #include <Engine/UI/Widget/Layout/VerticalLayout.h>
 
+#include <algorithm>
 #include <utility>
 
 namespace URay
@@ -124,6 +125,13 @@ bool InspectorPanel::AcceptScriptAsset(AssetHandle handle)
     if (!target || !target->unit || !script)
         return false;
 
+    const Vector<String>& scriptTypes = gEngine->GetScriptSystem().GetScriptTypes();
+
+    const String& typeName = script->GetTypeName();
+
+    if (std::find(scriptTypes.begin(), scriptTypes.end(), typeName) == scriptTypes.end())
+        return false;
+
     auto component = MakeUnique<ScriptComponent>();
     component->SetScriptTypeName(script->GetTypeName());
     target->unit->AddComponent(std::move(component));
@@ -197,14 +205,33 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
     const auto& components = unit.GetComponents();
     for (const auto& comp : components)
     {
-        ComponentSection* section = layout->AddChild<ComponentSection>(
-            String(comp->GetClass()->GetType().name));
+        ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get());
+
+        String sectionName = comp->GetClass()->GetType().name;
+
+        if (scriptComponent)
+        {
+            const String& typeName = scriptComponent->GetScriptTypeName();
+            const Vector<String>& scriptTypes = gEngine->GetScriptSystem().GetScriptTypes();
+
+            const bool isAvailable = std::find(scriptTypes.begin(), scriptTypes.end(), typeName) != scriptTypes.end();
+
+            sectionName = typeName.empty() ? "Script" : typeName;
+
+            if (!isAvailable)
+                sectionName += " (Unavailable)";
+        }
+
+        ComponentSection* section = layout->AddChild<ComponentSection>(sectionName);
 
         for (const Property& property : comp->GetClass()->GetAllProperties())
         {
+            if (scriptComponent && property.name == "Script Type")
+                continue;
+
             AddProperty(*section->GetContent(), *comp, property, property.name);
         }
-        if (ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get()))
+        if (scriptComponent)
         {
             AddScriptFields(*section->GetContent(), *scriptComponent);
         }
