@@ -2,10 +2,9 @@
 
 #include <Core/Type/TypeAlias.h>
 #include <Editor/Widget/Panel/Panel.h>
+#include <Engine/Script/ScriptField.h>
 
 #include <functional>
-#include <memory>
-#include <vector>
 
 namespace URay
 {
@@ -15,6 +14,7 @@ class ScrollView;
 class Button;
 class Object;
 class Unit;
+class ScriptComponent;
 class InspectSystem;
 class StringField;
 struct Color;
@@ -49,6 +49,9 @@ private:
     void RebuildUnitProperties(Unit& unit);
     void RebuildAssetProperties(AssetHandle handle);
 
+    void AddScriptFields(VerticalLayout& targetLayout, ScriptComponent& component);
+    void SetScriptFieldValue(ScriptComponent* component, int32 fieldIndex, std::optional<Variant> value);
+
     void AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name);
     const Property* KeepProperty(const Property& property);
 
@@ -75,6 +78,12 @@ private:
     void OnStringChanged(Object* object, const Property* property, StringField* field);
     void OnAssetChanged(AssetHandle value, Object* object, const Property* property);
 
+    void OnScriptBoolChanged(bool value, ScriptComponent* component, int32 fieldIndex);
+    void OnScriptIntChanged(int32 value, ScriptComponent* component, int32 fieldIndex);
+    void OnScriptFloatChanged(float value, ScriptComponent* component, int32 fieldIndex);
+    void OnScriptVector3Changed(Vector3 value, ScriptComponent* component, int32 fieldIndex);
+    void OnScriptStringChanged(ScriptComponent* component, int32 fieldIndex, StringField* field);
+
 private:
     InspectSystem& inspectSystem;
 
@@ -83,6 +92,7 @@ private:
 
     Vector<UniquePtr<Property>> propertyCopies;
     Vector<std::function<bool()>> propertySynchronizers;
+    Vector<ScriptFieldInfo> inspectedScriptFields;
 
     bool isDirty = true;
     bool valuesDirty = false;

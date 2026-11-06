@@ -39,17 +39,15 @@
 #include <Engine/Object/Property/Property.h>
 #include <Engine/Scene/SceneSystem.h>
 #include <Engine/Scene/Unit.h>
+#include <Engine/Script/ScriptSystem.h>
 #include <Engine/UI/Widget/Element/Button.h>
 #include <Engine/UI/Widget/Element/Checkbox.h>
 #include <Engine/UI/Widget/Layout/VerticalLayout.h>
 
 #include <utility>
-#include <variant>
 
 namespace URay
 {
-
-URAY_REGISTER_PANEL(InspectorPanel, "Inspector")
 
 namespace
 {
@@ -71,6 +69,8 @@ void UpdateInspectedProperty(T value, Object* object, const Property* property)
 }
 
 } // namespace
+
+URAY_REGISTER_PANEL(InspectorPanel, "Inspector")
 
 InspectorPanel::InspectorPanel() : inspectSystem(gEditor->GetInspectSystem())
 {
@@ -164,6 +164,7 @@ void InspectorPanel::RebuildProperties()
     propertySynchronizers.clear();
     layout->ClearChildren();
     propertyCopies.clear();
+    inspectedScriptFields.clear();
 
     const InspectTarget& target = inspectSystem.GetTarget();
 
@@ -203,6 +204,10 @@ void InspectorPanel::RebuildUnitProperties(Unit& unit)
         {
             AddProperty(*section->GetContent(), *comp, property, property.name);
         }
+        if (ScriptComponent* scriptComponent = Cast<ScriptComponent>(comp.get()))
+        {
+            AddScriptFields(*section->GetContent(), *scriptComponent);
+        }
     }
 
     layout->AddChild<Separator>(SeparatorOrientation::Horizontal);
@@ -230,6 +235,117 @@ void InspectorPanel::RebuildAssetProperties(AssetHandle handle)
     {
         AddProperty(*section->GetContent(), *asset, property, property.name);
     }
+}
+
+void InspectorPanel::AddScriptFields(VerticalLayout& targetLayout, ScriptComponent& component)
+{
+    ScriptSystem& scriptSystem = gEngine->GetScriptSystem();
+
+    Vector<ScriptFieldInfo> fields;
+
+    if (!scriptSystem.GetScriptFields(component.GetScriptTypeName().c_str(), fields))
+        return;
+
+    for (const ScriptFieldInfo& fieldInfo : fields)
+    {
+        const ScriptFieldOverride* fieldOverride = component.GetFieldOverride(fieldInfo);
+        const std::optional<Variant>& selectedValue = fieldOverride ? fieldOverride->value : fieldInfo.defaultValue;
+        const int32 fieldIndex = static_cast<int32>(inspectedScriptFields.size());
+
+        inspectedScriptFields.push_back(fieldInfo);
+
+        switch (fieldInfo.type)
+        {
+        case ScriptFieldType::Bool:
+        {
+            const bool* value = selectedValue ? selectedValue->TryGet<bool>() : nullptr;
+            if (!value)
+                break;
+
+            PropertyRow* row = targetLayout.AddChild<PropertyRow>(fieldInfo.name);
+
+            Checkbox* checkbox = row->SetValueWidget<Checkbox>();
+            ConfigureEditorCheckbox(*checkbox);
+            checkbox->SetChecked(*value);
+
+            checkbox->Register("ValueChanged", this, &InspectorPanel::OnScriptBoolChanged, &component, fieldIndex);
+            break;
+        }
+
+        case ScriptFieldType::Int:
+        {
+            const int32* value = selectedValue ? selectedValue->TryGet<int32>() : nullptr;
+            if (!value)
+                break;
+
+            PropertyRow* row = targetLayout.AddChild<PropertyRow>(fieldInfo.name);
+
+            NumberField<int32>* numberField = row->SetValueWidget<NumberField<int32>>();
+            numberField->SetValue(*value);
+
+            numberField->Register("ValueChanged", this, &InspectorPanel::OnScriptIntChanged, &component, fieldIndex);
+            break;
+        }
+
+        case ScriptFieldType::Float:
+        {
+            const float* value = selectedValue ? selectedValue->TryGet<float>() : nullptr;
+            if (!value)
+                break;
+
+            PropertyRow* row = targetLayout.AddChild<PropertyRow>(fieldInfo.name);
+
+            NumberField<float>* numberField = row->SetValueWidget<NumberField<float>>();
+            numberField->SetValue(*value);
+
+            numberField->Register("ValueChanged", this, &InspectorPanel::OnScriptFloatChanged, &component, fieldIndex);
+            break;
+        }
+
+        case ScriptFieldType::Vector3:
+        {
+            const Vector3* value = selectedValue ? selectedValue->TryGet<Vector3>() : nullptr;
+            if (!value)
+                break;
+
+            PropertyRow* row = targetLayout.AddChild<PropertyRow>(fieldInfo.name);
+
+            VectorField<Vector3>* vectorField = row->SetValueWidget<VectorField<Vector3>>();
+            vectorField->SetValue(*value);
+
+            vectorField->Register("ValueChanged", this, &InspectorPanel::OnScriptVector3Changed, &component, fieldIndex);
+            break;
+        }
+
+        case ScriptFieldType::String:
+        {
+            const String* value = selectedValue ? selectedValue->TryGet<String>() : nullptr;
+            if (selectedValue && !value)
+                break;
+
+            PropertyRow* row = targetLayout.AddChild<PropertyRow>(fieldInfo.name);
+
+            StringField* stringField = row->SetValueWidget<StringField>();
+            stringField->SetText(value ? *value : String{});
+
+            stringField->Register("ValueChanged", this, &InspectorPanel::OnScriptStringChanged, &component, fieldIndex, stringField);
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
+}
+
+void InspectorPanel::SetScriptFieldValue(ScriptComponent* component, int32 fieldIndex, std::optional<Variant> value)
+{
+    if (!component || fieldIndex < 0 || static_cast<size_t>(fieldIndex) >= inspectedScriptFields.size())
+        return;
+
+    const ScriptFieldInfo& fieldInfo = inspectedScriptFields[static_cast<size_t>(fieldIndex)];
+
+    component->SetFieldOverride(fieldInfo, std::move(value));
 }
 
 void InspectorPanel::AddProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
@@ -444,6 +560,61 @@ void InspectorPanel::AddStringProperty(VerticalLayout& targetLayout, Object& obj
     });
 }
 
+void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
+{
+    Class* assetClass = nullptr;
+
+    switch (property.type)
+    {
+    case PropertyType::Mesh:
+        assetClass = Mesh::StaticClass();
+        break;
+
+    case PropertyType::SkinnedMesh:
+        assetClass = SkinnedMesh::StaticClass();
+        break;
+
+    case PropertyType::Texture:
+        assetClass = Texture::StaticClass();
+        break;
+
+    case PropertyType::Material:
+        assetClass = Material::StaticClass();
+        break;
+
+    default:
+        return;
+    }
+
+    auto* value = reinterpret_cast<AssetHandle*>(
+        reinterpret_cast<uint8*>(&object) + property.offset);
+
+    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
+
+    AssetField* field = row->SetValueWidget<AssetField>(assetClass);
+    field->SetValue(*value);
+
+    field->Register("ValueChanged", this, &InspectorPanel::OnAssetChanged, &object, KeepProperty(property));
+
+    propertySynchronizers.emplace_back([field, value]() {
+        field->SetValue(*value);
+        return true;
+    });
+}
+
+void InspectorPanel::OnAddComponentClicked(Button* button, Unit* unit)
+{
+    if (!button || !unit)
+        return;
+
+    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
+
+    ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(button->GetRect(), *unit);
+
+    const ObjectId unitId = unit->GetId();
+    popup->Register("ComponentSelected", gEditor, &Editor::OnComponentPopupSelected, unitId);
+}
+
 void InspectorPanel::OnBoolChanged(bool value, Object* object, const Property* property)
 {
     UpdateInspectedProperty(value, object, property);
@@ -490,48 +661,6 @@ void InspectorPanel::OnStringChanged(Object* object, const Property* property, S
         UpdateInspectedProperty(field->GetText(), object, property);
 }
 
-void InspectorPanel::AddAssetProperty(VerticalLayout& targetLayout, Object& object, const Property& property, const String& name)
-{
-    Class* assetClass = nullptr;
-
-    switch (property.type)
-    {
-    case PropertyType::Mesh:
-        assetClass = Mesh::StaticClass();
-        break;
-
-    case PropertyType::SkinnedMesh:
-        assetClass = SkinnedMesh::StaticClass();
-        break;
-
-    case PropertyType::Texture:
-        assetClass = Texture::StaticClass();
-        break;
-
-    case PropertyType::Material:
-        assetClass = Material::StaticClass();
-        break;
-
-    default:
-        return;
-    }
-
-    auto* value = reinterpret_cast<AssetHandle*>(
-        reinterpret_cast<uint8*>(&object) + property.offset);
-
-    PropertyRow* row = targetLayout.AddChild<PropertyRow>(name);
-
-    AssetField* field = row->SetValueWidget<AssetField>(assetClass);
-    field->SetValue(*value);
-
-    field->Register("ValueChanged", this, &InspectorPanel::OnAssetChanged, &object, KeepProperty(property));
-
-    propertySynchronizers.emplace_back([field, value]() {
-        field->SetValue(*value);
-        return true;
-    });
-}
-
 void InspectorPanel::OnAssetChanged(AssetHandle value, Object* object, const Property* property)
 {
     if (!object || !property)
@@ -543,17 +672,32 @@ void InspectorPanel::OnAssetChanged(AssetHandle value, Object* object, const Pro
         UpdateInspectedProperty(value, object, property);
 }
 
-void InspectorPanel::OnAddComponentClicked(Button* button, Unit* unit)
+void InspectorPanel::OnScriptBoolChanged(bool value, ScriptComponent* component, int32 fieldIndex)
 {
-    if (!button || !unit)
+    SetScriptFieldValue(component, fieldIndex, std::optional<Variant>(std::in_place, value));
+}
+
+void InspectorPanel::OnScriptIntChanged(int32 value, ScriptComponent* component, int32 fieldIndex)
+{
+    SetScriptFieldValue(component, fieldIndex, std::optional<Variant>(std::in_place, value));
+}
+
+void InspectorPanel::OnScriptFloatChanged(float value, ScriptComponent* component, int32 fieldIndex)
+{
+    SetScriptFieldValue(component, fieldIndex, std::optional<Variant>(std::in_place, value));
+}
+
+void InspectorPanel::OnScriptVector3Changed(Vector3 value, ScriptComponent* component, int32 fieldIndex)
+{
+    SetScriptFieldValue(component, fieldIndex, std::optional<Variant>(std::in_place, value));
+}
+
+void InspectorPanel::OnScriptStringChanged(ScriptComponent* component, int32 fieldIndex, StringField* field)
+{
+    if (!field)
         return;
 
-    PopupLayer& popupLayer = gEditor->GetEditorUI().GetPopupLayer();
-
-    ComponentPickerPopup* popup = popupLayer.OpenPopup<ComponentPickerPopup>(button->GetRect(), *unit);
-
-    const ObjectId unitId = unit->GetId();
-    popup->Register("ComponentSelected", gEditor, &Editor::OnComponentPopupSelected, unitId);
+    SetScriptFieldValue(component, fieldIndex, std::optional<Variant>(std::in_place, field->GetText()));
 }
 
 } // namespace URay
