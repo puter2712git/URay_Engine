@@ -9,6 +9,7 @@ ContinuationIndentWidth: 4
 AccessModifierOffset: -4
 
 AlwaysBreakTemplateDeclarations: Yes
+AllowShortLambdasOnASingleLine: None
 
 ColumnLimit: 0
 
@@ -25,9 +26,9 @@ BraceWrapping:
   AfterUnion: true
   BeforeCatch: true
   BeforeElse: true
-  BeforeLambdaBody: false
+  BeforeLambdaBody: true
 
-LambdaBodyIndentation: OuterScope
+LambdaBodyIndentation: Signature
 
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
